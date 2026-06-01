@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Foundations · Typography</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <!-- shell.css before typography.css: type-utility classes are
+       intended to override shell defaults like .nuri-shell__main p.
+       Their specificity now ties shell defaults at (0,0,2), and
+       loading typography.css AFTER shell.css wins the source-order
+       tiebreak so .nuri-type-* applies in foundation samples. -->
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../styles/typography.css" />
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+</head>
+<body>
+
+<!-- Foundation template — sample-driven variant. Uses the shared
+     .nuri-scale-list + .nuri-scale-card widgets (in shell.css) to
+     render the type ramp. See pages/foundations/colour/primitive.html
+     for the canonical token-driven layout. -->
+
+<nuri-shell active="foundations/typography">
+  <nuri-page
+    eyebrow="Foundations · Typography"
+    title="Typography"
+    status="draft"
+    lead="A primitive numeric scale — xs through 3xl — with no role attached. Each step exposes size, line-height, tracking, and two weight states (default and emphasized). Per-component aliases sit on top."
+  ></nuri-page>
+
+  <!-- 1 · SPEC CARD ─────────────────────────────────────────────── -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-foundation="typography"
+        data-foundation-status="draft">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd data-spec="type">
+          <span class="nuri-spec-card__chip" data-type="typography">typography</span>
+          <span class="nuri-spec-card__meta">size · line-height · tracking · weight · em-weight</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Layer</dt>
+        <dd data-spec="layer">
+          <span class="nuri-spec-card__chip" data-layer="primitive">primitive</span>
+          <span class="nuri-spec-card__meta">consumed by components and utility classes (<code>.nuri-type-*</code>)</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Source</dt>
+        <dd data-spec="source">
+          <span class="nuri-spec-card__chip" data-source="tokens-primitive.css">tokens-primitive.css</span>
+          <span class="nuri-spec-card__chip" data-source="typography.css">typography.css</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Status</dt>
+        <dd data-spec="status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- 2 · APPROACH ───────────────────────────────────────────────── -->
+  <section class="page-section" id="approach">
+    <h2>Approach</h2>
+    <p>
+      The type system lives entirely at the <strong>primitive layer</strong>: six numeric steps,
+      no role names. <code>xs</code>, <code>sm</code>, <code>md</code>, <code>lg</code>,
+      <code>xl</code>, and <code>3xl</code>, with a deliberate gap reserved at <code>2xl</code>
+      for a future intermediate between <code>xl</code> (30) and <code>3xl</code> (57).
+    </p>
+    <p>
+      Each step has two states — a <strong>default</strong> regular weight and an
+      <strong>emphasized</strong> weight that's always <strong>semibold (600)</strong>
+      across all leaves (operator-locked at N+6.5 polish · previously bold for the
+      large range, simplified to one weight). Tracking tightens at larger sizes to
+      keep optical density consistent.
+    </p>
+  </section>
+
+  <!-- 3 · TOKEN SHAPE ────────────────────────────────────────────── -->
+  <section class="page-section" id="token-shape">
+    <h2>Token shape</h2>
+    <p>
+      Each step exposes five atomic CSS variables under <code>--nuri-type-{step}</code>:
+      <code>-size</code>, <code>-line-height</code>, <code>-tracking</code>, <code>-weight</code>
+      (default), and <code>-em-weight</code> (emphasized).
+    </p>
+    <p>
+      <strong>Line-height is a unitless ratio</strong> — CSS multiplies it against the resolved
+      font-size at render. Same convention React Native uses (you compute
+      <code>lineHeight = size × ratio</code> at the call site). Each step's ratio is hand-picked
+      to keep optical density consistent as size grows — tighter at the top of the scale (1.19 at
+      3xl), looser at the bottom (1.38 at xs).
+    </p>
+    <p>
+      Tracking is in <code>em</code> so it rescales proportionally too. The RN sync pipeline
+      multiplies <code>em × size</code> at export to emit a dp letterSpacing.
+      Utility classes (<code>.nuri-type-md</code>, <code>.nuri-type-md--em</code>, …) bundle
+      everything for CSS consumers.
+    </p>
+
+    <div class="nuri-note">
+      <span class="nuri-note__label">Font family is out of scope</span>
+      <span>
+        Type steps deliberately don't set <code>font-family</code>. The active family is determined
+        per platform — system stack in production, swapped via the <strong>Font</strong> toggle in the
+        topbar for previewing iOS, Android, or Pixel.
+      </span>
+    </div>
+  </section>
+
+  <!-- 4 · SCALE (sample ramp via .nuri-scale-list / .nuri-scale-card)
+       Section ID convention: short slug on <section> (anchorable),
+       `tokens-*` prefix on the JS-populated host element to avoid
+       collision (decision N+2 housekeeping). -->
+  <section class="page-section" id="scale">
+    <h2>Scale</h2>
+    <p>
+      Six defined steps plus the reserved <code>2xl</code> gap. Sample text below shows each
+      step in both its default and emphasized weight.
+    </p>
+
+    <section class="nuri-scale-list" id="tokens-scale"></section>
+  </section>
+
+  <!-- 5 · ROADMAP ────────────────────────────────────────────────── -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="component-aliases">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Per-component typography aliases</strong>
+          <p class="nuri-roadmap__desc">E.g. <code>--nuri-button-label-type</code>, <code>--nuri-card-title-type</code> — alias the primitive steps inside each component's own token file. Until then, components reference <code>--nuri-type-{step}</code> directly.</p>
+        </div>
+      </li>
+      <li data-feature="2xl-step">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Fill the <code>2xl</code> gap</strong>
+          <p class="nuri-roadmap__desc">Promote the reserved slot to a real step (likely 40 or 44) when a screen needs an intermediate between <code>xl</code> (30) and <code>3xl</code> (57).</p>
+        </div>
+      </li>
+      <li data-feature="font-family-source-of-truth">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Lock the font-family source of truth</strong>
+          <p class="nuri-roadmap__desc">Today the platform toggle (<code>ios</code> / <code>android</code> / <code>pixel</code>) swaps the body font in <code>typography.css</code>. Decide whether this lives at the primitive level, the platform-set level, or both.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+<script>
+  // ── Primitive type scale ─────────────────────────────────────
+  // Mirrors --nuri-type-{step}-* in tokens-primitive.css.
+  const STEPS = [
+    { slug: 'xs',  size: 13, lh: 18, tracking: '0',        emWeight: 600 },
+    { slug: 'sm',  size: 15, lh: 20, tracking: '−0.01em',  emWeight: 600 },
+    { slug: 'md',  size: 17, lh: 22, tracking: '−0.02em',  emWeight: 600 },
+    { slug: 'lg',  size: 22, lh: 28, tracking: '−0.015em', emWeight: 700 },
+    { slug: 'xl',  size: 30, lh: 36, tracking: '−0.015em', emWeight: 700 },
+    { slug: '2xl', gap: true },
+    { slug: '3xl', size: 57, lh: 68, tracking: '−0.02em',  emWeight: 700 },
+  ];
+
+  // A short, dense phrase that lets you read the weight change and
+  // see tracking effects without scrolling.
+  const SAMPLE = 'Save in Bitcoin. Spend it like Cash.';
+
+  function ratio(size, lh) {
+    return (lh / size).toFixed(2);
+  }
+
+  function metaItem(label, value) {
+    return `
+      <span class="nuri-scale-card__meta">
+        <span class="nuri-scale-card__meta-label">${label}</span>
+        <span class="nuri-scale-card__meta-value">${value}</span>
+      </span>
+    `;
+  }
+  const SEP = '<span class="nuri-scale-card__sep" aria-hidden="true"></span>';
+
+  function stepHTML(step) {
+    if (step.gap) {
+      return `
+        <article class="nuri-scale-card nuri-scale-card--gap" data-step="${step.slug}">
+          <header class="nuri-scale-card__head">
+            <span class="nuri-scale-card__step">${step.slug}</span>
+            <span class="nuri-scale-card__gap-label">Gap reserved · TBD</span>
+            <span class="nuri-scale-card__token">—</span>
+          </header>
+        </article>
+      `;
+    }
+    return `
+      <article class="nuri-scale-card" data-step="${step.slug}">
+        <header class="nuri-scale-card__head">
+          <span class="nuri-scale-card__step">${step.slug}</span>
+          ${metaItem('size', step.size)}
+          ${SEP}
+          ${metaItem('lh', `${step.lh} (×${ratio(step.size, step.lh)})`)}
+          ${SEP}
+          ${metaItem('tr', step.tracking)}
+          ${SEP}
+          ${metaItem('wt', `400 / ${step.emWeight}`)}
+          <span class="nuri-scale-card__token">--nuri-type-${step.slug}-*</span>
+        </header>
+        <div class="nuri-scale-card__body">
+          <p class="nuri-scale-card__sample nuri-type-${step.slug}">${SAMPLE}</p>
+          <p class="nuri-scale-card__sample nuri-type-${step.slug}--em">${SAMPLE}</p>
+        </div>
+      </article>
+    `;
+  }
+
+  document.getElementById('tokens-scale').innerHTML = STEPS.map(stepHTML).join('');
+</script>
+
+</body>
+</html>

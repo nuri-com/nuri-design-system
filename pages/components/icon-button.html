@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Components · IconButton</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+
+  <!-- Token layer cake · primitive → semantic → component → chrome.
+       IconButton is the first real Icon consumer, so it pulls in BOTH
+       icon.css (the glyph atom) and icon-button.css (the container).
+       button.css/js ride along so a demo can sit an IconButton next to
+       a text Button in the same toolbar (Actions group). -->
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../lib/components/button/button.css" />
+  <link rel="stylesheet" href="../../lib/components/icon/icon.css" />
+  <link rel="stylesheet" href="../../lib/components/icon-button/icon-button.css" />
+  <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+  <script src="../../lib/docs/tokens.js"></script>
+  <!-- Custom element scripts MUST be deferred so connectedCallback fires
+       AFTER body parsing (children present). See AGENTS.md. Icon is an
+       ES module (imports the registry); the rest are deferred scripts. -->
+  <script src="../../lib/components/scope/scope.js" defer></script>
+  <script src="../../lib/components/button/button.js" defer></script>
+  <script src="../../lib/components/icon/icon.js" type="module"></script>
+  <script src="../../lib/components/icon-button/icon-button.js" defer></script>
+  <script src="../../lib/docs/demo/demo.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  COMPONENT DOCS PAGE · IconButton (decision 24 template · 24.1)
+  ═══════════════════════════════════════════════════════════════
+
+  Audience priority: agent + pipeline FIRST, human contributor SECOND.
+
+  IconButton is the first real consumer of <nuri-icon> (decision 38),
+  so this page doubles as the consumer-level validation of Icon. It
+  shares Button's variant matrix + pressed-only interaction model but
+  is LOCKED to a single size (decision 40) — hence NO Sizes section
+  (the carve-out is intentional, not an omission).
+
+  Sections in render order:
+    1.  Spec card             — component summary (machine-readable)
+    2.  Hero demo             — default rendering + canonical snippet
+    3.  API                   — props signature (the contract)
+    4.  Anatomy & parts       — root + icon (2 parts · first multi-part)
+    5.  Variants              — one demo card per variant
+        (NO Sizes section · decision 40 single-size lock)
+    6.  States                — one grid per variant
+    7.  Theming               — accent scoping (solid only)
+    8.  Token mapping         — variant × state × CSS prop → token chain
+    8b. Behavioural delta     — web↔RN friction register (amendment 24.1):
+                               F-PRESSED-1 / F-FOCUS-1 / F-DISABLED-1
+                               inherited from Button + F-ARIA-LABEL-1 +
+                               F-TOUCH-TARGET-1 specific to icon-only
+    9.  Tokens (DTCG)         — auto-generated dictionary
+    10. Roadmap               — planned items with inline status tags
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="components/icon-button">
+  <nuri-page
+    eyebrow="Components · Actions · IconButton"
+    title="IconButton"
+    status="draft"
+    lead="A circular, icon-only action. Three variants (solid, soft, ghost), one size (48px circle · decision 40), three states (default, pressed, disabled). The first real consumer of the Icon component — wraps a single glyph at the md weight. Mobile-first: no hover. An accessible label is required and auto-derived from the icon name."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · SPEC CARD
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-component="icon-button"
+        data-component-status="draft"
+        data-rn-status="not-implemented">
+      <div class="nuri-spec-card__row">
+        <dt>Variants</dt>
+        <dd data-spec="variants">
+          <span class="nuri-spec-card__chip" data-variant="solid">solid</span>
+          <span class="nuri-spec-card__chip" data-variant="soft">soft</span>
+          <span class="nuri-spec-card__chip" data-variant="ghost">ghost</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Sizes</dt>
+        <dd data-spec="sizes">
+          <span class="nuri-spec-card__chip" data-size="md" data-default="true">md · 48px</span>
+          <span class="nuri-spec-card__meta">single size · decision 40</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>States</dt>
+        <dd data-spec="states">
+          <span class="nuri-spec-card__chip" data-state="default">default</span>
+          <span class="nuri-spec-card__chip" data-state="pressed">pressed</span>
+          <span class="nuri-spec-card__chip" data-state="disabled">disabled</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Accent behavior</dt>
+        <dd data-spec="accent-behavior">
+          <span data-variant="solid" data-accent-driven="true">solid follows accent</span>
+          <span class="nuri-spec-card__sep">·</span>
+          <span data-variant="soft" data-accent-driven="false">soft is chrome-only</span>
+          <span class="nuri-spec-card__sep">·</span>
+          <span data-variant="ghost" data-accent-driven="false">ghost is chrome-only</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Parts</dt>
+        <dd data-spec="parts">
+          <span class="nuri-spec-card__chip" data-part="root">root</span>
+          <span class="nuri-spec-card__chip" data-part="icon">icon</span>
+          <span class="nuri-spec-card__meta">2 parts</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Component status</dt>
+        <dd data-spec="component-status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>RN status</dt>
+        <dd data-spec="rn-status">
+          <span class="nuri-tag nuri-tag--planned">not implemented</span>
+          <span class="nuri-spec-card__meta">web ↔ RN is 1:1 by promise; RN component not built yet. Blocked on F-ICON-RN-1 (Icon RN renderer).</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · HERO DEMO
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="hero">
+    <h2>Default</h2>
+    <nuri-demo controls="theme,accent,neutral,font">
+      <template>
+        <nuri-icon-button name="gear"></nuri-icon-button>
+      </template>
+    </nuri-demo>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · API · PROPS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="api">
+    <h2>API</h2>
+    <p>
+      The props signature. <code>web ↔ RN</code> is 1:1 — every prop
+      below exists on both the <code>&lt;nuri-icon-button&gt;</code>
+      custom element and (when implemented) the RN
+      <code>&lt;IconButton&gt;</code> component, with the same name and
+      accepted values. Note the <strong>absence of a <code>size</code>
+      prop</strong> (decision 40 · single size).
+    </p>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="icon-button">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="name">
+          <td data-cell="name"><code>name</code></td>
+          <td data-cell="type"><code>string</code> (registry key)</td>
+          <td data-cell="default"><em>required</em></td>
+          <td data-cell="description">Kebab-case glyph name from the <a href="../../lib/components/icon/icons.js"><code>icons.js</code></a> registry. Forwarded to the inner <code>&lt;nuri-icon size="md"&gt;</code>.</td>
+        </tr>
+        <tr data-prop="variant">
+          <td data-cell="name"><code>variant</code></td>
+          <td data-cell="type"><code>"solid" | "soft" | "ghost"</code></td>
+          <td data-cell="default"><code>"soft"</code></td>
+          <td data-cell="description">Visual treatment. <code>solid</code> fills with the active accent, <code>soft</code> uses neutral chrome, <code>ghost</code> is transparent at rest (chrome-only).</td>
+        </tr>
+        <tr data-prop="accent">
+          <td data-cell="name"><code>accent</code></td>
+          <td data-cell="type"><code>"lilac" | "neutral"</code></td>
+          <td data-cell="default"><em>inherited</em></td>
+          <td data-cell="description">Self-scope override (Tier 2). Writes <code>data-accent</code> on the inner element. Only affects <code>solid</code>; <code>soft</code> and <code>ghost</code> ignore it.</td>
+        </tr>
+        <tr data-prop="label">
+          <td data-cell="name"><code>label</code></td>
+          <td data-cell="type"><code>string</code></td>
+          <td data-cell="default"><em>derived from <code>name</code></em></td>
+          <td data-cell="description">Accessible name (<code>aria-label</code>). An icon-only control has no text, so a label is required (F-ARIA-LABEL-1). Omit to auto-derive from the kebab <code>name</code> (<code>arrows-down-up</code> → "arrows down up").</td>
+        </tr>
+        <tr data-prop="disabled">
+          <td data-cell="name"><code>disabled</code></td>
+          <td data-cell="type"><code>boolean</code></td>
+          <td data-cell="default"><code>false</code></td>
+          <td data-cell="description">Disables interaction. Visual: <code>opacity 0.4</code> + <code>cursor: not-allowed</code>.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · ANATOMY & PARTS
+       First multi-part component: root (the circular button surface)
+       + icon (the wrapped <nuri-icon> glyph).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="anatomy">
+    <h2>Anatomy &amp; parts</h2>
+    <p>
+      IconButton is a <strong>two-part</strong> component: the circular
+      <code>root</code> surface owns size, shape, and all state visuals;
+      the <code>icon</code> part is the wrapped <code>&lt;nuri-icon&gt;</code>
+      glyph, which inherits colour via <code>currentColor</code>.
+    </p>
+
+    <div class="nuri-anatomy">
+      <div class="nuri-anatomy__visual">
+        <nuri-icon-button name="gear" variant="solid"></nuri-icon-button>
+      </div>
+      <div class="nuri-table-scroll"><table class="nuri-table" data-table="parts" data-component="icon-button">
+        <thead>
+          <tr>
+            <th>Part</th>
+            <th>Element</th>
+            <th>Owns</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-part="root">
+            <td data-cell="name"><code>root</code></td>
+            <td data-cell="element"><code>button</code></td>
+            <td data-cell="owns">size, shape, background, all state visuals</td>
+            <td data-cell="description">The 48px circular surface. Carries the <code>aria-label</code>.</td>
+          </tr>
+          <tr data-part="icon">
+            <td data-cell="name"><code>icon</code></td>
+            <td data-cell="element"><code>nuri-icon</code></td>
+            <td data-cell="owns">the glyph (md weight)</td>
+            <td data-cell="description">A single <code>&lt;nuri-icon size="md"&gt;</code>, <code>aria-hidden</code>, inheriting the root's <code>color</code>.</td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · VARIANTS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="variants">
+    <h2>Variants</h2>
+    <p>
+      Three variants, mirroring Button (decision 39 · ghost is the
+      shared cross-component variant). <code>solid</code> carries accent
+      identity; <code>soft</code> and <code>ghost</code> are chrome-only.
+      <code>ghost</code> is transparent until pressed, never bordered.
+      Default is <code>soft</code>.
+    </p>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo controls="accent" label="solid" subtitle="filled · follows accent">
+        <template>
+          <nuri-icon-button name="plus" variant="solid"></nuri-icon-button>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo controls="accent" label="soft" subtitle="chrome · accent-independent">
+        <template>
+          <nuri-icon-button name="scan" variant="soft"></nuri-icon-button>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo controls="accent" label="ghost" subtitle="transparent · accent-independent">
+        <template>
+          <nuri-icon-button name="x-circle" variant="ghost"></nuri-icon-button>
+        </template>
+      </nuri-demo>
+
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · STATES
+       One grid per variant. `pressed` is forced statically with the
+       pressed token inline; the live form is :active.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="states">
+    <h2>States</h2>
+    <p>
+      Three states. <code>default</code> and <code>disabled</code> are
+      shown live; <code>pressed</code> is forced statically (its live
+      form is <code>:active</code> — press and hold any live button to
+      see it). No <code>hover</code> — IconButton is mobile-first.
+    </p>
+
+    <h3>solid</h3>
+    <div class="nuri-state-grid" data-variant="solid">
+      <div class="nuri-state-grid__cell" data-state="default">
+        <span class="nuri-state-grid__label">default</span>
+        <nuri-icon-button name="plus" variant="solid"></nuri-icon-button>
+      </div>
+      <div class="nuri-state-grid__cell" data-state="pressed">
+        <span class="nuri-state-grid__label">pressed</span>
+        <button class="nuri-icon-button nuri-icon-button--solid"
+                style="background: var(--nuri-icon-button-solid-bg-pressed); transform: scale(var(--nuri-icon-button-press-scale));"
+                type="button" aria-label="plus"><nuri-icon name="plus" size="md"></nuri-icon></button>
+      </div>
+      <div class="nuri-state-grid__cell" data-state="disabled">
+        <span class="nuri-state-grid__label">disabled</span>
+        <nuri-icon-button name="plus" variant="solid" disabled></nuri-icon-button>
+      </div>
+    </div>
+
+    <h3>soft</h3>
+    <div class="nuri-state-grid" data-variant="soft">
+      <div class="nuri-state-grid__cell" data-state="default">
+        <span class="nuri-state-grid__label">default</span>
+        <nuri-icon-button name="scan" variant="soft"></nuri-icon-button>
+      </div>
+      <div class="nuri-state-grid__cell" data-state="pressed">
+        <span class="nuri-state-grid__label">pressed</span>
+        <button class="nuri-icon-button nuri-icon-button--soft"
+                style="background: var(--nuri-icon-button-soft-bg-pressed); transform: scale(var(--nuri-icon-button-press-scale));"
+                type="button" aria-label="scan"><nuri-icon name="scan" size="md"></nuri-icon></button>
+      </div>
+      <div class="nuri-state-grid__cell" data-state="disabled">
+        <span class="nuri-state-grid__label">disabled</span>
+        <nuri-icon-button name="scan" variant="soft" disabled></nuri-icon-button>
+      </div>
+    </div>
+
+    <h3>ghost</h3>
+    <div class="nuri-state-grid" data-variant="ghost">
+      <div class="nuri-state-grid__cell" data-state="default">
+        <span class="nuri-state-grid__label">default</span>
+        <nuri-icon-button name="x-circle" variant="ghost"></nuri-icon-button>
+      </div>
+      <div class="nuri-state-grid__cell" data-state="pressed">
+        <span class="nuri-state-grid__label">pressed</span>
+        <button class="nuri-icon-button nuri-icon-button--ghost"
+                style="background: var(--nuri-icon-button-ghost-bg-pressed); transform: scale(var(--nuri-icon-button-press-scale));"
+                type="button" aria-label="x-circle"><nuri-icon name="x-circle" size="md"></nuri-icon></button>
+      </div>
+      <div class="nuri-state-grid__cell" data-state="disabled">
+        <span class="nuri-state-grid__label">disabled</span>
+        <nuri-icon-button name="x-circle" variant="ghost" disabled></nuri-icon-button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · THEMING · accent scoping
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="theming">
+    <h2>Theming · accent scoping</h2>
+    <p>
+      Only <code>solid</code> resolves colour through the active accent.
+      <code>soft</code> and <code>ghost</code> are chrome-only — the
+      <code>accent</code> prop has no visual effect on them. Three ways
+      to control the accent that <code>solid</code> follows, increasing
+      locality:
+    </p>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="1 · page" subtitle="&lt;html data-accent&gt;" stack data-scope="page">
+        <template>
+          <nuri-icon-button name="plus" variant="solid"></nuri-icon-button>
+          <nuri-icon-button name="scan" variant="soft"></nuri-icon-button>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="2 · subtree" subtitle="&lt;nuri-scope&gt; · Tier 3" stack data-scope="subtree">
+        <template>
+          <nuri-scope accent="neutral">
+            <nuri-icon-button name="plus" variant="solid"></nuri-icon-button>
+            <nuri-icon-button name="x-circle" variant="soft"></nuri-icon-button>
+          </nuri-scope>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="3 · self" subtitle="accent prop · Tier 2" stack data-scope="self">
+        <template>
+          <nuri-icon-button name="vault" variant="solid" accent="lilac"></nuri-icon-button>
+          <nuri-icon-button name="gear" variant="solid" accent="neutral"></nuri-icon-button>
+        </template>
+      </nuri-demo>
+
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       8 · TOKEN MAPPING
+       Variant × state → CSS property → DTCG → CSS var → reference.
+       Hand-written; mirrors Button's table shape. Single-size box
+       metrics live in the Base group (no per-size split · decision 40).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="token-mapping">
+    <h2>Token mapping</h2>
+    <p>
+      <strong>Variant × state → CSS property → DTCG → CSS var → reference.</strong>
+      The RN build pipeline reads this table to emit pre-computed
+      <code>StyleSheet</code> entries. The 3 trailing columns use the
+      same labels as the <a href="#tokens">Tokens dictionary</a> below.
+      <code>—</code> means a literal (no token indirection).
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="token-map" data-component="icon-button">
+      <thead>
+        <tr>
+          <th>State</th>
+          <th>CSS property</th>
+          <th>DTCG</th>
+          <th>CSS var</th>
+          <th>Reference</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="nuri-table__group" data-group="base">
+          <th scope="rowgroup" colspan="5">Base · single size (decision 40) · every variant &amp; state</th>
+        </tr>
+        <tr data-variant="any" data-state="any" data-css-prop="width"
+            data-dtcg="iconButton.size"
+            data-css-var="--nuri-icon-button-size" data-reference="--nuri-size-lg">
+          <td>any</td>
+          <td><code>width</code> / <code>height</code></td>
+          <td><code>iconButton.size</code></td>
+          <td><code>--nuri-icon-button-size</code></td>
+          <td><code>--nuri-size-lg</code> (48px)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-css-prop="border-radius"
+            data-dtcg="iconButton.radius"
+            data-css-var="--nuri-icon-button-radius" data-reference="--nuri-radius-full">
+          <td>any</td>
+          <td><code>border-radius</code></td>
+          <td><code>iconButton.radius</code></td>
+          <td><code>--nuri-icon-button-radius</code></td>
+          <td><code>--nuri-radius-full</code> (9999px · circle)</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="variant-solid" data-variant="solid">
+          <th scope="rowgroup" colspan="5">Variant · solid</th>
+        </tr>
+        <tr data-variant="solid" data-state="default" data-css-prop="background"
+            data-dtcg="iconButton.solid.bg"
+            data-css-var="--nuri-icon-button-solid-bg" data-reference="--nuri-accent-solid">
+          <td>default</td>
+          <td><code>background</code></td>
+          <td><code>iconButton.solid.bg</code></td>
+          <td><code>--nuri-icon-button-solid-bg</code></td>
+          <td><code>--nuri-accent-solid</code></td>
+        </tr>
+        <tr data-variant="solid" data-state="default" data-css-prop="color"
+            data-dtcg="iconButton.solid.fg"
+            data-css-var="--nuri-icon-button-solid-fg" data-reference="--nuri-accent-on-solid">
+          <td>default</td>
+          <td><code>color</code></td>
+          <td><code>iconButton.solid.fg</code></td>
+          <td><code>--nuri-icon-button-solid-fg</code></td>
+          <td><code>--nuri-accent-on-solid</code> · glyph via currentColor</td>
+        </tr>
+        <tr data-variant="solid" data-state="pressed" data-css-prop="background"
+            data-dtcg="iconButton.solid.bg.pressed"
+            data-css-var="--nuri-icon-button-solid-bg-pressed" data-reference="--nuri-accent-solid-pressed">
+          <td>pressed</td>
+          <td><code>background</code></td>
+          <td><code>iconButton.solid.bg.pressed</code></td>
+          <td><code>--nuri-icon-button-solid-bg-pressed</code></td>
+          <td><code>--nuri-accent-solid-pressed</code></td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="variant-soft" data-variant="soft">
+          <th scope="rowgroup" colspan="5">Variant · soft</th>
+        </tr>
+        <tr data-variant="soft" data-state="default" data-css-prop="background"
+            data-dtcg="iconButton.soft.bg"
+            data-css-var="--nuri-icon-button-soft-bg" data-reference="--nuri-bg-strong">
+          <td>default</td>
+          <td><code>background</code></td>
+          <td><code>iconButton.soft.bg</code></td>
+          <td><code>--nuri-icon-button-soft-bg</code></td>
+          <td><code>--nuri-bg-strong</code> · chrome, accent-independent</td>
+        </tr>
+        <tr data-variant="soft" data-state="default" data-css-prop="color"
+            data-dtcg="iconButton.soft.fg"
+            data-css-var="--nuri-icon-button-soft-fg" data-reference="--nuri-text-primary">
+          <td>default</td>
+          <td><code>color</code></td>
+          <td><code>iconButton.soft.fg</code></td>
+          <td><code>--nuri-icon-button-soft-fg</code></td>
+          <td><code>--nuri-text-primary</code></td>
+        </tr>
+        <tr data-variant="soft" data-state="pressed" data-css-prop="background"
+            data-dtcg="iconButton.soft.bg.pressed"
+            data-css-var="--nuri-icon-button-soft-bg-pressed" data-reference="--nuri-bg-pressed">
+          <td>pressed</td>
+          <td><code>background</code></td>
+          <td><code>iconButton.soft.bg.pressed</code></td>
+          <td><code>--nuri-icon-button-soft-bg-pressed</code></td>
+          <td><code>--nuri-bg-pressed</code></td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="variant-ghost" data-variant="ghost">
+          <th scope="rowgroup" colspan="5">Variant · ghost (chrome-only · transparent at rest · no border)</th>
+        </tr>
+        <tr data-variant="ghost" data-state="default" data-css-prop="background"
+            data-dtcg="iconButton.ghost.bg"
+            data-css-var="--nuri-icon-button-ghost-bg" data-reference="transparent">
+          <td>default</td>
+          <td><code>background</code></td>
+          <td><code>iconButton.ghost.bg</code></td>
+          <td><code>--nuri-icon-button-ghost-bg</code></td>
+          <td><code>transparent</code> (literal) · no paint at rest</td>
+        </tr>
+        <tr data-variant="ghost" data-state="default" data-css-prop="color"
+            data-dtcg="iconButton.ghost.fg"
+            data-css-var="--nuri-icon-button-ghost-fg" data-reference="--nuri-text-primary">
+          <td>default</td>
+          <td><code>color</code></td>
+          <td><code>iconButton.ghost.fg</code></td>
+          <td><code>--nuri-icon-button-ghost-fg</code></td>
+          <td><code>--nuri-text-primary</code> · chrome, accent-independent</td>
+        </tr>
+        <tr data-variant="ghost" data-state="pressed" data-css-prop="background"
+            data-dtcg="iconButton.ghost.bg.pressed"
+            data-css-var="--nuri-icon-button-ghost-bg-pressed" data-reference="--nuri-bg-subtle">
+          <td>pressed</td>
+          <td><code>background</code></td>
+          <td><code>iconButton.ghost.bg.pressed</code></td>
+          <td><code>--nuri-icon-button-ghost-bg-pressed</code></td>
+          <td><code>--nuri-bg-subtle</code> · the only paint ghost ever shows</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="state">
+          <th scope="rowgroup" colspan="5">State · pressed / disabled / focus (variant-agnostic)</th>
+        </tr>
+        <tr data-variant="any" data-state="pressed" data-css-prop="transform"
+            data-dtcg="—"
+            data-css-var="—" data-reference="scale(--nuri-icon-button-press-scale)">
+          <td>pressed</td>
+          <td><code>transform</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>scale(var(--nuri-icon-button-press-scale))</code> · 0.97</td>
+        </tr>
+        <tr data-variant="any" data-state="disabled" data-css-prop="opacity"
+            data-dtcg="iconButton.disabled.opacity"
+            data-css-var="--nuri-icon-button-disabled-opacity" data-reference="0.4">
+          <td>disabled</td>
+          <td><code>opacity</code></td>
+          <td><code>iconButton.disabled.opacity</code></td>
+          <td><code>--nuri-icon-button-disabled-opacity</code></td>
+          <td><code>0.4</code></td>
+        </tr>
+        <tr data-variant="any" data-state="disabled" data-css-prop="cursor"
+            data-dtcg="—"
+            data-css-var="—" data-reference="not-allowed">
+          <td>disabled</td>
+          <td><code>cursor</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>not-allowed</code> · web-only, no RN equivalent</td>
+        </tr>
+        <tr data-variant="any" data-state="focus-visible" data-css-prop="outline"
+            data-dtcg="—"
+            data-css-var="—" data-reference="2px solid --nuri-focus-ring">
+          <td>focus-visible</td>
+          <td><code>outline</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>2px solid var(--nuri-focus-ring)</code> · brand, always</td>
+        </tr>
+
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       8b · BEHAVIOURAL DELTA — amendment 24.1
+       Three deltas inherited verbatim from Button (F-PRESSED-1,
+       F-FOCUS-1, F-DISABLED-1) PLUS two specific to an icon-only,
+       always-circular control: F-ARIA-LABEL-1 (no text → label
+       required) and F-TOUCH-TARGET-1 (48px clears the touch floor).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="behavioural-delta">
+    <h2>Behavioural delta · web ↔ RN</h2>
+    <p>
+      Props are <code>1:1</code>; behaviour is <strong>budgeted
+      per-component</strong> (<a href="../../docs/RISKS.md">RISKS R1</a>).
+      IconButton inherits Button's three deltas and adds two specific to
+      an icon-only, always-circular control. This is the migration
+      agent's third surface alongside <a href="#anatomy">anatomy</a> and
+      <a href="#token-mapping">token mapping</a>.
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="behavioural-delta" data-component="icon-button">
+      <thead>
+        <tr>
+          <th>Friction</th>
+          <th>Surface</th>
+          <th>Web</th>
+          <th>React Native</th>
+          <th>Resolution</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-friction="F-PRESSED-1" data-surface="pressed" data-parity="diverges" data-inherited="button">
+          <td data-cell="friction"><code>F-PRESSED-1</code></td>
+          <td data-cell="surface"><code>pressed</code></td>
+          <td data-cell="web"><code>:active</code> + <code>transform: scale(0.97)</code> + <code>bg-pressed</code> swap</td>
+          <td data-cell="rn"><code>Pressable</code> render-prop <code>style={({ pressed }) =&gt; …}</code></td>
+          <td data-cell="resolution">Inherited from Button. Same tokens, different trigger mechanism.</td>
+        </tr>
+        <tr data-friction="F-FOCUS-1" data-surface="focus" data-parity="diverges" data-inherited="button">
+          <td data-cell="friction"><code>F-FOCUS-1</code></td>
+          <td data-cell="surface"><code>focus-visible</code></td>
+          <td data-cell="web"><code>:focus-visible</code> → <code>2px solid var(--nuri-focus-ring)</code></td>
+          <td data-cell="rn">No DOM focus model; <code>accessibilityRole="button"</code> substitutes</td>
+          <td data-cell="resolution">Inherited from Button. Ring is web-only by design.</td>
+        </tr>
+        <tr data-friction="F-DISABLED-1" data-surface="disabled" data-parity="diverges" data-inherited="button">
+          <td data-cell="friction"><code>F-DISABLED-1</code></td>
+          <td data-cell="surface"><code>disabled</code></td>
+          <td data-cell="web"><code>opacity 0.4</code> + <code>cursor: not-allowed</code> + <code>pointer-events: none</code></td>
+          <td data-cell="rn"><code>disabled</code> prop → same opacity; no cursor concept</td>
+          <td data-cell="resolution">Inherited from Button. Opacity 1:1; <code>cursor</code> dropped on RN.</td>
+        </tr>
+        <tr data-friction="F-ARIA-LABEL-1" data-surface="accessibility" data-parity="diverges" data-inherited="none">
+          <td data-cell="friction"><code>F-ARIA-LABEL-1</code></td>
+          <td data-cell="surface"><code>accessible name</code></td>
+          <td data-cell="web">Icon-only → no text node. <code>aria-label</code> on the inner <code>&lt;button&gt;</code>, auto-derived from <code>name</code> unless <code>label</code> given; inner <code>&lt;svg&gt;</code> is <code>aria-hidden</code></td>
+          <td data-cell="rn"><code>accessibilityLabel</code> prop on <code>Pressable</code>, same derive-from-<code>name</code> fallback; glyph <code>importantForAccessibility="no"</code></td>
+          <td data-cell="resolution">Mechanism differs (<code>aria-label</code> vs <code>accessibilityLabel</code>) but the derive-from-<code>name</code> contract is 1:1. Pipeline emits the RN attribute.</td>
+        </tr>
+        <tr data-friction="F-TOUCH-TARGET-1" data-surface="touch-target" data-parity="diverges" data-inherited="none">
+          <td data-cell="friction"><code>F-TOUCH-TARGET-1</code></td>
+          <td data-cell="surface"><code>touch target</code></td>
+          <td data-cell="web">48px circle is the hit area; a 28px glyph sits centred with a ~10px optical ring. CSS box = touch box</td>
+          <td data-cell="rn">48px clears the 44pt iOS / 48dp Android floor without <code>hitSlop</code>; smaller glyph-only controls would need explicit <code>hitSlop</code></td>
+          <td data-cell="resolution">Single 48px size (decision 40) is chosen precisely so no <code>hitSlop</code> shim is ever needed. The container size IS the accessibility guarantee.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       9 · TOKENS (DTCG DICTIONARY)
+       Auto-generated from @layer tokens in icon-button.css by
+       lib/docs/tokens.js.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="tokens">
+    <h2>Tokens · dictionary</h2>
+    <p>
+      The component's <code>@layer tokens</code> block from
+      <code>icon-button.css</code>, parsed live. Reference column shows
+      the var chain; Value resolves it for the currently active theme /
+      accent.
+    </p>
+    <div id="icon-button-tokens"></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       10 · ROADMAP
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="icon-rn-renderer">
+        <span class="nuri-tag nuri-tag--planned">planned · blocking RN</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Icon RN renderer (F-ICON-RN-1)</strong>
+          <p class="nuri-roadmap__desc">The web side inlines an SVG path keyed by <code>name</code>; the RN side must dereference the same registry against <code>react-native-svg</code> with identical weight-coupling. Deferred this session — IconButton ships web + spec only. See <a href="../../docs/RISKS.md">RISKS R1 · F-ICON-RN-1</a>.</p>
+        </div>
+      </li>
+      <li data-feature="rn-implementation">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">React Native implementation</strong>
+          <p class="nuri-roadmap__desc">Web ↔ RN 1:1 contract is set; RN side ships once the Icon RN renderer lands (the blocker above).</p>
+        </div>
+      </li>
+      <li data-feature="badge-slot">
+        <span class="nuri-tag nuri-tag--planned">planned · v1.x</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Badge / count overlay</strong>
+          <p class="nuri-roadmap__desc">Notification dot or count on the circular surface — arrives when a navigation surface needs it.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+<style>
+  /* ═══════════════════════════════════════════════════════════════
+   * PAGE-LOCAL STYLES · component-specific only
+   * Shared widgets (.nuri-spec-card, .nuri-state-grid, .nuri-table,
+   * .nuri-roadmap, .nuri-anatomy, .nuri-demo*) live in shell.css /
+   * demo.css. Nothing IconButton-specific needs a page-local rule
+   * today — the circular control is fully described by its tokens.
+   * ═══════════════════════════════════════════════════════════════ */
+</style>
+
+<script>
+  // ── Token table · sourced from icon-button.css (@layer tokens) ─────
+  function renderTokens(sheet) {
+    if (!sheet) return;
+    const r = document.documentElement.dataset;
+    const tokens = NuriTokens.parseSemantics(sheet, {
+      theme: r.theme || 'light',
+      accent: r.accent || 'lilac',
+      filter: v => v.startsWith('--nuri-icon-button-'),
+    });
+    document.getElementById('icon-button-tokens').innerHTML =
+      NuriTokens.renderTable(tokens, { showReference: true });
+  }
+
+  NuriTokens.whenSheetReady('icon-button.css', renderTokens);
+
+  // Re-render when theme/accent changes so the Value column tracks live.
+  NuriState.subscribe(['theme', 'accent', 'neutral'], () => {
+    NuriTokens.whenSheetReady('icon-button.css', renderTokens);
+  });
+</script>
+
+</body>
+</html>

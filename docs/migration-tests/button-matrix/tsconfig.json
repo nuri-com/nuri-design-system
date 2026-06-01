@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-native",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": ["react-native", "react"],
+    "isolatedModules": true
+  },
+  "include": [
+    "index.tsx",
+    "react-native-svg.d.ts",
+    "../../../build/tokens.ts",
+    "../../../build/token-paths.ts",
+    "../../../build/icons.ts",
+    "../../../build/components/button.ts",
+    "../../../build/components/icon-button.ts",
+    "../../../build/components/switch.ts",
+    "../../../build/components/tabs.ts",
+    "../../../build/components/list.ts",
+    "../../../build/components/list-item.ts",
+    "../../../build/components/list-interactive-item.ts"
+  ]
+}

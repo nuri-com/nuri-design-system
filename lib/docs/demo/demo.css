@@ -1,0 +1,396 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · <nuri-demo> styles
+ *
+ * Visual treatment for the interactive example container rendered
+ * by lib/docs/demo/demo.js. Lifted from pages/components/
+ * button.html page-local on 2026-05-27 (N+3) so any component page
+ * consuming <nuri-demo> picks up the same look by linking this
+ * stylesheet alongside demo.js.
+ *
+ * Selectors target .nuri-demo-card* — the DOM class that demo.js
+ * emits — not the <nuri-demo> tag, so the upgrade-pre-styled vs.
+ * defined transition is clean. The pre-upgrade skeleton lives in
+ * shell.css (kept there because it must paint before this stylesheet
+ * is parsed). See AGENTS.md "<nuri-demo> API reference".
+ * ────────────────────────────────────────────────────────────── */
+
+/* ── Card · toolbar (top) · preview (middle) · code (bottom) ─── */
+.nuri-demo-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--nuri-bg-canvas);
+  width: auto;
+  /* The card is a themed surface (its own bg-canvas resolves inside the
+   * <nuri-scope>). It must re-establish the foreground too, else bare /
+   * inherited text (nav-item labels, plain list-item content) keeps the
+   * body's light color and reads dark-on-dark when the scope flips to
+   * dark. Pair fg with bg on the surface that owns the background. */
+  color: var(--nuri-text-primary);
+  border: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  border-radius: var(--nuri-radius-lg);
+  overflow: hidden;
+}
+
+/* ── Board layout · the playground panel (decision 57) ────────────
+ * A fixed-width column with NO radius and a single RIGHT border, so a
+ * row of boards reads as a continuous canvas of panels rather than a
+ * scatter of rounded cards. The toolbar is moved BETWEEN the preview and
+ * the code in the DOM (demo.js), and the canvas loses its padding so a
+ * composition (or a device frame) sits flush on the surface. */
+.nuri-demo-card[data-layout="board"] {
+  width: 560px;
+  height: 100%;
+  min-block-size: 0;
+  border: 0;
+  border-inline-end: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  border-radius: 0;
+}
+/* The height chain must reach the card: <nuri-scope> is display:contents
+ * (transparent to flex), but the <nuri-demo> host is a real box — make it a
+ * full-height flex column so the board card can resolve `height: 100%`. */
+nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
+  display: flex;
+  height: 100%;
+}
+/* The preview is the resizable region. It is TALL by default — it fills the
+ * board minus the toolbar bar (48px), so the code starts below the fold and
+ * only the bar peeks at the bottom; the user drags the resize handle up to
+ * reveal the code. The phone is centered vertically (safe → falls back to
+ * top-aligned, so it stays fully scrollable when taller than the view), with
+ * vertical padding for breathing room on short views. Inline padding stays 0
+ * so the centered phone has the full width to sit in. */
+.nuri-demo-card[data-layout="board"] .nuri-demo-card__preview {
+  flex: none;
+  block-size: calc(100% - 48px);
+  min-block-size: 0;
+  align-items: safe center;
+  padding-block: var(--nuri-px-18);
+  padding-inline: 0;
+  overflow: auto;
+  resize: vertical;
+}
+/* Code · takes the remaining height below the (resizable) preview and
+ * scrolls independently. */
+.nuri-demo-card[data-layout="board"] .nuri-demo-card__code {
+  flex: 1;
+  min-block-size: 0;
+  overflow: auto;
+  /* The toolbar already draws the divider above the code (its border-bottom),
+   * so the base code border-top would double it. Drop it in board mode. */
+  border-top: 0;
+}
+/* The bar sits between preview and code, so it carries a divider on BOTH
+ * edges (the base toolbar only draws its bottom). */
+.nuri-demo-card[data-layout="board"] .nuri-demo-card__toolbar {
+  flex: none;
+  border-top: var(--nuri-border-1) solid var(--nuri-border-subtle);
+}
+
+.nuri-demo-card__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nuri-px-6);
+  padding: var(--nuri-px-6) var(--nuri-px-12);
+  background: var(--nuri-bg-subtle);
+  border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  min-height: 48px;
+}
+
+.nuri-demo-card__title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--nuri-px-6);
+  min-width: 0;
+}
+.nuri-demo-card__title-label {
+  font-family: var(--nuri-font-family-mono);
+  font-size: var(--nuri-font-size-13);
+  font-weight: var(--nuri-font-weight-semibold);
+  color: var(--nuri-text-muted);
+}
+.nuri-demo-card__title-meta {
+  font-size: var(--nuri-font-size-15);
+  color: var(--nuri-text-muted);
+}
+.nuri-demo-card__title-meta code {
+  font-size: inherit;
+  color: inherit;
+}
+
+/* Controls cluster · layout only. The individual pill / icon
+ * button (.nuri-control) is shared with the topbar — styles in
+ * lib/docs/control/control.css (N+3.5). */
+.nuri-demo-card__controls {
+  display: flex;
+  gap: var(--nuri-px-4);
+  margin-left: auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* ── Preview · centered single button, or vertically stacked ──── */
+.nuri-demo-card__preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--nuri-px-28) var(--nuri-px-18);
+  min-height: 120px;
+  background: var(--nuri-bg-canvas);
+}
+.nuri-demo-card__preview > nuri-button,
+.nuri-demo-card__preview > .nuri-button {
+  width: 100%;
+  max-width: 360px;
+}
+.nuri-demo-card__preview--stack {
+  flex-direction: column;
+  gap: var(--nuri-px-6);
+  align-items: stretch;
+}
+.nuri-demo-card__preview--stack > nuri-button,
+.nuri-demo-card__preview--stack > .nuri-button,
+.nuri-demo-card__preview--stack nuri-scope { width: 100%; }
+.nuri-demo-card__preview--stack nuri-scope {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nuri-px-6);
+}
+
+/* ── Code · auto-derived from the <template> child ────────────── */
+.nuri-demo-card__code {
+  margin: 0;
+  padding: var(--nuri-px-12) var(--nuri-px-18);
+  background: var(--nuri-bg-subtle);
+  border-top: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  overflow-x: auto;
+  font-family: var(--nuri-font-family-mono);
+  font-size: var(--nuri-font-size-13);
+  line-height: 1.5;
+  color: var(--nuri-text-muted);
+}
+.nuri-demo-card__code code {
+  font-size: inherit;
+  font-family: inherit;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  white-space: pre;
+}
+
+/* ──────────────────────────────────────────────────────────────
+ * DEVICE FRAME · the playground `device` control (decision 57 · N+10)
+ *
+ * Rendered by demo.js _renderDeviceFrame() ONLY when a demo lists the
+ * opt-in `device` control. DS component pages never list it, so none of
+ * these rules apply there — the frame is purely additive.
+ *
+ * The bezel + status bar + home indicator are docs chrome (the phone is
+ * always a dark slab, like the hardware). The SCREEN is --nuri-bg-canvas
+ * and themes through the surrounding <nuri-scope>, so the composed view
+ * re-resolves with theme / neutral exactly as on-device.
+ *
+ * Frame dimensions live as custom props keyed off [data-device] — a new
+ * preset is one block here + one DEVICE_OPTIONS entry, no JS change (P11).
+ * ────────────────────────────────────────────────────────────── */
+.nuri-demo-card__preview--device {
+  /* The phone stands in a roomy, neutral stage so the bezel reads as a
+   * device rather than another card. The backdrop is theme-independent. */
+  padding: var(--nuri-px-28) var(--nuri-px-18);
+  background: var(--nuri-bg-subtle);
+  align-items: flex-start;
+}
+
+/* Each preset declares the device's real SCREEN dimensions 1:1 (width =
+ * --nuri-device-width, aspect = width / height). The black frame wraps the
+ * screen and ADDS the bezel around it (see .nuri-device__frame), so the screen
+ * is the true logical size — the bezel never eats into it. Chrome (corner
+ * radii, bezel) is tuned per family — rounded slabs for the modern phones, a
+ * squarer shell with a tall forehead/chin for the home-button iPhone SE. */
+.nuri-device[data-device="iphone-17e"] {
+  --nuri-device-width: 390px;
+  --nuri-device-aspect: 390 / 844;
+  --nuri-device-frame-radius: 50px;
+  --nuri-device-screen-radius: 40px;
+  --nuri-device-bezel: 10px;
+}
+.nuri-device[data-device="iphone-se"] {
+  --nuri-device-width: 375px;
+  --nuri-device-aspect: 375 / 667;
+  --nuri-device-frame-radius: 50px;
+  --nuri-device-screen-radius: 4px;
+  --nuri-device-bezel: 10px;
+  /* Home-button era: a tall forehead + chin instead of a cutout / gesture bar.
+   * The physical home button sits off-screen in the chin, so we just thicken
+   * the black frame top & bottom generously (operator: 75px). The near-square
+   * screen radius (4px) reads as the flat pre-notch front glass. */
+  --nuri-device-bezel-top: 75px;
+  --nuri-device-bezel-bottom: 75px;
+}
+.nuri-device[data-device="pixel-8"] {
+  --nuri-device-width: 412px;
+  --nuri-device-aspect: 412 / 915;
+  --nuri-device-frame-radius: 50px;
+  --nuri-device-screen-radius: 40px;
+  --nuri-device-bezel: 10px;
+}
+.nuri-device[data-device="android"] {
+  --nuri-device-width: 360px;
+  --nuri-device-aspect: 360 / 800;
+  --nuri-device-frame-radius: 30px;
+  --nuri-device-screen-radius: 20px;
+  --nuri-device-bezel: 10px;
+  /* Taller chin for the 3-button nav band. */
+  --nuri-device-bezel-bottom: 30px;
+}
+
+.nuri-device { flex: none; }
+
+/* The bezel — a dark hardware slab. Fixed (theme-independent) by intent:
+ * the phone shell stays the same whether the screen is light or dark. The
+ * frame SHRINK-WRAPS the screen: the SCREEN owns the device's real logical
+ * dimensions (below), and the bezel is ADDED around it as padding — so the
+ * given width/height are the screen's, not eaten into by the bezel. */
+.nuri-device__frame {
+  inline-size: fit-content;
+  /* Top & bottom bezels are independent (default to the side bezel); presets
+   * set them per device — e.g. the SE forehead/chin, or Android's taller chin
+   * for the nav bar. Order: top · side · bottom · side. */
+  padding:
+    var(--nuri-device-bezel-top, var(--nuri-device-bezel))
+    var(--nuri-device-bezel)
+    var(--nuri-device-bezel-bottom, var(--nuri-device-bezel))
+    var(--nuri-device-bezel);
+  border-radius: var(--nuri-device-frame-radius);
+  background: #0b0b0d;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.45),
+    0 18px 40px -12px rgba(0, 0, 0, 0.45);
+}
+
+/* The screen — the themed surface, sized to the device's real logical points
+ * (inline-size = width, aspect-ratio = width/height). Everything inside
+ * re-resolves through the demo's <nuri-scope>. A flex column: [cutout overlay]
+ * · status · viewport · bottom control. position:relative anchors the cutout. */
+.nuri-device__screen {
+  position: relative;
+  inline-size: var(--nuri-device-width);
+  aspect-ratio: var(--nuri-device-aspect);
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--nuri-device-screen-radius);
+  overflow: hidden;
+  background: var(--nuri-bg-canvas);
+  color: var(--nuri-text-primary);
+}
+
+/* ── Top cutout · the sensor housing, overlaid at the top edge ────
+ * Fixed black (it's a hole in the screen, theme-independent). island =
+ * iOS Dynamic-Island pill; punch = Android punch-hole camera. SE has none. */
+.nuri-device__cutout {
+  position: absolute;
+  inset-block-start: 9px;
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  background: #000;
+  pointer-events: none;
+}
+.nuri-device__cutout--island {
+  inline-size: 34%;
+  block-size: 26px;
+  border-radius: var(--nuri-radius-full);
+}
+.nuri-device__cutout--punch {
+  inset-block-start: 10px;
+  inline-size: 11px;
+  block-size: 11px;
+  border-radius: var(--nuri-radius-full);
+}
+
+/* Status bar — time + signal glyphs. Part of the screen surface. */
+.nuri-device__status {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  block-size: 38px;
+  padding: 0 24px 0 28px;
+  font-family: var(--nuri-font-family-sans);
+  font-size: var(--nuri-font-size-13);
+  font-weight: var(--nuri-font-weight-semibold);
+  color: var(--nuri-text-primary);
+}
+.nuri-device__signals {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.nuri-device__glyph {
+  display: block;
+  block-size: 11px;
+  inline-size: auto;
+  fill: currentColor;
+}
+.nuri-device__glyph--battery { block-size: 12px; }
+.nuri-device__glyph--battery-v { block-size: 14px; }
+
+/* The viewport — where the composed source renders. Fills the slack
+ * between status bar and home indicator; the composition owns its own
+ * internal scroll / pinning. */
+.nuri-device__viewport {
+  flex: 1;
+  min-block-size: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.nuri-device__viewport > * { flex: 1; min-block-size: 0; }
+
+/* Home indicator — the gesture pill (modern iOS + Pixel), overlaid at the
+ * bottom edge. Pixel and iPhone share this affordance (operator's call). */
+.nuri-device__home {
+  flex: none;
+  block-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nuri-device__home::after {
+  content: "";
+  inline-size: 36%;
+  block-size: 5px;
+  border-radius: var(--nuri-radius-full);
+  background: var(--nuri-text-primary);
+  opacity: 0.85;
+}
+
+/* Android 3-button nav — back · home · recent, transparent glyphs on a
+ * safe-area band (Samsung-style). Outlined, low-opacity, theme-following. */
+.nuri-device__nav {
+  flex: none;
+  block-size: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 var(--nuri-px-28);
+}
+.nuri-device__navglyph {
+  display: block;
+  inline-size: 18px;
+  block-size: 18px;
+  color: var(--nuri-text-primary);
+  opacity: 0.55;
+}
+
+/* ──────────────────────────────────────────────────────────────
+ * .nuri-demo-row · stack of demo cards (always single column —
+ * the mobile-first preview layout). Container only; the cards
+ * inside resolve their own widths.
+ * ────────────────────────────────────────────────────────────── */
+.nuri-demo-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nuri-px-12);
+  margin: var(--nuri-px-12) 0 var(--nuri-px-4);
+}

@@ -1,0 +1,97 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · PLAYGROUND · SHELL · STYLES  (decision 57 · N+10)
+ *
+ * Chrome for <nuri-playground-shell> (lib/playground/shell.js) — a
+ * SEPARATE, simpler sibling of the DS <nuri-shell>. No sidebar, no nav
+ * tree, no global token toggles: just a topbar + a body that is either a
+ * horizontal-scroll row of device-framed views (document mode) or a grid
+ * of cards (index mode). Per-view theming lives on each <nuri-demo>.
+ *
+ * Markup is built by shell.js connectedCallback. Classes are .nuri-pg__*
+ * (the playground namespace, distinct from .nuri-shell__*). Semantic
+ * tokens only — no hex, no primitive refs (hard-rule 1/2).
+ * ────────────────────────────────────────────────────────────── */
+
+nuri-playground-shell {
+  display: flex;
+  flex-direction: column;
+  /* The shell owns the viewport exactly — it never scrolls. The page's
+   * scroll lives INSIDE: the device-framed views (preview + code panes)
+   * scroll independently, and the row scrolls horizontally. */
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Topbar · the DS <nuri-topbar center> ─────────────────────────
+ * Built by shell.js. Its layout, height, padding and surface come from
+ * lib/components/topbar/topbar.css; the playground only pins it to the top
+ * and draws the divider that separates it from the scrolling body. */
+.nuri-pg__topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex: none;
+  border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
+}
+
+/* ── Main · body ──────────────────────────────────────────────── */
+.nuri-pg__main {
+  flex: 1;
+  min-height: 0;
+  background: var(--nuri-bg-subtle);
+}
+
+/* Document mode · horizontal-scroll row of device-framed views. A
+ * document can grow to N views; they lay out left-to-right and the row
+ * scrolls horizontally. */
+.nuri-pg__scroll {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: var(--nuri-px-24);
+  overflow-x: auto;
+  height: 100%;
+}
+.nuri-pg__scroll > * { flex: none; }
+
+/* Index mode · responsive grid of document cards. */
+.nuri-pg__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--nuri-px-24);
+  padding: var(--nuri-px-36) var(--nuri-px-48);
+  align-content: start;
+  /* The shell never scrolls (overflow:hidden) — the card grid takes the
+   * main's full height and scrolls its own overflow. */
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* ── Index · document card ────────────────────────────────────── */
+.nuri-pg__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nuri-px-12);
+  text-decoration: none;
+  color: inherit;
+  padding: var(--nuri-px-18);
+  background: var(--nuri-bg-canvas);
+  border: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  border-radius: var(--nuri-radius-lg);
+  transition: border-color var(--nuri-duration-fast) ease,
+              box-shadow var(--nuri-duration-fast) ease;
+}
+.nuri-pg__card:hover {
+  border-color: var(--nuri-border-default);
+  box-shadow: 0 8px 24px -16px rgba(0, 0, 0, 0.4);
+}
+.nuri-pg__card-name {
+  font-size: var(--nuri-font-size-17);
+  font-weight: var(--nuri-font-weight-semibold);
+  color: var(--nuri-text-primary);
+}
+.nuri-pg__card-meta {
+  font-size: var(--nuri-font-size-13);
+  color: var(--nuri-text-muted);
+  line-height: 1.4;
+}

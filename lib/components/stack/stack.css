@@ -1,0 +1,116 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · STACK
+ *
+ * Layout primitive · flex container. Direction · gap · alignment ·
+ * wrap controlled by props. No background, no border, no radius —
+ * pure layout per decision 37 (layout-primitive class · N+6.2).
+ *
+ * API · operator-locked at N+6.2
+ *
+ *   direction?: 'column' | 'row'                       default 'column'
+ *   gap?:       'xs' | 'sm' | 'md' | 'lg' | 'xl'       (subset of space)
+ *   align?:     'start' | 'center' | 'end' | 'stretch' | 'baseline'
+ *   justify?:   'start' | 'center' | 'end' | 'between' | 'around'
+ *   wrap?:      boolean
+ *   as?:        string                                 host-resolved
+ *
+ * Vocabulary subset rationale: `gap` accepts 5 of the semantic
+ * space scale's 7 leaves (xs/sm/md/lg/xl → 4/6/12/18/24 px); 2xs
+ * and 2xl stay available for ad-hoc consumers via direct
+ * `tokens.space.{2xs,2xl}` but are excluded from the prop surface
+ * to keep consumer choice manageable. Same convention applies to
+ * Box padding.
+ *
+ * Markup
+ *   <nuri-stack gap="md"><nuri-button>Pay</nuri-button> …</nuri-stack>
+ *   <nuri-stack direction="row" gap="sm" align="center">…</nuri-stack>
+ *   <nuri-stack direction="row" wrap>…</nuri-stack>
+ *   <nuri-stack as="section">…</nuri-stack>            host = <section>
+ *
+ * No `@layer tokens` block — Stack consumes the semantic space
+ * vocabulary directly in `@layer rules` via attribute-selector
+ * dispatch (decision 37 · the layout-primitive pattern). A
+ * `--nuri-stack-gap-md: var(--nuri-space-md)` alias would be
+ * "useless indirection" — what the prop value already says.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design. Layout primitives parametrize semantic
+   * vocabulary via prop, NOT via component-token aliasing
+   * (decision 37 · N+6.2). The per-component pipeline emitter
+   * detects this empty case and skips emit — no
+   * build/components/stack.ts file ships. */
+}
+
+@layer rules {
+  /* ── Custom element wrapper · invisible in layout ──────────── */
+  nuri-stack {
+    display: contents;
+  }
+
+  /* ── Pre-upgrade skeleton ──────────────────────────────────── */
+  /* Until stack.js (deferred) defines the custom element, the
+   * wrapper renders as a column flex so authored children don't
+   * flash inline. After upgrade, the inner element takes over
+   * (display:contents on the host means the inner's flex layout
+   * is what the page sees). */
+  nuri-stack:not(:defined) {
+    display: flex;
+    flex-direction: column;
+  }
+  nuri-stack:not(:defined)[direction="row"] {
+    flex-direction: row;
+  }
+
+  /* ── Base · variant-agnostic ─────────────────────────────── */
+  .nuri-stack {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  /* ── Fill · grow to fill a flex parent's main axis (decision 60) ──
+   * Opt-in. The Stack grows to fill its flex parent (e.g. a
+   * <nuri-box fill> inside a <nuri-scroll>), giving an inner
+   * <nuri-spacer> the slack to push trailing content to the end.
+   * `flex: 1 0 auto` (not 1 1 0) so when content EXCEEDS the parent the
+   * Stack keeps its content height (the Scroll scrolls · no clipping).
+   * RN map: a View with style={{ flex: 1 }}. */
+  .nuri-stack[data-fill] {
+    flex: 1 0 auto;
+  }
+
+  /* ── Direction · column default; row opt-in ──────────────── */
+  .nuri-stack[data-direction="row"] {
+    flex-direction: row;
+  }
+  .nuri-stack[data-direction="column"] {
+    flex-direction: column;
+  }
+
+  /* ── Gap · 5-leaf subset of semantic space ───────────────── */
+  .nuri-stack[data-gap="xs"] { gap: var(--nuri-space-xs); }
+  .nuri-stack[data-gap="sm"] { gap: var(--nuri-space-sm); }
+  .nuri-stack[data-gap="md"] { gap: var(--nuri-space-md); }
+  .nuri-stack[data-gap="lg"] { gap: var(--nuri-space-lg); }
+  .nuri-stack[data-gap="xl"] { gap: var(--nuri-space-xl); }
+
+  /* ── Align (cross axis) ──────────────────────────────────── */
+  .nuri-stack[data-align="start"]    { align-items: flex-start; }
+  .nuri-stack[data-align="center"]   { align-items: center; }
+  .nuri-stack[data-align="end"]      { align-items: flex-end; }
+  .nuri-stack[data-align="stretch"]  { align-items: stretch; }
+  .nuri-stack[data-align="baseline"] { align-items: baseline; }
+
+  /* ── Justify (main axis) ─────────────────────────────────── */
+  .nuri-stack[data-justify="start"]   { justify-content: flex-start; }
+  .nuri-stack[data-justify="center"]  { justify-content: center; }
+  .nuri-stack[data-justify="end"]     { justify-content: flex-end; }
+  .nuri-stack[data-justify="between"] { justify-content: space-between; }
+  .nuri-stack[data-justify="around"]  { justify-content: space-around; }
+
+  /* ── Wrap · row-direction only meaningfully wraps ────────── */
+  .nuri-stack[data-wrap="true"] {
+    flex-wrap: wrap;
+  }
+}

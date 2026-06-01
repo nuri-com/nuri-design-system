@@ -1,0 +1,34 @@
+# Nuri DS · consumer manifest
+
+Spec pages (HTML · served via gh-pages):
+  /pages/principles.html             WHY · cascade · P4 · tier model
+  /pages/implementation-guide.html   HOW · web→RN migration
+  /pages/foundations/colour/primitive.html      colour tokens · primitive
+  /pages/foundations/colour/semantic.html       colour tokens · semantic (mode × accent)
+  /pages/foundations/colour/exploration.html    colour tokens · exploration
+  /pages/foundations/typography.html                  type scale
+  /pages/foundations/dimension/primitive.html         dimension tokens · primitive (--nuri-px-N · 12 leaves)
+  /pages/foundations/dimension/spacing.html           dimension tokens · semantic spacing (T-shirt scale)
+  /pages/foundations/dimension/sizing.html            dimension tokens · semantic sizing (T-shirt scale)
+  /pages/foundations/dimension/radius.html            dimension tokens · semantic radius (T-shirt scale + 9999px sentinel full)
+  /pages/foundations/iconography.html                 <nuri-icon> · 17-glyph phosphor registry · 2 sizes + fill · currentColor
+  /pages/components/button.html      anatomy · token-mapping · variants · states
+
+Build assets (dist · fetchable):
+  /build/tokens.json                 DTCG primitives (W3C standard · 216 colour tokens)
+  /build/tokens.ts                   RN-ready · runtime sets · chrome + accent + space + size + radius
+  /build/components/button.ts        per-component numerics + TokenPath references
+  /build/token-paths.ts              discriminated union of every runtime-set leaf (36 members)
+
+Repository entry points:
+  /README.md                         project overview
+  /AGENTS.md                         skill router (for spec-authoring)
+  /roadmap/index.md                  sessions + current state
+  /decisionlog.md                    locked decisions
+  /skills/                           per-skill procedures (kebab-case files)
+  /prompts/                          reusable agent prompt templates
+  /docs/RISKS.md                     open risks with named failure modes
+  /docs/migration-tests/             web ↔ RN translation pairs (evidence for R5)
+
+Source of truth: this repo's `styles/` CSS files. HTML pages and
+build assets are derived; never edit them directly.

@@ -1,0 +1,126 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · LIST-ITEM  (presentational row · decision 51 · 52 · N+7/N+8)
+ *
+ * <nuri-list-item> is the ROW half of the List family — ONE shape,
+ * composed via slots, NOT a set of use-case variants. The mocks'
+ * disclosure rows, transaction rows, and summary rows are all the
+ * SAME element with different children dropped into three positions:
+ *
+ *   [ leading? ] · content · [ trailing? ]
+ *
+ *   <nuri-list-item>
+ *     <nuri-list-item-leading>   …icon-avatar / nothing…   </…>   ← optional
+ *     …content (UNWRAPPED middle · typography-stack / text)…       ← flex:1
+ *     <nuri-list-item-trailing>  …caret / typography-stack… </…>   ← optional
+ *   </nuri-list-item>
+ *
+ * Document-order layout · NO reparenting (unlike Topbar · decision
+ * 46, which routes children into 3 regions). The host IS the flex
+ * row, so list.css's density selector (`nuri-list[density] nuri-
+ * list-item { min-block-size }`) lands on a real box. leading and
+ * trailing are auto-width book-ends; the middle is whatever ISN'T a
+ * named wrapper, stretched to flex:1 via a structural :not() rule.
+ *
+ * PURELY PRESENTATIONAL (decision 52) ─────────────────────────────
+ *   This row carries NO interactivity. It is `role="listitem"` and
+ *   nothing else — no press overlay, no keyboard handler, no derived
+ *   aria-label, no `interactive` attr. Interactivity is composed AROUND
+ *   it by <nuri-list-interactive-item> (the declarative pressable
+ *   WRAPPER), which fixes the N+7 screen-reader double-read: the old
+ *   overlay copied the row's visible text into an aria-label, so AT
+ *   announced the name twice (once from the button's label, once from
+ *   the content). The wrapper makes the actionable element WRAP the
+ *   content, so the content IS the accessible name — read once.
+ *
+ * NO inline padding (decision 52 · operator checkpoint N+8). The row is
+ * edge-to-edge horizontally: content sits FLUSH with author-placed
+ * <nuri-separator>s (which also span the full list width), so the two
+ * align by construction. The horizontal inset is the CONTAINER's job —
+ * the screen / list wrapper provides the outer margin, NOT the row. The
+ * interactive wrapper's flat press wash bleeds PAST these edges with its
+ * own counter-margin (list-interactive-item.css · N+8.1) — the row stays
+ * flush; the wash extends beyond it.
+ *
+ * EMIT, not skip-emit (decision 52). The row's two fixed spacing values —
+ * block guard, inter-part gutter — are baked-in style decisions (not
+ * prop-dispatched), so they are formalized as component tokens and
+ * emitted to build/components/list-item.ts. RN dereferences
+ * `listItem.paddingBlock` (= `space.md` · a TokenPath) and `listItem.gap`
+ * instead of hardcoding the space leaf — machine-checked both sides.
+ *
+ *   property        | component token              | semantic
+ *   ----------------|------------------------------|---------
+ *   padding-block   | --nuri-list-item-padding-block  | space-md
+ *   gap             | --nuri-list-item-gap            | space-md
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* The row's fixed spacing (decision 52 · EMIT). Baked-in style
+   * values — not prop-dispatched — so they are formalized as component
+   * tokens for machine-checked RN parity. Re-declared on every scope
+   * boundary (`:root, [data-accent], [data-theme]`) per AGENTS.md
+   * hard-rule 7. */
+  :root,
+  [data-accent],
+  [data-theme] {
+    --nuri-list-item-padding-block:  var(--nuri-space-md);
+    --nuri-list-item-gap:            var(--nuri-space-md);
+  }
+}
+
+@layer rules {
+  /* ── Row host · the flex row ──────────────────────────────────
+   * Document order: leading (auto) · content (flex:1) · trailing
+   * (auto). min-block-size is supplied by list.css per the parent
+   * List's density — NOT declared here. NO inline padding: content is
+   * edge-to-edge so it aligns with the full-width separators (the
+   * container supplies the outer margin). Block padding guards tall
+   * content from touching the edge when it exceeds the density min-height. The
+   * skeleton matches the upgraded element (layout is pure CSS), so
+   * there is no FOUC delta. No `position: relative` — the row is no
+   * longer a containing block for any overlay (the press target moved
+   * to the list-interactive-item wrapper · decision 52). */
+  nuri-list-item,
+  nuri-list-item:not(:defined) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--nuri-list-item-gap);
+    padding-block: var(--nuri-list-item-padding-block);
+  }
+
+  /* ── Book-ends · leading / trailing (auto width) ──────────────
+   * Both are optional, both shrink-to-content. They flank the
+   * stretched middle. display:flex + align-items:center keeps a
+   * composed icon-avatar / caret / typography-stack vertically
+   * centred against the content. */
+  nuri-list-item-leading,
+  nuri-list-item-trailing,
+  nuri-list-item-leading:not(:defined),
+  nuri-list-item-trailing:not(:defined) {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Trailing pins to the row's end. The content column normally absorbs
+   * the slack (flex:1) and pushes trailing over, but that only fires when
+   * content is an ELEMENT (the flex:1 selector is `> :not(book-end)`); a
+   * BARE-TEXT content node is an anonymous flex item with no flex:1, so it
+   * wouldn't push. margin-inline-start:auto pins trailing to the end in
+   * BOTH cases — a no-op when content already fills the row. */
+  nuri-list-item-trailing,
+  nuri-list-item-trailing:not(:defined) {
+    margin-inline-start: auto;
+  }
+
+  /* ── Content · the UNWRAPPED middle (flex:1) ──────────────────
+   * Anything that is NOT a named book-end wrapper is the content
+   * column — stretched to fill the row. The min-inline-size:0 lets a
+   * long typography line truncate/wrap inside the flex track instead
+   * of overflowing the row. */
+  nuri-list-item > :not(nuri-list-item-leading):not(nuri-list-item-trailing) {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+}

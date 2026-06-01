@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Components · Tabs</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+
+  <!-- Token layer cake · primitive → semantic → component → chrome.
+       Tabs is the FIRST Box composition consumer (decision 43): the
+       tablist surface is a composed <nuri-box>, so box.css/js ride
+       along beside tabs.css/js. -->
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../lib/components/box/box.css" />
+  <link rel="stylesheet" href="../../lib/components/tabs/tabs.css" />
+  <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+  <script src="../../lib/docs/tokens.js"></script>
+  <!-- Custom element scripts MUST be deferred so connectedCallback fires
+       AFTER body parsing (children present). See AGENTS.md. Box must
+       define before Tabs since the controller composes a <nuri-box>. -->
+  <script src="../../lib/components/scope/scope.js" defer></script>
+  <script src="../../lib/components/box/box.js" defer></script>
+  <script src="../../lib/components/tabs/tabs.js" defer></script>
+  <script src="../../lib/docs/demo/demo.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  COMPONENT DOCS PAGE · Tabs (decision 24 template · 24.1)
+  ═══════════════════════════════════════════════════════════════
+
+  Audience priority: agent + pipeline FIRST, human contributor SECOND.
+
+  Tabs is the design system's FIRST multi-element compound (decision
+  43): <nuri-tabs> (controller · owns the selected value) + <nuri-tab>
+  (one option). It is ALSO the first Box composition consumer — the
+  tablist surface is a composed <nuri-box background=strong radius=md
+  padding=xs>, the concrete evidence that promoted Box's background +
+  radius props (decision 42).
+
+  Sections in render order:
+    1.  Spec card             — component summary (machine-readable)
+    2.  Hero demo             — default rendering + canonical snippet
+    3.  API                   — two prop tables (controller + option)
+    4.  Anatomy & parts       — tabs / list (composed Box) / tab
+    5.  States                — rest / active / disabled (per tab)
+        (NO Variants section · single appearance · decision 43)
+    6.  Theming               — accent scoping (active tab only)
+    7.  Token mapping         — container + option shape → token chain
+    8.  Behavioural delta     — web↔RN friction register:
+                               F-SELECTED-VALUE-1 + F-KEYBOARD-NAV-1
+                               (specific) + F-PRESSED-1 / F-FOCUS-1
+    9.  Tokens (DTCG)         — auto-generated dictionary
+    10. Roadmap               — planned items with inline status tags
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="components/tabs">
+  <nuri-page
+    eyebrow="Components · Navigation · Tabs"
+    title="Tabs"
+    status="draft"
+    lead="A segmented single-select control with a Radix-like compound shape: a nuri-tabs controller wraps a set of nuri-tab options that share one selected value. The design system's first multi-element compound AND its first Box composition consumer — the tablist surface is a composed Box. Each option is a dense button-sm shape; the active tab fills with the accent. Mobile-first: no hover, pressed feedback via a tactile squash."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · SPEC CARD
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-component="tabs"
+        data-component-status="draft"
+        data-rn-status="spec">
+      <div class="nuri-spec-card__row">
+        <dt>Elements</dt>
+        <dd data-spec="elements">
+          <span class="nuri-spec-card__chip" data-element="tabs">&lt;nuri-tabs&gt;</span>
+          <span class="nuri-spec-card__chip" data-element="tab">&lt;nuri-tab&gt;</span>
+          <span class="nuri-spec-card__meta">compound · shared value · decision 43</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Variants</dt>
+        <dd data-spec="variants">
+          <span class="nuri-spec-card__meta">none · single appearance · decision 43</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>States</dt>
+        <dd data-spec="states">
+          <span class="nuri-spec-card__chip" data-state="rest">rest</span>
+          <span class="nuri-spec-card__chip" data-state="active">active</span>
+          <span class="nuri-spec-card__chip" data-state="disabled">disabled</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Accent behavior</dt>
+        <dd data-spec="accent-behavior">
+          <span data-state="active" data-accent-driven="true">active tab follows accent</span>
+          <span class="nuri-spec-card__sep">·</span>
+          <span data-state="rest" data-accent-driven="false">rest is chrome-only</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Parts</dt>
+        <dd data-spec="parts">
+          <span class="nuri-spec-card__chip" data-part="tabs">tabs</span>
+          <span class="nuri-spec-card__chip" data-part="list">list</span>
+          <span class="nuri-spec-card__chip" data-part="tab">tab</span>
+          <span class="nuri-spec-card__meta">3 parts · list is a composed Box</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Component status</dt>
+        <dd data-spec="component-status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>RN status</dt>
+        <dd data-spec="rn-status">
+          <span class="nuri-tag nuri-tag--ready">spec implemented</span>
+          <span class="nuri-spec-card__meta">web ↔ RN is 1:1. The RN <code>&lt;Tabs&gt;</code> consumes <code>build/components/tabs.ts</code> and composes the same Box surface — see <a href="../../docs/migration-tests/button-matrix/index.tsx">migration-tests/button-matrix</a>.</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · HERO DEMO
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="hero">
+    <h2>Default</h2>
+    <nuri-demo controls="theme,accent,neutral,font">
+      <template>
+        <nuri-tabs value="overview">
+          <nuri-tab value="overview">Overview</nuri-tab>
+          <nuri-tab value="activity">Activity</nuri-tab>
+          <nuri-tab value="settings">Settings</nuri-tab>
+        </nuri-tabs>
+      </template>
+    </nuri-demo>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · API · PROPS (two elements)
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="api">
+    <h2>API</h2>
+    <p>
+      A compound of two elements. <code>web ↔ RN</code> is 1:1 — both
+      <code>&lt;nuri-tabs&gt;</code> / <code>&lt;Tabs&gt;</code> and
+      <code>&lt;nuri-tab&gt;</code> / <code>&lt;Tabs.Tab&gt;</code> carry
+      the same props. Note the <strong>absence of a <code>variant</code>
+      or <code>size</code> prop</strong> (decision 43 · single
+      appearance, button-sm option shape).
+    </p>
+
+    <h3><code>&lt;nuri-tabs&gt;</code> · controller</h3>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="tabs">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="value">
+          <td data-cell="name"><code>value</code></td>
+          <td data-cell="type"><code>string</code> (a child tab's value)</td>
+          <td data-cell="default"><em>first tab's value</em></td>
+          <td data-cell="description">The selected option — the single source of truth. Defaults to the first <code>&lt;nuri-tab&gt;</code>'s value when omitted. Clicking a tab writes its value here; the controller then toggles <code>active</code> on each child (F-SELECTED-VALUE-1).</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <h3><code>&lt;nuri-tab&gt;</code> · option</h3>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="tab">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="value">
+          <td data-cell="name"><code>value</code></td>
+          <td data-cell="type"><code>string</code></td>
+          <td data-cell="default"><em>required</em></td>
+          <td data-cell="description">This option's identity. Matched against the controller's <code>value</code> to determine the active tab. The tab's text content is its visible label.</td>
+        </tr>
+        <tr data-prop="disabled">
+          <td data-cell="name"><code>disabled</code></td>
+          <td data-cell="type"><code>boolean</code></td>
+          <td data-cell="default"><code>false</code></td>
+          <td data-cell="description">Makes the option non-selectable. The controller's click handler ignores disabled tabs.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · ANATOMY & PARTS
+       Three parts: tabs (controller), list (the composed Box surface),
+       tab (one option).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="anatomy">
+    <h2>Anatomy &amp; parts</h2>
+    <p>
+      Tabs is a <strong>three-part</strong> compound. The
+      <code>tabs</code> controller owns the selected value; the
+      <code>list</code> is a <strong>composed <code>&lt;nuri-box&gt;</code></strong>
+      that supplies the surface (background + radius + inset padding);
+      each <code>tab</code> is a native <code>&lt;button role="tab"&gt;</code>
+      in a flex row inside that Box.
+    </p>
+
+    <div class="nuri-anatomy">
+      <div class="nuri-anatomy__visual">
+        <nuri-tabs value="one">
+          <nuri-tab value="one">One</nuri-tab>
+          <nuri-tab value="two">Two</nuri-tab>
+        </nuri-tabs>
+      </div>
+      <div class="nuri-table-scroll"><table class="nuri-table" data-table="parts" data-component="tabs">
+        <thead>
+          <tr>
+            <th>Part</th>
+            <th>Element</th>
+            <th>Owns</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-part="tabs">
+            <td data-cell="name"><code>tabs</code></td>
+            <td data-cell="element"><code>nuri-tabs</code></td>
+            <td data-cell="owns">the selected <code>value</code>, click delegation</td>
+            <td data-cell="description">The controller. <code>display: contents</code> — invisible in layout; it composes the list + Box on mount.</td>
+          </tr>
+          <tr data-part="list">
+            <td data-cell="name"><code>list</code></td>
+            <td data-cell="element"><code>nuri-box</code> → <code>div[role=tablist]</code></td>
+            <td data-cell="owns">surface (bg + radius + inset), flex rhythm</td>
+            <td data-cell="description">A composed <code>&lt;nuri-box background="strong" radius="md" padding="xs"&gt;</code> wrapping a flex <code>role="tablist"</code>. The gap is <code>--nuri-tabs-gap</code>.</td>
+          </tr>
+          <tr data-part="tab">
+            <td data-cell="name"><code>tab</code></td>
+            <td data-cell="element"><code>button</code></td>
+            <td data-cell="owns">option shape, rest/active visuals</td>
+            <td data-cell="description">A native <code>&lt;button role="tab"&gt;</code> in button-sm shape. Equal-width (<code>flex: 1</code>). <code>aria-selected</code> + <code>data-active</code> reflect selection.</td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · STATES
+       rest / active / disabled (per tab). Active follows from the
+       controller's value; pressed is :active (the tactile squash).
+       (NO Variants section · single appearance · decision 43)
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="states">
+    <h2>States</h2>
+    <p>
+      A tab is in one of three states. <code>rest</code> is transparent
+      with muted text; <code>active</code> (the controller's
+      <code>value</code> match) fills with <code>accent-solid</code>;
+      <code>disabled</code> is non-selectable. <code>pressed</code> is
+      the tactile squash (<code>scale(0.97)</code>) on
+      <code>:active</code> — press and hold a tab to see it. No
+      <code>hover</code> — Tabs is mobile-first.
+    </p>
+
+    <div class="nuri-demo-row">
+      <nuri-demo controls="accent" label="rest + active" subtitle="select to move the active fill">
+        <template>
+          <nuri-tabs value="active">
+            <nuri-tab value="rest">Rest</nuri-tab>
+            <nuri-tab value="active">Active</nuri-tab>
+            <nuri-tab value="another">Another</nuri-tab>
+          </nuri-tabs>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo controls="accent" label="with disabled" subtitle="the middle option is non-selectable">
+        <template>
+          <nuri-tabs value="first">
+            <nuri-tab value="first">First</nuri-tab>
+            <nuri-tab value="locked" disabled>Locked</nuri-tab>
+            <nuri-tab value="third">Third</nuri-tab>
+          </nuri-tabs>
+        </template>
+      </nuri-demo>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · THEMING · accent scoping
+       The accent shows ONLY on the active tab (fills accent-solid).
+       The surface Box + rest tabs are chrome-only.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="theming">
+    <h2>Theming · accent scoping</h2>
+    <p>
+      The active accent surfaces in <strong>one place</strong>: the
+      active tab, which fills with <code>accent-solid</code> +
+      <code>accent-on-solid</code> (exactly like a solid Button). The
+      surface Box (<code>bg-subtle</code>) and the rest tabs (muted
+      text) are chrome-only. Three ways to control the accent the active
+      tab follows, increasing locality:
+    </p>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="1 · page" subtitle="&lt;html data-accent&gt;" data-scope="page">
+        <template>
+          <nuri-tabs value="a">
+            <nuri-tab value="a">Page</nuri-tab>
+            <nuri-tab value="b">Accent</nuri-tab>
+          </nuri-tabs>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="2 · subtree" subtitle="&lt;nuri-scope&gt; · Tier 3" data-scope="subtree">
+        <template>
+          <nuri-scope accent="neutral">
+            <nuri-tabs value="a">
+              <nuri-tab value="a">Subtree</nuri-tab>
+              <nuri-tab value="b">Neutral</nuri-tab>
+            </nuri-tabs>
+          </nuri-scope>
+        </template>
+      </nuri-demo>
+
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · TOKEN MAPPING
+       Container (--nuri-tabs-*) + option shape (--nuri-tab-*). Only
+       the container prefix emits to build/components/tabs.ts; the
+       option tokens are web-CSS-only (the RN Tab renders option shape
+       from the same semantic vocabulary on its side).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="token-mapping">
+    <h2>Token mapping</h2>
+    <p>
+      <strong>Part × CSS property → DTCG → CSS var → reference.</strong>
+      The pipeline emits <strong>only</strong> the <code>--nuri-tabs-*</code>
+      container prefix into
+      <a href="../../build/components/tabs.ts"><code>tabs.ts</code></a>
+      (the emitter matches the exact component prefix). The
+      <code>--nuri-tab-*</code> option tokens are web-CSS-only by design
+      — the RN Tab renders its option shape from the same semantic
+      vocabulary directly. <code>—</code> means web-only / literal.
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="token-map" data-component="tabs">
+      <thead>
+        <tr>
+          <th>Part / state</th>
+          <th>CSS property</th>
+          <th>DTCG</th>
+          <th>CSS var</th>
+          <th>Reference</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="nuri-table__group" data-group="container">
+          <th scope="rowgroup" colspan="5">Container · the only emitted prefix (<code>tabs.ts</code>)</th>
+        </tr>
+        <tr data-part="list" data-css-prop="gap"
+            data-dtcg="tabs.gap"
+            data-css-var="--nuri-tabs-gap" data-reference="--nuri-space-2xs">
+          <td>list</td>
+          <td><code>gap</code></td>
+          <td><code>tabs.gap</code></td>
+          <td><code>--nuri-tabs-gap</code></td>
+          <td><code>--nuri-space-2xs</code> · the one emitted token</td>
+        </tr>
+        <tr data-part="list" data-css-prop="background"
+            data-dtcg="—"
+            data-css-var="—" data-reference="box background=strong">
+          <td>list (Box)</td>
+          <td><code>background</code> / <code>border-radius</code> / <code>padding</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td>composed <code>&lt;nuri-box background="strong" radius="md" padding="xs"&gt;</code> · surface delegated to Box (decision 42)</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="option">
+          <th scope="rowgroup" colspan="5">Option shape · <code>--nuri-tab-*</code> · web-CSS-only (NOT emitted)</th>
+        </tr>
+        <tr data-part="tab" data-css-prop="min-height"
+            data-dtcg="—"
+            data-css-var="--nuri-tab-min-height" data-reference="--nuri-size-md">
+          <td>tab</td>
+          <td><code>min-height</code></td>
+          <td>—</td>
+          <td><code>--nuri-tab-min-height</code></td>
+          <td><code>--nuri-size-md</code> · button-sm shape</td>
+        </tr>
+        <tr data-part="tab" data-css-prop="padding"
+            data-dtcg="—"
+            data-css-var="--nuri-tab-padding-x" data-reference="--nuri-space-md">
+          <td>tab</td>
+          <td><code>padding-inline</code></td>
+          <td>—</td>
+          <td><code>--nuri-tab-padding-x</code></td>
+          <td><code>--nuri-space-md</code></td>
+        </tr>
+        <!-- Label type · sourced directly from the shared --nuri-type-*
+             scale (decision 54/55), NOT a --nuri-tab-* token. Tab is
+             semibold → the type-sm-em step (mirrors Button sm). -->
+        <tr data-part="tab" data-css-prop="font-size"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-sm-size">
+          <td>tab</td>
+          <td><code>font-size</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-type-sm-size</code> (15px)</td>
+        </tr>
+        <tr data-part="tab" data-css-prop="line-height"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-sm-line-height">
+          <td>tab</td>
+          <td><code>line-height</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-type-sm-line-height</code> (1.33)</td>
+        </tr>
+        <tr data-part="tab" data-css-prop="letter-spacing"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-sm-tracking">
+          <td>tab</td>
+          <td><code>letter-spacing</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-type-sm-tracking</code> (-0.01em)</td>
+        </tr>
+        <tr data-part="tab" data-css-prop="font-weight"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-sm-em-weight">
+          <td>tab</td>
+          <td><code>font-weight</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-type-sm-em-weight</code> (600)</td>
+        </tr>
+        <tr data-part="tab" data-css-prop="border-radius"
+            data-dtcg="—"
+            data-css-var="--nuri-tab-radius" data-reference="--nuri-radius-sm">
+          <td>tab</td>
+          <td><code>border-radius</code></td>
+          <td>—</td>
+          <td><code>--nuri-tab-radius</code></td>
+          <td><code>--nuri-radius-sm</code></td>
+        </tr>
+        <tr data-part="tab" data-state="rest" data-css-prop="color"
+            data-dtcg="—"
+            data-css-var="--nuri-tab-rest-fg" data-reference="--nuri-text-muted">
+          <td>rest</td>
+          <td><code>color</code></td>
+          <td>—</td>
+          <td><code>--nuri-tab-rest-fg</code></td>
+          <td><code>--nuri-text-muted</code> · transparent bg, recedes</td>
+        </tr>
+        <tr data-part="tab" data-state="active" data-css-prop="background"
+            data-dtcg="—"
+            data-css-var="--nuri-tab-active-bg" data-reference="--nuri-accent-solid">
+          <td>active</td>
+          <td><code>background</code></td>
+          <td>—</td>
+          <td><code>--nuri-tab-active-bg</code></td>
+          <td><code>--nuri-accent-solid</code> · the only accent-driven surface</td>
+        </tr>
+        <tr data-part="tab" data-state="active" data-css-prop="color"
+            data-dtcg="—"
+            data-css-var="--nuri-tab-active-fg" data-reference="--nuri-accent-on-solid">
+          <td>active</td>
+          <td><code>color</code></td>
+          <td>—</td>
+          <td><code>--nuri-tab-active-fg</code></td>
+          <td><code>--nuri-accent-on-solid</code></td>
+        </tr>
+        <tr data-part="tab" data-state="pressed" data-css-prop="transform"
+            data-dtcg="—"
+            data-css-var="--nuri-tab-press-scale" data-reference="0.97">
+          <td>pressed</td>
+          <td><code>transform: scale</code></td>
+          <td>—</td>
+          <td><code>--nuri-tab-press-scale</code></td>
+          <td><code>0.97</code></td>
+        </tr>
+        <tr data-part="tab" data-state="focus-visible" data-css-prop="outline"
+            data-dtcg="—"
+            data-css-var="—" data-reference="2px solid --nuri-focus-ring">
+          <td>focus-visible</td>
+          <td><code>outline</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>2px solid var(--nuri-focus-ring)</code> · brand, never accent-derived</td>
+        </tr>
+
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       8 · BEHAVIOURAL DELTA
+       F-SELECTED-VALUE-1 (compound shared state) + F-KEYBOARD-NAV-1
+       (roving arrow-key nav deferred) are the Tabs-specific deltas;
+       pressed / focus are inherited from the shared interaction model.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="behavioural-delta">
+    <h2>Behavioural delta · web ↔ RN</h2>
+    <p>
+      Props are <code>1:1</code>; behaviour is <strong>budgeted
+      per-component</strong> (<a href="../../docs/RISKS.md">RISKS R1</a>).
+      Tabs adds two deltas specific to a compound select control and
+      inherits the two shared interaction deltas. This is the migration
+      agent's third surface alongside <a href="#anatomy">anatomy</a> and
+      <a href="#token-mapping">token mapping</a>.
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="behavioural-delta" data-component="tabs">
+      <thead>
+        <tr>
+          <th>Friction</th>
+          <th>Surface</th>
+          <th>Web</th>
+          <th>React Native</th>
+          <th>Resolution</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-friction="F-SELECTED-VALUE-1" data-surface="selection" data-parity="diverges" data-inherited="none">
+          <td data-cell="friction"><code>F-SELECTED-VALUE-1</code></td>
+          <td data-cell="surface"><code>selected value</code></td>
+          <td data-cell="web">DOM-driven: the controller holds <code>value</code> as an attribute, delegates clicks, and toggles <code>active</code> on each child tab. Shared state flows one direction through the DOM.</td>
+          <td data-cell="rn">State-driven: <code>value</code> is a controlled prop on <code>&lt;Tabs&gt;</code>; selection flows via <code>onValueChange</code> and <code>React.cloneElement</code> injects <code>active</code> + <code>onSelect</code> into children.</td>
+          <td data-cell="resolution">Same prop + compound shape; the shared-state mechanism differs (DOM attribute toggling vs cloneElement injection). Pipeline emits a controlled RN compound — see <code>TabsDemo</code> in the migration test.</td>
+        </tr>
+        <tr data-friction="F-KEYBOARD-NAV-1" data-surface="keyboard" data-parity="deferred" data-inherited="none">
+          <td data-cell="friction"><code>F-KEYBOARD-NAV-1</code></td>
+          <td data-cell="surface"><code>roving focus</code></td>
+          <td data-cell="web">Baseline only: the active tab is <code>tabIndex 0</code>, the rest <code>-1</code>; each activates on native Enter/Space. Full arrow-key roving across the tablist is <strong>deferred</strong> this session.</td>
+          <td data-cell="rn">No DOM tab order; selection is touch-driven. Arrow-key roving has no mobile analogue — the deferral is web-only debt.</td>
+          <td data-cell="resolution">Deferred (F-KEYBOARD-NAV-1). The <code>role="tablist"</code> + <code>aria-selected</code> + roving <code>tabIndex</code> baseline is in place; arrow-key handling lands in a later session. See <a href="../../docs/RISKS.md">RISKS</a>.</td>
+        </tr>
+        <tr data-friction="F-PRESSED-1" data-surface="pressed" data-parity="diverges" data-inherited="button">
+          <td data-cell="friction"><code>F-PRESSED-1</code></td>
+          <td data-cell="surface"><code>pressed</code></td>
+          <td data-cell="web"><code>:active</code> → <code>transform: scale(0.97)</code></td>
+          <td data-cell="rn"><code>Pressable</code> render-prop <code>style={({ pressed }) =&gt; …}</code></td>
+          <td data-cell="resolution">Inherited interaction model. Same token (<code>tab.pressScale</code>), different trigger mechanism.</td>
+        </tr>
+        <tr data-friction="F-FOCUS-1" data-surface="focus" data-parity="diverges" data-inherited="button">
+          <td data-cell="friction"><code>F-FOCUS-1</code></td>
+          <td data-cell="surface"><code>focus-visible</code></td>
+          <td data-cell="web"><code>:focus-visible</code> → <code>2px solid var(--nuri-focus-ring)</code></td>
+          <td data-cell="rn">No DOM focus model; <code>accessibilityRole="tab"</code> substitutes</td>
+          <td data-cell="resolution">Inherited. Ring is web-only by design.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       9 · TOKENS (DTCG DICTIONARY)
+       Auto-generated from @layer tokens in tabs.css by tokens.js.
+       Shows BOTH prefixes (--nuri-tabs- and --nuri-tab-) even though
+       only the former is emitted to build/components/tabs.ts.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="tokens">
+    <h2>Tokens · dictionary</h2>
+    <p>
+      The component's <code>@layer tokens</code> block from
+      <code>tabs.css</code>, parsed live. Both the container
+      (<code>--nuri-tabs-*</code>) and the option (<code>--nuri-tab-*</code>)
+      tokens are shown; only the container prefix is emitted to the
+      build. Reference shows the var chain; Value resolves it for the
+      active theme / accent.
+    </p>
+    <div id="tabs-tokens"></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       10 · ROADMAP
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="keyboard-nav">
+        <span class="nuri-tag nuri-tag--planned">planned · a11y</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Roving arrow-key navigation (F-KEYBOARD-NAV-1)</strong>
+          <p class="nuri-roadmap__desc">The roving-<code>tabIndex</code> baseline ships now; Left/Right (and Home/End) arrow handling across the tablist is deferred. Web-only debt — touch selection already covers mobile. See <a href="../../docs/RISKS.md">RISKS</a>.</p>
+        </div>
+      </li>
+      <li data-feature="rn-implementation">
+        <span class="nuri-tag nuri-tag--ready">spec implemented</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">React Native implementation</strong>
+          <p class="nuri-roadmap__desc">The web ↔ RN 1:1 contract is set and the RN <code>&lt;Tabs&gt;</code> already consumes <code>build/components/tabs.ts</code> and composes the same Box surface in the <a href="../../docs/migration-tests/button-matrix/index.tsx">migration test</a>. Promotion to a permanent <code>lib/</code> home tracks the shared RN-spec-home question.</p>
+        </div>
+      </li>
+      <li data-feature="panels">
+        <span class="nuri-tag nuri-tag--planned">planned · v1.x</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Tab panels</strong>
+          <p class="nuri-roadmap__desc">A <code>&lt;nuri-tab-panel value&gt;</code> sibling that shows/hides content keyed to the selected value, with the <code>role="tabpanel"</code> + <code>aria-controls</code> wiring. Arrives when a real panelled surface needs it.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+<style>
+  /* ═══════════════════════════════════════════════════════════════
+   * PAGE-LOCAL STYLES · component-specific only
+   * Shared widgets (.nuri-spec-card, .nuri-state-grid, .nuri-table,
+   * .nuri-roadmap, .nuri-anatomy, .nuri-demo*) live in shell.css /
+   * demo.css. Nothing Tabs-specific needs a page-local rule today —
+   * the surface is a composed Box, the option shape is fully tokenised.
+   * ═══════════════════════════════════════════════════════════════ */
+</style>
+
+<script>
+  // ── Token table · sourced from tabs.css (@layer tokens) ────────────
+  // Filter `--nuri-tab` matches BOTH `--nuri-tabs-` and `--nuri-tab-`.
+  function renderTokens(sheet) {
+    if (!sheet) return;
+    const r = document.documentElement.dataset;
+    const tokens = NuriTokens.parseSemantics(sheet, {
+      theme: r.theme || 'light',
+      accent: r.accent || 'lilac',
+      filter: v => v.startsWith('--nuri-tab'),
+    });
+    document.getElementById('tabs-tokens').innerHTML =
+      NuriTokens.renderTable(tokens, { showReference: true });
+  }
+
+  NuriTokens.whenSheetReady('tabs.css', renderTokens);
+
+  // Re-render when theme/accent changes so the Value column tracks live.
+  NuriState.subscribe(['theme', 'accent', 'neutral'], () => {
+    NuriTokens.whenSheetReady('tabs.css', renderTokens);
+  });
+</script>
+
+</body>
+</html>

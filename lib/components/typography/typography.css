@@ -1,0 +1,84 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · TYPOGRAPHY
+ *
+ * <nuri-typography size emphasis muted> is a thin custom-element wrapper
+ * over the existing `.nuri-type-{step}` / `.nuri-type-{step}--em`
+ * utility classes in styles/typography.css. The wrapper exists for
+ * declarative, prop-based authoring — the underlying type rules
+ * remain in the foundation stylesheet (single source of truth for
+ * font-size / line-height / letter-spacing / font-weight per step).
+ *
+ * `muted` (boolean) is attribute-dispatch (decision 42 / 53): typography.js
+ * reflects it as `data-muted`, this stylesheet owns the colour. Absent →
+ * currentColor (inherits the cascade's primary); present → the chrome
+ * `--nuri-text-muted` token (theme-only, re-resolves under a [data-theme]
+ * scope). It is a BOOLEAN, not a tone enum — no `tone=` floodgate (P11).
+ *
+ * Pattern note · empty @layer tokens (decision 37 family · layout-
+ * primitive-shape) — the component owns NO component-tokens.
+ * typography.js applies the appropriate utility class to the host
+ * on each sync; the host element IS the styled element (no inner
+ * span). Pipeline empty-emit case applies → build/components/
+ * typography.ts is intentionally NOT generated.
+ *
+ * Markup
+ *   <nuri-typography>Hello</nuri-typography>                  · md default, regular weight
+ *   <nuri-typography size="lg">Headline</nuri-typography>     · lg, regular
+ *   <nuri-typography size="md" emphasis>Strong</nuri-typography>  · md, semibold
+ *   <nuri-typography size="3xl" emphasis>Display</nuri-typography>
+ *
+ * Defaults
+ *   size      → "md"
+ *   emphasis  → absent (regular weight)
+ *   align     → absent (inline · inherits container text-align). Set
+ *               start | center | end to block-align the text (decision 59).
+ *
+ * Sizes (matches typography foundation): xs · sm · md · lg · xl · 3xl
+ * (2xl intentionally reserved · see tokens-primitive.css comment)
+ *
+ * Emphasis weight is semibold across ALL leaves post-N+6.5-polish.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Intentionally empty — typography reuses the foundation
+   * --nuri-type-*-* primitives via the utility classes in
+   * styles/typography.css. No component-token aliasing. */
+}
+
+@layer rules {
+  /* Custom element wrapper · inline by default (matches inline-text
+   * flow). The utility class applied by typography.js carries the
+   * font-size / line-height / letter-spacing / font-weight rules
+   * directly to the host. */
+  nuri-typography {
+    display: inline;
+  }
+
+  /* Pre-upgrade skeleton · inherit font-size from context until
+   * typography.js applies the utility class. Mobile-first: a brief
+   * unsized flash is preferable to assuming a wrong default. */
+  nuri-typography:not(:defined) {
+    display: inline;
+  }
+
+  /* Muted tone · colour dispatched off the reflected data-muted attr
+   * (decision 42 / 53 · JS reports state, CSS owns appearance). Default
+   * (no attr) inherits currentColor; muted paints the chrome text-muted
+   * token, which re-resolves under a [data-theme] scope. */
+  nuri-typography[data-muted] {
+    color: var(--nuri-text-muted);
+  }
+
+  /* Alignment · text-align dispatched straight off the `align` attribute
+   * (start / center / end · logical, RTL-aware). Pure prop-driven CSS —
+   * no JS reflection (the attr survives #sync, which only rewrites
+   * className + data-muted), same pattern as Stack `gap` (decision 37).
+   * The host is `display:inline` by default, so align flips it to block
+   * so text-align actually takes effect and the box fills its container's
+   * inline size (e.g. a flex-column item stretches full-width, so
+   * align="end" right-aligns the text). RN maps to Text
+   * style={{ textAlign }} (decision 59 · N+11). */
+  nuri-typography[align="start"]  { display: block; text-align: start; }
+  nuri-typography[align="center"] { display: block; text-align: center; }
+  nuri-typography[align="end"]    { display: block; text-align: end; }
+}

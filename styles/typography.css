@@ -1,0 +1,37 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · TYPOGRAPHY · UTILITY CLASSES
+ * Composes the atomic --nuri-type-* step tokens into ready-to-
+ * use classes. Components consume these, not the atomics.
+ *
+ * Two states per step:
+ *   .nuri-type-{step}        Default — regular weight
+ *   .nuri-type-{step}--em    Emphasized — always semibold (operator-locked · all leaves)
+ *
+ * Steps: xs · sm · md · lg · xl · 3xl  (2xl reserved)
+ *
+ * Rule: never set font-family here — inherits from the active
+ * platform stack (see --nuri-font-family-sans).
+ *
+ * Specificity note: each selector is chained to itself
+ * (.nuri-type-xs.nuri-type-xs) so it ties .nuri-shell__main p
+ * at (0,0,2). With typography.css loaded AFTER shell.css per the
+ * page link order, source order breaks the tie in favour of the
+ * utility class — so the type ramp samples render at their proper
+ * step size rather than the shell default.
+ * ────────────────────────────────────────────────────────────── */
+
+/* ── Default ─────────────────────────────────────────────────── */
+.nuri-type-xs.nuri-type-xs   { font-size: var(--nuri-type-xs-size);  line-height: var(--nuri-type-xs-line-height);  letter-spacing: var(--nuri-type-xs-tracking);  font-weight: var(--nuri-type-xs-weight); }
+.nuri-type-sm.nuri-type-sm   { font-size: var(--nuri-type-sm-size);  line-height: var(--nuri-type-sm-line-height);  letter-spacing: var(--nuri-type-sm-tracking);  font-weight: var(--nuri-type-sm-weight); }
+.nuri-type-md.nuri-type-md   { font-size: var(--nuri-type-md-size);  line-height: var(--nuri-type-md-line-height);  letter-spacing: var(--nuri-type-md-tracking);  font-weight: var(--nuri-type-md-weight); }
+.nuri-type-lg.nuri-type-lg   { font-size: var(--nuri-type-lg-size);  line-height: var(--nuri-type-lg-line-height);  letter-spacing: var(--nuri-type-lg-tracking);  font-weight: var(--nuri-type-lg-weight); }
+.nuri-type-xl.nuri-type-xl   { font-size: var(--nuri-type-xl-size);  line-height: var(--nuri-type-xl-line-height);  letter-spacing: var(--nuri-type-xl-tracking);  font-weight: var(--nuri-type-xl-weight); }
+.nuri-type-3xl.nuri-type-3xl { font-size: var(--nuri-type-3xl-size); line-height: var(--nuri-type-3xl-line-height); letter-spacing: var(--nuri-type-3xl-tracking); font-weight: var(--nuri-type-3xl-weight); }
+
+/* ── Emphasized ──────────────────────────────────────────────── */
+.nuri-type-xs--em.nuri-type-xs--em   { font-size: var(--nuri-type-xs-size);  line-height: var(--nuri-type-xs-line-height);  letter-spacing: var(--nuri-type-xs-tracking);  font-weight: var(--nuri-type-xs-em-weight); }
+.nuri-type-sm--em.nuri-type-sm--em   { font-size: var(--nuri-type-sm-size);  line-height: var(--nuri-type-sm-line-height);  letter-spacing: var(--nuri-type-sm-tracking);  font-weight: var(--nuri-type-sm-em-weight); }
+.nuri-type-md--em.nuri-type-md--em   { font-size: var(--nuri-type-md-size);  line-height: var(--nuri-type-md-line-height);  letter-spacing: var(--nuri-type-md-tracking);  font-weight: var(--nuri-type-md-em-weight); }
+.nuri-type-lg--em.nuri-type-lg--em   { font-size: var(--nuri-type-lg-size);  line-height: var(--nuri-type-lg-line-height);  letter-spacing: var(--nuri-type-lg-tracking);  font-weight: var(--nuri-type-lg-em-weight); }
+.nuri-type-xl--em.nuri-type-xl--em   { font-size: var(--nuri-type-xl-size);  line-height: var(--nuri-type-xl-line-height);  letter-spacing: var(--nuri-type-xl-tracking);  font-weight: var(--nuri-type-xl-em-weight); }
+.nuri-type-3xl--em.nuri-type-3xl--em { font-size: var(--nuri-type-3xl-size); line-height: var(--nuri-type-3xl-line-height); letter-spacing: var(--nuri-type-3xl-tracking); font-weight: var(--nuri-type-3xl-em-weight); }

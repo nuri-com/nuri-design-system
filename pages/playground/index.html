@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri · Playground</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+  <!-- The playground is a FIXED light + cream surface (decision 57): it has no
+       theme/neutral toggle of its own. Pin the chrome here regardless of the
+       shared docs localStorage. Done WITHOUT NuriState.set so we don't clobber
+       the DS prefs the user picked over in the design-system area. -->
+  <script>
+    document.documentElement.dataset.theme = 'light';
+    document.documentElement.dataset.neutral = 'cream';
+  </script>
+
+  <!-- The playground is a SEPARATE area from the DS docs (decision 57). It
+       reuses the token cake + the base body reset (styles/shell.css), but
+       its chrome is the playground shell, NOT <nuri-shell>. -->
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <!-- Components used by the playground topbar (DS <nuri-topbar center>). -->
+  <link rel="stylesheet" href="../../lib/components/icon/icon.css" />
+  <link rel="stylesheet" href="../../lib/components/icon-button/icon-button.css" />
+  <link rel="stylesheet" href="../../lib/components/button/button.css" />
+  <link rel="stylesheet" href="../../styles/typography.css" />
+  <link rel="stylesheet" href="../../lib/components/typography/typography.css" />
+  <link rel="stylesheet" href="../../lib/components/topbar/topbar.css" />
+  <link rel="stylesheet" href="../../lib/playground/shell.css" />
+
+  <!-- Shell first (mirrors the DS order), then the topbar's components. -->
+  <script src="../../lib/playground/shell.js" defer></script>
+  <script src="../../lib/components/icon/icon.js" type="module"></script>
+  <script src="../../lib/components/icon-button/icon-button.js" defer></script>
+  <script src="../../lib/components/button/button.js" defer></script>
+  <script src="../../lib/components/typography/typography.js" defer></script>
+  <script src="../../lib/components/topbar/topbar.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  PLAYGROUND · INDEX (decision 57 · N+10)
+  ═══════════════════════════════════════════════════════════════
+
+  A grid of document cards. Each card links to one playground document
+  (a horizontal-scroll row of device-framed view compositions). The
+  playground is the surface where real screen compositions render live
+  inside device frames, validating the design system on real layouts —
+  the agent-first loop's "composes" step made visible (decision 21).
+
+  Ship list (N+10): ONE document (My vault). The grid is built to grow.
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-playground-shell>
+  <a class="nuri-pg__card" href="my-vault.html">
+    <span class="nuri-pg__card-name">My vault</span>
+    <span class="nuri-pg__card-meta">The wallet home screen — balances, activation rows, fund actions, and the bottom tab bar. Composed entirely from existing components.</span>
+  </a>
+</nuri-playground-shell>
+
+</body>
+</html>

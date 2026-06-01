@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Components · List · Base</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+
+  <!-- List + ListItem + InteractiveListItem now EMIT component tokens
+       (decision 52). The rows COMPOSE Separator + IconAvatar +
+       TypographyStack + Icon, so those building blocks ride along beside
+       list.css / list-item.css / list-interactive-item.css. -->
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../lib/components/icon/icon.css" />
+  <link rel="stylesheet" href="../../lib/components/icon-avatar/icon-avatar.css" />
+  <link rel="stylesheet" href="../../lib/components/separator/separator.css" />
+  <!-- .nuri-type-* utility classes (foundation) back the <nuri-typography-stack> lines. -->
+  <link rel="stylesheet" href="../../styles/typography.css" />
+  <link rel="stylesheet" href="../../lib/components/typography/typography.css" />
+  <link rel="stylesheet" href="../../lib/components/typography-stack/typography-stack.css" />
+  <link rel="stylesheet" href="../../lib/components/list/list.css" />
+  <link rel="stylesheet" href="../../lib/components/list-item/list-item.css" />
+  <link rel="stylesheet" href="../../lib/components/list-interactive-item/list-interactive-item.css" />
+  <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+  <script src="../../lib/docs/tokens.js"></script>
+  <!-- Custom element scripts MUST be deferred so connectedCallback fires
+       AFTER body parsing (children present). See AGENTS.md. -->
+  <script src="../../lib/components/scope/scope.js" defer></script>
+  <script src="../../lib/components/icon/icon.js" type="module"></script>
+  <script src="../../lib/components/icon-avatar/icon-avatar.js" defer></script>
+  <script src="../../lib/components/separator/separator.js" defer></script>
+  <script src="../../lib/components/typography/typography.js" defer></script>
+  <script src="../../lib/components/typography-stack/typography-stack.js" defer></script>
+  <script src="../../lib/components/list/list.js" defer></script>
+  <script src="../../lib/components/list-item/list-item.js" defer></script>
+  <script src="../../lib/components/list-interactive-item/list-interactive-item.js" defer></script>
+  <script src="../../lib/docs/demo/demo.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  COMPONENT DOCS PAGE · LIST · BASE (decision 52)
+  ═══════════════════════════════════════════════════════════════
+
+  The base of the List family: the container, the PRESENTATIONAL row,
+  and the INTERACTIVE wrapper that composes around it. The N+8 refactor
+  split interactivity OUT of the row — <nuri-list-item> is now purely
+  presentational (role=listitem, no press), and
+  <nuri-list-interactive-item> wraps it in a role=button so the content
+  IS the accessible name (the N+7 double-read fix · decision 52). The
+  nav-item RECIPE lives on its own sub-page.
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="components/list-base">
+  <nuri-page
+    eyebrow="Components · List · Base"
+    title="List · Base"
+    status="draft"
+    lead="The container, the presentational row, and the interactive wrapper. List stacks rows and owns per-row rhythm through a single density axis. ListItem is ONE shape — leading · content · trailing — composed via slots, and is purely presentational. InteractiveListItem composes AROUND a row: it wraps the content in a role=button so the content is the accessible name (read once · no double-read). All fixed values are emitted component tokens (decision 52)."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · SPEC CARD
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-component="list"
+        data-component-status="draft"
+        data-rn-status="spec-in-migration-test">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd data-spec="type">
+          <span class="nuri-spec-card__chip" data-type="component">component</span>
+          <span class="nuri-spec-card__meta">family base · primitive + interactive wrapper · decision 52</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Layer</dt>
+        <dd data-spec="layer">
+          <span class="nuri-spec-card__chip" data-layer="composition">composition</span>
+          <span class="nuri-spec-card__meta">EMITS component tokens (density · spacing · press) for machine-checked RN parity</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Source</dt>
+        <dd data-spec="source">
+          <span class="nuri-spec-card__chip" data-source="lib/components/list/">lib/components/list/</span>
+          <span class="nuri-spec-card__chip" data-source="lib/components/list-item/">lib/components/list-item/</span>
+          <span class="nuri-spec-card__chip" data-source="lib/components/list-interactive-item/">lib/components/list-interactive-item/</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Elements</dt>
+        <dd data-spec="elements">
+          <span class="nuri-spec-card__chip" data-element="list">&lt;nuri-list&gt;</span>
+          <span class="nuri-spec-card__chip" data-element="list-item">&lt;nuri-list-item&gt;</span>
+          <span class="nuri-spec-card__chip" data-element="list-interactive-item">&lt;nuri-list-interactive-item&gt;</span>
+          <span class="nuri-spec-card__chip" data-element="list-item-leading">&lt;nuri-list-item-leading&gt;</span>
+          <span class="nuri-spec-card__chip" data-element="list-item-trailing">&lt;nuri-list-item-trailing&gt;</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Parts</dt>
+        <dd data-spec="parts">
+          <span class="nuri-spec-card__chip" data-part="leading">leading</span>
+          <span class="nuri-spec-card__chip" data-part="content">content</span>
+          <span class="nuri-spec-card__chip" data-part="trailing">trailing</span>
+          <span class="nuri-spec-card__chip" data-part="action">action</span>
+          <span class="nuri-spec-card__meta">3 positions · 1 shape · optional press wrapper</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Composes</dt>
+        <dd data-spec="composes">
+          <span class="nuri-spec-card__chip" data-composes="separator">Separator</span>
+          <span class="nuri-spec-card__chip" data-composes="icon-avatar">IconAvatar</span>
+          <span class="nuri-spec-card__chip" data-composes="typography-stack">TypographyStack</span>
+          <span class="nuri-spec-card__chip" data-composes="icon">Icon</span>
+          <span class="nuri-spec-card__meta">used as-is · not modified (decision 52)</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Component status</dt>
+        <dd data-spec="component-status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>RN status</dt>
+        <dd data-spec="rn-status">
+          <span class="nuri-tag nuri-tag--draft">spec in migration-test</span>
+          <span class="nuri-spec-card__meta">RN definition lives at docs/migration-tests/button-matrix/index.tsx pending long-term home — see Open question in roadmap/index.md</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · HERO DEMO · the presentational row (the base shape)
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="hero">
+    <h2>Default</h2>
+    <nuri-demo>
+      <template>
+        <nuri-list density="sm">
+          <nuri-list-item>Item 1</nuri-list-item>
+          <nuri-separator></nuri-separator>
+          <nuri-list-item>Item 2</nuri-list-item>
+        </nuri-list>
+      </template>
+    </nuri-demo>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · API · PROPS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="api">
+    <h2>API</h2>
+    <p>
+      <code>&lt;nuri-list&gt;</code> is the vertical container;
+      <code>&lt;nuri-list-item&gt;</code> is the <strong>presentational</strong>
+      row; <code>&lt;nuri-list-interactive-item&gt;</code> is the optional
+      pressable <strong>wrapper</strong> that composes around a row. The
+      row's appearance is a function of which positions the author fills,
+      not a <code>variant</code> prop (decision 51). The List has
+      <strong>no <code>gap</code> prop</strong> — inter-row rhythm is each
+      row's <code>density</code>-driven min-height plus author-placed
+      <code>&lt;nuri-separator&gt;</code>s.
+    </p>
+
+    <h3><code>&lt;nuri-list&gt;</code> · container</h3>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="list">
+      <thead>
+        <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-prop="density">
+          <td data-cell="name"><code>density</code></td>
+          <td data-cell="type"><code>"sm" | "md" | "lg"</code></td>
+          <td data-cell="default"><code>md</code></td>
+          <td data-cell="description">Sets the row min-height for every row child — <code>sm</code> 60px (<code>size-xl</code>), <code>md</code> 72px (<code>size-2xl</code>), <code>lg</code> 90px (<code>size-3xl</code>). A container decision projected onto the rows: the selector targets <code>nuri-list-item</code> only, so author-placed <code>&lt;nuri-separator&gt;</code>s stay 1px across every density. Now EMITted as component tokens (<code>list.densitySmMinHeight</code> etc.) for machine-checked RN parity (decision 52).</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <h3><code>&lt;nuri-list-item&gt;</code> · presentational row</h3>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="list-item">
+      <thead>
+        <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-prop="—">
+          <td data-cell="name"><em>none</em></td>
+          <td data-cell="type">—</td>
+          <td data-cell="default">—</td>
+          <td data-cell="description">No props. The row is <strong>purely presentational</strong> (<code>role="listitem"</code>) — it carries NO interactivity (decision 52). Appearance is set by which book-end positions the author fills. The row has <strong>no inline padding</strong> — content is edge-to-edge so it aligns with the full-width separators; the container supplies the outer margin. The two fixed spacing values (block guard, inter-part gutter) are EMITted as component tokens (<code>listItem.paddingBlock</code>, <code>listItem.gap</code>).</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <h3><code>&lt;nuri-list-interactive-item&gt;</code> · pressable wrapper</h3>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="list-interactive-item">
+      <thead>
+        <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-prop="onpress">
+          <td data-cell="name"><code>onpress</code></td>
+          <td data-cell="type"><code>handler</code></td>
+          <td data-cell="default">—</td>
+          <td data-cell="description">Wraps its child <code>&lt;nuri-list-item&gt;</code> in an inner <code>role="button" tabindex="0"</code> element so the content IS the accessible name (Enter / Space activation, a bubbling <code>press</code> event). It is <strong>nav-agnostic</strong> — it only fires a press; routing is the author's handler. This is the N+7 a11y fix: no copied aria-label, no double-read (decision 52).</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <h3><code>&lt;nuri-list-item-leading&gt;</code> / <code>&lt;nuri-list-item-trailing&gt;</code> · book-end markers</h3>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="list-item-region">
+      <thead>
+        <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-prop="—">
+          <td data-cell="name"><em>none</em></td>
+          <td data-cell="type">—</td>
+          <td data-cell="default">—</td>
+          <td data-cell="description">No props. Presence is the API: an authored wrapper becomes an auto-width book-end (leading before the content, trailing after) in document order — content is NOT reparented within the row (decision 51). Omit the wrapper entirely for an empty side.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · ANATOMY & PARTS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="anatomy">
+    <h2>Anatomy &amp; parts</h2>
+    <p>
+      A row is a flex row in document order: an optional auto-width
+      <strong>leading</strong> book-end, the stretched
+      <strong>content</strong> (flex:1), and an optional auto-width
+      <strong>trailing</strong> book-end. When interactive, the wrapper
+      adds an <strong>action</strong> element that WRAPS the whole row —
+      its flat press wash bleeds past the row edges via a counter-margin
+      (full-bleed by counter-margin · revised N+8.1). The row has no inline
+      padding, so content sits flush with the full-width separators; the
+      container supplies the outer margin (decision 52).
+    </p>
+
+    <div class="nuri-anatomy">
+      <div class="nuri-anatomy__visual">
+        <nuri-list>
+          <nuri-list-item>
+            <nuri-list-item-leading>
+              <nuri-icon-avatar name="arrow-up" variant="soft"></nuri-icon-avatar>
+            </nuri-list-item-leading>
+            <nuri-typography-stack>
+              <nuri-typography size="md" emphasis>Sent to Alex</nuri-typography>
+              <nuri-typography size="sm" muted>26 May at 11:34 AM</nuri-typography>
+            </nuri-typography-stack>
+            <nuri-list-item-trailing>
+              <nuri-typography size="md" emphasis>−£24.00</nuri-typography>
+            </nuri-list-item-trailing>
+          </nuri-list-item>
+        </nuri-list>
+      </div>
+      <div class="nuri-table-scroll"><table class="nuri-table" data-table="parts" data-component="list-item">
+        <thead>
+          <tr><th>Part</th><th>Element (web)</th><th>Element (RN)</th><th>Owns</th></tr>
+        </thead>
+        <tbody>
+          <tr data-part="leading">
+            <td data-cell="name"><code>leading</code></td>
+            <td data-cell="element-web"><code>nuri-list-item-leading</code></td>
+            <td data-cell="element-rn"><code>ListItem leading</code> → <code>View</code></td>
+            <td data-cell="owns">the optional start book-end (icon-avatar, etc.); auto width</td>
+          </tr>
+          <tr data-part="content">
+            <td data-cell="name"><code>content</code></td>
+            <td data-cell="element-web">unwrapped children</td>
+            <td data-cell="element-rn"><code>View</code> (flex:1)</td>
+            <td data-cell="owns">the stretched middle (typography-stack / text); absorbs the slack</td>
+          </tr>
+          <tr data-part="trailing">
+            <td data-cell="name"><code>trailing</code></td>
+            <td data-cell="element-web"><code>nuri-list-item-trailing</code></td>
+            <td data-cell="element-rn"><code>ListItem trailing</code> → <code>View</code></td>
+            <td data-cell="owns">the optional end book-end (caret, amount stack, etc.); auto width</td>
+          </tr>
+          <tr data-part="action">
+            <td data-cell="name"><code>action</code></td>
+            <td data-cell="element-web"><code>div.nuri-list-interactive-item__action</code> <em>(wrapper only)</em></td>
+            <td data-cell="element-rn"><code>Pressable</code> wrapping the row</td>
+            <td data-cell="owns">the role=button press target; the full-bleed pressed wash + radius + focus ring</td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · LIVE DEMOS · presentational vs interactive + leading book-end
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="demos">
+    <h2>Live demos</h2>
+    <p>
+      One row shape. The <strong>presentational</strong> row carries no
+      press — fill the content and an optional trailing book-end. The
+      <strong>interactive</strong> row wraps the same shape in
+      <code>&lt;nuri-list-interactive-item&gt;</code>; on press the action
+      box fills with a flat <code>bg-subtle</code> wash, made full-bleed by
+      a counter-margin (revised N+8.1).
+    </p>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="presentational · simple" subtitle="content + trailing value · no press">
+        <template>
+          <nuri-list density="sm">
+            <nuri-list-item>
+              Bitcoin
+              <nuri-list-item-trailing>Sats 20.309</nuri-list-item-trailing>
+            </nuri-list-item>
+            <nuri-separator></nuri-separator>
+            <nuri-list-item>
+              Euro
+              <nuri-list-item-trailing>€ 50,00</nuri-list-item-trailing>
+            </nuri-list-item>
+          </nuri-list>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="interactive · simple" subtitle="plain text + caret · flat bg-subtle wash on press">
+        <template>
+          <nuri-list density="sm">
+            <nuri-list-interactive-item>
+              <nuri-list-item>
+                Linked accounts
+                <nuri-list-item-trailing>
+                  <nuri-icon name="caret-right" size="md"></nuri-icon>
+                </nuri-list-item-trailing>
+              </nuri-list-item>
+            </nuri-list-interactive-item>
+            <nuri-separator></nuri-separator>
+            <nuri-list-interactive-item>
+              <nuri-list-item>
+                Currency
+                <nuri-list-item-trailing>
+                  <nuri-icon name="caret-right" size="md"></nuri-icon>
+                </nuri-list-item-trailing>
+              </nuri-list-item>
+            </nuri-list-interactive-item>
+          </nuri-list>
+        </template>
+      </nuri-demo>
+
+    </div>
+
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · DENSITY · container projects row min-height
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="density">
+    <h2>Density</h2>
+    <p>
+      <code>density</code> on the container sets every row's min-height —
+      <code>sm</code> 60px, <code>md</code> 72px (default), <code>lg</code>
+      90px. Author-placed <code>&lt;nuri-separator&gt;</code>s stay 1px at
+      every density. The same simple list, three densities.
+    </p>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="density · sm" subtitle="rows 60px · separators stay 1px">
+        <template>
+          <nuri-list density="sm">
+            <nuri-list-item>
+              Bitcoin
+              <nuri-list-item-trailing>Sats 20.309</nuri-list-item-trailing>
+            </nuri-list-item>
+            <nuri-separator></nuri-separator>
+            <nuri-list-item>
+              Euro
+              <nuri-list-item-trailing>€ 50,00</nuri-list-item-trailing>
+            </nuri-list-item>
+          </nuri-list>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="density · md (default)" subtitle="rows 72px · separators stay 1px">
+        <template>
+          <nuri-list>
+            <nuri-list-item>
+              Bitcoin
+              <nuri-list-item-trailing>Sats 20.309</nuri-list-item-trailing>
+            </nuri-list-item>
+            <nuri-separator></nuri-separator>
+            <nuri-list-item>
+              Euro
+              <nuri-list-item-trailing>€ 50,00</nuri-list-item-trailing>
+            </nuri-list-item>
+          </nuri-list>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="density · lg" subtitle="rows 90px · separators stay 1px">
+        <template>
+          <nuri-list density="lg">
+            <nuri-list-item>
+              Bitcoin
+              <nuri-list-item-trailing>Sats 20.309</nuri-list-item-trailing>
+            </nuri-list-item>
+            <nuri-separator></nuri-separator>
+            <nuri-list-item>
+              Euro
+              <nuri-list-item-trailing>€ 50,00</nuri-list-item-trailing>
+            </nuri-list-item>
+          </nuri-list>
+        </template>
+      </nuri-demo>
+
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · TOKEN MAPPING · now EMIT (decision 52)
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="token-mapping">
+    <h2>Token mapping</h2>
+    <p>
+      <strong>CSS property → DTCG → CSS var → reference.</strong> The N+8
+      refactor formalizes the family's fixed values as
+      <strong>component tokens</strong> (decision 52 · EMIT): each row
+      below maps a host CSS property to its component token (the
+      <code>--nuri-…</code> var) and the semantic it aliases.
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="token-map" data-component="list">
+      <thead>
+        <tr>
+          <th>Part / state</th>
+          <th>CSS property</th>
+          <th>DTCG</th>
+          <th>Component token</th>
+          <th>Reference</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="nuri-table__group" data-group="density">
+          <th scope="rowgroup" colspan="5">List density → row min-height (targets nuri-list-item only)</th>
+        </tr>
+        <tr data-part="list" data-state="density-sm">
+          <td>row <code>[density="sm"]</code></td>
+          <td><code>min-block-size</code></td>
+          <td><code>list.densitySmMinHeight</code></td>
+          <td><code>--nuri-list-density-sm-min-height</code></td>
+          <td><code>size.xl</code> · 60px</td>
+        </tr>
+        <tr data-part="list" data-state="density-md">
+          <td>row <code>[density="md"]</code> · default</td>
+          <td><code>min-block-size</code></td>
+          <td><code>list.densityMdMinHeight</code></td>
+          <td><code>--nuri-list-density-md-min-height</code></td>
+          <td><code>size.2xl</code> · 72px</td>
+        </tr>
+        <tr data-part="list" data-state="density-lg">
+          <td>row <code>[density="lg"]</code></td>
+          <td><code>min-block-size</code></td>
+          <td><code>list.densityLgMinHeight</code></td>
+          <td><code>--nuri-list-density-lg-min-height</code></td>
+          <td><code>size.3xl</code> · 90px</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="row">
+          <th scope="rowgroup" colspan="5">Row · block guard + inter-part rhythm</th>
+        </tr>
+        <tr data-part="list-item" data-css-prop="padding-block">
+          <td>row</td>
+          <td><code>padding-block</code></td>
+          <td><code>listItem.paddingBlock</code></td>
+          <td><code>--nuri-list-item-padding-block</code></td>
+          <td><code>space.md</code> · tall-content guard</td>
+        </tr>
+        <tr data-part="list-item" data-css-prop="gap">
+          <td>row</td>
+          <td><code>gap</code></td>
+          <td><code>listItem.gap</code></td>
+          <td><code>--nuri-list-item-gap</code></td>
+          <td><code>space.md</code> · leading / content / trailing gutter</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="action">
+          <th scope="rowgroup" colspan="5">Interactive · press wrapper (wrapper only)</th>
+        </tr>
+        <tr data-part="action" data-css-prop="background">
+          <td>action · rest</td>
+          <td><code>background</code></td>
+          <td><code>listInteractiveItem.wash</code></td>
+          <td><code>--nuri-list-interactive-item-wash</code></td>
+          <td><code>transparent</code> · literal</td>
+        </tr>
+        <tr data-part="action" data-state="pressed" data-css-prop="background">
+          <td>action <code>:active</code></td>
+          <td><code>background</code></td>
+          <td><code>listInteractiveItem.washPressed</code></td>
+          <td><code>--nuri-list-interactive-item-wash-pressed</code></td>
+          <td><code>chrome.bg-subtle</code> · flat wash, full-bleed by counter-margin</td>
+        </tr>
+        <tr data-part="action" data-css-prop="border-radius">
+          <td>action</td>
+          <td><code>border-radius</code></td>
+          <td><code>listInteractiveItem.radius</code></td>
+          <td><code>--nuri-list-interactive-item-radius</code></td>
+          <td><code>radius.lg</code> · rounds the wash</td>
+        </tr>
+        <tr data-part="action" data-state="focus-visible" data-css-prop="outline-color">
+          <td>action <code>:focus-visible</code></td>
+          <td><code>outline-color</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>var(--nuri-focus-ring)</code> · brand ring · web only (F-FOCUS-1)</td>
+        </tr>
+
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       8 · ROADMAP
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="rn-implementation">
+        <span class="nuri-tag nuri-tag--draft">spec in migration-test</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">React Native implementation</strong>
+          <p class="nuri-roadmap__desc">The RN <code>List</code> / <code>ListItem</code> / <code>InteractiveListItem</code> translation (density → row min-height via context; a <code>Pressable</code> wrapping the presentational row; all fixed values dereferencing the emitted tokens via <code>resolveToken</code>) lives in the <a href="../../docs/migration-tests/button-matrix/index.tsx">migration test</a>. Promotion to a permanent <code>lib/</code> home tracks the shared RN-spec-home question in <a href="../../roadmap/index.md">roadmap/index.md</a>.</p>
+        </div>
+      </li>
+      <li data-feature="row-control">
+        <span class="nuri-tag nuri-tag--planned">deferred · cross-platform-gated</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Interactive control in a trailing book-end</strong>
+          <p class="nuri-roadmap__desc">The settings-row-with-Switch pattern (a real interactive control nested in a row) is deferred: an interactive row's press target and a nested control's hit area conflict, and the resolution differs web ↔ RN. Revisit when a cross-platform nested-hit-area model is settled.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+<style>
+  /* ═══════════════════════════════════════════════════════════════
+   * PAGE-LOCAL STYLES · component-specific only
+   * The demo frame bounds each list's width so the row layout (leading /
+   * content / trailing) is observable. Rows sit on the plain surface (NO
+   * subtle card fill) so the edge-to-edge content aligns with separators.
+   * ═══════════════════════════════════════════════════════════════ */
+  #hero nuri-list,
+  #anatomy .nuri-anatomy__visual nuri-list,
+  .nuri-demo-card__preview nuri-list {
+    width: 100%;
+  }
+</style>
+
+</body>
+</html>

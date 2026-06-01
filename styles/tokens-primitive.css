@@ -1,0 +1,750 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · TOKENS · PRIMITIVE
+ * Theme-agnostic catalog of raw values. Pure leaves: every hex,
+ * dimension and duration is declared once and is NEVER reactive
+ * to [data-theme]. Theming and accent composition happen in
+ * tokens-semantic.css, which references these primitives by name.
+ *
+ * ── Naming → DTCG $type inference (RN sync pipeline) ──────────
+ *   --nuri-color-*         → color
+ *   --nuri-px-*            → dimension (direct-pixel scale · N = px)
+ *   --nuri-radius-*        → dimension (corner radii)
+ *   --nuri-font-size-*     → dimension
+ *   --nuri-font-family-*   → fontFamily
+ *   --nuri-font-weight-*   → fontWeight
+ *   --nuri-border-*        → dimension (px — never scales)
+ *   --nuri-duration-*      → duration
+ *
+ * ── Deliberately absent token families ───────────────────────
+ *   --nuri-line-height-*   no primitive layer · unitless on the
+ *                          type scale (decision 29).
+ *   --nuri-shadow-*        no primitives today · Elevation
+ *                          foundation ships with its first
+ *                          consumer (per ROADMAP).
+ *   --nuri-color-{green,orange,red}-500
+ *                          status primitives do NOT ship · the
+ *                          family lands as full Radix scales
+ *                          (Jade / Amber / Red / Blue) with the
+ *                          first status-using component (Toast,
+ *                          Alert, StatusPill) — N+5.7 cleanup.
+ *   --nuri-px-{8,16,20,32,40,64,80}
+ *                          consolidated out by the N+6.0
+ *                          rename (8→6, 16/20→18, 32→28, 40→36,
+ *                          64→60, 80→72) · see decision 32.
+ *   --nuri-size-*          retired in N+6.0 · primitive layer
+ *                          uses direct-pixel naming. The
+ *                          --nuri-size-* prefix is reserved for
+ *                          the semantic sizing layer arriving in
+ *                          N+6.1 (xs · sm · md · lg · xl · 2xl ·
+ *                          3xl).
+ *
+ * ── Hardcoded escapes retired ────────────────────────────────
+ *   44px in shell.css (3×)    → var(--nuri-px-48)  (N+6.0)
+ *   56px in button.css (1×)   → var(--nuri-px-60)  (N+6.0)
+ *
+ * ── Unit rule ─────────────────────────────────────────────────
+ *   rem  → font-size ONLY (mirrors RN allowFontScaling)
+ *   px   → everything else (spacing, radius, border)
+ *
+ * ── Colour shape · Radix 12-step functional scales ────────────
+ * Nuri is mobile-first — steps Radix calls "hover" are read as
+ * "pressed" here (see decision 3 in decisionlog.md, role legend on
+ * pages/foundations/colour/primitive.html).
+ *   1  app bg               7  UI border / focus
+ *   2  subtle bg            8  pressed border
+ *   3  UI element bg        9  solid bg (max bold)
+ *   4  UI element pressed  10  solid pressed
+ *   5  UI element active   11  low-contrast text
+ *   6  subtle border       12  high-contrast text
+ *
+ * Each colour scale exposes BOTH its light and dark variants as
+ * separate primitives (suffix -light / -dark), addressable in
+ * parallel. The semantic layer composes mode × accent on top:
+ *
+ *   bg-canvas (light theme)          → neutral-1-light
+ *   bg-canvas (dark theme)           → neutral-1-dark
+ *   accent-solid (neutral, light)    → neutral-12-light
+ *   accent-solid (neutral, dark)     → neutral-12-dark
+ *   accent-solid (lilac, any theme)  → lilac-9-light   (frozen — bright)
+ *
+ * Exception · the black/white alpha scales have no -light/-dark
+ * suffix because they are theme-invariant by nature, not by design.
+ *
+ * ── Active-neutral aliases ────────────────────────────────────
+ * --nuri-color-neutral-N-{light|dark} point at the active scale
+ * based on [data-neutral] on <html>. Default = gray. Both light
+ * and dark variants are exposed in parallel — same as the per-scale
+ * primitives. This is exploratory: it lets us A/B the candidate
+ * neutrals before locking one. Will be removed once the choice is made.
+ * ────────────────────────────────────────────────────────────── */
+
+
+/* ══════════════════════════════════════════════════════════════
+ * COLOUR · RAW VALUES
+ * Candidate neutrals × 12 steps × 2 themes + lilac brand + alpha scales.
+ * Pure leaves — never overridden by [data-theme].
+ * ══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Gray ─────────────────────────────────────────────────── */
+  --nuri-color-gray-1-light:   #fcfcfc;
+  --nuri-color-gray-1-dark:    #111111;
+  --nuri-color-gray-2-light:   #f9f9f9;
+  --nuri-color-gray-2-dark:    #191919;
+  --nuri-color-gray-3-light:   #f0f0f0;
+  --nuri-color-gray-3-dark:    #222222;
+  --nuri-color-gray-4-light:   #e8e8e8;
+  --nuri-color-gray-4-dark:    #2a2a2a;
+  --nuri-color-gray-5-light:   #e0e0e0;
+  --nuri-color-gray-5-dark:    #313131;
+  --nuri-color-gray-6-light:   #d9d9d9;
+  --nuri-color-gray-6-dark:    #3a3a3a;
+  --nuri-color-gray-7-light:   #cecece;
+  --nuri-color-gray-7-dark:    #484848;
+  --nuri-color-gray-8-light:   #bbbbbb;
+  --nuri-color-gray-8-dark:    #606060;
+  --nuri-color-gray-9-light:   #8d8d8d;
+  --nuri-color-gray-9-dark:    #6e6e6e;
+  --nuri-color-gray-10-light:  #838383;
+  --nuri-color-gray-10-dark:   #7b7b7b;
+  --nuri-color-gray-11-light:  #646464;
+  --nuri-color-gray-11-dark:   #b4b4b4;
+  --nuri-color-gray-12-light:  #202020;
+  --nuri-color-gray-12-dark:   #eeeeee;
+
+  /* ── Mauve ────────────────────────────────────────────────── */
+  --nuri-color-mauve-1-light:   #fdfcfd;
+  --nuri-color-mauve-1-dark:    #121113;
+  --nuri-color-mauve-2-light:   #faf9fb;
+  --nuri-color-mauve-2-dark:    #1a191b;
+  --nuri-color-mauve-3-light:   #f2eff3;
+  --nuri-color-mauve-3-dark:    #232225;
+  --nuri-color-mauve-4-light:   #eae7ec;
+  --nuri-color-mauve-4-dark:    #2b292d;
+  --nuri-color-mauve-5-light:   #e3dfe6;
+  --nuri-color-mauve-5-dark:    #323035;
+  --nuri-color-mauve-6-light:   #dbd8e0;
+  --nuri-color-mauve-6-dark:    #3c393f;
+  --nuri-color-mauve-7-light:   #d0cdd7;
+  --nuri-color-mauve-7-dark:    #49474e;
+  --nuri-color-mauve-8-light:   #bcbac7;
+  --nuri-color-mauve-8-dark:    #625f69;
+  --nuri-color-mauve-9-light:   #8e8c99;
+  --nuri-color-mauve-9-dark:    #6f6d78;
+  --nuri-color-mauve-10-light:  #84828e;
+  --nuri-color-mauve-10-dark:   #7c7a85;
+  --nuri-color-mauve-11-light:  #65636d;
+  --nuri-color-mauve-11-dark:   #b5b2bc;
+  --nuri-color-mauve-12-light:  #211f26;
+  --nuri-color-mauve-12-dark:   #eeeef0;
+
+  /* ── Slate ────────────────────────────────────────────────── */
+  --nuri-color-slate-1-light:   #fcfcfd;
+  --nuri-color-slate-1-dark:    #111113;
+  --nuri-color-slate-2-light:   #f9f9fb;
+  --nuri-color-slate-2-dark:    #18191b;
+  --nuri-color-slate-3-light:   #f0f0f3;
+  --nuri-color-slate-3-dark:    #212225;
+  --nuri-color-slate-4-light:   #e8e8ec;
+  --nuri-color-slate-4-dark:    #272a2d;
+  --nuri-color-slate-5-light:   #e0e1e6;
+  --nuri-color-slate-5-dark:    #2e3135;
+  --nuri-color-slate-6-light:   #d9d9e0;
+  --nuri-color-slate-6-dark:    #363a3f;
+  --nuri-color-slate-7-light:   #cdced6;
+  --nuri-color-slate-7-dark:    #43484e;
+  --nuri-color-slate-8-light:   #b9bbc6;
+  --nuri-color-slate-8-dark:    #5a6169;
+  --nuri-color-slate-9-light:   #8b8d98;
+  --nuri-color-slate-9-dark:    #696e77;
+  --nuri-color-slate-10-light:  #80838d;
+  --nuri-color-slate-10-dark:   #777b84;
+  --nuri-color-slate-11-light:  #60646c;
+  --nuri-color-slate-11-dark:   #b0b4ba;
+  --nuri-color-slate-12-light:  #1c2024;
+  --nuri-color-slate-12-dark:   #edeef0;
+
+  /* ── Sage ─────────────────────────────────────────────────── */
+  --nuri-color-sage-1-light:   #fbfdfc;
+  --nuri-color-sage-1-dark:    #101211;
+  --nuri-color-sage-2-light:   #f7f9f8;
+  --nuri-color-sage-2-dark:    #171918;
+  --nuri-color-sage-3-light:   #eef1f0;
+  --nuri-color-sage-3-dark:    #202221;
+  --nuri-color-sage-4-light:   #e6e9e8;
+  --nuri-color-sage-4-dark:    #272a29;
+  --nuri-color-sage-5-light:   #dfe2e0;
+  --nuri-color-sage-5-dark:    #2e3130;
+  --nuri-color-sage-6-light:   #d7dad9;
+  --nuri-color-sage-6-dark:    #373b39;
+  --nuri-color-sage-7-light:   #cbcfcd;
+  --nuri-color-sage-7-dark:    #444947;
+  --nuri-color-sage-8-light:   #b8bcba;
+  --nuri-color-sage-8-dark:    #5b625f;
+  --nuri-color-sage-9-light:   #868e8b;
+  --nuri-color-sage-9-dark:    #63706b;
+  --nuri-color-sage-10-light:  #7c8481;
+  --nuri-color-sage-10-dark:   #717d79;
+  --nuri-color-sage-11-light:  #5f6563;
+  --nuri-color-sage-11-dark:   #adb5b2;
+  --nuri-color-sage-12-light:  #1a211e;
+  --nuri-color-sage-12-dark:   #eceeed;
+
+  /* ── Olive ────────────────────────────────────────────────── */
+  --nuri-color-olive-1-light:   #fcfdfc;
+  --nuri-color-olive-1-dark:    #111210;
+  --nuri-color-olive-2-light:   #f8faf8;
+  --nuri-color-olive-2-dark:    #181917;
+  --nuri-color-olive-3-light:   #eff1ef;
+  --nuri-color-olive-3-dark:    #212220;
+  --nuri-color-olive-4-light:   #e7e9e7;
+  --nuri-color-olive-4-dark:    #282a27;
+  --nuri-color-olive-5-light:   #dfe2df;
+  --nuri-color-olive-5-dark:    #2f312e;
+  --nuri-color-olive-6-light:   #d7dad7;
+  --nuri-color-olive-6-dark:    #383a36;
+  --nuri-color-olive-7-light:   #cccfcc;
+  --nuri-color-olive-7-dark:    #454843;
+  --nuri-color-olive-8-light:   #b9bcb8;
+  --nuri-color-olive-8-dark:    #5c625b;
+  --nuri-color-olive-9-light:   #898e87;
+  --nuri-color-olive-9-dark:    #687066;
+  --nuri-color-olive-10-light:  #7f847d;
+  --nuri-color-olive-10-dark:   #767d74;
+  --nuri-color-olive-11-light:  #60655f;
+  --nuri-color-olive-11-dark:   #afb5ad;
+  --nuri-color-olive-12-light:  #1d211c;
+  --nuri-color-olive-12-dark:   #eceeec;
+
+  /* ── Sand ─────────────────────────────────────────────────── */
+  --nuri-color-sand-1-light:   #fdfdfc;
+  --nuri-color-sand-1-dark:    #111110;
+  --nuri-color-sand-2-light:   #f9f9f8;
+  --nuri-color-sand-2-dark:    #191918;
+  --nuri-color-sand-3-light:   #f1f0ef;
+  --nuri-color-sand-3-dark:    #222221;
+  --nuri-color-sand-4-light:   #e9e8e6;
+  --nuri-color-sand-4-dark:    #2a2a28;
+  --nuri-color-sand-5-light:   #e2e1de;
+  --nuri-color-sand-5-dark:    #31312e;
+  --nuri-color-sand-6-light:   #dad9d6;
+  --nuri-color-sand-6-dark:    #3b3a37;
+  --nuri-color-sand-7-light:   #cfceca;
+  --nuri-color-sand-7-dark:    #494844;
+  --nuri-color-sand-8-light:   #bcbbb5;
+  --nuri-color-sand-8-dark:    #62605b;
+  --nuri-color-sand-9-light:   #8d8d86;
+  --nuri-color-sand-9-dark:    #6f6d66;
+  --nuri-color-sand-10-light:  #82827c;
+  --nuri-color-sand-10-dark:   #7c7b74;
+  --nuri-color-sand-11-light:  #63635e;
+  --nuri-color-sand-11-dark:   #b5b3ad;
+  --nuri-color-sand-12-light:  #21201c;
+  --nuri-color-sand-12-dark:   #eeeeec;
+
+  /* ── Cream (Radix custom · warm off-white) ────────────────── */
+  --nuri-color-cream-1-light:   #fffdf2;
+  --nuri-color-cream-1-dark:    #12110b;
+  --nuri-color-cream-2-light:   #fbf9ee;
+  --nuri-color-cream-2-dark:    #1a1913;
+  --nuri-color-cream-3-light:   #f3f1e2;
+  --nuri-color-cream-3-dark:    #242319;
+  --nuri-color-cream-4-light:   #ece9da;
+  --nuri-color-cream-4-dark:    #2c2a1e;
+  --nuri-color-cream-5-light:   #e5e2d1;
+  --nuri-color-cream-5-dark:    #343124;
+  --nuri-color-cream-6-light:   #dddac9;
+  --nuri-color-cream-6-dark:    #3d3b2e;
+  --nuri-color-cream-7-light:   #d2cfbf;
+  --nuri-color-cream-7-dark:    #4b483b;
+  --nuri-color-cream-8-light:   #bfbcac;
+  --nuri-color-cream-8-dark:    #636153;
+  --nuri-color-cream-9-light:   #8f8c7d;
+  --nuri-color-cream-9-dark:    #706d5f;
+  --nuri-color-cream-10-light:  #858273;
+  --nuri-color-cream-10-dark:   #7e7b6c;
+  --nuri-color-cream-11-light:  #666455;
+  --nuri-color-cream-11-dark:   #b7b4a4;
+  --nuri-color-cream-12-light:  #222013;
+  --nuri-color-cream-12-dark:   #f0eee3;
+
+  /* ── Lilac (brand · Radix custom from #BEAAFF) ────────────── */
+  /* Bright scale: steps 9 & 10 are identical in light and dark — the
+   * brand color keeps its identity across themes. Duplication is
+   * intentional and self-documenting at the primitive layer. */
+  --nuri-color-lilac-1-light:   #fcfcff;
+  --nuri-color-lilac-1-dark:    #120f1a;
+  --nuri-color-lilac-2-light:   #faf8ff;
+  --nuri-color-lilac-2-dark:    #191523;
+  --nuri-color-lilac-3-light:   #f3f0ff;
+  --nuri-color-lilac-3-dark:    #282040;
+  --nuri-color-lilac-4-light:   #ebe3ff;
+  --nuri-color-lilac-4-dark:    #342756;
+  --nuri-color-lilac-5-light:   #e2d6ff;
+  --nuri-color-lilac-5-dark:    #3e2f63;
+  --nuri-color-lilac-6-light:   #d6c6ff;
+  --nuri-color-lilac-6-dark:    #493a71;
+  --nuri-color-lilac-7-light:   #c4b0ff;
+  --nuri-color-lilac-7-dark:    #584785;
+  --nuri-color-lilac-8-light:   #ae91ff;
+  --nuri-color-lilac-8-dark:    #6c58a3;
+  --nuri-color-lilac-9-light:   #beaaff;
+  --nuri-color-lilac-9-dark:    #beaaff;  /* identical to -light: brand is theme-invariant */
+  --nuri-color-lilac-10-light:  #b39ff3;
+  --nuri-color-lilac-10-dark:   #b39ff3;  /* identical to -light: matches step-9 hover */
+  --nuri-color-lilac-11-light:  #6f47c0;
+  --nuri-color-lilac-11-dark:   #bba7fc;
+  --nuri-color-lilac-12-light:  #381b6a;
+  --nuri-color-lilac-12-dark:   #e3ddfa;
+
+  /* ── Black alpha · theme-invariant by nature ─────────────── */
+  /* No -light/-dark suffix: opacity over a base is independent of
+   * theme. Used for overlays, dividers on coloured surfaces, glass. */
+  --nuri-color-black-alpha-1:  rgba(0, 0, 0, 0.05);
+  --nuri-color-black-alpha-2:  rgba(0, 0, 0, 0.10);
+  --nuri-color-black-alpha-3:  rgba(0, 0, 0, 0.15);
+  --nuri-color-black-alpha-4:  rgba(0, 0, 0, 0.20);
+  --nuri-color-black-alpha-5:  rgba(0, 0, 0, 0.30);
+  --nuri-color-black-alpha-6:  rgba(0, 0, 0, 0.40);
+  --nuri-color-black-alpha-7:  rgba(0, 0, 0, 0.50);
+  --nuri-color-black-alpha-8:  rgba(0, 0, 0, 0.60);
+  --nuri-color-black-alpha-9:  rgba(0, 0, 0, 0.70);
+  --nuri-color-black-alpha-10: rgba(0, 0, 0, 0.80);
+  --nuri-color-black-alpha-11: rgba(0, 0, 0, 0.90);
+  --nuri-color-black-alpha-12: rgba(0, 0, 0, 0.95);
+
+  /* ── White alpha · theme-invariant by nature ─────────────── */
+  --nuri-color-white-alpha-1:  rgba(255, 255, 255, 0.05);
+  --nuri-color-white-alpha-2:  rgba(255, 255, 255, 0.10);
+  --nuri-color-white-alpha-3:  rgba(255, 255, 255, 0.15);
+  --nuri-color-white-alpha-4:  rgba(255, 255, 255, 0.20);
+  --nuri-color-white-alpha-5:  rgba(255, 255, 255, 0.30);
+  --nuri-color-white-alpha-6:  rgba(255, 255, 255, 0.40);
+  --nuri-color-white-alpha-7:  rgba(255, 255, 255, 0.50);
+  --nuri-color-white-alpha-8:  rgba(255, 255, 255, 0.60);
+  --nuri-color-white-alpha-9:  rgba(255, 255, 255, 0.70);
+  --nuri-color-white-alpha-10: rgba(255, 255, 255, 0.80);
+  --nuri-color-white-alpha-11: rgba(255, 255, 255, 0.90);
+  --nuri-color-white-alpha-12: rgba(255, 255, 255, 0.95);
+
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+ * ACTIVE NEUTRAL ALIASES · exploratory
+ * --nuri-color-neutral-N-{light|dark} point at the active scale
+ * based on [data-neutral] on <html> OR any nested <nuri-scope>.
+ * Default = gray. Attribute-only form (NOT :root-scoped) so a scope
+ * can re-resolve the neutral ramp for its subtree alone — this is what
+ * lets the playground device picker / neutral control re-theme only the
+ * framed screen. Both light and dark variants are exposed so the semantic
+ * layer can compose theme × neutral via simple references.
+ *
+ * This switcher exists to A/B the candidate neutrals against the lilac
+ * brand. Once the decision is locked, these aliases will be
+ * removed and the semantic layer will reference the chosen scale
+ * (e.g. --nuri-color-gray-*) directly.
+ * ══════════════════════════════════════════════════════════════ */
+
+:root,
+[data-neutral="gray"] {
+  --nuri-color-neutral-1-light:   var(--nuri-color-gray-1-light);
+  --nuri-color-neutral-1-dark:    var(--nuri-color-gray-1-dark);
+  --nuri-color-neutral-2-light:   var(--nuri-color-gray-2-light);
+  --nuri-color-neutral-2-dark:    var(--nuri-color-gray-2-dark);
+  --nuri-color-neutral-3-light:   var(--nuri-color-gray-3-light);
+  --nuri-color-neutral-3-dark:    var(--nuri-color-gray-3-dark);
+  --nuri-color-neutral-4-light:   var(--nuri-color-gray-4-light);
+  --nuri-color-neutral-4-dark:    var(--nuri-color-gray-4-dark);
+  --nuri-color-neutral-5-light:   var(--nuri-color-gray-5-light);
+  --nuri-color-neutral-5-dark:    var(--nuri-color-gray-5-dark);
+  --nuri-color-neutral-6-light:   var(--nuri-color-gray-6-light);
+  --nuri-color-neutral-6-dark:    var(--nuri-color-gray-6-dark);
+  --nuri-color-neutral-7-light:   var(--nuri-color-gray-7-light);
+  --nuri-color-neutral-7-dark:    var(--nuri-color-gray-7-dark);
+  --nuri-color-neutral-8-light:   var(--nuri-color-gray-8-light);
+  --nuri-color-neutral-8-dark:    var(--nuri-color-gray-8-dark);
+  --nuri-color-neutral-9-light:   var(--nuri-color-gray-9-light);
+  --nuri-color-neutral-9-dark:    var(--nuri-color-gray-9-dark);
+  --nuri-color-neutral-10-light:  var(--nuri-color-gray-10-light);
+  --nuri-color-neutral-10-dark:   var(--nuri-color-gray-10-dark);
+  --nuri-color-neutral-11-light:  var(--nuri-color-gray-11-light);
+  --nuri-color-neutral-11-dark:   var(--nuri-color-gray-11-dark);
+  --nuri-color-neutral-12-light:  var(--nuri-color-gray-12-light);
+  --nuri-color-neutral-12-dark:   var(--nuri-color-gray-12-dark);
+}
+
+[data-neutral="mauve"] {
+  --nuri-color-neutral-1-light:   var(--nuri-color-mauve-1-light);
+  --nuri-color-neutral-1-dark:    var(--nuri-color-mauve-1-dark);
+  --nuri-color-neutral-2-light:   var(--nuri-color-mauve-2-light);
+  --nuri-color-neutral-2-dark:    var(--nuri-color-mauve-2-dark);
+  --nuri-color-neutral-3-light:   var(--nuri-color-mauve-3-light);
+  --nuri-color-neutral-3-dark:    var(--nuri-color-mauve-3-dark);
+  --nuri-color-neutral-4-light:   var(--nuri-color-mauve-4-light);
+  --nuri-color-neutral-4-dark:    var(--nuri-color-mauve-4-dark);
+  --nuri-color-neutral-5-light:   var(--nuri-color-mauve-5-light);
+  --nuri-color-neutral-5-dark:    var(--nuri-color-mauve-5-dark);
+  --nuri-color-neutral-6-light:   var(--nuri-color-mauve-6-light);
+  --nuri-color-neutral-6-dark:    var(--nuri-color-mauve-6-dark);
+  --nuri-color-neutral-7-light:   var(--nuri-color-mauve-7-light);
+  --nuri-color-neutral-7-dark:    var(--nuri-color-mauve-7-dark);
+  --nuri-color-neutral-8-light:   var(--nuri-color-mauve-8-light);
+  --nuri-color-neutral-8-dark:    var(--nuri-color-mauve-8-dark);
+  --nuri-color-neutral-9-light:   var(--nuri-color-mauve-9-light);
+  --nuri-color-neutral-9-dark:    var(--nuri-color-mauve-9-dark);
+  --nuri-color-neutral-10-light:  var(--nuri-color-mauve-10-light);
+  --nuri-color-neutral-10-dark:   var(--nuri-color-mauve-10-dark);
+  --nuri-color-neutral-11-light:  var(--nuri-color-mauve-11-light);
+  --nuri-color-neutral-11-dark:   var(--nuri-color-mauve-11-dark);
+  --nuri-color-neutral-12-light:  var(--nuri-color-mauve-12-light);
+  --nuri-color-neutral-12-dark:   var(--nuri-color-mauve-12-dark);
+}
+
+[data-neutral="slate"] {
+  --nuri-color-neutral-1-light:   var(--nuri-color-slate-1-light);
+  --nuri-color-neutral-1-dark:    var(--nuri-color-slate-1-dark);
+  --nuri-color-neutral-2-light:   var(--nuri-color-slate-2-light);
+  --nuri-color-neutral-2-dark:    var(--nuri-color-slate-2-dark);
+  --nuri-color-neutral-3-light:   var(--nuri-color-slate-3-light);
+  --nuri-color-neutral-3-dark:    var(--nuri-color-slate-3-dark);
+  --nuri-color-neutral-4-light:   var(--nuri-color-slate-4-light);
+  --nuri-color-neutral-4-dark:    var(--nuri-color-slate-4-dark);
+  --nuri-color-neutral-5-light:   var(--nuri-color-slate-5-light);
+  --nuri-color-neutral-5-dark:    var(--nuri-color-slate-5-dark);
+  --nuri-color-neutral-6-light:   var(--nuri-color-slate-6-light);
+  --nuri-color-neutral-6-dark:    var(--nuri-color-slate-6-dark);
+  --nuri-color-neutral-7-light:   var(--nuri-color-slate-7-light);
+  --nuri-color-neutral-7-dark:    var(--nuri-color-slate-7-dark);
+  --nuri-color-neutral-8-light:   var(--nuri-color-slate-8-light);
+  --nuri-color-neutral-8-dark:    var(--nuri-color-slate-8-dark);
+  --nuri-color-neutral-9-light:   var(--nuri-color-slate-9-light);
+  --nuri-color-neutral-9-dark:    var(--nuri-color-slate-9-dark);
+  --nuri-color-neutral-10-light:  var(--nuri-color-slate-10-light);
+  --nuri-color-neutral-10-dark:   var(--nuri-color-slate-10-dark);
+  --nuri-color-neutral-11-light:  var(--nuri-color-slate-11-light);
+  --nuri-color-neutral-11-dark:   var(--nuri-color-slate-11-dark);
+  --nuri-color-neutral-12-light:  var(--nuri-color-slate-12-light);
+  --nuri-color-neutral-12-dark:   var(--nuri-color-slate-12-dark);
+}
+
+[data-neutral="sage"] {
+  --nuri-color-neutral-1-light:   var(--nuri-color-sage-1-light);
+  --nuri-color-neutral-1-dark:    var(--nuri-color-sage-1-dark);
+  --nuri-color-neutral-2-light:   var(--nuri-color-sage-2-light);
+  --nuri-color-neutral-2-dark:    var(--nuri-color-sage-2-dark);
+  --nuri-color-neutral-3-light:   var(--nuri-color-sage-3-light);
+  --nuri-color-neutral-3-dark:    var(--nuri-color-sage-3-dark);
+  --nuri-color-neutral-4-light:   var(--nuri-color-sage-4-light);
+  --nuri-color-neutral-4-dark:    var(--nuri-color-sage-4-dark);
+  --nuri-color-neutral-5-light:   var(--nuri-color-sage-5-light);
+  --nuri-color-neutral-5-dark:    var(--nuri-color-sage-5-dark);
+  --nuri-color-neutral-6-light:   var(--nuri-color-sage-6-light);
+  --nuri-color-neutral-6-dark:    var(--nuri-color-sage-6-dark);
+  --nuri-color-neutral-7-light:   var(--nuri-color-sage-7-light);
+  --nuri-color-neutral-7-dark:    var(--nuri-color-sage-7-dark);
+  --nuri-color-neutral-8-light:   var(--nuri-color-sage-8-light);
+  --nuri-color-neutral-8-dark:    var(--nuri-color-sage-8-dark);
+  --nuri-color-neutral-9-light:   var(--nuri-color-sage-9-light);
+  --nuri-color-neutral-9-dark:    var(--nuri-color-sage-9-dark);
+  --nuri-color-neutral-10-light:  var(--nuri-color-sage-10-light);
+  --nuri-color-neutral-10-dark:   var(--nuri-color-sage-10-dark);
+  --nuri-color-neutral-11-light:  var(--nuri-color-sage-11-light);
+  --nuri-color-neutral-11-dark:   var(--nuri-color-sage-11-dark);
+  --nuri-color-neutral-12-light:  var(--nuri-color-sage-12-light);
+  --nuri-color-neutral-12-dark:   var(--nuri-color-sage-12-dark);
+}
+
+[data-neutral="olive"] {
+  --nuri-color-neutral-1-light:   var(--nuri-color-olive-1-light);
+  --nuri-color-neutral-1-dark:    var(--nuri-color-olive-1-dark);
+  --nuri-color-neutral-2-light:   var(--nuri-color-olive-2-light);
+  --nuri-color-neutral-2-dark:    var(--nuri-color-olive-2-dark);
+  --nuri-color-neutral-3-light:   var(--nuri-color-olive-3-light);
+  --nuri-color-neutral-3-dark:    var(--nuri-color-olive-3-dark);
+  --nuri-color-neutral-4-light:   var(--nuri-color-olive-4-light);
+  --nuri-color-neutral-4-dark:    var(--nuri-color-olive-4-dark);
+  --nuri-color-neutral-5-light:   var(--nuri-color-olive-5-light);
+  --nuri-color-neutral-5-dark:    var(--nuri-color-olive-5-dark);
+  --nuri-color-neutral-6-light:   var(--nuri-color-olive-6-light);
+  --nuri-color-neutral-6-dark:    var(--nuri-color-olive-6-dark);
+  --nuri-color-neutral-7-light:   var(--nuri-color-olive-7-light);
+  --nuri-color-neutral-7-dark:    var(--nuri-color-olive-7-dark);
+  --nuri-color-neutral-8-light:   var(--nuri-color-olive-8-light);
+  --nuri-color-neutral-8-dark:    var(--nuri-color-olive-8-dark);
+  --nuri-color-neutral-9-light:   var(--nuri-color-olive-9-light);
+  --nuri-color-neutral-9-dark:    var(--nuri-color-olive-9-dark);
+  --nuri-color-neutral-10-light:  var(--nuri-color-olive-10-light);
+  --nuri-color-neutral-10-dark:   var(--nuri-color-olive-10-dark);
+  --nuri-color-neutral-11-light:  var(--nuri-color-olive-11-light);
+  --nuri-color-neutral-11-dark:   var(--nuri-color-olive-11-dark);
+  --nuri-color-neutral-12-light:  var(--nuri-color-olive-12-light);
+  --nuri-color-neutral-12-dark:   var(--nuri-color-olive-12-dark);
+}
+
+[data-neutral="sand"] {
+  --nuri-color-neutral-1-light:   var(--nuri-color-sand-1-light);
+  --nuri-color-neutral-1-dark:    var(--nuri-color-sand-1-dark);
+  --nuri-color-neutral-2-light:   var(--nuri-color-sand-2-light);
+  --nuri-color-neutral-2-dark:    var(--nuri-color-sand-2-dark);
+  --nuri-color-neutral-3-light:   var(--nuri-color-sand-3-light);
+  --nuri-color-neutral-3-dark:    var(--nuri-color-sand-3-dark);
+  --nuri-color-neutral-4-light:   var(--nuri-color-sand-4-light);
+  --nuri-color-neutral-4-dark:    var(--nuri-color-sand-4-dark);
+  --nuri-color-neutral-5-light:   var(--nuri-color-sand-5-light);
+  --nuri-color-neutral-5-dark:    var(--nuri-color-sand-5-dark);
+  --nuri-color-neutral-6-light:   var(--nuri-color-sand-6-light);
+  --nuri-color-neutral-6-dark:    var(--nuri-color-sand-6-dark);
+  --nuri-color-neutral-7-light:   var(--nuri-color-sand-7-light);
+  --nuri-color-neutral-7-dark:    var(--nuri-color-sand-7-dark);
+  --nuri-color-neutral-8-light:   var(--nuri-color-sand-8-light);
+  --nuri-color-neutral-8-dark:    var(--nuri-color-sand-8-dark);
+  --nuri-color-neutral-9-light:   var(--nuri-color-sand-9-light);
+  --nuri-color-neutral-9-dark:    var(--nuri-color-sand-9-dark);
+  --nuri-color-neutral-10-light:  var(--nuri-color-sand-10-light);
+  --nuri-color-neutral-10-dark:   var(--nuri-color-sand-10-dark);
+  --nuri-color-neutral-11-light:  var(--nuri-color-sand-11-light);
+  --nuri-color-neutral-11-dark:   var(--nuri-color-sand-11-dark);
+  --nuri-color-neutral-12-light:  var(--nuri-color-sand-12-light);
+  --nuri-color-neutral-12-dark:   var(--nuri-color-sand-12-dark);
+}
+
+[data-neutral="cream"] {
+  --nuri-color-neutral-1-light:   var(--nuri-color-cream-1-light);
+  --nuri-color-neutral-1-dark:    var(--nuri-color-cream-1-dark);
+  --nuri-color-neutral-2-light:   var(--nuri-color-cream-2-light);
+  --nuri-color-neutral-2-dark:    var(--nuri-color-cream-2-dark);
+  --nuri-color-neutral-3-light:   var(--nuri-color-cream-3-light);
+  --nuri-color-neutral-3-dark:    var(--nuri-color-cream-3-dark);
+  --nuri-color-neutral-4-light:   var(--nuri-color-cream-4-light);
+  --nuri-color-neutral-4-dark:    var(--nuri-color-cream-4-dark);
+  --nuri-color-neutral-5-light:   var(--nuri-color-cream-5-light);
+  --nuri-color-neutral-5-dark:    var(--nuri-color-cream-5-dark);
+  --nuri-color-neutral-6-light:   var(--nuri-color-cream-6-light);
+  --nuri-color-neutral-6-dark:    var(--nuri-color-cream-6-dark);
+  --nuri-color-neutral-7-light:   var(--nuri-color-cream-7-light);
+  --nuri-color-neutral-7-dark:    var(--nuri-color-cream-7-dark);
+  --nuri-color-neutral-8-light:   var(--nuri-color-cream-8-light);
+  --nuri-color-neutral-8-dark:    var(--nuri-color-cream-8-dark);
+  --nuri-color-neutral-9-light:   var(--nuri-color-cream-9-light);
+  --nuri-color-neutral-9-dark:    var(--nuri-color-cream-9-dark);
+  --nuri-color-neutral-10-light:  var(--nuri-color-cream-10-light);
+  --nuri-color-neutral-10-dark:   var(--nuri-color-cream-10-dark);
+  --nuri-color-neutral-11-light:  var(--nuri-color-cream-11-light);
+  --nuri-color-neutral-11-dark:   var(--nuri-color-cream-11-dark);
+  --nuri-color-neutral-12-light:  var(--nuri-color-cream-12-light);
+  --nuri-color-neutral-12-dark:   var(--nuri-color-cream-12-dark);
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+ * NON-COLOUR PRIMITIVES · theme-invariant
+ * ══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Dimension scale · direct-pixel naming (px — doesn't scale)
+   * Each token's value equals its name: --nuri-px-N is literally
+   * N pixels. No indexed scale; future additions arrive only when
+   * a semantic or component consumer materialises (P11 parsimony,
+   * decision 32). N+6.0 retires the prior --nuri-size-{0..12}
+   * indexed scale. */
+  --nuri-px-2:    2px;
+  --nuri-px-4:    4px;
+  --nuri-px-6:    6px;
+  --nuri-px-12:  12px;
+  --nuri-px-18:  18px;
+  --nuri-px-24:  24px;
+  --nuri-px-28:  28px;
+  --nuri-px-36:  36px;
+  --nuri-px-48:  48px;
+  --nuri-px-60:  60px;
+  --nuri-px-72:  72px;
+  --nuri-px-90:  90px;
+
+  /* ── Radius (px) ───────────────────────────────────────────────
+   * sm / md / lg / full moved to the semantic layer at N+6.1.1
+   * (amendment 36.1) — sm/md/lg chain to --nuri-px-N like space +
+   * size (decision 36); full is a literal 9999px sentinel held in
+   * the semantic layer (post-close polish: the 100% experiment
+   * ellipsed rectangular `.nuri-tag` boxes since 100% interprets
+   * relative to box dimensions; 9999px sentinel saturates correctly
+   * via browser min(width/2, height/2) clamp). The sm/md/lg names
+   * are reused in the semantic layer with new values (semantic
+   * sm=6, md=12, lg=18 vs old primitive 4, 8, 12); cascade re-binds
+   * chrome consumers transparently. The leaves below stay primitive:
+   * none/xs/xl/2xl are reserved per P11 (RESERVED_TOKENS) pending
+   * future semantic promotion when consumers materialise. */
+  --nuri-radius-none: 0;
+  --nuri-radius-xs:   2px;
+  --nuri-radius-xl:   16px;
+  --nuri-radius-2xl:  24px;
+
+  /* ── Border width (px — never scales) ──────────────────────── */
+  --nuri-border-0:  0;
+  --nuri-border-1:  1px;
+  --nuri-border-2:  2px;
+  --nuri-border-4:  4px;
+
+  /* ── Typography · families ─────────────────────────────────── */
+  /* Production default: system stack — each platform renders its own
+   * native font. This is what the RN sync pipeline exports. The
+   * [data-font="..."] overrides below are preview-only for the docs. */
+  --nuri-font-family-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --nuri-font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --nuri-font-family-display: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* ── Typography · weights ──────────────────────────────────── */
+  --nuri-font-weight-regular:  400;
+  --nuri-font-weight-medium:   500;
+  --nuri-font-weight-semibold: 600;
+  --nuri-font-weight-bold:     700;
+
+  /* ── Typography · sizes (rem — scales with user pref) ──────────
+   * Only the scale steps consumed by --nuri-type-* semantic
+   * mappings exist as primitives. Adding a new step requires both
+   * a primitive declaration here AND a --nuri-type-*-size that
+   * consumes it. Orphan font-size primitives are caught by the
+   * "primitive used or reserved" guardrail test. */
+  --nuri-font-size-13: 0.8125rem; /* type xs */
+  --nuri-font-size-15: 0.9375rem; /* type sm */
+  --nuri-font-size-17: 1.0625rem; /* type md */
+  --nuri-font-size-22: 1.375rem;  /* type lg */
+  --nuri-font-size-30: 1.875rem;  /* type xl */
+  --nuri-font-size-57: 3.5625rem; /* type 3xl */
+
+  /* ── Line-height · NO primitives by design ─────────────────────
+   * The type scale below declares --nuri-type-*-line-height as
+   * UNITLESS multipliers (1.27, 1.29, 1.20, …) — the RN convention
+   * (lineHeight = size × ratio at render). Absolute rem line-heights
+   * are explicitly rejected; see decisionlog.md decision 29. */
+
+  /* ── Duration ──────────────────────────────────────────────── */
+  --nuri-duration-fast: 120ms;
+  --nuri-duration-med:  220ms;
+  --nuri-duration-slow: 420ms;
+
+  /* ── Interaction family · cross-component design constants ────
+   * Centralize literal design decisions n=3+ components were
+   * hardcoding prior to decision 45 (N+6.5). Consumer components
+   * reference via @layer tokens alias
+   * (--nuri-button-press-scale: var(--nuri-interaction-press-scale)
+   * et al.). Family-prefixed (`--nuri-interaction-*`) so the pipeline
+   * PRIMITIVE_SET_PREFIXES classifier handles it like the
+   * duration/font families. Consumer override allowed when
+   * documented geometric justification applies (e.g., switch.css
+   * knob 0.92 · smaller knob needs more aggressive feedback). */
+  --nuri-interaction-press-scale:      0.97;
+  --nuri-interaction-disabled-opacity: 0.4;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+ * TYPE SCALE · PRIMITIVE STEPS
+ * A bare numeric scale — no role, no semantics. Six steps plus
+ * a deliberate gap at 2xl, reserved for a future intermediate.
+ *
+ *   xs → sm → md → lg → xl → (2xl) → 3xl
+ *
+ * Each step exposes five atomic tokens:
+ *   -size            font-size
+ *   -line-height     line-height (unitless ratio)
+ *   -tracking        letter-spacing (em — resolves against -size)
+ *   -weight          default weight (always regular)
+ *   -em-weight       emphasized weight (semibold across all leaves · operator-locked)
+ *
+ * Semantic roles (screen title, body, button label, …) come later
+ * as aliases on top of this layer.
+ *
+ * font-family is intentionally NOT part of the step — the active
+ * family is set globally via --nuri-font-family-sans and swapped
+ * per platform by the [data-font] preview overrides below.
+ *
+ * Tracking is in em so it rescales with the user's text-size
+ * preference; the RN sync pipeline multiplies em × size at export.
+ *
+ * Line-height is a unitless ratio (CSS multiplies it against the
+ * resolved font-size) — matches React Native, which derives the
+ * absolute lineHeight from size × ratio at the call site. The
+ * comments next to each step show size + the absolute lh you get
+ * by multiplying out.
+ * ══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── xs · 13 / 18  (1.38) ─────────────────────────────────── */
+  --nuri-type-xs-size:        var(--nuri-font-size-13);
+  --nuri-type-xs-line-height: 1.38;
+  --nuri-type-xs-tracking:    0;
+  --nuri-type-xs-weight:      var(--nuri-font-weight-regular);
+  --nuri-type-xs-em-weight:   var(--nuri-font-weight-semibold);
+
+  /* ── sm · 15 / 20  (1.33) ─────────────────────────────────── */
+  --nuri-type-sm-size:        var(--nuri-font-size-15);
+  --nuri-type-sm-line-height: 1.33;
+  --nuri-type-sm-tracking:    -0.01em;
+  --nuri-type-sm-weight:      var(--nuri-font-weight-regular);
+  --nuri-type-sm-em-weight:   var(--nuri-font-weight-semibold);
+
+  /* ── md · 17 / 22  (1.29) ─────────────────────────────────── */
+  --nuri-type-md-size:        var(--nuri-font-size-17);
+  --nuri-type-md-line-height: 1.29;
+  --nuri-type-md-tracking:    -0.02em;
+  --nuri-type-md-weight:      var(--nuri-font-weight-regular);
+  --nuri-type-md-em-weight:   var(--nuri-font-weight-semibold);
+
+  /* ── lg · 22 / 28  (1.27) ─────────────────────────────────── */
+  --nuri-type-lg-size:        var(--nuri-font-size-22);
+  --nuri-type-lg-line-height: 1.27;
+  --nuri-type-lg-tracking:    -0.015em;
+  --nuri-type-lg-weight:      var(--nuri-font-weight-regular);
+  --nuri-type-lg-em-weight:   var(--nuri-font-weight-semibold);
+
+  /* ── xl · 30 / 36  (1.20) ─────────────────────────────────── */
+  --nuri-type-xl-size:        var(--nuri-font-size-30);
+  --nuri-type-xl-line-height: 1.20;
+  --nuri-type-xl-tracking:    -0.015em;
+  --nuri-type-xl-weight:      var(--nuri-font-weight-regular);
+  --nuri-type-xl-em-weight:   var(--nuri-font-weight-semibold);
+
+  /* ── 2xl · reserved ───────────────────────────────────────── */
+  /* Intentional gap between xl (30) and 3xl (57). Define when a
+   * concrete need surfaces — likely ~40/48 with bold emphasis. */
+
+  /* ── 3xl · 57 / 68  (1.19) ────────────────────────────────── */
+  --nuri-type-3xl-size:        var(--nuri-font-size-57);
+  --nuri-type-3xl-line-height: 1.19;
+  --nuri-type-3xl-tracking:    -0.02em;
+  --nuri-type-3xl-weight:      var(--nuri-font-weight-regular);
+  --nuri-type-3xl-em-weight:   var(--nuri-font-weight-semibold);
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+ * FONT FAMILY · PREVIEW OVERRIDES
+ * Docs-only. The default :root values above (system stack) are what
+ * the RN sync pipeline exports. These [data-font] overrides let us
+ * preview how components render under each platform's native font.
+ *
+ * Attribute-only form (NOT :root-scoped), mirroring the theme / accent /
+ * neutral overrides in tokens-semantic.css: a <nuri-scope data-font> can
+ * then re-resolve the font family for its subtree alone. The playground
+ * device picker relies on this — selecting a phone sets the scope's font
+ * so the framed screen renders in that platform's native typeface.
+ * ══════════════════════════════════════════════════════════════ */
+
+[data-font="ios"] {
+  --nuri-font-family-sans:    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+  --nuri-font-family-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", system-ui, sans-serif;
+  --nuri-font-family-mono:    ui-monospace, "SF Mono", SFMono-Regular, Menlo, Monaco, monospace;
+}
+
+[data-font="android"] {
+  --nuri-font-family-sans:    "Roboto", system-ui, sans-serif;
+  --nuri-font-family-display: "Roboto", system-ui, sans-serif;
+  --nuri-font-family-mono:    "Roboto Mono", ui-monospace, monospace;
+}
+
+[data-font="pixel"] {
+  --nuri-font-family-sans:    "Google Sans Text", "Roboto", system-ui, sans-serif;
+  --nuri-font-family-display: "Google Sans Text", "Roboto", system-ui, sans-serif;
+  --nuri-font-family-mono:    "Roboto Mono", ui-monospace, monospace;
+}

@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Components · Separator</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../lib/components/stack/stack.css" />
+  <link rel="stylesheet" href="../../lib/components/box/box.css" />
+  <link rel="stylesheet" href="../../lib/components/separator/separator.css" />
+  <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+  <script src="../../lib/docs/tokens.js"></script>
+  <!-- Custom element scripts MUST be deferred so connectedCallback fires
+       AFTER body parsing (children present). See AGENTS.md. -->
+  <script src="../../lib/components/stack/stack.js" defer></script>
+  <script src="../../lib/components/box/box.js" defer></script>
+  <script src="../../lib/components/separator/separator.js" defer></script>
+  <script src="../../lib/docs/demo/demo.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  COMPONENT DOCS PAGE · DISPLAY-PRIMITIVE TEMPLATE (decision 49)
+  ═══════════════════════════════════════════════════════════════
+
+  Separator is the thinnest display primitive — a 1px hairline with
+  ONE prop, `y-space` (decision 49 · amendment 49.1 · N+8.1). Adapts
+  the component-page template (decision 24); sections that don't apply
+  are omitted (decision 19):
+
+  Sections present:
+    1. Spec card     — component summary (machine-readable)
+    2. Hero demo     — the hairline between content blocks
+    3. API           — props signature (one prop · y-space)
+    4. Anatomy       — single root (web → host element; RN → View)
+    5. Live demos    — placement between rows; closes Stack divider
+    6. Token mapping — the single colour reference (border-subtle)
+    7. Roadmap       — deliberately-deferred axes (orientation, …)
+
+  Sections skipped (display primitive · no such axis):
+    · Variants  (no variant axis — one hairline, one colour)
+    · States    (non-interactive · no :hover / :active / disabled)
+    · Theming   (border-subtle re-resolves per theme automatically —
+      shown live in the hero, no dedicated section needed)
+
+  No `@layer tokens` block in separator.css per decision 49 (display
+  primitive · consumes --nuri-border-subtle directly). The pipeline
+  emit step detects the empty case and skips writing
+  build/components/separator.ts.
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="components/separator">
+  <nuri-page
+    eyebrow="Components · Display · Separator"
+    title="Separator"
+    status="draft"
+    lead="A generic 1px hairline. Author-placed between content blocks — the visual section break. Horizontal only; one prop, y-space, tunes the breathing room above and below the line (the line itself stays 1px). It consumes the semantic border-subtle colour directly and re-resolves per theme."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · SPEC CARD
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-component="separator"
+        data-component-status="draft"
+        data-rn-status="spec-in-migration-test">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd data-spec="type">
+          <span class="nuri-spec-card__chip" data-type="component">component</span>
+          <span class="nuri-spec-card__meta">display primitive · decision 49</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Layer</dt>
+        <dd data-spec="layer">
+          <span class="nuri-spec-card__chip" data-layer="composition">composition</span>
+          <span class="nuri-spec-card__meta">consumes semantic border-subtle; no component-token aliasing</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Source</dt>
+        <dd data-spec="source">
+          <span class="nuri-spec-card__chip" data-source="lib/components/separator/">lib/components/separator/</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Parts</dt>
+        <dd data-spec="parts">
+          <span class="nuri-spec-card__chip" data-part="root">root</span>
+          <span class="nuri-spec-card__meta">1 part</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Component status</dt>
+        <dd data-spec="component-status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>RN status</dt>
+        <dd data-spec="rn-status">
+          <span class="nuri-tag nuri-tag--draft">spec in migration-test</span>
+          <span class="nuri-spec-card__meta">RN definition lives at docs/migration-tests/button-matrix/index.tsx pending long-term home — see Open question in roadmap/index.md</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · HERO DEMO
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="hero">
+    <h2>Default</h2>
+    <nuri-demo controls="theme">
+      <template>
+        <nuri-stack gap="md">
+          <nuri-box padding="md">Recent activity</nuri-box>
+          <nuri-separator></nuri-separator>
+          <nuri-box padding="md">Earlier this week</nuri-box>
+        </nuri-stack>
+      </template>
+    </nuri-demo>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · API · PROPS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="api">
+    <h2>API</h2>
+    <p>
+      Separator takes <strong>one prop</strong>, <code>y-space</code>
+      (amendment 49.1 · N+8.1) — the vertical breathing room above and below
+      the line, over the semantic space scale (default <code>sm</code>, accepts
+      <code>none</code> for a flush hairline). It is a <code>margin-block</code>,
+      NOT a thicker fill: the visible hairline stays exactly 1px at every value.
+      Thickness, orientation, and inset remain deliberately out of scope
+      (decision 49). <code>web ↔ RN</code> parity is 1:1 — the web side
+      dispatches purely in CSS (<code>nuri-separator[y-space="lg"]</code>, no JS
+      reflection); the RN side renders a 1px <code>View</code> with
+      <code>marginVertical: space[ySpace]</code> (see
+      <a href="../../docs/migration-tests/button-matrix/index.tsx">docs/migration-tests/button-matrix/index.tsx</a>).
+    </p>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="separator">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="y-space">
+          <td data-cell="name"><code>y-space</code></td>
+          <td data-cell="type"><code>none | xs | sm | md | lg | xl</code></td>
+          <td data-cell="default"><code>sm</code></td>
+          <td data-cell="description">Vertical breathing room above and below the line, dispatched over the semantic space scale via <code>margin-block</code> (the line stays 1px). <code>none</code> (= 0) is a flush hairline. This is the List family's inter-row rhythm now that <a href="list-base.html">List</a> is gap-free (decision 51 · 52). The host is exposed as <code>role="separator"</code> with <code>aria-orientation="horizontal"</code> — the ARIA analogue of <code>&lt;hr&gt;</code>.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · ANATOMY & PARTS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="anatomy">
+    <h2>Anatomy &amp; parts</h2>
+    <p>
+      Separator is a <strong>single-part</strong> component. Unlike Stack/Box
+      (invisible <code>display:contents</code> wrappers), the
+      <code>&lt;nuri-separator&gt;</code> host <em>is</em> the visible line —
+      it paints directly, with no inner element. The RN side renders a 1px
+      <code>&lt;View&gt;</code>.
+    </p>
+
+    <div class="nuri-anatomy">
+      <div class="nuri-anatomy__visual">
+        <nuri-stack gap="md">
+          <nuri-box padding="md">Above</nuri-box>
+          <nuri-separator></nuri-separator>
+          <nuri-box padding="md">Below</nuri-box>
+        </nuri-stack>
+      </div>
+      <div class="nuri-table-scroll"><table class="nuri-table" data-table="parts" data-component="separator">
+        <thead>
+          <tr>
+            <th>Part</th>
+            <th>Element (web)</th>
+            <th>Element (RN)</th>
+            <th>Owns</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-part="root">
+            <td data-cell="name"><code>root</code></td>
+            <td data-cell="element-web"><code>nuri-separator</code> (host)</td>
+            <td data-cell="element-rn"><code>View</code></td>
+            <td data-cell="owns">1px block-size, border-subtle background, separator role</td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · LIVE DEMOS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="demos">
+    <h2>Live demos</h2>
+    <p>
+      Separator's whole job is to sit between rows. These show it closing the
+      old Stack <code>divider</code> question (decision 49): a divider is just
+      a Separator the author drops between children, not a Stack prop.
+    </p>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="between list rows" subtitle="column · gap=&quot;md&quot;">
+        <template>
+          <nuri-stack gap="md">
+            <nuri-box padding="sm">Groceries</nuri-box>
+            <nuri-separator></nuri-separator>
+            <nuri-box padding="sm">Rent</nuri-box>
+            <nuri-separator></nuri-separator>
+            <nuri-box padding="sm">Utilities</nuri-box>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="section break" subtitle="header · rule · body">
+        <template>
+          <nuri-stack gap="sm">
+            <nuri-box padding="sm">Settings</nuri-box>
+            <nuri-separator></nuri-separator>
+            <nuri-box padding="sm">Notifications</nuri-box>
+            <nuri-box padding="sm">Privacy</nuri-box>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="y-space scale" subtitle="none · md · lg breathing room">
+        <template>
+          <nuri-stack>
+            <nuri-box padding="sm">Flush</nuri-box>
+            <nuri-separator y-space="none"></nuri-separator>
+            <nuri-box padding="sm">Default</nuri-box>
+            <nuri-separator y-space="md"></nuri-separator>
+            <nuri-box padding="sm">Roomy</nuri-box>
+            <nuri-separator y-space="lg"></nuri-separator>
+            <nuri-box padding="sm">End</nuri-box>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · TOKEN MAPPING
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="token-mapping">
+    <h2>Token mapping</h2>
+    <p>
+      <strong>CSS property → DTCG → CSS var → reference.</strong> Separator
+      dereferences the hairline colour plus the <code>y-space</code> margin —
+      both semantic tokens, no component-token aliasing. There is no
+      <code>@layer tokens</code> block per
+      <a href="../../decisionlog.md">decision 49</a>; the references happen
+      directly in <code>@layer rules</code>
+      (<code>background: var(--nuri-border-subtle)</code>;
+      <code>margin-block: var(--nuri-space-sm)</code>), so the colour
+      re-resolves per theme and <code>y-space</code> dispatches the space scale
+      via attribute selector — with no component token in between. Separator
+      therefore stays <strong>skip-emit</strong> (no
+      <code>build/components/separator.ts</code>).
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="token-map" data-component="separator">
+      <thead>
+        <tr>
+          <th>CSS property</th>
+          <th>DTCG</th>
+          <th>CSS var</th>
+          <th>Reference</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-css-prop="background" data-dtcg="border.subtle" data-reference="--nuri-border-subtle">
+          <td><code>background</code></td>
+          <td><code>border.subtle</code></td>
+          <td><code>--nuri-border-subtle</code></td>
+          <td>theme-resolved neutral hairline</td>
+        </tr>
+        <tr data-css-prop="block-size" data-dtcg="—" data-reference="1px">
+          <td><code>block-size</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>1px</code> (literal · fixed hairline)</td>
+        </tr>
+        <tr data-css-prop="margin-block" data-dtcg="space.sm" data-reference="--nuri-space-sm">
+          <td><code>margin-block</code></td>
+          <td><code>space.{none, xs…xl}</code></td>
+          <td><code>--nuri-space-*</code></td>
+          <td><code>y-space</code> dispatch · default <code>space.sm</code></td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · ROADMAP
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="orientation">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Vertical orientation</strong>
+          <p class="nuri-roadmap__desc">N+6.9 ships horizontal only. A vertical hairline (between row-direction items) is a real future need, but it changes <code>block-size</code>→<code>inline-size</code>, the <code>aria-orientation</code> value, and the stretch behaviour — deferred until a row-layout consumer surfaces it, so the prop is designed against a real case, not speculatively (P11).</p>
+        </div>
+      </li>
+      <li data-feature="rn-spec-home">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">RN spec long-term home</strong>
+          <p class="nuri-roadmap__desc">Like Stack/Box, the Separator RN definition lives in the migration-test pair as a local module pending a long-term home (peer <code>.tsx</code>? <code>lib/spec/</code>?). Re-evaluated across the whole primitive set, not per-component.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+</body>
+</html>

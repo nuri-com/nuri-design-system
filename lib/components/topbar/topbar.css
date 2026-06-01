@@ -1,0 +1,181 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · TOPBAR  (compositional chrome shell · decision 46)
+ *
+ * A light-DOM chrome shell laying out three regions on one row:
+ *
+ *   [leading] · children · [trailing]
+ *
+ * Two named wrappers mark the side regions; everything else is the
+ * centre. Like Tabs (decision 43) the element reparents its authored
+ * light-DOM children into built region containers — no Shadow DOM, no
+ * <slot>. Like Stack / Box (decisions 37 · 42) it is a LAYOUT
+ * PRIMITIVE: it owns no `--nuri-topbar-*` tokens, consuming the
+ * semantic vocabulary directly in `@layer rules` via attribute-
+ * selector dispatch. `@layer tokens` is therefore empty by design and
+ * the pipeline rides the skip-emit branch (no build/components/
+ * topbar.ts).
+ *
+ *   <nuri-topbar>                       left-aligned chrome row
+ *     <nuri-topbar-start>…</…>          leading region (optional)
+ *     <h1>Title</h1>                    centre = everything unnamed
+ *     <nuri-topbar-end>…</…>            trailing region (optional)
+ *   </nuri-topbar>
+ *
+ *   <nuri-topbar center>…</nuri-topbar> equal side regions · centred
+ *                                       middle (the Cancel/Edit/Save
+ *                                       action bar shape)
+ *
+ * Structure, not variants: a single `center` boolean is the only
+ * prop. Leading/trailing presence is detected at mount and reflected
+ * as host data-attrs so the edge padding flips from CSS, never JS
+ * (attribute dispatch · decision 42).
+ *
+ * Surface re-resolves under theme/accent: bg-canvas + text-primary
+ * are chrome (theme-only) tokens, so a [data-theme] / [data-accent]
+ * scope repaints the shell with no extra rules.
+ *
+ * Title type (decision 46 amended · decision 55): the centre region
+ * carries a default lg-em type sourced from the shared --nuri-type-*
+ * scale, so bare title text reads as a heading without a per-text
+ * wrapper. Topbar stays a layout primitive (no --nuri-topbar-* tokens)
+ * — it reads the shared type scale directly, exactly as it already
+ * reads --nuri-space-* / --nuri-size-*. The N+8.3 / decision-54 note
+ * that "Topbar has no font tokens" is superseded: it still owns none,
+ * but it is now font-BEARING for its title.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design. Topbar is a layout primitive (decision 37 ·
+   * extended decision 46) — it parametrizes the semantic vocabulary
+   * through structure, not through component-token aliasing. Same
+   * rationale as stack.css / box.css. */
+}
+
+@layer rules {
+  /* ── Host · the chrome row itself is the flex container ──────── */
+  nuri-topbar {
+    /* Edge padding flows through two custom props so the occupancy
+     * default, the center default, and the explicit inset override all
+     * compose at EQUAL specificity — source order alone decides the
+     * winner (base → occupancy → center → inset, below). This keeps the
+     * dispatch declarative and lets the RN port mirror it as a plain
+     * value pick rather than a per-platform heuristic (decision 46.1). */
+    --_inset-start: var(--nuri-space-lg);
+    --_inset-end:   var(--nuri-space-lg);
+
+    display: flex;
+    align-items: center;
+    height: var(--nuri-size-lg);
+    background: var(--nuri-bg-canvas);
+    color: var(--nuri-text-primary);
+    gap: var(--nuri-space-sm);
+    padding-inline-start: var(--_inset-start);
+    padding-inline-end:   var(--_inset-end);
+  }
+
+  /* ── Pre-upgrade skeleton ─────────────────────────────────────
+   * Until topbar.js (deferred) reparents the children into region
+   * containers, paint the host as a block so authored content
+   * doesn't flash as a raw inline run. */
+  nuri-topbar:not(:defined) {
+    display: block;
+  }
+
+  /* ── Named wrappers · invisible markers (content reparented) ─── */
+  nuri-topbar-start,
+  nuri-topbar-end {
+    display: contents;
+  }
+
+  /* ── Regions · flex rows with their own internal rhythm ──────── */
+  .nuri-topbar__start,
+  .nuri-topbar__center,
+  .nuri-topbar__end {
+    display: flex;
+    align-items: center;
+    gap: var(--nuri-space-sm);
+  }
+
+  /* ── Default (left-aligned) · centre absorbs the slack ───────── */
+  .nuri-topbar__start,
+  .nuri-topbar__end {
+    flex: 0 0 auto;
+  }
+
+  .nuri-topbar__center {
+    flex: 1;
+    min-width: 0;
+    justify-content: flex-start;
+    /* Default title type · lg-em, sourced from the ONE shared
+     * --nuri-type-* scale (decision 54/55). Set on the centre
+     * container so bare title text inherits it — no per-text
+     * wrapper (decision 46 amended: Topbar is now font-bearing
+     * for its title region, while remaining a layout primitive
+     * that owns no --nuri-topbar-* tokens). */
+    font-size: var(--nuri-type-lg-size);
+    line-height: var(--nuri-type-lg-line-height);
+    letter-spacing: var(--nuri-type-lg-tracking);
+    font-weight: var(--nuri-type-lg-em-weight);
+  }
+
+  /* ── center=true · equal side regions keep the middle centred ──
+   * Side regions share the slack equally (flex:1) so the centre
+   * region stays optically centred regardless of leading/trailing
+   * widths; the centre hugs its content (flex:0). */
+  nuri-topbar[data-center] .nuri-topbar__start,
+  nuri-topbar[data-center] .nuri-topbar__end {
+    flex: 1;
+  }
+
+  nuri-topbar[data-center] .nuri-topbar__end {
+    justify-content: flex-end;
+  }
+
+  nuri-topbar[data-center] .nuri-topbar__center {
+    flex: 0 0 auto;
+    justify-content: center;
+  }
+
+  /* ── Empty side region · collapse so it doesn't eat a gap slot ─────
+   * The shell ALWAYS builds all three region containers (so center mode
+   * can balance the middle with flex:1 sides). But in the DEFAULT
+   * (non-center) layout an EMPTY side region is still a flex child, so
+   * the host `gap: space-sm` reserves a slot for it — nudging the title
+   * inward by sm even though the region is empty. Collapse the empty
+   * side OUT of flow (occupancy is tracked as data-leading/-trailing at
+   * mount) so the title sits flush to its edge inset. Center mode keeps
+   * the empty regions — they balance the centre (decision 46 · N+11 fix). */
+  nuri-topbar:not([data-center])[data-leading="empty"]  .nuri-topbar__start { display: none; }
+  nuri-topbar:not([data-center])[data-trailing="empty"] .nuri-topbar__end   { display: none; }
+
+  /* ── Edge-padding dispatch · base → occupancy → center → inset ────
+   * Every assignment below sits at EQUAL specificity (one element +
+   * one attribute = 0-1-1), so SOURCE ORDER is the only tiebreak —
+   * a later rule wins. The base lg lives on the host rule above. */
+
+  /* 1 · occupancy · a filled edge hugs its own control's touch target
+   *     (sm); an empty edge keeps the base lg so the title breathes
+   *     from the screen edge. Per-edge, hence asymmetric by nature. */
+  nuri-topbar[data-leading="filled"]  { --_inset-start: var(--nuri-space-sm); }
+  nuri-topbar[data-trailing="filled"] { --_inset-end:   var(--nuri-space-sm); }
+
+  /* 2 · center · symmetric xs by default. Segmented / tab switchers are
+   *     the common centred shape and want a tight gutter; roomier
+   *     centred bars (the Cancel/Save action bar) opt back out with
+   *     inset="lg". Overrides occupancy via source order. */
+  nuri-topbar[data-center] {
+    --_inset-start: var(--nuri-space-xs);
+    --_inset-end:   var(--nuri-space-xs);
+  }
+
+  /* 3 · explicit inset override · per-edge, wins everywhere. Declared
+   *     once by the author; the RN port reads the same value (no
+   *     per-platform heuristic · decision 46.1). topbar.js folds the
+   *     `inset` shorthand into both data-inset-start / -end. */
+  nuri-topbar[data-inset-start="xs"] { --_inset-start: var(--nuri-space-xs); }
+  nuri-topbar[data-inset-start="sm"] { --_inset-start: var(--nuri-space-sm); }
+  nuri-topbar[data-inset-start="lg"] { --_inset-start: var(--nuri-space-lg); }
+  nuri-topbar[data-inset-end="xs"]   { --_inset-end:   var(--nuri-space-xs); }
+  nuri-topbar[data-inset-end="sm"]   { --_inset-end:   var(--nuri-space-sm); }
+  nuri-topbar[data-inset-end="lg"]   { --_inset-end:   var(--nuri-space-lg); }
+}

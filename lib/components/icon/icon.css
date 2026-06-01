@@ -1,0 +1,70 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · ICON
+ *
+ * Visual atom · inline SVG glyph from the phosphor registry. Two
+ * sizes (md · sm), each coupled to a weight (decision 38 · N+6.3).
+ * Colour is inherited via currentColor — no tone/accent prop. The
+ * box dimensions are dispatched from the semantic `size` vocabulary
+ * via attribute selector, the same shape Stack/Box use for their
+ * props (decision 37 · the attribute-dispatch co-pattern).
+ *
+ * Size → semantic.size subset (decision 38 · reuses the xs+sm leaves
+ * of --nuri-size-*, no new --nuri-icon-size-* vocabulary):
+ *   md → --nuri-size-sm (28px)   default
+ *   sm → --nuri-size-xs (18px)
+ *
+ * No `@layer tokens` block — Icon consumes the semantic size
+ * vocabulary directly in `@layer rules` via attribute dispatch. A
+ * `--nuri-icon-size-md: var(--nuri-size-sm)` alias would be useless
+ * indirection (decision 37 enforcement · the prop value already
+ * says it). The per-component pipeline emitter detects this empty
+ * case and skips emit — no build/components/icon.ts file ships.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design. Icon parametrizes the semantic size vocabulary
+   * via prop, NOT via component-token aliasing (decision 37 ·
+   * decision 38). The per-component pipeline emitter detects this
+   * empty case and skips emit. */
+}
+
+@layer rules {
+  /* ── Pre-upgrade skeleton ──────────────────────────────────── */
+  /* Until icon.js (an ES module · deferred by default) upgrades the
+   * element, reserve the box so the catalog grid doesn't reflow at
+   * upgrade. Default (no size attr) is md; sm narrows it. */
+  nuri-icon:not(:defined) {
+    display: inline-flex;
+    flex-shrink: 0;
+    width: var(--nuri-size-sm);
+    height: var(--nuri-size-sm);
+  }
+  nuri-icon:not(:defined)[size="sm"] {
+    width: var(--nuri-size-xs);
+    height: var(--nuri-size-xs);
+  }
+
+  /* ── Base · the host carries the .nuri-icon class (added in JS) ── */
+  .nuri-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    color: currentColor;
+  }
+
+  /* ── Size · 2-leaf subset of semantic size ─────────────────── */
+  .nuri-icon[data-size="md"] {
+    width: var(--nuri-size-sm);  /* 28px */
+    height: var(--nuri-size-sm);
+  }
+  .nuri-icon[data-size="sm"] {
+    width: var(--nuri-size-xs);  /* 18px */
+    height: var(--nuri-size-xs);
+  }
+
+  /* ── Rendered SVG fills the box ────────────────────────────── */
+  .nuri-icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+}

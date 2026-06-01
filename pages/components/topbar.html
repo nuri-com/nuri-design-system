@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Components · Topbar</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+
+  <!-- Topbar is a layout primitive (empty @layer tokens · decision 46);
+       it composes IconButton + Button in the demos, so those ride along
+       beside topbar.css/js. -->
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../lib/components/icon/icon.css" />
+  <link rel="stylesheet" href="../../lib/components/icon-button/icon-button.css" />
+  <link rel="stylesheet" href="../../lib/components/button/button.css" />
+  <!-- Box + Tabs ride along for the centred-tabs demo (Tabs composes a <nuri-box>). -->
+  <link rel="stylesheet" href="../../lib/components/box/box.css" />
+  <link rel="stylesheet" href="../../lib/components/tabs/tabs.css" />
+  <link rel="stylesheet" href="../../lib/components/topbar/topbar.css" />
+  <!-- Topbar titles are bare text — the centre region carries the default
+       lg-em type from the shared --nuri-type-* scale (decision 46 amended ·
+       decision 55), so no <nuri-typography> element / utility class here. -->
+  <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+  <script src="../../lib/docs/tokens.js"></script>
+  <!-- Custom element scripts MUST be deferred so connectedCallback fires
+       AFTER body parsing (children present). See AGENTS.md. -->
+  <script src="../../lib/components/scope/scope.js" defer></script>
+  <script src="../../lib/components/icon/icon.js" type="module"></script>
+  <script src="../../lib/components/icon-button/icon-button.js" defer></script>
+  <script src="../../lib/components/button/button.js" defer></script>
+  <!-- Box must define before Tabs (the controller composes a <nuri-box>). -->
+  <script src="../../lib/components/box/box.js" defer></script>
+  <script src="../../lib/components/tabs/tabs.js" defer></script>
+  <script src="../../lib/components/topbar/topbar.js" defer></script>
+  <script src="../../lib/docs/demo/demo.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  COMPONENT DOCS PAGE · LAYOUT-PRIMITIVE TEMPLATE (decision 37 · 46)
+  ═══════════════════════════════════════════════════════════════
+
+  Adapts the canonical component-page template (decision 24) for a
+  layout primitive — same shape as the Stack / Box pages. Sections
+  that don't apply (Variants / States) are omitted per decision 19;
+  a Theming section IS included because the shell's bg-canvas +
+  text-primary re-resolve under theme/accent scopes.
+
+  Topbar is a compositional chrome shell: a single `center` boolean
+  switches between a left-aligned chrome row and an equal-side
+  centred action bar. The leading / centre / trailing regions are
+  marked by two named light-DOM wrappers (<nuri-topbar-start> /
+  <nuri-topbar-end>) — the Tabs light-DOM compound lineage (decision
+  43). It owns NO `--nuri-topbar-*` tokens (decision 46): the pipeline
+  emit detects the empty @layer tokens case and skips writing
+  build/components/topbar.ts, so there is no Tokens dictionary section.
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="components/topbar">
+  <nuri-page
+    eyebrow="Components · Navigation · Topbar"
+    title="Topbar"
+    status="draft"
+    lead="The compositional chrome shell. A single-row [leading] · children · [trailing] layout driven by one structural `center` boolean: left-aligned chrome by default, an equal-side centred action bar when centred. Side regions are marked by two named light-DOM wrappers; everything else is the centre. A layout primitive — it owns no component tokens, composing IconButton / Button and the semantic chrome vocabulary directly."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · SPEC CARD
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-component="topbar"
+        data-component-status="draft"
+        data-rn-status="spec-in-migration-test">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd data-spec="type">
+          <span class="nuri-spec-card__chip" data-type="component">component</span>
+          <span class="nuri-spec-card__meta">layout primitive · compositional chrome shell · decision 46</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Layer</dt>
+        <dd data-spec="layer">
+          <span class="nuri-spec-card__chip" data-layer="composition">composition</span>
+          <span class="nuri-spec-card__meta">consumes semantic chrome (bg / text / size / space) + the shared type scale for the title; no component-token aliasing</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Source</dt>
+        <dd data-spec="source">
+          <span class="nuri-spec-card__chip" data-source="lib/components/topbar/">lib/components/topbar/</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Elements</dt>
+        <dd data-spec="elements">
+          <span class="nuri-spec-card__chip" data-element="topbar">&lt;nuri-topbar&gt;</span>
+          <span class="nuri-spec-card__chip" data-element="topbar-start">&lt;nuri-topbar-start&gt;</span>
+          <span class="nuri-spec-card__chip" data-element="topbar-end">&lt;nuri-topbar-end&gt;</span>
+          <span class="nuri-spec-card__meta">light-DOM compound · decision 43 lineage</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Parts</dt>
+        <dd data-spec="parts">
+          <span class="nuri-spec-card__chip" data-part="leading">leading</span>
+          <span class="nuri-spec-card__chip" data-part="center">center</span>
+          <span class="nuri-spec-card__chip" data-part="trailing">trailing</span>
+          <span class="nuri-spec-card__meta">3 regions</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Component status</dt>
+        <dd data-spec="component-status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>RN status</dt>
+        <dd data-spec="rn-status">
+          <span class="nuri-tag nuri-tag--draft">spec in migration-test</span>
+          <span class="nuri-spec-card__meta">RN definition lives at docs/migration-tests/button-matrix/index.tsx pending long-term home — see Open question in roadmap/index.md</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · HERO DEMO · default left-aligned chrome row
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="hero">
+    <h2>Default</h2>
+    <nuri-demo controls="theme,accent">
+      <template>
+        <nuri-topbar>
+          <nuri-topbar-start>
+            <nuri-icon-button name="caret-left" variant="ghost" label="Back"></nuri-icon-button>
+          </nuri-topbar-start>
+          Account          <nuri-topbar-end>
+            <nuri-icon-button name="gear" variant="ghost" label="Settings"></nuri-icon-button>
+          </nuri-topbar-end>
+        </nuri-topbar>
+      </template>
+    </nuri-demo>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · API · PROPS
+       One structural boolean. No variants — structure, not use-case
+       variants (decision 46).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="api">
+    <h2>API</h2>
+    <p>
+      A compound of three elements. <code>&lt;nuri-topbar&gt;</code> is
+      the shell; <code>&lt;nuri-topbar-start&gt;</code> and
+      <code>&lt;nuri-topbar-end&gt;</code> are the named side-region
+      markers — everything else inside the shell is the centre. The only
+      prop is the structural <code>center</code> boolean; leading /
+      trailing occupancy is <strong>detected</strong>, not configured
+      (it flips the edge padding from CSS · decision 42). Edge padding
+      has a smart default — empty edge <code>lg</code>, occupied edge
+      <code>sm</code>, centred bar <code>xs</code> — that the optional
+      <code>inset</code> / <code>inset-start</code> / <code>inset-end</code>
+      override only when the author needs to (decision 46.1).
+    </p>
+
+    <h3><code>&lt;nuri-topbar&gt;</code> · shell</h3>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="topbar">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="center">
+          <td data-cell="name"><code>center</code></td>
+          <td data-cell="type"><code>boolean</code></td>
+          <td data-cell="default"><code>false</code></td>
+          <td data-cell="description">Switches the layout from left-aligned chrome (centre absorbs the slack, left-justified) to an equal-side centred action bar: the two side regions share the slack equally (<code>flex: 1</code>) so the centre stays optically centred regardless of leading / trailing widths. Reflected as <code>data-center</code> on the host.</td>
+        </tr>
+        <tr data-prop="inset">
+          <td data-cell="name"><code>inset</code> · <code>inset-start</code> · <code>inset-end</code></td>
+          <td data-cell="type"><code>"xs" | "sm" | "lg"</code></td>
+          <td data-cell="default"><em>auto</em></td>
+          <td data-cell="description">Overrides the edge padding. The default is computed from structure — empty edge <code>lg</code>, occupied edge <code>sm</code>, centred bar <code>xs</code>. <code>inset</code> is the symmetric shorthand; <code>inset-start</code> / <code>inset-end</code> set one edge and win over it. Reflected as <code>data-inset-start</code> / <code>data-inset-end</code>; the value pick lives in CSS (decision 46.1). Asymmetric insets on a <code>center</code> bar shift the optical centre — keep them symmetric there.</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <h3><code>&lt;nuri-topbar-start&gt;</code> / <code>&lt;nuri-topbar-end&gt;</code> · region markers</h3>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="topbar-region">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="—">
+          <td data-cell="name"><em>none</em></td>
+          <td data-cell="type">—</td>
+          <td data-cell="default">—</td>
+          <td data-cell="description">No props. Presence + content of the marker is the API: an occupied <code>start</code> / <code>end</code> sets <code>data-leading="filled"</code> / <code>data-trailing="filled"</code> on the shell (else <code>"empty"</code>), which flips the edge padding. Omit the wrapper entirely for an empty edge.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · ANATOMY & PARTS · leading / center / trailing
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="anatomy">
+    <h2>Anatomy &amp; parts</h2>
+    <p>
+      Topbar is a <strong>three-region</strong> shell. On mount the
+      <code>topbar</code> element reparents its authored children into
+      three built region containers — the named
+      <code>&lt;nuri-topbar-start&gt;</code> / <code>&lt;nuri-topbar-end&gt;</code>
+      wrappers go to the side regions; everything else goes to the
+      centre. No Shadow DOM, no <code>&lt;slot&gt;</code> (the Tabs
+      light-DOM lineage · decision 43).
+    </p>
+
+    <div class="nuri-anatomy">
+      <div class="nuri-anatomy__visual">
+        <nuri-topbar>
+          <nuri-topbar-start>
+            <nuri-icon-button name="caret-left" variant="ghost" label="Back"></nuri-icon-button>
+          </nuri-topbar-start>
+          Title          <nuri-topbar-end>
+            <nuri-icon-button name="gear" variant="ghost" label="Settings"></nuri-icon-button>
+          </nuri-topbar-end>
+        </nuri-topbar>
+      </div>
+      <div class="nuri-table-scroll"><table class="nuri-table" data-table="parts" data-component="topbar">
+        <thead>
+          <tr>
+            <th>Part</th>
+            <th>Element (web)</th>
+            <th>Element (RN)</th>
+            <th>Owns</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-part="leading">
+            <td data-cell="name"><code>leading</code></td>
+            <td data-cell="element-web"><code>nuri-topbar-start</code> → <code>div.nuri-topbar__start</code></td>
+            <td data-cell="element-rn"><code>TopbarStart</code> → <code>View</code></td>
+            <td data-cell="owns">the start region (back chevron, etc.); occupancy → <code>data-leading</code></td>
+          </tr>
+          <tr data-part="center">
+            <td data-cell="name"><code>center</code></td>
+            <td data-cell="element-web"><code>div.nuri-topbar__center</code></td>
+            <td data-cell="element-rn"><code>View</code></td>
+            <td data-cell="owns">the title / unnamed children; absorbs the slack (default) or stays centred (<code>center</code>)</td>
+          </tr>
+          <tr data-part="trailing">
+            <td data-cell="name"><code>trailing</code></td>
+            <td data-cell="element-web"><code>nuri-topbar-end</code> → <code>div.nuri-topbar__end</code></td>
+            <td data-cell="element-rn"><code>TopbarEnd</code> → <code>View</code></td>
+            <td data-cell="owns">the end region (action button, etc.); occupancy → <code>data-trailing</code></td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · LIVE DEMOS · center bar · back chevron · close (ghost-fill)
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="demos">
+    <h2>Live demos</h2>
+    <p>
+      The structural range: a left-aligned title with a
+      <strong>double</strong> trailing affordance, a filled close button
+      (the IconButton <code>fill</code> passthrough · decision 40.1), a
+      back-chevron leading row, a centred <code>&lt;nuri-tabs&gt;</code>
+      switch, and the <code>center</code> action bar. The title stays put
+      while the trailing region stacks as many icon buttons as it needs.
+    </p>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="title · double trailing" subtitle="two IconButtons share the trailing region">
+        <template>
+          <nuri-topbar>
+            My vault            <nuri-topbar-end>
+              <nuri-icon-button name="gear" variant="ghost" label="Settings"></nuri-icon-button>
+              <nuri-icon-button name="question" variant="ghost" label="Help"></nuri-icon-button>
+            </nuri-topbar-end>
+          </nuri-topbar>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="title · download + help" subtitle="double trailing · download-simple + question">
+        <template>
+          <nuri-topbar>
+            Activity            <nuri-topbar-end>
+              <nuri-icon-button name="download-simple" variant="ghost" label="Download"></nuri-icon-button>
+              <nuri-icon-button name="question" variant="ghost" label="Help"></nuri-icon-button>
+            </nuri-topbar-end>
+          </nuri-topbar>
+        </template>
+      </nuri-demo>
+
+    </div>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="title · help + close" subtitle="double trailing · ghost help + ghost-fill close">
+        <template>
+          <nuri-topbar>
+            Send            <nuri-topbar-end>
+              <nuri-icon-button name="question" variant="ghost" label="Help"></nuri-icon-button>
+              <nuri-icon-button name="x-circle" variant="ghost" fill label="Close"></nuri-icon-button>
+            </nuri-topbar-end>
+          </nuri-topbar>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="close · ghost-fill IconButton" subtitle="name=&quot;x-circle&quot; variant=&quot;ghost&quot; fill">
+        <template>
+          <nuri-topbar>
+            Help            <nuri-topbar-end>
+              <nuri-icon-button name="x-circle" variant="ghost" fill label="Close"></nuri-icon-button>
+            </nuri-topbar-end>
+          </nuri-topbar>
+        </template>
+      </nuri-demo>
+
+    </div>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="centred tabs · segmented switch" subtitle="centre default = xs gutter · scan / tabs / help">
+        <template>
+          <nuri-topbar center>
+            <nuri-topbar-start>
+              <nuri-icon-button name="scan" variant="ghost" label="Scan"></nuri-icon-button>
+            </nuri-topbar-start>
+            <nuri-tabs value="eur">
+              <nuri-tab value="btc">Bitcoin</nuri-tab>
+              <nuri-tab value="eur">Euro</nuri-tab>
+            </nuri-tabs>
+            <nuri-topbar-end>
+              <nuri-icon-button name="question" variant="ghost" label="Help"></nuri-icon-button>
+            </nuri-topbar-end>
+          </nuri-topbar>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="back chevron · leading only" subtitle="trailing empty → lg edge padding">
+        <template>
+          <nuri-topbar>
+            <nuri-topbar-start>
+              <nuri-icon-button name="caret-left" variant="ghost" label="Back"></nuri-icon-button>
+            </nuri-topbar-start>
+            Setting          </nuri-topbar>
+        </template>
+      </nuri-demo>
+
+    </div>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="back chevron · long title" subtitle="leading filled · centre absorbs the slack">
+        <template>
+          <nuri-topbar>
+            <nuri-topbar-start>
+              <nuri-icon-button name="caret-left" variant="ghost" label="Back"></nuri-icon-button>
+            </nuri-topbar-start>
+            Nuri support          </nuri-topbar>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="center · action bar" subtitle="center inset=&quot;lg&quot; · Cancel / Edit / Save">
+        <template>
+          <nuri-topbar center inset="lg">
+            <nuri-topbar-start>
+              <nuri-button variant="soft" size="sm">Cancel</nuri-button>
+            </nuri-topbar-start>
+            Edit            <nuri-topbar-end>
+              <nuri-button variant="solid" size="sm">Save</nuri-button>
+            </nuri-topbar-end>
+          </nuri-topbar>
+        </template>
+      </nuri-demo>
+
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · THEMING · chrome surface re-resolves
+       bg-canvas + text-primary are theme-only chrome tokens, so a
+       theme / accent scope repaints the shell with no extra rules.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="theming">
+    <h2>Theming · chrome surface</h2>
+    <p>
+      The shell paints <code>--nuri-bg-canvas</code> with
+      <code>--nuri-text-primary</code> — both <strong>chrome</strong>
+      (theme-only) tokens. Toggling theme repaints the whole bar with no
+      extra rules; the accent surfaces only through the composed controls
+      (e.g. a solid Button in the centre bar), never the shell itself.
+    </p>
+
+    <div class="nuri-demo-row">
+      <nuri-demo label="theme" subtitle="bg-canvas / text-primary re-resolve" controls="theme">
+        <template>
+          <nuri-topbar>
+            <nuri-topbar-start>
+              <nuri-icon-button name="caret-left" variant="ghost" label="Back"></nuri-icon-button>
+            </nuri-topbar-start>
+            Account            <nuri-topbar-end>
+              <nuri-icon-button name="gear" variant="ghost" label="Settings"></nuri-icon-button>
+            </nuri-topbar-end>
+          </nuri-topbar>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="accent · via composed control" subtitle="shell stays chrome; Save follows accent" controls="theme accent">
+        <template>
+          <nuri-topbar center inset="lg">
+            <nuri-topbar-start>
+              <nuri-button variant="soft" size="sm">Cancel</nuri-button>
+            </nuri-topbar-start>
+            Edit            <nuri-topbar-end>
+              <nuri-button variant="solid" size="sm">Save</nuri-button>
+            </nuri-topbar-end>
+          </nuri-topbar>
+        </template>
+      </nuri-demo>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · TOKEN MAPPING
+       Host CSS property → DTCG → CSS var → reference. No @layer tokens
+       (decision 46) — dispatch happens in @layer rules through host
+       element + data-* attribute selectors.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="token-mapping">
+    <h2>Token mapping</h2>
+    <p>
+      <strong>CSS property → DTCG → CSS var → reference.</strong> Topbar
+      has no <code>@layer tokens</code> block per
+      <a href="../../decisionlog.md#46-compositional-chrome-shell-via-named-light-dom-wrappers--n66">decision 46</a>
+      — every value dereferences a semantic token directly in
+      <code>@layer rules</code> through the host element selector and
+      <code>data-*</code> attribute dispatch (e.g.
+      <code>nuri-topbar:not([data-center])[data-leading="filled"] { padding-inline-start: var(--nuri-space-sm); }</code>).
+      <code>—</code> means a CSS literal, not a token.
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="token-map" data-component="topbar">
+      <thead>
+        <tr>
+          <th>Part / state</th>
+          <th>CSS property</th>
+          <th>DTCG</th>
+          <th>CSS var</th>
+          <th>Reference</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="nuri-table__group" data-group="shell">
+          <th scope="rowgroup" colspan="5">Shell · the chrome row surface</th>
+        </tr>
+        <tr data-part="shell" data-css-prop="height"
+            data-dtcg="size.lg"
+            data-css-var="—" data-reference="--nuri-size-lg">
+          <td>shell</td>
+          <td><code>height</code></td>
+          <td><code>size.lg</code></td>
+          <td>—</td>
+          <td><code>var(--nuri-size-lg)</code></td>
+        </tr>
+        <tr data-part="shell" data-css-prop="background"
+            data-dtcg="chrome.bg-canvas"
+            data-css-var="—" data-reference="--nuri-bg-canvas">
+          <td>shell</td>
+          <td><code>background</code></td>
+          <td><code>chrome.bg-canvas</code></td>
+          <td>—</td>
+          <td><code>var(--nuri-bg-canvas)</code> · theme-only chrome</td>
+        </tr>
+        <tr data-part="shell" data-css-prop="color"
+            data-dtcg="chrome.text-primary"
+            data-css-var="—" data-reference="--nuri-text-primary">
+          <td>shell</td>
+          <td><code>color</code></td>
+          <td><code>chrome.text-primary</code></td>
+          <td>—</td>
+          <td><code>var(--nuri-text-primary)</code> · theme-only chrome</td>
+        </tr>
+        <tr data-part="shell" data-css-prop="gap"
+            data-dtcg="space.sm"
+            data-css-var="—" data-reference="--nuri-space-sm">
+          <td>shell</td>
+          <td><code>gap</code></td>
+          <td><code>space.sm</code></td>
+          <td>—</td>
+          <td><code>var(--nuri-space-sm)</code> · inter-region + intra-region rhythm</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="center-type">
+          <th scope="rowgroup" colspan="5">Centre · default title type · sourced directly from the shared <code>--nuri-type-*</code> scale (<a href="../../decisionlog.md">decision 46 amended · 55</a>) — bare title text inherits lg-em; no <code>&lt;nuri-typography&gt;</code> wrapper. Topbar stays a layout primitive (owns no <code>--nuri-topbar-*</code> tokens) but is now font-BEARING for its title.</th>
+        </tr>
+        <tr data-part="center" data-css-prop="font-size"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-lg-size">
+          <td>center</td>
+          <td><code>font-size</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>var(--nuri-type-lg-size)</code> (22px)</td>
+        </tr>
+        <tr data-part="center" data-css-prop="line-height"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-lg-line-height">
+          <td>center</td>
+          <td><code>line-height</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>var(--nuri-type-lg-line-height)</code> (1.27)</td>
+        </tr>
+        <tr data-part="center" data-css-prop="letter-spacing"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-lg-tracking">
+          <td>center</td>
+          <td><code>letter-spacing</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>var(--nuri-type-lg-tracking)</code> (-0.015em)</td>
+        </tr>
+        <tr data-part="center" data-css-prop="font-weight"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-lg-em-weight">
+          <td>center</td>
+          <td><code>font-weight</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>var(--nuri-type-lg-em-weight)</code> (600)</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="center">
+          <th scope="rowgroup" colspan="5">center=true · padding-inline (equal-side action bar)</th>
+        </tr>
+        <tr data-part="shell" data-state="center" data-css-prop="padding-inline"
+            data-dtcg="space.lg"
+            data-css-var="—" data-reference="--nuri-space-lg">
+          <td>shell <code>[data-center]</code></td>
+          <td><code>padding-inline</code></td>
+          <td><code>space.lg</code></td>
+          <td>—</td>
+          <td><code>var(--nuri-space-lg)</code></td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="edge">
+          <th scope="rowgroup" colspan="5">Default mode · edge padding flips with occupancy</th>
+        </tr>
+        <tr data-part="leading" data-state="filled" data-css-prop="padding-inline-start"
+            data-dtcg="space.sm"
+            data-css-var="—" data-reference="--nuri-space-sm">
+          <td>leading <code>[data-leading="filled"]</code></td>
+          <td><code>padding-inline-start</code></td>
+          <td><code>space.sm</code></td>
+          <td>—</td>
+          <td><code>var(--nuri-space-sm)</code> · hugs the occupying control</td>
+        </tr>
+        <tr data-part="leading" data-state="empty" data-css-prop="padding-inline-start"
+            data-dtcg="space.lg"
+            data-css-var="—" data-reference="--nuri-space-lg">
+          <td>leading <code>[data-leading="empty"]</code></td>
+          <td><code>padding-inline-start</code></td>
+          <td><code>space.lg</code></td>
+          <td>—</td>
+          <td><code>var(--nuri-space-lg)</code> · room for edge text</td>
+        </tr>
+        <tr data-part="trailing" data-state="filled" data-css-prop="padding-inline-end"
+            data-dtcg="space.sm"
+            data-css-var="—" data-reference="--nuri-space-sm">
+          <td>trailing <code>[data-trailing="filled"]</code></td>
+          <td><code>padding-inline-end</code></td>
+          <td><code>space.sm</code></td>
+          <td>—</td>
+          <td><code>var(--nuri-space-sm)</code></td>
+        </tr>
+        <tr data-part="trailing" data-state="empty" data-css-prop="padding-inline-end"
+            data-dtcg="space.lg"
+            data-css-var="—" data-reference="--nuri-space-lg">
+          <td>trailing <code>[data-trailing="empty"]</code></td>
+          <td><code>padding-inline-end</code></td>
+          <td><code>space.lg</code></td>
+          <td>—</td>
+          <td><code>var(--nuri-space-lg)</code></td>
+        </tr>
+
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       8 · ROADMAP
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="rn-implementation">
+        <span class="nuri-tag nuri-tag--draft">spec in migration-test</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">React Native implementation</strong>
+          <p class="nuri-roadmap__desc">The RN <code>Topbar</code> + <code>TopbarStart</code> / <code>TopbarEnd</code> translation (with the same <code>center</code> prop) lives in the <a href="../../docs/migration-tests/button-matrix/index.tsx">migration test</a>, composing the IconButton stub. Promotion to a permanent <code>lib/</code> home tracks the shared RN-spec-home question in <a href="../../roadmap/index.md">roadmap/index.md</a>.</p>
+        </div>
+      </li>
+      <li data-feature="icon-rn-renderer">
+        <span class="nuri-tag nuri-tag--planned">planned · evidence-gated</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Icon RN renderer (F-ICON-RN-1)</strong>
+          <p class="nuri-roadmap__desc">Topbar composes IconButton rather than <code>&lt;nuri-icon&gt;</code> directly, so it does NOT add a new direct Icon consumer — the RN glyph-rendering debt stays a single funnel. The renderer (<code>react-native-svg</code> <code>SvgXml</code> over a typed <code>build/icons.ts</code> emit) lands at the first direct <code>&lt;nuri-icon&gt;</code> consumer outside IconButton, or the first real RN build. See <a href="../../docs/RISKS.md">RISKS</a>.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+<style>
+  /* ═══════════════════════════════════════════════════════════════
+   * PAGE-LOCAL STYLES · component-specific only
+   * Topbar is fully tokenised through @layer rules; the demo frame
+   * gives each shell a bounded width so the centre / edge behaviour
+   * is observable (the shell is width-100% by nature of being chrome).
+   * ═══════════════════════════════════════════════════════════════ */
+  #hero nuri-topbar,
+  #anatomy .nuri-anatomy__visual nuri-topbar,
+  .nuri-demo-card__preview nuri-topbar {
+    width: 100%;
+  }
+
+  /* The shell's background is bg-canvas — identical to the demo preview
+   * and anatomy-visual defaults, so the bar dissolves into the frame.
+   * Paint those frames with bg-inverse (a slice of the opposite theme)
+   * so the canvas-coloured chrome reads as a clearly distinct surface. */
+  .nuri-demo-card__preview,
+  #anatomy .nuri-anatomy__visual {
+    background: var(--nuri-bg-inverse);
+  }
+</style>
+
+</body>
+</html>

@@ -1,0 +1,139 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · TABS  (compound · <nuri-tabs> + <nuri-tab>)
+ *
+ * A segmented single-select control · Radix-like compound shape
+ * (decision 43 · N+6.5). Two custom elements share one piece of
+ * state (the selected `value`), both hosted in this directory and
+ * registered by one IIFE (tabs.js):
+ *
+ *   <nuri-tabs value="…">   the controller · owns the selected value
+ *   <nuri-tab  value="…">   one selectable option · button-sm shape
+ *
+ * This is the design system's FIRST Box composition consumer: the
+ * tablist surface (background + radius + inset padding) is delegated
+ * to a composed <nuri-box> rather than re-painted here — concrete
+ * evidence for the Box background/radius props landed alongside it
+ * (decision 42). tabs.css therefore owns ONLY the flex list rhythm
+ * (--nuri-tabs-gap) and the per-option shape (--nuri-tab-*); the
+ * surface tokens live on the Box.
+ *
+ * Tab option shape mirrors Button `sm` (decision 43): size-md min
+ * height, space-md padding-x, type-sm, radius-sm — a dense,
+ * badge-weight control. At rest a tab is transparent with muted
+ * text; the active tab fills with accent-solid + accent-on-solid,
+ * carrying the active accent identity exactly like a solid Button.
+ *
+ * Interaction · pressed-only (no :hover · mobile-first). Selection
+ * is click/tap (native <button role="tab">). Roving arrow-key
+ * navigation across the tablist is NOT implemented this session
+ * (F-KEYBOARD-NAV-1 · deferred) — each tab is individually
+ * focusable and activates on Enter/Space via native button
+ * semantics.
+ *
+ * Token prefixes (pipeline note): only `--nuri-tabs-*` is read into
+ * build/components/tabs.ts (the emitter matches the exact component
+ * prefix). The `--nuri-tab-*` option tokens are web-CSS-only by
+ * design — the RN Tab renders its option shape from the same
+ * semantic vocabulary on its own side.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Re-declared on every scope boundary so var(--nuri-accent-*) /
+   * var(--nuri-text-*) references resolve AT THE SCOPE LEVEL — same
+   * rationale as button.css (Tier 2 / 3 correctness · decision 9). */
+  :root,
+  [data-accent],
+  [data-theme] {
+    /* ── Container · flex list rhythm (surface = composed Box) ── */
+    --nuri-tabs-gap:          var(--nuri-space-2xs);
+
+    /* ── Tab option · button-sm shape (decision 43) ──────────── */
+    /* Label type is NOT a component token — it sources directly
+     * from the ONE shared --nuri-type-* scale (decision 54/55):
+     * type-sm-em (semibold), mirroring Button `sm`. */
+    --nuri-tab-min-height:    var(--nuri-size-md);
+    --nuri-tab-padding-x:     var(--nuri-space-md);
+    --nuri-tab-radius:        var(--nuri-radius-sm);
+    --nuri-tab-press-scale:   var(--nuri-interaction-press-scale);
+    --nuri-tab-disabled-opacity: var(--nuri-interaction-disabled-opacity);
+
+    /* rest · transparent fill, muted text (recedes vs active) */
+    --nuri-tab-rest-fg:       var(--nuri-text-muted);
+    /* active · solid accent fill (carries accent identity) */
+    --nuri-tab-active-bg:     var(--nuri-accent-solid);
+    --nuri-tab-active-fg:     var(--nuri-accent-on-solid);
+  }
+}
+
+@layer rules {
+  /* ── Custom element wrappers · invisible in layout ───────────── */
+  nuri-tabs,
+  nuri-tab {
+    display: contents;
+  }
+
+  /* ── Pre-upgrade skeleton ─────────────────────────────────────
+   * Until tabs.js (deferred) upgrades the elements, paint the
+   * wrapper as a block so authored tab labels don't flash as a raw
+   * inline run. The composed Box + inner buttons take over post-
+   * upgrade (display:contents). */
+  nuri-tabs:not(:defined) {
+    display: block;
+  }
+
+  /* ── Tablist · flex row inside the composed Box surface ──────── */
+  .nuri-tabs__list {
+    display: flex;
+    gap: var(--nuri-tabs-gap);
+  }
+
+  /* ── Tab option · button-sm shape, equal-width segments ──────── */
+  .nuri-tab {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--nuri-tab-min-height);
+    padding: 0 var(--nuri-tab-padding-x);
+    border: 0;
+    border-radius: var(--nuri-tab-radius);
+    background: transparent;
+    color: var(--nuri-tab-rest-fg);
+    font-family: inherit;
+    font-size: var(--nuri-type-sm-size);
+    line-height: var(--nuri-type-sm-line-height);
+    letter-spacing: var(--nuri-type-sm-tracking);
+    font-weight: var(--nuri-type-sm-em-weight);
+    white-space: nowrap;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    user-select: none;
+    transition: background-color var(--nuri-duration-fast) ease,
+                color var(--nuri-duration-fast) ease,
+                transform var(--nuri-duration-fast) ease;
+  }
+
+  /* ── Active · accent-solid fill (mirrors a solid Button) ─────── */
+  .nuri-tab[data-active="true"] {
+    background: var(--nuri-tab-active-bg);
+    color: var(--nuri-tab-active-fg);
+  }
+
+  /* ── Pressed · tactile feedback (suppressed when disabled) ───── */
+  .nuri-tab:not(:disabled):active {
+    transform: scale(var(--nuri-tab-press-scale));
+  }
+
+  /* ── Disabled · dimmed, inert (no press animation) ───────────── */
+  .nuri-tab:disabled {
+    opacity: var(--nuri-tab-disabled-opacity);
+    cursor: not-allowed;
+  }
+
+  /* ── Focus · brand-coloured ring (never accent-derived) ──────── */
+  .nuri-tab:focus-visible {
+    outline: 2px solid var(--nuri-focus-ring);
+    outline-offset: 2px;
+  }
+}

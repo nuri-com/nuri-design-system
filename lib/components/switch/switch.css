@@ -1,0 +1,158 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · SWITCH
+ *
+ * A binary on/off toggle rendered as a parametric pill with a
+ * sliding knob. Standalone — NOT a Box composer (decision 44 ·
+ * N+6.5). It owns component-tokens (unlike the layout primitives)
+ * because its track/knob colours are a small fixed palette that
+ * benefits from a named, scope-resolved alias layer (same model as
+ * Button / IconButton · decision 9).
+ *
+ * Shape (single size · no size matrix · decision 44):
+ *   track   60×36   (--nuri-size-xl × --nuri-size-md · --nuri-radius-full)
+ *   knob    28×28   (--nuri-size-sm · circle)
+ *   inset   4px     (--nuri-space-xs · gap between knob and track edge)
+ *   travel  24px    track-width − knob − 2·inset (knob slides ON↔OFF)
+ *
+ * Colour:
+ *   OFF track  bg-inverse-muted (chrome · muted grey, reads "off")
+ *   ON  track  accent-solid     (carries the active accent identity)
+ *   knob       bg-canvas        (always the page surface · "lifts off")
+ *
+ *   The accent shows ONLY in the ON state, via accent-solid. `accent`
+ *   is Tier 2 self-scope — mirrored as data-accent on the inner
+ *   <button> so var(--nuri-accent-solid) resolves to that override
+ *   for this control alone (same mechanism as IconButton).
+ *
+ * States · off | on | disabled (pressed feedback via knob, no :hover)
+ *
+ * A11y · NOT an <input type=checkbox>. A native <button
+ *   role="switch" aria-checked> carries the toggle semantics — AT
+ *   announces "switch, on/off". The wrapper toggles aria-checked on
+ *   click; disabled removes the listener path via pointer-events.
+ *
+ * API
+ *   <nuri-switch></nuri-switch>                          · off (default)
+ *   <nuri-switch checked></nuri-switch>                  · on
+ *   <nuri-switch checked accent="lilac"></nuri-switch>   · on · self-scope accent
+ *   <nuri-switch disabled></nuri-switch>                 · non-interactive
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Re-declared on every scope boundary so var(--nuri-accent-*) /
+   * var(--nuri-bg-*) references resolve AT THE SCOPE LEVEL — same
+   * rationale as button.css / icon-button.css (Tier 2 / 3 correctness). */
+  :root,
+  [data-accent],
+  [data-theme] {
+    /* ── Geometry ─────────────────────────────────────────────── */
+    --nuri-switch-track-width:       var(--nuri-size-xl);
+    --nuri-switch-track-height:      var(--nuri-size-md);
+    --nuri-switch-knob-size:         var(--nuri-size-sm);
+    --nuri-switch-inset:             var(--nuri-space-xs);
+
+    /* ── Colour ───────────────────────────────────────────────── */
+    --nuri-switch-track-off-bg:      var(--nuri-bg-inverse-muted);
+    --nuri-switch-track-on-bg:       var(--nuri-accent-solid);
+    --nuri-switch-knob-bg:           var(--nuri-bg-canvas);
+
+    /* ── Interaction ──────────────────────────────────────────────
+     * Knob press-scale is a DELIBERATE override of the centralized
+     * --nuri-interaction-press-scale (0.97 · decision 45): the knob
+     * is small (size.sm · 28×28) and a 3% shrink reads as almost
+     * no feedback. 0.92 (8% shrink) keeps the tactile press visible
+     * at this geometry. Documented per the "consumer override with
+     * rationale" pattern in decision 45. */
+    --nuri-switch-knob-press-scale:  0.92;
+    --nuri-switch-disabled-opacity:  var(--nuri-interaction-disabled-opacity);
+  }
+}
+
+@layer rules {
+  /* ── Custom element wrapper (invisible in layout) ────────────── */
+  nuri-switch {
+    display: contents;
+  }
+
+  /* ── Pre-upgrade skeleton ─────────────────────────────────────
+   * Paint the OFF pill until switch.js (deferred) upgrades the
+   * element, so the row doesn't reflow on hydration. */
+  nuri-switch:not(:defined) {
+    display: inline-block;
+    width: var(--nuri-switch-track-width);
+    height: var(--nuri-switch-track-height);
+    border-radius: var(--nuri-radius-full);
+    background: var(--nuri-switch-track-off-bg);
+    vertical-align: middle;
+  }
+
+  /* ── Track · the native <button role="switch"> ───────────────── */
+  .nuri-switch {
+    /* Knob travel = track − knob − both insets. Resolves to 24px at
+     * the default scale (60 − 28 − 2·4). Declared here in @layer rules
+     * (not @layer tokens) on purpose: it is a DERIVED geometry value
+     * — a calc() over other component tokens, not an alias the
+     * pipeline can resolve to a single literal — so it must stay out
+     * of the emitted token surface. */
+    --nuri-switch-knob-travel:
+      calc(var(--nuri-switch-track-width)
+           - var(--nuri-switch-knob-size)
+           - 2 * var(--nuri-switch-inset));
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    width: var(--nuri-switch-track-width);
+    height: var(--nuri-switch-track-height);
+    padding: var(--nuri-switch-inset);
+    border: 0;
+    border-radius: var(--nuri-radius-full);
+    background: var(--nuri-switch-track-off-bg);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    user-select: none;
+    transition: background-color var(--nuri-duration-fast) ease;
+  }
+
+  /* ── ON · track flips to the active accent ───────────────────── */
+  .nuri-switch[aria-checked="true"] {
+    background: var(--nuri-switch-track-on-bg);
+  }
+
+  /* ── Knob · slides on the inline axis ────────────────────────── */
+  .nuri-switch__knob {
+    width: var(--nuri-switch-knob-size);
+    height: var(--nuri-switch-knob-size);
+    border-radius: var(--nuri-radius-full);
+    background: var(--nuri-switch-knob-bg);
+    transition: transform var(--nuri-duration-fast) ease;
+  }
+  .nuri-switch[aria-checked="true"] .nuri-switch__knob {
+    transform: translateX(var(--nuri-switch-knob-travel));
+  }
+
+  /* ── Pressed · knob squash, state-agnostic ───────────────────── */
+  .nuri-switch:active .nuri-switch__knob {
+    transform: scale(var(--nuri-switch-knob-press-scale));
+  }
+  .nuri-switch[aria-checked="true"]:active .nuri-switch__knob {
+    transform: translateX(var(--nuri-switch-knob-travel)) scale(var(--nuri-switch-knob-press-scale));
+  }
+
+  /* ── Disabled ─────────────────────────────────────────────────
+   * Belt + suspenders: pointer-events:none blocks the gesture even
+   * if the JS listener is somehow attached. */
+  .nuri-switch[disabled],
+  .nuri-switch[aria-disabled="true"] {
+    opacity: var(--nuri-switch-disabled-opacity);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* ── Focus · brand ring (never accent-derived) ───────────────── */
+  .nuri-switch:focus-visible {
+    outline: 2px solid var(--nuri-focus-ring);
+    outline-offset: 2px;
+  }
+}

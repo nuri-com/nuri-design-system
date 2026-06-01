@@ -1,0 +1,73 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · TYPOGRAPHY-STACK  (rhythm container · decision 47 · 53)
+ *
+ * A single light-DOM container that stacks <nuri-typography> lines at a
+ * fixed inter-line rhythm, vertically (default) or horizontally. The
+ * text-hierarchy of list items / summary rows / headers compose it (the
+ * recurring primary→muted line pairing).
+ *
+ *   <nuri-typography-stack direction="column">    column (default) | row
+ *     <nuri-typography size="lg" emphasis>Coffee Roasters</nuri-typography>
+ *     <nuri-typography size="sm" muted>26 May · 4:32 PM</nuri-typography>
+ *   </nuri-typography-stack>
+ *
+ * Decision 53 ELIMINATED the former <nuri-typography-stack-element> +
+ * its `level` sub-scale: the element collided with <nuri-typography> and
+ * the level → colour dispatch added indirection. The stack now composes
+ * the existing <nuri-typography> primitive directly; the size + emphasis
+ * + muted props carry what `level` used to. The 5-level scale was DROPPED
+ * (not replaced by a guidance table) — a hierarchy doctrine is deferred
+ * until the type-scale principles are documented (decision 53 · P11).
+ *
+ * Like Topbar / Stack / Box (decisions 37 · 42 · 46) it is a LAYOUT
+ * PRIMITIVE: it owns no `--nuri-typography-stack-*` tokens, consuming the
+ * semantic spacing vocabulary directly in `@layer rules`. `@layer tokens`
+ * is therefore empty by design and the pipeline rides the skip-emit
+ * branch (no build/components/typography-stack.ts).
+ *
+ * Structure, not variants: a single `direction` author value picks the
+ * axis (CSS reads the attribute directly — it is static, not JS-
+ * computed). The container's only job is the OWNED inter-line rhythm
+ * (column 2xs / row xs gap) — that is its reason to exist vs reusing
+ * <nuri-stack> (decision 47). Colour + metrics belong to the composed
+ * <nuri-typography> children, not the stack.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design. Typography-stack is a layout primitive (decision
+   * 37 · 47 · 53) — it parametrizes the semantic spacing vocabulary
+   * through structure, not through component-token aliasing. Same
+   * rationale as topbar.css / stack.css / box.css. The lines' font
+   * metrics + colour belong to the composed <nuri-typography> children
+   * (size / emphasis / muted), not the stack. No new tokens. */
+}
+
+@layer rules {
+  /* ── Stack host · the flex container · owns the inter-line rhythm ──
+   * column (default) → tight vertical leading; row → inline gutter +
+   * baseline so mixed-size lines sit on a shared text baseline. The gap
+   * is OWNED (not a `gap` prop) — that is what distinguishes this from
+   * <nuri-stack> (decision 47). */
+  nuri-typography-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nuri-space-2xs);
+  }
+
+  nuri-typography-stack[direction="row"] {
+    flex-direction: row;
+    align-items: baseline;
+    gap: var(--nuri-space-xs);
+  }
+
+  /* ── Pre-upgrade skeleton ─────────────────────────────────────
+   * Stack layout is pure CSS (no JS reparenting), so the container lays
+   * out before typography-stack.js upgrades it. The composed
+   * <nuri-typography> children skeleton-paint via their own
+   * :not(:defined) rule (typography.css). */
+  nuri-typography-stack:not(:defined) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nuri-space-2xs);
+  }
+}

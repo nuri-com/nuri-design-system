@@ -1,0 +1,68 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · CONTROL · STYLES
+ * Select-pill + icon-button used in the docs topbar and in
+ * <nuri-demo> toolbars. Lifted from shell.css and demo.css in
+ * N+3.5 (the two had duplicate rules; this is the single source).
+ *
+ * Markup comes from NuriControl.renderSelect / renderIconButton
+ * (lib/docs/control/control.js).
+ * ────────────────────────────────────────────────────────────── */
+
+.nuri-control {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nuri-px-4);
+  height: var(--nuri-px-28); /* 28px */
+  padding: 0 var(--nuri-px-6);
+  background: var(--nuri-bg-strong);
+  border: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  border-radius: var(--nuri-radius-sm);
+  font-size: var(--nuri-font-size-13);
+  color: var(--nuri-text-primary);
+  cursor: pointer;
+  transition: background var(--nuri-duration-fast) ease,
+              border-color var(--nuri-duration-fast) ease;
+}
+.nuri-control:hover {
+  background: var(--nuri-bg-pressed);  /* docs-chrome :hover reuses the "pressed" emphasis surface */
+  border-color: var(--nuri-border-default);
+}
+
+.nuri-control__inner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nuri-px-4);
+}
+
+.nuri-control__label {
+  font-size: var(--nuri-font-size-13);
+  color: var(--nuri-text-muted);
+}
+
+.nuri-control__select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Caret is an inline SVG sibling of the <select> (NOT a
+ * background-image data URI — see decision 15). currentColor
+ * inherits from the parent .nuri-control so it tints correctly
+ * in light / dark scope. */
+.nuri-control__caret {
+  flex: none;
+  color: currentColor;
+}
+
+.nuri-control--icon {
+  width: var(--nuri-px-28);
+  padding: 0;
+  justify-content: center;
+}
+.nuri-control--icon svg { display: block; }

@@ -1,0 +1,70 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · SCREEN
+ *
+ * Layout primitive · the per-screen full-height column. Fills its
+ * parent's main axis (flex:1) and stacks its children vertically:
+ * pinned chrome (Topbar) + a growing <nuri-scroll> body. Pure
+ * structure — no surface, no padding, no own tokens (decision 37 ·
+ * the layout-primitive class, same as Stack / Box / Scroll).
+ *
+ * It is NOT the navigator. In RN the thing that holds Screen + the
+ * bottom TabBar and owns the safe-area is the navigator (React
+ * Navigation) — framework chrome, not an authored View. In the
+ * playground that role is the device frame; here Screen is just the
+ * single screen's content column. The TabBar is a SIBLING of Screen,
+ * never a child (RN navigation norm · tab-bar.css note · decision 56).
+ *
+ * API
+ *   as?: string                                       host-resolved (default <div>)
+ *
+ * RN mapping (R1): a thin component over `View {flex:1}` (later the
+ * SafeAreaProvider's themed root). Safe-area is handled in ONE place
+ * upstream (frame / navigator), so Screen stays inset-agnostic — no
+ * env()/inset props (P11).
+ *
+ * Markup
+ *   <nuri-screen>
+ *     <nuri-topbar>…</nuri-topbar>
+ *     <nuri-scroll>…</nuri-scroll>
+ *   </nuri-screen>
+ *
+ * No `@layer tokens` block — Screen bakes only structural CSS (flex
+ * fill), no design-scale value, so the per-component pipeline emitter
+ * rides the skip-emit branch (no build/components/screen.ts). Same as
+ * Stack / Box (decision 37 · 52 skip-emit).
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design. Screen is a layout primitive (decision 37) — it
+   * owns no --nuri-screen-* tokens. The structural flex:1 fill is not
+   * a design-scale value, so the pipeline detects the empty case and
+   * skips emit. */
+}
+
+@layer rules {
+  /* ── Custom element wrapper · invisible in layout ──────────── */
+  nuri-screen {
+    display: contents;
+  }
+
+  /* ── Pre-upgrade skeleton ──────────────────────────────────────
+   * Until screen.js (deferred) builds the inner element, paint the
+   * host as a filling column so authored chrome doesn't flash. */
+  nuri-screen:not(:defined) {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-block-size: 0;
+  }
+
+  /* ── Base · the full-height column ─────────────────────────────
+   * flex:1 fills the parent's main axis (the device viewport, or in
+   * RN the navigator's content area); min-block-size:0 lets the inner
+   * <nuri-scroll> shrink below content size so it can scroll. */
+  .nuri-screen {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-block-size: 0;
+  }
+}

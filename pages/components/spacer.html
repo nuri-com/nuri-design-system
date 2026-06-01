@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Components · Spacer</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../lib/components/stack/stack.css" />
+  <link rel="stylesheet" href="../../lib/components/box/box.css" />
+  <link rel="stylesheet" href="../../lib/components/spacer/spacer.css" />
+  <link rel="stylesheet" href="../../lib/components/button/button.css" />
+  <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+  <script src="../../lib/docs/tokens.js"></script>
+  <!-- Custom element scripts MUST be deferred so connectedCallback fires
+       AFTER body parsing (children present). See AGENTS.md. -->
+  <script src="../../lib/components/stack/stack.js" defer></script>
+  <script src="../../lib/components/box/box.js" defer></script>
+  <script src="../../lib/components/spacer/spacer.js" defer></script>
+  <script src="../../lib/components/button/button.js" defer></script>
+  <script src="../../lib/docs/demo/demo.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  COMPONENT DOCS PAGE · LAYOUT-PRIMITIVE TEMPLATE (decision 37)
+  ═══════════════════════════════════════════════════════════════
+
+  Adapts the canonical component-page template (decision 24) for a
+  layout primitive — same shape as the Stack / Box pages. Sections
+  that don't apply (Variants / States / Theming) are omitted per
+  decision 19 (template variants in service of ONE structure).
+
+  Spacer is a flexible gap (decision 59 · `grow` added decision 61): an
+  empty box that either GROWS to absorb a flex parent's free space (the
+  SwiftUI / RN `Spacer` idiom) or holds a FIXED extent from the semantic
+  space scale. Like Separator it sizes the HOST directly — no inner
+  element, no JS reparenting.
+
+  No `@layer tokens` in spacer.css per decision 37 (layout-primitive
+  class): `size` dispatches the semantic space vocabulary via attribute
+  selector and the grow defaults are structural flex — so the
+  pipeline emit step skips build/components/spacer.ts (decision 52).
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="components/spacer">
+  <nuri-page
+    eyebrow="Components · Layout · Spacer"
+    title="Spacer"
+    status="draft"
+    lead="A flexible gap. With no size it GROWS to absorb the free space of its flex parent (the push-apart idiom); with a size it holds a FIXED extent from the semantic space scale; with a grow value it takes a proportional share of the slack. Pure structure — sizes the host directly, no inner element."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · SPEC CARD
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-component="spacer"
+        data-component-status="draft"
+        data-rn-status="spec-in-migration-test">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd data-spec="type">
+          <span class="nuri-spec-card__chip" data-type="component">component</span>
+          <span class="nuri-spec-card__meta">layout primitive · decision 37 / 59</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Layer</dt>
+        <dd data-spec="layer">
+          <span class="nuri-spec-card__chip" data-layer="composition">composition</span>
+          <span class="nuri-spec-card__meta">consumes semantic space (size); no component-token aliasing</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Source</dt>
+        <dd data-spec="source">
+          <span class="nuri-spec-card__chip" data-source="lib/components/spacer/">lib/components/spacer/</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Parts</dt>
+        <dd data-spec="parts">
+          <span class="nuri-spec-card__chip" data-part="root">root</span>
+          <span class="nuri-spec-card__meta">1 part</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Component status</dt>
+        <dd data-spec="component-status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>RN status</dt>
+        <dd data-spec="rn-status">
+          <span class="nuri-tag nuri-tag--draft">spec in migration-test</span>
+          <span class="nuri-spec-card__meta">RN definition lives at docs/migration-tests/button-matrix/index.tsx pending long-term home — see Open question in roadmap/index.md</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · HERO DEMO
+       Spacer is invisible, so the hero bounds it in an outlined flex
+       row: the grow spacer shoves the two buttons to opposite ends.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="hero">
+    <h2>Default</h2>
+    <nuri-demo controls="theme">
+      <template>
+        <div style="display: flex; align-items: center; inline-size: 100%; padding: 12px; outline: 1px dashed var(--nuri-border-subtle); border-radius: var(--nuri-radius-md);">
+          <nuri-button variant="soft">Back</nuri-button>
+          <nuri-spacer></nuri-spacer>
+          <nuri-button variant="solid">Next</nuri-button>
+        </div>
+      </template>
+    </nuri-demo>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · COMPOSITION & RN MAPPING
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="composition">
+    <h2>Composition &amp; RN mapping</h2>
+    <p>
+      Spacer has three modes, all dispatched in CSS off its attributes (it is
+      behaviour-free — no JS reflection):
+    </p>
+    <ul>
+      <li><strong>Grow</strong> (no <code>size</code>) → <code>flex: 1</code>. Absorbs the free space of the parent flex container on its main axis. Drop one between two siblings to push them apart, or before/after content to shove it to an edge.</li>
+      <li><strong>Fixed</strong> (<code>size</code>) → a definite gap from the semantic space scale (<code>inline-size</code> in a row, <code>block-size</code> in a column). A deliberate gap without reaching for the parent's <code>gap</code>.</li>
+      <li><strong>Proportional</strong> (<code>grow</code>) → <code>flex-grow: n</code>. A grow spacer at <code>grow="2"</code> takes twice the share of a default (<code>grow="1"</code>); two grow spacers at <code>1</code> / <code>2</code> split the slack <code>1:2</code>. Ignored when <code>size</code> is set.</li>
+    </ul>
+    <p>
+      <strong>RN map.</strong> A grow spacer is the RN/SwiftUI <code>Spacer</code> idiom — a
+      <code>&lt;View style={{ flex: 1 }} /&gt;</code> (and <code>flex: n</code> for <code>grow="n"</code>,
+      since a positive <code>flex</code> is proportional <code>flexGrow</code>). A fixed
+      spacer is a <code>&lt;View&gt;</code> with a definite <code>width</code> (row) or
+      <code>height</code> (column) from <code>tokens.space</code>.
+    </p>
+    <pre class="nuri-code"><code>grow (default)   &lt;View style={{ flex: 1 }} /&gt;
+grow="2"         &lt;View style={{ flex: 2 }} /&gt;          // proportional flexGrow
+size="lg" · row  &lt;View style={{ width:  tokens.space.lg }} /&gt;
+size="lg" · col  &lt;View style={{ height: tokens.space.lg }} /&gt;</code></pre>
+    <p>
+      See the <a href="../playground/my-vault.html">My vault playground</a> for grow +
+      proportional spacers pushing the total and the fund actions down a filled
+      <a href="scroll.html">Scroll</a> body.
+    </p>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · API · PROPS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="api">
+    <h2>API</h2>
+    <p>
+      Three props, all prop-driven CSS. <code>grow</code> applies only to a grow
+      spacer (it is ignored when <code>size</code> is set).
+    </p>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="spacer">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="direction">
+          <td data-cell="name"><code>direction</code></td>
+          <td data-cell="type"><code>"row" | "column"</code></td>
+          <td data-cell="default"><code>"row"</code></td>
+          <td data-cell="description">The axis a fixed <code>size</code> fills (row → inline-size, column → block-size). For the grow default it is declarative — <code>flex:1</code> grows on the parent's main axis either way.</td>
+        </tr>
+        <tr data-prop="size">
+          <td data-cell="name"><code>size</code></td>
+          <td data-cell="type"><code>"xs" | "sm" | "md" | "lg" | "xl"</code></td>
+          <td data-cell="default"><em>unset</em> (grow)</td>
+          <td data-cell="description">FIXED extent over the semantic space scale. Omitted → the spacer GROWS (<code>flex:1</code>) instead.</td>
+        </tr>
+        <tr data-prop="grow">
+          <td data-cell="name"><code>grow</code></td>
+          <td data-cell="type"><code>"1" | "2" | "3" | "4"</code></td>
+          <td data-cell="default"><code>"1"</code></td>
+          <td data-cell="description">Proportional grow share for a GROW spacer — maps literally to <code>flex-grow</code>. Two grow spacers at <code>1</code>/<code>2</code> split the free space <code>1:2</code>. Ignored when <code>size</code> is set. (Renamed from <code>weight</code> · 2026-06-01 · font-weight collision.)</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · ANATOMY & PARTS
+       Single-root, host-sized (like Separator · no inner element).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="anatomy">
+    <h2>Anatomy &amp; parts</h2>
+    <p>
+      Spacer is a <strong>single-part</strong> component. Unlike Stack / Box it
+      sizes the <strong>host directly</strong> — no inner element, no
+      <code>display:contents</code> wrapper (the same shape as
+      <a href="separator.html">Separator</a>). The web side renders a
+      <code>&lt;div&gt;</code>; the RN side renders a <code>&lt;View&gt;</code>.
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="parts" data-component="spacer">
+      <thead>
+        <tr>
+          <th>Part</th>
+          <th>Element (web)</th>
+          <th>Element (RN)</th>
+          <th>Owns</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-part="root">
+          <td data-cell="name"><code>root</code></td>
+          <td data-cell="element-web"><code>div</code></td>
+          <td data-cell="element-rn"><code>View</code></td>
+          <td data-cell="owns">grow (flex / flex-grow) or a fixed inline/block extent on the chosen axis</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · LIVE DEMOS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="demos">
+    <h2>Live demos</h2>
+    <p>
+      Each spacer is invisible — the visible witnesses are the bounded outlined
+      containers and the buttons inside them.
+    </p>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="fixed · size" subtitle="size=&quot;lg&quot; · a definite inline gap">
+        <template>
+          <div style="display: flex; align-items: center; inline-size: 100%; padding: 12px; outline: 1px dashed var(--nuri-border-subtle); border-radius: var(--nuri-radius-md);">
+            <nuri-button variant="soft">A</nuri-button>
+            <nuri-spacer size="lg"></nuri-spacer>
+            <nuri-button variant="soft">B</nuri-button>
+          </div>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="proportional · 1 : 2" subtitle="two grow spacers split the slack">
+        <template>
+          <div style="display: flex; align-items: center; inline-size: 100%; padding: 12px; outline: 1px dashed var(--nuri-border-subtle); border-radius: var(--nuri-radius-md);">
+            <nuri-button variant="soft">A</nuri-button>
+            <nuri-spacer grow="1"></nuri-spacer>
+            <nuri-button variant="soft">B</nuri-button>
+            <nuri-spacer grow="2"></nuri-spacer>
+            <nuri-button variant="soft">C</nuri-button>
+          </div>
+        </template>
+      </nuri-demo>
+
+    </div>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="grow · column" subtitle="direction=&quot;column&quot; · pushes content apart vertically">
+        <template>
+          <div style="display: flex; flex-direction: column; block-size: 180px; inline-size: 100%; padding: 12px; outline: 1px dashed var(--nuri-border-subtle); border-radius: var(--nuri-radius-md);">
+            <nuri-button variant="soft">Top</nuri-button>
+            <nuri-spacer direction="column"></nuri-spacer>
+            <nuri-button variant="solid">Bottom</nuri-button>
+          </div>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="push to edge" subtitle="leading spacer shoves one item to the end">
+        <template>
+          <div style="display: flex; align-items: center; inline-size: 100%; padding: 12px; outline: 1px dashed var(--nuri-border-subtle); border-radius: var(--nuri-radius-md);">
+            <nuri-spacer></nuri-spacer>
+            <nuri-button variant="solid">End</nuri-button>
+          </div>
+        </template>
+      </nuri-demo>
+
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · TOKEN MAPPING
+       size dereferences the space scale; grow (default + the proportional
+       grow prop) dispatches to flex literals (no token indirection).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="token-mapping">
+    <h2>Token mapping</h2>
+    <p>
+      <strong>Prop value → CSS property → DTCG → CSS var → reference.</strong>
+      Only <code>size</code> dereferences a semantic token; <code>grow</code>
+      (the default and the proportional prop) dispatches to flex literals. Layout primitives have no
+      <code>@layer tokens</code> block per
+      <a href="../../decisionlog.md#37-layout-primitives-consume-semantic-vocabulary-via-prop--no-component-token-aliasing--n62">decision 37</a> — the dispatch
+      happens in <code>@layer rules</code> through attribute selectors
+      (<code>nuri-spacer[size="lg"] { inline-size: var(--nuri-space-lg); }</code>).
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="token-map" data-component="spacer">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Value</th>
+          <th>CSS property</th>
+          <th>DTCG</th>
+          <th>Reference</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="nuri-table__group" data-group="size-row">
+          <th scope="rowgroup" colspan="5">Prop · <code>size</code> · row (inline-size · 5 leaves · semantic space)</th>
+        </tr>
+        <tr data-prop="size" data-value="xs" data-css-prop="inline-size" data-dtcg="space.xs" data-reference="--nuri-space-xs"><td><code>size</code></td><td><code>"xs"</code></td><td><code>inline-size</code></td><td><code>space.xs</code></td><td><code>--nuri-space-xs</code> (4px)</td></tr>
+        <tr data-prop="size" data-value="sm" data-css-prop="inline-size" data-dtcg="space.sm" data-reference="--nuri-space-sm"><td><code>size</code></td><td><code>"sm"</code></td><td><code>inline-size</code></td><td><code>space.sm</code></td><td><code>--nuri-space-sm</code> (6px)</td></tr>
+        <tr data-prop="size" data-value="md" data-css-prop="inline-size" data-dtcg="space.md" data-reference="--nuri-space-md"><td><code>size</code></td><td><code>"md"</code></td><td><code>inline-size</code></td><td><code>space.md</code></td><td><code>--nuri-space-md</code> (12px)</td></tr>
+        <tr data-prop="size" data-value="lg" data-css-prop="inline-size" data-dtcg="space.lg" data-reference="--nuri-space-lg"><td><code>size</code></td><td><code>"lg"</code></td><td><code>inline-size</code></td><td><code>space.lg</code></td><td><code>--nuri-space-lg</code> (18px)</td></tr>
+        <tr data-prop="size" data-value="xl" data-css-prop="inline-size" data-dtcg="space.xl" data-reference="--nuri-space-xl"><td><code>size</code></td><td><code>"xl"</code></td><td><code>inline-size</code></td><td><code>space.xl</code></td><td><code>--nuri-space-xl</code> (24px)</td></tr>
+
+        <tr class="nuri-table__group" data-group="size-col">
+          <th scope="rowgroup" colspan="5">Prop · <code>size</code> · column (<code>direction="column"</code> · block-size)</th>
+        </tr>
+        <tr data-prop="size" data-value="*" data-css-prop="block-size" data-dtcg="space.*" data-reference="--nuri-space-*"><td><code>size</code></td><td><em>any leaf</em></td><td><code>block-size</code></td><td><code>space.{xs..xl}</code></td><td><code>--nuri-space-{xs..xl}</code></td></tr>
+
+        <tr class="nuri-table__group" data-group="grow-default">
+          <th scope="rowgroup" colspan="5">Default · grow (no <code>size</code> · no <code>grow</code> · CSS literal)</th>
+        </tr>
+        <tr data-prop="grow" data-value="—" data-css-prop="flex" data-dtcg="—" data-reference="1"><td><code>—</code></td><td><em>unset</em></td><td><code>flex</code></td><td>—</td><td><code>1</code> (literal · grow)</td></tr>
+
+        <tr class="nuri-table__group" data-group="grow">
+          <th scope="rowgroup" colspan="5">Prop · <code>grow</code> (proportional grow share · CSS literal)</th>
+        </tr>
+        <tr data-prop="grow" data-value="1" data-css-prop="flex-grow" data-dtcg="—" data-reference="1"><td><code>grow</code></td><td><code>"1"</code></td><td><code>flex-grow</code></td><td>—</td><td><code>1</code></td></tr>
+        <tr data-prop="grow" data-value="2" data-css-prop="flex-grow" data-dtcg="—" data-reference="2"><td><code>grow</code></td><td><code>"2"</code></td><td><code>flex-grow</code></td><td>—</td><td><code>2</code></td></tr>
+        <tr data-prop="grow" data-value="3" data-css-prop="flex-grow" data-dtcg="—" data-reference="3"><td><code>grow</code></td><td><code>"3"</code></td><td><code>flex-grow</code></td><td>—</td><td><code>3</code></td></tr>
+        <tr data-prop="grow" data-value="4" data-css-prop="flex-grow" data-dtcg="—" data-reference="4"><td><code>grow</code></td><td><code>"4"</code></td><td><code>flex-grow</code></td><td>—</td><td><code>4</code></td></tr>
+
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · ROADMAP
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="grow">
+        <span class="nuri-tag nuri-tag--ready">shipped · N+11</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title"><code>grow</code> prop</strong>
+          <p class="nuri-roadmap__desc">Proportional grow (decision 61). Promoted when the vault screen needed a 1:2 split between the total and the fund actions. Enumerated 1–4 — extend if a real layout needs a larger ratio. Renamed from <code>weight</code> (2026-06-01 · font-weight collision).</p>
+        </div>
+      </li>
+      <li data-feature="rn-spec-home">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">RN spec long-term home</strong>
+          <p class="nuri-roadmap__desc">Today the Spacer RN definition lives in the migration-test pair as a local module. Long-term: peer file <code>lib/components/spacer/spacer.tsx</code>? A <code>lib/spec/</code> namespace? Tracked alongside the other layout primitives in <a href="../../roadmap/index.md">roadmap/index.md</a>.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+</body>
+</html>

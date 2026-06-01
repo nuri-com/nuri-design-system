@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "nuri-docs",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "http-server", "/Users/darioaschero/Documents/dev/nuri", "-p", "8766", "-c-1", "--silent"],
+      "port": 8766
+    }
+  ]
+}

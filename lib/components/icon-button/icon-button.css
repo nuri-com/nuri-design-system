@@ -1,0 +1,180 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · ICON-BUTTON
+ *
+ * A circular, icon-only action — the first real Icon consumer
+ * (validates <nuri-icon> at the consumer level). Wraps a single
+ * <nuri-icon size="md"> inside a native <button>, sharing Button's
+ * variant matrix, pressed-only interaction model, and accent
+ * Tier 2 self-scope — but locked to ONE size (decision 40).
+ *
+ * Variant matrix (mirrors Button · decision 39 ghost is shared):
+ *
+ *   variant   bg                       fg                  bg-pressed
+ *   ───────────────────────────────────────────────────────────────────
+ *   solid     accent-solid             accent-on-solid     accent-solid-pressed
+ *   soft      bg-strong (chrome)       text-primary        bg-pressed (chrome)
+ *   ghost     transparent              text-primary        bg-subtle (chrome) ← pressed only
+ *
+ *   Solid carries accent identity; soft + ghost are chrome-only and
+ *   stay neutral regardless of the active accent (decision 11
+ *   family). The `accent` prop has no visual effect on soft OR ghost.
+ *
+ * Single size (decision 40 · no multi-size matrix):
+ *   container  48×48 circle  (--nuri-size-lg · --nuri-radius-full)
+ *   glyph      <nuri-icon size="md">  (28px regular weight)
+ *   The 48px container clears the touch-target floor (F-TOUCH-TARGET-1)
+ *   while the 28px glyph leaves a comfortable ~10px optical ring.
+ *
+ * States · default | pressed (:active) | disabled
+ *   Pressed-only (no :hover) — mobile-first, same model as Button.
+ *
+ * API
+ *   <nuri-icon-button name="gear"></nuri-icon-button>            · default: variant=soft
+ *   <nuri-icon-button name="plus" variant="solid"></nuri-icon-button>
+ *   <nuri-icon-button name="x" variant="ghost"></nuri-icon-button>  · tertiary, transparent at rest
+ *   <nuri-icon-button name="scan" variant="solid" accent="orange"></nuri-icon-button>  · self-scope
+ *   <nuri-icon-button name="gear" label="Open settings"></nuri-icon-button>  · explicit aria-label
+ *   <nuri-icon-button name="plus" disabled></nuri-icon-button>
+ *
+ *   aria-label is REQUIRED for an icon-only control (F-ARIA-LABEL-1).
+ *   It is auto-derived from the kebab `name` (gear → "gear") unless
+ *   an explicit `label` is given. The `accent` prop is Tier 2
+ *   self-scope (writes data-accent on the inner <button>).
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Re-declared on every scope boundary so var(--nuri-accent-*) /
+   * var(--nuri-bg-*) references resolve AT THE SCOPE LEVEL — same
+   * rationale as button.css (Tier 2 / Tier 3 correctness). */
+  :root,
+  [data-accent],
+  [data-theme] {
+    /* ── Base · size + interaction (single size · decision 40) ─ */
+    --nuri-icon-button-size:             var(--nuri-size-lg);
+    --nuri-icon-button-radius:           var(--nuri-radius-full);
+    --nuri-icon-button-press-scale:      var(--nuri-interaction-press-scale);
+    --nuri-icon-button-disabled-opacity: var(--nuri-interaction-disabled-opacity);
+
+    /* ── Variant · solid · filled with active accent ─────────── */
+    --nuri-icon-button-solid-bg:         var(--nuri-accent-solid);
+    --nuri-icon-button-solid-bg-pressed: var(--nuri-accent-solid-pressed);
+    --nuri-icon-button-solid-fg:         var(--nuri-accent-on-solid);
+
+    /* ── Variant · soft · chrome-only, accent-independent ────── */
+    --nuri-icon-button-soft-bg:          var(--nuri-bg-strong);
+    --nuri-icon-button-soft-bg-pressed:  var(--nuri-bg-pressed);
+    --nuri-icon-button-soft-fg:          var(--nuri-text-primary);
+
+    /* ── Variant · ghost · transparent at rest (decision 39) ─── */
+    --nuri-icon-button-ghost-bg:         transparent;
+    --nuri-icon-button-ghost-bg-pressed: var(--nuri-bg-subtle);
+    --nuri-icon-button-ghost-fg:         var(--nuri-text-primary);
+  }
+}
+
+@layer rules {
+  /* ── Custom element wrapper (invisible in layout) ────────────── */
+  nuri-icon-button {
+    display: contents;
+  }
+
+  /* ── Pre-upgrade skeleton ─────────────────────────────────────
+   * Paint a circular placeholder until icon-button.js (ES module ·
+   * deferred) upgrades the element, so the row doesn't reflow. */
+  nuri-icon-button:not(:defined) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--nuri-icon-button-size);
+    height: var(--nuri-icon-button-size);
+    flex-shrink: 0;
+    border-radius: var(--nuri-icon-button-radius);
+    vertical-align: middle;
+  }
+  nuri-icon-button:not(:defined),
+  nuri-icon-button:not(:defined)[variant="soft"] {
+    background: var(--nuri-icon-button-soft-bg);
+    color: var(--nuri-icon-button-soft-fg);
+  }
+  nuri-icon-button:not(:defined)[variant="solid"] {
+    background: var(--nuri-icon-button-solid-bg);
+    color: var(--nuri-icon-button-solid-fg);
+  }
+  nuri-icon-button:not(:defined)[disabled] {
+    opacity: var(--nuri-icon-button-disabled-opacity);
+  }
+
+  /* ── Base styles · applied to every variant ──────────────────── */
+  .nuri-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--nuri-icon-button-size);
+    height: var(--nuri-icon-button-size);
+    /* A fixed-size control must NOT deform when it lands in a flex row
+     * next to greedy siblings (e.g. two filling <nuri-separator>s). Web
+     * flex items default flex-shrink:1 and would squash the 48px circle
+     * into an oval; RN's default is flexShrink:0, so pinning it here both
+     * fixes the squash AND matches RN parity. The host is display:contents,
+     * so THIS inner <button> is the actual flex item — Stack-level
+     * normalization can't reach it; the control owns its own no-shrink. */
+    flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--nuri-icon-button-radius);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    user-select: none;
+    transition: background-color var(--nuri-duration-fast) ease,
+                transform var(--nuri-duration-fast) ease;
+  }
+
+  /* ── Pressed · tactile feedback, variant-agnostic ────────────── */
+  .nuri-icon-button:active {
+    transform: scale(var(--nuri-icon-button-press-scale));
+  }
+
+  /* ── Variant · solid (all its states grouped) ────────────────── */
+  .nuri-icon-button--solid {
+    background: var(--nuri-icon-button-solid-bg);
+    color: var(--nuri-icon-button-solid-fg);
+  }
+  .nuri-icon-button--solid:active {
+    background: var(--nuri-icon-button-solid-bg-pressed);
+  }
+
+  /* ── Variant · soft (all its states grouped) ─────────────────── */
+  .nuri-icon-button--soft {
+    background: var(--nuri-icon-button-soft-bg);
+    color: var(--nuri-icon-button-soft-fg);
+  }
+  .nuri-icon-button--soft:active {
+    background: var(--nuri-icon-button-soft-bg-pressed);
+  }
+
+  /* ── Variant · ghost (all its states grouped · decision 39) ──── */
+  /* Transparent at rest, no border ever; the only paint is the
+   * bg-subtle wash on press. */
+  .nuri-icon-button--ghost {
+    background: var(--nuri-icon-button-ghost-bg);
+    color: var(--nuri-icon-button-ghost-fg);
+  }
+  .nuri-icon-button--ghost:active {
+    background: var(--nuri-icon-button-ghost-bg-pressed);
+  }
+
+  /* ── Disabled · variant-agnostic ─────────────────────────────── */
+  .nuri-icon-button[disabled],
+  .nuri-icon-button[aria-disabled="true"] {
+    opacity: var(--nuri-icon-button-disabled-opacity);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* ── Focus · brand-coloured ring (always, never accent-derived) */
+  .nuri-icon-button:focus-visible {
+    outline: 2px solid var(--nuri-focus-ring);
+    outline-offset: 2px;
+  }
+}

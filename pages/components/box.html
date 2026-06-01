@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Components · Box</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../lib/components/stack/stack.css" />
+  <link rel="stylesheet" href="../../lib/components/box/box.css" />
+  <link rel="stylesheet" href="../../lib/components/button/button.css" />
+  <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+  <script src="../../lib/docs/tokens.js"></script>
+  <script src="../../lib/components/stack/stack.js" defer></script>
+  <script src="../../lib/components/box/box.js" defer></script>
+  <script src="../../lib/components/button/button.js" defer></script>
+  <script src="../../lib/docs/demo/demo.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  COMPONENT DOCS PAGE · LAYOUT-PRIMITIVE TEMPLATE (decision 37)
+  ═══════════════════════════════════════════════════════════════
+
+  Adapts the canonical component-page template (decision 24) for a
+  layout primitive — same shape as the Stack page. Sections that
+  don't apply (Variants / States / Theming) are omitted per
+  decision 19 (template variants in service of ONE structure).
+
+  Box is the padding-bearing sibling to Stack. Together they cover
+  the bulk of layout composition needs: Stack for inter-child
+  rhythm; Box for inset padding (uniform / axis / single-edge) and
+  inline centering.
+
+  No `@layer tokens` in box.css (decision 37 · layout-primitive
+  class). Pipeline emit detects the empty case and skips writing
+  build/components/box.ts.
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="components/box">
+  <nuri-page
+    eyebrow="Components · Layout · Box"
+    title="Box"
+    status="draft"
+    lead="The padding-bearing surface container. Uniform, axis-asymmetric, and single-edge padding driven by the semantic space vocabulary, inline-centering, plus a semantic background fill and corner radius. Layout + surface — still no border."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · SPEC CARD
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-component="box"
+        data-component-status="draft"
+        data-rn-status="spec-in-migration-test">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd data-spec="type">
+          <span class="nuri-spec-card__chip" data-type="component">component</span>
+          <span class="nuri-spec-card__meta">layout primitive · decision 37</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Layer</dt>
+        <dd data-spec="layer">
+          <span class="nuri-spec-card__chip" data-layer="composition">composition</span>
+          <span class="nuri-spec-card__meta">consumes semantic space; no component-token aliasing</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Source</dt>
+        <dd data-spec="source">
+          <span class="nuri-spec-card__chip" data-source="lib/components/box/">lib/components/box/</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Parts</dt>
+        <dd data-spec="parts">
+          <span class="nuri-spec-card__chip" data-part="root">root</span>
+          <span class="nuri-spec-card__meta">1 part</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Component status</dt>
+        <dd data-spec="component-status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>RN status</dt>
+        <dd data-spec="rn-status">
+          <span class="nuri-tag nuri-tag--draft">spec in migration-test</span>
+          <span class="nuri-spec-card__meta">RN definition lives at docs/migration-tests/button-matrix/index.tsx pending long-term home — see Open question in roadmap/index.md</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · HERO DEMO
+       Box without bg/border is invisible on its own. The hero
+       wraps content so the inset is observable through the
+       inner Stack's natural extent.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="hero">
+    <h2>Default</h2>
+    <nuri-demo controls="theme">
+      <template>
+        <nuri-box padding="lg">
+          <nuri-stack gap="md">
+            <nuri-button variant="solid">Pay</nuri-button>
+            <nuri-button variant="soft">Cancel</nuri-button>
+          </nuri-stack>
+        </nuri-box>
+      </template>
+    </nuri-demo>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · API · PROPS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="api">
+    <h2>API</h2>
+    <p>
+      The props signature. Padding precedence: edge-specific
+      (<code>padding-start</code>, <code>padding-end</code>,
+      <code>padding-top</code>, <code>padding-bottom</code>) wins over axis
+      (<code>padding-x</code>, <code>padding-y</code>) which wins over
+      uniform (<code>padding</code>). Mirrors the CSS selector ordering.
+    </p>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="box">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="padding">
+          <td data-cell="name"><code>padding</code></td>
+          <td data-cell="type"><code>"xs" | "sm" | "md" | "lg" | "xl"</code></td>
+          <td data-cell="default"><em>unset</em></td>
+          <td data-cell="description">Uniform inset on all four sides. Maps to <code>--nuri-space-{xs..xl}</code>.</td>
+        </tr>
+        <tr data-prop="padding-x">
+          <td data-cell="name"><code>padding-x</code></td>
+          <td data-cell="type"><code>"xs" | "sm" | "md" | "lg" | "xl"</code></td>
+          <td data-cell="default"><em>unset</em></td>
+          <td data-cell="description">Inline-axis inset (logical · RTL-aware via <code>padding-inline</code>). Overrides <code>padding</code> on the inline axis.</td>
+        </tr>
+        <tr data-prop="padding-y">
+          <td data-cell="name"><code>padding-y</code></td>
+          <td data-cell="type"><code>"xs" | "sm" | "md" | "lg" | "xl"</code></td>
+          <td data-cell="default"><em>unset</em></td>
+          <td data-cell="description">Block-axis inset (<code>padding-block</code>). Overrides <code>padding</code> on the block axis.</td>
+        </tr>
+        <tr data-prop="padding-start">
+          <td data-cell="name"><code>padding-start</code></td>
+          <td data-cell="type"><code>"xs" | "sm" | "md" | "lg" | "xl"</code></td>
+          <td data-cell="default"><em>unset</em></td>
+          <td data-cell="description">Single edge · inline-start (left in LTR; right in RTL). Overrides axis + uniform.</td>
+        </tr>
+        <tr data-prop="padding-end">
+          <td data-cell="name"><code>padding-end</code></td>
+          <td data-cell="type"><code>"xs" | "sm" | "md" | "lg" | "xl"</code></td>
+          <td data-cell="default"><em>unset</em></td>
+          <td data-cell="description">Single edge · inline-end. RTL-aware.</td>
+        </tr>
+        <tr data-prop="padding-top">
+          <td data-cell="name"><code>padding-top</code></td>
+          <td data-cell="type"><code>"xs" | "sm" | "md" | "lg" | "xl"</code></td>
+          <td data-cell="default"><em>unset</em></td>
+          <td data-cell="description">Single edge · block-start.</td>
+        </tr>
+        <tr data-prop="padding-bottom">
+          <td data-cell="name"><code>padding-bottom</code></td>
+          <td data-cell="type"><code>"xs" | "sm" | "md" | "lg" | "xl"</code></td>
+          <td data-cell="default"><em>unset</em></td>
+          <td data-cell="description">Single edge · block-end.</td>
+        </tr>
+        <tr data-prop="background">
+          <td data-cell="name"><code>background</code></td>
+          <td data-cell="type"><code>"canvas" | "subtle" | "strong" | "accent-solid" | "accent-subtle"</code></td>
+          <td data-cell="default"><em>unset</em></td>
+          <td data-cell="description">Surface fill. <code>canvas</code>/<code>subtle</code>/<code>strong</code> read the theme-only chrome bg tokens; the <code>accent-*</code> pair reads the accent × theme tokens. <code>accent-solid</code> also sets text colour to <code>--nuri-accent-on-solid</code> so labels stay legible on the fill. An unknown value warns to the console and paints nothing.</td>
+        </tr>
+        <tr data-prop="radius">
+          <td data-cell="name"><code>radius</code></td>
+          <td data-cell="type"><code>"sm" | "md" | "lg" | "full"</code></td>
+          <td data-cell="default"><em>unset</em></td>
+          <td data-cell="description">Corner softness. Maps to <code>--nuri-radius-{sm..full}</code>. <code>full</code> is the 9999px pill/circle sentinel. Unknown values warn and apply no radius.</td>
+        </tr>
+        <tr data-prop="center">
+          <td data-cell="name"><code>center</code></td>
+          <td data-cell="type"><code>boolean</code></td>
+          <td data-cell="default"><code>false</code></td>
+          <td data-cell="description">Inline-axis auto margins (<code>margin-inline: auto</code>). Only meaningful when the host has a bounded width; no-op otherwise.</td>
+        </tr>
+        <tr data-prop="fill">
+          <td data-cell="name"><code>fill</code></td>
+          <td data-cell="type"><code>boolean</code></td>
+          <td data-cell="default"><code>false</code></td>
+          <td data-cell="description">Grow to fill the main axis of a flex parent <em>and</em> become a flex column, so a filling child (e.g. <code>&lt;nuri-stack fill&gt;</code>) fills in turn. The web analogue of RN's ScrollView <code>contentContainerStyle={{ flexGrow: 1 }}</code> — pairs with <a href="scroll.html">Scroll</a> + <a href="spacer.html">Spacer</a> to push trailing content to the bottom. Uses <code>flex: 1 0 auto</code> so content taller than the viewport scrolls instead of clipping (decision 60).</td>
+        </tr>
+        <tr data-prop="as">
+          <td data-cell="name"><code>as</code></td>
+          <td data-cell="type"><code>string</code></td>
+          <td data-cell="default"><code>"div"</code></td>
+          <td data-cell="description">Host element on the web side. Has no RN analogue — RN always renders <code>&lt;View&gt;</code>.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · ANATOMY & PARTS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="anatomy">
+    <h2>Anatomy &amp; parts</h2>
+    <p>
+      Box is a <strong>single-part</strong> component. The web side renders
+      an inner <code>&lt;div&gt;</code> (or the element named by <code>as</code>)
+      inside the <code>display:contents</code> wrapper; the RN side renders a
+      <code>&lt;View&gt;</code>.
+    </p>
+
+    <div class="nuri-anatomy">
+      <div class="nuri-anatomy__visual">
+        <nuri-box padding="lg">
+          <nuri-button variant="solid">Pay</nuri-button>
+        </nuri-box>
+      </div>
+      <div class="nuri-table-scroll"><table class="nuri-table" data-table="parts" data-component="box">
+        <thead>
+          <tr>
+            <th>Part</th>
+            <th>Element (web)</th>
+            <th>Element (RN)</th>
+            <th>Owns</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-part="root">
+            <td data-cell="name"><code>root</code></td>
+            <td data-cell="element-web"><code>div</code> (or <code>as</code>)</td>
+            <td data-cell="element-rn"><code>View</code></td>
+            <td data-cell="owns">padding (uniform · axis · single-edge), inline centering, background fill, corner radius</td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · LIVE DEMOS
+       Representative padding patterns + center demo.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="demos">
+    <h2>Live demos</h2>
+    <p>
+      Selected examples covering the three padding modes (uniform, axis,
+      edge) and the centering helper. Box itself is invisible — the
+      content inside is the visible witness to the inset.
+    </p>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="padding · uniform" subtitle="padding=&quot;lg&quot;">
+        <template>
+          <nuri-box padding="lg">
+            <nuri-button variant="solid">Pay</nuri-button>
+          </nuri-box>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="padding · axis" subtitle="padding-x=&quot;xl&quot; padding-y=&quot;sm&quot;">
+        <template>
+          <nuri-box padding-x="xl" padding-y="sm">
+            <nuri-button variant="solid">Pay</nuri-button>
+          </nuri-box>
+        </template>
+      </nuri-demo>
+
+    </div>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="padding · single edge" subtitle="padding-start=&quot;xl&quot;">
+        <template>
+          <nuri-box padding-start="xl">
+            <nuri-button variant="soft">Indented</nuri-button>
+          </nuri-box>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="padding leaves" subtitle="xs · sm · md · lg · xl">
+        <template>
+          <nuri-stack gap="xs" align="start">
+            <nuri-box padding="xs"><nuri-button variant="soft">xs</nuri-button></nuri-box>
+            <nuri-box padding="sm"><nuri-button variant="soft">sm</nuri-button></nuri-box>
+            <nuri-box padding="md"><nuri-button variant="soft">md</nuri-button></nuri-box>
+            <nuri-box padding="lg"><nuri-button variant="soft">lg</nuri-button></nuri-box>
+            <nuri-box padding="xl"><nuri-button variant="soft">xl</nuri-button></nuri-box>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+
+    </div>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="center" subtitle="Box centered inside a width-bounded container">
+        <template>
+          <div style="width: 100%; padding: 12px; outline: 1px dashed var(--nuri-border-subtle);">
+            <nuri-box padding="md" center as="section">
+              <div style="width: 120px; text-align: center;">
+                <nuri-button variant="solid">Centered</nuri-button>
+              </div>
+            </nuri-box>
+          </div>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="precedence" subtitle="padding=&quot;sm&quot; · padding-top=&quot;xl&quot;">
+        <template>
+          <nuri-box padding="sm" padding-top="xl">
+            <nuri-button variant="solid">Pay</nuri-button>
+          </nuri-box>
+        </template>
+      </nuri-demo>
+
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5b · SURFACE · background + radius (decision 42 · N+6.5)
+       The first non-padding visual props. Unlike padding, these
+       paint — so the Box is visible on its own here.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="surface">
+    <h2>Surface · background &amp; radius</h2>
+    <p>
+      <code>background</code> and <code>radius</code> (decision 42) extend Box
+      from pure-layout to a paint-bearing surface — the evidence-gate opened
+      by <a href="tabs.html">Tabs</a>, the first real consumer (its tablist
+      surface is a composed Box). Chrome backgrounds
+      (<code>canvas</code> / <code>subtle</code> / <code>strong</code>) stay
+      neutral across accents; the <code>accent-*</code> pair tracks the active
+      accent. <code>accent-solid</code> also flips text to
+      <code>--nuri-accent-on-solid</code>.
+    </p>
+
+    <div class="nuri-demo-row">
+      <nuri-demo label="background · chrome ladder" subtitle="canvas · subtle · strong" controls="theme">
+        <template>
+          <nuri-stack direction="row" gap="md">
+            <nuri-box background="canvas" radius="md" padding="lg">canvas</nuri-box>
+            <nuri-box background="subtle" radius="md" padding="lg">subtle</nuri-box>
+            <nuri-box background="strong" radius="md" padding="lg">strong</nuri-box>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="background · accent" subtitle="accent-solid · accent-subtle" controls="theme accent">
+        <template>
+          <nuri-stack direction="row" gap="md">
+            <nuri-box background="accent-solid" radius="md" padding="lg">accent-solid</nuri-box>
+            <nuri-box background="accent-subtle" radius="md" padding="lg">accent-subtle</nuri-box>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+    </div>
+
+    <div class="nuri-demo-row">
+      <nuri-demo label="radius leaves" subtitle="sm · md · lg · full">
+        <template>
+          <nuri-stack direction="row" gap="md">
+            <nuri-box background="strong" radius="sm" padding="lg">sm</nuri-box>
+            <nuri-box background="strong" radius="md" padding="lg">md</nuri-box>
+            <nuri-box background="strong" radius="lg" padding="lg">lg</nuri-box>
+            <nuri-box background="strong" radius="full" padding="lg">full</nuri-box>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="surface card" subtitle="background + radius + padding compose">
+        <template>
+          <nuri-box background="subtle" radius="lg" padding="lg">
+            <nuri-stack gap="md">
+              <nuri-button variant="solid">Pay</nuri-button>
+              <nuri-button variant="soft">Cancel</nuri-button>
+            </nuri-stack>
+          </nuri-box>
+        </template>
+      </nuri-demo>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · TOKEN MAPPING
+       Per-prop × resolved token table. All padding props resolve
+       to space leaves; center dispatches to a CSS literal.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="token-mapping">
+    <h2>Token mapping</h2>
+    <p>
+      <strong>Prop value → CSS property → DTCG → CSS var → reference.</strong>
+      Every padding leaf dereferences a <code>space</code> token; only
+      <code>center</code> dispatches to a CSS literal. Layout primitives
+      have no <code>@layer tokens</code> block per
+      <a href="../../decisionlog.md#37-layout-primitives-consume-semantic-vocabulary-via-prop--no-component-token-aliasing--n62">decision 37</a> — the dispatch
+      happens in <code>@layer rules</code> through attribute selectors
+      (<code>.nuri-box[data-padding="md"] { padding: var(--nuri-space-md); }</code>).
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="token-map" data-component="box">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Value</th>
+          <th>CSS property</th>
+          <th>DTCG</th>
+          <th>Reference</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="nuri-table__group" data-group="padding">
+          <th scope="rowgroup" colspan="5">Prop · <code>padding</code> (uniform · 5 leaves)</th>
+        </tr>
+        <tr data-prop="padding" data-value="xs" data-css-prop="padding" data-dtcg="space.xs" data-reference="--nuri-space-xs"><td><code>padding</code></td><td><code>"xs"</code></td><td><code>padding</code></td><td><code>space.xs</code></td><td><code>--nuri-space-xs</code> (4px)</td></tr>
+        <tr data-prop="padding" data-value="sm" data-css-prop="padding" data-dtcg="space.sm" data-reference="--nuri-space-sm"><td><code>padding</code></td><td><code>"sm"</code></td><td><code>padding</code></td><td><code>space.sm</code></td><td><code>--nuri-space-sm</code> (6px)</td></tr>
+        <tr data-prop="padding" data-value="md" data-css-prop="padding" data-dtcg="space.md" data-reference="--nuri-space-md"><td><code>padding</code></td><td><code>"md"</code></td><td><code>padding</code></td><td><code>space.md</code></td><td><code>--nuri-space-md</code> (12px)</td></tr>
+        <tr data-prop="padding" data-value="lg" data-css-prop="padding" data-dtcg="space.lg" data-reference="--nuri-space-lg"><td><code>padding</code></td><td><code>"lg"</code></td><td><code>padding</code></td><td><code>space.lg</code></td><td><code>--nuri-space-lg</code> (18px)</td></tr>
+        <tr data-prop="padding" data-value="xl" data-css-prop="padding" data-dtcg="space.xl" data-reference="--nuri-space-xl"><td><code>padding</code></td><td><code>"xl"</code></td><td><code>padding</code></td><td><code>space.xl</code></td><td><code>--nuri-space-xl</code> (24px)</td></tr>
+
+        <tr class="nuri-table__group" data-group="padding-x">
+          <th scope="rowgroup" colspan="5">Prop · <code>padding-x</code> (inline axis · <code>padding-inline</code>)</th>
+        </tr>
+        <tr data-prop="padding-x" data-value="md" data-css-prop="padding-inline" data-dtcg="space.md" data-reference="--nuri-space-md"><td><code>padding-x</code></td><td><code>"md"</code> (e.g.)</td><td><code>padding-inline</code></td><td><code>space.md</code></td><td><code>--nuri-space-md</code> (12px)</td></tr>
+        <tr data-prop="padding-x" data-value="*" data-css-prop="padding-inline" data-dtcg="space.*" data-reference="--nuri-space-*"><td><code>padding-x</code></td><td><em>any leaf</em></td><td><code>padding-inline</code></td><td><code>space.{xs..xl}</code></td><td><code>--nuri-space-{xs..xl}</code></td></tr>
+
+        <tr class="nuri-table__group" data-group="padding-y">
+          <th scope="rowgroup" colspan="5">Prop · <code>padding-y</code> (block axis · <code>padding-block</code>)</th>
+        </tr>
+        <tr data-prop="padding-y" data-value="*" data-css-prop="padding-block" data-dtcg="space.*" data-reference="--nuri-space-*"><td><code>padding-y</code></td><td><em>any leaf</em></td><td><code>padding-block</code></td><td><code>space.{xs..xl}</code></td><td><code>--nuri-space-{xs..xl}</code></td></tr>
+
+        <tr class="nuri-table__group" data-group="padding-edges">
+          <th scope="rowgroup" colspan="5">Prop · single edges (<code>padding-start</code>, <code>-end</code>, <code>-top</code>, <code>-bottom</code>)</th>
+        </tr>
+        <tr data-prop="padding-start"  data-value="*" data-css-prop="padding-inline-start" data-dtcg="space.*" data-reference="--nuri-space-*"><td><code>padding-start</code></td><td><em>any leaf</em></td><td><code>padding-inline-start</code></td><td><code>space.{xs..xl}</code></td><td><code>--nuri-space-{xs..xl}</code></td></tr>
+        <tr data-prop="padding-end"    data-value="*" data-css-prop="padding-inline-end"   data-dtcg="space.*" data-reference="--nuri-space-*"><td><code>padding-end</code></td><td><em>any leaf</em></td><td><code>padding-inline-end</code></td><td><code>space.{xs..xl}</code></td><td><code>--nuri-space-{xs..xl}</code></td></tr>
+        <tr data-prop="padding-top"    data-value="*" data-css-prop="padding-block-start"  data-dtcg="space.*" data-reference="--nuri-space-*"><td><code>padding-top</code></td><td><em>any leaf</em></td><td><code>padding-block-start</code></td><td><code>space.{xs..xl}</code></td><td><code>--nuri-space-{xs..xl}</code></td></tr>
+        <tr data-prop="padding-bottom" data-value="*" data-css-prop="padding-block-end"    data-dtcg="space.*" data-reference="--nuri-space-*"><td><code>padding-bottom</code></td><td><em>any leaf</em></td><td><code>padding-block-end</code></td><td><code>space.{xs..xl}</code></td><td><code>--nuri-space-{xs..xl}</code></td></tr>
+
+        <tr class="nuri-table__group" data-group="background">
+          <th scope="rowgroup" colspan="5">Prop · <code>background</code> (surface fill · chrome + accent)</th>
+        </tr>
+        <tr data-prop="background" data-value="canvas"        data-css-prop="background" data-dtcg="chrome.bg-canvas"      data-reference="--nuri-bg-canvas"><td><code>background</code></td><td><code>"canvas"</code></td><td><code>background</code></td><td><code>chrome.bg-canvas</code></td><td><code>--nuri-bg-canvas</code></td></tr>
+        <tr data-prop="background" data-value="subtle"        data-css-prop="background" data-dtcg="chrome.bg-subtle"      data-reference="--nuri-bg-subtle"><td><code>background</code></td><td><code>"subtle"</code></td><td><code>background</code></td><td><code>chrome.bg-subtle</code></td><td><code>--nuri-bg-subtle</code></td></tr>
+        <tr data-prop="background" data-value="strong"        data-css-prop="background" data-dtcg="chrome.bg-strong"      data-reference="--nuri-bg-strong"><td><code>background</code></td><td><code>"strong"</code></td><td><code>background</code></td><td><code>chrome.bg-strong</code></td><td><code>--nuri-bg-strong</code></td></tr>
+        <tr data-prop="background" data-value="accent-solid"  data-css-prop="background" data-dtcg="accent.solid"          data-reference="--nuri-accent-solid"><td><code>background</code></td><td><code>"accent-solid"</code></td><td><code>background</code> + <code>color</code></td><td><code>accent.solid</code> / <code>accent.on-solid</code></td><td><code>--nuri-accent-solid</code> (+ <code>--nuri-accent-on-solid</code>)</td></tr>
+        <tr data-prop="background" data-value="accent-subtle" data-css-prop="background" data-dtcg="accent.bg-subtle"       data-reference="--nuri-accent-bg-subtle"><td><code>background</code></td><td><code>"accent-subtle"</code></td><td><code>background</code></td><td><code>accent.bg-subtle</code></td><td><code>--nuri-accent-bg-subtle</code></td></tr>
+
+        <tr class="nuri-table__group" data-group="radius">
+          <th scope="rowgroup" colspan="5">Prop · <code>radius</code> (corner softness · semantic radius)</th>
+        </tr>
+        <tr data-prop="radius" data-value="sm"   data-css-prop="border-radius" data-dtcg="radius.sm"   data-reference="--nuri-radius-sm"><td><code>radius</code></td><td><code>"sm"</code></td><td><code>border-radius</code></td><td><code>radius.sm</code></td><td><code>--nuri-radius-sm</code> (6px)</td></tr>
+        <tr data-prop="radius" data-value="md"   data-css-prop="border-radius" data-dtcg="radius.md"   data-reference="--nuri-radius-md"><td><code>radius</code></td><td><code>"md"</code></td><td><code>border-radius</code></td><td><code>radius.md</code></td><td><code>--nuri-radius-md</code> (12px)</td></tr>
+        <tr data-prop="radius" data-value="lg"   data-css-prop="border-radius" data-dtcg="radius.lg"   data-reference="--nuri-radius-lg"><td><code>radius</code></td><td><code>"lg"</code></td><td><code>border-radius</code></td><td><code>radius.lg</code></td><td><code>--nuri-radius-lg</code> (18px)</td></tr>
+        <tr data-prop="radius" data-value="full" data-css-prop="border-radius" data-dtcg="radius.full" data-reference="--nuri-radius-full"><td><code>radius</code></td><td><code>"full"</code></td><td><code>border-radius</code></td><td><code>radius.full</code></td><td><code>--nuri-radius-full</code> (9999px)</td></tr>
+
+        <tr class="nuri-table__group" data-group="center">
+          <th scope="rowgroup" colspan="5">Prop · <code>center</code> (boolean · CSS literal)</th>
+        </tr>
+        <tr data-prop="center" data-value="true" data-css-prop="margin-inline" data-dtcg="—" data-reference="auto"><td><code>center</code></td><td><code>true</code></td><td><code>margin-inline</code></td><td>—</td><td><code>auto</code></td></tr>
+
+        <tr class="nuri-table__group" data-group="fill">
+          <th scope="rowgroup" colspan="5">Prop · <code>fill</code> (boolean · CSS literal · decision 60)</th>
+        </tr>
+        <tr data-prop="fill" data-value="true" data-css-prop="flex" data-dtcg="—" data-reference="1 0 auto"><td><code>fill</code></td><td><code>true</code></td><td><code>flex</code> (+ <code>display:flex</code> column)</td><td>—</td><td><code>1 0 auto</code></td></tr>
+
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · ROADMAP
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="background">
+        <span class="nuri-tag nuri-tag--ready">shipped · N+6.5</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title"><code>background</code> prop</strong>
+          <p class="nuri-roadmap__desc">Promoted in N+6.5 (decision 42). The evidence-gate cleared when Tabs needed a chrome-filled track surface — the first real consumer. Vocabulary as scoped: chrome (<code>canvas</code> / <code>subtle</code> / <code>strong</code>) + accent (<code>accent-solid</code> / <code>accent-subtle</code>). See the <a href="#surface">Surface</a> section.</p>
+        </div>
+      </li>
+      <li data-feature="border-radius">
+        <span class="nuri-tag nuri-tag--ready">shipped · N+6.5</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title"><code>radius</code> prop</strong>
+          <p class="nuri-roadmap__desc">Promoted alongside <code>background</code> (decision 42) — the same Tabs surface needed rounded corners. Accepts <a href="../foundations/dimension/radius.html">semantic radius leaves</a> (<code>sm</code> · <code>md</code> · <code>lg</code> · <code>full</code>).</p>
+        </div>
+      </li>
+      <li data-feature="fill">
+        <span class="nuri-tag nuri-tag--ready">shipped · N+11</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title"><code>fill</code> prop</strong>
+          <p class="nuri-roadmap__desc">Promoted in N+11 (decision 60). The evidence-gate cleared when the My-vault scroll body needed to fill the viewport so a <a href="spacer.html">Spacer</a> could push the fund actions to the bottom — the web analogue of RN's ScrollView <code>contentContainerStyle={{ flexGrow: 1 }}</code>. Pairs with <a href="stack.html">Stack</a> <code>fill</code> and <a href="scroll.html">Scroll</a>.</p>
+        </div>
+      </li>
+      <li data-feature="max-width">
+        <span class="nuri-tag nuri-tag--planned">planned · evidence-gated</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title"><code>max-width</code> prop</strong>
+          <p class="nuri-roadmap__desc">Requires a NEW semantic vocabulary (page-shaped rem values, different from <code>semantic.size</code>'s element-shaped px values). Defer until a page-layout component surfaces the need.</p>
+        </div>
+      </li>
+      <li data-feature="rn-spec-home">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">RN spec long-term home</strong>
+          <p class="nuri-roadmap__desc">Today the Box RN definition lives in the migration-test pair as a local module. As of N+6.5 n≥2 component RN specs co-habit that file (Box, Button, IconButton-pending, Switch, Tabs) — the long-term-home question (peer <code>lib/components/box/box.tsx</code>? a <code>lib/spec/</code> namespace?) is now live. Tracked in <a href="../../roadmap/index.md">roadmap/index.md</a>.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+<!-- .nuri-anatomy + .nuri-anatomy__visual + .nuri-anatomy .nuri-table
+     promoted to shell.css on 2026-05-28 (N+6.2 · third anatomy
+     consumer landing). No page-local override needed. -->
+
+</body>
+</html>

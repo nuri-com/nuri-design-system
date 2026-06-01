@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Foundations · Colour · Exploration</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../../lib/docs/state.js"></script>
+
+  <link rel="stylesheet" href="../../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../../styles/shell.css" />
+  <script src="../../../lib/docs/control/control.js" defer></script>
+  <script src="../../../lib/docs/shell.js" defer></script>
+  <script src="../../../lib/docs/tokens.js"></script>
+</head>
+<body>
+
+<!-- Foundation template — see pages/foundations/colour/primitive.html
+     for the canonical structure. Exploration is a TEMPORARY foundation
+     (Layer: exploration · Status: exploratory) — disappears once a
+     neutral scale is locked. -->
+
+<nuri-shell active="foundations/colour/exploration">
+  <nuri-page
+    eyebrow="Foundations · Colour · Exploration"
+    title="Exploration"
+    status="draft"
+    lead="Candidate grayscale palettes side by side, each with a different hidden tint. Temporary surface for picking the one neutral scale Nuri will lock in. Once chosen, the others — and this page — disappear."
+  ></nuri-page>
+
+  <!-- 1 · SPEC CARD ─────────────────────────────────────────────── -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-foundation="colour-exploration"
+        data-foundation-status="exploratory">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd data-spec="type">
+          <span class="nuri-spec-card__chip" data-type="color">color</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Layer</dt>
+        <dd data-spec="layer">
+          <span class="nuri-spec-card__chip" data-layer="exploration">exploration</span>
+          <span class="nuri-spec-card__meta">candidate scales · one active at a time via <code>data-neutral</code></span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Source</dt>
+        <dd data-spec="source">
+          <span class="nuri-spec-card__chip" data-source="tokens-primitive.css">tokens-primitive.css</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Status</dt>
+        <dd data-spec="status">
+          <span class="nuri-tag nuri-tag--exploratory">exploratory · removed at lock-in</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- 2 · HOW TO USE ─────────────────────────────────────────────── -->
+  <section class="page-section" id="how-to-use">
+    <h2>How to use this page</h2>
+    <p class="nuri-token-meta">Set · <code>core</code> · active scale · <code id="active-name">…</code></p>
+    <p>
+      Switch the <strong>Neutral</strong> selector in the topbar to mark a
+      scale as active. The active scale is the one
+      <code>--nuri-color-neutral-*</code> aliases in
+      <code>tokens-primitive.css</code> point at — so the whole docs site
+      (and any component using semantic tokens) re-themes accordingly.
+      Toggle the theme switch to compare each scale in light and dark.
+      Watch how each scale's step 9–10 reads against the lilac brand in
+      <a href="semantic.html">Colour · Semantic</a> (where accent and
+      neutral compose live).
+    </p>
+    <p>
+      Functionally the candidate scales are interchangeable (same Radix
+      12-step role model). The choice is aesthetic: which neutral best
+      supports the brand without competing with it.
+    </p>
+  </section>
+
+  <!-- 3 · CANDIDATE SCALES
+       One table per candidate scale, rendered via NuriTokens.renderTable.
+       The "Active" pill on the heading uses the page-local
+       .exploration-active-badge — narrow single-use widget, kept page-
+       local on purpose (out-of-scope for shell.css per N+2 audit).
+
+       Section ID convention: short slug on <section> (anchorable),
+       `tokens-*` prefix on the JS-populated host div to avoid
+       collision (decision N+2 housekeeping). -->
+  <section class="page-section" id="scales">
+    <h2>Candidate scales</h2>
+    <p>
+      Each scale exposes 24 tokens (12 steps × 2 themes). Pick one
+      consistent active scale via the topbar; the others stay addressable
+      via their explicit name (<code>--nuri-color-gray-N-light</code>, etc.)
+      until lock-in.
+    </p>
+    <div id="tokens-scales"></div>
+  </section>
+
+  <!-- 4 · ROADMAP ────────────────────────────────────────────────── -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="lock-neutral">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Lock one neutral scale</strong>
+          <p class="nuri-roadmap__desc">Pick the winning scale, delete the other six from <code>tokens-primitive.css</code>, and remove <code>data-neutral</code> from <code>lib/docs/state.js</code>.</p>
+        </div>
+      </li>
+      <li data-feature="remove-page">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Remove this page</strong>
+          <p class="nuri-roadmap__desc">Drop the NAV entry in <code>lib/docs/shell.js</code> and delete this file once lock-in lands.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+<style>
+  /* Page-local · single-use active-scale heading badge. Sits next to
+   * the <h3> for a scale that matches the current data-neutral. Kept
+   * page-local because it's a one-of widget on a temporary page. */
+  .exploration-active-badge {
+    display: inline-block;
+    margin-left: var(--nuri-px-6);
+    padding: 0 var(--nuri-px-6);
+    height: var(--nuri-px-18);
+    line-height: var(--nuri-px-18);
+    border-radius: var(--nuri-radius-full);
+    background: var(--nuri-accent-bg-subtle);
+    color: var(--nuri-accent-fg);
+    font-size: var(--nuri-font-size-13);
+    font-weight: var(--nuri-font-weight-semibold);
+    vertical-align: middle;
+  }
+</style>
+
+<script>
+  const NEUTRAL_SCALES = NuriState.AVAILABLE.neutral;
+
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  function activeNeutral() {
+    return document.documentElement.dataset.neutral || 'gray';
+  }
+
+  function scaleHeading(scale, isActive) {
+    const label = cap(scale);
+    const prefix = `--nuri-color-${scale}-*-{light|dark}`;
+    const badge = isActive ? '<span class="exploration-active-badge">Active</span>' : '';
+    return `<h3>${label} ${badge}<span style="color: var(--nuri-text-muted); font-weight: var(--nuri-font-weight-regular);"> · <code>${prefix}</code></span></h3>`;
+  }
+
+  let allTokens = [];
+
+  // Stable sort that surfaces all -light rows first, then all -dark rows.
+  // Within each theme the original source order (step 1 → 12) is preserved
+  // because Array.prototype.sort is stable in ES2019+.
+  function lightThenDark(tokens) {
+    return tokens.slice().sort((a, b) => {
+      const at = a.cssVar.endsWith('-light') ? 0 : 1;
+      const bt = b.cssVar.endsWith('-light') ? 0 : 1;
+      return at - bt;
+    });
+  }
+
+  function renderScales() {
+    const active = activeNeutral();
+    document.getElementById('active-name').textContent = active;
+
+    const host = document.getElementById('tokens-scales');
+    host.innerHTML = NEUTRAL_SCALES.map(scale => {
+      const tokens = lightThenDark(
+        allTokens.filter(t => t.cssVar.startsWith(`--nuri-color-${scale}-`))
+      );
+      return scaleHeading(scale, scale === active)
+        + NuriTokens.renderTable(tokens);
+    }).join('');
+  }
+
+  function init(sheet) {
+    if (!sheet) return;
+    allTokens = NuriTokens.parsePrimitives(sheet);
+    renderScales();
+  }
+  NuriTokens.whenSheetReady('tokens-primitive.css', init);
+
+  // Re-render only the "Active" badge when the user switches neutral.
+  // The table data doesn't change (primitives don't react to data-neutral),
+  // so this is cheap — just rebuilds the headings.
+  NuriState.subscribe('neutral', renderScales);
+</script>
+
+</body>
+</html>

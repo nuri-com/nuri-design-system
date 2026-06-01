@@ -1,0 +1,93 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · LIST  (family container · decision 51 · 52 · N+7/N+8)
+ *
+ * <nuri-list> is the vertical container half of the List family. It
+ * is the agent's "stack of rows" primitive: a flex column with
+ * role="list", owning the per-row rhythm via a single `density`
+ * axis. Its sibling <nuri-list-item> (list-item.css) is the row.
+ *
+ *   <nuri-list density="md">          sm | md (default) | lg
+ *     <nuri-list-item>…</nuri-list-item>
+ *     <nuri-separator></nuri-separator>      ← author-placed
+ *     <nuri-list-item>…</nuri-list-item>
+ *   </nuri-list>
+ *
+ * NO `gap` — and NO container gutter (decision 51 holds · the N+8
+ * uniform gap was removed at N+8.1 as a decision-51 contradiction).
+ * Inter-row rhythm is each row's own min-height (set HERE, per density)
+ * plus author-placed <nuri-separator>s. Breathing room between rows is
+ * the SEPARATOR's job now — its tunable `y-space` margin (default sm),
+ * NOT a List gap that would double-space the separators and fight the
+ * row min-height. The `density` axis stays the only structural knob.
+ *
+ * Density → row min-height lives HERE, not in list-item.css, because
+ * it is a CONTAINER decision projected onto its rows: the same row
+ * markup gets a taller touch target inside a `lg` list. The selector
+ * targets `nuri-list-item` ONLY, so author-placed <nuri-separator>s
+ * (which are NOT list-items) keep their 1px height across every
+ * density (decision 51).
+ *
+ *   density | row min-block-size | component token              | semantic
+ *   --------|--------------------|------------------------------|----------
+ *   sm      | 60px               | --nuri-list-density-sm-min-height | size-xl
+ *   md      | 72px               | --nuri-list-density-md-min-height | size-2xl (default)
+ *   lg      | 90px               | --nuri-list-density-lg-min-height | size-3xl
+ *
+ * EMIT, not skip-emit (decision 52). The density→min-height map is a
+ * FIXED, baked-in style decision (the rows are 60/72/90 by construction,
+ * the consumer can't reparametrize them), so it is formalized as
+ * component tokens. The pipeline emits build/components/list.ts and RN
+ * dereferences `list.densitySmMinHeight` (= `size.xl` · a TokenPath)
+ * instead of hardcoding the size leaf — machine-checked web↔RN parity.
+ * Contrast the fully prop-driven layout primitives (Stack/Box · decision
+ * 37) which stay skip-emit: prop dispatch carries no fixed value to drift.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* The density→row-min-height map (decision 52 · EMIT). These are
+   * FIXED style values baked into the family — not prop-dispatched —
+   * so they are formalized as component tokens and emitted to
+   * build/components/list.ts for machine-checked RN parity. Re-declared
+   * on every scope boundary (`:root, [data-accent], [data-theme]`) per
+   * AGENTS.md hard-rule 7. */
+  :root,
+  [data-accent],
+  [data-theme] {
+    --nuri-list-density-sm-min-height: var(--nuri-size-xl);  /* 60px */
+    --nuri-list-density-md-min-height: var(--nuri-size-2xl); /* 72px · default */
+    --nuri-list-density-lg-min-height: var(--nuri-size-3xl); /* 90px */
+  }
+}
+
+@layer rules {
+  /* ── List host · the flex column ──────────────────────────────
+   * A plain vertical column with NO gap (decision 51). Inter-row
+   * breathing room is the author <nuri-separator>'s `y-space` margin,
+   * not a container gutter. The skeleton matches the upgraded element
+   * (layout is pure CSS, JS only reflects the density default), so
+   * there is no FOUC delta. */
+  nuri-list,
+  nuri-list:not(:defined) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Density → row min-height ─────────────────────────────────
+   * A CONTAINER decision projected onto its rows. Targets
+   * nuri-list-item ONLY — author-placed <nuri-separator>s stay 1px
+   * across every density (decision 51). `density` is reflected as an
+   * attribute by list.js (default md), so the default branch matches
+   * the bare `nuri-list nuri-list-item` selector too. */
+  nuri-list[density="sm"] nuri-list-item {
+    min-block-size: var(--nuri-list-density-sm-min-height);
+  }
+
+  nuri-list nuri-list-item,
+  nuri-list[density="md"] nuri-list-item {
+    min-block-size: var(--nuri-list-density-md-min-height);
+  }
+
+  nuri-list[density="lg"] nuri-list-item {
+    min-block-size: var(--nuri-list-density-lg-min-height);
+  }
+}

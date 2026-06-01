@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Components · Switch</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+
+  <!-- Token layer cake · primitive → semantic → component → chrome.
+       Switch is a standalone parametric pill (decision 44) — it owns
+       component tokens (switch.css) but composes NO other component. -->
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../lib/components/switch/switch.css" />
+  <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+  <script src="../../lib/docs/tokens.js"></script>
+  <!-- Custom element scripts MUST be deferred so connectedCallback fires
+       AFTER body parsing (children present). See AGENTS.md. -->
+  <script src="../../lib/components/scope/scope.js" defer></script>
+  <script src="../../lib/components/switch/switch.js" defer></script>
+  <script src="../../lib/docs/demo/demo.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  COMPONENT DOCS PAGE · Switch (decision 24 template · 24.1)
+  ═══════════════════════════════════════════════════════════════
+
+  Audience priority: agent + pipeline FIRST, human contributor SECOND.
+
+  Switch is a standalone parametric pill (decision 44) — NOT a Box
+  composer. It owns component tokens (switch.css). Single size, no
+  variant matrix (the carve-out is intentional, mirroring IconButton's
+  single-size lock): the only axes are checked × disabled. Accent
+  shows ONLY in the ON state, via accent-solid.
+
+  Sections in render order:
+    1.  Spec card             — component summary (machine-readable)
+    2.  Hero demo             — default rendering + canonical snippet
+    3.  API                   — props signature (the contract)
+    4.  Anatomy & parts       — track (root) + knob (2 parts)
+    5.  States                — off / on / disabled
+        (NO Variants section · single appearance · decision 44)
+    6.  Theming               — accent scoping (ON state only)
+    7.  Token mapping         — state × CSS prop → token chain
+    8.  Behavioural delta     — web↔RN friction register:
+                               F-CHECKED-STATE-1 (specific) +
+                               F-PRESSED-1 / F-FOCUS-1 / F-DISABLED-1
+    9.  Tokens (DTCG)         — auto-generated dictionary
+    10. Roadmap               — planned items with inline status tags
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="components/switch">
+  <nuri-page
+    eyebrow="Components · Forms · Switch"
+    title="Switch"
+    status="draft"
+    lead="A binary on/off toggle rendered as a parametric pill (60×36) with a sliding knob (28×28). Single size, no variants — the only axes are checked and disabled. The track is muted chrome when OFF and fills with the active accent when ON; the knob is always the page surface. Mobile-first: no hover, pressed feedback via a knob squash. Not a checkbox input — a native button with role=switch / aria-checked carries the toggle semantics."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · SPEC CARD
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-component="switch"
+        data-component-status="draft"
+        data-rn-status="spec">
+      <div class="nuri-spec-card__row">
+        <dt>Variants</dt>
+        <dd data-spec="variants">
+          <span class="nuri-spec-card__meta">none · single appearance · decision 44</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Sizes</dt>
+        <dd data-spec="sizes">
+          <span class="nuri-spec-card__chip" data-size="md" data-default="true">md · 60×36</span>
+          <span class="nuri-spec-card__meta">single size · decision 44</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>States</dt>
+        <dd data-spec="states">
+          <span class="nuri-spec-card__chip" data-state="off">off</span>
+          <span class="nuri-spec-card__chip" data-state="on">on</span>
+          <span class="nuri-spec-card__chip" data-state="disabled">disabled</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Accent behavior</dt>
+        <dd data-spec="accent-behavior">
+          <span data-state="on" data-accent-driven="true">ON track follows accent</span>
+          <span class="nuri-spec-card__sep">·</span>
+          <span data-state="off" data-accent-driven="false">OFF track is chrome-only</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Parts</dt>
+        <dd data-spec="parts">
+          <span class="nuri-spec-card__chip" data-part="track">track</span>
+          <span class="nuri-spec-card__chip" data-part="knob">knob</span>
+          <span class="nuri-spec-card__meta">2 parts</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Component status</dt>
+        <dd data-spec="component-status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>RN status</dt>
+        <dd data-spec="rn-status">
+          <span class="nuri-tag nuri-tag--ready">spec implemented</span>
+          <span class="nuri-spec-card__meta">web ↔ RN is 1:1. The RN <code>&lt;Switch&gt;</code> consumes the generated <code>build/components/switch.ts</code> token file — see <a href="../../docs/migration-tests/button-matrix/index.tsx">migration-tests/button-matrix</a>. Not blocked on Icon (no glyph).</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · HERO DEMO
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="hero">
+    <h2>Default</h2>
+    <nuri-demo controls="theme,accent,neutral,font">
+      <template>
+        <nuri-switch checked></nuri-switch>
+      </template>
+    </nuri-demo>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · API · PROPS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="api">
+    <h2>API</h2>
+    <p>
+      The props signature. <code>web ↔ RN</code> is 1:1 — every prop
+      below exists on both the <code>&lt;nuri-switch&gt;</code> custom
+      element and the RN <code>&lt;Switch&gt;</code> component, with the
+      same name and accepted values. Note the <strong>absence of a
+      <code>size</code> or <code>variant</code> prop</strong>
+      (decision 44 · single size, single appearance).
+    </p>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="switch">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="checked">
+          <td data-cell="name"><code>checked</code></td>
+          <td data-cell="type"><code>boolean</code></td>
+          <td data-cell="default"><code>false</code> (off)</td>
+          <td data-cell="description">The toggle state. Reflected to <code>aria-checked</code> on the inner <code>&lt;button role="switch"&gt;</code>. Clicking toggles the host attribute — the DOM is the source of truth (F-CHECKED-STATE-1).</td>
+        </tr>
+        <tr data-prop="disabled">
+          <td data-cell="name"><code>disabled</code></td>
+          <td data-cell="type"><code>boolean</code></td>
+          <td data-cell="default"><code>false</code></td>
+          <td data-cell="description">Disables interaction. Visual: <code>opacity 0.4</code> + <code>cursor: not-allowed</code> + <code>pointer-events: none</code> (belt &amp; suspenders).</td>
+        </tr>
+        <tr data-prop="accent">
+          <td data-cell="name"><code>accent</code></td>
+          <td data-cell="type"><code>"lilac" | "neutral"</code></td>
+          <td data-cell="default"><em>inherited</em></td>
+          <td data-cell="description">Self-scope override (Tier 2). Writes <code>data-accent</code> on the inner <code>&lt;button&gt;</code>. Only affects the <strong>ON</strong> track (which paints <code>accent-solid</code>); the OFF track is chrome-only and ignores it.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · ANATOMY & PARTS
+       Two parts: track (the root button surface) + knob (the slider).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="anatomy">
+    <h2>Anatomy &amp; parts</h2>
+    <p>
+      Switch is a <strong>two-part</strong> component: the
+      <code>track</code> is the root <code>&lt;button role="switch"&gt;</code>
+      pill that owns size, shape, and the OFF/ON background; the
+      <code>knob</code> is the circular slider that translates along the
+      inline axis by a derived <code>travel</code> distance.
+    </p>
+
+    <div class="nuri-anatomy">
+      <div class="nuri-anatomy__visual">
+        <nuri-switch checked></nuri-switch>
+      </div>
+      <div class="nuri-table-scroll"><table class="nuri-table" data-table="parts" data-component="switch">
+        <thead>
+          <tr>
+            <th>Part</th>
+            <th>Element</th>
+            <th>Owns</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-part="track">
+            <td data-cell="name"><code>track</code></td>
+            <td data-cell="element"><code>button</code></td>
+            <td data-cell="owns">size, shape, OFF/ON background, all state visuals</td>
+            <td data-cell="description">The 60×36 pill. Carries <code>role="switch"</code> + <code>aria-checked</code>. OFF → <code>bg-inverse-muted</code>, ON → <code>accent-solid</code>.</td>
+          </tr>
+          <tr data-part="knob">
+            <td data-cell="name"><code>knob</code></td>
+            <td data-cell="element"><code>span</code></td>
+            <td data-cell="owns">the sliding disc (28×28)</td>
+            <td data-cell="description">Always <code>bg-canvas</code> so it lifts off either track colour. Translates by <code>travel</code> (24px = track − knob − 2·inset) when ON; squashes to <code>scale(0.92)</code> while pressed.</td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · STATES
+       off / on / disabled. Shown live; pressed is :active (the knob
+       squash) — press and hold any live switch to see it.
+       (NO Variants section · single appearance · decision 44)
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="states">
+    <h2>States</h2>
+    <p>
+      Two binary axes: <code>checked</code> (off / on) and
+      <code>disabled</code>. All shown live. <code>pressed</code> is the
+      knob squash (<code>scale(0.92)</code>) on <code>:active</code> —
+      press and hold any live switch to see it. No <code>hover</code> —
+      Switch is mobile-first.
+    </p>
+
+    <div class="nuri-state-grid" data-axis="checked">
+      <div class="nuri-state-grid__cell" data-state="off">
+        <span class="nuri-state-grid__label">off</span>
+        <nuri-switch></nuri-switch>
+      </div>
+      <div class="nuri-state-grid__cell" data-state="on">
+        <span class="nuri-state-grid__label">on</span>
+        <nuri-switch checked></nuri-switch>
+      </div>
+      <div class="nuri-state-grid__cell" data-state="disabled-off">
+        <span class="nuri-state-grid__label">disabled · off</span>
+        <nuri-switch disabled></nuri-switch>
+      </div>
+      <div class="nuri-state-grid__cell" data-state="disabled-on">
+        <span class="nuri-state-grid__label">disabled · on</span>
+        <nuri-switch checked disabled></nuri-switch>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · THEMING · accent scoping
+       The accent shows ONLY in the ON state (the track fills with
+       accent-solid). OFF is chrome-only.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="theming">
+    <h2>Theming · accent scoping</h2>
+    <p>
+      The active accent surfaces in <strong>one place</strong>: the ON
+      track, which paints <code>accent-solid</code>. The OFF track is
+      chrome (<code>bg-inverse-muted</code>) and the knob is
+      <code>bg-canvas</code> — neither tracks the accent. Three ways to
+      control the accent the ON track follows, increasing locality:
+    </p>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="1 · page" subtitle="&lt;html data-accent&gt;" stack data-scope="page">
+        <template>
+          <nuri-switch checked></nuri-switch>
+          <nuri-switch></nuri-switch>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="2 · subtree" subtitle="&lt;nuri-scope&gt; · Tier 3" stack data-scope="subtree">
+        <template>
+          <nuri-scope accent="neutral">
+            <nuri-switch checked></nuri-switch>
+            <nuri-switch></nuri-switch>
+          </nuri-scope>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="3 · self" subtitle="accent prop · Tier 2" stack data-scope="self">
+        <template>
+          <nuri-switch checked accent="lilac"></nuri-switch>
+          <nuri-switch checked accent="neutral"></nuri-switch>
+        </template>
+      </nuri-demo>
+
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · TOKEN MAPPING
+       State × CSS property → DTCG → CSS var → reference. Hand-written;
+       mirrors IconButton's table shape. The geometry tokens emit as
+       semantic TokenPath strings (size/space are runtime sets · set
+       policy decision 34); the consumer dereferences at render.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="token-mapping">
+    <h2>Token mapping</h2>
+    <p>
+      <strong>State × CSS property → DTCG → CSS var → reference.</strong>
+      The RN build pipeline reads this table to emit pre-computed
+      <code>StyleSheet</code> entries from
+      <a href="../../build/components/switch.ts"><code>switch.ts</code></a>.
+      The 3 trailing columns use the same labels as the
+      <a href="#tokens">Tokens dictionary</a> below. <code>—</code>
+      means a literal or derived value (no single-token indirection).
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="token-map" data-component="switch">
+      <thead>
+        <tr>
+          <th>State</th>
+          <th>CSS property</th>
+          <th>DTCG</th>
+          <th>CSS var</th>
+          <th>Reference</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="nuri-table__group" data-group="geometry">
+          <th scope="rowgroup" colspan="5">Geometry · single size (decision 44) · state-agnostic</th>
+        </tr>
+        <tr data-state="any" data-css-prop="width"
+            data-dtcg="switch.trackWidth"
+            data-css-var="--nuri-switch-track-width" data-reference="--nuri-size-xl">
+          <td>any</td>
+          <td><code>width</code></td>
+          <td><code>switch.trackWidth</code></td>
+          <td><code>--nuri-switch-track-width</code></td>
+          <td><code>--nuri-size-xl</code> (60px)</td>
+        </tr>
+        <tr data-state="any" data-css-prop="height"
+            data-dtcg="switch.trackHeight"
+            data-css-var="--nuri-switch-track-height" data-reference="--nuri-size-md">
+          <td>any</td>
+          <td><code>height</code></td>
+          <td><code>switch.trackHeight</code></td>
+          <td><code>--nuri-switch-track-height</code></td>
+          <td><code>--nuri-size-md</code> (36px)</td>
+        </tr>
+        <tr data-state="any" data-css-prop="width"
+            data-dtcg="switch.knobSize"
+            data-css-var="--nuri-switch-knob-size" data-reference="--nuri-size-sm">
+          <td>any</td>
+          <td><code>knob width</code> / <code>height</code></td>
+          <td><code>switch.knobSize</code></td>
+          <td><code>--nuri-switch-knob-size</code></td>
+          <td><code>--nuri-size-sm</code> (28px)</td>
+        </tr>
+        <tr data-state="any" data-css-prop="padding"
+            data-dtcg="switch.inset"
+            data-css-var="--nuri-switch-inset" data-reference="--nuri-space-xs">
+          <td>any</td>
+          <td><code>padding</code> (inset)</td>
+          <td><code>switch.inset</code></td>
+          <td><code>--nuri-switch-inset</code></td>
+          <td><code>--nuri-space-xs</code> (4px)</td>
+        </tr>
+        <tr data-state="any" data-css-prop="border-radius"
+            data-dtcg="—"
+            data-css-var="—" data-reference="--nuri-radius-full">
+          <td>any</td>
+          <td><code>border-radius</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-radius-full</code> (9999px · pill) · referenced directly, not a switch token</td>
+        </tr>
+        <tr data-state="on" data-css-prop="transform"
+            data-dtcg="—"
+            data-css-var="--nuri-switch-knob-travel" data-reference="calc(track − knob − 2·inset)">
+          <td>on</td>
+          <td><code>transform: translateX</code></td>
+          <td>—</td>
+          <td><code>--nuri-switch-knob-travel</code></td>
+          <td><code>calc(track − knob − 2·inset)</code> = 24px · <strong>derived</strong> (not emitted · computed RN-side)</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="colour">
+          <th scope="rowgroup" colspan="5">Colour · OFF / ON track + knob</th>
+        </tr>
+        <tr data-state="off" data-css-prop="background"
+            data-dtcg="switch.trackOffBg"
+            data-css-var="--nuri-switch-track-off-bg" data-reference="--nuri-bg-inverse-muted">
+          <td>off</td>
+          <td><code>background</code></td>
+          <td><code>switch.trackOffBg</code></td>
+          <td><code>--nuri-switch-track-off-bg</code></td>
+          <td><code>--nuri-bg-inverse-muted</code> · chrome, accent-independent</td>
+        </tr>
+        <tr data-state="on" data-css-prop="background"
+            data-dtcg="switch.trackOnBg"
+            data-css-var="--nuri-switch-track-on-bg" data-reference="--nuri-accent-solid">
+          <td>on</td>
+          <td><code>background</code></td>
+          <td><code>switch.trackOnBg</code></td>
+          <td><code>--nuri-switch-track-on-bg</code></td>
+          <td><code>--nuri-accent-solid</code> · the only accent-driven surface</td>
+        </tr>
+        <tr data-state="any" data-css-prop="background"
+            data-dtcg="switch.knobBg"
+            data-css-var="--nuri-switch-knob-bg" data-reference="--nuri-bg-canvas">
+          <td>any</td>
+          <td><code>knob background</code></td>
+          <td><code>switch.knobBg</code></td>
+          <td><code>--nuri-switch-knob-bg</code></td>
+          <td><code>--nuri-bg-canvas</code> · page surface, both states</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="interaction">
+          <th scope="rowgroup" colspan="5">Interaction · pressed / disabled / focus (state-agnostic)</th>
+        </tr>
+        <tr data-state="pressed" data-css-prop="transform"
+            data-dtcg="switch.knobPressScale"
+            data-css-var="--nuri-switch-knob-press-scale" data-reference="0.92">
+          <td>pressed</td>
+          <td><code>knob transform: scale</code></td>
+          <td><code>switch.knobPressScale</code></td>
+          <td><code>--nuri-switch-knob-press-scale</code></td>
+          <td><code>0.92</code></td>
+        </tr>
+        <tr data-state="disabled" data-css-prop="opacity"
+            data-dtcg="switch.disabledOpacity"
+            data-css-var="--nuri-switch-disabled-opacity" data-reference="0.4">
+          <td>disabled</td>
+          <td><code>opacity</code></td>
+          <td><code>switch.disabledOpacity</code></td>
+          <td><code>--nuri-switch-disabled-opacity</code></td>
+          <td><code>0.4</code></td>
+        </tr>
+        <tr data-state="disabled" data-css-prop="cursor"
+            data-dtcg="—"
+            data-css-var="—" data-reference="not-allowed">
+          <td>disabled</td>
+          <td><code>cursor</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>not-allowed</code> · web-only, no RN equivalent</td>
+        </tr>
+        <tr data-state="focus-visible" data-css-prop="outline"
+            data-dtcg="—"
+            data-css-var="—" data-reference="2px solid --nuri-focus-ring">
+          <td>focus-visible</td>
+          <td><code>outline</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>2px solid var(--nuri-focus-ring)</code> · brand, never accent-derived</td>
+        </tr>
+
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       8 · BEHAVIOURAL DELTA
+       F-CHECKED-STATE-1 is the Switch-specific delta (controlled vs
+       uncontrolled toggle); the other three are inherited from the
+       shared interaction model (pressed / focus / disabled).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="behavioural-delta">
+    <h2>Behavioural delta · web ↔ RN</h2>
+    <p>
+      Props are <code>1:1</code>; behaviour is <strong>budgeted
+      per-component</strong> (<a href="../../docs/RISKS.md">RISKS R1</a>).
+      Switch adds one delta specific to a toggle control
+      (<code>F-CHECKED-STATE-1</code>) and inherits the three shared
+      interaction deltas. This is the migration agent's third surface
+      alongside <a href="#anatomy">anatomy</a> and
+      <a href="#token-mapping">token mapping</a>.
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="behavioural-delta" data-component="switch">
+      <thead>
+        <tr>
+          <th>Friction</th>
+          <th>Surface</th>
+          <th>Web</th>
+          <th>React Native</th>
+          <th>Resolution</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-friction="F-CHECKED-STATE-1" data-surface="checked" data-parity="diverges" data-inherited="none">
+          <td data-cell="friction"><code>F-CHECKED-STATE-1</code></td>
+          <td data-cell="surface"><code>checked state</code></td>
+          <td data-cell="web">DOM-driven: click toggles the host <code>checked</code> attribute, <code>attributeChangedCallback</code> re-syncs <code>aria-checked</code>. The DOM attribute is the source of truth (uncontrolled by default).</td>
+          <td data-cell="rn">State-driven: <code>checked</code> is a controlled prop; the consumer holds <code>useState</code> and passes <code>onValueChange</code>. No DOM to reflect into.</td>
+          <td data-cell="resolution">Same prop name + accepted values; the source-of-truth mechanism differs (DOM attribute vs React state). The pipeline emits a controlled RN component — see <code>SwitchDemo</code> in the migration test.</td>
+        </tr>
+        <tr data-friction="F-PRESSED-1" data-surface="pressed" data-parity="diverges" data-inherited="button">
+          <td data-cell="friction"><code>F-PRESSED-1</code></td>
+          <td data-cell="surface"><code>pressed</code></td>
+          <td data-cell="web"><code>:active</code> → knob <code>transform: scale(0.92)</code></td>
+          <td data-cell="rn"><code>Pressable</code> render-prop <code>style={({ pressed }) =&gt; …}</code> applied to the knob</td>
+          <td data-cell="resolution">Inherited interaction model. Same token (<code>knobPressScale</code>), different trigger mechanism.</td>
+        </tr>
+        <tr data-friction="F-FOCUS-1" data-surface="focus" data-parity="diverges" data-inherited="button">
+          <td data-cell="friction"><code>F-FOCUS-1</code></td>
+          <td data-cell="surface"><code>focus-visible</code></td>
+          <td data-cell="web"><code>:focus-visible</code> → <code>2px solid var(--nuri-focus-ring)</code></td>
+          <td data-cell="rn">No DOM focus model; <code>accessibilityRole="switch"</code> substitutes</td>
+          <td data-cell="resolution">Inherited. Ring is web-only by design.</td>
+        </tr>
+        <tr data-friction="F-DISABLED-1" data-surface="disabled" data-parity="diverges" data-inherited="button">
+          <td data-cell="friction"><code>F-DISABLED-1</code></td>
+          <td data-cell="surface"><code>disabled</code></td>
+          <td data-cell="web"><code>opacity 0.4</code> + <code>cursor: not-allowed</code> + <code>pointer-events: none</code></td>
+          <td data-cell="rn"><code>disabled</code> prop → same opacity; no cursor concept</td>
+          <td data-cell="resolution">Inherited. Opacity 1:1; <code>cursor</code> dropped on RN.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       9 · TOKENS (DTCG DICTIONARY)
+       Auto-generated from @layer tokens in switch.css by tokens.js.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="tokens">
+    <h2>Tokens · dictionary</h2>
+    <p>
+      The component's <code>@layer tokens</code> block from
+      <code>switch.css</code>, parsed live. Reference column shows the
+      var chain; Value resolves it for the currently active theme /
+      accent. (The derived <code>--nuri-switch-knob-travel</code> lives
+      in <code>@layer rules</code>, not here — it is a
+      <code>calc()</code> over these tokens, not an alias.)
+    </p>
+    <div id="switch-tokens"></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       10 · ROADMAP
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="rn-implementation">
+        <span class="nuri-tag nuri-tag--ready">spec implemented</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">React Native implementation</strong>
+          <p class="nuri-roadmap__desc">The web ↔ RN 1:1 contract is set and the RN <code>&lt;Switch&gt;</code> already consumes the generated <code>build/components/switch.ts</code> in the <a href="../../docs/migration-tests/button-matrix/index.tsx">migration test</a>. Promotion to a permanent <code>lib/</code> home tracks the shared RN-spec-home question.</p>
+        </div>
+      </li>
+      <li data-feature="keyboard">
+        <span class="nuri-tag nuri-tag--planned">planned · a11y</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Label association</strong>
+          <p class="nuri-roadmap__desc">A first-class <code>label</code> / <code>labelledby</code> slot so a Switch can sit in a Field row with a clickable text label. Arrives when a Form-row layout component surfaces the need.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+<style>
+  /* ═══════════════════════════════════════════════════════════════
+   * PAGE-LOCAL STYLES · component-specific only
+   * Shared widgets (.nuri-spec-card, .nuri-state-grid, .nuri-table,
+   * .nuri-roadmap, .nuri-anatomy, .nuri-demo*) live in shell.css /
+   * demo.css. Nothing Switch-specific needs a page-local rule today.
+   * ═══════════════════════════════════════════════════════════════ */
+</style>
+
+<script>
+  // ── Token table · sourced from switch.css (@layer tokens) ──────────
+  function renderTokens(sheet) {
+    if (!sheet) return;
+    const r = document.documentElement.dataset;
+    const tokens = NuriTokens.parseSemantics(sheet, {
+      theme: r.theme || 'light',
+      accent: r.accent || 'lilac',
+      // knob-travel is a derived calc() in @layer rules, NOT a token-
+      // surface alias (it can't resolve to a single reference) — keep it
+      // out of the dictionary, mirroring its exclusion from switch.ts.
+      filter: v => v.startsWith('--nuri-switch-') && v !== '--nuri-switch-knob-travel',
+    });
+    document.getElementById('switch-tokens').innerHTML =
+      NuriTokens.renderTable(tokens, { showReference: true });
+  }
+
+  NuriTokens.whenSheetReady('switch.css', renderTokens);
+
+  // Re-render when theme/accent changes so the Value column tracks live.
+  NuriState.subscribe(['theme', 'accent', 'neutral'], () => {
+    NuriTokens.whenSheetReady('switch.css', renderTokens);
+  });
+</script>
+
+</body>
+</html>

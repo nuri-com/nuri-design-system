@@ -1,0 +1,309 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · BUTTON
+ *
+ * Variant matrix (CSS is the source of truth — the pipeline
+ * derives the JSON/RN spec from this file):
+ *
+ *   variant   bg                       fg                  bg-pressed
+ *   ───────────────────────────────────────────────────────────────────
+ *   solid     accent-solid             accent-on-solid     accent-solid-pressed
+ *   soft      bg-strong (chrome)       text-primary        bg-pressed (chrome)
+ *   ghost     transparent              text-primary        bg-subtle (chrome) ← pressed only
+ *
+ *   Solid carries accent identity — switching accent (page-level,
+ *   <nuri-scope>, or per-button `accent` prop) re-themes solid.
+ *   Soft + ghost are chrome-only by design — they stay neutral
+ *   regardless of the active accent (decision 11 family · soft and
+ *   ghost are chrome-only siblings). Soft is the canonical "quiet
+ *   alternative" (the cream Request / Exchange button in the mocks);
+ *   ghost is the tertiary, zero-weight-at-rest action (transparent
+ *   until pressed · no border ever · decision 39).
+ *
+ *   `accent` prop has no visual effect on soft OR ghost buttons —
+ *   neither consumes accent tokens. Use solid + accent to vary
+ *   colour per-button (rails pattern).
+ *
+ *   size  min-height  padding-x  font-size      radius     (font-weight: semibold · all)
+ *   ───────────────────────────────────────────────────────────────────
+ *   lg    size-xl     space-xl   type-md-size   radius-md   (60px · soft mobile primary)
+ *   md ·  size-lg     space-lg   type-md-size   radius-sm   (48px · inline action · DEFAULT)
+ *   sm    size-md     space-md   type-sm-size   radius-sm   (36px · badge / dense action)
+ *
+ *   Asymmetric couplings (decision 41):
+ *     · typography breaks at the md/sm boundary — lg + md share
+ *       type-md (both action-bearing → same body weight); sm scales
+ *       down to type-sm (badge-like → smaller verbal weight).
+ *     · radius breaks at the lg/md boundary — lg = radius-md (soft
+ *       mobile primary → more rounded); md + sm = radius-sm (precise
+ *       inline → tighter affordance, softness rolls off below lg).
+ *   DEFAULT size is `md` (decision 41) — a <nuri-button> with no
+ *   `size` attr renders at 48px container + 6px radius.
+ *
+ * States · default | pressed (:active) | disabled
+ *   No :hover — Button is mobile-first. Pressed fires on touch press
+ *   AND on mouse-down, so desktop users in the docs still get
+ *   feedback. See AGENTS.md "Pressed-only interaction model".
+ *
+ * API
+ *   <nuri-button>Pay</nuri-button>                     · default: variant=soft, size=md, accent inherited
+ *   <nuri-button variant="solid">Pay</nuri-button>     · filled, accent inherited
+ *   <nuri-button variant="ghost">Skip</nuri-button>    · tertiary, transparent at rest
+ *   <nuri-button size="lg" variant="solid">Pay</nuri-button>  · primary mobile CTA
+ *   <nuri-button variant="soft" accent="neutral">Cancel</nuri-button>
+ *   <nuri-button variant="solid" accent="orange">Buy Bitcoin</nuri-button>  · self-scope override
+ *   <nuri-button disabled>Pay</nuri-button>
+ *
+ *   The `accent` prop is Tier 2 self-scope (see AGENTS.md): it
+ *   writes data-accent on the inner <button>, so only this button's
+ *   token cascade is overridden, not its descendants.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Component tokens are re-declared on every scope boundary
+   * (any element carrying data-accent or data-theme) so that the
+   * var(--nuri-accent-*) and var(--nuri-bg-*) references RESOLVE
+   * AT THE SCOPE LEVEL, not at :root.
+   *
+   * Why this matters: a layer-3 alias like
+   *   --nuri-button-solid-bg: var(--nuri-accent-solid);
+   * declared only on :root resolves to the root's accent value.
+   * The resolved literal is then INHERITED down to descendants as
+   * a fixed value — even if a descendant overrides --nuri-accent-
+   * solid via [data-accent="neutral"]. Re-declaring on the scope
+   * boundary forces re-resolution against the local accent.
+   *
+   * This makes Tier 2 (per-button `accent` prop) and Tier 3
+   * (<nuri-scope accent="…">) work correctly. The cost is a small
+   * CSS bloat (the rule fires on every scope element) — acceptable
+   * for the correctness gain. */
+  :root,
+  [data-accent],
+  [data-theme] {
+    /* ── Base · size-agnostic, variant-agnostic ──────────────── */
+    /* Label type is NOT a component token — it sources directly
+     * from the ONE shared --nuri-type-* scale (decision 54/55).
+     * Button is semibold across all sizes (= the `em` variant of
+     * each step): lg + md = type-md-em, sm = type-sm-em. */
+    --nuri-button-press-scale:       var(--nuri-interaction-press-scale);
+    --nuri-button-disabled-opacity:  var(--nuri-interaction-disabled-opacity);
+
+    /* ── Size · lg · soft mobile primary (60px) ──────────────── */
+    /* radius-md (more rounded) · type-md (action-bearing). */
+    --nuri-button-lg-min-height:     var(--nuri-size-xl);
+    --nuri-button-lg-padding-x:      var(--nuri-space-xl);
+    --nuri-button-lg-radius:         var(--nuri-radius-md);
+
+    /* ── Size · md · inline action · DEFAULT (48px) ──────────── */
+    /* radius-sm (tighter) · type-md (shares lg's body weight). */
+    --nuri-button-md-min-height:     var(--nuri-size-lg);
+    --nuri-button-md-padding-x:      var(--nuri-space-lg);
+    --nuri-button-md-radius:         var(--nuri-radius-sm);
+
+    /* ── Size · sm · badge / dense action (36px) ─────────────── */
+    /* radius-sm (shares md) · type-sm (smaller verbal weight). */
+    --nuri-button-sm-min-height:     var(--nuri-size-md);
+    --nuri-button-sm-padding-x:      var(--nuri-space-md);
+    --nuri-button-sm-radius:         var(--nuri-radius-sm);
+
+    /* ── Variant · solid · filled with active accent ─────────── */
+    --nuri-button-solid-bg:          var(--nuri-accent-solid);
+    --nuri-button-solid-bg-pressed:  var(--nuri-accent-solid-pressed);
+    --nuri-button-solid-fg:          var(--nuri-accent-on-solid);
+
+    /* ── Variant · soft · chrome-only, accent-independent ────── */
+    /* Uses chrome bg/text — stays neutral regardless of active
+     * accent. The canonical "quiet alternative" button. */
+    --nuri-button-soft-bg:           var(--nuri-bg-strong);
+    --nuri-button-soft-bg-pressed:   var(--nuri-bg-pressed);
+    --nuri-button-soft-fg:           var(--nuri-text-primary);
+
+    /* ── Variant · ghost · chrome-only, transparent at rest ──── */
+    /* Tertiary, zero-weight-at-rest action (decision 39). No
+     * border ever; bg transparent until pressed, then bg-subtle.
+     * Accent-independent sibling of soft (decision 11 family). */
+    --nuri-button-ghost-bg:          transparent;
+    --nuri-button-ghost-bg-pressed:  var(--nuri-bg-subtle);
+    --nuri-button-ghost-fg:          var(--nuri-text-primary);
+  }
+}
+
+@layer rules {
+  /* ── Custom element wrapper ───────────────────────────────────
+   * The wrapper is invisible in layout (display:contents); styles
+   * target the inner native <button> that button.js injects. */
+  nuri-button {
+    display: contents;
+  }
+
+  /* ── Pre-upgrade skeleton ─────────────────────────────────────
+   * Until button.js (deferred) defines the custom element, paint
+   * a button-shaped placeholder so the page doesn't flash with
+   * the raw element rendering as inline text. After upgrade, the
+   * wrapper becomes display:contents and the inner button takes
+   * over — visually identical, no shift, no flash. */
+  /* Skeleton paints at the DEFAULT size (md · decision 41) so the
+   * pre-upgrade placeholder matches a no-`size`-attr button. */
+  nuri-button:not(:defined) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--nuri-button-md-min-height);
+    padding: 0 var(--nuri-button-md-padding-x);
+    border-radius: var(--nuri-button-md-radius);
+    font-size: var(--nuri-type-md-size);
+    line-height: var(--nuri-type-md-line-height);
+    letter-spacing: var(--nuri-type-md-tracking);
+    font-weight: var(--nuri-type-md-em-weight);
+    text-align: center;
+    user-select: none;
+    vertical-align: middle;
+  }
+  /* Soft is the default variant; matches both "no variant attr" and explicit. */
+  nuri-button:not(:defined),
+  nuri-button:not(:defined)[variant="soft"] {
+    background: var(--nuri-button-soft-bg);
+    color: var(--nuri-button-soft-fg);
+  }
+  nuri-button:not(:defined)[variant="solid"] {
+    background: var(--nuri-button-solid-bg);
+    color: var(--nuri-button-solid-fg);
+  }
+  /* Ghost pre-upgrade fallback · matches the post-upgrade
+   * transparent default so there is no soft-like flash before
+   * button.js registers the custom element. */
+  nuri-button:not(:defined)[variant="ghost"] {
+    background: var(--nuri-button-ghost-bg);
+    color: var(--nuri-button-ghost-fg);
+  }
+  nuri-button:not(:defined)[disabled] {
+    opacity: var(--nuri-button-disabled-opacity);
+  }
+
+  /* ── Base styles · size-agnostic, variant-agnostic ───────────── */
+  /* Size-dependent box metrics (min-height, padding-x, radius,
+   * font-size) live in the .nuri-button--{lg,md,sm} blocks below —
+   * attribute-dispatch (decision 41). button.js always emits a
+   * size class (defaulting to md), so the base block never needs a
+   * fallback size. */
+  .nuri-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    font-family: inherit;
+    /* Label type (size · line-height · tracking · weight) lives in
+     * the .nuri-button--{lg,md,sm} blocks below — it sources from
+     * the shared --nuri-type-* scale, and lg/md (type-md) vs sm
+     * (type-sm) differ in line-height + tracking (decision 41/55). */
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    user-select: none;
+    text-align: center;
+    transition: background-color var(--nuri-duration-fast) ease,
+                transform var(--nuri-duration-fast) ease;
+  }
+
+  /* ── Size · lg / md / sm (box metrics only) ──────────────────── */
+  /* Asymmetric couplings (decision 41): typography breaks at the
+   * md/sm boundary (lg + md = type-md, sm = type-sm); radius breaks
+   * at the lg/md boundary (lg = radius-md, md + sm = radius-sm). */
+  .nuri-button--lg {
+    min-height: var(--nuri-button-lg-min-height);
+    padding: 0 var(--nuri-button-lg-padding-x);
+    border-radius: var(--nuri-button-lg-radius);
+    font-size: var(--nuri-type-md-size);
+    line-height: var(--nuri-type-md-line-height);
+    letter-spacing: var(--nuri-type-md-tracking);
+    font-weight: var(--nuri-type-md-em-weight);
+  }
+  .nuri-button--md {
+    min-height: var(--nuri-button-md-min-height);
+    padding: 0 var(--nuri-button-md-padding-x);
+    border-radius: var(--nuri-button-md-radius);
+    font-size: var(--nuri-type-md-size);
+    line-height: var(--nuri-type-md-line-height);
+    letter-spacing: var(--nuri-type-md-tracking);
+    font-weight: var(--nuri-type-md-em-weight);
+  }
+  .nuri-button--sm {
+    min-height: var(--nuri-button-sm-min-height);
+    padding: 0 var(--nuri-button-sm-padding-x);
+    border-radius: var(--nuri-button-sm-radius);
+    font-size: var(--nuri-type-sm-size);
+    line-height: var(--nuri-type-sm-line-height);
+    letter-spacing: var(--nuri-type-sm-tracking);
+    font-weight: var(--nuri-type-sm-em-weight);
+  }
+
+  /* ── Pressed · tactile feedback, variant-agnostic ────────────── */
+  .nuri-button:active {
+    transform: scale(var(--nuri-button-press-scale));
+  }
+
+  /* ── Variant · solid (all its states grouped) ────────────────── */
+  .nuri-button--solid {
+    background: var(--nuri-button-solid-bg);
+    color: var(--nuri-button-solid-fg);
+  }
+  .nuri-button--solid:active {
+    background: var(--nuri-button-solid-bg-pressed);
+  }
+
+  /* ── Variant · soft (all its states grouped) ─────────────────── */
+  .nuri-button--soft {
+    background: var(--nuri-button-soft-bg);
+    color: var(--nuri-button-soft-fg);
+  }
+  .nuri-button--soft:active {
+    background: var(--nuri-button-soft-bg-pressed);
+  }
+
+  /* ── Variant · ghost (all its states grouped) ────────────────── */
+  /* Transparent at rest, no border ever (decision 39); the only
+   * paint is the bg-subtle wash on press. */
+  .nuri-button--ghost {
+    background: var(--nuri-button-ghost-bg);
+    color: var(--nuri-button-ghost-fg);
+  }
+  .nuri-button--ghost:active {
+    background: var(--nuri-button-ghost-bg-pressed);
+  }
+
+  /* ── Disabled · variant-agnostic ─────────────────────────────── */
+  .nuri-button[disabled],
+  .nuri-button[aria-disabled="true"] {
+    opacity: var(--nuri-button-disabled-opacity);
+    cursor: not-allowed;
+    /* Block all interaction: stops :active firing (so the press
+     * transform + variant bg-pressed don't trigger on touch
+     * regardless of native <button disabled> browser quirks).
+     * cursor: not-allowed remains as a decorative hint. */
+    pointer-events: none;
+  }
+  /* Belt+suspenders: if pointer-events: none fails to block :active
+   * on a given browser/touchdevice, these explicit overrides nuke
+   * press feedback when disabled (transform + per-variant bg revert). */
+  .nuri-button[disabled]:active,
+  .nuri-button[aria-disabled="true"]:active {
+    transform: none;
+  }
+  .nuri-button--solid[disabled]:active,
+  .nuri-button--solid[aria-disabled="true"]:active {
+    background: var(--nuri-button-solid-bg);
+  }
+  .nuri-button--soft[disabled]:active,
+  .nuri-button--soft[aria-disabled="true"]:active {
+    background: var(--nuri-button-soft-bg);
+  }
+  .nuri-button--ghost[disabled]:active,
+  .nuri-button--ghost[aria-disabled="true"]:active {
+    background: var(--nuri-button-ghost-bg);
+  }
+
+  /* ── Focus · brand-coloured ring (always, never accent-derived) */
+  .nuri-button:focus-visible {
+    outline: 2px solid var(--nuri-focus-ring);
+    outline-offset: 2px;
+  }
+}

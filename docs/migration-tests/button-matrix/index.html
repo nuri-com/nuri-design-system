@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-accent="lilac">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Playground · Button matrix</title>
+
+  <!--
+    ═══════════════════════════════════════════════════════════════
+    PLAYGROUND · BUTTON MATRIX  (N+4 thesis-validation web side)
+    ═══════════════════════════════════════════════════════════════
+
+    Pairs with index.tsx — the hand-translated RN equivalent that the
+    typecheck contract proves compiles. The matrix exercises every
+    surface Nuri ships TODAY (Button + Scope + tokens + Stack/Box
+    since N+6.2) across the cross-product of variant × accent × state
+    × scope-tier. No fakes of Card / Heading — those gaps stay known
+    a-priori.
+
+    Page intentionally NOT inside <nuri-shell>; the shell is docs
+    chrome (decision 26) and never migrates. Only the matrix-content
+    lives here. The viewport-like 390px canvas is one (intentional)
+    layout fake — preserved as a page-local style on the outer
+    wrapper since a fixed-width container is not a layout-primitive
+    concern.
+
+    N+6.2 retired F-LAYOUT-1: the pre-N+6.2 hand-rolled VStack
+    (.playground-row-group) and HStack (.playground-row) styles are
+    gone — replaced by <nuri-stack gap="md"> / <nuri-stack gap="xl">
+    composition. The same layout intent now reads structurally on
+    BOTH sides (this HTML and index.tsx), which is the point of the
+    decision 37 lock.
+
+    What the cross-product proves:
+      Row A · Tier 1 (page accent via <html data-accent="lilac">)
+            · default solid uses the brand colour; soft stays chrome
+      Row B · Tier 2 (per-button accent="neutral" prop)
+            · solid swaps to neutral; soft is unchanged (P7 confirms)
+      Row C · Tier 3 (<nuri-scope accent="neutral"> wraps)
+            · both buttons inherit the local override
+      Row D · disabled state (solid + soft)
+            · opacity floor on both; click is suppressed
+
+    Decision 9 (decisionlog.md) is what makes B + C work at all: button
+    component tokens are re-declared on every scope boundary so
+    var() chains re-resolve at the scope level rather than freezing
+    to the :root value.
+
+    Audit before changing: each row's `data-tier`/`data-state`
+    attribute is the machine-readable anchor that FRICTIONS / the
+    RN translation read from. Renaming will break the cross-doc
+    citations.
+    ═══════════════════════════════════════════════════════════════
+  -->
+
+  <!-- Tokens cascade. No shell.css, no docs widgets, no state.js —
+       the playground page hard-codes data-theme + data-accent on
+       <html> so the page is deterministic across reloads. -->
+  <link rel="stylesheet" href="../../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../../lib/components/button/button.css" />
+  <link rel="stylesheet" href="../../../lib/components/stack/stack.css" />
+  <link rel="stylesheet" href="../../../lib/components/box/box.css" />
+
+  <!-- Custom elements · MUST be deferred so children parse before
+       connectedCallback fires (AGENTS.md rule). -->
+  <script src="../../../lib/components/scope/scope.js" defer></script>
+  <script src="../../../lib/components/button/button.js" defer></script>
+  <script src="../../../lib/components/stack/stack.js" defer></script>
+  <script src="../../../lib/components/box/box.js" defer></script>
+
+  <style>
+    /* ── Minimum page-local CSS for the page frame ─────────────────
+     * Body styling + the 390px fixed-width canvas are page-local
+     * concerns (not layout primitives): a mobile-viewport
+     * approximation is exactly the kind of one-off frame that a
+     * generic Box wouldn't carry a `width="390"` prop for.
+     *
+     * Layout composition (the VStack/HStack rhythm) is now
+     * <nuri-stack> + <nuri-box> per decision 37 (N+6.2). */
+    body {
+      margin: 0;
+      padding: 24px 0;
+      background: var(--nuri-bg-canvas);
+      color: var(--nuri-text-primary);
+      font-family: var(--nuri-font-family-sans);
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    .playground-canvas {
+      width: 390px;            /* mobile viewport approximation */
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+
+    .playground-canvas__header h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .playground-canvas__header p {
+      margin: 0;
+      color: var(--nuri-text-muted);
+      font-size: 13px;
+    }
+
+    .playground-row-label {
+      margin: 0;
+      color: var(--nuri-text-muted);
+      font-size: 12px;
+      font-family: var(--nuri-font-family-mono);
+    }
+    .playground-row-label code {
+      font-family: inherit;
+      color: var(--nuri-text-primary);
+    }
+
+    /* Buttons stretch within their row stack so each row reads as
+     * an even pair. Stack itself doesn't impose a child stretch —
+     * the consumer picks the flex on its own items. */
+    nuri-stack[direction="row"] > div > nuri-button {
+      flex: 1 1 0;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="playground-canvas">
+    <nuri-box padding="xl">
+      <nuri-stack gap="xl">
+
+        <header class="playground-canvas__header">
+          <nuri-stack gap="xs">
+            <h1>Button matrix</h1>
+            <p>variant &times; accent &times; state &times; scope-tier · 8 instances</p>
+          </nuri-stack>
+        </header>
+
+        <!-- ── Row A · Tier 1 · page accent (lilac, inherited from <html>) ── -->
+        <section data-tier="1" data-row="A">
+          <nuri-stack gap="sm">
+            <p class="playground-row-label">Tier 1 · page accent · <code>&lt;html data-accent="lilac"&gt;</code></p>
+            <nuri-stack direction="row" gap="md">
+              <nuri-button variant="solid">Pay</nuri-button>
+              <nuri-button variant="soft">Cancel</nuri-button>
+            </nuri-stack>
+          </nuri-stack>
+        </section>
+
+        <!-- ── Row B · Tier 2 · self-scope via `accent` prop on the button ── -->
+        <section data-tier="2" data-row="B">
+          <nuri-stack gap="sm">
+            <p class="playground-row-label">Tier 2 · self-scope · <code>&lt;nuri-button accent="neutral"&gt;</code></p>
+            <nuri-stack direction="row" gap="md">
+              <nuri-button variant="solid" accent="neutral">Pay</nuri-button>
+              <nuri-button variant="soft" accent="neutral">Cancel</nuri-button>
+            </nuri-stack>
+          </nuri-stack>
+        </section>
+
+        <!-- ── Row C · Tier 3 · subtree-scope via <nuri-scope> wrapper ────── -->
+        <section data-tier="3" data-row="C">
+          <nuri-stack gap="sm">
+            <p class="playground-row-label">Tier 3 · subtree-scope · <code>&lt;nuri-scope accent="neutral"&gt;</code></p>
+            <nuri-scope accent="neutral">
+              <nuri-stack direction="row" gap="md">
+                <nuri-button variant="solid">Pay</nuri-button>
+                <nuri-button variant="soft">Cancel</nuri-button>
+              </nuri-stack>
+            </nuri-scope>
+          </nuri-stack>
+        </section>
+
+        <!-- ── Row D · State · disabled (solid + soft) ────────────────────── -->
+        <section data-state="disabled" data-row="D">
+          <nuri-stack gap="sm">
+            <p class="playground-row-label">State · <code>disabled</code> · page accent (lilac)</p>
+            <nuri-stack direction="row" gap="md">
+              <nuri-button variant="solid" disabled>Pay</nuri-button>
+              <nuri-button variant="soft" disabled>Cancel</nuri-button>
+            </nuri-stack>
+          </nuri-stack>
+        </section>
+
+      </nuri-stack>
+    </nuri-box>
+  </main>
+
+</body>
+</html>

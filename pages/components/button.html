@@ -1,0 +1,1123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Components · Button</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+
+  <!-- Token layer cake · primitive → semantic → component → chrome.
+       button.css contains both @layer tokens (component tokens) and
+       @layer rules (styles) — a single file per component. -->
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../lib/components/button/button.css" />
+  <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+  <script src="../../lib/docs/tokens.js"></script>
+  <!-- Custom element scripts MUST be deferred so connectedCallback fires
+       AFTER body parsing (children present). See AGENTS.md. -->
+  <script src="../../lib/components/scope/scope.js" defer></script>
+  <script src="../../lib/components/button/button.js" defer></script>
+  <script src="../../lib/docs/demo/demo.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  COMPONENT DOCS PAGE · CANONICAL TEMPLATE
+  ═══════════════════════════════════════════════════════════════
+
+  Audience priority: agent + pipeline FIRST, human contributor SECOND.
+
+  This page is the executable spec for the React Native consumer.
+  The web component (<nuri-button>) and the RN component share a 1:1
+  API at the props layer (behavioural parity is budgeted per
+  component — RISKS.md R1). The skill that builds the RN component
+  reads this page's machine-readable sections (data-* attributes on
+  .nuri-spec-card and .nuri-table[data-table="props|parts|token-map"])
+  and emits the RN equivalent. Per decision 24 the anatomy + token-
+  mapping tables ARE the migration wiring spec.
+
+  Sections in render order:
+    1.  Spec card             — component summary (machine-readable)
+    2.  Hero demo             — default rendering + canonical snippet
+    3.  API                   — props signature (the contract)
+    4.  Anatomy & parts       — parts manifest (1 row for Button)
+    5.  Variants              — one demo card per variant
+    5b. Sizes                 — one demo card per size (decision 41)
+    6.  States                — one row per state
+    7.  Theming               — 3 ways to scope accent
+    8.  Token mapping         — variant × size × state × CSS prop → token chain
+    8b. Behavioural delta     — web↔RN per-component friction register
+                               (amendment 24.1 · the migration agent's
+                               third surface alongside anatomy + token-map)
+    9.  Tokens (DTCG)         — auto-generated dictionary
+    10. Roadmap               — planned items with inline status tags
+
+  CURRENT EXTRACTION STATE (2026-05-27 · post-N+3):
+    Promoted to shell.css in N+1: .nuri-spec-card, .nuri-state-grid,
+      .nuri-roadmap, .nuri-tag (unified), nuri-demo skeleton.
+    Promoted to shell.css in N+2: typography v2 (15/13 split + muted-
+      by-default + h1 22), .nuri-shell__main max-width: none,
+      .nuri-shell__page-head reset, .page-section rhythm + ::before
+      divider + 560-cap whitelist, .nuri-role-legend, .nuri-scale-list
+      + .nuri-scale-card*, .nuri-card--link, .nuri-table-scroll
+      wrapper, unified .nuri-token-table with inline 24px swatch.
+    Promoted in N+3:
+      · .nuri-demo-card* + .nuri-demo-row → lib/docs/demo/demo.css
+      · .nuri-table (unified replacement for .nuri-props-table /
+        .nuri-parts-table / .nuri-token-map) → shell.css
+    Still page-local:
+      · .nuri-anatomy (component-page-specific layout; promote when
+        a second multi-part component lands)
+    Token map is still hand-written; parser extension arrives with the
+    first multi-component DTCG export.
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="components/button">
+  <nuri-page
+    eyebrow="Components · Actions · Button"
+    title="Button"
+    status="draft"
+    lead="The primary action affordance. Three sizes (lg 60px · md 48px default · sm 36px), three variants (solid for CTAs, soft for quieter actions, ghost for tertiary zero-weight actions), three states (default, pressed, disabled). Mobile-first: no hover. Text-only labels — for icon-only actions use IconButton."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · SPEC CARD
+       Machine-readable component summary. Every cell carries a
+       data-* attr so the RN build skill can read the spec without
+       parsing prose. data-component-status (lifecycle) is separate
+       from data-rn-status (implementation status of the RN side).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-component="button"
+        data-component-status="draft"
+        data-rn-status="not-implemented">
+      <div class="nuri-spec-card__row">
+        <dt>Variants</dt>
+        <dd data-spec="variants">
+          <span class="nuri-spec-card__chip" data-variant="solid">solid</span>
+          <span class="nuri-spec-card__chip" data-variant="soft">soft</span>
+          <span class="nuri-spec-card__chip" data-variant="ghost">ghost</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Sizes</dt>
+        <dd data-spec="sizes">
+          <span class="nuri-spec-card__chip" data-size="lg">lg · 60px</span>
+          <span class="nuri-spec-card__chip" data-size="md" data-default="true">md · 48px</span>
+          <span class="nuri-spec-card__chip" data-size="sm">sm · 36px</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>States</dt>
+        <dd data-spec="states">
+          <span class="nuri-spec-card__chip" data-state="default">default</span>
+          <span class="nuri-spec-card__chip" data-state="pressed">pressed</span>
+          <span class="nuri-spec-card__chip" data-state="disabled">disabled</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Accent behavior</dt>
+        <dd data-spec="accent-behavior">
+          <span data-variant="solid" data-accent-driven="true">solid follows accent</span>
+          <span class="nuri-spec-card__sep">·</span>
+          <span data-variant="soft" data-accent-driven="false">soft is chrome-only</span>
+          <span class="nuri-spec-card__sep">·</span>
+          <span data-variant="ghost" data-accent-driven="false">ghost is chrome-only</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Parts</dt>
+        <dd data-spec="parts">
+          <span class="nuri-spec-card__chip" data-part="root">root</span>
+          <span class="nuri-spec-card__meta">1 part</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Component status</dt>
+        <dd data-spec="component-status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>RN status</dt>
+        <dd data-spec="rn-status">
+          <span class="nuri-tag nuri-tag--planned">not implemented</span>
+          <span class="nuri-spec-card__meta">web ↔ RN is 1:1 by promise; RN component not built yet</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · HERO DEMO
+       Default rendering with the canonical snippet. Toolbar shows
+       all four scope dimensions (theme / accent / neutral / font)
+       because this is the playground hero — variant/state demos
+       below opt into fewer controls.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="hero">
+    <h2>Default</h2>
+    <nuri-demo controls="theme,accent,neutral,font">
+      <template>
+        <nuri-button variant="solid">Pay</nuri-button>
+      </template>
+    </nuri-demo>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · API · PROPS
+       The component contract. Every row is one prop the RN build
+       skill emits into the component's TS interface. data-prop on
+       <tr> + data-cell on each <td> so the agent can extract
+       unambiguously. Types are union literals where applicable.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="api">
+    <h2>API</h2>
+    <p>
+      The props signature. <code>web ↔ RN</code> is 1:1 — every prop
+      below exists on both the <code>&lt;nuri-button&gt;</code> custom
+      element and (when implemented) the RN <code>&lt;Button&gt;</code>
+      component, with the same name and accepted values.
+    </p>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="button">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="variant">
+          <td data-cell="name"><code>variant</code></td>
+          <td data-cell="type"><code>"solid" | "soft" | "ghost"</code></td>
+          <td data-cell="default"><code>"soft"</code></td>
+          <td data-cell="description">Visual treatment. <code>solid</code> fills with the active accent, <code>soft</code> uses neutral chrome, <code>ghost</code> is transparent at rest (chrome-only).</td>
+        </tr>
+        <tr data-prop="accent">
+          <td data-cell="name"><code>accent</code></td>
+          <td data-cell="type"><code>"lilac" | "neutral"</code></td>
+          <td data-cell="default"><em>inherited</em></td>
+          <td data-cell="description">Self-scope override (Tier 2). Writes <code>data-accent</code> on the inner element. Only affects <code>solid</code>; <code>soft</code> ignores it.</td>
+        </tr>
+        <tr data-prop="size">
+          <td data-cell="name"><code>size</code></td>
+          <td data-cell="type"><code>"lg" | "md" | "sm"</code></td>
+          <td data-cell="default"><code>"md"</code></td>
+          <td data-cell="description">Container scale. <code>lg</code> 60px (soft mobile primary) · <code>md</code> 48px (inline action · default) · <code>sm</code> 36px (badge / dense action). Typography + radius couple asymmetrically — see Sizes.</td>
+        </tr>
+        <tr data-prop="disabled">
+          <td data-cell="name"><code>disabled</code></td>
+          <td data-cell="type"><code>boolean</code></td>
+          <td data-cell="default"><code>false</code></td>
+          <td data-cell="description">Disables interaction. Visual: <code>opacity 0.4</code> + <code>cursor: not-allowed</code>.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · ANATOMY & PARTS
+       Button v0 has 1 part. The parts table is the forward-compat
+       point for multi-part components (Card · ListItem ·
+       SegmentedControl) — same widget, more rows. SVG-annotated
+       diagrams arrive when there's a multi-part component that
+       earns one.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="anatomy">
+    <h2>Anatomy &amp; parts</h2>
+    <p>
+      Button is a <strong>single-part</strong> component in v0. The
+      table below is the parts manifest — for multi-part components
+      (Card, ListItem) it grows to one row per addressable subpart.
+    </p>
+
+    <div class="nuri-anatomy">
+      <div class="nuri-anatomy__visual">
+        <nuri-button variant="solid">Pay</nuri-button>
+      </div>
+      <div class="nuri-table-scroll"><table class="nuri-table" data-table="parts" data-component="button">
+        <thead>
+          <tr>
+            <th>Part</th>
+            <th>Element</th>
+            <th>Owns</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-part="root">
+            <td data-cell="name"><code>root</code></td>
+            <td data-cell="element"><code>button</code></td>
+            <td data-cell="owns">layout, typography, all state visuals</td>
+            <td data-cell="description">The full surface. Contains the label as a text node.</td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · VARIANTS
+       One .nuri-demo-card per variant. Each opts into the `accent`
+       control only (theme/neutral/font are global concerns, not
+       variant-relevant). Layout is two cards side-by-side at desktop,
+       stacked at mobile. Pattern is uniform: never collapse two
+       variants into one card — keep one example per concept for
+       clean spec extraction.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="variants">
+    <h2>Variants</h2>
+    <p>
+      Three variants. <code>solid</code> carries accent identity (changes
+      colour with the active accent); <code>soft</code> and
+      <code>ghost</code> are chrome-only (stay neutral regardless of
+      accent). <code>soft</code> is the canonical "quiet alternative";
+      <code>ghost</code> is the tertiary, zero-weight-at-rest action —
+      transparent until pressed, never bordered. Default is
+      <code>soft</code>.
+    </p>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo controls="accent" label="solid" subtitle="filled · follows accent">
+        <template>
+          <nuri-button variant="solid">Pay</nuri-button>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo controls="accent" label="soft" subtitle="chrome · accent-independent">
+        <template>
+          <nuri-button variant="soft">Request</nuri-button>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo controls="accent" label="ghost" subtitle="transparent · accent-independent">
+        <template>
+          <nuri-button variant="ghost">Skip</nuri-button>
+        </template>
+      </nuri-demo>
+
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5b · SIZES
+       Three sizes with asymmetric coupling (decision 41): typography
+       breaks at the md/sm boundary (lg + md share type-md; sm scales
+       to type-sm); radius breaks at the lg/md boundary (lg = radius-md;
+       md + sm = radius-sm). Default is md (48px). One demo card per
+       size for clean spec extraction — never collapse.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="sizes">
+    <h2>Sizes</h2>
+    <p>
+      Three sizes. <code>lg</code> (60px) is the soft mobile primary;
+      <code>md</code> (48px) is the inline action and the
+      <strong>default</strong>; <code>sm</code> (36px) is the dense /
+      badge action. The couplings are <strong>asymmetric</strong>
+      (decision 41): font-size breaks at the <code>md</code>/<code>sm</code>
+      boundary (<code>lg</code> + <code>md</code> share <code>type-md</code>;
+      <code>sm</code> drops to <code>type-sm</code>), while radius breaks
+      at the <code>lg</code>/<code>md</code> boundary (<code>lg</code> =
+      <code>radius-md</code>; <code>md</code> + <code>sm</code> =
+      <code>radius-sm</code>).
+    </p>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo controls="accent" label="lg" subtitle="60px · radius-md · type-md">
+        <template>
+          <nuri-button size="lg" variant="solid">Pay</nuri-button>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo controls="accent" label="md · default" subtitle="48px · radius-sm · type-md">
+        <template>
+          <nuri-button size="md" variant="solid">Pay</nuri-button>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo controls="accent" label="sm" subtitle="36px · radius-sm · type-sm">
+        <template>
+          <nuri-button size="sm" variant="solid">Pay</nuri-button>
+        </template>
+      </nuri-demo>
+
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · STATES
+       State grid per variant. `default` and `disabled` are live;
+       `pressed` is rendered via direct .nuri-button class on a
+       native <button> with the pressed token forced inline. Same
+       agent contract: data-variant + data-state on each cell.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="states">
+    <h2>States</h2>
+    <p>
+      Three states for v0. <code>default</code> and <code>disabled</code>
+      are shown live; <code>pressed</code> is forced statically (its
+      live form is <code>:active</code> — click and hold any live
+      button to see the same visual). No <code>hover</code> — Button
+      is mobile-first.
+    </p>
+
+    <h3>solid</h3>
+    <div class="nuri-state-grid" data-variant="solid">
+      <div class="nuri-state-grid__cell" data-state="default">
+        <span class="nuri-state-grid__label">default</span>
+        <nuri-button variant="solid">Pay</nuri-button>
+      </div>
+      <div class="nuri-state-grid__cell" data-state="pressed">
+        <span class="nuri-state-grid__label">pressed</span>
+        <button class="nuri-button nuri-button--solid nuri-button--md"
+                style="background: var(--nuri-button-solid-bg-pressed); transform: scale(var(--nuri-button-press-scale));"
+                type="button">Pay</button>
+      </div>
+      <div class="nuri-state-grid__cell" data-state="disabled">
+        <span class="nuri-state-grid__label">disabled</span>
+        <nuri-button variant="solid" disabled>Pay</nuri-button>
+      </div>
+    </div>
+
+    <h3>soft</h3>
+    <div class="nuri-state-grid" data-variant="soft">
+      <div class="nuri-state-grid__cell" data-state="default">
+        <span class="nuri-state-grid__label">default</span>
+        <nuri-button variant="soft">Request</nuri-button>
+      </div>
+      <div class="nuri-state-grid__cell" data-state="pressed">
+        <span class="nuri-state-grid__label">pressed</span>
+        <button class="nuri-button nuri-button--soft nuri-button--md"
+                style="background: var(--nuri-button-soft-bg-pressed); transform: scale(var(--nuri-button-press-scale));"
+                type="button">Request</button>
+      </div>
+      <div class="nuri-state-grid__cell" data-state="disabled">
+        <span class="nuri-state-grid__label">disabled</span>
+        <nuri-button variant="soft" disabled>Request</nuri-button>
+      </div>
+    </div>
+
+    <h3>ghost</h3>
+    <div class="nuri-state-grid" data-variant="ghost">
+      <div class="nuri-state-grid__cell" data-state="default">
+        <span class="nuri-state-grid__label">default</span>
+        <nuri-button variant="ghost">Skip</nuri-button>
+      </div>
+      <div class="nuri-state-grid__cell" data-state="pressed">
+        <span class="nuri-state-grid__label">pressed</span>
+        <button class="nuri-button nuri-button--ghost nuri-button--md"
+                style="background: var(--nuri-button-ghost-bg-pressed); transform: scale(var(--nuri-button-press-scale));"
+                type="button">Skip</button>
+      </div>
+      <div class="nuri-state-grid__cell" data-state="disabled">
+        <span class="nuri-state-grid__label">disabled</span>
+        <nuri-button variant="ghost" disabled>Skip</nuri-button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · THEMING
+       Three ways to scope accent, in increasing locality. Each is a
+       demo-card, all three sit in the same row so the comparison is
+       direct. Controls intentionally absent: the demo IS the scope
+       comparison — controls would muddle that.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="theming">
+    <h2>Theming · accent scoping</h2>
+    <p>
+      Only <code>solid</code> resolves colour through the active accent.
+      <code>soft</code> and <code>ghost</code> are chrome-only — the
+      <code>accent</code> prop has no visual effect on them. Three ways
+      to control the accent that <code>solid</code> follows, increasing
+      locality:
+    </p>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="1 · page" subtitle="&lt;html data-accent&gt;" stack data-scope="page">
+        <template>
+          <nuri-button variant="solid">Pay</nuri-button>
+          <nuri-button variant="soft">Request</nuri-button>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="2 · subtree" subtitle="&lt;nuri-scope&gt; · Tier 3" stack data-scope="subtree">
+        <template>
+          <nuri-scope accent="neutral">
+            <nuri-button variant="solid">Confirm</nuri-button>
+            <nuri-button variant="soft">Cancel</nuri-button>
+          </nuri-scope>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="3 · self" subtitle="accent prop · Tier 2" stack data-scope="self">
+        <template>
+          <nuri-button variant="solid" accent="lilac">Bank Transfer</nuri-button>
+          <nuri-button variant="solid" accent="neutral">Generic Action</nuri-button>
+        </template>
+      </nuri-demo>
+
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       8 · TOKEN MAPPING — THE AGENT-CRITICAL SECTION
+       ═════════════════════════════════════════════════════════════
+       This table tells the RN build skill EXACTLY which CSS property
+       gets which token under which (variant × state) combination.
+       Together with section 9 (Tokens / DTCG dictionary), the skill
+       has everything it needs to emit a deterministic RN StyleSheet:
+         §9 = "what tokens exist"  (the dictionary)
+         §8 = "where they apply"   (the mapping)
+
+       Each <tr> carries:
+         data-variant     — variant name OR "any" (base styles)
+         data-state       — state name OR "any" (variant-base)
+         data-css-prop    — CSS property name
+         data-dtcg        — DTCG dot-notation name (or "—" if literal)
+         data-css-var     — the @layer-tokens var (or "—" if literal)
+         data-reference   — the semantic var or literal value
+
+       Column names + order match the DTCG dictionary table below
+       for the 3 shared cells (DTCG · CSS var · Reference) — same
+       label, same notation, easier to cross-reference.
+
+       Hand-written in this mockup; auto-derived from button.css
+       @layer rules in Step 4+ (parser extension).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="token-mapping">
+    <h2>Token mapping</h2>
+    <p>
+      <strong>Variant × state → CSS property → DTCG → CSS var → reference.</strong>
+      The RN build pipeline reads this table to emit pre-computed
+      <code>StyleSheet</code> entries for every (variant × state)
+      cell. The 3 trailing columns (DTCG · CSS var · Reference) use
+      the same labels as the <a href="#tokens">Tokens dictionary</a>
+      below — same token, two notations. <code>—</code> means the
+      value is a literal (no token indirection).
+    </p>
+
+    <!-- Single table · group-header rows separate the 4 logical
+         scopes (base / variant solid / variant soft / state).
+         The "Variant" column was removed — it was always redundant
+         within each group; the group-header carries that context.
+         Each <tr> still carries data-variant / data-state /
+         data-css-prop / data-dtcg / data-css-var / data-reference
+         for agent extraction.
+
+         5 columns:
+           State        short code (default / pressed / disabled / any)
+           CSS property web-side property name
+           DTCG         dot-notation token name (pipeline key)
+           CSS var      the CSS custom property (--nuri-*)
+           Reference    what the token aliases to (semantic var / literal)
+         DTCG and CSS var are TWO NOTATIONS for the same token.
+         Both included for the dual audience (pipeline reads DTCG,
+         humans read CSS var). Literal values show "—" in both. -->
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="token-map" data-component="button">
+      <thead>
+        <tr>
+          <th>State</th>
+          <th>CSS property</th>
+          <th>DTCG</th>
+          <th>CSS var</th>
+          <th>Reference</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="nuri-table__group" data-group="type">
+          <th scope="rowgroup" colspan="5">Label type · sourced per-size directly from the shared <code>--nuri-type-*</code> scale (<a href="../../decisionlog.md">decision 54/55</a>) — NOT component tokens. Button is semibold (the <code>em</code> step variant): lg + md = type-md-em, sm = type-sm-em. Each size group below lists its full type treatment (size · line-height · letter-spacing · weight).</th>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="size-lg" data-size="lg">
+          <th scope="rowgroup" colspan="5">Size · lg (60px · radius-md · type-md-em)</th>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="lg" data-css-prop="min-height"
+            data-dtcg="button.lg.min.height"
+            data-css-var="--nuri-button-lg-min-height" data-reference="--nuri-size-xl">
+          <td>any</td>
+          <td><code>min-height</code></td>
+          <td><code>button.lg.min.height</code></td>
+          <td><code>--nuri-button-lg-min-height</code></td>
+          <td><code>--nuri-size-xl</code> (60px)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="lg" data-css-prop="padding-inline"
+            data-dtcg="button.lg.padding.x"
+            data-css-var="--nuri-button-lg-padding-x" data-reference="--nuri-space-xl">
+          <td>any</td>
+          <td><code>padding-inline</code></td>
+          <td><code>button.lg.padding.x</code></td>
+          <td><code>--nuri-button-lg-padding-x</code></td>
+          <td><code>--nuri-space-xl</code> (24px)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="lg" data-css-prop="border-radius"
+            data-dtcg="button.lg.radius"
+            data-css-var="--nuri-button-lg-radius" data-reference="--nuri-radius-md">
+          <td>any</td>
+          <td><code>border-radius</code></td>
+          <td><code>button.lg.radius</code></td>
+          <td><code>--nuri-button-lg-radius</code></td>
+          <td><code>--nuri-radius-md</code> (12px)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="lg" data-css-prop="font-size"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-md-size">
+          <td>any</td>
+          <td><code>font-size</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-type-md-size</code> (17px)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="lg" data-css-prop="line-height"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-md-line-height">
+          <td>any</td>
+          <td><code>line-height</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-type-md-line-height</code> (1.29)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="lg" data-css-prop="letter-spacing"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-md-tracking">
+          <td>any</td>
+          <td><code>letter-spacing</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-type-md-tracking</code> (-0.02em)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="lg" data-css-prop="font-weight"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-md-em-weight">
+          <td>any</td>
+          <td><code>font-weight</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-type-md-em-weight</code> (600)</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="size-md" data-size="md">
+          <th scope="rowgroup" colspan="5">Size · md · DEFAULT (48px · radius-sm · type-md-em)</th>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="md" data-css-prop="min-height"
+            data-dtcg="button.md.min.height"
+            data-css-var="--nuri-button-md-min-height" data-reference="--nuri-size-lg">
+          <td>any</td>
+          <td><code>min-height</code></td>
+          <td><code>button.md.min.height</code></td>
+          <td><code>--nuri-button-md-min-height</code></td>
+          <td><code>--nuri-size-lg</code> (48px)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="md" data-css-prop="padding-inline"
+            data-dtcg="button.md.padding.x"
+            data-css-var="--nuri-button-md-padding-x" data-reference="--nuri-space-lg">
+          <td>any</td>
+          <td><code>padding-inline</code></td>
+          <td><code>button.md.padding.x</code></td>
+          <td><code>--nuri-button-md-padding-x</code></td>
+          <td><code>--nuri-space-lg</code> (18px)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="md" data-css-prop="border-radius"
+            data-dtcg="button.md.radius"
+            data-css-var="--nuri-button-md-radius" data-reference="--nuri-radius-sm">
+          <td>any</td>
+          <td><code>border-radius</code></td>
+          <td><code>button.md.radius</code></td>
+          <td><code>--nuri-button-md-radius</code></td>
+          <td><code>--nuri-radius-sm</code> (6px)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="md" data-css-prop="font-size"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-md-size">
+          <td>any</td>
+          <td><code>font-size</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-type-md-size</code> (17px)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="md" data-css-prop="line-height"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-md-line-height">
+          <td>any</td>
+          <td><code>line-height</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-type-md-line-height</code> (1.29)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="md" data-css-prop="letter-spacing"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-md-tracking">
+          <td>any</td>
+          <td><code>letter-spacing</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-type-md-tracking</code> (-0.02em)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="md" data-css-prop="font-weight"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-md-em-weight">
+          <td>any</td>
+          <td><code>font-weight</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-type-md-em-weight</code> (600)</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="size-sm" data-size="sm">
+          <th scope="rowgroup" colspan="5">Size · sm (36px · radius-sm · type-sm-em)</th>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="sm" data-css-prop="min-height"
+            data-dtcg="button.sm.min.height"
+            data-css-var="--nuri-button-sm-min-height" data-reference="--nuri-size-md">
+          <td>any</td>
+          <td><code>min-height</code></td>
+          <td><code>button.sm.min.height</code></td>
+          <td><code>--nuri-button-sm-min-height</code></td>
+          <td><code>--nuri-size-md</code> (36px)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="sm" data-css-prop="padding-inline"
+            data-dtcg="button.sm.padding.x"
+            data-css-var="--nuri-button-sm-padding-x" data-reference="--nuri-space-md">
+          <td>any</td>
+          <td><code>padding-inline</code></td>
+          <td><code>button.sm.padding.x</code></td>
+          <td><code>--nuri-button-sm-padding-x</code></td>
+          <td><code>--nuri-space-md</code> (12px)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="sm" data-css-prop="border-radius"
+            data-dtcg="button.sm.radius"
+            data-css-var="--nuri-button-sm-radius" data-reference="--nuri-radius-sm">
+          <td>any</td>
+          <td><code>border-radius</code></td>
+          <td><code>button.sm.radius</code></td>
+          <td><code>--nuri-button-sm-radius</code></td>
+          <td><code>--nuri-radius-sm</code> (6px)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="sm" data-css-prop="font-size"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-sm-size">
+          <td>any</td>
+          <td><code>font-size</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-type-sm-size</code> (15px)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="sm" data-css-prop="line-height"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-sm-line-height">
+          <td>any</td>
+          <td><code>line-height</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-type-sm-line-height</code> (1.33)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="sm" data-css-prop="letter-spacing"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-sm-tracking">
+          <td>any</td>
+          <td><code>letter-spacing</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-type-sm-tracking</code> (-0.01em)</td>
+        </tr>
+        <tr data-variant="any" data-state="any" data-size="sm" data-css-prop="font-weight"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-type-sm-em-weight">
+          <td>any</td>
+          <td><code>font-weight</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-type-sm-em-weight</code> (600)</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="variant-solid" data-variant="solid">
+          <th scope="rowgroup" colspan="5">Variant · solid</th>
+        </tr>
+        <tr data-variant="solid" data-state="default" data-css-prop="background"
+            data-dtcg="button.solid.bg"
+            data-css-var="--nuri-button-solid-bg" data-reference="--nuri-accent-solid">
+          <td>default</td>
+          <td><code>background</code></td>
+          <td><code>button.solid.bg</code></td>
+          <td><code>--nuri-button-solid-bg</code></td>
+          <td><code>--nuri-accent-solid</code></td>
+        </tr>
+        <tr data-variant="solid" data-state="default" data-css-prop="color"
+            data-dtcg="button.solid.fg"
+            data-css-var="--nuri-button-solid-fg" data-reference="--nuri-accent-on-solid">
+          <td>default</td>
+          <td><code>color</code></td>
+          <td><code>button.solid.fg</code></td>
+          <td><code>--nuri-button-solid-fg</code></td>
+          <td><code>--nuri-accent-on-solid</code></td>
+        </tr>
+        <tr data-variant="solid" data-state="pressed" data-css-prop="background"
+            data-dtcg="button.solid.bg.pressed"
+            data-css-var="--nuri-button-solid-bg-pressed" data-reference="--nuri-accent-solid-pressed">
+          <td>pressed</td>
+          <td><code>background</code></td>
+          <td><code>button.solid.bg.pressed</code></td>
+          <td><code>--nuri-button-solid-bg-pressed</code></td>
+          <td><code>--nuri-accent-solid-pressed</code></td>
+        </tr>
+        <tr data-variant="solid" data-state="pressed" data-css-prop="transform"
+            data-dtcg="—"
+            data-css-var="—" data-reference="scale(--nuri-button-press-scale)">
+          <td>pressed</td>
+          <td><code>transform</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>scale(var(--nuri-button-press-scale))</code> · 0.97</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="variant-soft" data-variant="soft">
+          <th scope="rowgroup" colspan="5">Variant · soft</th>
+        </tr>
+        <tr data-variant="soft" data-state="default" data-css-prop="background"
+            data-dtcg="button.soft.bg"
+            data-css-var="--nuri-button-soft-bg" data-reference="--nuri-bg-strong">
+          <td>default</td>
+          <td><code>background</code></td>
+          <td><code>button.soft.bg</code></td>
+          <td><code>--nuri-button-soft-bg</code></td>
+          <td><code>--nuri-bg-strong</code> · chrome, accent-independent</td>
+        </tr>
+        <tr data-variant="soft" data-state="default" data-css-prop="color"
+            data-dtcg="button.soft.fg"
+            data-css-var="--nuri-button-soft-fg" data-reference="--nuri-text-primary">
+          <td>default</td>
+          <td><code>color</code></td>
+          <td><code>button.soft.fg</code></td>
+          <td><code>--nuri-button-soft-fg</code></td>
+          <td><code>--nuri-text-primary</code></td>
+        </tr>
+        <tr data-variant="soft" data-state="pressed" data-css-prop="background"
+            data-dtcg="button.soft.bg.pressed"
+            data-css-var="--nuri-button-soft-bg-pressed" data-reference="--nuri-bg-pressed">
+          <td>pressed</td>
+          <td><code>background</code></td>
+          <td><code>button.soft.bg.pressed</code></td>
+          <td><code>--nuri-button-soft-bg-pressed</code></td>
+          <td><code>--nuri-bg-pressed</code></td>
+        </tr>
+        <tr data-variant="soft" data-state="pressed" data-css-prop="transform"
+            data-dtcg="—"
+            data-css-var="—" data-reference="scale(--nuri-button-press-scale)">
+          <td>pressed</td>
+          <td><code>transform</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>scale(var(--nuri-button-press-scale))</code> · 0.97</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="variant-ghost" data-variant="ghost">
+          <th scope="rowgroup" colspan="5">Variant · ghost (chrome-only · transparent at rest · no border)</th>
+        </tr>
+        <tr data-variant="ghost" data-state="default" data-css-prop="background"
+            data-dtcg="button.ghost.bg"
+            data-css-var="--nuri-button-ghost-bg" data-reference="transparent">
+          <td>default</td>
+          <td><code>background</code></td>
+          <td><code>button.ghost.bg</code></td>
+          <td><code>--nuri-button-ghost-bg</code></td>
+          <td><code>transparent</code> (literal) · no paint at rest</td>
+        </tr>
+        <tr data-variant="ghost" data-state="default" data-css-prop="color"
+            data-dtcg="button.ghost.fg"
+            data-css-var="--nuri-button-ghost-fg" data-reference="--nuri-text-primary">
+          <td>default</td>
+          <td><code>color</code></td>
+          <td><code>button.ghost.fg</code></td>
+          <td><code>--nuri-button-ghost-fg</code></td>
+          <td><code>--nuri-text-primary</code> · chrome, accent-independent</td>
+        </tr>
+        <tr data-variant="ghost" data-state="pressed" data-css-prop="background"
+            data-dtcg="button.ghost.bg.pressed"
+            data-css-var="--nuri-button-ghost-bg-pressed" data-reference="--nuri-bg-subtle">
+          <td>pressed</td>
+          <td><code>background</code></td>
+          <td><code>button.ghost.bg.pressed</code></td>
+          <td><code>--nuri-button-ghost-bg-pressed</code></td>
+          <td><code>--nuri-bg-subtle</code> · the only paint ghost ever shows</td>
+        </tr>
+        <tr data-variant="ghost" data-state="pressed" data-css-prop="transform"
+            data-dtcg="—"
+            data-css-var="—" data-reference="scale(--nuri-button-press-scale)">
+          <td>pressed</td>
+          <td><code>transform</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>scale(var(--nuri-button-press-scale))</code> · 0.97</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="state">
+          <th scope="rowgroup" colspan="5">State · disabled &amp; focus (variant-agnostic)</th>
+        </tr>
+        <tr data-variant="any" data-state="disabled" data-css-prop="opacity"
+            data-dtcg="button.disabled.opacity"
+            data-css-var="--nuri-button-disabled-opacity" data-reference="0.4">
+          <td>disabled</td>
+          <td><code>opacity</code></td>
+          <td><code>button.disabled.opacity</code></td>
+          <td><code>--nuri-button-disabled-opacity</code></td>
+          <td><code>0.4</code></td>
+        </tr>
+        <tr data-variant="any" data-state="disabled" data-css-prop="cursor"
+            data-dtcg="—"
+            data-css-var="—" data-reference="not-allowed">
+          <td>disabled</td>
+          <td><code>cursor</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>not-allowed</code> · web-only, no RN equivalent</td>
+        </tr>
+        <tr data-variant="any" data-state="focus-visible" data-css-prop="outline"
+            data-dtcg="—"
+            data-css-var="—" data-reference="2px solid --nuri-focus-ring">
+          <td>focus-visible</td>
+          <td><code>outline</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>2px solid var(--nuri-focus-ring)</code> · brand, always</td>
+        </tr>
+        <tr data-variant="any" data-state="focus-visible" data-css-prop="outline-offset"
+            data-dtcg="—"
+            data-css-var="—" data-reference="2px">
+          <td>focus-visible</td>
+          <td><code>outline-offset</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>2px</code></td>
+        </tr>
+
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       8b · BEHAVIOURAL DELTA — amendment 24.1
+       ═════════════════════════════════════════════════════════════
+       Decision 24 named anatomy + token-map as the migration wiring
+       spec. Amendment 24.1 adds a THIRD machine-readable surface: the
+       web↔RN behavioural-delta register. Props are 1:1 (RISKS R1) but
+       behaviour is budgeted per-component — this section is where the
+       budget is itemised so the migration agent emits the RN-correct
+       mechanism instead of a naive prop-for-prop port.
+
+       Each <tr> carries:
+         data-friction    — the F-* code (cross-refs RISKS.md R1)
+         data-surface     — pressed | focus | disabled | …
+         data-parity      — diverges | 1:1 (positive control)
+       The Web / RN columns describe the mechanism on each side; the
+       Resolution column is what the pipeline emits.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="behavioural-delta">
+    <h2>Behavioural delta · web ↔ RN</h2>
+    <p>
+      Props are <code>1:1</code>; behaviour is <strong>budgeted
+      per-component</strong> (<a href="../../docs/RISKS.md">RISKS R1</a>).
+      Button's budget is three deltas. Each names the web mechanism, the
+      RN mechanism, and what the migration pipeline emits — the third
+      machine-readable surface alongside <a href="#anatomy">anatomy</a>
+      and <a href="#token-mapping">token mapping</a>.
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="behavioural-delta" data-component="button">
+      <thead>
+        <tr>
+          <th>Friction</th>
+          <th>Surface</th>
+          <th>Web</th>
+          <th>React Native</th>
+          <th>Resolution</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-friction="F-PRESSED-1" data-surface="pressed" data-parity="diverges">
+          <td data-cell="friction"><code>F-PRESSED-1</code></td>
+          <td data-cell="surface"><code>pressed</code></td>
+          <td data-cell="web"><code>:active</code> pseudo-class + <code>transform: scale(0.97)</code> + <code>bg-pressed</code> swap</td>
+          <td data-cell="rn"><code>Pressable</code> render-prop <code>style={({ pressed }) =&gt; …}</code> — explicit <code>onPressIn/Out</code>, scroll-cancellation differs</td>
+          <td data-cell="resolution">Pipeline emits the render-prop signature; same tokens, different trigger mechanism.</td>
+        </tr>
+        <tr data-friction="F-FOCUS-1" data-surface="focus" data-parity="diverges">
+          <td data-cell="friction"><code>F-FOCUS-1</code></td>
+          <td data-cell="surface"><code>focus-visible</code></td>
+          <td data-cell="web"><code>:focus-visible</code> → <code>2px solid var(--nuri-focus-ring)</code> outline</td>
+          <td data-cell="rn">No DOM focus model. <code>accessibilityRole="button"</code> + <code>accessibilityState</code> substitute the behaviour; visual ring intentionally absent</td>
+          <td data-cell="resolution">Ring is web-only by design; RN side ships the a11y role, not the outline.</td>
+        </tr>
+        <tr data-friction="F-DISABLED-1" data-surface="disabled" data-parity="diverges">
+          <td data-cell="friction"><code>F-DISABLED-1</code></td>
+          <td data-cell="surface"><code>disabled</code></td>
+          <td data-cell="web"><code>[disabled]</code> → <code>opacity 0.4</code> + <code>cursor: not-allowed</code> + <code>pointer-events: none</code></td>
+          <td data-cell="rn"><code>disabled</code> prop → same opacity; no cursor concept; touch suppressed by <code>Pressable disabled</code></td>
+          <td data-cell="resolution">Opacity is 1:1; <code>cursor</code> is web-only and dropped on RN.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       9 · TOKENS (DTCG DICTIONARY)
+       Auto-generated from @layer tokens in button.css by lib/docs/tokens.js
+       Stays in place — this is the dictionary, §8 is the application
+       layer.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="tokens">
+    <h2>Tokens · dictionary</h2>
+    <p>
+      The component's <code>@layer tokens</code> block from
+      <code>button.css</code>, parsed live. Reference column shows the
+      var chain; Value resolves it for the currently active theme /
+      accent.
+    </p>
+    <div id="button-tokens"></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       10 · ROADMAP
+       Items planned but not implemented. Each carries a status tag
+       inline (not a prose paragraph) so the spec is visibly forward-
+       looking, not hidden in an "afterword" note.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="rn-implementation">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">React Native implementation</strong>
+          <p class="nuri-roadmap__desc">Web ↔ RN 1:1 contract is set; RN side ships when the pipeline (DTCG → Unistyles) lands.</p>
+        </div>
+      </li>
+      <li data-feature="icon-in-label">
+        <span class="nuri-tag nuri-tag--planned">planned · v1.x</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Icon in label</strong>
+          <p class="nuri-roadmap__desc">"Buy Bitcoin with <em>Apple</em> Pay" — a leading/trailing glyph inside a text button. Icon-only actions already ship as <a href="icon-button.html">IconButton</a>.</p>
+        </div>
+      </li>
+      <li data-feature="loading-state">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Loading state</strong>
+          <p class="nuri-roadmap__desc">Async actions. Adds <code>loading</code> state to the state list.</p>
+        </div>
+      </li>
+      <li data-feature="variant-outline">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Variant <code>outline</code></strong>
+          <p class="nuri-roadmap__desc">Bordered treatment — arrives when Gnosis Address and similar UI need it. (<code>ghost</code> shipped in N+6.4 · decision 39.)</p>
+        </div>
+      </li>
+      <li data-feature="accents-orange-sage-jade">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Accent scales</strong>
+          <p class="nuri-roadmap__desc">Sage / orange / jade. Architecture supports them — added when the first rails-using component lands.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+<style>
+  /* ═══════════════════════════════════════════════════════════════
+   * PAGE-LOCAL STYLES · component-specific only
+   *
+   * Typography (15/13 split + muted-by-default), layout container
+   * (max-width: none + page-head reset), .page-section rhythm +
+   * divider, and the 560-cap whitelist were promoted to shell.css
+   * in N+2 (2026-05-26). All foundation pages + this page now share
+   * those defaults.
+   *
+   * In shell.css (N+2):
+   *   typography v2 + .page-section + .nuri-spec-card · .nuri-state-grid
+   *   .nuri-roadmap · .nuri-tag (unified) · nuri-demo pre-upgrade skeleton
+   *
+   * In shell.css (N+3): unified .nuri-table widget (replaces
+   *   .nuri-props-table / .nuri-parts-table / .nuri-token-map).
+   * In lib/docs/demo/demo.css (N+3): .nuri-demo-card* + .nuri-demo-row.
+   *
+   * Still page-local:
+   *   .nuri-anatomy       → promote when a second multi-part component lands
+   * ═══════════════════════════════════════════════════════════════ */
+
+  /* .nuri-demo-card* + .nuri-demo-row promoted to
+   * lib/docs/demo/demo.css on 2026-05-27 (N+3). Linked in
+   * the <head> alongside button.css. */
+
+  /* .nuri-props-table / .nuri-parts-table / .nuri-token-map collapsed
+   * into the unified .nuri-table widget in shell.css on 2026-05-27 (N+3).
+   * See decision 24 (anatomy + token-mapping double as migration wiring
+   * spec). Markup updated to <table class="nuri-table"
+   * data-table="props|parts|token-map">. */
+
+  /* ──────────────────────────────────────────────────────────────
+   * .nuri-anatomy base block promoted to shell.css on 2026-05-28
+   * (N+6.2 · third consumer landing alongside Stack + Box). Only
+   * the Button-specific child-width rule stays page-local — that
+   * sizing isn't a shared anatomy concern.
+   * ────────────────────────────────────────────────────────────── */
+  .nuri-anatomy__visual > nuri-button,
+  .nuri-anatomy__visual > .nuri-button { width: 100%; max-width: 360px; }
+
+  /* .nuri-state-grid — extracted to shell.css on 2026-05-26.
+   * Page-local: max-width on button demos (component-specific). */
+  .nuri-state-grid__cell > nuri-button,
+  .nuri-state-grid__cell > .nuri-button { width: 100%; max-width: 360px; }
+
+  /* .nuri-token-map mono first column + .nuri-table__group row styles
+   * promoted to shell.css alongside the unified .nuri-table widget
+   * (2026-05-27, N+3). */
+
+  /* .nuri-roadmap — extracted to shell.css on 2026-05-26. */
+
+  /* .nuri-tag unification promoted to shell.css on 2026-05-26.
+   * Modifier classes (--draft / --planned) stay in HTML for agent
+   * extraction but no longer have visual side effects. */
+</style>
+
+<script>
+  // ── Token table · sourced from button.css (@layer tokens) ─────
+  // The dictionary (§9). The mapping (§8) is hand-written above —
+  // when the parser extension lands in Step 4+, §8 also becomes
+  // auto-generated from button.css @layer rules.
+  function renderTokens(sheet) {
+    if (!sheet) return;
+    const r = document.documentElement.dataset;
+    const tokens = NuriTokens.parseSemantics(sheet, {
+      theme: r.theme || 'light',
+      accent: r.accent || 'lilac',
+      filter: v => v.startsWith('--nuri-button-'),
+    });
+    document.getElementById('button-tokens').innerHTML =
+      NuriTokens.renderTable(tokens, { showReference: true });
+  }
+
+  NuriTokens.whenSheetReady('button.css', renderTokens);
+
+  // Re-render when theme/accent changes so the Value column tracks live.
+  NuriState.subscribe(['theme', 'accent', 'neutral'], () => {
+    NuriTokens.whenSheetReady('button.css', renderTokens);
+  });
+</script>
+
+</body>
+</html>

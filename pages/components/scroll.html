@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Components · Scroll</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../lib/components/stack/stack.css" />
+  <link rel="stylesheet" href="../../lib/components/box/box.css" />
+  <link rel="stylesheet" href="../../lib/components/screen/screen.css" />
+  <link rel="stylesheet" href="../../lib/components/scroll/scroll.css" />
+  <link rel="stylesheet" href="../../lib/components/button/button.css" />
+  <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+  <script src="../../lib/docs/tokens.js"></script>
+  <!-- Custom element scripts MUST be deferred so connectedCallback fires
+       AFTER body parsing (children present). See AGENTS.md. -->
+  <script src="../../lib/components/stack/stack.js" defer></script>
+  <script src="../../lib/components/box/box.js" defer></script>
+  <script src="../../lib/components/screen/screen.js" defer></script>
+  <script src="../../lib/components/scroll/scroll.js" defer></script>
+  <script src="../../lib/components/button/button.js" defer></script>
+  <script src="../../lib/docs/demo/demo.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  COMPONENT DOCS PAGE · LAYOUT-PRIMITIVE TEMPLATE (decision 37)
+  ═══════════════════════════════════════════════════════════════
+
+  Adapts the canonical component-page template (decision 24) for a
+  layout primitive — same shape as the Stack / Box / Screen pages.
+  Sections that don't apply (Variants / States / Theming) are omitted
+  per decision 19 (template variants in service of ONE structure).
+
+  Scroll is the growing, scrollable region of a screen (decision 58):
+  it takes the remaining main-axis space (flex:1) and scrolls its
+  overflow on the block axis. The prose leads with the RN mapping
+  (ScrollView) and its single most important rule: overflow is a
+  COMPONENT in RN, not a View style — which is exactly why scroll is a
+  primitive of its own and NOT an `overflow` prop on Box. Padding for
+  the scrolled content goes on a Box INSIDE the scroll (RN maps that to
+  ScrollView's contentContainerStyle, never the ScrollView box itself).
+
+  No `@layer tokens` in scroll.css per decision 37 (layout-primitive
+  class). flex:1 + overflow are structural, not design-scale values, so
+  the pipeline emit step skips writing build/components/scroll.ts
+  (decision 52 skip-emit).
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="components/scroll">
+  <nuri-page
+    eyebrow="Components · Layout · Scroll"
+    title="Scroll"
+    status="draft"
+    lead="The growing, scrollable region of a screen. Takes the remaining main-axis space (flex:1) and scrolls its overflow on the block axis. RN map: a ScrollView — and because scrolling is a COMPONENT in RN (not a View style), overflow is a primitive of its own, never a Box prop. Padding goes on a Box INSIDE (RN contentContainerStyle)."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · SPEC CARD
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-component="scroll"
+        data-component-status="draft"
+        data-rn-status="spec-in-migration-test">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd data-spec="type">
+          <span class="nuri-spec-card__chip" data-type="component">component</span>
+          <span class="nuri-spec-card__meta">layout primitive · decision 37 / 58</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Layer</dt>
+        <dd data-spec="layer">
+          <span class="nuri-spec-card__chip" data-layer="composition">composition</span>
+          <span class="nuri-spec-card__meta">structural flex fill + overflow; consumes no tokens</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Source</dt>
+        <dd data-spec="source">
+          <span class="nuri-spec-card__chip" data-source="lib/components/scroll/">lib/components/scroll/</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Parts</dt>
+        <dd data-spec="parts">
+          <span class="nuri-spec-card__chip" data-part="root">root</span>
+          <span class="nuri-spec-card__meta">1 part</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Component status</dt>
+        <dd data-spec="component-status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>RN status</dt>
+        <dd data-spec="rn-status">
+          <span class="nuri-tag nuri-tag--draft">spec in migration-test</span>
+          <span class="nuri-spec-card__meta">RN definition lives at docs/migration-tests/button-matrix/index.tsx pending long-term home — see Open question in roadmap/index.md</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · HERO DEMO
+       Scroll is invisible on its own. The hero bounds it in a fixed-
+       height frame with overflowing content so the scroll is real.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="hero">
+    <h2>Default</h2>
+    <nuri-demo controls="theme">
+      <template>
+        <div style="block-size: 240px; display: flex; flex-direction: column; outline: 1px dashed var(--nuri-border-subtle); border-radius: var(--nuri-radius-md); overflow: hidden;">
+          <nuri-scroll>
+            <nuri-box padding="lg">
+              <nuri-stack gap="sm">
+                <nuri-button variant="soft">Row 1</nuri-button>
+                <nuri-button variant="soft">Row 2</nuri-button>
+                <nuri-button variant="soft">Row 3</nuri-button>
+                <nuri-button variant="soft">Row 4</nuri-button>
+                <nuri-button variant="soft">Row 5</nuri-button>
+                <nuri-button variant="soft">Row 6</nuri-button>
+                <nuri-button variant="soft">Row 7</nuri-button>
+                <nuri-button variant="soft">Row 8</nuri-button>
+                <nuri-button variant="soft">Row 9</nuri-button>
+                <nuri-button variant="soft">Row 10</nuri-button>
+              </nuri-stack>
+            </nuri-box>
+          </nuri-scroll>
+        </div>
+      </template>
+    </nuri-demo>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · COMPOSITION & RN MAPPING
+       The agent-critical orientation: why Scroll is a primitive (not
+       a Box prop) and where padding goes (decision 58).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="composition">
+    <h2>Composition &amp; RN mapping</h2>
+    <p>
+      <strong>RN map: <code>&lt;ScrollView style={{ flex: 1 }}&gt;</code></strong>.
+      Scroll is a thin component over <code>ScrollView</code> — the grow + overflow
+      region between the pinned chrome of a <a href="screen.html">Screen</a>. The
+      web side renders an inner <code>&lt;div&gt;</code> with
+      <code>flex:1; min-block-size:0; overflow-y:auto</code> inside a
+      <code>display:contents</code> wrapper.
+    </p>
+    <p>
+      <strong>Why a primitive, not a Box prop.</strong> In RN, scrolling is a
+      <em>component</em> (<code>ScrollView</code>), not a <code>View</code> style —
+      there is no <code>overflow:scroll</code> on a <code>View</code> that maps
+      cleanly. So <code>overflow</code> can never be a <a href="box.html">Box</a>
+      prop (it would have no <code>View</code> analogue · R1 parity). Scroll is its
+      own primitive precisely so the web ↔ RN seam stays 1:1.
+    </p>
+    <p>
+      <strong>Padding goes INSIDE, on a Box.</strong> The Scroll box itself takes no
+      padding — in RN, padding on a <code>ScrollView</code> belongs to
+      <code>contentContainerStyle</code>, never the <code>ScrollView</code> box. So
+      the web pattern places a <code>&lt;nuri-box padding&gt;</code> as the scroll's
+      child, which maps directly to <code>contentContainerStyle</code>:
+    </p>
+    <pre class="nuri-code"><code>&lt;nuri-scroll&gt;                       &lt;!-- ScrollView style={{flex:1}} --&gt;
+  &lt;nuri-box padding="lg"&gt;            &lt;!-- contentContainerStyle padding --&gt;
+    &lt;nuri-stack gap="lg"&gt;…&lt;/nuri-stack&gt;
+  &lt;/nuri-box&gt;
+&lt;/nuri-scroll&gt;</code></pre>
+    <p>
+      See <a href="screen.html">Screen</a> for the column that hosts Scroll, and the
+      <a href="../playground/my-vault.html">My vault playground</a> for the full
+      scaffold rendered live inside the device frame.
+    </p>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · API · PROPS
+       Scroll carries a single prop — the web-only `as` host override.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="api">
+    <h2>API</h2>
+    <p>
+      Scroll takes no layout props — its fill + block-axis overflow are fixed
+      structure. The only prop is the web-only host override.
+    </p>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="scroll">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="as">
+          <td data-cell="name"><code>as</code></td>
+          <td data-cell="type"><code>string</code></td>
+          <td data-cell="default"><code>"div"</code></td>
+          <td data-cell="description">Host element on the web side. Has no RN analogue — RN always renders <code>&lt;ScrollView&gt;</code>.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · ANATOMY & PARTS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="anatomy">
+    <h2>Anatomy &amp; parts</h2>
+    <p>
+      Scroll is a <strong>single-part</strong> component. The web side renders
+      an inner <code>&lt;div&gt;</code> (or the element named by <code>as</code>)
+      inside the <code>display:contents</code> wrapper; the RN side renders a
+      <code>&lt;ScrollView&gt;</code> with <code>style={{flex:1}}</code>. Padding for
+      the content is NOT owned here — it lives on a child Box
+      (<code>contentContainerStyle</code>).
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="parts" data-component="scroll">
+      <thead>
+        <tr>
+          <th>Part</th>
+          <th>Element (web)</th>
+          <th>Element (RN)</th>
+          <th>Owns</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-part="root">
+          <td data-cell="name"><code>root</code></td>
+          <td data-cell="element-web"><code>div</code> (or <code>as</code>)</td>
+          <td data-cell="element-rn"><code>ScrollView {flex:1}</code></td>
+          <td data-cell="owns">flex fill + block-axis overflow (flex:1 · min-block-size:0 · overflow-y:auto · overscroll-behavior:contain)</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · STRUCTURE · NO TOKENS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="structure">
+    <h2>Structure · no tokens</h2>
+    <p>
+      Like <a href="screen.html">Screen</a>, Scroll dereferences <strong>no design
+      tokens</strong>. Its fill + overflow are pure structure —
+      <code>flex:1; min-block-size:0; overflow-y:auto; overscroll-behavior:contain</code>
+      — not design-scale values. So <code>scroll.css</code> carries an empty
+      <code>@layer tokens</code> block per
+      <a href="../../decisionlog.md#37-layout-primitives-consume-semantic-vocabulary-via-prop--no-component-token-aliasing--n62">decision 37</a>,
+      and the pipeline emit step skips writing
+      <code>build/components/scroll.ts</code> (decision 52 skip-emit · same posture
+      as Stack / Box / Screen).
+    </p>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · ROADMAP
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="rn-spec-home">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">RN spec long-term home</strong>
+          <p class="nuri-roadmap__desc">Today the Scroll RN definition lives in the migration-test pair as a local module. Long-term: peer file <code>lib/components/scroll/scroll.tsx</code>? A <code>lib/spec/</code> namespace? Tracked alongside the other layout primitives in <a href="../../roadmap/index.md">roadmap/index.md</a>.</p>
+        </div>
+      </li>
+      <li data-feature="horizontal">
+        <span class="nuri-tag nuri-tag--planned">planned · evidence-gated</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Horizontal scroll</strong>
+          <p class="nuri-roadmap__desc">N+11 ships block-axis (vertical) scroll only — the single shape the vault screen proves it needs (P11). A horizontal variant (RN <code>ScrollView horizontal</code>) waits for a real consumer (carousel / chip row) before it earns a prop.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+</body>
+</html>

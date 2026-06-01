@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Foundations · Dimension · Radius</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../../lib/docs/state.js"></script>
+
+  <link rel="stylesheet" href="../../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../../styles/shell.css" />
+  <script src="../../../lib/docs/control/control.js" defer></script>
+  <script src="../../../lib/docs/shell.js" defer></script>
+  <script src="../../../lib/docs/tokens.js"></script>
+</head>
+<body>
+
+<!-- Token-driven foundation page · template per decision 19 + 16. -->
+
+<nuri-shell active="foundations/dimension/radius">
+  <nuri-page
+    eyebrow="Foundations · Dimension · Radius"
+    title="Radius"
+    status="draft"
+    lead="Semantic vocabulary for corner softness — border-radius. A small T-shirt scale that aliases the primitive layer for sm/md/lg; full is a literal 9999px sentinel that the browser clamps to min(width/2, height/2) — produces a pill for any rectangular box and a circle when width = height."
+  ></nuri-page>
+
+  <!-- 1 · SPEC CARD ─────────────────────────────────────────────── -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-foundation="dimension-radius"
+        data-foundation-status="draft">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd data-spec="type">
+          <span class="nuri-spec-card__chip" data-type="dimension">dimension</span>
+          <span class="nuri-spec-card__meta">4 leaves · sm · md · lg · full</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Layer</dt>
+        <dd data-spec="layer">
+          <span class="nuri-spec-card__chip" data-layer="semantic">semantic</span>
+          <span class="nuri-spec-card__meta">consumed by components for corner softness</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Source</dt>
+        <dd data-spec="source">
+          <span class="nuri-spec-card__chip" data-source="tokens-semantic.css">tokens-semantic.css</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Status</dt>
+        <dd data-spec="status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- 2 · APPROACH ───────────────────────────────────────────────── -->
+  <section class="page-section" id="approach">
+    <h2>Approach</h2>
+    <p>
+      Radius is the vocabulary <code>border-radius</code> consumes.
+      Roles read as <em>"md corner softness"</em> rather than
+      <em>"12 pixels"</em> — the same role-vs-literal split that
+      <a href="./spacing.html">Spacing</a> and
+      <a href="./sizing.html">Sizing</a> apply (see
+      <a href="../../../decisionlog.md#36-semantic-spacing--sizing-vocabularies--77-t-shirt-scale--cascade-invariant--n61">decision 36</a>
+      and <a href="../../../decisionlog.md#361-amendment--n611">amendment 36.1</a>).
+    </p>
+    <p>
+      Four leaves ship — a smaller scale than spacing or sizing
+      because corner softness has a narrower useful range. Three
+      chain through the <code>--nuri-px-N</code> primitive layer
+      (<a href="../../../decisionlog.md#32-primitive-scale-uses-direct-pixel-naming---nuri-px-n--n60">decision 32</a>):
+      <code>radius.sm = 6</code>, <code>radius.md = 12</code>,
+      <code>radius.lg = 18</code>. The fourth, <code>radius.full</code>,
+      is a literal <code>9999px</code> sentinel — the only semantic
+      radius leaf without <code>--nuri-px-N</code> alias backing,
+      because the role is "saturate to pill / circle" and the browser
+      clamps oversized border-radius to <code>min(width/2, height/2)</code>.
+      A 100% percentage was tried initially but interprets relative to
+      box dimensions, producing ellipses on rectangular elements like
+      <code>.nuri-tag</code> — see N+6.1.1 post-close polish.
+    </p>
+    <p>
+      Cascade-invariant today — the value of <code>--nuri-radius-md</code>
+      is identical across every (theme × accent) combination, so the
+      table below renders single-Value. The dependency-driven trigger
+      from
+      <a href="../../../decisionlog.md#33-semantic-token-docs--format-b-verbose-dual-mode-for-context-dependent-tokens--n601">decision 33</a>
+      promotes the row to Format B automatically if a future
+      cascade dimension splits the resolution.
+    </p>
+    <p>
+      The first live consumer is <a href="../../components/button.html">Button</a> —
+      <code>--nuri-button-radius</code> aliases <code>var(--nuri-radius-md)</code>
+      = 12 px (the comfortable mid-scale corner softness).
+    </p>
+  </section>
+
+  <!-- 3 · TOKEN TABLE ────────────────────────────────────────────── -->
+  <section class="page-section" id="tokens">
+    <h2>Tokens</h2>
+    <p class="nuri-token-meta">Set · <code>core</code></p>
+    <p>
+      Each row is one semantic radius leaf. <strong>Reference</strong>
+      is the primitive it aliases (<code>--nuri-px-N</code>) for
+      sm/md/lg; <strong>full</strong> is a literal with no reference.
+      <strong>Value</strong> is the resolved CSS literal that the RN
+      pipeline emits into <code>build/tokens.ts</code> under the
+      <code>radius</code> namespace — all leaves emit as
+      <code>number</code> post-N+6.1.1 polish (sm/md/lg as their
+      pixel value · full as the <code>9999</code> sentinel after the
+      px-strip in the per-component emitter). The
+      <code>number | string</code> resolver widening from N+6.1 stays
+      in place for future cascade-invariant vocabularies that may
+      ship genuine mixed-literal leaves.
+    </p>
+    <div id="tokens-dimension-radius"></div>
+  </section>
+
+  <!-- 4 · ROADMAP ────────────────────────────────────────────────── -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="more-component-consumers">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">More component consumers</strong>
+          <p class="nuri-roadmap__desc">Today only <code>--nuri-button-radius</code> consumes a radius leaf (<code>md</code> · 12 px). Card / Tag / InputField / Chip land in future sessions; each will alias a radius leaf inside its own <code>@layer tokens</code> block. <code>radius.full</code> will pick up consumers as soon as the first pill-shaped or circular component (Avatar · StatusPill · Spinner) ships.</p>
+        </div>
+      </li>
+      <li data-feature="density-dimension">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Density dimension</strong>
+          <p class="nuri-roadmap__desc">If a future <code>data-density="compact"</code> block lands, the same four leaves can re-map to a tighter set of primitives. The cascade-classifier auto-promotes the rows to Format B once the second cascade context exists.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+<script>
+  function renderRadiusTable(sheet) {
+    if (!sheet) return;
+    const tokens = NuriTokens.parseSemantics(sheet, {
+      // Cascade-invariant — accent + theme are irrelevant to the
+      // resolved value; passing one keeps the parser's resolveValue
+      // path warm in case a future per-accent override lands.
+      accent: 'lilac',
+      filter: (v) => v.startsWith('--nuri-radius-'),
+    });
+    document.getElementById('tokens-dimension-radius').innerHTML =
+      NuriTokens.renderTable(tokens, { showReference: true });
+  }
+
+  NuriTokens.whenSheetReady('tokens-semantic.css', renderRadiusTable);
+</script>
+
+</body>
+</html>

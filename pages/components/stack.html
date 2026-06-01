@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Components · Stack</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../lib/components/stack/stack.css" />
+  <link rel="stylesheet" href="../../lib/components/box/box.css" />
+  <link rel="stylesheet" href="../../lib/components/button/button.css" />
+  <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+  <script src="../../lib/docs/tokens.js"></script>
+  <!-- Custom element scripts MUST be deferred so connectedCallback fires
+       AFTER body parsing (children present). See AGENTS.md. -->
+  <script src="../../lib/components/stack/stack.js" defer></script>
+  <script src="../../lib/components/box/box.js" defer></script>
+  <script src="../../lib/components/button/button.js" defer></script>
+  <script src="../../lib/docs/demo/demo.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  COMPONENT DOCS PAGE · LAYOUT-PRIMITIVE TEMPLATE (decision 37)
+  ═══════════════════════════════════════════════════════════════
+
+  Adapts the canonical component-page template (decision 24) for a
+  layout primitive. Per decision 19 (template variants in service
+  of ONE structure), sections that don't apply are simply omitted:
+
+  Sections present:
+    1. Spec card             — component summary (machine-readable)
+    2. Hero demo             — default rendering
+    3. API                   — props signature
+    4. Anatomy & parts       — single root (web → inner <div>; RN → View)
+    5. Live demos            — direction × gap × align × justify
+    6. Token mapping         — prop value × resolved semantic token
+    7. Roadmap               — deferred props (divider, max-width, etc.)
+
+  Sections deliberately skipped (layout primitives don't have them):
+    · Variants (no variant axis · direction is a parameter, not a
+      variant — same component class, different prop value)
+    · States (no interactive states · no :hover, no :active,
+      no disabled · pure layout)
+    · Theming (theme-agnostic · no colour tokens consumed)
+
+  No `@layer tokens` block in stack.css per decision 37 (layout-
+  primitive class). The pipeline emit step detects the empty case
+  and skips writing build/components/stack.ts.
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="components/stack">
+  <nuri-page
+    eyebrow="Components · Layout · Stack"
+    title="Stack"
+    status="draft"
+    lead="The flex-based layout container. One axis (direction column or row), token-driven gap, and the usual flex alignment knobs. Pure layout — no background, no border, no radius. The primitive consumer for the semantic space vocabulary."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · SPEC CARD
+       Layout primitive variant — 4 DTCG-shaped rows per decision 16
+       plus a Parts row carrying the single root.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-component="stack"
+        data-component-status="draft"
+        data-rn-status="spec-in-migration-test">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd data-spec="type">
+          <span class="nuri-spec-card__chip" data-type="component">component</span>
+          <span class="nuri-spec-card__meta">layout primitive · decision 37</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Layer</dt>
+        <dd data-spec="layer">
+          <span class="nuri-spec-card__chip" data-layer="composition">composition</span>
+          <span class="nuri-spec-card__meta">consumes semantic space; no component-token aliasing</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Source</dt>
+        <dd data-spec="source">
+          <span class="nuri-spec-card__chip" data-source="lib/components/stack/">lib/components/stack/</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Parts</dt>
+        <dd data-spec="parts">
+          <span class="nuri-spec-card__chip" data-part="root">root</span>
+          <span class="nuri-spec-card__meta">1 part</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Component status</dt>
+        <dd data-spec="component-status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>RN status</dt>
+        <dd data-spec="rn-status">
+          <span class="nuri-tag nuri-tag--draft">spec in migration-test</span>
+          <span class="nuri-spec-card__meta">RN definition lives at docs/migration-tests/button-matrix/index.tsx pending long-term home — see Open question in roadmap/index.md</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · HERO DEMO
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="hero">
+    <h2>Default</h2>
+    <nuri-demo controls="theme">
+      <template>
+        <nuri-stack gap="md">
+          <nuri-button variant="solid">Pay</nuri-button>
+          <nuri-button variant="soft">Cancel</nuri-button>
+          <nuri-button variant="soft">Request</nuri-button>
+        </nuri-stack>
+      </template>
+    </nuri-demo>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · API · PROPS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="api">
+    <h2>API</h2>
+    <p>
+      The props signature. <code>web ↔ RN</code> is 1:1 at the prop names + accepted
+      values; the web side dispatches via attribute-selector CSS, the RN side reads
+      the value and slots it into a <code>View</code> style object (see
+      <a href="../../docs/migration-tests/button-matrix/index.tsx">docs/migration-tests/button-matrix/index.tsx</a>
+      for the reference RN implementation).
+    </p>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="stack">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="direction">
+          <td data-cell="name"><code>direction</code></td>
+          <td data-cell="type"><code>"column" | "row"</code></td>
+          <td data-cell="default"><code>"column"</code></td>
+          <td data-cell="description">Flex axis. <code>column</code> stacks vertically; <code>row</code> lays out horizontally.</td>
+        </tr>
+        <tr data-prop="gap">
+          <td data-cell="name"><code>gap</code></td>
+          <td data-cell="type"><code>"xs" | "sm" | "md" | "lg" | "xl"</code></td>
+          <td data-cell="default"><em>unset</em></td>
+          <td data-cell="description">Inter-child spacing. Maps to <code>--nuri-space-{xs..xl}</code> · 5-leaf subset of the 7-leaf <a href="../foundations/dimension/spacing.html">spacing vocabulary</a> (<code>2xs</code> and <code>2xl</code> stay available ad-hoc via direct <code>tokens.space.*</code>).</td>
+        </tr>
+        <tr data-prop="align">
+          <td data-cell="name"><code>align</code></td>
+          <td data-cell="type"><code>"start" | "center" | "end" | "stretch" | "baseline"</code></td>
+          <td data-cell="default"><em>unset</em></td>
+          <td data-cell="description">Cross-axis alignment (flex <code>align-items</code>). Browser default applies if unset.</td>
+        </tr>
+        <tr data-prop="justify">
+          <td data-cell="name"><code>justify</code></td>
+          <td data-cell="type"><code>"start" | "center" | "end" | "between" | "around"</code></td>
+          <td data-cell="default"><em>unset</em></td>
+          <td data-cell="description">Main-axis alignment (flex <code>justify-content</code>).</td>
+        </tr>
+        <tr data-prop="wrap">
+          <td data-cell="name"><code>wrap</code></td>
+          <td data-cell="type"><code>boolean</code></td>
+          <td data-cell="default"><code>false</code></td>
+          <td data-cell="description">Whether overflowing children wrap to the next line (flex <code>flex-wrap</code>). Meaningful primarily on <code>direction="row"</code>.</td>
+        </tr>
+        <tr data-prop="fill">
+          <td data-cell="name"><code>fill</code></td>
+          <td data-cell="type"><code>boolean</code></td>
+          <td data-cell="default"><code>false</code></td>
+          <td data-cell="description">Grow to fill the main axis of a flex parent (<code>flex: 1 0 auto</code>) — e.g. a <code>&lt;nuri-box fill&gt;</code> inside a <a href="scroll.html">Scroll</a>, giving an inner <a href="spacer.html">Spacer</a> the slack to push trailing content to the end (decision 60).</td>
+        </tr>
+        <tr data-prop="as">
+          <td data-cell="name"><code>as</code></td>
+          <td data-cell="type"><code>string</code></td>
+          <td data-cell="default"><code>"div"</code></td>
+          <td data-cell="description">Host element on the web side (<code>"section"</code>, <code>"nav"</code>, …). Has no RN analogue — RN always renders <code>&lt;View&gt;</code>.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · ANATOMY & PARTS
+       Single-root component. The anatomy table is the migration
+       wiring spec (decision 24) — one row per addressable part.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="anatomy">
+    <h2>Anatomy &amp; parts</h2>
+    <p>
+      Stack is a <strong>single-part</strong> component. The web side renders
+      an inner <code>&lt;div&gt;</code> (or the element named by <code>as</code>)
+      inside the <code>display:contents</code> wrapper; the RN side renders a
+      <code>&lt;View&gt;</code>.
+    </p>
+
+    <div class="nuri-anatomy">
+      <div class="nuri-anatomy__visual">
+        <nuri-stack gap="md">
+          <nuri-button variant="solid">Pay</nuri-button>
+          <nuri-button variant="soft">Cancel</nuri-button>
+        </nuri-stack>
+      </div>
+      <div class="nuri-table-scroll"><table class="nuri-table" data-table="parts" data-component="stack">
+        <thead>
+          <tr>
+            <th>Part</th>
+            <th>Element (web)</th>
+            <th>Element (RN)</th>
+            <th>Owns</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-part="root">
+            <td data-cell="name"><code>root</code></td>
+            <td data-cell="element-web"><code>div</code> (or <code>as</code>)</td>
+            <td data-cell="element-rn"><code>View</code></td>
+            <td data-cell="owns">flex direction, gap, align, justify, wrap</td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · LIVE DEMOS
+       A handful of representative examples. Not a matrix dump —
+       direction × gap × align × justify combos that read
+       structurally without enumeration.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="demos">
+    <h2>Live demos</h2>
+    <p>
+      Selected examples covering direction, gap leaves, alignment, and
+      justification. Backgrounds + borders are deliberately absent — Stack
+      is pure layout. The buttons inside are markers; replace with any
+      content.
+    </p>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="direction · column" subtitle="gap=&quot;md&quot;">
+        <template>
+          <nuri-stack gap="md">
+            <nuri-button variant="solid">One</nuri-button>
+            <nuri-button variant="solid">Two</nuri-button>
+            <nuri-button variant="solid">Three</nuri-button>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="direction · row" subtitle="gap=&quot;sm&quot;">
+        <template>
+          <nuri-stack direction="row" gap="sm">
+            <nuri-button variant="soft">A</nuri-button>
+            <nuri-button variant="soft">B</nuri-button>
+            <nuri-button variant="soft">C</nuri-button>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+
+    </div>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="gap leaves" subtitle="xs · sm · md · lg · xl">
+        <template>
+          <nuri-stack gap="md" align="start">
+            <nuri-stack direction="row" gap="xs">
+              <nuri-button variant="soft">xs</nuri-button>
+              <nuri-button variant="soft">xs</nuri-button>
+            </nuri-stack>
+            <nuri-stack direction="row" gap="sm">
+              <nuri-button variant="soft">sm</nuri-button>
+              <nuri-button variant="soft">sm</nuri-button>
+            </nuri-stack>
+            <nuri-stack direction="row" gap="md">
+              <nuri-button variant="soft">md</nuri-button>
+              <nuri-button variant="soft">md</nuri-button>
+            </nuri-stack>
+            <nuri-stack direction="row" gap="lg">
+              <nuri-button variant="soft">lg</nuri-button>
+              <nuri-button variant="soft">lg</nuri-button>
+            </nuri-stack>
+            <nuri-stack direction="row" gap="xl">
+              <nuri-button variant="soft">xl</nuri-button>
+              <nuri-button variant="soft">xl</nuri-button>
+            </nuri-stack>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="justify · between" subtitle="row · between · gap=&quot;sm&quot;">
+        <template>
+          <nuri-stack direction="row" gap="sm" justify="between">
+            <nuri-button variant="soft">Back</nuri-button>
+            <nuri-button variant="solid">Continue</nuri-button>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+
+    </div>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="align · center" subtitle="column · align=&quot;center&quot; · gap=&quot;sm&quot;">
+        <template>
+          <nuri-stack gap="sm" align="center">
+            <nuri-button variant="solid">Pay</nuri-button>
+            <nuri-button variant="soft">Cancel</nuri-button>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="wrap" subtitle="row · wrap · gap=&quot;sm&quot;">
+        <template>
+          <nuri-stack direction="row" gap="sm" wrap>
+            <nuri-button variant="soft">Alpha</nuri-button>
+            <nuri-button variant="soft">Bravo</nuri-button>
+            <nuri-button variant="soft">Charlie</nuri-button>
+            <nuri-button variant="soft">Delta</nuri-button>
+            <nuri-button variant="soft">Echo</nuri-button>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · TOKEN MAPPING — THE AGENT-CRITICAL SECTION
+       Per-prop × resolved token table. The gap prop value × space
+       leaf is the only token reference; align / justify / wrap /
+       direction dispatch to CSS literals (no token indirection).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="token-mapping">
+    <h2>Token mapping</h2>
+    <p>
+      <strong>Prop value → CSS property → DTCG → CSS var → reference.</strong>
+      Only <code>gap</code> dereferences a semantic token; the other props
+      dispatch to CSS literals (flex enum values). Layout primitives have
+      no <code>@layer tokens</code> block per
+      <a href="../../decisionlog.md#37-layout-primitives-consume-semantic-vocabulary-via-prop--no-component-token-aliasing--n62">decision 37</a> — the dispatch
+      happens entirely in <code>@layer rules</code> through attribute
+      selectors (<code>.nuri-stack[data-gap="md"] { gap: var(--nuri-space-md); }</code>).
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="token-map" data-component="stack">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Value</th>
+          <th>CSS property</th>
+          <th>DTCG</th>
+          <th>Reference</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="nuri-table__group" data-group="gap">
+          <th scope="rowgroup" colspan="5">Prop · <code>gap</code> (5 leaves · semantic space)</th>
+        </tr>
+        <tr data-prop="gap" data-value="xs" data-css-prop="gap" data-dtcg="space.xs" data-reference="--nuri-space-xs">
+          <td><code>gap</code></td>
+          <td><code>"xs"</code></td>
+          <td><code>gap</code></td>
+          <td><code>space.xs</code></td>
+          <td><code>--nuri-space-xs</code> (4px)</td>
+        </tr>
+        <tr data-prop="gap" data-value="sm" data-css-prop="gap" data-dtcg="space.sm" data-reference="--nuri-space-sm">
+          <td><code>gap</code></td>
+          <td><code>"sm"</code></td>
+          <td><code>gap</code></td>
+          <td><code>space.sm</code></td>
+          <td><code>--nuri-space-sm</code> (6px)</td>
+        </tr>
+        <tr data-prop="gap" data-value="md" data-css-prop="gap" data-dtcg="space.md" data-reference="--nuri-space-md">
+          <td><code>gap</code></td>
+          <td><code>"md"</code></td>
+          <td><code>gap</code></td>
+          <td><code>space.md</code></td>
+          <td><code>--nuri-space-md</code> (12px)</td>
+        </tr>
+        <tr data-prop="gap" data-value="lg" data-css-prop="gap" data-dtcg="space.lg" data-reference="--nuri-space-lg">
+          <td><code>gap</code></td>
+          <td><code>"lg"</code></td>
+          <td><code>gap</code></td>
+          <td><code>space.lg</code></td>
+          <td><code>--nuri-space-lg</code> (18px)</td>
+        </tr>
+        <tr data-prop="gap" data-value="xl" data-css-prop="gap" data-dtcg="space.xl" data-reference="--nuri-space-xl">
+          <td><code>gap</code></td>
+          <td><code>"xl"</code></td>
+          <td><code>gap</code></td>
+          <td><code>space.xl</code></td>
+          <td><code>--nuri-space-xl</code> (24px)</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="direction">
+          <th scope="rowgroup" colspan="5">Prop · <code>direction</code> (CSS literal · no token)</th>
+        </tr>
+        <tr data-prop="direction" data-value="column" data-css-prop="flex-direction" data-dtcg="—" data-reference="column">
+          <td><code>direction</code></td>
+          <td><code>"column"</code></td>
+          <td><code>flex-direction</code></td>
+          <td>—</td>
+          <td><code>column</code> (literal)</td>
+        </tr>
+        <tr data-prop="direction" data-value="row" data-css-prop="flex-direction" data-dtcg="—" data-reference="row">
+          <td><code>direction</code></td>
+          <td><code>"row"</code></td>
+          <td><code>flex-direction</code></td>
+          <td>—</td>
+          <td><code>row</code> (literal)</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="align">
+          <th scope="rowgroup" colspan="5">Prop · <code>align</code> (CSS literal · no token)</th>
+        </tr>
+        <tr data-prop="align" data-value="start"    data-css-prop="align-items" data-dtcg="—" data-reference="flex-start"><td><code>align</code></td><td><code>"start"</code></td><td><code>align-items</code></td><td>—</td><td><code>flex-start</code></td></tr>
+        <tr data-prop="align" data-value="center"   data-css-prop="align-items" data-dtcg="—" data-reference="center"><td><code>align</code></td><td><code>"center"</code></td><td><code>align-items</code></td><td>—</td><td><code>center</code></td></tr>
+        <tr data-prop="align" data-value="end"      data-css-prop="align-items" data-dtcg="—" data-reference="flex-end"><td><code>align</code></td><td><code>"end"</code></td><td><code>align-items</code></td><td>—</td><td><code>flex-end</code></td></tr>
+        <tr data-prop="align" data-value="stretch"  data-css-prop="align-items" data-dtcg="—" data-reference="stretch"><td><code>align</code></td><td><code>"stretch"</code></td><td><code>align-items</code></td><td>—</td><td><code>stretch</code></td></tr>
+        <tr data-prop="align" data-value="baseline" data-css-prop="align-items" data-dtcg="—" data-reference="baseline"><td><code>align</code></td><td><code>"baseline"</code></td><td><code>align-items</code></td><td>—</td><td><code>baseline</code></td></tr>
+
+        <tr class="nuri-table__group" data-group="justify">
+          <th scope="rowgroup" colspan="5">Prop · <code>justify</code> (CSS literal · no token)</th>
+        </tr>
+        <tr data-prop="justify" data-value="start"   data-css-prop="justify-content" data-dtcg="—" data-reference="flex-start"><td><code>justify</code></td><td><code>"start"</code></td><td><code>justify-content</code></td><td>—</td><td><code>flex-start</code></td></tr>
+        <tr data-prop="justify" data-value="center"  data-css-prop="justify-content" data-dtcg="—" data-reference="center"><td><code>justify</code></td><td><code>"center"</code></td><td><code>justify-content</code></td><td>—</td><td><code>center</code></td></tr>
+        <tr data-prop="justify" data-value="end"     data-css-prop="justify-content" data-dtcg="—" data-reference="flex-end"><td><code>justify</code></td><td><code>"end"</code></td><td><code>justify-content</code></td><td>—</td><td><code>flex-end</code></td></tr>
+        <tr data-prop="justify" data-value="between" data-css-prop="justify-content" data-dtcg="—" data-reference="space-between"><td><code>justify</code></td><td><code>"between"</code></td><td><code>justify-content</code></td><td>—</td><td><code>space-between</code></td></tr>
+        <tr data-prop="justify" data-value="around"  data-css-prop="justify-content" data-dtcg="—" data-reference="space-around"><td><code>justify</code></td><td><code>"around"</code></td><td><code>justify-content</code></td><td>—</td><td><code>space-around</code></td></tr>
+
+        <tr class="nuri-table__group" data-group="wrap">
+          <th scope="rowgroup" colspan="5">Prop · <code>wrap</code> (boolean · CSS literal)</th>
+        </tr>
+        <tr data-prop="wrap" data-value="true" data-css-prop="flex-wrap" data-dtcg="—" data-reference="wrap">
+          <td><code>wrap</code></td>
+          <td><code>true</code></td>
+          <td><code>flex-wrap</code></td>
+          <td>—</td>
+          <td><code>wrap</code></td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="fill">
+          <th scope="rowgroup" colspan="5">Prop · <code>fill</code> (boolean · CSS literal · decision 60)</th>
+        </tr>
+        <tr data-prop="fill" data-value="true" data-css-prop="flex" data-dtcg="—" data-reference="1 0 auto">
+          <td><code>fill</code></td>
+          <td><code>true</code></td>
+          <td><code>flex</code></td>
+          <td>—</td>
+          <td><code>1 0 auto</code></td>
+        </tr>
+
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · ROADMAP
+       Deferred props per the N+6.2 operator lock. Each carries an
+       Open questions cross-ref in roadmap/index.md.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="fill">
+        <span class="nuri-tag nuri-tag--ready">shipped · N+11</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title"><code>fill</code> prop</strong>
+          <p class="nuri-roadmap__desc">Promoted in N+11 (decision 60) so a Stack can fill a <a href="box.html">Box</a> <code>fill</code> inside a <a href="scroll.html">Scroll</a>, giving an inner <a href="spacer.html">Spacer</a> room to push trailing content to the bottom. RN map: a View with <code>style={{ flex: 1 }}</code>.</p>
+        </div>
+      </li>
+      <li data-feature="divider">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Divider prop + <code>&lt;nuri-divider&gt;</code> component</strong>
+          <p class="nuri-roadmap__desc">External-project spec ships a <code>divider</code> boolean on Stack that wraps a thin separator between children. Deferred to N+6.3+ pending real consumer. When promoted, lands as Stack-internal child-wrapping in JS + RN render-map · requires shipping <code>&lt;nuri-divider&gt;</code> too.</p>
+        </div>
+      </li>
+      <li data-feature="rn-spec-home">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">RN spec long-term home</strong>
+          <p class="nuri-roadmap__desc">Today the Stack RN definition lives in the migration-test pair as a local module. Long-term: peer file <code>lib/components/stack/stack.tsx</code>? Separate <code>lib/spec/</code> namespace? Re-evaluate post-N+6.2 when n≥2 component RN specs exist.</p>
+        </div>
+      </li>
+      <li data-feature="full-vocab">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">2xs / 2xl gap leaves</strong>
+          <p class="nuri-roadmap__desc">N+6.2 ships <code>gap</code> as a 5-leaf subset (xs/sm/md/lg/xl) of the 7-leaf semantic space vocabulary. The 2xs (2px) and 2xl (36px) leaves stay available ad-hoc via direct <code>tokens.space.{2xs,2xl}</code>. Promote to the prop surface if a real consumer surfaces the need.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+<!-- .nuri-anatomy + .nuri-anatomy__visual + .nuri-anatomy .nuri-table
+     promoted to shell.css on 2026-05-28 (N+6.2 · third anatomy
+     consumer landing). No page-local override needed. -->
+
+</body>
+</html>

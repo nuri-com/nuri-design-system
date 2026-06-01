@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Components · TabBar</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+
+  <!-- Token layer cake · primitive → semantic → component → chrome.
+       TabBar is a direct <nuri-icon> consumer (the items are icon-only),
+       so it pulls in BOTH icon.css (the glyph atom) and tab-bar.css. -->
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../lib/components/icon/icon.css" />
+  <link rel="stylesheet" href="../../lib/components/tab-bar/tab-bar.css" />
+  <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+  <script src="../../lib/docs/tokens.js"></script>
+  <!-- Custom element scripts MUST be deferred so connectedCallback fires
+       AFTER body parsing (children present). See AGENTS.md. Icon is an
+       ES module (imports the registry); the rest are deferred scripts. -->
+  <script src="../../lib/components/scope/scope.js" defer></script>
+  <script src="../../lib/components/icon/icon.js" type="module"></script>
+  <script src="../../lib/components/tab-bar/tab-bar.js" defer></script>
+  <script src="../../lib/docs/demo/demo.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  COMPONENT DOCS PAGE · TabBar (decision 24 template · 24.1)
+  ═══════════════════════════════════════════════════════════════
+
+  Audience priority: agent + pipeline FIRST, human contributor SECOND.
+
+  TabBar is the icon-only BOTTOM navigation bar (decision 56 · N+9):
+  <nuri-tab-bar> (controller · owns the selected value) +
+  <nuri-tab-bar-item> (one destination · an icon-only target). It is a
+  DESTINATION switcher (navigation chrome), explicitly DISTINCT from
+  <nuri-tabs> (decision 43 · the in-page segmented control). It mirrors
+  Tabs' shared-state mechanics but carries a different a11y model — a
+  <nav> of destinations with aria-current, NOT a tablist (see
+  F-TABBAR-ROLE-1).
+
+  Sections in render order:
+    1.  Spec card             — component summary (machine-readable)
+    2.  Hero demo             — default rendering + canonical snippet
+    3.  API                   — two prop tables (controller + item)
+    4.  Anatomy & parts       — tab-bar / nav / item / icon
+    5.  States                — selected / not-selected / pressed (per item)
+        (NO Variants section · single appearance · decision 56)
+    6.  Theming               — chrome-only (accent has no effect)
+    7.  Token mapping         — the one emitted height + direct-semantic item
+    8.  Behavioural delta     — F-TABBAR-ROLE-1 + F-SELECTED-VALUE-1
+                               + F-PRESSED-1 / F-FOCUS-1 / F-ARIA-LABEL-1
+    9.  Tokens (DTCG)         — auto-generated dictionary
+    10. Roadmap               — planned items with inline status tags
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="components/tab-bar">
+  <nuri-page
+    eyebrow="Components · Navigation · TabBar"
+    title="TabBar"
+    status="draft"
+    lead="The icon-only bottom navigation bar — the app-level destination switcher behind the My-vault / Coin / Activity screens. A nuri-tab-bar controller wraps a set of nuri-tab-bar-item destinations that share one selected value, mirroring Tabs' shared-state mechanics. DISTINCT from Tabs (the in-page segmented control): TabBar is navigation chrome, rendered as a nav of destinations with aria-current. The selected item reads in text-primary with a filled glyph; the rest recede in border-strong. Mobile-first: no hover, pressed feedback via a tactile squash plus a muted colour shift."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · SPEC CARD
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-component="tab-bar"
+        data-component-status="draft"
+        data-rn-status="spec">
+      <div class="nuri-spec-card__row">
+        <dt>Elements</dt>
+        <dd data-spec="elements">
+          <span class="nuri-spec-card__chip" data-element="tab-bar">&lt;nuri-tab-bar&gt;</span>
+          <span class="nuri-spec-card__chip" data-element="tab-bar-item">&lt;nuri-tab-bar-item&gt;</span>
+          <span class="nuri-spec-card__meta">compound · shared value · decision 56</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Variants</dt>
+        <dd data-spec="variants">
+          <span class="nuri-spec-card__meta">none · single appearance · decision 56</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>States</dt>
+        <dd data-spec="states">
+          <span class="nuri-spec-card__chip" data-state="selected">selected</span>
+          <span class="nuri-spec-card__chip" data-state="not-selected">not&nbsp;selected</span>
+          <span class="nuri-spec-card__chip" data-state="pressed">pressed</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Accent behavior</dt>
+        <dd data-spec="accent-behavior">
+          <span data-accent-driven="false">chrome-only · accent has no effect</span>
+          <span class="nuri-spec-card__sep">·</span>
+          <span class="nuri-spec-card__meta">selection reads in text-primary, not accent (decision 56)</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Parts</dt>
+        <dd data-spec="parts">
+          <span class="nuri-spec-card__chip" data-part="tab-bar">tab-bar</span>
+          <span class="nuri-spec-card__chip" data-part="nav">nav</span>
+          <span class="nuri-spec-card__chip" data-part="item">item</span>
+          <span class="nuri-spec-card__chip" data-part="icon">icon</span>
+          <span class="nuri-spec-card__meta">4 parts · item composes a nuri-icon</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Component status</dt>
+        <dd data-spec="component-status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>RN status</dt>
+        <dd data-spec="rn-status">
+          <span class="nuri-tag nuri-tag--ready">spec implemented</span>
+          <span class="nuri-spec-card__meta">web ↔ RN is 1:1 on props. The RN <code>&lt;TabBar&gt;</code> consumes <code>build/components/tab-bar.ts</code> for the bar height and renders item treatment from the same semantic vocabulary — see <a href="../../docs/migration-tests/button-matrix/index.tsx">migration-tests/button-matrix</a>. The a11y role has no 1:1 RN peer (F-TABBAR-ROLE-1).</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · HERO DEMO
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="hero">
+    <h2>Default</h2>
+    <nuri-demo controls="theme,accent,neutral,font">
+      <template>
+        <nuri-tab-bar value="vault" label="Primary">
+          <nuri-tab-bar-item value="vault" name="vault" label="My vault"></nuri-tab-bar-item>
+          <nuri-tab-bar-item value="coin" name="coin-vertical" label="Coin"></nuri-tab-bar-item>
+          <nuri-tab-bar-item value="activity" name="clock" label="Activity"></nuri-tab-bar-item>
+        </nuri-tab-bar>
+      </template>
+    </nuri-demo>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · API · PROPS (two elements)
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="api">
+    <h2>API</h2>
+    <p>
+      A compound of two elements. <code>web ↔ RN</code> is 1:1 on props
+      — both <code>&lt;nuri-tab-bar&gt;</code> / <code>&lt;TabBar&gt;</code>
+      and <code>&lt;nuri-tab-bar-item&gt;</code> /
+      <code>&lt;TabBar.Item&gt;</code> carry the same props. Note the
+      <strong>absence of a <code>variant</code> or <code>size</code>
+      prop</strong> (decision 56 · single appearance, icon-only items).
+    </p>
+
+    <h3><code>&lt;nuri-tab-bar&gt;</code> · controller</h3>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="tab-bar">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="value">
+          <td data-cell="name"><code>value</code></td>
+          <td data-cell="type"><code>string</code> (a child item's value)</td>
+          <td data-cell="default"><em>first item's value</em></td>
+          <td data-cell="description">The selected destination — the single source of truth. Defaults to the first <code>&lt;nuri-tab-bar-item&gt;</code>'s value when omitted. Tapping an item writes its value here; the controller then toggles <code>active</code> on each child (F-SELECTED-VALUE-1).</td>
+        </tr>
+        <tr data-prop="label">
+          <td data-cell="name"><code>label</code></td>
+          <td data-cell="type"><code>string</code></td>
+          <td data-cell="default"><em>none</em></td>
+          <td data-cell="description">An accessible name for the navigation landmark — set as <code>aria-label</code> on the built <code>&lt;nav&gt;</code>. Recommended when a screen has more than one nav region.</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <h3><code>&lt;nuri-tab-bar-item&gt;</code> · destination</h3>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="tab-bar-item">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="value">
+          <td data-cell="name"><code>value</code></td>
+          <td data-cell="type"><code>string</code></td>
+          <td data-cell="default"><em>required</em></td>
+          <td data-cell="description">This destination's identity. Matched against the controller's <code>value</code> to determine the selected item.</td>
+        </tr>
+        <tr data-prop="name">
+          <td data-cell="name"><code>name</code></td>
+          <td data-cell="type"><code>string</code> (icon registry key)</td>
+          <td data-cell="default"><em>required</em></td>
+          <td data-cell="description">The glyph for this destination — an <code>&lt;nuri-icon&gt;</code> registry key (e.g. <code>vault</code>, <code>coin-vertical</code>, <code>clock</code>). Rendered at <code>size="md"</code>; the selected item flips it to the filled weight (Icon weight coupling · decision 38).</td>
+        </tr>
+        <tr data-prop="label">
+          <td data-cell="name"><code>label</code></td>
+          <td data-cell="type"><code>string</code></td>
+          <td data-cell="default"><em>derived from <code>name</code></em></td>
+          <td data-cell="description">The accessible name for this icon-only target (F-ARIA-LABEL-1). When omitted it is derived from the kebab <code>name</code> (<code>coin-vertical</code> → "coin vertical"); set it explicitly for a human-readable destination name ("Coin"). The inner <code>&lt;nuri-icon&gt;</code> is decorative.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · ANATOMY & PARTS
+       Four parts: tab-bar (controller), nav (built row), item (a
+       native button), icon (the composed glyph).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="anatomy">
+    <h2>Anatomy &amp; parts</h2>
+    <p>
+      TabBar is a <strong>four-part</strong> compound. The
+      <code>tab-bar</code> controller owns the selected value and builds
+      a <code>&lt;nav&gt;</code> row; each <code>item</code> is a native
+      <code>&lt;button&gt;</code> that composes a single
+      <code>&lt;nuri-icon&gt;</code>. The selected item carries
+      <code>aria-current="page"</code> — destination semantics, not
+      tablist semantics (F-TABBAR-ROLE-1).
+    </p>
+
+    <div class="nuri-anatomy">
+      <div class="nuri-anatomy__visual">
+        <nuri-tab-bar value="one" label="Anatomy">
+          <nuri-tab-bar-item value="one" name="vault" label="One"></nuri-tab-bar-item>
+          <nuri-tab-bar-item value="two" name="clock" label="Two"></nuri-tab-bar-item>
+        </nuri-tab-bar>
+      </div>
+      <div class="nuri-table-scroll"><table class="nuri-table" data-table="parts" data-component="tab-bar">
+        <thead>
+          <tr>
+            <th>Part</th>
+            <th>Element</th>
+            <th>Owns</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-part="tab-bar">
+            <td data-cell="name"><code>tab-bar</code></td>
+            <td data-cell="element"><code>nuri-tab-bar</code></td>
+            <td data-cell="owns">the selected <code>value</code>, click delegation</td>
+            <td data-cell="description">The controller. <code>display: contents</code> — invisible in layout; it builds the <code>nav</code> row on mount and reparents the items into it.</td>
+          </tr>
+          <tr data-part="nav">
+            <td data-cell="name"><code>nav</code></td>
+            <td data-cell="element"><code>nav</code></td>
+            <td data-cell="owns">the bar surface + height, item layout</td>
+            <td data-cell="description">A native <code>&lt;nav aria-label&gt;</code> landmark. A flex row at <code>--nuri-tab-bar-height</code> (the one emitted token), <code>bg-canvas</code>, items stretched full-height and equal-width.</td>
+          </tr>
+          <tr data-part="item">
+            <td data-cell="name"><code>item</code></td>
+            <td data-cell="element"><code>button</code></td>
+            <td data-cell="owns">destination target, rest/selected/pressed visuals</td>
+            <td data-cell="description">A native <code>&lt;button&gt;</code>, equal-width (<code>flex: 1</code>), full bar height. <code>data-active</code> + <code>aria-current</code> reflect selection; <code>aria-label</code> is its accessible name.</td>
+          </tr>
+          <tr data-part="icon">
+            <td data-cell="name"><code>icon</code></td>
+            <td data-cell="element"><code>nuri-icon</code></td>
+            <td data-cell="owns">the glyph + its weight</td>
+            <td data-cell="description">A composed <code>&lt;nuri-icon size="md"&gt;</code>. Decorative (<code>aria-hidden</code>). The selected item sets <code>fill</code> for the filled weight; the rest render regular.</td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · STATES
+       selected / not-selected / pressed (per item). Selected follows
+       from the controller's value; pressed is :active (the tactile
+       squash + muted shift). (NO Variants section · decision 56)
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="states">
+    <h2>States</h2>
+    <p>
+      An item is in one of three states (operator-locked · N+9, zero new
+      tokens). <code>not selected</code> recedes in
+      <code>border-strong</code> with a regular glyph;
+      <code>selected</code> (the controller's <code>value</code> match)
+      reads in <code>text-primary</code> with a <strong>filled</strong>
+      glyph; <code>pressed</code> is the tactile squash
+      (<code>scale(0.97)</code>) plus a colour shift to
+      <code>text-muted</code> on <code>:active</code> — press and hold an
+      item to see it. Pressed has <strong>no background change</strong>
+      and does not alter the glyph weight; it is transient and applies to
+      whichever item is held, selected or not. No <code>hover</code> —
+      TabBar is mobile-first.
+    </p>
+
+    <div class="nuri-demo-row">
+      <nuri-demo controls="theme" label="selected + not-selected" subtitle="tap to move the selection">
+        <template>
+          <nuri-tab-bar value="coin" label="States">
+            <nuri-tab-bar-item value="vault" name="vault" label="My vault"></nuri-tab-bar-item>
+            <nuri-tab-bar-item value="coin" name="coin-vertical" label="Coin"></nuri-tab-bar-item>
+            <nuri-tab-bar-item value="activity" name="clock" label="Activity"></nuri-tab-bar-item>
+          </nuri-tab-bar>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo controls="theme" label="four destinations" subtitle="3–4 items is the common shape">
+        <template>
+          <nuri-tab-bar value="vault" label="States · four">
+            <nuri-tab-bar-item value="vault" name="vault" label="My vault"></nuri-tab-bar-item>
+            <nuri-tab-bar-item value="coin" name="coin-vertical" label="Coin"></nuri-tab-bar-item>
+            <nuri-tab-bar-item value="activity" name="clock" label="Activity"></nuri-tab-bar-item>
+            <nuri-tab-bar-item value="settings" name="gear" label="Settings"></nuri-tab-bar-item>
+          </nuri-tab-bar>
+        </template>
+      </nuri-demo>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · THEMING
+       Chrome-only. The accent has NO effect — selection reads in
+       text-primary, not the accent. Theme (light/dark) repaints the
+       chrome surfaces. Shown for completeness, not accent locality.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="theming">
+    <h2>Theming · chrome-only</h2>
+    <p>
+      TabBar is <strong>chrome-only</strong>: the active accent has
+      <strong>no effect</strong>. The selected item reads in
+      <code>text-primary</code> (not <code>accent-solid</code> like a
+      Tab) — a navigation bar is persistent chrome and stays neutral so
+      it never competes with accent-driven content on the screen
+      (decision 56). What <em>does</em> re-resolve is the
+      <strong>theme</strong>: <code>bg-canvas</code> +
+      <code>text-primary</code> + <code>border-strong</code> are chrome
+      tokens, so a <code>[data-theme]</code> scope repaints the whole bar
+      with no extra rules.
+    </p>
+
+    <div class="nuri-demo-row">
+      <nuri-demo label="light" subtitle="&lt;html data-theme=light&gt;" data-scope="page">
+        <template>
+          <nuri-tab-bar value="coin" label="Theming · light">
+            <nuri-tab-bar-item value="vault" name="vault" label="My vault"></nuri-tab-bar-item>
+            <nuri-tab-bar-item value="coin" name="coin-vertical" label="Coin"></nuri-tab-bar-item>
+            <nuri-tab-bar-item value="activity" name="clock" label="Activity"></nuri-tab-bar-item>
+          </nuri-tab-bar>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="dark" subtitle="&lt;nuri-scope theme=dark&gt; · Tier 3" data-scope="subtree">
+        <template>
+          <nuri-scope theme="dark">
+            <nuri-tab-bar value="coin" label="Theming · dark">
+              <nuri-tab-bar-item value="vault" name="vault" label="My vault"></nuri-tab-bar-item>
+              <nuri-tab-bar-item value="coin" name="coin-vertical" label="Coin"></nuri-tab-bar-item>
+              <nuri-tab-bar-item value="activity" name="clock" label="Activity"></nuri-tab-bar-item>
+            </nuri-tab-bar>
+          </nuri-scope>
+        </template>
+      </nuri-demo>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · TOKEN MAPPING
+       ONE emitted structural token (--nuri-tab-bar-height) + the item
+       treatment, which is direct-semantic consumption (NO per-item
+       component tokens · the IconAvatar/Topbar precedent). The RN side
+       consumes tab-bar.ts for the height and renders the item treatment
+       from the same semantic vocabulary.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="token-mapping">
+    <h2>Token mapping</h2>
+    <p>
+      <strong>Part × CSS property → DTCG → CSS var → reference.</strong>
+      TabBar bakes <strong>exactly one</strong> structural decision — the
+      bar height — into
+      <a href="../../build/components/tab-bar.ts"><code>tab-bar.ts</code></a>
+      (EMIT · decision 52). Everything else is
+      <strong>direct-semantic consumption</strong>: the item treatment
+      reads the shared chrome + interaction vocabulary directly in
+      <code>@layer rules</code> (the IconAvatar / Topbar precedent ·
+      decisions 46/50), so there are <strong>no per-item component
+      tokens</strong>. <code>—</code> means web-only / direct reference.
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="token-map" data-component="tab-bar">
+      <thead>
+        <tr>
+          <th>Part / state</th>
+          <th>CSS property</th>
+          <th>DTCG</th>
+          <th>CSS var</th>
+          <th>Reference</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="nuri-table__group" data-group="container">
+          <th scope="rowgroup" colspan="5">Bar · the only emitted token (<code>tab-bar.ts</code>)</th>
+        </tr>
+        <tr data-part="nav" data-css-prop="block-size"
+            data-dtcg="tabBar.height"
+            data-css-var="--nuri-tab-bar-height" data-reference="--nuri-size-xl">
+          <td>nav</td>
+          <td><code>block-size</code></td>
+          <td><code>tabBar.height</code></td>
+          <td><code>--nuri-tab-bar-height</code></td>
+          <td><code>--nuri-size-xl</code> · shared with Topbar's chrome row · the one emitted token</td>
+        </tr>
+        <tr data-part="nav" data-css-prop="background"
+            data-dtcg="—"
+            data-css-var="—" data-reference="--nuri-bg-canvas">
+          <td>nav</td>
+          <td><code>background</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-bg-canvas</code> · chrome surface, direct</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="item">
+          <th scope="rowgroup" colspan="5">Item treatment · direct-semantic (NOT emitted · zero per-item tokens)</th>
+        </tr>
+        <tr data-part="item" data-state="not-selected" data-css-prop="color"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-border-strong">
+          <td>not selected</td>
+          <td><code>color</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-border-strong</code> · the glyph recedes</td>
+        </tr>
+        <tr data-part="item" data-state="not-selected" data-css-prop="icon-weight"
+            data-dtcg="—" data-css-var="—" data-reference="regular">
+          <td>not selected</td>
+          <td><code>icon weight</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>regular</code> · <code>&lt;nuri-icon size="md"&gt;</code> default (decision 38)</td>
+        </tr>
+        <tr data-part="item" data-state="selected" data-css-prop="color"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-text-primary">
+          <td>selected</td>
+          <td><code>color</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-text-primary</code> · NOT accent (chrome-only)</td>
+        </tr>
+        <tr data-part="item" data-state="selected" data-css-prop="icon-weight"
+            data-dtcg="—" data-css-var="—" data-reference="fill">
+          <td>selected</td>
+          <td><code>icon weight</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>fill</code> · the <code>fill</code> attr on the composed Icon (decision 38)</td>
+        </tr>
+        <tr data-part="item" data-state="pressed" data-css-prop="color"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-text-muted">
+          <td>pressed</td>
+          <td><code>color</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-text-muted</code> · transient, overrides resting colour by source order</td>
+        </tr>
+        <tr data-part="item" data-state="pressed" data-css-prop="transform"
+            data-dtcg="—" data-css-var="—" data-reference="--nuri-interaction-press-scale">
+          <td>pressed</td>
+          <td><code>transform: scale</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>--nuri-interaction-press-scale</code> (0.97) · reuses Button's constant (decision 45)</td>
+        </tr>
+        <tr data-part="item" data-state="focus-visible" data-css-prop="outline"
+            data-dtcg="—" data-css-var="—" data-reference="2px solid --nuri-focus-ring">
+          <td>focus-visible</td>
+          <td><code>outline</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td><code>2px solid var(--nuri-focus-ring)</code> · brand, never accent-derived</td>
+        </tr>
+
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       8 · BEHAVIOURAL DELTA
+       F-TABBAR-ROLE-1 (the destination-switcher role has no 1:1 RN
+       peer) is the TabBar-specific delta, alongside the shared
+       F-SELECTED-VALUE-1 (compound state) + F-ARIA-LABEL-1 (icon-only
+       name) + inherited F-PRESSED-1 / F-FOCUS-1.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="behavioural-delta">
+    <h2>Behavioural delta · web ↔ RN</h2>
+    <p>
+      Props are <code>1:1</code>; behaviour is <strong>budgeted
+      per-component</strong> (<a href="../../docs/RISKS.md">RISKS R1</a>).
+      TabBar adds the role delta specific to a destination switcher and
+      inherits the shared compound-state, icon-name, and interaction
+      deltas. This is the migration agent's third surface alongside
+      <a href="#anatomy">anatomy</a> and
+      <a href="#token-mapping">token mapping</a>.
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="behavioural-delta" data-component="tab-bar">
+      <thead>
+        <tr>
+          <th>Friction</th>
+          <th>Surface</th>
+          <th>Web</th>
+          <th>React Native</th>
+          <th>Resolution</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-friction="F-TABBAR-ROLE-1" data-surface="role" data-parity="diverges" data-inherited="none">
+          <td data-cell="friction"><code>F-TABBAR-ROLE-1</code></td>
+          <td data-cell="surface"><code>navigation role</code></td>
+          <td data-cell="web">A <code>&lt;nav aria-label&gt;</code> landmark of native <code>&lt;button&gt;</code> destinations; the selected button carries <code>aria-current="page"</code>. Correct for a destination switcher without presupposing a router, and distinct from Tabs' <code>role="tablist"</code> (which describes an in-page panel switcher).</td>
+          <td data-cell="rn">RN has no <code>accessibilityRole</code> that maps 1:1 to web's <code>&lt;nav&gt;</code> / <code>aria-current</code> pairing for a destination bar. It approximates with <code>accessibilityRole="tab"</code> + <code>accessibilityState={{ selected }}</code> inside an <code>accessibilityRole="tablist"</code> container — the closest available shape, which over-claims tablist semantics.</td>
+          <td data-cell="resolution">Budgeted as <code>F-TABBAR-ROLE-1</code> (RISKS R1). Web keeps the correct <code>nav</code>/<code>aria-current</code> model; RN uses the tab/selected approximation until a closer role exists. Props + selection behaviour stay 1:1.</td>
+        </tr>
+        <tr data-friction="F-SELECTED-VALUE-1" data-surface="selection" data-parity="diverges" data-inherited="tabs">
+          <td data-cell="friction"><code>F-SELECTED-VALUE-1</code></td>
+          <td data-cell="surface"><code>selected value</code></td>
+          <td data-cell="web">DOM-driven: the controller holds <code>value</code> as an attribute, delegates taps, and toggles <code>active</code> on each child item. Shared state flows one direction through the DOM.</td>
+          <td data-cell="rn">State-driven: <code>value</code> is a controlled prop on <code>&lt;TabBar&gt;</code>; selection flows via <code>onValueChange</code> and <code>React.cloneElement</code> injects <code>active</code> + <code>onSelect</code> into items.</td>
+          <td data-cell="resolution">Inherited from Tabs (decision 43). Same prop + compound shape; the shared-state mechanism differs (DOM attribute toggling vs cloneElement injection). See <code>TabBarDemo</code> in the migration test.</td>
+        </tr>
+        <tr data-friction="F-ARIA-LABEL-1" data-surface="accessible-name" data-parity="diverges" data-inherited="icon-button">
+          <td data-cell="friction"><code>F-ARIA-LABEL-1</code></td>
+          <td data-cell="surface"><code>accessible name</code></td>
+          <td data-cell="web">Each item is icon-only, so it needs an accessible name: explicit <code>label</code> wins, else it is derived from the kebab <code>name</code>. Set as <code>aria-label</code> on the inner button.</td>
+          <td data-cell="rn">Same rule via <code>accessibilityLabel</code> on the <code>Pressable</code>.</td>
+          <td data-cell="resolution">Inherited from IconButton (decision 38). The derivation is identical on both sides.</td>
+        </tr>
+        <tr data-friction="F-PRESSED-1" data-surface="pressed" data-parity="diverges" data-inherited="button">
+          <td data-cell="friction"><code>F-PRESSED-1</code></td>
+          <td data-cell="surface"><code>pressed</code></td>
+          <td data-cell="web"><code>:active</code> → <code>transform: scale(0.97)</code> + colour shift to <code>text-muted</code></td>
+          <td data-cell="rn"><code>Pressable</code> render-prop <code>style={({ pressed }) =&gt; …}</code></td>
+          <td data-cell="resolution">Inherited interaction model. Same constant (<code>--nuri-interaction-press-scale</code>), different trigger mechanism.</td>
+        </tr>
+        <tr data-friction="F-FOCUS-1" data-surface="focus" data-parity="diverges" data-inherited="button">
+          <td data-cell="friction"><code>F-FOCUS-1</code></td>
+          <td data-cell="surface"><code>focus-visible</code></td>
+          <td data-cell="web"><code>:focus-visible</code> → <code>2px solid var(--nuri-focus-ring)</code></td>
+          <td data-cell="rn">No DOM focus model; the accessibility role substitutes</td>
+          <td data-cell="resolution">Inherited. Ring is web-only by design.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       9 · TOKENS (DTCG DICTIONARY)
+       Auto-generated from @layer tokens in tab-bar.css by tokens.js.
+       Only --nuri-tab-bar-height lives there (the one emitted token);
+       the item treatment is direct-semantic and has no component token.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="tokens">
+    <h2>Tokens · dictionary</h2>
+    <p>
+      The component's <code>@layer tokens</code> block from
+      <code>tab-bar.css</code>, parsed live. Only the one baked
+      structural token (<code>--nuri-tab-bar-height</code>) lives there —
+      the item treatment is direct-semantic consumption with no
+      component token. Reference shows the var chain; Value resolves it
+      for the active theme / accent.
+    </p>
+    <div id="tab-bar-tokens"></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       10 · ROADMAP
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="rn-implementation">
+        <span class="nuri-tag nuri-tag--ready">spec implemented</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">React Native implementation</strong>
+          <p class="nuri-roadmap__desc">The web ↔ RN 1:1 prop contract is set and the RN <code>&lt;TabBar&gt;</code> already consumes <code>build/components/tab-bar.ts</code> for the bar height and renders item treatment from the same semantic vocabulary in the <a href="../../docs/migration-tests/button-matrix/index.tsx">migration test</a>. The role gap is budgeted as <code>F-TABBAR-ROLE-1</code>. Promotion to a permanent <code>lib/</code> home tracks the shared RN-spec-home question.</p>
+        </div>
+      </li>
+      <li data-feature="role-parity">
+        <span class="nuri-tag nuri-tag--planned">planned · a11y</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Destination-role parity (F-TABBAR-ROLE-1)</strong>
+          <p class="nuri-roadmap__desc">Web ships the correct <code>&lt;nav&gt;</code> / <code>aria-current</code> destination model now; RN approximates with <code>tab</code>/<code>selected</code>. Revisit when RN exposes a closer navigation role, or when the consuming app's router lands and a <code>&lt;a href&gt;</code> / link-based item becomes appropriate. See <a href="../../docs/RISKS.md">RISKS</a>.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+<style>
+  /* ═══════════════════════════════════════════════════════════════
+   * PAGE-LOCAL STYLES · component-specific only
+   * Shared widgets (.nuri-spec-card, .nuri-table, .nuri-roadmap,
+   * .nuri-anatomy, .nuri-demo*) live in shell.css / demo.css. Nothing
+   * TabBar-specific needs a page-local rule today — the bar is a single
+   * flex row and the item treatment is fully direct-semantic.
+   * ═══════════════════════════════════════════════════════════════ */
+</style>
+
+<script>
+  // ── Token table · sourced from tab-bar.css (@layer tokens) ─────────
+  function renderTokens(sheet) {
+    if (!sheet) return;
+    const r = document.documentElement.dataset;
+    const tokens = NuriTokens.parseSemantics(sheet, {
+      theme: r.theme || 'light',
+      accent: r.accent || 'lilac',
+      filter: v => v.startsWith('--nuri-tab-bar'),
+    });
+    document.getElementById('tab-bar-tokens').innerHTML =
+      NuriTokens.renderTable(tokens, { showReference: true });
+  }
+
+  NuriTokens.whenSheetReady('tab-bar.css', renderTokens);
+
+  // Re-render when theme/accent changes so the Value column tracks live.
+  NuriState.subscribe(['theme', 'accent', 'neutral'], () => {
+    NuriTokens.whenSheetReady('tab-bar.css', renderTokens);
+  });
+</script>
+
+</body>
+</html>

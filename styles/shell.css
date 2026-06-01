@@ -1,0 +1,1423 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI DESIGN SYSTEM · DOCS SHELL
+ * Layout chrome for every page: sidebar nav + topbar + content area.
+ * Eat-our-own-dogfood — consumes ONLY semantic tokens
+ * (--nuri-bg-*, --nuri-text-*, --nuri-border-*, --nuri-accent-*,
+ * --nuri-focus-ring). Never references primitives directly. The
+ * `.nuri-swatch` and `.nuri-token-table` widgets are the only
+ * exceptions: their job is to render primitive scales themselves.
+ *
+ * Non-colour primitives (--nuri-px-*, --nuri-radius-*, --nuri-font-*)
+ * are referenced directly — they have no semantic layer yet.
+ * ────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--nuri-bg-canvas);
+  color: var(--nuri-text-primary);
+  font-family: var(--nuri-font-family-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+/* Body-only font-size. NEVER set font-size on html — that would change the
+ * rem base (16px browser default), and every `--nuri-font-size-N` token
+ * (defined in rem) would resolve smaller. Keeping html at 16px means rem
+ * still scales with the user's browser text-size preference (RN-like
+ * allowFontScaling preview). */
+body {
+  font-size: var(--nuri-font-size-13);
+  line-height: 1.5;
+}
+
+/* ── Shell layout ─────────────────────────────────────────────── */
+
+nuri-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* ── Pre-upgrade skeleton ──────────────────────────────────────
+ * `<nuri-shell>` is enhanced by lib/docs/shell.js (loaded deferred) —
+ * it injects the real sidebar + topbar + wraps content. Between
+ * first paint and that upgrade, we'd see the page content flowing
+ * into the 260px sidebar column (no chrome yet) and then snap into
+ * the proper layout when shell.js runs — a noticeable layout shift.
+ *
+ * Fix: while the element is :not(:defined), paint a sidebar-shaped
+ * background as an absolute overlay (out of grid flow) and force
+ * authored children into column 2 with visibility:hidden. The user
+ * sees the final layout immediately; only the chrome/content fade
+ * in once shell.js upgrades the element.
+ *
+ * `:defined` flips true the instant customElements.define runs;
+ * the skeleton then disappears and the real chrome takes over.
+ * ────────────────────────────────────────────────────────────── */
+nuri-shell:not(:defined) {
+  position: relative;
+}
+/* Sidebar placeholder · left column. Absolute so it's out of the grid
+ * flow (a grid-placed ::before would size to row 1 only). */
+nuri-shell:not(:defined)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 260px;
+  background: var(--nuri-bg-subtle);
+  border-right: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  pointer-events: none;
+}
+/* Topbar placeholder · top of the right column. Height matches the real
+ * .nuri-shell__topbar min-height computation below. Prevents the chrome
+ * pop when shell.js injects the real topbar. */
+nuri-shell:not(:defined)::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 260px;
+  right: 0;
+  height: calc(var(--nuri-px-18) + var(--nuri-px-28) + var(--nuri-px-18));
+  background: var(--nuri-bg-canvas);
+  border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  pointer-events: none;
+}
+nuri-shell:not(:defined) > * {
+  grid-column: 2;
+  visibility: hidden;
+}
+
+/* ── <nuri-scope> · invisible layout passthrough ──────────────
+ * The scope primitive (lib/components/scope/scope.js) maps prop
+ * attributes to data-* on itself. It has no visual role of its
+ * own — `display: contents` removes the box from layout so the
+ * children participate in the parent's layout directly. */
+nuri-scope { display: contents; }
+
+
+/* ── <nuri-demo> · pre-upgrade skeleton ───────────────────────
+ * Interactive example container (lib/docs/demo/demo.js).
+ * Before demo.js (defer) parses the children, this rule paints
+ * an empty placeholder so the page doesn't reflow when the card
+ * pops into view. Post-upgrade, the inner .nuri-demo-card takes
+ * over the styling — fully ships in lib/docs/demo/demo.css
+ * (extracted from page-local in N+3). */
+nuri-demo { display: block; }
+nuri-demo:not(:defined) {
+  min-height: 200px;
+  background: var(--nuri-bg-canvas);
+  border: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  border-radius: var(--nuri-radius-lg);
+}
+
+
+/* ── Cross-document view transitions ──────────────────────────
+ * Smooth cross-fade between same-origin page navigations. Eliminates
+ * the brief white flash browsers paint between pages (when paint
+ * holding doesn't kick in). Supported in Chrome 126+, Edge 126+,
+ * Safari 18.2+. Unsupported browsers ignore the at-rule and fall
+ * back to the default instant navigation — no harm done.
+ * ────────────────────────────────────────────────────────────── */
+@view-transition {
+  navigation: auto;
+}
+
+.nuri-shell__sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  border-right: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  background: var(--nuri-bg-subtle);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.nuri-shell__col {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Sidebar · brand ──────────────────────────────────────────── */
+
+.nuri-shell__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--nuri-px-6);
+  padding: var(--nuri-px-18) var(--nuri-px-18) var(--nuri-px-18);
+  border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  text-decoration: none;
+  color: inherit;
+}
+
+.nuri-shell__brand-mark {
+  width: var(--nuri-px-28);
+  height: var(--nuri-px-28);
+  border-radius: var(--nuri-radius-md);
+  background: var(--nuri-bg-inverse);
+  color: var(--nuri-text-on-inverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--nuri-font-size-17);
+  font-weight: var(--nuri-font-weight-semibold);
+}
+
+.nuri-shell__brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nuri-shell__brand-name {
+  font-size: var(--nuri-font-size-13);
+  font-weight: var(--nuri-font-weight-semibold);
+  color: var(--nuri-text-primary);
+  line-height: 1.2;
+}
+
+.nuri-shell__brand-meta {
+  font-size: var(--nuri-font-size-13);
+  color: var(--nuri-text-muted);
+  line-height: 1.2;
+}
+
+/* ── Sidebar · nav ────────────────────────────────────────────── */
+
+.nuri-shell__nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--nuri-px-18) 0 var(--nuri-px-24);
+  scrollbar-width: thin;
+}
+
+/* ── Sidebar · footer · pinned Playground CTA (does not scroll) ───
+ * Sibling of the scrolling nav; flex:none keeps it anchored to the
+ * sidebar bottom. Mirrors the brand's border treatment (a top hairline
+ * here vs the brand's bottom one) so the column reads as chrome · body ·
+ * chrome. The link is a soft-button surface (bg-strong → bg-pressed on
+ * hover · the same chrome ladder the Button/IconButton soft variant uses). */
+.nuri-shell__footer {
+  flex: none;
+  padding: var(--nuri-px-12) var(--nuri-px-18) var(--nuri-px-18);
+  border-top: var(--nuri-border-1) solid var(--nuri-border-subtle);
+}
+
+.nuri-shell__footer-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--nuri-px-12);
+  border-radius: var(--nuri-radius-md);
+  background: var(--nuri-bg-strong);
+  color: var(--nuri-text-primary);
+  font-size: var(--nuri-font-size-15);
+  font-weight: var(--nuri-font-weight-semibold);
+  text-decoration: none;
+}
+
+.nuri-shell__footer-link:hover {
+  background: var(--nuri-bg-pressed);
+}
+
+.nuri-shell__nav-group {
+  padding: 0 var(--nuri-px-6);
+  margin-bottom: var(--nuri-px-18);
+}
+
+.nuri-shell__nav-group-title {
+  margin: 0;
+  padding: var(--nuri-px-6) var(--nuri-px-6) var(--nuri-px-4);
+  font-size: var(--nuri-font-size-13);
+  /* semibold (operator-locked post-N+6.5 NAV polish) so the three
+   * top-level groups (Get started, Foundations, Components) read as
+   * emphasized organizational anchors above the level-2 section
+   * headers + leaves below. Color stays muted to keep them
+   * "organizational" not "interactive". */
+  font-weight: var(--nuri-font-weight-semibold);
+  color: var(--nuri-text-muted);
+}
+
+.nuri-shell__nav-link {
+  display: flex;
+  align-items: center;
+  padding: var(--nuri-px-4) var(--nuri-px-6);
+  border-radius: var(--nuri-radius-sm);
+  font-size: var(--nuri-font-size-13);
+  color: var(--nuri-text-primary);
+  text-decoration: none;
+  transition: background var(--nuri-duration-fast) ease,
+              color var(--nuri-duration-fast) ease;
+}
+
+/* Chrome uses the "pressed" emphasis surface on :hover. The token
+ * is named after its canonical use (RN components, where there is
+ * no hover — only press); web docs-chrome reuses the same visual
+ * step for mouse-over since the emphasis level is identical. */
+.nuri-shell__nav-link:hover {
+  background: var(--nuri-bg-pressed);
+  color: var(--nuri-text-primary);
+}
+
+.nuri-shell__nav-link[aria-current="page"] {
+  background: var(--nuri-bg-inverse);
+  color: var(--nuri-text-on-inverse);
+}
+
+.nuri-shell__nav-link--placeholder {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.nuri-shell__nav-link--placeholder::after {
+  content: "soon";
+  margin-left: auto;
+  font-size: var(--nuri-font-size-13);
+  color: var(--nuri-text-muted);
+}
+
+/* Nested nav items — sub-pages of a parent. Indented + subtle left rule
+ * so the hierarchy is visible without an explicit tree control. */
+.nuri-shell__nav-link--nested {
+  margin-left: var(--nuri-px-12);
+  padding-left: var(--nuri-px-12);
+  border-left: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  border-radius: 0 var(--nuri-radius-sm) var(--nuri-radius-sm) 0;
+  font-size: var(--nuri-font-size-13);
+  color: var(--nuri-text-muted);
+}
+.nuri-shell__nav-link--nested:hover {
+  color: var(--nuri-text-primary);
+}
+.nuri-shell__nav-link--nested[aria-current="page"] {
+  color: var(--nuri-text-on-inverse);
+  border-left-color: var(--nuri-bg-inverse);
+}
+
+/* Section header inside a nav group — non-interactive label that
+ * groups the indented children below. Used when a sub-area of a
+ * group (e.g. all Colour sub-pages) has no clickable hub page.
+ * Decision 23.
+ *
+ * Color: text-primary so the header reads at the SAME visual weight
+ * as sibling leaves at the same nest level (Typography / Iconography
+ * next to Colour / Dimension). The hierarchy comes from the indent
+ * rail under the header + the cursor:default cue, not from a color
+ * downgrade — operator-locked at post-N+6.5 NAV polish. */
+.nuri-shell__nav-link--header {
+  margin-top: var(--nuri-px-4);
+  /* padding-bottom: 0 tightens the gap to the first nested child
+   * so the indent rail feels visually attached to its parent
+   * (Colour → Primitive reads as one cluster). Without this, the
+   * 4+4=8px gap let the rail float disconnected. */
+  padding-bottom: 0;
+  color: var(--nuri-text-primary);
+  letter-spacing: 0.01em;
+  pointer-events: none;
+  cursor: default;
+}
+.nuri-shell__nav-link--header:hover {
+  background: transparent;
+  color: var(--nuri-text-primary);
+}
+
+/* Breath between a closing nested group and the next root-level
+ * entry. Without this, the nested rail visually bleeds into the
+ * following leaf (Exploration → Typography reads as one cluster)
+ * and the hierarchy collapses. Selector: any non-nested nav-link
+ * that directly follows a nested one gets extra top margin so the
+ * nested group "closes". Headers and leaves both qualify; nested-
+ * to-nested transitions stay tight (matches sibling rhythm). */
+.nuri-shell__nav-link--nested + .nuri-shell__nav-link:not(.nuri-shell__nav-link--nested) {
+  margin-top: var(--nuri-px-12);
+}
+
+/* ── Topbar ───────────────────────────────────────────────────── */
+
+.nuri-shell__topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--nuri-px-6);
+  /* Match sidebar brand vertical padding so border-bottoms align */
+  padding: var(--nuri-px-18) var(--nuri-px-24) var(--nuri-px-18);
+  min-height: calc(var(--nuri-px-18) + var(--nuri-px-28) + var(--nuri-px-18)); /* 18 + 28 + 18 = 64px */
+  background: var(--nuri-bg-canvas);
+  border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
+}
+
+/* Pill + icon-button controls inside the topbar live at
+ * .nuri-control / .nuri-control--icon · styles in
+ * lib/docs/control/control.css. The topbar wrapper above is
+ * the only layout-specific rule. */
+
+/* ── Main · page head ─────────────────────────────────────────── */
+
+/* max-width: none — tables and full-bleed widgets can extend to the
+ * viewport edge (capped by shell-padding); prose / cards constrain
+ * themselves to 560 via the .page-section whitelist below. */
+.nuri-shell__main {
+  padding: var(--nuri-px-36) var(--nuri-px-48);
+  max-width: none;
+}
+
+.nuri-shell__breadcrumb {
+  font-size: var(--nuri-font-size-13);
+  color: var(--nuri-text-muted);
+  margin-bottom: var(--nuri-px-6);
+}
+
+.nuri-shell__breadcrumb a {
+  color: inherit;
+  text-decoration: none;
+}
+.nuri-shell__breadcrumb a:hover { color: var(--nuri-text-primary); }
+.nuri-shell__breadcrumb-sep { opacity: 0.4; margin: 0 0.5ch; }
+
+.nuri-shell__title {
+  margin: 0;
+  font-size: var(--nuri-font-size-22);
+  font-weight: var(--nuri-font-weight-semibold);
+  line-height: 1.3;
+  color: var(--nuri-text-primary);
+}
+
+.nuri-shell__lead {
+  margin: var(--nuri-px-6) 0 0;
+  font-size: var(--nuri-font-size-15);
+  color: var(--nuri-text-muted);
+  max-width: 70ch;
+}
+
+/* Page-head: no border, no padding-bottom, just generous air. The body
+ * starts with the spec card or first section; visual separation is
+ * carried by the section divider below, not a head underline. */
+.nuri-shell__page-head {
+  padding-bottom: 0;
+  border-bottom: none;
+  margin-bottom: var(--nuri-px-28);
+}
+
+/* ── Content blocks (default styles for page bodies) ─────────────
+ * Typography v2 (locked 2026-05-26 on Button, promoted here in N+2):
+ *   · h1 (.nuri-shell__title)        22
+ *   · h2                             17 semibold · primary
+ *   · h3                             17 medium   · primary
+ *   · p / lead                       15 · MUTED by default
+ *   · <strong> in prose              primary (the one bump)
+ *   · inline <code>                  13 · muted (mono identifier reading)
+ * Headings only get the primary colour; prose runs muted so emphasis
+ * (strong, h2/h3, group-header rows, swatches) reads as the "louder"
+ * layer. See decisionlog.md decisions 12 + 13. */
+
+.nuri-shell__main h2 {
+  font-size: var(--nuri-font-size-17);
+  font-weight: var(--nuri-font-weight-semibold);
+  line-height: 1.3;
+  margin: var(--nuri-px-48) 0 var(--nuri-px-12);
+  color: var(--nuri-text-primary);
+}
+
+.nuri-shell__main h3 {
+  font-size: var(--nuri-font-size-17);
+  font-weight: var(--nuri-font-weight-medium, 500);
+  line-height: 1.4;
+  margin: var(--nuri-px-28) 0 var(--nuri-px-6);
+  color: var(--nuri-text-primary);
+}
+
+.nuri-shell__main p {
+  margin: 0 0 var(--nuri-px-12);
+  max-width: 70ch;
+  font-size: var(--nuri-font-size-15);
+  color: var(--nuri-text-muted);
+}
+
+.nuri-shell__main p strong {
+  color: var(--nuri-text-primary);
+  font-weight: var(--nuri-font-weight-semibold);
+}
+
+/* The one explicit mono exception: inline <code> tags in prose.
+ * 13px (the mono size in the 15/13 split), muted (calm reference). */
+.nuri-shell__main code {
+  font-family: var(--nuri-font-family-mono);
+  font-size: var(--nuri-font-size-13);
+  background: var(--nuri-bg-strong);
+  padding: 0.125em 0.375em;
+  border-radius: var(--nuri-radius-xs);
+  color: var(--nuri-text-muted);
+}
+
+.nuri-shell__main a {
+  color: var(--nuri-accent-fg);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+
+/* ── .page-section · canonical content wrapper ──────────────────
+ * Every docs page wraps each top-level section in
+ *   <section class="page-section" id="...">
+ * The wrapper provides:
+ *   · rhythm (margin-bottom px-36)
+ *   · prose / card max-width 560 — tables break out via their own
+ *     wrapper widget (e.g., .nuri-table-scroll)
+ *   · section divider via ::before on every section after the first —
+ *     the divider extends edge-to-edge of shell-main (negative px-48
+ *     left + extended width), matching the breakout pattern of tables
+ * Locked 2026-05-26 on the Button page, promoted here in N+2 so
+ * foundation pages and future component pages inherit it. */
+.page-section {
+  margin: 0 0 var(--nuri-px-36);
+}
+.page-section + .page-section {
+  margin-top: var(--nuri-px-48);
+  padding-top: var(--nuri-px-48);
+  position: relative;
+}
+.page-section + .page-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: calc(-1 * var(--nuri-px-48));
+  width: calc(100% + 2 * var(--nuri-px-48));
+  height: 1px;
+  background: var(--nuri-border-subtle);
+}
+/* Whitelist: prose + non-table widgets cap at 560 for comfortable
+ * reading. Tables (.nuri-table-scroll wrapper) and any element NOT
+ * in this list are free to extend full-width. */
+.page-section > h2,
+.page-section > h3,
+.page-section > p,
+.page-section > .nuri-note,
+.page-section > .nuri-spec-card,
+.page-section > .nuri-roadmap,
+.page-section > .nuri-state-grid,
+.page-section > .nuri-role-legend,
+.page-section > .nuri-scale-list,
+.page-section > .nuri-demo-card,
+.page-section > .nuri-demo-row,
+.page-section > nuri-demo,
+.page-section > .nuri-token-meta {
+  max-width: 560px;
+}
+.page-section > h2 { margin: 0 0 var(--nuri-px-6); }
+.page-section > h3 { margin: var(--nuri-px-18) 0 var(--nuri-px-6); }
+/* Generous bottom margin on intro paragraphs so the following demo
+ * card / table / scale-list has breathing room. */
+.page-section > p { margin: 0 0 var(--nuri-px-28); }
+
+/* Tag tightening inside spec-card / roadmap rows: shell.css gives
+ * .nuri-tag a left margin (so it can sit after a heading); inside
+ * these container widgets the tag IS the value, no left margin. */
+.nuri-spec-card dd .nuri-tag,
+.nuri-roadmap .nuri-tag {
+  margin-left: 0;
+  font-size: var(--nuri-font-size-15);
+}
+
+/* ── Note / callout blocks ────────────────────────────────────── */
+
+.nuri-note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nuri-px-4);
+  padding: var(--nuri-px-12) var(--nuri-px-18);
+  border-radius: var(--nuri-radius-md);
+  background: var(--nuri-bg-subtle);
+  border: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  margin: var(--nuri-px-18) 0;
+  font-size: var(--nuri-font-size-13);
+  color: var(--nuri-text-muted);
+  max-width: 70ch;
+}
+
+.nuri-note__label {
+  font-size: var(--nuri-font-size-13);
+  font-weight: var(--nuri-font-weight-semibold);
+  color: var(--nuri-text-primary);
+}
+
+/* ── Tag (status pill in headings) ────────────────────────────── */
+/* Single visual treatment: subtle bg + thin border + muted text.
+ * Modifier classes (--draft / --ready / --planned / --exploratory)
+ * remain in markup
+ * for semantic / data extraction (the RN build pipeline reads them),
+ * but they do NOT change visual appearance — status is communicated
+ * by the label text, not by colour. */
+
+.nuri-tag {
+  display: inline-flex;
+  align-items: center;
+  height: var(--nuri-px-24);
+  padding: 0 var(--nuri-px-12);
+  border-radius: var(--nuri-radius-full);
+  font-size: var(--nuri-font-size-13);
+  background: var(--nuri-bg-strong);
+  color: var(--nuri-text-muted);
+  border: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  vertical-align: middle;
+  margin-left: var(--nuri-px-6);
+}
+
+/* ── Swatch · shared docs widget ─────────────────────────────────
+ * Single component for visualising any colour value across the docs:
+ * primitive grids, semantic reference tables, accent matrices, inline
+ * demos. Always square, always with a subtle border (so light/dark
+ * chips don't disappear into their surface), always with the same
+ * radius. Size and the alpha variant are the only knobs.
+ *
+ * Usage:
+ *   <span class="nuri-swatch nuri-swatch--sm" style="background: var(--nuri-color-gray-1-light)"></span>
+ *
+ * For alpha values, use the --alpha modifier and set --alpha-fill
+ * inline. Add --on-dark for white-alpha (needs a dark checkerboard
+ * backdrop to be readable).
+ *
+ *   <span class="nuri-swatch nuri-swatch--md nuri-swatch--alpha"
+ *         style="--alpha-fill: var(--nuri-color-black-alpha-5)"></span>
+ * ────────────────────────────────────────────────────────────── */
+
+.nuri-swatch {
+  display: inline-block;
+  aspect-ratio: 1;
+  border-radius: var(--nuri-radius-sm);
+  border: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  flex-shrink: 0;
+}
+
+.nuri-swatch--xs    { width: var(--nuri-px-18); }   /* 18px — inline next to text */
+.nuri-swatch--sm    { width: var(--nuri-px-28); }   /* 28px — inline emphasis */
+.nuri-swatch--md    { width: var(--nuri-px-36); }   /* 36px — reserved */
+.nuri-swatch--lg    { width: var(--nuri-px-48); }   /* 48px — token table rows */
+/* --fluid · fills the cell up to 72px max. Used by all palette cells so
+ * chip size stays consistent across pages: ~72px on wide viewports,
+ * smaller on narrow ones (primitive's 12-col rows). */
+.nuri-swatch--fluid { width: 100%; max-width: var(--nuri-px-72); }
+
+/* Alpha · checkerboard backdrop + overlay fill.
+ * Theme-independent by design: the pattern must stay visible regardless
+ * of light/dark mode. We reference PRIMITIVE -light/-dark tokens
+ * directly (not semantic ones) so the backdrop tracks no theme — the
+ * black-alpha swatch always has a near-white backdrop, the white-alpha
+ * swatch always has a near-black one. */
+.nuri-swatch--alpha {
+  --nuri-check-base: var(--nuri-color-gray-1-light);     /* #fcfcfc */
+  --nuri-check-tile: var(--nuri-color-black-alpha-2);    /* rgba(0,0,0,0.10) */
+  background-color: var(--nuri-check-base);
+  background-image:
+    linear-gradient(45deg, var(--nuri-check-tile) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--nuri-check-tile) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--nuri-check-tile) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--nuri-check-tile) 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+  position: relative;
+  isolation: isolate;
+}
+.nuri-swatch--alpha::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--alpha-fill);
+}
+/* White alpha needs a dark backdrop to read */
+.nuri-swatch--on-dark {
+  --nuri-check-base: var(--nuri-color-gray-1-dark);      /* #111111 */
+  --nuri-check-tile: var(--nuri-color-white-alpha-2);    /* rgba(255,255,255,0.10) */
+}
+
+
+/* ── Card grids ───────────────────────────────────────────────── */
+
+.nuri-grid {
+  display: grid;
+  gap: var(--nuri-px-12);
+  margin: var(--nuri-px-18) 0;
+}
+.nuri-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.nuri-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.nuri-grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+.nuri-card {
+  padding: var(--nuri-px-18);
+  background: var(--nuri-bg-canvas);
+  border: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  border-radius: var(--nuri-radius-lg);
+}
+
+.nuri-card__eyebrow {
+  font-size: var(--nuri-font-size-13);
+  color: var(--nuri-text-muted);
+  margin: 0 0 var(--nuri-px-4);
+}
+
+.nuri-card__title {
+  margin: 0 0 var(--nuri-px-4);
+  font-size: var(--nuri-font-size-13);
+  font-weight: var(--nuri-font-weight-semibold);
+  color: var(--nuri-text-primary);
+}
+
+.nuri-card__body {
+  margin: 0;
+  font-size: var(--nuri-font-size-13);
+  color: var(--nuri-text-muted);
+}
+
+
+/* ── Table breakout wrapper ──────────────────────────────────────
+ * .nuri-table-scroll is the wrapper around every wide table in the
+ * docs (token tables, props tables, parts tables, token-map). Two
+ * jobs:
+ *   1. Break out of .nuri-shell__main padding via negative px-48
+ *      left/right margins — table sits edge-to-edge of the shell
+ *      content area, NOT constrained by the 560-cap prose column.
+ *   2. Horizontal scroll on narrow viewports (overflow-x: auto).
+ *
+ * Emitted automatically by lib/docs/tokens.js around every token table;
+ * authored by hand around component-page tables — now the unified
+ * .nuri-table widget below (N+3 collapsed .nuri-props-table /
+ * .nuri-parts-table / .nuri-token-map into one class).
+ * ────────────────────────────────────────────────────────────── */
+.nuri-table-scroll {
+  width: auto;
+  margin-left: calc(-1 * var(--nuri-px-48));
+  margin-right: calc(-1 * var(--nuri-px-48));
+  margin-top: var(--nuri-px-12);
+  margin-bottom: var(--nuri-px-24);
+  overflow-x: auto;
+}
+
+
+/* ── Token table · shared docs widget ────────────────────────────
+ * The ONE shape for showing a set of design tokens as tabular data.
+ * Primary surface for Primitive · Semantic · Exploration · the
+ * component DTCG dictionary. Built from the parser in lib/docs/tokens.js;
+ * rows are fed via NuriTokens.renderTable(tokens, opts).
+ *
+ * Columns (in source order):
+ *   1. DTCG         — dot-notation name (e.g. color.gray.1.light)
+ *                     INLINED 32px swatch hangs to the left of the
+ *                     text via negative margin — names align across
+ *                     rows whether the row has a swatch or not
+ *   2. CSS var      — full custom property
+ *   3. Reference    — opt-in for semantic; the var() the token points at
+ *   4. Value        — resolved literal (hex, rgba, …)
+ *   5. Type         — DTCG $type inferred from the prefix
+ *
+ * Row visuals:
+ *   · 48px row height, nowrap (atomic agent-read cells; no rewrap)
+ *   · header underline + per-row border-bottom; no outer border, no
+ *     radius, no row background
+ *   · first cell's content padding = px-48 (48px) to align with
+ *     the prose 560 left edge; last cell mirrors on the right
+ *   · table is wrapped in .nuri-table-scroll so wide tables scroll
+ *     horizontally instead of overflowing the shell
+ *
+ * One table per logical grouping. Pages stack multiple tables under
+ * <h3> headings rather than building one giant table.
+ *
+ * Promoted from pages/components/button.html page-local + the
+ * post-processor `inlineSwatchesInDTCG()` on 2026-05-26 (N+2) so the
+ * format is uniform across every page that consumes lib/docs/tokens.js.
+ * ────────────────────────────────────────────────────────────── */
+
+.nuri-token-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--nuri-font-size-13);
+  table-layout: auto;
+}
+
+.nuri-token-table__caption {
+  caption-side: top;
+  text-align: left;
+  padding: 0 0 var(--nuri-px-6);
+  font-size: var(--nuri-font-size-13);
+  color: var(--nuri-text-muted);
+}
+
+.nuri-token-table thead th {
+  text-align: left;
+  padding: var(--nuri-px-4) var(--nuri-px-12);
+  border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  color: var(--nuri-text-muted);
+  font-weight: var(--nuri-font-weight-regular);
+  font-size: var(--nuri-font-size-13);
+  white-space: nowrap;
+}
+
+.nuri-token-table tbody td {
+  padding: var(--nuri-px-6) var(--nuri-px-12);
+  border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  vertical-align: middle;
+  line-height: 1.4;
+  white-space: nowrap;
+  height: var(--nuri-px-48);
+}
+
+.nuri-token-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* First cell padding-left + last cell padding-right both = px-48
+ * (48px) so the table content aligns with the prose 560 left edge
+ * even though the table itself breaks out of shell-main padding via
+ * .nuri-table-scroll's negative margins. Header and body rows match. */
+.nuri-token-table thead th:first-child,
+.nuri-token-table tbody td:first-child {
+  padding-left: var(--nuri-px-48);
+}
+.nuri-token-table thead th:last-child,
+.nuri-token-table tbody td:last-child {
+  padding-right: var(--nuri-px-48);
+}
+
+/* DTCG name cell · the <td> stays `display: table-cell` (so the row's
+ * column-width math is honoured); flex goes on the INNER <span> so
+ * the inline swatch can hang to the LEFT of the cell's padding via
+ * negative margin. Result: token NAMES start at the same X for every
+ * row (whether the row has a swatch or not), and the row borders /
+ * column widths stay consistent across the whole row.
+ *
+ * Earlier attempt (N+2 first pass) put `display: flex` on the <td>
+ * itself — that detached the cell from the row's column-width
+ * participation and the DTCG column visually broke away from the
+ * rest. Don't put flex/grid/block on a <td> in a table that needs to
+ * keep its native row layout. */
+.nuri-token-table__cell-name-inner {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+/* Mono cells — anything that's a code-like literal (CSS var, value, ref). */
+.nuri-token-table__cell-mono {
+  font-family: var(--nuri-font-family-mono);
+  word-break: break-word;
+}
+.nuri-token-table__cell-muted {
+  color: var(--nuri-text-muted);
+}
+.nuri-token-table__cell-name {
+  color: var(--nuri-text-primary);
+}
+.nuri-token-table__cell-type {
+  color: var(--nuri-text-muted);
+}
+
+/* Inline swatch modifier · used by the renderer in the DTCG name
+ * cell. The chip hangs in the cell's padding gutter (to the LEFT
+ * of the column-header edge) so token NAMES start at the prose
+ * left edge whether or not the row has a swatch — names render
+ * columnar AND align with the "DTCG" thead-th edge above.
+ *
+ * Dimension scale (from tokens-primitive.css):
+ *   px-6 = 6px   px-18 = 18px   px-24 = 24px   px-48 = 48px
+ *
+ * Layout math:
+ *   cell padding-left  = px-48 (48px)     ← thead-th edge (col header)
+ *   chip width         = px-24 (24px)
+ *   chip margin-left   = -px-48 + px-6 (= -42px)
+ *     → chip-left = 6px from cell border (= a bit of air on the
+ *       left so the chip doesn't slam into the shell-main edge)
+ *   chip margin-right  = px-18 (18px)
+ *     → token name starts at 6 + 24 + 18 = 48px from cell border
+ *       = aligned with the "DTCG" column header above. */
+.nuri-swatch--inline {
+  flex: 0 0 var(--nuri-px-24);
+  width: var(--nuri-px-24);
+  height: var(--nuri-px-24);
+  margin-left: calc(-1 * var(--nuri-px-48) + var(--nuri-px-6));
+  margin-right: var(--nuri-px-18);
+  border-radius: var(--nuri-radius-sm);
+  border: var(--nuri-border-1) solid var(--nuri-border-subtle);
+}
+
+/* Set indicator · inline meta line shown above a page's first table.
+ * Keeps the "set" concept visible without a dedicated UI control —
+ * a placeholder for when multiple sets (brand/density) exist. */
+.nuri-token-meta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--nuri-px-4);
+  margin: 0 0 var(--nuri-px-18);
+  padding: var(--nuri-px-4) var(--nuri-px-6);
+  background: var(--nuri-bg-strong);
+  border-radius: var(--nuri-radius-sm);
+  font-size: var(--nuri-font-size-13);
+  color: var(--nuri-text-muted);
+}
+.nuri-token-meta code {
+  font-family: var(--nuri-font-family-mono);
+  color: var(--nuri-text-primary);
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+ * .nuri-table · unified table widget for non-token data
+ *
+ * Used by component pages for: anatomy (parts), props/API, token-
+ * mapping (variant×state → token). Same visual rhythm as
+ * .nuri-token-table above (48px row, 48px first/last cell padding,
+ * .nuri-table-scroll wrapper breakout) but different row schema —
+ * the data is component-specific, not token-driven.
+ *
+ * Use `data-table` on the <table> to differentiate kinds:
+ *   data-table="props"      — API props
+ *   data-table="parts"      — anatomy / part inventory
+ *   data-table="token-map"  — variant×state → token wiring
+ *
+ * Per decision 24, the parts + token-map tables are the migration
+ * wiring spec. Rows MUST carry data-* attrs for machine extraction:
+ *   parts:     <tr data-part="…" data-element="…" data-role="…">
+ *   token-map: <td data-cell="state|property|token|conditions">
+ *
+ * Promoted from pages/components/button.html page-local on
+ * 2026-05-27 (N+3). Replaces .nuri-props-table / .nuri-parts-table /
+ * .nuri-token-map (collapsed into one class).
+ * ────────────────────────────────────────────────────────────── */
+.nuri-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--nuri-font-size-15);
+  table-layout: auto;
+}
+.nuri-table thead th {
+  text-align: left;
+  padding: var(--nuri-px-4) var(--nuri-px-12);
+  border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  color: var(--nuri-text-muted);
+  font-weight: var(--nuri-font-weight-regular);
+  font-size: var(--nuri-font-size-13);
+  white-space: nowrap;
+}
+.nuri-table tbody td {
+  padding: var(--nuri-px-6) var(--nuri-px-12);
+  border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  vertical-align: middle;
+  line-height: 1.4;
+  color: var(--nuri-text-muted);
+  white-space: nowrap;
+  height: var(--nuri-px-48);
+}
+.nuri-table tbody tr:last-child td {
+  border-bottom: none;
+}
+/* First / last cell padding-x = px-48 (48px) so content aligns
+ * with the prose 560 left edge while the table itself breaks out of
+ * shell-main padding via .nuri-table-scroll. Same pattern as
+ * .nuri-token-table. */
+.nuri-table thead th:first-child,
+.nuri-table tbody td:first-child {
+  padding-left: var(--nuri-px-48);
+}
+.nuri-table thead th:last-child,
+.nuri-table tbody td:last-child {
+  padding-right: var(--nuri-px-48);
+}
+/* Description columns (props / parts): humans read prose here —
+ * allow wrap with a min/max-width so the column behaves
+ * predictably. */
+.nuri-table td[data-cell="description"] {
+  white-space: normal;
+  min-width: 220px;
+  max-width: 320px;
+  vertical-align: top;
+}
+/* Inline code inside tables: mono 13, no bg/padding, inherits cell
+ * color. Non-mono cell text uses cell font-size (15); the <code>
+ * inside drops to 13. */
+.nuri-table code {
+  font-family: var(--nuri-font-family-mono);
+  font-size: var(--nuri-font-size-13);
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+/* Token-map kind · the State column (first child) is mono. Group-
+ * header rows span the full width via colspan and carry the variant
+ * context (the "Variant" column was removed as redundant). */
+.nuri-table[data-table="token-map"] tbody td:nth-child(1) {
+  font-family: var(--nuri-font-family-mono);
+  font-size: var(--nuri-font-size-13);
+  white-space: nowrap;
+}
+.nuri-table__group th {
+  text-align: left;
+  height: var(--nuri-px-48);
+  padding: var(--nuri-px-6) var(--nuri-px-48);
+  font-size: var(--nuri-font-size-15);
+  font-weight: var(--nuri-type-xs-em-weight, var(--nuri-font-weight-semibold));
+  color: var(--nuri-text-primary);
+  background: transparent;
+  border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  vertical-align: middle;
+}
+/* The very first group-header row has no border-top because thead's
+ * border-bottom already separates it. Each subsequent group-header
+ * gets a top border to seal off the previous group. */
+.nuri-table tbody tr.nuri-table__group ~ tr.nuri-table__group th {
+  border-top: var(--nuri-border-1) solid var(--nuri-border-subtle);
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+ * .nuri-spec-card · component spec summary
+ * Used at the top of every component docs page. Renders as a box
+ * (subtle bg + border + radius) containing a label/value grid.
+ *
+ * Structure:
+ *   <dl class="nuri-spec-card" data-component data-component-status
+ *                              data-rn-status>
+ *     <div class="nuri-spec-card__row">
+ *       <dt>Label</dt>
+ *       <dd data-spec="…">
+ *         <span class="nuri-spec-card__chip" data-…>value</span>
+ *         <span class="nuri-spec-card__meta">trailing note</span>
+ *       </dd>
+ *     </div>
+ *     … more rows …
+ *   </dl>
+ *
+ * Promoted from pages/components/button.html page-local on 2026-05-26
+ * after the canonical component-docs template was validated.
+ * ────────────────────────────────────────────────────────────── */
+.nuri-spec-card {
+  margin: 0 0 var(--nuri-px-24);
+  padding: 0 var(--nuri-px-18);
+  background: var(--nuri-bg-subtle);
+  border: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  border-radius: var(--nuri-radius-md);
+  display: flex;
+  flex-direction: column;
+  font-size: var(--nuri-font-size-15);
+}
+.nuri-spec-card__row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: var(--nuri-px-12);
+  align-items: center;
+  padding: var(--nuri-px-6) 0;
+  min-height: 48px;
+}
+.nuri-spec-card__row + .nuri-spec-card__row {
+  border-top: var(--nuri-border-1) solid var(--nuri-border-subtle);
+}
+.nuri-spec-card dt {
+  margin: 0;
+  font-size: var(--nuri-font-size-15);
+  font-weight: var(--nuri-font-weight-regular);
+  color: var(--nuri-text-muted);
+}
+.nuri-spec-card dd {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nuri-px-2) var(--nuri-px-6);
+  align-items: baseline;
+  color: var(--nuri-text-muted);
+}
+.nuri-spec-card__chip {
+  font-family: var(--nuri-font-family-mono);
+  font-size: var(--nuri-font-size-13);
+  color: var(--nuri-text-muted);
+}
+.nuri-spec-card__meta {
+  font-size: var(--nuri-font-size-15);
+  color: var(--nuri-text-muted);
+}
+.nuri-spec-card__sep {
+  color: var(--nuri-text-muted);
+}
+@media (max-width: 480px) {
+  .nuri-spec-card__row {
+    grid-template-columns: 1fr;
+    gap: var(--nuri-px-2);
+  }
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+ * .nuri-anatomy · component anatomy block (component docs)
+ * Visual rendering of the component on top, parts table below.
+ * Used in the "Anatomy & parts" section of component pages.
+ *
+ * Structure:
+ *   <div class="nuri-anatomy">
+ *     <div class="nuri-anatomy__visual">
+ *       <!-- component demo -->
+ *     </div>
+ *     <div class="nuri-table-scroll"><table class="nuri-table" data-table="parts">
+ *       <!-- per-part rows -->
+ *     </table></div>
+ *   </div>
+ *
+ * Page-local consumers add component-specific child rules
+ * (e.g. button.html's `width: 100%; max-width: 360px` for inner
+ * <nuri-button>). The base block lives here.
+ *
+ * Promoted from per-page <style> blocks on 2026-05-28 once a third
+ * consumer (Stack + Box pages alongside Button) made the
+ * duplication a maintenance tax. Decision 14 (page-local layout
+ * pattern · N+1) marks .nuri-anatomy as the next promotion
+ * candidate; this is that promotion.
+ * ────────────────────────────────────────────────────────────── */
+.nuri-anatomy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nuri-px-12);
+  margin: var(--nuri-px-12) 0;
+}
+.nuri-anatomy__visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--nuri-px-28) var(--nuri-px-18);
+  background: var(--nuri-bg-canvas);
+  border: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  border-radius: var(--nuri-radius-lg);
+  max-width: 560px;
+}
+.nuri-anatomy .nuri-table { margin: 0; }
+
+
+/* ──────────────────────────────────────────────────────────────
+ * .nuri-state-grid · state visualisations row (component docs)
+ * One row per state (default · pressed · disabled …) with a label
+ * on the left and the rendered state demo on the right. Used in
+ * the "States" section of component docs.
+ *
+ * Structure:
+ *   <div class="nuri-state-grid" data-variant>
+ *     <div class="nuri-state-grid__cell" data-state>
+ *       <span class="nuri-state-grid__label">default</span>
+ *       <!-- component demo -->
+ *     </div>
+ *     … more cells …
+ *   </div>
+ *
+ * Promoted from button.html page-local on 2026-05-26.
+ * ────────────────────────────────────────────────────────────── */
+.nuri-state-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nuri-px-6);
+  margin: var(--nuri-px-6) 0 var(--nuri-px-18);
+}
+.nuri-state-grid__cell {
+  display: grid;
+  grid-template-columns: minmax(120px, 160px) 1fr;
+  gap: var(--nuri-px-12);
+  align-items: center;
+  padding: var(--nuri-px-6) 0;
+  border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
+}
+.nuri-state-grid__cell:first-child {
+  border-top: var(--nuri-border-1) solid var(--nuri-border-subtle);
+}
+.nuri-state-grid__label {
+  font-family: var(--nuri-font-family-mono);
+  font-size: var(--nuri-font-size-13);
+  color: var(--nuri-text-muted);
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+ * .nuri-roadmap · planned-features list (component / foundation docs)
+ *
+ * Structure:
+ *   <ul class="nuri-roadmap">
+ *     <li data-feature="…">
+ *       <span class="nuri-tag nuri-tag--planned">planned</span>
+ *       <div class="nuri-roadmap__body">
+ *         <strong class="nuri-roadmap__title">…</strong>
+ *         <p class="nuri-roadmap__desc">…</p>
+ *       </div>
+ *     </li>
+ *     … more items …
+ *   </ul>
+ *
+ * Promoted from button.html page-local on 2026-05-26.
+ * ────────────────────────────────────────────────────────────── */
+.nuri-roadmap {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--nuri-px-6);
+}
+.nuri-roadmap li {
+  display: grid;
+  grid-template-columns: minmax(120px, 160px) 1fr;
+  gap: var(--nuri-px-12);
+  align-items: start;
+  padding: var(--nuri-px-12);
+  background: var(--nuri-bg-subtle);
+  border: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  border-radius: var(--nuri-radius-md);
+}
+.nuri-roadmap li > .nuri-tag {
+  justify-self: start;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+.nuri-roadmap__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nuri-px-2);
+  min-width: 0;
+}
+.nuri-roadmap__title {
+  color: var(--nuri-text-muted);
+  font-size: var(--nuri-font-size-15);
+  font-weight: var(--nuri-font-weight-semibold);
+}
+.nuri-roadmap__desc {
+  margin: 0;
+  font-size: var(--nuri-font-size-15);
+  color: var(--nuri-text-muted);
+  line-height: 1.5;
+}
+.nuri-roadmap__title code,
+.nuri-roadmap__desc code {
+  font-family: var(--nuri-font-family-mono);
+  font-size: var(--nuri-font-size-13);
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+ * .nuri-role-legend · grid of numbered role descriptions
+ *
+ * Two-column grid mapping step numbers to their functional role
+ * (used by the Colour Primitive page to explain the Radix 12-step
+ * model). Source-order is interleaved left/right so column 1 carries
+ * steps 1·2·3·4·5·6 and column 2 carries 7·8·9·10·11·12 — the order
+ * the user writes the items is also the visual order.
+ *
+ * Structure:
+ *   <div class="nuri-role-legend">
+ *     <div class="nuri-role-legend__item">
+ *       <span class="nuri-role-legend__num">1</span>
+ *       <span>App background</span>
+ *     </div>
+ *     … more items …
+ *   </div>
+ *
+ * Promoted from pages/foundations/colour/primitive.html page-local
+ * on 2026-05-26 (N+2).
+ * ────────────────────────────────────────────────────────────── */
+.nuri-role-legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--nuri-px-4) var(--nuri-px-18);
+  margin: var(--nuri-px-12) 0;
+  padding: var(--nuri-px-12) var(--nuri-px-18);
+  background: var(--nuri-bg-subtle);
+  border: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  border-radius: var(--nuri-radius-md);
+}
+.nuri-role-legend__item {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  align-items: baseline;
+  gap: var(--nuri-px-6);
+  font-size: var(--nuri-font-size-15);
+  color: var(--nuri-text-muted);
+}
+.nuri-role-legend__num {
+  color: var(--nuri-text-primary);
+  font-weight: var(--nuri-font-weight-semibold);
+  text-align: right;
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+ * .nuri-scale-list / .nuri-scale-card · scale-ramp visualisation
+ *
+ * Stack of cards, one per step in a scale (type ramp, future spacing
+ * ramp, future radius ramp). Each card has a header strip with the
+ * step slug + atomic meta + token name, and a body that renders the
+ * step at its actual value (sample text for typography; size or radius
+ * preview for the future foundations).
+ *
+ * Structure:
+ *   <section class="nuri-scale-list">
+ *     <article class="nuri-scale-card">
+ *       <header class="nuri-scale-card__head">
+ *         <span class="nuri-scale-card__step">md</span>
+ *         <span class="nuri-scale-card__meta">
+ *           <span class="nuri-scale-card__meta-label">size</span>
+ *           <span class="nuri-scale-card__meta-value">17</span>
+ *         </span>
+ *         <span class="nuri-scale-card__sep"></span>
+ *         …
+ *         <span class="nuri-scale-card__token">--nuri-type-md-*</span>
+ *       </header>
+ *       <div class="nuri-scale-card__body">…sample…</div>
+ *     </article>
+ *     <article class="nuri-scale-card nuri-scale-card--gap">
+ *       <header class="nuri-scale-card__head">
+ *         <span class="nuri-scale-card__step">2xl</span>
+ *         <span class="nuri-scale-card__gap-label">Gap reserved · TBD</span>
+ *         <span class="nuri-scale-card__token">—</span>
+ *       </header>
+ *     </article>
+ *   </section>
+ *
+ * Promoted from pages/foundations/typography.html page-local on
+ * 2026-05-26 (N+2) and renamed from .nuri-type-* → .nuri-scale-*
+ * so future Spacing / Radii foundations reuse without duplication.
+ * ────────────────────────────────────────────────────────────── */
+.nuri-scale-list {
+  display: grid;
+  gap: var(--nuri-px-12);
+  margin: var(--nuri-px-12) 0 var(--nuri-px-24);
+}
+.nuri-scale-card {
+  border: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  border-radius: var(--nuri-radius-lg);
+  background: var(--nuri-bg-canvas);
+  overflow: hidden;
+  transition: border-color var(--nuri-duration-fast) ease;
+}
+.nuri-scale-card:hover {
+  border-color: var(--nuri-border-strong);
+}
+.nuri-scale-card__head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--nuri-px-6);
+  padding: var(--nuri-px-6) var(--nuri-px-18);
+  background: var(--nuri-bg-subtle);
+  border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
+  font-family: var(--nuri-font-family-mono);
+  font-size: var(--nuri-font-size-13);
+  color: var(--nuri-text-muted);
+  line-height: 1;
+}
+.nuri-scale-card__step {
+  display: inline-flex;
+  align-items: center;
+  height: var(--nuri-px-18);
+  padding: 0 var(--nuri-px-6);
+  background: var(--nuri-bg-inverse);
+  color: var(--nuri-text-on-inverse);
+  border-radius: var(--nuri-radius-xs);
+  font-family: var(--nuri-font-family-mono);
+  font-size: var(--nuri-font-size-13);
+  font-weight: var(--nuri-font-weight-bold);
+  letter-spacing: 0.04em;
+}
+.nuri-scale-card__meta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--nuri-px-2);
+}
+.nuri-scale-card__meta-label {
+  color: var(--nuri-text-muted);
+}
+.nuri-scale-card__meta-value {
+  font-weight: var(--nuri-font-weight-semibold);
+  color: var(--nuri-text-primary);
+}
+.nuri-scale-card__token {
+  margin-left: auto;
+  color: var(--nuri-text-muted);
+}
+.nuri-scale-card__sep {
+  width: var(--nuri-border-1);
+  height: var(--nuri-px-12);
+  background: var(--nuri-border-subtle);
+}
+.nuri-scale-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nuri-px-6);
+  padding: var(--nuri-px-18) var(--nuri-px-18);
+}
+.nuri-scale-card__sample {
+  margin: 0;
+  color: var(--nuri-text-primary);
+  overflow-wrap: anywhere;
+}
+/* Reserved-gap card · dashed border, no body, marks a step that
+ * exists in the slot enumeration but has no value yet. */
+.nuri-scale-card--gap {
+  border-style: dashed;
+  background: transparent;
+}
+.nuri-scale-card--gap:hover {
+  border-color: var(--nuri-border-subtle);
+}
+.nuri-scale-card--gap .nuri-scale-card__head {
+  background: transparent;
+  border-bottom: none;
+  padding: var(--nuri-px-18);
+  justify-content: space-between;
+}
+.nuri-scale-card--gap .nuri-scale-card__gap-label {
+  font-family: var(--nuri-font-family-mono);
+  font-size: var(--nuri-font-size-13);
+  color: var(--nuri-text-muted);
+}
+@media (max-width: 720px) {
+  .nuri-scale-card__token {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}
+
+
+/* ──────────────────────────────────────────────────────────────
+ * .nuri-card--link · clickable index card variant
+ *
+ * Modifier on .nuri-card that turns the whole card into an <a>.
+ * Used on hub / overview pages (Colour overview, Home) to link to
+ * sub-pages. Adds hover affordance + a CTA arrow line.
+ *
+ * Structure:
+ *   <a class="nuri-card nuri-card--link" href="…">
+ *     <p class="nuri-card__eyebrow">…</p>
+ *     <h3 class="nuri-card__title">…</h3>
+ *     <p class="nuri-card__body">…</p>
+ *     <p class="nuri-card__cta">→ Open …</p>
+ *   </a>
+ *
+ * Promoted to shell.css on 2026-05-26 (N+2) from the (since
+ * deleted in N+3) colour overview hub page. Still consumed by
+ * any future hub-like landings inside a foundation sub-tree.
+ * ────────────────────────────────────────────────────────────── */
+.nuri-card--link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--nuri-duration-fast) ease;
+}
+.nuri-card--link:hover {
+  border-color: var(--nuri-border-strong);
+}
+.nuri-card--link .nuri-card__cta {
+  margin: var(--nuri-px-12) 0 0;
+  font-family: var(--nuri-font-family-mono);
+  font-size: var(--nuri-font-size-13);
+  font-weight: var(--nuri-font-weight-semibold);
+  color: var(--nuri-accent-fg);
+}

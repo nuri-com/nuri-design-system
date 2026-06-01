@@ -1,0 +1,155 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · BOX
+ *
+ * Layout primitive · padding-bearing container. Padding (all 7
+ * variants), inline-centering, surface background, and corner
+ * radius controlled by props. Still no border — pure layout +
+ * surface per decision 37 (layout-primitive class · N+6.2) extended
+ * by decision 42 (background + radius props · N+6.5).
+ *
+ * API · padding/center/as locked at N+6.2 · background/radius at N+6.5
+ *
+ *   padding?  / paddingX?  / paddingY?:                 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+ *   paddingStart?  / paddingEnd?:                       'xs' | 'sm' | 'md' | 'lg' | 'xl'
+ *   paddingTop?    / paddingBottom?:                    'xs' | 'sm' | 'md' | 'lg' | 'xl'
+ *   background?: 'canvas' | 'subtle' | 'strong' | 'accent-solid' | 'accent-subtle'
+ *   radius?:    'sm' | 'md' | 'lg' | 'full'
+ *   center?:    boolean    (margin-inline: auto · honors host-resolved width)
+ *   fill?:      boolean    (decision 60 · grow to fill a flex parent's main
+ *                          axis as a flex column · ScrollView contentContainer)
+ *   as?:        string     (host-resolved · defaults to <div>)
+ *
+ * Padding precedence (more specific wins): top/bottom/start/end
+ * override paddingX/paddingY which override `padding`. Mirrors the
+ * spec from external project's Box token (a single `padding` prop
+ * accepting either a leaf or an object); flattened here for the
+ * web attr surface.
+ *
+ * Markup
+ *   <nuri-box padding="md">…</nuri-box>                            uniform md inset
+ *   <nuri-box padding-x="lg" padding-y="sm">…</nuri-box>           axis-asymmetric
+ *   <nuri-box padding-start="md">…</nuri-box>                      RTL-aware single edge
+ *   <nuri-box padding="md" center>…</nuri-box>                     centered (with width)
+ *   <nuri-box as="article" padding="lg">…</nuri-box>               host = <article>
+ *
+ * No `@layer tokens` block — Box consumes the semantic space
+ * vocabulary directly in `@layer rules` via attribute-selector
+ * dispatch (decision 37). Same pattern as Stack.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design. See stack.css for the rationale (decision 37 ·
+   * N+6.2 · layout primitives parametrize semantic vocabulary via
+   * prop, not via component-token aliasing). */
+}
+
+@layer rules {
+  /* ── Custom element wrapper · invisible in layout ──────────── */
+  nuri-box {
+    display: contents;
+  }
+
+  /* ── Pre-upgrade skeleton ──────────────────────────────────── */
+  /* Until box.js (deferred) defines the custom element, the
+   * wrapper renders as a block so authored children don't flash
+   * inline. The inner takes over post-upgrade. */
+  nuri-box:not(:defined) {
+    display: block;
+  }
+
+  /* ── Base · variant-agnostic ─────────────────────────────── */
+  .nuri-box {
+    /* No display rule · honor the host (default <div> is already
+     * block; `as="section"` etc. inherit their own default). */
+    min-width: 0;
+  }
+
+  /* ── Fill · grow to fill a flex parent's main axis (decision 60) ──
+   * Opt-in. The Box becomes a filling flex column so it both (a) grows
+   * to fill its flex parent — typically a <nuri-scroll>, the web
+   * analogue of RN's ScrollView contentContainerStyle={{flexGrow:1}} —
+   * and (b) can host a <nuri-stack fill> child that fills in turn, so a
+   * <nuri-spacer> pushes trailing content to the end. `flex: 1 0 auto`
+   * (not 1 1 0): when content EXCEEDS the viewport the Box keeps its
+   * content height and the Scroll scrolls (no clipping). RN map: a View
+   * with style={{ flex: 1 }} (the contentContainer). */
+  .nuri-box[data-fill] {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Padding · uniform (5-leaf subset of semantic space) ─── */
+  .nuri-box[data-padding="xs"] { padding: var(--nuri-space-xs); }
+  .nuri-box[data-padding="sm"] { padding: var(--nuri-space-sm); }
+  .nuri-box[data-padding="md"] { padding: var(--nuri-space-md); }
+  .nuri-box[data-padding="lg"] { padding: var(--nuri-space-lg); }
+  .nuri-box[data-padding="xl"] { padding: var(--nuri-space-xl); }
+
+  /* ── Padding · axis (overrides uniform) ──────────────────── */
+  /* `padding-inline` is the logical RTL-safe property; pairs with
+   * paddingX. `padding-block` pairs with paddingY. */
+  .nuri-box[data-padding-x="xs"] { padding-inline: var(--nuri-space-xs); }
+  .nuri-box[data-padding-x="sm"] { padding-inline: var(--nuri-space-sm); }
+  .nuri-box[data-padding-x="md"] { padding-inline: var(--nuri-space-md); }
+  .nuri-box[data-padding-x="lg"] { padding-inline: var(--nuri-space-lg); }
+  .nuri-box[data-padding-x="xl"] { padding-inline: var(--nuri-space-xl); }
+
+  .nuri-box[data-padding-y="xs"] { padding-block: var(--nuri-space-xs); }
+  .nuri-box[data-padding-y="sm"] { padding-block: var(--nuri-space-sm); }
+  .nuri-box[data-padding-y="md"] { padding-block: var(--nuri-space-md); }
+  .nuri-box[data-padding-y="lg"] { padding-block: var(--nuri-space-lg); }
+  .nuri-box[data-padding-y="xl"] { padding-block: var(--nuri-space-xl); }
+
+  /* ── Padding · single edge (overrides axis + uniform) ────── */
+  .nuri-box[data-padding-start="xs"] { padding-inline-start: var(--nuri-space-xs); }
+  .nuri-box[data-padding-start="sm"] { padding-inline-start: var(--nuri-space-sm); }
+  .nuri-box[data-padding-start="md"] { padding-inline-start: var(--nuri-space-md); }
+  .nuri-box[data-padding-start="lg"] { padding-inline-start: var(--nuri-space-lg); }
+  .nuri-box[data-padding-start="xl"] { padding-inline-start: var(--nuri-space-xl); }
+
+  .nuri-box[data-padding-end="xs"] { padding-inline-end: var(--nuri-space-xs); }
+  .nuri-box[data-padding-end="sm"] { padding-inline-end: var(--nuri-space-sm); }
+  .nuri-box[data-padding-end="md"] { padding-inline-end: var(--nuri-space-md); }
+  .nuri-box[data-padding-end="lg"] { padding-inline-end: var(--nuri-space-lg); }
+  .nuri-box[data-padding-end="xl"] { padding-inline-end: var(--nuri-space-xl); }
+
+  .nuri-box[data-padding-top="xs"] { padding-block-start: var(--nuri-space-xs); }
+  .nuri-box[data-padding-top="sm"] { padding-block-start: var(--nuri-space-sm); }
+  .nuri-box[data-padding-top="md"] { padding-block-start: var(--nuri-space-md); }
+  .nuri-box[data-padding-top="lg"] { padding-block-start: var(--nuri-space-lg); }
+  .nuri-box[data-padding-top="xl"] { padding-block-start: var(--nuri-space-xl); }
+
+  .nuri-box[data-padding-bottom="xs"] { padding-block-end: var(--nuri-space-xs); }
+  .nuri-box[data-padding-bottom="sm"] { padding-block-end: var(--nuri-space-sm); }
+  .nuri-box[data-padding-bottom="md"] { padding-block-end: var(--nuri-space-md); }
+  .nuri-box[data-padding-bottom="lg"] { padding-block-end: var(--nuri-space-lg); }
+  .nuri-box[data-padding-bottom="xl"] { padding-block-end: var(--nuri-space-xl); }
+
+  /* ── Background · surface fill (5-value semantic enum) ───── */
+  /* Chrome surfaces (canvas/subtle/strong) read the theme-only
+   * bg tokens. The accent-* pair reads the accent × theme tokens —
+   * accent-solid also flips text colour to on-solid so labels stay
+   * legible on the inverse/brand fill (decision 42 · N+6.5). */
+  .nuri-box[data-background="canvas"] { background: var(--nuri-bg-canvas); }
+  .nuri-box[data-background="subtle"] { background: var(--nuri-bg-subtle); }
+  .nuri-box[data-background="strong"] { background: var(--nuri-bg-strong); }
+  .nuri-box[data-background="accent-solid"] {
+    background: var(--nuri-accent-solid);
+    color: var(--nuri-accent-on-solid);
+  }
+  .nuri-box[data-background="accent-subtle"] { background: var(--nuri-accent-bg-subtle); }
+
+  /* ── Radius · corner softness (4-leaf semantic enum) ─────── */
+  .nuri-box[data-radius="sm"]   { border-radius: var(--nuri-radius-sm); }
+  .nuri-box[data-radius="md"]   { border-radius: var(--nuri-radius-md); }
+  .nuri-box[data-radius="lg"]   { border-radius: var(--nuri-radius-lg); }
+  .nuri-box[data-radius="full"] { border-radius: var(--nuri-radius-full); }
+
+  /* ── Center · inline-axis auto margins ───────────────────── */
+  /* Only meaningful when the host has a bounded width (e.g., via
+   * a parent's max-width or an explicit width). No-op otherwise. */
+  .nuri-box[data-center="true"] {
+    margin-inline: auto;
+  }
+}

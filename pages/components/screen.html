@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Components · Screen</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../lib/components/stack/stack.css" />
+  <link rel="stylesheet" href="../../lib/components/box/box.css" />
+  <link rel="stylesheet" href="../../lib/components/screen/screen.css" />
+  <link rel="stylesheet" href="../../lib/components/scroll/scroll.css" />
+  <link rel="stylesheet" href="../../lib/components/button/button.css" />
+  <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+  <script src="../../lib/docs/tokens.js"></script>
+  <!-- Custom element scripts MUST be deferred so connectedCallback fires
+       AFTER body parsing (children present). See AGENTS.md. -->
+  <script src="../../lib/components/stack/stack.js" defer></script>
+  <script src="../../lib/components/box/box.js" defer></script>
+  <script src="../../lib/components/screen/screen.js" defer></script>
+  <script src="../../lib/components/scroll/scroll.js" defer></script>
+  <script src="../../lib/components/button/button.js" defer></script>
+  <script src="../../lib/docs/demo/demo.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  COMPONENT DOCS PAGE · LAYOUT-PRIMITIVE TEMPLATE (decision 37)
+  ═══════════════════════════════════════════════════════════════
+
+  Adapts the canonical component-page template (decision 24) for a
+  layout primitive — same shape as the Stack / Box pages. Sections
+  that don't apply (Variants / States / Theming) are omitted per
+  decision 19 (template variants in service of ONE structure).
+
+  Screen is the per-screen full-height column (decision 58): it fills
+  the navigator's content area and stacks pinned chrome (Topbar) above
+  a growing <nuri-scroll> body. It is NOT the navigator — the bottom
+  TabBar is a SIBLING of Screen, not a child (RN navigation norm). The
+  prose leads with the RN mapping (View {flex:1}) and the scaffold.
+
+  No `@layer tokens` in screen.css per decision 37 (layout-primitive
+  class). The flex:1 fill is structural, not a design-scale value, so
+  the pipeline emit step detects the empty case and skips writing
+  build/components/screen.ts (decision 52 skip-emit).
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="components/screen">
+  <nuri-page
+    eyebrow="Components · Layout · Screen"
+    title="Screen"
+    status="draft"
+    lead="The per-screen full-height column. Fills its parent's main axis (flex:1) and stacks pinned chrome above a growing Scroll body. Pure structure — no surface, no padding, no tokens. RN map: a View {flex:1}. It is NOT the navigator — the bottom TabBar is a sibling, never a child."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · SPEC CARD
+       Layout primitive variant — DTCG-shaped rows per decision 16
+       plus a Parts row carrying the single root.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-component="screen"
+        data-component-status="draft"
+        data-rn-status="spec-in-migration-test">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd data-spec="type">
+          <span class="nuri-spec-card__chip" data-type="component">component</span>
+          <span class="nuri-spec-card__meta">layout primitive · decision 37 / 58</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Layer</dt>
+        <dd data-spec="layer">
+          <span class="nuri-spec-card__chip" data-layer="composition">composition</span>
+          <span class="nuri-spec-card__meta">structural flex fill; consumes no tokens</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Source</dt>
+        <dd data-spec="source">
+          <span class="nuri-spec-card__chip" data-source="lib/components/screen/">lib/components/screen/</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Parts</dt>
+        <dd data-spec="parts">
+          <span class="nuri-spec-card__chip" data-part="root">root</span>
+          <span class="nuri-spec-card__meta">1 part</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Component status</dt>
+        <dd data-spec="component-status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>RN status</dt>
+        <dd data-spec="rn-status">
+          <span class="nuri-tag nuri-tag--draft">spec in migration-test</span>
+          <span class="nuri-spec-card__meta">RN definition lives at docs/migration-tests/button-matrix/index.tsx pending long-term home — see Open question in roadmap/index.md</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · HERO DEMO
+       Screen is invisible on its own (no surface). The hero wraps it
+       in a height-bounded frame so the flex:1 fill is observable: a
+       pinned header, a scrolling body, and a SIBLING tab bar below.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="hero">
+    <h2>Default</h2>
+    <nuri-demo controls="theme">
+      <template>
+        <div style="block-size: 280px; display: flex; flex-direction: column; outline: 1px dashed var(--nuri-border-subtle); border-radius: var(--nuri-radius-md); overflow: hidden;">
+          <nuri-screen>
+            <nuri-box background="strong" padding="md">Pinned header (Topbar)</nuri-box>
+            <nuri-scroll>
+              <nuri-box padding="lg">
+                <nuri-stack gap="sm">
+                  <nuri-button variant="soft">Row 1</nuri-button>
+                  <nuri-button variant="soft">Row 2</nuri-button>
+                  <nuri-button variant="soft">Row 3</nuri-button>
+                  <nuri-button variant="soft">Row 4</nuri-button>
+                  <nuri-button variant="soft">Row 5</nuri-button>
+                  <nuri-button variant="soft">Row 6</nuri-button>
+                  <nuri-button variant="soft">Row 7</nuri-button>
+                  <nuri-button variant="soft">Row 8</nuri-button>
+                </nuri-stack>
+              </nuri-box>
+            </nuri-scroll>
+          </nuri-screen>
+          <nuri-box background="subtle" padding="md">Sibling tab bar</nuri-box>
+        </div>
+      </template>
+    </nuri-demo>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · COMPOSITION & RN MAPPING
+       The agent-critical orientation: what Screen maps to in RN and
+       how it composes with Scroll + a sibling TabBar (decision 58).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="composition">
+    <h2>Composition &amp; RN mapping</h2>
+    <p>
+      <strong>RN map: <code>&lt;View style={{ flex: 1 }}&gt;</code></strong> (later the
+      themed <code>SafeAreaProvider</code> root). Screen is a thin component over a
+      full-height <code>View</code> — the <code>flex:1</code> column that fills the
+      navigator's content area. The web side renders an inner
+      <code>&lt;div&gt;</code> (or the element named by <code>as</code>) inside a
+      <code>display:contents</code> wrapper.
+    </p>
+    <p>
+      Screen is <strong>NOT the navigator</strong>. The thing that holds Screen +
+      the bottom TabBar and owns the safe-area is the navigator (React Navigation
+      in RN; the device frame in the playground) — framework chrome, not an
+      authored View. So the <strong>TabBar is a SIBLING of Screen</strong>, never a
+      child: in RN the tab bar is rendered once at navigator level, persistent
+      across screens. Screen stays inset-agnostic — no <code>env()</code> / inset
+      props (safe-area is handled in ONE place upstream, decision 58).
+    </p>
+    <pre class="nuri-code"><code>&lt;!-- Navigator chrome (device frame · React Navigation) owns the safe-area --&gt;
+&lt;nuri-screen&gt;
+  &lt;nuri-topbar&gt;…&lt;/nuri-topbar&gt;        &lt;!-- pinned · natural height --&gt;
+  &lt;nuri-scroll&gt;                       &lt;!-- flex:1 · grows + scrolls --&gt;
+    &lt;nuri-box padding="lg"&gt;
+      &lt;nuri-stack gap="lg"&gt;…&lt;/nuri-stack&gt;
+    &lt;/nuri-box&gt;
+  &lt;/nuri-scroll&gt;
+&lt;/nuri-screen&gt;
+&lt;nuri-tab-bar&gt;…&lt;/nuri-tab-bar&gt;          &lt;!-- SIBLING · navigator chrome --&gt;</code></pre>
+    <p>
+      See the <a href="../playground/my-vault.html">My vault playground</a> for the
+      scaffold rendered live inside the device frame, and
+      <a href="scroll.html">Scroll</a> for the growing body.
+    </p>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · API · PROPS
+       Screen carries a single prop — the web-only `as` host override.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="api">
+    <h2>API</h2>
+    <p>
+      Screen takes no layout props — its full-height column is fixed structure.
+      The only prop is the web-only host override.
+    </p>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="screen">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="as">
+          <td data-cell="name"><code>as</code></td>
+          <td data-cell="type"><code>string</code></td>
+          <td data-cell="default"><code>"div"</code></td>
+          <td data-cell="description">Host element on the web side (<code>"section"</code>, <code>"main"</code>, …). Has no RN analogue — RN always renders <code>&lt;View&gt;</code>.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · ANATOMY & PARTS
+       Single-root component. The anatomy table is the migration
+       wiring spec (decision 24) — one row per addressable part.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="anatomy">
+    <h2>Anatomy &amp; parts</h2>
+    <p>
+      Screen is a <strong>single-part</strong> component. The web side renders
+      an inner <code>&lt;div&gt;</code> (or the element named by <code>as</code>)
+      inside the <code>display:contents</code> wrapper; the RN side renders a
+      <code>&lt;View&gt;</code> with <code>flex:1</code>.
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="parts" data-component="screen">
+      <thead>
+        <tr>
+          <th>Part</th>
+          <th>Element (web)</th>
+          <th>Element (RN)</th>
+          <th>Owns</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-part="root">
+          <td data-cell="name"><code>root</code></td>
+          <td data-cell="element-web"><code>div</code> (or <code>as</code>)</td>
+          <td data-cell="element-rn"><code>View {flex:1}</code></td>
+          <td data-cell="owns">full-height flex column (flex-direction:column · flex:1 · min-block-size:0)</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · STRUCTURE · NO TOKENS
+       Parallel to Stack/Box's Token-mapping section — but Screen
+       consumes NONE. Stated explicitly for the agent-critical reader.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="structure">
+    <h2>Structure · no tokens</h2>
+    <p>
+      Unlike <a href="stack.html">Stack</a> (gap → space) or
+      <a href="box.html">Box</a> (padding → space, background → chrome), Screen
+      dereferences <strong>no design tokens</strong>. Its fill is pure structure —
+      <code>display:flex; flex-direction:column; flex:1; min-block-size:0</code> —
+      not a design-scale value. So <code>screen.css</code> carries an empty
+      <code>@layer tokens</code> block per
+      <a href="../../decisionlog.md#37-layout-primitives-consume-semantic-vocabulary-via-prop--no-component-token-aliasing--n62">decision 37</a>,
+      and the pipeline emit step skips writing
+      <code>build/components/screen.ts</code> (decision 52 skip-emit · same posture
+      as Stack / Box / Scroll).
+    </p>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · ROADMAP
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="rn-spec-home">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">RN spec long-term home</strong>
+          <p class="nuri-roadmap__desc">Today the Screen RN definition lives in the migration-test pair as a local module. Long-term: peer file <code>lib/components/screen/screen.tsx</code>? A <code>lib/spec/</code> namespace? Tracked alongside the other layout primitives in <a href="../../roadmap/index.md">roadmap/index.md</a>.</p>
+        </div>
+      </li>
+      <li data-feature="safe-area">
+        <span class="nuri-tag nuri-tag--planned">planned · evidence-gated</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Safe-area integration</strong>
+          <p class="nuri-roadmap__desc">Screen stays inset-agnostic by design (decision 58) — safe-area is owned upstream by the navigator (frame / <code>SafeAreaProvider</code> + React Navigation). If a real screen ever needs to opt into edge insets directly, revisit as a navigator-level concern, not a Screen prop.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+</body>
+</html>

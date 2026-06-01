@@ -1,0 +1,75 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · SEPARATOR
+ *
+ * A generic 1px hairline — author-placed, content-agnostic. The
+ * thinnest display primitive: one line, one colour, no rhythm of
+ * its own (decision 49 · N+6.9). It paints the host directly (no
+ * inner element) — Separator IS the line, unlike Stack/Box whose
+ * host is `display:contents`.
+ *
+ * Horizontal-only. There is no `orientation` prop, no thickness /
+ * variant / inset. ONE prop: `y-space` (amendment 49.1 · N+8.1) — the
+ * vertical breathing room ABOVE and BELOW the line, dispatched via the
+ * semantic space scale (default `sm`). It is a `margin-block`, NOT a
+ * thicker fill: the visible hairline stays exactly 1px at every
+ * `y-space`. It closes the Stack-`divider` open question: a divider is
+ * just a Separator the author drops between rows, not a Stack prop
+ * (decision 49); and it is the List family's inter-row rhythm now that
+ * `<nuri-list>` is gap-free (decision 51 · 52 · N+8.1).
+ *
+ * Markup
+ *   <nuri-separator></nuri-separator>                default y-space="sm"
+ *   <nuri-separator y-space="lg"></nuri-separator>
+ *   <nuri-separator y-space="none"></nuri-separator>  flush hairline
+ *
+ * No `@layer tokens` block — Separator stays PROP-DRIVEN (decision 37
+ * family): `y-space` dispatches the semantic space vocabulary directly
+ * via attribute selector (like Stack `gap`), and the line colour comes
+ * straight from `--nuri-border-subtle`. A component-token alias would be
+ * "useless indirection" — the prop value IS the space leaf the attribute
+ * selects, with no fixed mapping to emit. The per-component pipeline
+ * emitter detects the empty case and skips emit — no
+ * build/components/separator.ts file ships (SKIP-EMIT · contrast the
+ * List family's EMIT for its baked-in fixed values · decision 52).
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design. Display primitive · prop-driven (decision 37 /
+   * 49 · N+6.9). `y-space` dispatches the semantic space scale via
+   * attribute selector (no component-token aliasing); the line colour
+   * consumes semantic border vocabulary directly. The per-component
+   * pipeline emitter detects this empty case and skips emit — no
+   * build/components/separator.ts ships. */
+}
+
+@layer rules {
+  /* ── Custom element · paints the host directly ─────────────── */
+  /* Unlike Stack/Box (display:contents wrappers), Separator IS the
+   * visible line, so the host carries the paint. The skeleton and
+   * the upgraded element render identically — there's no behaviour
+   * to wait for, so no FOUC delta. The default `y-space="sm"` margin
+   * lives on the base rule (not reflected by JS) so the skeleton
+   * already reserves the breathing room — no layout shift on upgrade. */
+  nuri-separator,
+  nuri-separator:not(:defined) {
+    display: block;
+    block-size: 1px;
+    inline-size: 100%;
+    margin-block: var(--nuri-space-sm);
+    background: var(--nuri-border-subtle);
+    border: 0;
+  }
+
+  /* ── y-space · vertical breathing room (amendment 49.1 · N+8.1) ──
+   * margin-block (NOT padding / border / block-size) so the visible
+   * hairline stays exactly 1px at every value. Attribute-selector
+   * dispatch over `none` + `xs–xl` — the same prop-surface subset as
+   * Stack `gap` (2xs/2xl excluded), plus `none` for a flush hairline.
+   * Layout-primitive prop-driven pattern (decision 37). `sm` default. */
+  nuri-separator[y-space="none"] { margin-block: var(--nuri-space-none); }
+  nuri-separator[y-space="xs"]   { margin-block: var(--nuri-space-xs); }
+  nuri-separator[y-space="sm"]   { margin-block: var(--nuri-space-sm); }
+  nuri-separator[y-space="md"]   { margin-block: var(--nuri-space-md); }
+  nuri-separator[y-space="lg"]   { margin-block: var(--nuri-space-lg); }
+  nuri-separator[y-space="xl"]   { margin-block: var(--nuri-space-xl); }
+}

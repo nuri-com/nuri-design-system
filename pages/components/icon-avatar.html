@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Components · IconAvatar</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+
+  <!-- Token layer cake · primitive → semantic → component → chrome.
+       IconAvatar is the second direct Icon consumer (after IconButton),
+       so it pulls in BOTH icon.css (the glyph atom) and icon-avatar.css
+       (the circle). stack.css/box.css ride along for faux-row demos. -->
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../lib/components/stack/stack.css" />
+  <link rel="stylesheet" href="../../lib/components/box/box.css" />
+  <link rel="stylesheet" href="../../lib/components/separator/separator.css" />
+  <link rel="stylesheet" href="../../lib/components/icon/icon.css" />
+  <link rel="stylesheet" href="../../lib/components/icon-avatar/icon-avatar.css" />
+  <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+  <script src="../../lib/docs/tokens.js"></script>
+  <!-- Custom element scripts MUST be deferred so connectedCallback fires
+       AFTER body parsing (children present). See AGENTS.md. Icon is an
+       ES module (imports the registry); the rest are deferred scripts. -->
+  <script src="../../lib/components/scope/scope.js" defer></script>
+  <script src="../../lib/components/stack/stack.js" defer></script>
+  <script src="../../lib/components/box/box.js" defer></script>
+  <script src="../../lib/components/separator/separator.js" defer></script>
+  <script src="../../lib/components/icon/icon.js" type="module"></script>
+  <script src="../../lib/components/icon-avatar/icon-avatar.js" defer></script>
+  <script src="../../lib/docs/demo/demo.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  COMPONENT DOCS PAGE · IconAvatar (decision 50 · N+6.9)
+  ═══════════════════════════════════════════════════════════════
+
+  IconAvatar is the static, decorative twin of IconButton — same
+  variant→surface matrix, but ALL interaction stripped. It is the
+  SECOND direct <nuri-icon> consumer, unblocked by the F-ICON-RN-1
+  closure (decision 48 · N+6.8).
+
+  Sections in render order:
+    1. Spec card     — component summary (machine-readable)
+    2. Hero demo     — default rendering
+    3. API           — props (name/variant/accent/fill · NO disabled/label)
+    4. Anatomy       — root + icon (2 parts · root is a non-interactive span)
+    5. Variants      — solid / soft / ghost / subtle (avatar-only)
+    6. In context    — faux activity rows (icon + text)
+    7. Theming       — accent scoping (solid only)
+    8. Token mapping — DIRECT semantic surfaces (Tabs precedent · no
+                       @layer tokens · skip-emit · decision 50)
+    8b. Behavioural delta — the IconButton deltas that DON'T apply
+                       (decorative · aria-hidden · no F-ARIA-LABEL-1)
+    9. Roadmap
+
+  Sections deliberately skipped:
+    · States — non-interactive · no pressed/disabled/focus
+    · Tokens (DTCG) dictionary — empty @layer tokens (skip-emit) · the
+      Token mapping section carries the direct-semantic references instead
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="components/icon-avatar">
+  <nuri-page
+    eyebrow="Components · Display · IconAvatar"
+    title="IconAvatar"
+    status="draft"
+    lead="A decorative icon on a coloured circle — the static twin of IconButton. Four variants (solid, soft, ghost, plus an avatar-only subtle), one size (48px circle · the same geometry as IconButton · decision 50), but no interaction: no press, no disabled, no focus, no accessible name. It is aria-hidden by design — pair it with a visible text label. The second direct consumer of the Icon component."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · SPEC CARD
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-component="icon-avatar"
+        data-component-status="draft"
+        data-rn-status="spec-in-migration-test">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd data-spec="type">
+          <span class="nuri-spec-card__chip" data-type="component">component</span>
+          <span class="nuri-spec-card__meta">display primitive · decorative · decision 50</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Variants</dt>
+        <dd data-spec="variants">
+          <span class="nuri-spec-card__chip" data-variant="solid">solid</span>
+          <span class="nuri-spec-card__chip" data-variant="soft" data-default="true">soft</span>
+          <span class="nuri-spec-card__chip" data-variant="ghost">ghost</span>
+          <span class="nuri-spec-card__chip" data-variant="subtle">subtle</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Sizes</dt>
+        <dd data-spec="sizes">
+          <span class="nuri-spec-card__chip" data-size="md" data-default="true">md · 48px</span>
+          <span class="nuri-spec-card__meta">single size · decision 50 · same container leaf as IconButton (size-lg)</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Accent behavior</dt>
+        <dd data-spec="accent-behavior">
+          <span data-variant="solid" data-accent-driven="true">solid follows accent</span>
+          <span class="nuri-spec-card__sep">·</span>
+          <span data-variant="soft" data-accent-driven="false">soft is chrome-only</span>
+          <span class="nuri-spec-card__sep">·</span>
+          <span data-variant="ghost" data-accent-driven="false">ghost is chrome-only</span>
+          <span class="nuri-spec-card__sep">·</span>
+          <span data-variant="subtle" data-accent-driven="false">subtle is chrome-only</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Source</dt>
+        <dd data-spec="source">
+          <span class="nuri-spec-card__chip" data-source="lib/components/icon-avatar/">lib/components/icon-avatar/</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Parts</dt>
+        <dd data-spec="parts">
+          <span class="nuri-spec-card__chip" data-part="root">root</span>
+          <span class="nuri-spec-card__chip" data-part="icon">icon</span>
+          <span class="nuri-spec-card__meta">2 parts</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Component status</dt>
+        <dd data-spec="component-status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>RN status</dt>
+        <dd data-spec="rn-status">
+          <span class="nuri-tag nuri-tag--draft">spec in migration-test</span>
+          <span class="nuri-spec-card__meta">RN definition lives at docs/migration-tests/button-matrix/index.tsx; composes the RN Icon shipped in N+6.8 (F-ICON-RN-1 closed · decision 48)</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · HERO DEMO
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="hero">
+    <h2>Default</h2>
+    <nuri-demo controls="theme,accent,neutral,font">
+      <template>
+        <nuri-icon-avatar name="gear"></nuri-icon-avatar>
+      </template>
+    </nuri-demo>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · API · PROPS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="api">
+    <h2>API</h2>
+    <p>
+      The props signature — a strict subset of IconButton's. There is
+      <strong>no <code>disabled</code>, no <code>label</code>, no
+      <code>onPress</code></strong>: IconAvatar is decorative and
+      <code>aria-hidden</code>, so it carries no accessible-name burden
+      (F-ARIA-LABEL-1 does not apply · decision 50). <code>web ↔ RN</code>
+      is 1:1 (see
+      <a href="../../docs/migration-tests/button-matrix/index.tsx">docs/migration-tests/button-matrix/index.tsx</a>).
+    </p>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="icon-avatar">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="name">
+          <td data-cell="name"><code>name</code></td>
+          <td data-cell="type"><code>string</code> (registry key)</td>
+          <td data-cell="default"><em>required</em></td>
+          <td data-cell="description">Kebab-case glyph name from the <a href="../../lib/components/icon/icons.js"><code>icons.js</code></a> registry. Forwarded to the inner <code>&lt;nuri-icon size="md"&gt;</code>.</td>
+        </tr>
+        <tr data-prop="variant">
+          <td data-cell="name"><code>variant</code></td>
+          <td data-cell="type"><code>"solid" | "soft" | "ghost" | "subtle"</code></td>
+          <td data-cell="default"><code>"soft"</code></td>
+          <td data-cell="description">Surface treatment. <code>solid</code> fills with the active accent, <code>soft</code> uses neutral chrome, <code>ghost</code> is transparent. <code>subtle</code> is avatar-only: like <code>ghost</code>, but the glyph reads in <code>border-strong</code> for the lowest emphasis. solid/soft/ghost mirror IconButton's semantic surfaces (rest state only).</td>
+        </tr>
+        <tr data-prop="accent">
+          <td data-cell="name"><code>accent</code></td>
+          <td data-cell="type"><code>"lilac" | "neutral"</code></td>
+          <td data-cell="default"><em>inherited</em></td>
+          <td data-cell="description">Self-scope override (Tier 2). Writes <code>data-accent</code> on the inner element. Only affects <code>solid</code>; <code>soft</code>, <code>ghost</code> and <code>subtle</code> ignore it.</td>
+        </tr>
+        <tr data-prop="fill">
+          <td data-cell="name"><code>fill</code></td>
+          <td data-cell="type"><code>boolean</code></td>
+          <td data-cell="default"><code>false</code></td>
+          <td data-cell="description">Selects the filled glyph weight (passes through to the inner <code>&lt;nuri-icon fill&gt;</code>). Reads well for decorative, badge-like avatars.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · ANATOMY & PARTS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="anatomy">
+    <h2>Anatomy &amp; parts</h2>
+    <p>
+      IconAvatar is a <strong>two-part</strong> component: the circular
+      <code>root</code> surface owns size, shape, and the variant fill; the
+      <code>icon</code> part is the wrapped <code>&lt;nuri-icon&gt;</code>
+      glyph, inheriting colour via <code>currentColor</code>. Unlike
+      IconButton, the root is a non-interactive <code>&lt;span&gt;</code> —
+      no <code>&lt;button&gt;</code>, no focus, no role.
+    </p>
+
+    <div class="nuri-anatomy">
+      <div class="nuri-anatomy__visual">
+        <nuri-icon-avatar name="gear" variant="solid"></nuri-icon-avatar>
+      </div>
+      <div class="nuri-table-scroll"><table class="nuri-table" data-table="parts" data-component="icon-avatar">
+        <thead>
+          <tr>
+            <th>Part</th>
+            <th>Element (web)</th>
+            <th>Element (RN)</th>
+            <th>Owns</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-part="root">
+            <td data-cell="name"><code>root</code></td>
+            <td data-cell="element-web"><code>span</code></td>
+            <td data-cell="element-rn"><code>View</code></td>
+            <td data-cell="owns">size (48px circle), shape, variant background</td>
+          </tr>
+          <tr data-part="icon">
+            <td data-cell="name"><code>icon</code></td>
+            <td data-cell="element-web"><code>nuri-icon</code></td>
+            <td data-cell="element-rn"><code>Icon</code></td>
+            <td data-cell="owns">the glyph (md weight · 28px), inherits root <code>color</code></td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · VARIANTS
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="variants">
+    <h2>Variants</h2>
+    <p>
+      Four variants. <code>solid</code>, <code>soft</code>, and
+      <code>ghost</code> are the SAME semantic surfaces IconButton uses
+      (rest state only): <code>solid</code> carries accent identity;
+      <code>soft</code> and <code>ghost</code> are chrome-only.
+      <code>subtle</code> is avatar-only — like <code>ghost</code>, but the
+      glyph reads in <code>border-strong</code> for the lowest-emphasis
+      decorative treatment (no IconButton counterpart). Each shown with and
+      without <code>fill</code>. Default is <code>soft</code>.
+    </p>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo controls="accent" label="solid" subtitle="filled · follows accent">
+        <template>
+          <nuri-stack direction="row" gap="sm" align="center">
+            <nuri-icon-avatar name="clock" variant="solid"></nuri-icon-avatar>
+            <nuri-icon-avatar name="clock" variant="solid" fill></nuri-icon-avatar>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo controls="accent" label="soft" subtitle="chrome · accent-independent">
+        <template>
+          <nuri-stack direction="row" gap="sm" align="center">
+            <nuri-icon-avatar name="vault" variant="soft"></nuri-icon-avatar>
+            <nuri-icon-avatar name="vault" variant="soft" fill></nuri-icon-avatar>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo controls="accent" label="ghost" subtitle="transparent · accent-independent">
+        <template>
+          <nuri-stack direction="row" gap="sm" align="center">
+            <nuri-icon-avatar name="gear" variant="ghost"></nuri-icon-avatar>
+            <nuri-icon-avatar name="gear" variant="ghost" fill></nuri-icon-avatar>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo controls="accent" label="subtle" subtitle="transparent · muted glyph · avatar-only">
+        <template>
+          <nuri-stack direction="row" gap="sm" align="center">
+            <nuri-icon-avatar name="clock" variant="subtle"></nuri-icon-avatar>
+            <nuri-icon-avatar name="clock" variant="subtle" fill></nuri-icon-avatar>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · IN CONTEXT · faux activity rows
+       The canonical use: a decorative avatar leading a labelled row.
+       The visible text carries the meaning; the avatar is aria-hidden.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="in-context">
+    <h2>In context</h2>
+    <p>
+      IconAvatar's home is the leading slot of an activity / list row. The
+      text label is the accessible content; the avatar is decorative
+      (<code>aria-hidden</code>). Separators between rows are
+      <a href="separator.html">Separator</a>.
+    </p>
+
+    <nuri-demo controls="theme,accent">
+      <template>
+        <nuri-stack gap="sm">
+          <nuri-stack direction="row" gap="sm" align="center">
+            <nuri-icon-avatar name="clock" variant="soft"></nuri-icon-avatar>
+            <nuri-box>Reminder · rent due Friday</nuri-box>
+          </nuri-stack>
+          <nuri-separator></nuri-separator>
+          <nuri-stack direction="row" gap="sm" align="center">
+            <nuri-icon-avatar name="vault" variant="solid"></nuri-icon-avatar>
+            <nuri-box>You planted a new goal</nuri-box>
+          </nuri-stack>
+          <nuri-separator></nuri-separator>
+          <nuri-stack direction="row" gap="sm" align="center">
+            <nuri-icon-avatar name="gear" variant="ghost"></nuri-icon-avatar>
+            <nuri-box>Profile updated</nuri-box>
+          </nuri-stack>
+          <nuri-separator></nuri-separator>
+          <nuri-stack direction="row" gap="sm" align="center">
+            <nuri-icon-avatar name="clock" variant="subtle"></nuri-icon-avatar>
+            <nuri-box>Archived last month</nuri-box>
+          </nuri-stack>
+        </nuri-stack>
+      </template>
+    </nuri-demo>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · THEMING · accent scoping
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="theming">
+    <h2>Theming · accent scoping</h2>
+    <p>
+      Only <code>solid</code> resolves colour through the active accent.
+      <code>soft</code>, <code>ghost</code> and <code>subtle</code> are
+      chrome-only — the <code>accent</code> prop has no visual effect on
+      them. Three ways to
+      control the accent that <code>solid</code> follows, increasing
+      locality:
+    </p>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="1 · page" subtitle="&lt;html data-accent&gt;" stack data-scope="page">
+        <template>
+          <nuri-icon-avatar name="clock" variant="solid"></nuri-icon-avatar>
+          <nuri-icon-avatar name="vault" variant="soft"></nuri-icon-avatar>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="2 · subtree" subtitle="&lt;nuri-scope&gt; · Tier 3" stack data-scope="subtree">
+        <template>
+          <nuri-scope accent="neutral">
+            <nuri-icon-avatar name="clock" variant="solid"></nuri-icon-avatar>
+            <nuri-icon-avatar name="gear" variant="soft"></nuri-icon-avatar>
+          </nuri-scope>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="3 · self" subtitle="accent prop · Tier 2" stack data-scope="self">
+        <template>
+          <nuri-icon-avatar name="vault" variant="solid" accent="lilac"></nuri-icon-avatar>
+          <nuri-icon-avatar name="gear" variant="solid" accent="neutral"></nuri-icon-avatar>
+        </template>
+      </nuri-demo>
+
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       8 · TOKEN MAPPING
+       DIRECT semantic surfaces (Tabs precedent · decision 42/43/50).
+       NO --nuri-icon-avatar-* component vars — IconAvatar references
+       the semantic accent/chrome tokens straight from @layer rules,
+       so there is no CSS-var indirection column.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="token-mapping">
+    <h2>Token mapping</h2>
+    <p>
+      <strong>Variant → CSS property → DTCG → reference.</strong> IconAvatar
+      has <strong>no <code>@layer tokens</code> block</strong>: it consumes
+      the semantic accent / chrome surfaces directly (the
+      <a href="tabs.html">Tabs</a> precedent · decision 50), so there is no
+      component-var indirection. The pipeline detects the empty token layer
+      and skips emit — no <code>build/components/icon-avatar.ts</code>
+      ships. <code>—</code> means a literal.
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="token-map" data-component="icon-avatar">
+      <thead>
+        <tr>
+          <th>Variant</th>
+          <th>CSS property</th>
+          <th>DTCG</th>
+          <th>Reference</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="nuri-table__group" data-group="base">
+          <th scope="rowgroup" colspan="4">Base · single size (decision 50) · every variant</th>
+        </tr>
+        <tr data-variant="any" data-css-prop="inline-size" data-dtcg="size.lg" data-reference="--nuri-size-lg">
+          <td>any</td>
+          <td><code>inline-size</code> / <code>block-size</code></td>
+          <td><code>size.lg</code></td>
+          <td><code>--nuri-size-lg</code> (48px)</td>
+        </tr>
+        <tr data-variant="any" data-css-prop="border-radius" data-dtcg="radius.full" data-reference="--nuri-radius-full">
+          <td>any</td>
+          <td><code>border-radius</code></td>
+          <td><code>radius.full</code></td>
+          <td><code>--nuri-radius-full</code> (9999px · circle)</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="variant-solid" data-variant="solid">
+          <th scope="rowgroup" colspan="4">Variant · solid</th>
+        </tr>
+        <tr data-variant="solid" data-css-prop="background" data-dtcg="accent.solid" data-reference="--nuri-accent-solid">
+          <td>solid</td>
+          <td><code>background</code></td>
+          <td><code>accent.solid</code></td>
+          <td><code>--nuri-accent-solid</code></td>
+        </tr>
+        <tr data-variant="solid" data-css-prop="color" data-dtcg="accent.on-solid" data-reference="--nuri-accent-on-solid">
+          <td>solid</td>
+          <td><code>color</code></td>
+          <td><code>accent.on-solid</code></td>
+          <td><code>--nuri-accent-on-solid</code> · glyph via currentColor</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="variant-soft" data-variant="soft">
+          <th scope="rowgroup" colspan="4">Variant · soft (chrome · accent-independent)</th>
+        </tr>
+        <tr data-variant="soft" data-css-prop="background" data-dtcg="bg.strong" data-reference="--nuri-bg-strong">
+          <td>soft</td>
+          <td><code>background</code></td>
+          <td><code>bg.strong</code></td>
+          <td><code>--nuri-bg-strong</code></td>
+        </tr>
+        <tr data-variant="soft" data-css-prop="color" data-dtcg="text.primary" data-reference="--nuri-text-primary">
+          <td>soft</td>
+          <td><code>color</code></td>
+          <td><code>text.primary</code></td>
+          <td><code>--nuri-text-primary</code></td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="variant-ghost" data-variant="ghost">
+          <th scope="rowgroup" colspan="4">Variant · ghost (transparent · no surface)</th>
+        </tr>
+        <tr data-variant="ghost" data-css-prop="background" data-dtcg="—" data-reference="transparent">
+          <td>ghost</td>
+          <td><code>background</code></td>
+          <td>—</td>
+          <td><code>transparent</code> (literal)</td>
+        </tr>
+        <tr data-variant="ghost" data-css-prop="color" data-dtcg="text.primary" data-reference="--nuri-text-primary">
+          <td>ghost</td>
+          <td><code>color</code></td>
+          <td><code>text.primary</code></td>
+          <td><code>--nuri-text-primary</code> · chrome, accent-independent</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="variant-subtle" data-variant="subtle">
+          <th scope="rowgroup" colspan="4">Variant · subtle (transparent · muted glyph · avatar-only)</th>
+        </tr>
+        <tr data-variant="subtle" data-css-prop="background" data-dtcg="—" data-reference="transparent">
+          <td>subtle</td>
+          <td><code>background</code></td>
+          <td>—</td>
+          <td><code>transparent</code> (literal)</td>
+        </tr>
+        <tr data-variant="subtle" data-css-prop="color" data-dtcg="border.strong" data-reference="--nuri-border-strong">
+          <td>subtle</td>
+          <td><code>color</code></td>
+          <td><code>border.strong</code></td>
+          <td><code>--nuri-border-strong</code> · low-emphasis glyph, accent-independent</td>
+        </tr>
+
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       8b · BEHAVIOURAL DELTA — web ↔ RN
+       The point of IconAvatar is that the IconButton deltas DON'T
+       apply (it's decorative). The one live delta is the Icon render
+       mechanism — now CLOSED (F-ICON-RN-1 · decision 48).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="behavioural-delta">
+    <h2>Behavioural delta · web ↔ RN</h2>
+    <p>
+      IconAvatar is the rare near-zero-delta component: being decorative,
+      it inherits <strong>none</strong> of IconButton's interaction deltas
+      (F-PRESSED-1 / F-FOCUS-1 / F-DISABLED-1 / F-ARIA-LABEL-1 /
+      F-TOUCH-TARGET-1 all N/A). The only cross-platform seam is the glyph
+      render mechanism it shares with every Icon consumer — and that is
+      now <strong>closed</strong>.
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="behavioural-delta" data-component="icon-avatar">
+      <thead>
+        <tr>
+          <th>Friction</th>
+          <th>Surface</th>
+          <th>Web</th>
+          <th>React Native</th>
+          <th>Resolution</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-friction="F-ICON-RN-1" data-surface="glyph-render" data-parity="resolved" data-inherited="icon">
+          <td data-cell="friction"><code>F-ICON-RN-1</code></td>
+          <td data-cell="surface"><code>glyph render</code></td>
+          <td data-cell="web">Inline <code>&lt;svg&gt;</code> path keyed by <code>name</code> + weight (via <code>&lt;nuri-icon&gt;</code>)</td>
+          <td data-cell="rn"><code>react-native-svg</code> <code>SvgXml</code> over the shared typed registry (<code>build/icons.ts</code>)</td>
+          <td data-cell="resolution"><strong>Closed</strong> in N+6.8 (decision 48). IconAvatar is the first NEW consumer to ship against the resolved Icon — composes the real RN <code>Icon</code>, no shim.</td>
+        </tr>
+        <tr data-friction="F-DECORATIVE-1" data-surface="accessibility" data-parity="converges" data-inherited="none">
+          <td data-cell="friction"><code>F-DECORATIVE-1</code></td>
+          <td data-cell="surface"><code>accessibility</code></td>
+          <td data-cell="web">Host <code>aria-hidden="true"</code> · not focusable · no role</td>
+          <td data-cell="rn"><code>accessibilityElementsHidden</code> + <code>importantForAccessibility="no-hide-descendants"</code></td>
+          <td data-cell="resolution">Both platforms hide the avatar from AT entirely. The adjacent text label is the accessible content. No name to derive (contrast: IconButton's F-ARIA-LABEL-1).</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       9 · ROADMAP
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="avatar-primitive">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Polymorphic <code>&lt;nuri-avatar&gt;</code> (image / initials)</strong>
+          <p class="nuri-roadmap__desc">The bare <code>Avatar</code> name is deliberately reserved (decision 50) for a future primitive that also renders a photo or initials, not just an icon. IconAvatar is the icon-only leaf; promoting to a polymorphic Avatar is deferred until a real image/initials consumer surfaces (P11 · don't design speculatively).</p>
+        </div>
+      </li>
+      <li data-feature="size-scale">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Size scale</strong>
+          <p class="nuri-roadmap__desc">N+6.9 locks a single 48px size (the same geometry as IconButton · decision 50). A multi-size matrix (e.g. list-leading vs header-hero) arrives only when two real sizes are needed — until then, one size keeps the surface minimal.</p>
+        </div>
+      </li>
+      <li data-feature="rn-spec-home">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">RN spec long-term home</strong>
+          <p class="nuri-roadmap__desc">Like the other primitives, the IconAvatar RN definition lives in the migration-test pair pending a long-term home. Re-evaluated across the whole set, not per-component.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+</body>
+</html>

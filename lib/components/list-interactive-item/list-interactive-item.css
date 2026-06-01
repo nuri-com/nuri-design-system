@@ -1,0 +1,138 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · LIST-INTERACTIVE-ITEM  (pressable WRAPPER · decision 52 · N+8)
+ *
+ * <nuri-list-interactive-item> is the INTERACTIVE half of the List
+ * family — the declarative pressable that the presentational
+ * <nuri-list-item> deliberately is NOT (decision 52). It is composed
+ * AROUND a list-item, not baked into it:
+ *
+ *   <nuri-list-interactive-item onpress="…">      ← host · role="listitem"
+ *     <nuri-list-item>                            ← content · demoted to presentation
+ *       <nuri-list-item-leading>…</…>
+ *       …content…
+ *       <nuri-list-item-trailing>…</…>
+ *     </nuri-list-item>
+ *   </nuri-list-interactive-item>
+ *
+ * list-interactive-item.js wraps the authored children in an inner
+ *   <div class="nuri-list-interactive-item__action" role="button" tabindex="0">
+ * so the actionable element WRAPS the content. THAT is the N+7 a11y
+ * fix: the content IS the button's accessible name (read once), instead
+ * of the old press-overlay that COPIED the row text into an aria-label
+ * and made AT announce it twice (decision 51 → 52). One named button
+ * per row, no double-read.
+ *
+ * REPARENTING here is intentional — the opposite of list-item (decision
+ * 51, document-order, NO reparenting). Wrapping the content in the
+ * actionable element is the whole point of this component.
+ *
+ * FULL-BLEED BY COUNTER-MARGIN (decision 52 · revised N+8.1) ──────
+ *   The action box bleeds the wash to (and past) the row edges with a
+ *   `margin-inline: calc(-1 * var(--nuri-space-md))` counter-margin and
+ *   re-insets the wrapped content with an equal `padding-inline`. Net:
+ *   the content (the nested nuri-list-item) stays FLUSH with the
+ *   full-width separators, while the wash background extends space-md
+ *   beyond each edge into the container's own horizontal padding — so a
+ *   flat fill reads as full-bleed without a fade trick. (The N+8 x-fade
+ *   gradient existed only to fake this bleed without a counter-margin;
+ *   N+8.1 accepts the counter-margin and drops the gradient, which core
+ *   RN cannot render as a flat backgroundColor.) Density lands unchanged:
+ *   list.css's `nuri-list nuri-list-item { min-block-size }` selector
+ *   matches the nested list-item, so the row keeps its per-density height.
+ *
+ * PRESS WASH · flat bg-subtle (decision 52 · revised N+8.1) ───────
+ *   On press the action box swaps `transparent` → `--nuri-bg-subtle`: a
+ *   FLAT chrome fill (no gradient). It replaced the earlier A/B
+ *   experiment — the flat bg-strong fill, the content-scale variant, AND
+ *   the x-fade gradient are all gone; there is now ONE press treatment,
+ *   no `scale` attr. The wash sits on the (counter-margin) action box, so
+ *   the flat fill reaches the row edges while the nested content stays put.
+ *
+ * EMIT (decision 52) ──────────────────────────────────────────────
+ *   The press treatment is a baked-in style decision, so it is
+ *   formalized as component tokens and emitted to
+ *   build/components/list-interactive-item.ts. RN's Pressable
+ *   dereferences `listInteractiveItem.washPressed` (= `chrome.bgSubtle`
+ *   · a TokenPath → a flat colour · RN renders it as a plain
+ *   backgroundColor) and `listInteractiveItem.radius` instead of
+ *   hardcoding — machine-checked web↔RN parity.
+ *
+ *   property      | component token                              | semantic
+ *   --------------|----------------------------------------------|---------
+ *   wash          | --nuri-list-interactive-item-wash            | transparent
+ *   wash-pressed  | --nuri-list-interactive-item-wash-pressed    | bg-subtle
+ *   radius        | --nuri-list-interactive-item-radius          | radius-lg
+ *
+ * The focus ring is WEB-ONLY (F-FOCUS-1): RN omits it (no pointer-vs-
+ * keyboard focus distinction on touch). The wrapper exists for API
+ * mapping in docs HTML — it does NOT port to RN as an element; RN
+ * generates a Pressable from the same prop names (RISKS R1).
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* The press treatment (decision 52 · EMIT). Baked-in style values —
+   * not prop-dispatched — formalized as component tokens for
+   * machine-checked RN parity. Re-declared on every scope boundary
+   * (`:root, [data-accent], [data-theme]`) per AGENTS.md hard-rule 7. */
+  :root,
+  [data-accent],
+  [data-theme] {
+    --nuri-list-interactive-item-wash:         transparent;
+    --nuri-list-interactive-item-wash-pressed: var(--nuri-bg-subtle);
+    --nuri-list-interactive-item-radius:       var(--nuri-radius-lg);
+  }
+}
+
+@layer rules {
+  /* ── Host · the listitem shell ────────────────────────────────
+   * display:block so the host stretches across the parent list's
+   * flex column (full row width) and the inner action box fills it.
+   * The host carries ONLY role="listitem" (set in JS); it owns no
+   * paint — the action box below carries the wash + radius + focus. */
+  nuri-list-interactive-item,
+  nuri-list-interactive-item:not(:defined) {
+    display: block;
+  }
+
+  /* ── Action · the actionable element that WRAPS the content ────
+   * role="button" tabindex="0" (set in JS). A counter-margin
+   * (margin-inline: -space-md) bleeds the wash background space-md past
+   * each row edge into the container's horizontal padding, while an
+   * equal padding-inline re-insets the wrapped content so it stays FLUSH
+   * with the full-width separators (decision 52 · revised N+8.1). On
+   * press the background swaps transparent → bg-subtle (a FLAT chrome
+   * fill, no gradient); the radius rounds the bled wash. */
+  .nuri-list-interactive-item__action {
+    display: block;
+    margin-inline: calc(-1 * var(--nuri-space-md));
+    padding-inline: var(--nuri-space-md);
+    background: var(--nuri-list-interactive-item-wash);
+    border-radius: var(--nuri-list-interactive-item-radius);
+    cursor: pointer;
+    /* A press target is not a text passage — suppress the text caret /
+     * double-click selection so a tap (or double-tap) reads as activation,
+     * not selection. Native <button> sets this implicitly; this role=button
+     * div must opt in. RN's Pressable is non-selectable by default. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color var(--nuri-duration-fast) ease;
+  }
+
+  /* Pressed wash · pointer (:active) AND keyboard (Space held →
+   * data-pressed toggled in JS, since :active does not fire for a
+   * role=button div under keyboard activation). */
+  .nuri-list-interactive-item__action:active,
+  .nuri-list-interactive-item__action[data-pressed] {
+    background: var(--nuri-list-interactive-item-wash-pressed);
+  }
+
+  /* ── Focus · web-only ring (F-FOCUS-1) ────────────────────────
+   * Negative offset so the ring sits INSIDE the full-bleed row
+   * instead of being clipped at the list's card edge. RN omits this
+   * entirely (no keyboard-focus distinction on touch). */
+  .nuri-list-interactive-item__action:focus-visible {
+    outline: 2px solid var(--nuri-focus-ring);
+    outline-offset: -2px;
+  }
+}

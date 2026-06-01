@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Components · TypographyStack</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+
+  <!-- TypographyStack is a layout primitive (empty @layer tokens · decision
+       47 · 53): it wraps <nuri-typography> lines and owns only the
+       inter-line rhythm. The composed Typography component carries the
+       size / emphasis / muted, so the Typography component CSS + the
+       .nuri-type-* foundation utilities ride along beside the stack CSS. -->
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <!-- .nuri-type-* utility classes (foundation) back the Typography lines.
+       MUST load AFTER shell.css so the chained-class selectors win the tie
+       (decision 18). -->
+  <link rel="stylesheet" href="../../styles/typography.css" />
+  <link rel="stylesheet" href="../../lib/components/typography/typography.css" />
+  <link rel="stylesheet" href="../../lib/components/typography-stack/typography-stack.css" />
+  <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+  <script src="../../lib/docs/tokens.js"></script>
+  <!-- Custom element scripts MUST be deferred so connectedCallback fires
+       AFTER body parsing (children present). See AGENTS.md. -->
+  <script src="../../lib/components/scope/scope.js" defer></script>
+  <script src="../../lib/components/typography/typography.js" defer></script>
+  <script src="../../lib/components/typography-stack/typography-stack.js" defer></script>
+  <script src="../../lib/docs/demo/demo.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  COMPONENT DOCS PAGE · LAYOUT-PRIMITIVE TEMPLATE (decision 37 · 47 · 53)
+  ═══════════════════════════════════════════════════════════════
+
+  Adapts the canonical component-page template (decision 24) for a
+  layout primitive — same shape as the Stack / Box / Topbar pages.
+  Sections that don't apply (Variants / States) are omitted per
+  decision 19; a Theming section IS included because a muted
+  <nuri-typography> line re-resolves --nuri-text-muted under a theme
+  scope (the supporting line shifts in dark).
+
+  TypographyStack is a SINGLE-element rhythm container (decision 53
+  reversed decision 47's two-element compound): <nuri-typography-stack>
+  is the flex container that OWNS the inter-line rhythm (its reason to
+  exist vs reusing <nuri-stack>); it wraps plain <nuri-typography> lines
+  whose size / emphasis / muted carry what the eliminated
+  <nuri-typography-stack-element>'s `level` sub-scale used to. The old
+  5-level scale is NOT replaced by a guidance table — a size/emphasis/
+  muted-per-step doctrine would be invented advice with no consumer
+  behind it (P11 · decision 30), so it is deferred until the type-scale
+  principles are documented (decision 53).
+  It owns NO `--nuri-typography-stack-*` tokens (decision 47):
+  the pipeline emit detects the empty @layer tokens case and skips
+  writing build/components/typography-stack.ts, so there is no Tokens
+  dictionary section.
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="components/typography-stack">
+  <nuri-page
+    eyebrow="Components · Display · TypographyStack"
+    title="TypographyStack"
+    status="draft"
+    lead="The text-hierarchy rhythm container. A single-element flex container that stacks <nuri-typography> lines at a fixed inter-line rhythm, column or row. The container owns the rhythm — its reason to exist instead of reusing Stack; the lines carry their own size, emphasis and muted tone. A layout primitive: it owns no component tokens, composing the Typography primitive and the semantic spacing vocabulary directly."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · SPEC CARD
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-component="typography-stack"
+        data-component-status="draft"
+        data-rn-status="spec-in-migration-test">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd data-spec="type">
+          <span class="nuri-spec-card__chip" data-type="component">component</span>
+          <span class="nuri-spec-card__meta">layout primitive · text-hierarchy rhythm container · decision 47 · 53</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Layer</dt>
+        <dd data-spec="layer">
+          <span class="nuri-spec-card__chip" data-layer="composition">composition</span>
+          <span class="nuri-spec-card__meta">wraps &lt;nuri-typography&gt; lines + owns the inter-line rhythm; no component-token aliasing</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Source</dt>
+        <dd data-spec="source">
+          <span class="nuri-spec-card__chip" data-source="lib/components/typography-stack/">lib/components/typography-stack/</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Elements</dt>
+        <dd data-spec="elements">
+          <span class="nuri-spec-card__chip" data-element="typography-stack">&lt;nuri-typography-stack&gt;</span>
+          <span class="nuri-spec-card__meta">single-element rhythm container · wraps &lt;nuri-typography&gt; lines (decision 53)</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Composes</dt>
+        <dd data-spec="composes">
+          <span class="nuri-spec-card__chip" data-element="typography">&lt;nuri-typography&gt;</span>
+          <span class="nuri-spec-card__meta">size · emphasis · muted carry the line hierarchy — composed per line by the author</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Component status</dt>
+        <dd data-spec="component-status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>RN status</dt>
+        <dd data-spec="rn-status">
+          <span class="nuri-tag nuri-tag--draft">spec in migration-test</span>
+          <span class="nuri-spec-card__meta">RN definition lives at docs/migration-tests/button-matrix/index.tsx pending long-term home — see Open question in roadmap/index.md</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · HERO DEMO · default column · primary→muted line hierarchy
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="hero">
+    <h2>Default</h2>
+    <nuri-demo controls="theme">
+      <template>
+        <nuri-typography-stack>
+          <nuri-typography size="md" emphasis>Account</nuri-typography>
+          <nuri-typography size="sm" muted>26 May at 11:34 AM</nuri-typography>
+        </nuri-typography-stack>
+      </template>
+    </nuri-demo>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · API · PROPS
+       One element. The container has one author value (direction); the
+       lines are plain <nuri-typography>. Structure, not variants
+       (decision 47 · 53).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="api">
+    <h2>API</h2>
+    <p>
+      A single element. <code>&lt;nuri-typography-stack&gt;</code> is the
+      flex container — its only prop is the structural
+      <code>direction</code> author value, read directly from the
+      attribute by CSS (no <code>data-*</code>, because it is static, not
+      JS-computed). It <strong>owns the inter-line rhythm</strong> (the
+      gap is not parameterised — that is what distinguishes it from
+      <code>&lt;nuri-stack&gt;</code>). The lines are plain
+      <code>&lt;nuri-typography&gt;</code>; their <code>size</code> /
+      <code>emphasis</code> / <code>muted</code> carry the hierarchy
+      (decision 53 eliminated the former
+      <code>&lt;nuri-typography-stack-element&gt;</code> and its
+      <code>level</code> sub-scale; the author composes the props per
+      line).
+    </p>
+
+    <h3><code>&lt;nuri-typography-stack&gt;</code> · container</h3>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="typography-stack">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="direction">
+          <td data-cell="name"><code>direction</code></td>
+          <td data-cell="type"><code>"column" | "row"</code></td>
+          <td data-cell="default"><code>column</code></td>
+          <td data-cell="description">Stacking axis. <code>column</code> gives a tight vertical leading (<code>space.2xs</code> gap); <code>row</code> lays the lines out inline with <code>align-items: baseline</code> and a wider <code>space.xs</code> gutter so mixed-size lines share a text baseline. CSS reads the attribute directly. The gap is owned, not a prop.</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <h3>Lines · <code>&lt;nuri-typography&gt;</code></h3>
+    <p>
+      The stack wraps plain <a href="typography.html"><code>&lt;nuri-typography&gt;</code></a>
+      lines — it adds no line element of its own. Each line picks its
+      <code>size</code> + <code>emphasis</code> (the metric SSOT) and an
+      optional <code>muted</code> boolean for the supporting tone. A
+      recommended size/emphasis/muted pairing per hierarchy step is
+      <strong>deliberately not shipped</strong> — that doctrine is
+      invented advice until the type-scale principles are documented
+      (P11 · decision 53), so the author composes the props directly for
+      now.
+    </p>
+    <p>
+      Decision 53 deliberately keeps the hierarchy on
+      <code>&lt;nuri-typography&gt;</code>'s own props rather than a stack-
+      scoped <code>level</code>: a single primitive with one type vocabulary
+      beats a parallel sub-scale that collides with <code>size</code>. The
+      <code>muted</code> prop is a <strong>boolean</strong>, not a tone
+      enum (no <code>tone="primary|muted|accent"</code> — P11).
+    </p>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · ANATOMY & PARTS · container / line
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="anatomy">
+    <h2>Anatomy &amp; parts</h2>
+    <p>
+      TypographyStack is a <strong>single-element</strong> container that
+      composes <code>&lt;nuri-typography&gt;</code> lines. Unlike Topbar
+      there is no region routing (the lines are homogeneous), so the
+      container does no reparenting — it is the flex box, the lines are
+      its flex items. No Shadow DOM, no <code>&lt;slot&gt;</code>
+      (decision 46 lineage). The line is not a part the stack owns — it is
+      the composed <a href="typography.html">Typography</a> primitive
+      (decision 53).
+    </p>
+
+    <div class="nuri-anatomy">
+      <div class="nuri-anatomy__visual">
+        <nuri-typography-stack>
+          <nuri-typography size="md" emphasis>Title</nuri-typography>
+          <nuri-typography size="sm" muted>Supporting line</nuri-typography>
+        </nuri-typography-stack>
+      </div>
+      <div class="nuri-table-scroll"><table class="nuri-table" data-table="parts" data-component="typography-stack">
+        <thead>
+          <tr>
+            <th>Part</th>
+            <th>Element (web)</th>
+            <th>Element (RN)</th>
+            <th>Owns</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-part="container">
+            <td data-cell="name"><code>container</code></td>
+            <td data-cell="element-web"><code>nuri-typography-stack</code></td>
+            <td data-cell="element-rn"><code>TypographyStack</code> → <code>View</code></td>
+            <td data-cell="owns">the flex axis (<code>direction</code>) + the inter-line rhythm (gap)</td>
+          </tr>
+          <tr data-part="line">
+            <td data-cell="name"><code>line</code> (composed)</td>
+            <td data-cell="element-web"><code>nuri-typography</code> (the host is the text)</td>
+            <td data-cell="element-rn"><code>Typography</code> → <code>Text</code></td>
+            <td data-cell="owns"><code>size</code> + <code>emphasis</code> (metrics) + <code>muted</code> (tone) — the line's own props, not the stack's</td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · LIVE DEMOS · column vs row · the originating list shapes
+       (A "hierarchy guidance" section was deliberately NOT shipped —
+       a size/emphasis/muted-per-step doctrine would be invented advice
+       with no consumer behind it · P11 / decision 30. It is deferred
+       until the type-scale principles are documented · see decision 53
+       + roadmap.)
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="demos">
+    <h2>Live demos</h2>
+    <p>
+      The two axes against the shapes that motivated the family —
+      transaction rows, summary lines. <code>column</code> is the default
+      primary→muted vertical pairing; <code>row</code> lays lines inline
+      on a shared baseline (a label + value pair).
+    </p>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="column · transaction row title" subtitle="md emphasis title over sm muted timestamp">
+        <template>
+          <nuri-typography-stack>
+            <nuri-typography size="md" emphasis>Coffee Roasters</nuri-typography>
+            <nuri-typography size="sm" muted>26 May at 11:34 AM</nuri-typography>
+          </nuri-typography-stack>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="column · fee summary" subtitle="sm emphasis over sm muted supporting">
+        <template>
+          <nuri-typography-stack>
+            <nuri-typography size="sm" emphasis>Network fee</nuri-typography>
+            <nuri-typography size="sm" muted>Confirmed in ~10 min</nuri-typography>
+          </nuri-typography-stack>
+        </template>
+      </nuri-demo>
+
+    </div>
+
+    <div class="nuri-demo-row">
+
+      <nuri-demo label="row · label + value" subtitle="direction=&quot;row&quot; · baseline-aligned">
+        <template>
+          <nuri-typography-stack direction="row">
+            <nuri-typography size="sm" muted>Amount</nuri-typography>
+            <nuri-typography size="md" emphasis>€42.00</nuri-typography>
+          </nuri-typography-stack>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="row · mixed size baseline" subtitle="lg emphasis + sm muted share the text baseline">
+        <template>
+          <nuri-typography-stack direction="row">
+            <nuri-typography size="lg" emphasis>1.245</nuri-typography>
+            <nuri-typography size="sm" muted>BTC</nuri-typography>
+          </nuri-typography-stack>
+        </template>
+      </nuri-demo>
+
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · THEMING · the two text tokens re-resolve
+       a muted line re-resolves --nuri-text-muted under a theme scope;
+       the supporting line visibly shifts under dark.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="theming">
+    <h2>Theming · text tones</h2>
+    <p>
+      A default line inherits <code>currentColor</code> (the cascade's
+      primary); a <code>muted</code> line paints
+      <code>--nuri-text-muted</code> — a <strong>chrome</strong>
+      (theme-only, accent-invariant) token. Toggling theme re-resolves the
+      muted tone with no extra rules; the muted supporting line is the one
+      that visibly shifts in dark.
+    </p>
+
+    <div class="nuri-demo-row">
+      <nuri-demo label="theme · page level" subtitle="the muted line re-resolves text-muted" controls="theme">
+        <template>
+          <nuri-typography-stack>
+            <nuri-typography size="md" emphasis>Account</nuri-typography>
+            <nuri-typography size="sm" muted>26 May at 11:34 AM</nuri-typography>
+          </nuri-typography-stack>
+        </template>
+      </nuri-demo>
+
+      <nuri-demo label="theme · subtree scope" subtitle="a [data-theme] scope repaints only this stack" controls="theme">
+        <template>
+          <nuri-typography-stack>
+            <nuri-typography size="sm" emphasis>Network fee</nuri-typography>
+            <nuri-typography size="sm" muted>Confirmed in ~10 min</nuri-typography>
+          </nuri-typography-stack>
+        </template>
+      </nuri-demo>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       8 · TOKEN MAPPING
+       The stack owns ONLY the inter-line rhythm (gap, per direction).
+       The lines' metrics + colour belong to the composed <nuri-typography>
+       (size/emphasis utility class + the muted → text-muted dispatch on
+       Typography itself). No @layer tokens (decision 47 · 53).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="token-mapping">
+    <h2>Token mapping</h2>
+    <p>
+      <strong>The stack owns only the rhythm; the lines own their type.</strong>
+      TypographyStack has no <code>@layer tokens</code> block per
+      <a href="../../decisionlog.md#47-typographystack-family--contextual-text-hierarchy-primitive--level-carried-by-the-element--n67">decision 47</a>
+      / <a href="../../decisionlog.md#53-typographystack--element-eliminated--muted-on-typography--n82">decision 53</a>.
+      It dispatches one property — the inter-line <code>gap</code>, per
+      <code>direction</code>. The lines' font size / line-height / weight
+      ride the <code>.nuri-type-*</code> utility the composed
+      <code>&lt;nuri-typography&gt;</code> applies (SSOT in
+      <code>styles/typography.css</code>), and the supporting-line colour is
+      the <code>muted</code> dispatch on Typography itself
+      (<code>nuri-typography[data-muted] { color: var(--nuri-text-muted); }</code>).
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="token-map" data-component="typography-stack">
+      <thead>
+        <tr>
+          <th>Part</th>
+          <th>CSS property</th>
+          <th>DTCG</th>
+          <th>CSS var</th>
+          <th>Conditions</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="nuri-table__group" data-group="container">
+          <th scope="rowgroup" colspan="5">Container · the flex layout + inter-line rhythm (the stack's only owned token)</th>
+        </tr>
+        <tr data-part="container" data-css-prop="gap"
+            data-dtcg="space.2xs"
+            data-css-var="--nuri-space-2xs" data-conditions="direction=column">
+          <td>container <code>[direction="column"]</code></td>
+          <td><code>gap</code></td>
+          <td><code>space.2xs</code></td>
+          <td><code>var(--nuri-space-2xs)</code></td>
+          <td>column (default) · tight vertical leading</td>
+        </tr>
+        <tr data-part="container" data-css-prop="gap"
+            data-dtcg="space.xs"
+            data-css-var="--nuri-space-xs" data-conditions="direction=row">
+          <td>container <code>[direction="row"]</code></td>
+          <td><code>gap</code></td>
+          <td><code>space.xs</code></td>
+          <td><code>var(--nuri-space-xs)</code></td>
+          <td>row · inline gutter + baseline</td>
+        </tr>
+
+        <tr class="nuri-table__group" data-group="line">
+          <th scope="rowgroup" colspan="5">Line · owned by the composed &lt;nuri-typography&gt; (not the stack)</th>
+        </tr>
+        <tr data-part="line" data-css-prop="color"
+            data-dtcg="—"
+            data-css-var="currentColor" data-conditions="muted absent">
+          <td>line <code>nuri-typography</code></td>
+          <td><code>color</code></td>
+          <td><code>—</code></td>
+          <td><code>currentColor</code></td>
+          <td>default · inherits the cascade primary</td>
+        </tr>
+        <tr data-part="line" data-css-prop="color"
+            data-dtcg="chrome.text-muted"
+            data-css-var="--nuri-text-muted" data-conditions="muted present">
+          <td>line <code>nuri-typography[data-muted]</code></td>
+          <td><code>color</code></td>
+          <td><code>chrome.text-muted</code></td>
+          <td><code>var(--nuri-text-muted)</code></td>
+          <td><code>muted</code> · the supporting line (dispatch owned by Typography)</td>
+        </tr>
+
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       9 · ROADMAP
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="rn-implementation">
+        <span class="nuri-tag nuri-tag--draft">spec in migration-test</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">React Native implementation</strong>
+          <p class="nuri-roadmap__desc">The RN <code>TypographyStack</code> wrapping RN <code>Typography</code> lines (same <code>direction</code> + <code>size</code> / <code>emphasis</code> / <code>muted</code> props, type metrics hand-declared · RISKS R1) lives in the <a href="../../docs/migration-tests/button-matrix/index.tsx">migration test</a>. Promotion to a permanent <code>lib/</code> home tracks the shared RN-spec-home question in <a href="../../roadmap/index.md">roadmap/index.md</a>.</p>
+        </div>
+      </li>
+      <li data-feature="list-composition">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">List / ListItem composition</strong>
+          <p class="nuri-roadmap__desc">TypographyStack is the line-hierarchy rhythm container that List / ListItem / Separator compose for transaction rows, fee summaries and Cancel/Save bars. A common row title is <code>size="md" emphasis</code> over a <code>size="sm" muted</code> supporting line; a formal size/emphasis/muted-per-step doctrine is deferred until the type-scale principles land (decision 53) — see <a href="../../roadmap/index.md">roadmap/index.md</a>.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+</body>
+</html>

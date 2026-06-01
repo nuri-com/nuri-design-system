@@ -1,0 +1,80 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · NAV-ITEM  (the first RECIPE · decision 52 · N+8)
+ *
+ * <nuri-nav-item> is Nuri's FIRST recipe — a named COMPOSITION over
+ * primitives, not a new primitive and not a variant bolted onto an
+ * existing one. The mocks' disclosure row ("tap to drill in, caret on
+ * the right") recurs often enough to earn a name, but it adds NO new
+ * style decision: it is exactly
+ *
+ *   list-interactive-item  ∘  list-item  ∘  (auto-filled caret)
+ *
+ *   <nuri-nav-item onpress="goTo('/card')">Activate card</nuri-nav-item>
+ *
+ * composes (in nav-item.js, via a native <template> clone — NOT
+ * lit-html / JSX / imperative createElement soup):
+ *
+ *   <nuri-list-interactive-item onpress="…">
+ *     <nuri-list-item>
+ *       <nuri-typography size="md" emphasis>Activate card</nuri-typography>  ← author label
+ *       <nuri-list-item-trailing>
+ *         <nuri-icon name="caret-right" size="md"></nuri-icon> ← auto-filled
+ *       </nuri-list-item-trailing>
+ *     </nuri-list-item>
+ *   </nuri-list-interactive-item>
+ *
+ * RECIPE, NOT VARIANT (decision 52): the disclosure pattern could have
+ * been a `variant="nav"` on list-item — that path swells one component
+ * with use-case branches. A recipe instead NAMES the composition and
+ * leaves the primitives single-purpose. Recipes carry NO component
+ * tokens of their own (skip-emit · empty @layer tokens below) — every
+ * value they use is already a token on the primitive they compose, so
+ * there is nothing new to drift. nav-item does NOT port to RN as an
+ * element; RN generates the same recipe from the same prop names.
+ *
+ * MUTED CARET via currentColor-from-parent (decision 38 · NO `muted`
+ * prop on Icon): the trailing book-end sets `color: border-strong`, and
+ * <nuri-icon> paints in currentColor, so the caret reads muted WITHOUT
+ * teaching Icon a colour prop. Same trick as icon-avatar's `subtle`.
+ *
+ * EM-WEIGHT LABEL via the Typography primitive: the label composes
+ * <nuri-typography size="md" emphasis> (decision 53) — components compose
+ * the primitive, not the raw .nuri-type-md--em utility — so there is no
+ * nav-item-specific typography token.
+ *
+ * OPTIONAL LEADING: an authored <nuri-list-item-leading> child is hoisted
+ * into the composed list-item (nav-item.js), so a disclosure row can carry
+ * a leading icon-avatar. No CSS here — list-item already positions the
+ * book-end (decision 51).
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design · skip-emit (decision 52). A recipe is a
+   * COMPOSITION over primitives — every value it renders is already a
+   * component token on the primitive it composes (list-item spacing,
+   * list-interactive-item press), so a nav-item token would be
+   * useless indirection. The pipeline detects this empty case and
+   * writes no build/components/nav-item.ts (same as the layout
+   * primitives · decision 37). */
+}
+
+@layer rules {
+  /* ── Host · transparent in layout ─────────────────────────────
+   * display:contents so the composed <nuri-list-interactive-item>
+   * IS the flex row in the parent <nuri-list> — nav-item adds no box,
+   * no extra nesting level. Density still lands: list.css's
+   * `nuri-list nuri-list-item` descendant selector reaches the
+   * nested list-item through the contents-collapsed host. */
+  nuri-nav-item,
+  nuri-nav-item:not(:defined) {
+    display: contents;
+  }
+
+  /* ── Muted caret · currentColor-from-parent (decision 38) ──────
+   * The trailing book-end reads in border-strong; <nuri-icon>
+   * inherits it via currentColor — a muted caret with NO `muted`
+   * prop on Icon. */
+  nuri-nav-item nuri-list-item-trailing {
+    color: var(--nuri-border-strong);
+  }
+}

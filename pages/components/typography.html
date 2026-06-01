@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Components · Typography</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <script src="../../lib/docs/state.js"></script>
+
+  <!-- Typography is a thin wrapper over the existing
+       .nuri-type-*/.nuri-type-*--em utility classes in
+       styles/typography.css. Imports below cover: foundation
+       (typography.css already inside shell.css load chain? if not,
+       explicit), the component wrapper rules (typography.css of
+       the component dir · trivial), and the JS that applies the
+       utility class on attribute change. -->
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../styles/typography.css" />
+  <link rel="stylesheet" href="../../lib/components/typography/typography.css" />
+  <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+  <script src="../../lib/docs/tokens.js"></script>
+  <script src="../../lib/components/typography/typography.js" defer></script>
+  <script src="../../lib/docs/demo/demo.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  COMPONENT DOCS PAGE · Typography
+  ═══════════════════════════════════════════════════════════════
+  Audience priority: agent + pipeline FIRST, human contributor SECOND.
+
+  <nuri-typography> is a thin custom-element wrapper over the
+  existing .nuri-type-* utility classes. No new tokens, no variant
+  matrix — just declarative prop-to-utility-class dispatch.
+  Sections Variants / States / Theming are intentionally omitted
+  per decision 19 (template-flexibility precedent · Stack / Box /
+  Icon also omit them).
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="components/typography">
+
+  <nuri-page
+    eyebrow="Component"
+    title="Typography"
+    lead="A thin custom-element wrapper over the typography foundation utility classes. Declarative prop-based authoring of the type scale: size (xs · sm · md · lg · xl · 3xl) + emphasis (boolean · semibold flip) + muted (boolean · supporting-line tone). No component tokens, no variant matrix — the foundation type ramp is the single source of truth."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · SPEC CARD
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card" data-component="typography">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd><span class="nuri-spec-card__chip" data-type="component">component</span> · text wrapper</dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Sizes</dt>
+        <dd>
+          <span class="nuri-spec-card__chip" data-size="xs">xs</span>
+          <span class="nuri-spec-card__chip" data-size="sm">sm</span>
+          <span class="nuri-spec-card__chip" data-size="md">md · default</span>
+          <span class="nuri-spec-card__chip" data-size="lg">lg</span>
+          <span class="nuri-spec-card__chip" data-size="xl">xl</span>
+          <span class="nuri-spec-card__chip" data-size="3xl">3xl</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Emphasis</dt>
+        <dd>boolean · semibold across all leaves when present</dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Muted</dt>
+        <dd>boolean · dims to <code>text-muted</code> for a supporting line when present (else <code>currentColor</code>) · not a tone enum</dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Tokens</dt>
+        <dd>foundation typography utility classes only · no component tokens</dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Status</dt>
+        <dd><span class="nuri-spec-card__chip" data-status="stable">stable</span></dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · HERO
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="hero">
+    <h2>Default</h2>
+    <div class="nuri-demo-row">
+      <nuri-demo label="md · regular" subtitle="default size + default weight">
+        <template>
+          <nuri-typography>The quick brown fox jumps over the lazy dog.</nuri-typography>
+        </template>
+      </nuri-demo>
+      <nuri-demo controls="theme" label="md · muted" subtitle="supporting tone · text-muted, theme-aware">
+        <template>
+          <nuri-typography muted>The quick brown fox jumps over the lazy dog.</nuri-typography>
+        </template>
+      </nuri-demo>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · API
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="api">
+    <h2>API</h2>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="typography">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="size">
+          <td data-cell="name"><code>size</code></td>
+          <td data-cell="type"><code>"xs" | "sm" | "md" | "lg" | "xl" | "3xl"</code></td>
+          <td data-cell="default"><code>"md"</code></td>
+          <td data-cell="description">Type scale step. Each step maps to a fixed font-size · line-height · letter-spacing tuple from the foundation (<code>--nuri-type-{step}-*</code>). Unknown values warn and fall back to <code>md</code>. <code>2xl</code> is intentionally reserved (gap between xl and 3xl).</td>
+        </tr>
+        <tr data-prop="emphasis">
+          <td data-cell="name"><code>emphasis</code></td>
+          <td data-cell="type"><code>boolean</code></td>
+          <td data-cell="default">absent</td>
+          <td data-cell="description">Presence flips weight from regular to semibold (across all leaves). Same visual jump as Markdown <code>**bold**</code> emphasis — never bold (700), always semibold (600) post-N+6.5 polish.</td>
+        </tr>
+        <tr data-prop="muted">
+          <td data-cell="name"><code>muted</code></td>
+          <td data-cell="type"><code>boolean</code></td>
+          <td data-cell="default">absent</td>
+          <td data-cell="description">Presence dims the text colour to <code>--nuri-text-muted</code> for a supporting / secondary line (timestamp, helper text); absent inherits the cascade primary via <code>currentColor</code>. A <strong>boolean, not a tone enum</strong> — there is deliberately no <code>tone="primary|muted|accent"</code> (the same restraint Icon takes · <a href="../../decisionlog.md#38-icon-component--phosphor-source--nuri-icon-name-nuri-facade--2-size--fill--registry-based-js-dispatch--n63">decision 38</a> · P11). Reflected as <code>data-muted</code>; CSS owns the colour (<a href="../../decisionlog.md#42-box-gains-background--radius-props--attribute-dispatch-surface-vocabulary--evidence-gated-promotion--n65">decision 42</a> attribute-dispatch). The colour re-resolves per <code>[data-theme]</code>, so the muted line shifts in dark mode. Added <a href="../../decisionlog.md#53-typographystack--element-eliminated--muted-on-typography--n82">decision 53</a> · N+8.2.</td>
+        </tr>
+        <tr data-prop="align">
+          <td data-cell="name"><code>align</code></td>
+          <td data-cell="type"><code>"start" | "center" | "end"</code></td>
+          <td data-cell="default">absent</td>
+          <td data-cell="description">Block-aligns the text via <code>text-align</code> (logical · RTL-aware). The host is <code>display:inline</code> by default, so <code>align</code> flips it to <code>display:block</code> so the alignment takes effect and the box fills its container's inline size — e.g. a flex-column item stretches full-width, so <code>end</code> right-aligns the text. Pure attribute-dispatch CSS (no JS reflection · survives the size/emphasis class rewrite). RN maps to <code>&lt;Text style={{ textAlign }}&gt;</code> (decision 59).</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · SIZES GALLERY
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="sizes">
+    <h2>Sizes</h2>
+    <p>
+      Six leaves of the type ramp · same scale as the
+      <a href="../foundations/typography.html">typography foundation</a>.
+      Each demo card stacks the three prop axes: the regular weight, the
+      <code>emphasis</code> weight (semibold), and the <code>muted</code>
+      tone (<code>text-muted</code> · for supporting lines).
+    </p>
+
+    <nuri-demo label="xs · 13/18" subtitle="caption · meta · monospaced labels">
+      <template>
+        <div class="nuri-typography-demo">
+          <nuri-typography size="xs">Regular xs · 13 / 18</nuri-typography>
+          <nuri-typography size="xs" emphasis>Emphasis xs · semibold</nuri-typography>
+          <nuri-typography size="xs" muted>Muted xs · text-muted</nuri-typography>
+        </div>
+      </template>
+    </nuri-demo>
+
+    <nuri-demo label="sm · 15/20" subtitle="secondary body · dense lists">
+      <template>
+        <div class="nuri-typography-demo">
+          <nuri-typography size="sm">Regular sm · 15 / 20</nuri-typography>
+          <nuri-typography size="sm" emphasis>Emphasis sm · semibold</nuri-typography>
+          <nuri-typography size="sm" muted>Muted sm · text-muted</nuri-typography>
+        </div>
+      </template>
+    </nuri-demo>
+
+    <nuri-demo label="md · 17/22" subtitle="default body · button labels (button-md/lg)">
+      <template>
+        <div class="nuri-typography-demo">
+          <nuri-typography size="md">Regular md · 17 / 22</nuri-typography>
+          <nuri-typography size="md" emphasis>Emphasis md · semibold</nuri-typography>
+          <nuri-typography size="md" muted>Muted md · text-muted</nuri-typography>
+        </div>
+      </template>
+    </nuri-demo>
+
+    <nuri-demo label="lg · 22/28" subtitle="section heading · page sub-title">
+      <template>
+        <div class="nuri-typography-demo">
+          <nuri-typography size="lg">Regular lg · 22 / 28</nuri-typography>
+          <nuri-typography size="lg" emphasis>Emphasis lg · semibold</nuri-typography>
+          <nuri-typography size="lg" muted>Muted lg · text-muted</nuri-typography>
+        </div>
+      </template>
+    </nuri-demo>
+
+    <nuri-demo label="xl · 30/36" subtitle="screen heading · prominent display">
+      <template>
+        <div class="nuri-typography-demo">
+          <nuri-typography size="xl">Regular xl · 30 / 36</nuri-typography>
+          <nuri-typography size="xl" emphasis>Emphasis xl · semibold</nuri-typography>
+          <nuri-typography size="xl" muted>Muted xl · text-muted</nuri-typography>
+        </div>
+      </template>
+    </nuri-demo>
+
+    <nuri-demo label="3xl · 57/68" subtitle="hero display · balance numerals">
+      <template>
+        <div class="nuri-typography-demo">
+          <nuri-typography size="3xl">Regular 3xl · 57 / 68</nuri-typography>
+          <nuri-typography size="3xl" emphasis>Emphasis 3xl · semibold</nuri-typography>
+          <nuri-typography size="3xl" muted>Muted 3xl · text-muted</nuri-typography>
+        </div>
+      </template>
+    </nuri-demo>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · TOKEN MAPPING
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="token-mapping">
+    <h2>Token mapping</h2>
+    <p>
+      Typography owns <strong>no component tokens</strong>. The component
+      applies an existing utility class on the host (<code>.nuri-type-{size}</code>
+      or <code>.nuri-type-{size}--em</code>) which in turn references the
+      <code>--nuri-type-{step}-*</code> primitives. Single source of truth
+      for type rules lives in
+      <a href="../../styles/typography.css"><code>styles/typography.css</code></a> ·
+      values in
+      <a href="../../styles/tokens-primitive.css"><code>tokens-primitive.css</code></a>.
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="token-map" data-component="typography">
+      <thead>
+        <tr>
+          <th>Prop · value</th>
+          <th>Applies class</th>
+          <th>Resolves through</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop-value="size=xs">
+          <td><code>size="xs"</code></td>
+          <td><code>.nuri-type-xs</code></td>
+          <td><code>--nuri-type-xs-{size,line-height,tracking,weight}</code></td>
+          <td>13 / 18 · regular</td>
+        </tr>
+        <tr data-prop-value="size=sm">
+          <td><code>size="sm"</code></td>
+          <td><code>.nuri-type-sm</code></td>
+          <td><code>--nuri-type-sm-*</code></td>
+          <td>15 / 20 · regular</td>
+        </tr>
+        <tr data-prop-value="size=md">
+          <td><code>size="md"</code></td>
+          <td><code>.nuri-type-md</code></td>
+          <td><code>--nuri-type-md-*</code></td>
+          <td>17 / 22 · regular · default</td>
+        </tr>
+        <tr data-prop-value="size=lg">
+          <td><code>size="lg"</code></td>
+          <td><code>.nuri-type-lg</code></td>
+          <td><code>--nuri-type-lg-*</code></td>
+          <td>22 / 28 · regular</td>
+        </tr>
+        <tr data-prop-value="size=xl">
+          <td><code>size="xl"</code></td>
+          <td><code>.nuri-type-xl</code></td>
+          <td><code>--nuri-type-xl-*</code></td>
+          <td>30 / 36 · regular</td>
+        </tr>
+        <tr data-prop-value="size=3xl">
+          <td><code>size="3xl"</code></td>
+          <td><code>.nuri-type-3xl</code></td>
+          <td><code>--nuri-type-3xl-*</code></td>
+          <td>57 / 68 · regular</td>
+        </tr>
+        <tr data-prop-value="emphasis">
+          <td><code>emphasis</code></td>
+          <td><code>.nuri-type-{size}--em</code></td>
+          <td><code>--nuri-type-{step}-em-weight</code></td>
+          <td>semibold (600) across all leaves · operator-locked at N+6.5 polish</td>
+        </tr>
+        <tr data-prop-value="muted">
+          <td><code>muted</code></td>
+          <td><code>[data-muted]</code> attribute (not a class)</td>
+          <td><code>--nuri-text-muted</code></td>
+          <td>decision-42 attribute-dispatch · JS reflects state, CSS owns colour · re-resolves per <code>[data-theme]</code> · absent → <code>currentColor</code></td>
+        </tr>
+        <tr data-prop-value="align">
+          <td><code>align="start|center|end"</code></td>
+          <td><code>[align]</code> attribute (not a class)</td>
+          <td><code>text-align: start | center | end</code> (+ <code>display:block</code>)</td>
+          <td>decision-59 attribute-dispatch · pure CSS, no JS, no token · logical (RTL-aware) · RN <code>textAlign</code></td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · ROADMAP
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="2xl">
+        <strong class="nuri-roadmap__title">2xl size unlock</strong>
+        <span class="nuri-roadmap__detail">Intentional gap between xl (30) and 3xl (57). Land when a concrete consumer surfaces — likely ~40/48.</span>
+      </li>
+      <li data-feature="as-prop">
+        <strong class="nuri-roadmap__title"><code>as</code> semantic-tag prop</strong>
+        <span class="nuri-roadmap__detail">Optional polymorphic prop (<code>as="p|h1|h2|…"</code>) to render the host as a semantic element. Defer until accessibility-evidence trigger materializes.</span>
+      </li>
+      <li data-feature="color">
+        <strong class="nuri-roadmap__title"><code>color</code> / <code>tone</code> enum — deferred</strong>
+        <span class="nuri-roadmap__detail">The supporting-line tone shipped as the <code>muted</code> boolean (<a href="../../decisionlog.md#53-typographystack--element-eliminated--muted-on-typography--n82">decision 53</a>): present → <code>--nuri-text-muted</code>, absent → <code>currentColor</code> primary. A broader <code>tone="primary|muted|accent"</code> enum stays <strong>deliberately deferred</strong> — adding it before a real third-tone consumer is the P11 floodgate Icon refused (<a href="../../decisionlog.md#38-icon-component--phosphor-source--nuri-icon-name-nuri-facade--2-size--fill--registry-based-js-dispatch--n63">decision 38</a>). It lands only when a consumer needs a tone <code>muted</code> can't express.</span>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+<style>
+  /* ═══════════════════════════════════════════════════════════════
+   * PAGE-LOCAL STYLES · typography demo gallery
+   * ═══════════════════════════════════════════════════════════════
+   * .nuri-typography-demo: stacks the regular + emphasis nuri-
+   * typography rows inside a single nuri-demo card with consistent
+   * vertical rhythm (no <br/> stacking · proper flex column gap).
+   * Demo cards themselves get extra inter-card spacing in the
+   * Sizes section so each step's preview reads as a distinct row
+   * rather than blurring with the next. */
+  .nuri-typography-demo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nuri-space-md);
+    align-items: flex-start;
+    text-align: left;
+    width: 100%;
+  }
+  /* Override demo card preview's default centered alignment so the
+   * left-aligned typography demos read as a reading column. */
+  #sizes .nuri-demo-card__preview {
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+  /* Inter-card spacing for the Sizes gallery so the 6 demo cards
+   * don't visually clump (default nuri-demo-card margin is tight). */
+  #sizes nuri-demo {
+    display: block;
+    margin-bottom: var(--nuri-space-lg);
+  }
+</style>
+
+</body>
+</html>

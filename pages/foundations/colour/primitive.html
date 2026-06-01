@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Foundations · Colour · Primitive</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../../lib/docs/state.js"></script>
+
+  <link rel="stylesheet" href="../../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../../styles/shell.css" />
+  <script src="../../../lib/docs/control/control.js" defer></script>
+  <script src="../../../lib/docs/shell.js" defer></script>
+  <script src="../../../lib/docs/tokens.js"></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  FOUNDATION DOCS PAGE · CANONICAL TEMPLATE (N+2)
+  ═══════════════════════════════════════════════════════════════
+
+  Audience priority: agent + pipeline FIRST, human contributor SECOND.
+
+  Foundation pages follow ONE canonical structure. The sections are:
+
+    1. Header                  — <nuri-page eyebrow title status lead>
+    2. Spec card               — <dl class="nuri-spec-card">
+                                 4 rows · Type · Layer · Source · Status
+                                 (DTCG-shaped; data-* on dl and each row
+                                 for pipeline extraction)
+    3. Set indicator           — .nuri-token-meta · token-driven pages only
+    4. Body sections           — .page-section · prose + shared widgets,
+                                 NO PAGE-LOCAL <style> BLOCKS
+    5. Tokens dictionary       — for catalogue/composition layers, the
+                                 body sections ARE the dictionary; for
+                                 utility-class layers (Typography) add a
+                                 dedicated dictionary section at the end
+    6. Roadmap                 — .nuri-roadmap
+
+  Shared widgets in shell.css consumed here:
+    .nuri-spec-card · .nuri-token-meta · .nuri-role-legend ·
+    .nuri-token-table (via lib/docs/tokens.js) · .nuri-note · .nuri-roadmap
+
+  See pages/components/button.html for the parallel component-docs
+  template, and skills/add-foundation.md "Foundation template canonical"
+  for the decision history.
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="foundations/colour/primitive">
+  <nuri-page
+    eyebrow="Foundations · Colour · Primitive"
+    title="Primitive"
+    status="draft"
+    lead="The flat catalogue of raw colour values. Every scale exists in both light and dark variants, always addressable in parallel — never reactive to data-theme. The semantic layer picks which one to use for each role."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · SPEC CARD
+       Machine-readable foundation summary. 4 DTCG-shaped rows. Every
+       cell carries a data-spec attr so the pipeline can read the
+       summary without parsing prose. data-foundation-status mirrors
+       the lifecycle (draft / exploratory).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-foundation="colour-primitive"
+        data-foundation-status="draft">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd data-spec="type">
+          <span class="nuri-spec-card__chip" data-type="color">color</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Layer</dt>
+        <dd data-spec="layer">
+          <span class="nuri-spec-card__chip" data-layer="primitive">primitive</span>
+          <span class="nuri-spec-card__meta">consumed only by the semantic layer · never by components directly</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Source</dt>
+        <dd data-spec="source">
+          <span class="nuri-spec-card__chip" data-source="tokens-primitive.css">tokens-primitive.css</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Status</dt>
+        <dd data-spec="status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · HOW TO READ
+       Prose explainer · structure of the token rows in the tables
+       below. Mirrors Button page's "API" intro pattern.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="how-to-read">
+    <h2>How to read these tables</h2>
+    <p class="nuri-token-meta">Set · <code>core</code></p>
+    <p>
+      Each row is one primitive token. <strong>DTCG</strong> is the dot-notation
+      name used by the planned <code>tokens.json</code> pipeline;
+      <strong>CSS var</strong> is the custom property you reference in
+      stylesheets; <strong>Value</strong> is the literal hex (or rgba for
+      alpha); <strong>Type</strong> is the DTCG <code>$type</code> inferred
+      from the prefix (see <code>AGENTS.md</code>).
+    </p>
+    <p>
+      Each non-alpha scale exposes 24 tokens — 12 steps in both
+      <code>-light</code> and <code>-dark</code>. At this layer there is no
+      "mode": <code>gray-1-light</code> and <code>gray-1-dark</code> are two
+      distinct primitives, addressable in parallel. The semantic layer is
+      where one or the other gets picked for a given <code>data-theme</code>.
+    </p>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · STEP ROLES
+       Radix 12-step model · numbered role legend. Uses the shared
+       .nuri-role-legend widget (lifted to shell.css in N+2).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="step-roles">
+    <h2>Step roles · Radix 12-step functional model</h2>
+    <p>
+      Each step has the same role across every scale, regardless of theme.
+      The roles apply to both the light and dark variants.
+    </p>
+    <p>
+      Radix names some steps after web pseudo-classes ("UI element hover",
+      "Solid hover"). Nuri is mobile-first and reads these steps as
+      <em>pressed</em> instead — same visual purpose, different trigger.
+      See <a href="../../components/button.html">Button</a> for the
+      Nuri-side state model.
+    </p>
+    <div class="nuri-role-legend">
+      <div class="nuri-role-legend__item"><span class="nuri-role-legend__num">1</span><span>App background</span></div>
+      <div class="nuri-role-legend__item"><span class="nuri-role-legend__num">7</span><span>UI border / focus</span></div>
+      <div class="nuri-role-legend__item"><span class="nuri-role-legend__num">2</span><span>Subtle background</span></div>
+      <div class="nuri-role-legend__item"><span class="nuri-role-legend__num">8</span><span>Pressed border</span></div>
+      <div class="nuri-role-legend__item"><span class="nuri-role-legend__num">3</span><span>UI element bg</span></div>
+      <div class="nuri-role-legend__item"><span class="nuri-role-legend__num">9</span><span>Solid background</span></div>
+      <div class="nuri-role-legend__item"><span class="nuri-role-legend__num">4</span><span>UI element pressed</span></div>
+      <div class="nuri-role-legend__item"><span class="nuri-role-legend__num">10</span><span>Solid pressed</span></div>
+      <div class="nuri-role-legend__item"><span class="nuri-role-legend__num">5</span><span>UI element active</span></div>
+      <div class="nuri-role-legend__item"><span class="nuri-role-legend__num">11</span><span>Low-contrast text</span></div>
+      <div class="nuri-role-legend__item"><span class="nuri-role-legend__num">6</span><span>Subtle border</span></div>
+      <div class="nuri-role-legend__item"><span class="nuri-role-legend__num">12</span><span>High-contrast text</span></div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · NEUTRAL · ACTIVE SCALE
+       The 24 --nuri-color-neutral-*-{light|dark} aliases that point
+       at the currently active scale (driven by data-neutral). Live-
+       resolves on data-neutral change.
+
+       Section ID convention: short slug on <section> (anchorable),
+       `tokens-*` prefix on the JS-populated host div to avoid
+       collision (decision N+2 housekeeping).
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="neutral-active">
+    <h2>Neutral · active scale</h2>
+    <p>
+      The semantic layer references neutrals through the
+      <code>--nuri-color-neutral-*</code> aliases — 24 tokens that point at
+      the currently active scale (driven by <code>data-neutral</code> on
+      <code>&lt;html&gt;</code>). Switch the active scale via the
+      <strong>Neutral</strong> selector in the topbar; the
+      <strong>Reference</strong> column below shows which underlying
+      primitive each alias resolves to. Compare the six candidate scales
+      side-by-side in <a href="exploration.html">Colour · Exploration</a>.
+    </p>
+    <div id="tokens-neutral-active"></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · BRAND · LILAC
+       The brand scale. Steps 9 and 10 are identical light/dark — the
+       property the semantic layer uses to freeze accent-solid /
+       accent-solid-pressed across themes.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="lilac">
+    <h2>Brand · Lilac</h2>
+    <p>
+      Single brand scale (Radix custom from <code>#beaaff</code>). Steps 9
+      and 10 have identical values in light and dark — the brand stays the
+      brand. That's the property the semantic layer uses to freeze
+      <code>--nuri-accent-solid</code> (step 9) and
+      <code>--nuri-accent-solid-pressed</code> (step 10) across themes.
+    </p>
+    <div id="tokens-lilac"></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · ALPHA · BLACK & WHITE
+       Theme-invariant alpha scales. No -light/-dark suffix.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="alpha">
+    <h2>Alpha · Black &amp; White</h2>
+    <p>
+      Theme-invariant alpha scales (0.05 → 0.95 opacity). Used for overlays,
+      dividers on coloured backgrounds, glass surfaces, and any place a
+      tinted darken / lighten is needed without resolving to a specific
+      neutral hue. No <code>-light</code>/<code>-dark</code> suffix.
+    </p>
+    <div id="tokens-alpha"></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · ROADMAP
+       Foundation-level planned items. Each carries a status tag inline.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="status-scales">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Status colour scales</strong>
+          <p class="nuri-roadmap__desc">No status primitives ship today. The full Radix 12-step scales (Jade / Amber / Red / Blue) land in the same session as the first status-using component (Toast · Alert · StatusPill); the foundation page grows a Status group at that point. No placeholders pre-shipped.</p>
+        </div>
+      </li>
+      <li data-feature="lock-neutral">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Lock one neutral scale</strong>
+          <p class="nuri-roadmap__desc">Pick one of the seven candidates (see <a href="exploration.html">Exploration</a>) and remove the others — the <code>data-neutral</code> attribute will disappear with them.</p>
+        </div>
+      </li>
+      <li data-feature="additional-accents">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Additional accent scales</strong>
+          <p class="nuri-roadmap__desc">Sage / orange / jade primitives arrive when the first rails-using component lands.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+<script>
+  const STEPS = [1,2,3,4,5,6,7,8,9,10,11,12];
+
+  function scaleHeading(label, prefix) {
+    return `<h3>${label} <span style="color: var(--nuri-text-muted); font-weight: var(--nuri-font-weight-regular);">· <code>${prefix}</code></span></h3>`;
+  }
+
+  function activeNeutral() {
+    return document.documentElement.dataset.neutral || 'gray';
+  }
+
+  // Build alias rows for the active neutral. Each alias --nuri-color-neutral-N-{theme}
+  // resolves to --nuri-color-<active>-N-{theme}. Both reference and value are
+  // recomputed on each call so a data-neutral switch refreshes them.
+  function activeNeutralTokens() {
+    const active = activeNeutral();
+    const out = [];
+    for (const theme of ['light', 'dark']) {
+      for (const step of STEPS) {
+        const cssVar = `--nuri-color-neutral-${step}-${theme}`;
+        const refVar = `--nuri-color-${active}-${step}-${theme}`;
+        out.push({
+          set: 'core',
+          name: NuriTokens.dtcgName(cssVar),
+          cssVar: cssVar,
+          reference: `var(${refVar})`,
+          value: NuriTokens.resolveValue(cssVar),
+          type: 'color',
+        });
+      }
+    }
+    return out;
+  }
+
+  function renderActiveNeutral() {
+    document.getElementById('tokens-neutral-active').innerHTML =
+      NuriTokens.renderTable(activeNeutralTokens(), { showReference: true });
+  }
+
+  // Stable sort surfacing all -light rows first, then all -dark rows.
+  // Within each theme, source order (step 1 → 12) is preserved because
+  // Array.prototype.sort is stable in ES2019+.
+  function lightThenDark(tokens) {
+    return tokens.slice().sort((a, b) => {
+      const at = a.cssVar.endsWith('-light') ? 0 : 1;
+      const bt = b.cssVar.endsWith('-light') ? 0 : 1;
+      return at - bt;
+    });
+  }
+
+  function init(sheet) {
+    if (!sheet) return;
+
+    const all = NuriTokens.parsePrimitives(sheet);
+
+    // Neutral · single table on the active alias set
+    renderActiveNeutral();
+
+    // Lilac · single table, sorted light-then-dark for readability
+    const lilacTokens = lightThenDark(
+      all.filter(t => t.cssVar.startsWith('--nuri-color-lilac-'))
+    );
+    document.getElementById('tokens-lilac').innerHTML =
+      scaleHeading('Lilac', '--nuri-color-lilac-*-{light|dark}')
+      + NuriTokens.renderTable(lilacTokens);
+
+    // Alpha · black + white, two tables
+    const blackAlpha = all.filter(t =>
+      t.cssVar.startsWith('--nuri-color-black-alpha-')
+    );
+    const whiteAlpha = all.filter(t =>
+      t.cssVar.startsWith('--nuri-color-white-alpha-')
+    );
+    document.getElementById('tokens-alpha').innerHTML =
+      scaleHeading('Black alpha', '--nuri-color-black-alpha-*')
+      + NuriTokens.renderTable(blackAlpha)
+      + scaleHeading('White alpha', '--nuri-color-white-alpha-*')
+      + NuriTokens.renderTable(whiteAlpha);
+  }
+
+  NuriTokens.whenSheetReady('tokens-primitive.css', init);
+
+  // Re-render the active neutral table when the user switches data-neutral.
+  // The other sections (Lilac, Alpha) don't react to data-neutral, so
+  // we only touch the one block.
+  NuriState.subscribe('neutral', renderActiveNeutral);
+</script>
+
+</body>
+</html>

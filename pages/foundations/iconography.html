@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Foundations · Iconography</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <!-- Icon is the only component consumed on this page (catalog +
+       demos render <nuri-icon> natively · no nesting in nuri-button
+       etc.). Per the N+6.2 import lesson, every demo consumer needs
+       its own CSS + JS — Icon is the only one here. -->
+  <link rel="stylesheet" href="../../lib/components/icon/icon.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <script src="../../lib/docs/shell.js" defer></script>
+  <!-- icon.js is an ES module (imports the registry) · module scripts
+       are deferred by default, so connectedCallback fires after
+       children parse (AGENTS.md custom-element rule). -->
+  <script src="../../lib/components/icon/icon.js" type="module"></script>
+
+  <style>
+    /* Page-local · single-use catalog + demo widgets. Kept page-local
+     * because they're one-of layouts on the iconography page (the
+     * exploration.html precedent for page-scoped style blocks). */
+    .icon-catalog {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: var(--nuri-space-md);
+      margin-top: var(--nuri-space-lg);
+    }
+    .icon-catalog__cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--nuri-space-sm);
+      padding: var(--nuri-space-md);
+      border: 1px solid var(--nuri-border-subtle);
+      border-radius: var(--nuri-radius-md);
+      text-align: center;
+    }
+    .icon-catalog__name {
+      font-family: var(--nuri-font-family-mono, monospace);
+      font-size: var(--nuri-font-size-13);
+      color: var(--nuri-text-muted);
+      word-break: break-word;
+    }
+    /* Side-by-side demo rows for the Sizes + Fill sections. */
+    .icon-demo-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--nuri-space-xl);
+      margin-top: var(--nuri-space-md);
+    }
+    .icon-demo-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--nuri-space-sm);
+    }
+    .icon-demo-cell__label {
+      font-family: var(--nuri-font-family-mono, monospace);
+      font-size: var(--nuri-font-size-13);
+      color: var(--nuri-text-muted);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Foundation page · documents BOTH the icon vocabulary (the
+     phosphor catalog) AND the <nuri-icon> component API in one
+     surface. Follows the typography.html precedent (foundation page
+     that also documents a component-shaped API · no separate
+     pages/components/icon.html). Per decision 19, sections that don't
+     apply (Variants / States / Theming) are simply omitted — Icon
+     has no variant/state/theme axes. -->
+
+<nuri-shell active="foundations/iconography">
+  <nuri-page
+    eyebrow="Foundations · Iconography"
+    title="Iconography"
+    status="stable"
+    lead="A hand-curated 17-glyph subset of Phosphor, shipped as the nuri-icon custom element. Two sizes, each coupled to a weight; colour inherited via currentColor. The first registry-based JS dispatch in Nuri."
+  ></nuri-page>
+
+  <!-- 1 · SPEC CARD ─────────────────────────────────────────────── -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-foundation="iconography"
+        data-foundation-status="stable">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd data-spec="type">
+          <span class="nuri-spec-card__chip" data-type="iconography">iconography</span>
+          <span class="nuri-spec-card__meta">17 glyphs × 3 weights · 2 sizes · fill override</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Layer</dt>
+        <dd data-spec="layer">
+          <span class="nuri-spec-card__chip" data-layer="component">component</span>
+          <span class="nuri-spec-card__meta">consumed by IconButton, SegmentedControl, ListItem, status surfaces (downstream)</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Source</dt>
+        <dd data-spec="source">
+          <span class="nuri-spec-card__chip" data-source="@phosphor-icons/core">@phosphor-icons/core</span>
+          <span class="nuri-spec-card__chip" data-source="lib/components/icon/icons.js">icons.js</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Status</dt>
+        <dd data-spec="status">
+          <span class="nuri-tag nuri-tag--ready">stable</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- 2 · APPROACH ───────────────────────────────────────────────── -->
+  <section class="page-section" id="approach">
+    <h2>Approach</h2>
+    <p>
+      Icons come from <a href="https://phosphoricons.com/">Phosphor</a>
+      (<code>@phosphor-icons/core</code>) — a consistent, open-licensed
+      set drawn on a <code>256×256</code> grid. Nuri ships a
+      <strong>hand-curated 17-glyph subset</strong>, not the full
+      library: each glyph is stored as inline <code>&lt;path&gt;</code>
+      markup in
+      <a href="../../lib/components/icon/icons.js"><code>icons.js</code></a>,
+      three weights apiece (regular · bold · fill). Catalog expansion
+      is deliberate and governed — new glyphs join through a separate
+      session, never ad hoc.
+    </p>
+    <p>
+      <strong>Two sizes, each coupled to a weight.</strong> Rather than
+      expose an open <code>weight</code> prop, Nuri couples weight to
+      size: <code>md</code> renders the <code>regular</code> weight,
+      <code>sm</code> renders <code>bold</code> (a heavier stroke holds
+      up at the smaller box). Setting <code>fill</code> overrides both
+      and renders the solid <code>fill</code> weight. This is an
+      opinionated reduction — fewer knobs, consistent optical weight
+      across a screen.
+    </p>
+    <p>
+      <strong>Colour inherits via <code>currentColor</code>.</strong>
+      <code>&lt;nuri-icon&gt;</code> has no <code>tone</code>,
+      <code>accent</code>, or <code>color</code> prop — the rendered
+      SVG paints with <code>fill="currentColor"</code>, so it takes the
+      text colour of whatever consumes it. A button, a list item, or a
+      status surface controls the icon's colour by setting its own
+      text colour; the icon never decides.
+    </p>
+    <p>
+      The box dimensions are dispatched from the existing semantic
+      <a href="dimension/sizing.html"><code>--nuri-size-*</code></a>
+      vocabulary — <code>md</code> → <code>size-sm</code> (28px),
+      <code>sm</code> → <code>size-xs</code> (18px). No new
+      <code>--nuri-icon-size-*</code> family was minted; Icon reuses two
+      leaves of an existing scale via attribute dispatch, the same
+      shape Stack/Box use for their props
+      (<a href="../../decisionlog.md#37-layout-primitives-consume-semantic-vocabulary-via-prop--no-component-token-aliasing--n62">decision 37</a>).
+    </p>
+  </section>
+
+  <!-- 3 · CATALOG ────────────────────────────────────────────────── -->
+  <section class="page-section" id="catalog">
+    <h2>Catalog</h2>
+    <p>
+      All 17 glyphs, rendered at the default <code>md</code> size
+      (regular weight). The grid is generated from the
+      <a href="../../lib/components/icon/icons.js"><code>icons.js</code></a>
+      registry — what you see is exactly what ships.
+    </p>
+    <div class="icon-catalog" id="catalog-grid"></div>
+  </section>
+
+  <!-- 4 · SIZES ──────────────────────────────────────────────────── -->
+  <section class="page-section" id="sizes">
+    <h2>Sizes</h2>
+    <p>
+      Two sizes, each with its coupled weight. <code>md</code> (28px ·
+      regular) is the default; <code>sm</code> (18px · bold) holds a
+      heavier stroke so the glyph stays legible at the smaller box.
+    </p>
+    <div class="icon-demo-row">
+      <div class="icon-demo-cell">
+        <nuri-icon name="vault"></nuri-icon>
+        <nuri-icon name="vault" size="sm"></nuri-icon>
+        <span class="icon-demo-cell__label">vault</span>
+      </div>
+      <div class="icon-demo-cell">
+        <nuri-icon name="caret-right"></nuri-icon>
+        <nuri-icon name="caret-right" size="sm"></nuri-icon>
+        <span class="icon-demo-cell__label">caret-right</span>
+      </div>
+      <div class="icon-demo-cell">
+        <nuri-icon name="x-circle"></nuri-icon>
+        <nuri-icon name="x-circle" size="sm"></nuri-icon>
+        <span class="icon-demo-cell__label">x-circle</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · FILL ───────────────────────────────────────────────────── -->
+  <section class="page-section" id="fill">
+    <h2>Fill</h2>
+    <p>
+      The boolean <code>fill</code> attribute overrides the
+      size-coupled weight and renders the solid <code>fill</code>
+      variant. Meaningful where a filled glyph reads as a stronger or
+      "active" state. Each glyph appears twice below — the default
+      (regular) cell, then its <code>fill</code> cell, labelled.
+    </p>
+    <div class="icon-demo-row">
+      <div class="icon-demo-cell">
+        <nuri-icon name="vault"></nuri-icon>
+        <span class="icon-demo-cell__label">vault</span>
+      </div>
+      <div class="icon-demo-cell">
+        <nuri-icon name="vault" fill></nuri-icon>
+        <span class="icon-demo-cell__label">vault · fill</span>
+      </div>
+      <div class="icon-demo-cell">
+        <nuri-icon name="warning"></nuri-icon>
+        <span class="icon-demo-cell__label">warning</span>
+      </div>
+      <div class="icon-demo-cell">
+        <nuri-icon name="warning" fill></nuri-icon>
+        <span class="icon-demo-cell__label">warning · fill</span>
+      </div>
+      <div class="icon-demo-cell">
+        <nuri-icon name="info"></nuri-icon>
+        <span class="icon-demo-cell__label">info</span>
+      </div>
+      <div class="icon-demo-cell">
+        <nuri-icon name="info" fill></nuri-icon>
+        <span class="icon-demo-cell__label">info · fill</span>
+      </div>
+      <div class="icon-demo-cell">
+        <nuri-icon name="x-circle"></nuri-icon>
+        <span class="icon-demo-cell__label">x-circle</span>
+      </div>
+      <div class="icon-demo-cell">
+        <nuri-icon name="x-circle" fill></nuri-icon>
+        <span class="icon-demo-cell__label">x-circle · fill</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · API ────────────────────────────────────────────────────── -->
+  <section class="page-section" id="api">
+    <h2>API</h2>
+    <p>
+      The props signature. <code>web ↔ RN</code> is 1:1 at the props
+      layer — every prop below exists on both the
+      <code>&lt;nuri-icon&gt;</code> custom element and (when
+      implemented) the RN <code>&lt;Icon&gt;</code> component, with the
+      same name and accepted values. The RN renderer is deferred (see
+      Roadmap).
+    </p>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="icon">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-prop="name">
+          <td data-cell="name"><code>name</code></td>
+          <td data-cell="type"><code>string</code> (registry key)</td>
+          <td data-cell="default"><em>required</em></td>
+          <td data-cell="description">Kebab-case glyph name from the <a href="../../lib/components/icon/icons.js"><code>icons.js</code></a> registry. Unknown names render nothing and warn <code>[NuriIcon] unknown name "…"</code>.</td>
+        </tr>
+        <tr data-prop="size">
+          <td data-cell="name"><code>size</code></td>
+          <td data-cell="type"><code>"md" | "sm"</code></td>
+          <td data-cell="default"><code>"md"</code></td>
+          <td data-cell="description">Box size + coupled weight. <code>md</code> → 28px regular; <code>sm</code> → 18px bold.</td>
+        </tr>
+        <tr data-prop="fill">
+          <td data-cell="name"><code>fill</code></td>
+          <td data-cell="type"><code>boolean</code></td>
+          <td data-cell="default"><code>false</code></td>
+          <td data-cell="description">Presence forces the solid <code>fill</code> weight, overriding the size-coupled weight.</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <p>Examples:</p>
+    <pre><code>&lt;nuri-icon name="vault"&gt;&lt;/nuri-icon&gt;            &lt;!-- md · regular --&gt;
+&lt;nuri-icon name="vault" size="sm"&gt;&lt;/nuri-icon&gt;  &lt;!-- sm · bold --&gt;
+&lt;nuri-icon name="vault" fill&gt;&lt;/nuri-icon&gt;       &lt;!-- md · fill --&gt;
+&lt;nuri-icon name="warning" size="sm" fill&gt;&lt;/nuri-icon&gt;  &lt;!-- sm · fill --&gt;</code></pre>
+
+    <div class="nuri-note">
+      <span class="nuri-note__label">Weight is not a prop</span>
+      <span>
+        There is no <code>weight</code> attribute. Weight is coupled to
+        <code>size</code> + <code>fill</code> by design
+        (<a href="../../decisionlog.md#38-icon-component--phosphor-source--nuri-icon-name-nuri-facade--2-size--fill--registry-based-js-dispatch--n63">decision 38</a>).
+        Raw-weight access is a deferred Roadmap item.
+      </span>
+    </div>
+  </section>
+
+  <!-- 7 · TOKEN MAPPING ──────────────────────────────────────────── -->
+  <section class="page-section" id="token-mapping">
+    <h2>Token mapping</h2>
+    <p>
+      <strong>size prop → semantic size leaf → CSS var.</strong> Icon
+      mints no component tokens — the <code>size</code> prop dispatches
+      directly onto two leaves of the semantic
+      <a href="dimension/sizing.html"><code>--nuri-size-*</code></a>
+      scale via attribute selector
+      (<a href="../../decisionlog.md#37-layout-primitives-consume-semantic-vocabulary-via-prop--no-component-token-aliasing--n62">decision 37</a>
+      enforcement · empty <code>@layer tokens</code>, no
+      <code>build/components/icon.ts</code>).
+    </p>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="token-map" data-component="icon">
+      <thead>
+        <tr>
+          <th>size</th>
+          <th>weight (default)</th>
+          <th>box dimension</th>
+          <th>semantic leaf</th>
+          <th>value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-size="md" data-css-var="--nuri-size-sm" data-reference="--nuri-px-28">
+          <td><code>md</code></td>
+          <td><code>regular</code></td>
+          <td><code>width</code> / <code>height</code></td>
+          <td><code>--nuri-size-sm</code></td>
+          <td>28px</td>
+        </tr>
+        <tr data-size="sm" data-css-var="--nuri-size-xs" data-reference="--nuri-px-18">
+          <td><code>sm</code></td>
+          <td><code>bold</code></td>
+          <td><code>width</code> / <code>height</code></td>
+          <td><code>--nuri-size-xs</code></td>
+          <td>18px</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 8 · ROADMAP ────────────────────────────────────────────────── -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="raw-weight-prop">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Raw-weight prop</strong>
+          <p class="nuri-roadmap__desc">Weight is coupled to size today. A future <code>weight</code> prop could unlock the raw Phosphor weights (thin / light / duotone) — gated on a real consumer that needs to break the coupling. Unlock criterion is an Open question.</p>
+        </div>
+      </li>
+      <li data-feature="brand-glyphs">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Brand glyphs</strong>
+          <p class="nuri-roadmap__desc">Nuri-specific marks (logo, token glyphs) that aren't in Phosphor. Would extend the registry shape with a separate source provenance.</p>
+        </div>
+      </li>
+      <li data-feature="pipeline-auto-import">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Pipeline auto-import</strong>
+          <p class="nuri-roadmap__desc">Today the registry is regenerated by hand (throwaway extraction script). When the catalog batches its next expansion, promote extraction into the <code>pipeline/</code> workstream so <code>icons.js</code> regenerates mechanically from a name list.</p>
+        </div>
+      </li>
+      <li data-feature="rn-renderer">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">RN renderer</strong>
+          <p class="nuri-roadmap__desc">The web side ships inline SVG. The RN consumer provides the actual renderer (<code>react-native-svg</code> or similar) against the same registry + props. Spec-only today; the RN home is an Open question (target N+6.4 when IconButton lands as the first consumer).</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+<script type="module">
+  // Catalog grid · generated from the registry so it can't drift from
+  // what ships. Object key order = the operator-locked 17-glyph order.
+  import { ICONS } from '../../lib/components/icon/icons.js';
+
+  const grid = document.getElementById('catalog-grid');
+  grid.innerHTML = Object.keys(ICONS).map((name) => `
+    <div class="icon-catalog__cell" data-icon="${name}">
+      <nuri-icon name="${name}"></nuri-icon>
+      <span class="icon-catalog__name">${name}</span>
+    </div>
+  `).join('');
+</script>
+
+</body>
+</html>

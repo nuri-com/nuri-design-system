@@ -1,0 +1,130 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · ICON-AVATAR
+ *
+ * The static, decorative twin of IconButton: an icon centred on a
+ * coloured circle (decision 50 · N+6.9). It shares IconButton's
+ * variant→surface matrix but strips ALL interaction — no press, no
+ * disabled, no focus, no accessible name. It is the second direct
+ * <nuri-icon> consumer (after IconButton), unblocked by the
+ * F-ICON-RN-1 closure in N+6.8 (decision 48).
+ *
+ * Variant matrix (solid/soft/ghost mirror IconButton's surfaces · rest
+ * state only · no pressed/disabled deltas · `subtle` is IconAvatar-only):
+ *
+ *   variant   bg                      fg
+ *   ─────────────────────────────────────────────────────
+ *   solid     accent-solid            accent-on-solid
+ *   soft      bg-strong (chrome)      text-primary       ← default
+ *   ghost     transparent             text-primary
+ *   subtle    transparent             border-strong      ← avatar-only
+ *
+ *   Solid carries accent identity; soft + ghost + subtle are chrome-only
+ *   and stay neutral regardless of the active accent (decision 11
+ *   family) — the `accent` prop has no visual effect on them. `subtle`
+ *   is the low-emphasis decorative treatment (like ghost, but the glyph
+ *   reads in `border-strong` rather than `text-primary`); it has no
+ *   IconButton counterpart because an actionable control never wants a
+ *   near-invisible glyph.
+ *
+ * Single size (decision 50 · like IconButton decision 40 · no size
+ * prop). IconAvatar is the EXACT static twin of IconButton, so it
+ * mirrors IconButton's geometry leaf-for-leaf: a --nuri-size-lg
+ * (48px) circle holding a <nuri-icon size="md"> (28px regular) for a
+ * ~10px optical ring. Same container, same glyph — only the
+ * interaction differs. No new token (P11 · reuses IconButton's
+ * leaves).
+ *
+ * No `@layer tokens` block — IconAvatar consumes the semantic accent
+ * / chrome surfaces DIRECTLY in `@layer rules` (the Tabs precedent ·
+ * decision 42/43), NOT via component-token aliasing. It must NOT
+ * duplicate icon-button.ts — there is no per-component file to ship.
+ * The per-component pipeline emitter detects the empty case and
+ * skips emit (decision 50).
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design. IconAvatar consumes the semantic accent/chrome
+   * surfaces directly (decision 50 · the Tabs precedent), NOT via
+   * component-token aliasing — duplicating icon-button.ts would be
+   * useless indirection. The per-component pipeline emitter detects
+   * this empty case and skips emit — no build/components/icon-avatar.ts. */
+}
+
+@layer rules {
+  /* ── Custom element wrapper · invisible in layout ──────────── */
+  nuri-icon-avatar {
+    display: contents;
+  }
+
+  /* ── Pre-upgrade skeleton ─────────────────────────────────────
+   * Paint a circular placeholder until icon-avatar.js (ES-module-
+   * free · deferred) upgrades the element, so the row doesn't
+   * reflow. Default (no variant) is soft. */
+  nuri-icon-avatar:not(:defined) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--nuri-size-lg);
+    block-size: var(--nuri-size-lg);
+    border-radius: var(--nuri-radius-full);
+    vertical-align: middle;
+  }
+  nuri-icon-avatar:not(:defined),
+  nuri-icon-avatar:not(:defined)[variant="soft"] {
+    background: var(--nuri-bg-strong);
+    color: var(--nuri-text-primary);
+  }
+  nuri-icon-avatar:not(:defined)[variant="solid"] {
+    background: var(--nuri-accent-solid);
+    color: var(--nuri-accent-on-solid);
+  }
+  nuri-icon-avatar:not(:defined)[variant="ghost"] {
+    background: transparent;
+    color: var(--nuri-text-primary);
+  }
+  nuri-icon-avatar:not(:defined)[variant="subtle"] {
+    background: transparent;
+    color: var(--nuri-border-strong);
+  }
+
+  /* ── Base · applied to every variant ─────────────────────────
+   * Single size lock (decision 50): --nuri-size-lg (48px), the same
+   * container leaf IconButton uses — IconAvatar is its exact static
+   * twin. No size prop. */
+  .nuri-icon-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--nuri-size-lg);
+    block-size: var(--nuri-size-lg);
+    border-radius: var(--nuri-radius-full);
+    flex-shrink: 0;
+  }
+
+  /* ── Variant · solid · filled with active accent ───────────── */
+  .nuri-icon-avatar--solid {
+    background: var(--nuri-accent-solid);
+    color: var(--nuri-accent-on-solid);
+  }
+
+  /* ── Variant · soft · chrome-only, accent-independent ──────── */
+  .nuri-icon-avatar--soft {
+    background: var(--nuri-bg-strong);
+    color: var(--nuri-text-primary);
+  }
+
+  /* ── Variant · ghost · transparent, no surface ─────────────── */
+  .nuri-icon-avatar--ghost {
+    background: transparent;
+    color: var(--nuri-text-primary);
+  }
+
+  /* ── Variant · subtle · transparent, muted glyph (avatar-only) ─
+   * Like ghost, but the glyph reads in border-strong rather than
+   * text-primary — the lowest-emphasis decorative treatment. No
+   * IconButton counterpart (decision 50 · subtle is avatar-only). */
+  .nuri-icon-avatar--subtle {
+    background: transparent;
+    color: var(--nuri-border-strong);
+  }
+}

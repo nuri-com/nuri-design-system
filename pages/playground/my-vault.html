@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri · Playground · My vault</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../lib/docs/state.js"></script>
+  <!-- The playground is a FIXED light + cream + lilac (brand) surface
+       (decision 57): it has no theme/neutral/accent toggle of its own, and the
+       only themeable island is the per-view device frame. Pin ALL THREE chrome
+       dimensions here regardless of the shared docs localStorage — accent must
+       be pinned too (fallback is brand lilac, but a visitor who toggled
+       accent=neutral in the DS area would otherwise leak it in, washing the
+       brand accent to black · N+11 fix). Done WITHOUT NuriState.set so we don't
+       clobber the DS prefs the user picked over in the design-system area. -->
+  <script>
+    document.documentElement.dataset.theme = 'light';
+    document.documentElement.dataset.neutral = 'cream';
+    document.documentElement.dataset.accent = 'lilac';
+  </script>
+
+  <!-- Playground document (decision 57). Reuses the token cake + base body
+       reset; chrome is the playground shell (NOT <nuri-shell>). This document
+       composes a full screen from EXISTING components only — no new
+       component, token, or glyph — rendered live inside the <nuri-demo>
+       iPhone-16 device frame (the opt-in `device` control). -->
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../lib/components/icon/icon.css" />
+  <link rel="stylesheet" href="../../lib/components/icon-button/icon-button.css" />
+  <link rel="stylesheet" href="../../lib/components/separator/separator.css" />
+  <link rel="stylesheet" href="../../styles/typography.css" />
+  <link rel="stylesheet" href="../../lib/components/typography/typography.css" />
+  <link rel="stylesheet" href="../../lib/components/typography-stack/typography-stack.css" />
+  <link rel="stylesheet" href="../../lib/components/box/box.css" />
+  <link rel="stylesheet" href="../../lib/components/stack/stack.css" />
+  <link rel="stylesheet" href="../../lib/components/screen/screen.css" />
+  <link rel="stylesheet" href="../../lib/components/scroll/scroll.css" />
+  <link rel="stylesheet" href="../../lib/components/spacer/spacer.css" />
+  <link rel="stylesheet" href="../../lib/components/button/button.css" />
+  <link rel="stylesheet" href="../../lib/components/topbar/topbar.css" />
+  <link rel="stylesheet" href="../../lib/components/tab-bar/tab-bar.css" />
+  <link rel="stylesheet" href="../../lib/components/list/list.css" />
+  <link rel="stylesheet" href="../../lib/components/list-item/list-item.css" />
+  <link rel="stylesheet" href="../../lib/components/list-interactive-item/list-interactive-item.css" />
+  <link rel="stylesheet" href="../../lib/components/nav-item/nav-item.css" />
+  <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
+  <link rel="stylesheet" href="../../lib/playground/shell.css" />
+
+  <script src="../../lib/docs/control/control.js" defer></script>
+  <!-- The area shell loads BEFORE demo.js (mirrors the DS shell.js order):
+       <nuri-playground-shell> reparents the <nuri-demo> subtree into its
+       built <main>, so it must run FIRST — otherwise the demo composes its
+       children in place and the shell's later reparent re-fires their
+       connectedCallback (nav-item's idempotency guard is falsy-empty, so it
+       would double-compose). NOTE: lib/docs/shell.js is deliberately NOT
+       loaded — that's the DS sidebar; this page is the playground shell. -->
+  <script src="../../lib/playground/shell.js" defer></script>
+  <!-- Custom element scripts MUST be deferred so connectedCallback fires
+       AFTER body parsing (children present). See AGENTS.md. Icon is an
+       ES module (imports the registry); the rest are deferred scripts. -->
+  <script src="../../lib/components/scope/scope.js" defer></script>
+  <script src="../../lib/components/icon/icon.js" type="module"></script>
+  <script src="../../lib/components/icon-button/icon-button.js" defer></script>
+  <script src="../../lib/components/separator/separator.js" defer></script>
+  <script src="../../lib/components/typography/typography.js" defer></script>
+  <script src="../../lib/components/typography-stack/typography-stack.js" defer></script>
+  <script src="../../lib/components/box/box.js" defer></script>
+  <script src="../../lib/components/stack/stack.js" defer></script>
+  <script src="../../lib/components/screen/screen.js" defer></script>
+  <script src="../../lib/components/scroll/scroll.js" defer></script>
+  <script src="../../lib/components/spacer/spacer.js" defer></script>
+  <script src="../../lib/components/button/button.js" defer></script>
+  <script src="../../lib/components/topbar/topbar.js" defer></script>
+  <script src="../../lib/components/tab-bar/tab-bar.js" defer></script>
+  <script src="../../lib/components/list/list.js" defer></script>
+  <script src="../../lib/components/list-item/list-item.js" defer></script>
+  <script src="../../lib/components/list-interactive-item/list-interactive-item.js" defer></script>
+  <script src="../../lib/components/nav-item/nav-item.js" defer></script>
+  <script src="../../lib/docs/demo/demo.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  PLAYGROUND · DOCUMENT · MY VAULT (decision 57 · N+10)
+  ═══════════════════════════════════════════════════════════════
+
+  The wallet home screen, composed ENTIRELY from existing components —
+  no new component, token, or glyph (the playground's job is to VALIDATE
+  the system on a real layout, not extend it). Rendered live inside the
+  <nuri-demo device> iPhone-16 frame so theme / neutral re-resolve exactly
+  as on-device.
+
+  Composition map (top → bottom):
+    · Topbar         — "My vault" + help (question) + settings (gear)
+    · Bitcoin line   — typography-stack (row): name + sats + value
+    · Swap           — IconButton (arrows-down-up) flanked by two
+                       <nuri-separator> hairlines (Stack row)
+    · Euro line      — typography-stack (row): name + value
+    · Total          — Typography (3xl)
+    · Activation     — two nav-items (Activate credit card / Activate IBAN)
+    · Actions        — "Add crypto funds" (soft) + "Buy Bitcoin with  Pay"
+                       (solid · apple-logo) buttons
+    · TabBar         — vault / coin / clock · vault active
+
+  The screen SCAFFOLD is DS composition (decision 58 · N+11):
+  <nuri-screen> (full-height column) holds the pinned Topbar + a growing
+  <nuri-scroll> body; the <nuri-tab-bar> is a SIBLING of Screen (RN
+  navigation norm — the tab-bar is navigator chrome, not screen content).
+  The device frame plays the navigator role and owns the safe-area
+  (handled in ONE place, as in RN). The screen is now composed ENTIRELY
+  from DS components — ZERO page-local CSS (no <style> block).
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-playground-shell doc="My vault">
+  <nuri-demo layout="board" controls="device,theme,neutral">
+    <template>
+      <nuri-screen>
+
+        <!-- ── Topbar ──────────────────────────────────────────── -->
+        <nuri-topbar>
+          My vault
+          <nuri-topbar-end>
+            <nuri-icon-button name="question" variant="ghost" label="Help"></nuri-icon-button>
+            <nuri-icon-button name="gear" variant="ghost" label="Settings"></nuri-icon-button>
+          </nuri-topbar-end>
+        </nuri-topbar>
+
+        <!-- ── Scrollable body ─────────────────────────────────── -->
+        <nuri-scroll>
+          <nuri-box padding-x="lg" padding-top="md" fill>
+            <nuri-stack direction="column" gap="sm" fill>
+
+              <!-- Bitcoin line -->
+              <nuri-typography-stack direction="row">
+                <nuri-typography size="md" emphasis>Bitcoin</nuri-typography>
+                <nuri-typography size="sm" muted>Sats 72.077</nuri-typography>
+                <nuri-spacer></nuri-spacer>
+                <nuri-typography size="sm" emphasis>€ 47,50</nuri-typography>
+              </nuri-typography-stack>
+
+              <!-- Swap affordance · button flanked by hairlines -->
+              <nuri-stack direction="row" gap="sm" align="center">
+                <nuri-separator y-space="none"></nuri-separator>
+                <nuri-icon-button name="arrows-down-up" variant="solid" accent="neutral" label="Swap Bitcoin and Euro"></nuri-icon-button>
+                <nuri-separator y-space="none"></nuri-separator>
+              </nuri-stack>
+
+              <!-- Euro line -->
+              <nuri-typography-stack direction="row">
+                <nuri-typography size="md" emphasis>Euro</nuri-typography>
+                <nuri-spacer></nuri-spacer>
+                <nuri-typography size="sm" emphasis>€ 50,00</nuri-typography>
+              </nuri-typography-stack>
+
+              <!-- Total · pushed down by a grow-1 spacer (1:2 split with
+                   the grow-2 spacer above the fund actions) -->
+              <nuri-spacer grow="1"></nuri-spacer>
+              <nuri-typography size="3xl" align="end">€ 97.50</nuri-typography>
+
+              <!-- Activation rows -->
+              <nuri-list density="md">
+                <nuri-separator></nuri-separator>
+                <nuri-nav-item>Activate credit card</nuri-nav-item>
+                <nuri-separator></nuri-separator>
+                <nuri-nav-item>Activate IBAN</nuri-nav-item>
+              </nuri-list>
+
+              <!-- Fund actions · in the main column stack (no nested stack),
+                   pushed to the bottom by a grow-2 spacer -->
+              <nuri-spacer grow="2"></nuri-spacer>
+              <nuri-button variant="soft" size="lg">Add crypto funds</nuri-button>
+              <nuri-button variant="solid" size="lg">
+                <nuri-stack direction="row" gap="xs" align="center">Buy Bitcoin with<nuri-icon name="apple-logo" size="sm" fill></nuri-icon>Pay</nuri-stack>
+              </nuri-button>
+
+            </nuri-stack>
+          </nuri-box>
+        </nuri-scroll>
+      </nuri-screen>
+
+      <!-- ── TabBar · SIBLING of Screen (navigator chrome · decision 58) ── -->
+      <nuri-tab-bar value="vault" label="Vault navigation">
+        <nuri-tab-bar-item value="vault" name="vault" label="My vault"></nuri-tab-bar-item>
+        <nuri-tab-bar-item value="coin" name="coin-vertical" label="Coin"></nuri-tab-bar-item>
+        <nuri-tab-bar-item value="activity" name="clock" label="Activity"></nuri-tab-bar-item>
+      </nuri-tab-bar>
+    </template>
+  </nuri-demo>
+</nuri-playground-shell>
+
+</body>
+</html>

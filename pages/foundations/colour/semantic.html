@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Foundations · Colour · Semantic</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../../lib/docs/state.js"></script>
+
+  <link rel="stylesheet" href="../../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../../styles/shell.css" />
+  <script src="../../../lib/docs/control/control.js" defer></script>
+  <script src="../../../lib/docs/shell.js" defer></script>
+  <script src="../../../lib/docs/tokens.js"></script>
+</head>
+<body>
+
+<!-- Foundation template — see pages/foundations/colour/primitive.html
+     for the canonical structure (spec card · set indicator · body
+     sections · roadmap). -->
+
+<nuri-shell active="foundations/colour/semantic">
+  <nuri-page
+    eyebrow="Foundations · Colour · Semantic"
+    title="Semantic"
+    status="draft"
+    lead="Role-based tokens, composed from primitives by data-theme × data-accent. This is the consumer surface — components must reference these, never primitives."
+  ></nuri-page>
+
+  <!-- 1 · SPEC CARD ─────────────────────────────────────────────── -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-foundation="colour-semantic"
+        data-foundation-status="draft">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd data-spec="type">
+          <span class="nuri-spec-card__chip" data-type="color">color</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Layer</dt>
+        <dd data-spec="layer">
+          <span class="nuri-spec-card__chip" data-layer="semantic">semantic</span>
+          <span class="nuri-spec-card__meta">consumed by every component · resolved live per data-theme × data-accent</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Source</dt>
+        <dd data-spec="source">
+          <span class="nuri-spec-card__chip" data-source="tokens-semantic.css">tokens-semantic.css</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Status</dt>
+        <dd data-spec="status">
+          <span class="nuri-tag nuri-tag--draft">draft</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- 2 · HOW TO READ ────────────────────────────────────────────── -->
+  <section class="page-section" id="how-to-read">
+    <h2>How to read these tables</h2>
+    <p class="nuri-token-meta">Set · <code>core</code></p>
+    <p>
+      Each row is one semantic token, expanded across both modes
+      structurally. <strong>Reference Light</strong> and
+      <strong>Reference Dark</strong> are the primitive
+      <code>var(...)</code> declarations the cascade lands on under
+      <code>data-theme="light"</code> and <code>data-theme="dark"</code>
+      respectively — the reference itself can change per theme (e.g.
+      block 1 declares <code>--nuri-bg-canvas</code> as
+      <code>neutral-1-light</code>; block 2 redeclares it as
+      <code>neutral-1-dark</code>). <strong>Light</strong> and
+      <strong>Dark</strong> are the resolved hex values from those
+      walks. The chip inside each Reference cell renders the same
+      colour the chip's cascade context produces — light chip on
+      Reference Light, dark chip on Reference Dark — so you can read
+      the matrix at a glance without toggling anything.
+    </p>
+    <p>
+      Chrome tokens (<code>bg-*</code>, <code>text-*</code>,
+      <code>border-*</code>, <code>focus-ring</code>) depend only on
+      <code>data-theme</code>. Accent tokens depend on
+      <code>data-theme × data-accent</code>; the two accent sections
+      below — <strong>Accent · neutral</strong> and
+      <strong>Accent · lilac</strong> — split the accent dimension
+      structurally so each token's value resolves once per accent. Read
+      <code>tokens-semantic.css</code> for the cascade ordering of the
+      six blocks that produce these values; per
+      <a href="../../../decisionlog.md#33-semantic-token-docs--format-b-verbose-dual-mode-for-context-dependent-tokens--n601">decision 33</a>, each canonical
+      block carries an inline Format B comment showing the same matrix
+      the tables here render.
+    </p>
+  </section>
+
+  <!-- 3 · BACKGROUNDS ──────────────────────────────────────────────
+       Section ID convention: short slug on <section> (anchorable),
+       `tokens-*` prefix on the JS-populated host div to avoid
+       collision (decision N+2 housekeeping). -->
+  <section class="page-section" id="backgrounds">
+    <h2>Backgrounds</h2>
+    <div id="tokens-backgrounds"></div>
+  </section>
+
+  <!-- 4 · TEXT ───────────────────────────────────────────────────── -->
+  <section class="page-section" id="text">
+    <h2>Text</h2>
+    <div id="tokens-text"></div>
+  </section>
+
+  <!-- 5 · BORDERS ────────────────────────────────────────────────── -->
+  <section class="page-section" id="borders">
+    <h2>Borders</h2>
+    <div id="tokens-borders"></div>
+  </section>
+
+  <!-- 6 · FOCUS ──────────────────────────────────────────────────── -->
+  <section class="page-section" id="focus">
+    <h2>Focus</h2>
+    <div id="tokens-focus"></div>
+  </section>
+
+  <!-- 7 · ACCENT · NEUTRAL ─────────────────────────────────────────
+       The accent dimension is split across two structural sections
+       (neutral + lilac) so the full matrix resolves on the page
+       without a toggle widget. Parses tokens-semantic.css with
+       parseSemantics({ accent: 'neutral', bothThemes: true }) so
+       each row carries valueLight + valueDark resolved against the
+       neutral accent block of the cascade. -->
+  <section class="page-section" id="accent-neutral">
+    <h2>Accent · neutral</h2>
+    <p>
+      Saturated-scale accent. <code>accent-fg</code> and
+      <code>accent-bg-subtle*</code> are same-scale across themes;
+      <code>accent-solid</code>, <code>accent-solid-pressed</code>, and
+      <code>accent-on-solid</code> are <strong>INVERSE</strong> — the
+      light value comes from the dark side of the neutral primitive
+      scale and vice versa. The matrix below renders both modes
+      side-by-side; the same matrix is documented inline at block 1
+      of <code>tokens-semantic.css</code> per
+      <a href="../../../decisionlog.md#33-semantic-token-docs--format-b-verbose-dual-mode-for-context-dependent-tokens--n601">decision 33</a>.
+    </p>
+    <div id="tokens-accent-neutral"></div>
+  </section>
+
+  <!-- 8 · ACCENT · LILAC ────────────────────────────────────────────
+       Parses tokens-semantic.css with
+       parseSemantics({ accent: 'lilac', bothThemes: true }) so each
+       row resolves against blocks 5 (light) + 6 (partial dark) of
+       the cascade. P4-frozen tokens (solid / solid-pressed /
+       on-solid) intentionally show identical Light + Dark cells. -->
+  <section class="page-section" id="accent-lilac">
+    <h2>Accent · lilac</h2>
+    <p>
+      Bright-scale accent. <code>accent-fg</code> and
+      <code>accent-bg-subtle*</code> adapt per theme (block 6
+      redeclares); <code>accent-solid</code>,
+      <code>accent-solid-pressed</code>, and
+      <code>accent-on-solid</code> are <strong>FROZEN</strong> per
+      <a href="../../principles.html#p4-mode-accent-composition">P4</a>
+      — block 6 intentionally omits them, so the same lilac value
+      resolves in both Light and Dark cells. The matrix is documented
+      inline at block 5 of <code>tokens-semantic.css</code>.
+    </p>
+    <div id="tokens-accent-lilac"></div>
+  </section>
+
+  <!-- 9 · ROADMAP ────────────────────────────────────────────────── -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="topbar-accent">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Topbar accent control</strong>
+          <p class="nuri-roadmap__desc">Add a global accent control to the topbar once a second saturated accent ships and the toggle becomes meaningful. Until then the cascade behaviour for both accents is testable from this page's per-accent sections.</p>
+        </div>
+      </li>
+      <li data-feature="additional-accents">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Additional accent scales</strong>
+          <p class="nuri-roadmap__desc">Sage / orange / jade arrive when the first rails-using component lands. Each adds a <code>[data-accent="…"]</code> block to the cascade.</p>
+        </div>
+      </li>
+      <li data-feature="status-roles">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Status semantic roles</strong>
+          <p class="nuri-roadmap__desc">Promote <code>success</code> · <code>warning</code> · <code>error</code> · <code>info</code> as semantic accent families when the first status-using component lands.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+<script>
+  // Section structure · each section parses tokens-semantic.css with
+  // bothThemes:true so each row carries valueLight + valueDark, and
+  // showBothModes:true on the renderer emits the 6-col table (DTCG ·
+  // CSS var · Reference · Light · Dark · Type).
+  //
+  // The four chrome sections (bg / text / border / focus) are accent-
+  // invariant; the accent argument here is irrelevant to their value
+  // resolution. We pass 'neutral' for them to match block 1 of the
+  // cascade (the canonical declaration block for chrome). The two
+  // accent sections re-parse the sheet against their respective
+  // accent contexts — that's how the per-accent dim split goes
+  // structural instead of interactive (decision 20.1, N+6.0.2).
+  const CHROME_SECTIONS = [
+    { id: 'tokens-backgrounds', match: v => v.startsWith('--nuri-bg-') },
+    { id: 'tokens-text',        match: v => v.startsWith('--nuri-text-') },
+    { id: 'tokens-borders',     match: v => v.startsWith('--nuri-border-') },
+    { id: 'tokens-focus',       match: v => v.startsWith('--nuri-focus-') },
+  ];
+  const ACCENT_MATCH = v => v.startsWith('--nuri-accent-');
+
+  function renderAll(sheet) {
+    if (!sheet) return;
+
+    // Chrome · accent-invariant. Parse once against neutral.
+    // `accent` is passed to renderTable so each chip carries
+    // data-accent="neutral" in its wrapper — for chrome tokens this
+    // is irrelevant to the resolved colour, but keeps the wrapper
+    // shape consistent across sections.
+    const chromeTokens = NuriTokens.parseSemantics(sheet, {
+      accent: 'neutral',
+      bothThemes: true,
+    });
+    for (const section of CHROME_SECTIONS) {
+      const subset = chromeTokens.filter(t => section.match(t.cssVar));
+      document.getElementById(section.id).innerHTML =
+        NuriTokens.renderTable(subset, {
+          showBothModes: true,
+          accent: 'neutral',
+        });
+    }
+
+    // Accent · two structural sections, one parse per accent. Each
+    // parse resolves every semantic var against its accent's cascade
+    // blocks; we filter to accent-* rows post-parse. `accent` is
+    // passed to renderTable so each Reference-cell chip resolves
+    // var() under the correct (theme × accent) context.
+    const neutralTokens = NuriTokens.parseSemantics(sheet, {
+      accent: 'neutral',
+      bothThemes: true,
+    }).filter(t => ACCENT_MATCH(t.cssVar));
+    document.getElementById('tokens-accent-neutral').innerHTML =
+      NuriTokens.renderTable(neutralTokens, {
+        showBothModes: true,
+        accent: 'neutral',
+      });
+
+    const lilacTokens = NuriTokens.parseSemantics(sheet, {
+      accent: 'lilac',
+      bothThemes: true,
+    }).filter(t => ACCENT_MATCH(t.cssVar));
+    document.getElementById('tokens-accent-lilac').innerHTML =
+      NuriTokens.renderTable(lilacTokens, {
+        showBothModes: true,
+        accent: 'lilac',
+      });
+  }
+
+  // The page no longer reacts to theme or accent — both dimensions
+  // are rendered structurally. We keep a subscription to `neutral`
+  // only so accent-* references that resolve through the active
+  // neutral alias re-render when the topbar neutral selector changes.
+  let sheetRef = null;
+  function init(sheet) {
+    sheetRef = sheet;
+    renderAll(sheet);
+  }
+  NuriTokens.whenSheetReady('tokens-semantic.css', init);
+
+  NuriState.subscribe('neutral', () => renderAll(sheetRef));
+</script>
+
+</body>
+</html>

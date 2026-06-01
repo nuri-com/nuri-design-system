@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Foundations · Dimension · Primitive</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../../../lib/docs/state.js"></script>
+
+  <link rel="stylesheet" href="../../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../../../styles/shell.css" />
+  <script src="../../../lib/docs/control/control.js" defer></script>
+  <script src="../../../lib/docs/shell.js" defer></script>
+  <script src="../../../lib/docs/tokens.js"></script>
+</head>
+<body>
+
+<!-- Token-driven foundation page · template per decision 19 + 16. -->
+
+<nuri-shell active="foundations/dimension/primitive">
+  <nuri-page
+    eyebrow="Foundations · Dimension · Primitive"
+    title="Primitive"
+    status="stable"
+    lead="The flat catalogue of raw pixel values. Direct-pixel naming: each token's value equals its name. Semantic dimension vocabularies (spacing · sizing · radius) alias these primitives by name."
+  ></nuri-page>
+
+  <!-- 1 · SPEC CARD ─────────────────────────────────────────────── -->
+  <section class="page-section" id="spec">
+    <dl class="nuri-spec-card"
+        data-foundation="dimension-primitive"
+        data-foundation-status="stable">
+      <div class="nuri-spec-card__row">
+        <dt>Type</dt>
+        <dd data-spec="type">
+          <span class="nuri-spec-card__chip" data-type="dimension">dimension</span>
+          <span class="nuri-spec-card__meta">12 leaves · 2 · 4 · 6 · 12 · 18 · 24 · 28 · 36 · 48 · 60 · 72 · 90</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Layer</dt>
+        <dd data-spec="layer">
+          <span class="nuri-spec-card__chip" data-layer="primitive">primitive</span>
+          <span class="nuri-spec-card__meta">consumed only by the semantic dimension layer · never by components directly</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Source</dt>
+        <dd data-spec="source">
+          <span class="nuri-spec-card__chip" data-source="tokens-primitive.css">tokens-primitive.css</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Status</dt>
+        <dd data-spec="status">
+          <span class="nuri-tag nuri-tag--ready">stable</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- 2 · APPROACH ───────────────────────────────────────────────── -->
+  <section class="page-section" id="approach">
+    <h2>Approach</h2>
+    <p>
+      The dimension primitive layer uses <strong>direct-pixel naming</strong>:
+      each token's value equals its name. <code>--nuri-px-12</code> is
+      literally 12 px. No indexed scale, no T-shirt mnemonics — the
+      vocabulary IS the value
+      (<a href="../../../decisionlog.md#32-primitive-scale-uses-direct-pixel-naming---nuri-px-n--n60">decision 32</a>).
+    </p>
+    <p>
+      Twelve values ship. Each one exists because at least one consumer
+      reaches for it — either a semantic dimension leaf
+      (<a href="./spacing.html">spacing</a> ·
+      <a href="./sizing.html">sizing</a> ·
+      <a href="./radius.html">radius</a>) or a chrome surface (the
+      docs shell consumes <code>--nuri-px-48</code> directly for the
+      44 px touch-target retrofit). New primitives arrive when a new
+      consumer surfaces; speculative additions are
+      caught at the test boundary
+      (<a href="../../../decisionlog.md#30-primitive-parsimony--no-speculative-additions--n571">decision 30</a> ·
+      <a href="../../principles.html#p11-parsimony">P11</a>).
+    </p>
+    <p>
+      <strong>Hard rule 1 / P3</strong>: components do NOT consume
+      these primitives directly. Component CSS reads from the semantic
+      dimension layer (<code>--nuri-space-*</code>,
+      <code>--nuri-size-*</code>, <code>--nuri-radius-*</code>); the
+      semantic layer is the only direct consumer of the primitive
+      vocabulary. See
+      <a href="../../components/button.html">Button</a> for the
+      worked example.
+    </p>
+  </section>
+
+  <!-- 3 · TOKEN TABLE ────────────────────────────────────────────── -->
+  <section class="page-section" id="tokens">
+    <h2>Tokens</h2>
+    <p class="nuri-token-meta">Set · <code>core</code></p>
+    <p>
+      Each row is one primitive dimension leaf. <strong>Value</strong>
+      is the literal pixel value. <strong>Type</strong> is the DTCG
+      <code>$type</code> inferred from the <code>--nuri-px-</code>
+      prefix (see
+      <a href="../../../AGENTS.md">AGENTS.md</a>).
+    </p>
+    <div id="tokens-dimension-primitive"></div>
+  </section>
+
+  <!-- 4 · ROADMAP ────────────────────────────────────────────────── -->
+  <section class="page-section" id="roadmap">
+    <h2>Roadmap</h2>
+    <ul class="nuri-roadmap">
+      <li data-feature="future-additions">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Future additions</strong>
+          <p class="nuri-roadmap__desc">New <code>--nuri-px-N</code> leaves arrive only when a new semantic or component consumer surfaces them. Speculative additions are blocked by <a href="../../principles.html#p11-parsimony">P11</a> + the <code>every primitive token is consumed or explicitly reserved</code> guardrail test.</p>
+        </div>
+      </li>
+      <li data-feature="rem-vs-px-rule">
+        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <div class="nuri-roadmap__body">
+          <strong class="nuri-roadmap__title">Document the unit rule explicitly</strong>
+          <p class="nuri-roadmap__desc">Currently <code>rem</code> is used for font-size only (mirrors RN <code>allowFontScaling</code>); <code>px</code> for everything else (spacing, sizing, radius, border). Inline-noted in <code>tokens-primitive.css</code> header; promote to a separate Implementation guide note when the typography migration lands.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+<script>
+  function renderPrimitiveTable(sheet) {
+    if (!sheet) return;
+    const tokens = NuriTokens.parsePrimitives(sheet, {
+      filter: (v) => v.startsWith('--nuri-px-'),
+    });
+    // Primitive layer has no Reference column (no var() chains here);
+    // default 4-col render (DTCG · CSS var · Value · Type).
+    document.getElementById('tokens-dimension-primitive').innerHTML =
+      NuriTokens.renderTable(tokens, { showReference: false });
+  }
+
+  NuriTokens.whenSheetReady('tokens-primitive.css', renderPrimitiveTable);
+</script>
+
+</body>
+</html>

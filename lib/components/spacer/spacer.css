@@ -1,0 +1,97 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · SPACER  (layout primitive · decision 37 · 59 · N+11)
+ *
+ * A flexible gap — an empty box that either GROWS to absorb the free
+ * space of its parent flex container (default · the SwiftUI/RN
+ * `Spacer` idiom) or holds a FIXED extent from the semantic spacing
+ * scale. Author-placed BETWEEN siblings to push them apart, or to add
+ * a deliberate fixed gap without reaching for a parent `gap`.
+ *
+ * Like Separator (decision 49) it paints/sizes the HOST directly — no
+ * inner element, no JS reparenting. Spacer IS the gap.
+ *
+ * API
+ *   direction?: "row" | "column"     axis the spacer operates on (default row).
+ *                                     Picks which dimension a fixed `size`
+ *                                     fills (row → inline, column → block).
+ *                                     For the grow default it just declares
+ *                                     intent — flex:1 grows on the parent's
+ *                                     main axis either way.
+ *   size?: "xs" | "sm" | "md" | "lg" | "xl"
+ *                                     FIXED extent over the semantic space
+ *                                     scale. Omitted (auto) → GROW (flex:1).
+ *   grow?: "1" | "2" | "3" | "4"      Proportional grow share for a GROW
+ *                                     spacer (default 1). Two spacers at 1/2
+ *                                     split the free space 1:2. Ignored when
+ *                                     `size` is set. (decision 61 · renamed
+ *                                     from `weight` 2026-06-01 · font-weight
+ *                                     collision · maps literally to flex-grow)
+ *
+ * RN mapping (R1)
+ *   grow (default)   → <View style={{ flex: 1 }} />
+ *   grow="n"         → <View style={{ flex: n }} />   (proportional flexGrow)
+ *   size · row       → <View style={{ width:  tokens.space[size] }} />
+ *   size · column    → <View style={{ height: tokens.space[size] }} />
+ *
+ * No `@layer tokens` block — Spacer is prop-driven (decision 37 family):
+ * `size` dispatches the semantic space vocabulary directly via attribute
+ * selector (like Stack `gap` / Separator `y-space`), and the grow default
+ * is structural flex, not a design-scale value. The per-component
+ * pipeline emitter detects the empty case and skips emit — no
+ * build/components/spacer.ts ships (SKIP-EMIT · decision 52 · same as
+ * Stack / Box / Screen / Scroll / Separator).
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design. Spacer is a layout primitive (decision 37) — it
+   * owns no --nuri-spacer-* tokens. `size` dispatches the semantic space
+   * scale via attribute selector; the grow default is structural flex.
+   * Same skip-emit rationale as stack.css / separator.css. */
+}
+
+@layer rules {
+  /* ── Base · the growing gap ────────────────────────────────────
+   * Default (no `size`) → flex:1 absorbs the parent flex container's
+   * free space on its main axis. The host is a real box (display:block,
+   * blockified as a flex item) so it can take a size. The skeleton and
+   * the upgraded element render identically (behaviour-free), so there
+   * is no FOUC delta. */
+  nuri-spacer,
+  nuri-spacer:not(:defined) {
+    display: block;
+    flex: 1;
+  }
+
+  /* ── Grow · proportional grow share (decision 61 · N+11) ───────
+   * Optional. A grow spacer (no `size`) absorbs free space in
+   * proportion to its `grow`: grow="2" takes twice the share of a
+   * grow="1" (the default). The prop name maps literally to flex-grow.
+   * Overrides only flex-grow, so two grow spacers at 1 / 2 split the
+   * slack 1:2. Scoped :not([size]) — a fixed (sized) spacer ignores it.
+   * Maps 1:1 to RN style={{ flex: <n> }} (a positive flex is
+   * proportional flexGrow). Renamed from `weight` 2026-06-01 (operator ·
+   * font-weight collision). */
+  nuri-spacer:not([size])[grow="1"] { flex-grow: 1; }
+  nuri-spacer:not([size])[grow="2"] { flex-grow: 2; }
+  nuri-spacer:not([size])[grow="3"] { flex-grow: 3; }
+  nuri-spacer:not([size])[grow="4"] { flex-grow: 4; }
+
+  /* ── Fixed extent · inline axis (default · direction="row") ─────
+   * A definite gap, no grow/shrink. inline-size = the space leaf.
+   * Attribute-selector dispatch over the xs–xl prop surface (the same
+   * 5-leaf subset as Stack `gap`, decision 36). */
+  nuri-spacer[size="xs"] { flex: 0 0 auto; inline-size: var(--nuri-space-xs); }
+  nuri-spacer[size="sm"] { flex: 0 0 auto; inline-size: var(--nuri-space-sm); }
+  nuri-spacer[size="md"] { flex: 0 0 auto; inline-size: var(--nuri-space-md); }
+  nuri-spacer[size="lg"] { flex: 0 0 auto; inline-size: var(--nuri-space-lg); }
+  nuri-spacer[size="xl"] { flex: 0 0 auto; inline-size: var(--nuri-space-xl); }
+
+  /* ── Fixed extent · block axis (direction="column") ────────────
+   * Same leaves, but the gap fills the block axis (height). Resets
+   * inline-size so a column spacer doesn't carry a stray width. */
+  nuri-spacer[direction="column"][size="xs"] { block-size: var(--nuri-space-xs); inline-size: auto; }
+  nuri-spacer[direction="column"][size="sm"] { block-size: var(--nuri-space-sm); inline-size: auto; }
+  nuri-spacer[direction="column"][size="md"] { block-size: var(--nuri-space-md); inline-size: auto; }
+  nuri-spacer[direction="column"][size="lg"] { block-size: var(--nuri-space-lg); inline-size: auto; }
+  nuri-spacer[direction="column"][size="xl"] { block-size: var(--nuri-space-xl); inline-size: auto; }
+}

@@ -1,0 +1,73 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · SCROLL
+ *
+ * Layout primitive · the growing, scrollable region of a screen. Sits
+ * between the pinned chrome inside a <nuri-screen>: it takes the
+ * remaining main-axis space (flex:1) and scrolls its overflow on the
+ * block axis. Pure structure — no surface, no padding, no own tokens
+ * (decision 37 · the layout-primitive class, same as Stack / Box /
+ * Screen). Padding for the scrolled content is a <nuri-box> placed
+ * INSIDE the scroll (in RN that maps to ScrollView's
+ * `contentContainerStyle`, never the ScrollView box itself).
+ *
+ * API
+ *   as?: string                                       host-resolved (default <div>)
+ *
+ * RN mapping (R1): a thin component over `ScrollView`
+ * (style={{flex:1}}). This is the ONLY clean RN home for "scroll" —
+ * scrolling is a COMPONENT in RN, not a `View` style — which is why
+ * overflow is NOT a Box prop (it would have no View analogue).
+ *
+ * Markup
+ *   <nuri-scroll>
+ *     <nuri-box padding="lg"><nuri-stack>…</nuri-stack></nuri-box>
+ *   </nuri-scroll>
+ *
+ * No `@layer tokens` block — Scroll bakes only structural CSS
+ * (flex fill + overflow), no design-scale value, so the per-component
+ * pipeline emitter rides the skip-emit branch (no
+ * build/components/scroll.ts). Same as Stack / Box (decision 37 · 52).
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design. Scroll is a layout primitive (decision 37) — it
+   * owns no --nuri-scroll-* tokens. flex:1 + overflow are structural,
+   * not design-scale values, so the pipeline skips emit. */
+}
+
+@layer rules {
+  /* ── Custom element wrapper · invisible in layout ──────────── */
+  nuri-scroll {
+    display: contents;
+  }
+
+  /* ── Pre-upgrade skeleton ──────────────────────────────────────
+   * Until scroll.js (deferred) builds the inner element, paint the
+   * host as a filling block so authored content doesn't flash. */
+  nuri-scroll:not(:defined) {
+    display: block;
+    flex: 1;
+    min-block-size: 0;
+    overflow-y: auto;
+  }
+
+  /* ── Base · the growing scroll region ──────────────────────────
+   * flex:1 absorbs the slack between the pinned chrome of the parent
+   * <nuri-screen>; min-block-size:0 lets it shrink below content so
+   * overflow actually scrolls; overscroll-behavior:contain keeps the
+   * scroll chaining inside the screen (no rubber-banding the page). */
+  .nuri-scroll {
+    flex: 1;
+    min-block-size: 0;
+    /* Flex column so a `fill` content container (Box / Stack) can grow
+     * to fill the viewport — the web analogue of RN's
+     * contentContainerStyle={{ flexGrow: 1 }}. Lets a <nuri-spacer>
+     * inside push trailing content to the bottom (decision 60 · N+11).
+     * Plain (non-fill) content stays natural-height + top-aligned. */
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+}

@@ -1,0 +1,134 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · TAB-BAR  (compound · <nuri-tab-bar> + <nuri-tab-bar-item>)
+ *
+ * The icon-only BOTTOM navigation bar — the app-level destination
+ * switcher behind the My-vault / Coin / Activity screens (decision 56 ·
+ * N+9). Two custom elements share one piece of state (the selected
+ * `value`), both hosted here and registered by one IIFE (tab-bar.js):
+ *
+ *   <nuri-tab-bar value="…">    the controller · owns the selected value
+ *   <nuri-tab-bar-item value=…> one destination · an icon-only target
+ *
+ * DISTINCT from <nuri-tabs> (decision 43 · the in-page segmented
+ * control). Tabs is a single-select INPUT inside a page; TabBar is a
+ * top-level DESTINATION switcher (navigation chrome). Different role,
+ * different surface, different a11y model — see F-TABBAR-ROLE-1.
+ *
+ * EMIT (decision 52): the bar bakes ONE fixed structural decision —
+ * its height (--nuri-size-xl · 60px · the bottom-destination chrome
+ * row, sized for comfortable touch targets). It is set independently of
+ * the Topbar, which dropped to size.lg (48px) at N+11 — top and bottom
+ * chrome are NO LONGER one shared rhythm. That single baked value is
+ * emitted to build/components/tab-bar.ts for machine-checked web↔RN
+ * parity. Everything else is direct-semantic consumption (the
+ * IconAvatar / Topbar precedent · decisions 46/50): the per-item
+ * treatment reads the shared chrome + interaction vocabulary directly
+ * in @layer rules, NOT via per-item component-token aliasing.
+ *
+ * Item visual spec (operator-locked · N+9 · zero new tokens):
+ *   state              icon weight   color                  scale
+ *   ───────────────────────────────────────────────────────────────
+ *   selected (active)  fill          --nuri-text-primary    —
+ *   not selected       regular       --nuri-border-strong   —
+ *   pressed (transient) unchanged    --nuri-text-muted      press-scale
+ *
+ *   Icon weight is driven by the `fill` attribute tab-bar.js sets on
+ *   the inner <nuri-icon> for the selected item (md → regular at rest,
+ *   md+fill → fill when selected · Icon weight coupling · decision 38).
+ *   Pressed has NO background change — only the shared Button
+ *   press-scale (--nuri-interaction-press-scale · 0.97) plus a colour
+ *   shift to text-muted; the icon weight is untouched. Pressed is
+ *   transient and applies to whichever item is held regardless of
+ *   selection, overriding the resting colour via source order.
+ *
+ * No top border (decision 49 · dividers are author-placed Separators)
+ * and no position:fixed / safe-area inset (P11 · routing + viewport
+ * pinning belong to the consuming app, not the primitive).
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Re-declared on every scope boundary so the var() reference
+   * resolves AT THE SCOPE LEVEL — Tier 2/3 correctness (decision 9),
+   * same rationale as button.css / tabs.css. */
+  :root,
+  [data-accent],
+  [data-theme] {
+    /* The ONE baked structural decision (EMIT · decision 52): the bar
+     * height is --nuri-size-xl (60px · the bottom-nav chrome row · a
+     * larger touch target than the Topbar's size.lg/48px top row — the
+     * two are sized independently as of N+11). Emitted to
+     * build/components/tab-bar.ts as height: 'size.xl'. */
+    --nuri-tab-bar-height: var(--nuri-size-xl);
+  }
+}
+
+@layer rules {
+  /* ── Custom element wrappers · invisible in layout ───────────── */
+  nuri-tab-bar,
+  nuri-tab-bar-item {
+    display: contents;
+  }
+
+  /* ── Pre-upgrade skeleton ─────────────────────────────────────
+   * Until tab-bar.js (deferred) reparents the items into the built
+   * <nav> row, paint the host as a block so authored items don't
+   * flash as a raw inline run. */
+  nuri-tab-bar:not(:defined) {
+    display: block;
+  }
+
+  /* ── Bar · the navigation row (built <nav>) ──────────────────── */
+  .nuri-tab-bar {
+    display: flex;
+    align-items: stretch;
+    /* Full-width span: a bottom navigation bar fills its container so
+     * the destinations spread across the screen edge-to-edge. The host
+     * is display:contents, so without this the <nav> would shrink-wrap
+     * to its icons inside a flex/inline container. */
+    inline-size: 100%;
+    block-size: var(--nuri-tab-bar-height);
+    background: var(--nuri-bg-canvas);
+  }
+
+  /* ── Item · icon-only target · equal-width, full-height ──────── */
+  .nuri-tab-bar__item {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: 0;
+    border: 0;
+    background: transparent;
+    /* Not selected · the glyph recedes in border-strong. */
+    color: var(--nuri-border-strong);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    user-select: none;
+    transition: color var(--nuri-duration-fast) ease,
+                transform var(--nuri-duration-fast) ease;
+  }
+
+  /* ── Selected · the active destination reads in text-primary ──
+   * (icon weight flips to fill via the `fill` attr · tab-bar.js). */
+  .nuri-tab-bar__item[data-active="true"] {
+    color: var(--nuri-text-primary);
+  }
+
+  /* ── Pressed · transient · text-muted + shared press-scale ────
+   * Equal specificity to the selected rule above (0-2-0); source
+   * order lets press win over BOTH resting treatments while held.
+   * No background change — only colour + scale (operator-locked).
+   * Reuses Button's press-scale constant directly (bare-constant
+   * carve-out · decision 45) — no tab-bar press token. */
+  .nuri-tab-bar__item:active {
+    color: var(--nuri-text-muted);
+    transform: scale(var(--nuri-interaction-press-scale));
+  }
+
+  /* ── Focus · brand-coloured ring (never accent-derived) ──────── */
+  .nuri-tab-bar__item:focus-visible {
+    outline: 2px solid var(--nuri-focus-ring);
+    outline-offset: -2px;
+  }
+}
