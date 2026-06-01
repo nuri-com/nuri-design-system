@@ -177,6 +177,10 @@
        ═════════════════════════════════════════════════════════════ -->
   <section class="page-section" id="nuri-scope-spec">
     <h2>NuriScope composite · spec</h2>
+    <div class="nuri-note" data-kind="start-here">
+      <p class="nuri-note__label">Start here for migration</p>
+      <p>The <a href="components/scope.html"><code>&lt;nuri-scope&gt;</code> page</a> consolidates the web cascade mechanism, this RN <code>NuriThemeContext</code> spec, and the cascade↔context delta in one place. It is the canonical web↔RN scope reference; this section is the condensed spec.</p>
+    </div>
     <p>The RN counterpart to <code>&lt;nuri-scope&gt;</code> is <strong>orthogonal</strong>, not a cross-product theme registry. Each dimension is one entry in a single <code>NuriThemeContext</code> with merge-on-override semantics; consumers spread additional dimensions onto a child <code>&lt;NuriScope&gt;</code> without enumerating themes. Pre-computed (∏ dimensions) theme tuples are explicitly rejected (8 accent × 3 font × 2 density × 7 neutral = 336 themes is the roadmap reductio).</p>
     <dl class="nuri-spec-card" data-section="nuri-scope-spec">
       <div class="nuri-spec-card__row">

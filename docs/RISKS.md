@@ -110,6 +110,12 @@ Full version in
   [`lib/components/scope/README.md`](../lib/components/scope/README.md).
   Still **target: n=1 confirmation at the next multi-dim migration
   test** (N+6+) before promoting to "shipped".
+  · **N+12a**: the reader-facing consolidation now lives at
+  [`pages/components/scope.html`](../pages/components/scope.html)
+  (web cascade mechanism + RN `NuriThemeContext` spec + cascade↔context
+  delta in one page · linked "start here" from the impl-guide migration
+  section). This R1 entry remains the SSOT for the friction code; the
+  page points back here rather than restating the budget.
 
 - **F-LAYOUT-1** · ✓ **retired in N+6.2** ·
   [`lib/components/stack/`](../lib/components/stack/) +
