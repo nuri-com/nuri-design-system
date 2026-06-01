@@ -1,23 +1,17 @@
 # Risks · Nuri
 
 **Date drafted**: 2026-05-27 (during N+3 philosophy brainstorm)
-**Last updated**: 2026-05-30 (N+6.9 close · List building blocks batch 1
-— Separator [decision 49] + IconAvatar [decision 50] · IconAvatar is the
-first new direct `<nuri-icon>` consumer after the N+6.8 F-ICON-RN-1
-closure, exercising the renderer beyond IconButton · new **F-DECORATIVE-1**
-[web `aria-hidden` ↔ RN `accessibilityElementsHidden` +
-`importantForAccessibility` pair] · both components skip-emit, zero new
-tokens · prior N+6.8 note: Icon RN renderer landed —
-the pipeline emits a typed `build/icons.ts` from the SSOT registry
-(17 glyphs × 3 weights, drift-guarded by a sync test), the RN `Icon`
-feeds the registry path to `react-native-svg`'s `SvgXml` over the
-phosphor viewBox shell, and IconButton composes that real Icon in
-place of its `View` stub [decision 48] · one registry, two readers
-(web inline + RN SvgXml) · no SVGR/per-glyph codegen · `react-native-svg`
-is NOT a dependency [local type shim only · proof is type-only, tsc
-exit 0] · **F-ICON-RN-1 now CLOSED** after four deferred sessions ·
-F-LAYOUT-1 + F-TOKEN-1 still retired · F-SCOPE-1 still pending n=1
-multi-dim confirmation)
+**Last updated**: 2026-06-01 (N+13 close · migration-test reconciliation
+— the RN mirrors now IMPLEMENT decision 27's single `NuriThemeContext`
+(`{ mode, accent }`) + composite `NuriScope` with merge-on-override,
+replacing the two per-dimension contexts the examples carried before ·
+**F-SCOPE-1 now CLOSED** [decision 62 · n=1 confirmation] · spec
+[scope page + README] and examples now describe each other with zero
+residual gap · D1–D4 faithful drift adds [Box `background`/`radius`,
+Button `size`, Tab `disabled`, IconButton emitted-token deref] with
+friction-deltas logged · prior N+6.9 note: List building blocks batch 1
+[Separator decision 49 + IconAvatar decision 50] · new **F-DECORATIVE-1** ·
+F-ICON-RN-1 / F-LAYOUT-1 / F-TOKEN-1 remain CLOSED/retired)
 **Status**: Living document. Sister to [`decisionlog.md`](../decisionlog.md) and
 [`roadmap/index.md`](../roadmap/index.md). Updated each session as risks
 resolve or new ones emerge.
@@ -99,7 +93,9 @@ Full version in
   Behavioural-delta section on Button + IconButton (the cleanest
   "props 1:1, behaviour diverges" example).
 
-- **F-SCOPE-1** · Tier 3 (`<nuri-scope multi-dim>`) → one Context
+- **F-SCOPE-1** · ✓ **CLOSED · N+13**
+  ([decision 62](../decisionlog.md#62-nurithemecontext-implemented--the-single-orthogonal-theming-context-lands-in-the-migration-test--n13)) ·
+  Tier 3 (`<nuri-scope multi-dim>`) → one Context
   provider per dimension on RN · linear nesting cost · workaround:
   `AccentProvider` alone in the matrix (one dim) · proposed: pipeline
   emits `<NuriScope accent={…} mode={…}>` composite that nests
@@ -108,14 +104,29 @@ Full version in
   picks the composite (single `NuriThemeContext` with
   merge-on-override semantics; one entry per dimension). Spec'd in
   [`lib/components/scope/README.md`](../lib/components/scope/README.md).
-  Still **target: n=1 confirmation at the next multi-dim migration
-  test** (N+6+) before promoting to "shipped".
+  Target at the time: **n=1 confirmation at the next multi-dim
+  migration test** (N+6+) before promoting to "shipped" — met in N+13
+  (see resolution below).
   · **N+12a**: the reader-facing consolidation now lives at
   [`pages/components/scope.html`](../pages/components/scope.html)
   (web cascade mechanism + RN `NuriThemeContext` spec + cascade↔context
   delta in one page · linked "start here" from the impl-guide migration
   section). This R1 entry remains the SSOT for the friction code; the
   page points back here rather than restating the budget.
+  · **N+13 resolution**: the migration mirrors now IMPLEMENT decision
+  27's locked shape — `_shared.tsx` exposes a SINGLE `NuriThemeContext`
+  (`{ mode, accent }`) + the composite `NuriScope` with merge-on-override,
+  replacing the two per-dimension contexts (`AccentContext` + `ThemeContext`)
+  the examples carried before (the shape decision 27 had REJECTED). Every
+  mirror reads one `useContext(NuriThemeContext)`; the Tier-3 demo is
+  `<NuriScope accent="neutral">` (accent flips, mode inherits — the
+  merge-on-override exercise). The single context carries two dimensions, so
+  this is the **n=1 confirmation** decision 27 awaited; the composite-vs-
+  per-dimension question closes in the composite's favour. `density` /
+  `neutral` remain reserved (not context entries · P11) until their web
+  tokens ship; full beyond-two-dim confirmation reactivates then. The spec
+  (scope page + README) and the examples now describe each other with **zero
+  residual gap**.
 
 - **F-LAYOUT-1** · ✓ **retired in N+6.2** ·
   [`lib/components/stack/`](../lib/components/stack/) +
@@ -420,15 +431,41 @@ Full version in
   consuming app's router lands, a link-based item (`<a href>` web /
   navigation action RN) becomes the natural upgrade.**
 
-**Status**: **partially mitigated**. 17 frictions named with
+- **F-BOX-FG-1** · Box `background="accent-solid"` · the web
+  `box.css` pairs the solid-accent background with
+  `color: var(--nuri-accent-on-solid)` so nested text reads on the
+  solid fill; the RN Box surface sets only `backgroundColor` and does
+  NOT cascade a foreground colour (RN `<Text>` doesn't inherit through
+  a `<View>`) · workaround in the migration test (N+13 · D1): callers
+  set text colour explicitly on the nested `<Text>`; Box stays a
+  background-only surface · this is the same `font-family: inherit`
+  family of RN-text-non-inheritance F-FONT-1 names, realised for
+  colour · ✓ documented in the `box.tsx` header ·
+  **target: revisit if Box grows a managed-foreground variant; until
+  then the foreground is the caller's responsibility.**
+
+- **F-TAB-DISABLED-1** · Tab `disabled` · web `tabs.js` renders a
+  non-selectable muted option with `aria-disabled`; the RN Tab mirror
+  (N+13 · D3) maps this to a non-pressable Pressable
+  (`disabled={disabled}`) + muted opacity (reusing the shared
+  `--nuri-interaction-disabled-opacity` primitive · honest, drift-free)
+  + `accessibilityState={{ disabled }}` · props stay 1:1; the only
+  delta is the web `cursor`/`:focus-visible` pair that has no RN
+  analogue (the same F-DISABLED-1 / F-FOCUS-1 web-only deltas already
+  catalogued) · ✓ documented in the `tabs.tsx` header ·
+  **target: n/a — clean 1:1 modulo the already-named cursor/focus
+  web-only deltas.**
+
+**Status**: **partially mitigated**. 19 frictions named with
 concrete locations, workarounds and proposals. F-TOKEN-1 retired
 in N+5 (semantic-cascade pipeline slice). F-LAYOUT-1 retired in
 N+6.2 (Stack + Box layout primitives ship under
 [decision 37](../decisionlog.md#37-layout-primitives-consume-semantic-vocabulary-via-prop--no-component-token-aliasing--n62)
 · empty-emit case extends the per-component pipeline contract).
 F-SCOPE-1 gained a directional decision in N+5.5 (decision 27 ·
-orthogonal merge-on-override Context) but still waits on n=1
-confirmation from the first multi-dim migration test. The
+orthogonal merge-on-override Context) and **CLOSED in N+13** (decision
+62) — the migration mirrors now implement the single `NuriThemeContext`
++ composite `NuriScope`, the n=1 confirmation it awaited. The
 Behavioural-delta section (amendment 24.1) shipped in N+6.4 and
 **extended to Switch + Tabs in N+6.5** — the three clean inherited
 deltas (F-PRESSED-1, F-FOCUS-1, F-DISABLED-1) plus three new

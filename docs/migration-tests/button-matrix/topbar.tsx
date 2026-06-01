@@ -35,7 +35,7 @@
 
 import * as React from 'react';
 import { Text, View } from 'react-native';
-import { ThemeContext, typeStyle, chrome, space, size } from './_shared';
+import { NuriThemeContext, typeStyle, chrome, space, size } from './_shared';
 
 type TopbarRegionProps = { children?: React.ReactNode };
 
@@ -65,8 +65,8 @@ export const Topbar: React.FC<TopbarProps> = ({
   insetEnd,
   children,
 }) => {
-  const theme = React.useContext(ThemeContext);
-  const chromeSlice = chrome[theme];
+  const { mode } = React.useContext(NuriThemeContext);
+  const chromeSlice = chrome[mode];
 
   // Route the named region markers; everything else is the centre —
   // the RN analogue of the web reparenting into start / centre / end.

@@ -91,7 +91,7 @@
     <dl class="nuri-spec-card"
         data-component="scope"
         data-component-status="draft"
-        data-rn-status="spec-locked">
+        data-rn-status="spec-in-migration-test">
       <div class="nuri-spec-card__row">
         <dt>Tier</dt>
         <dd data-spec="tier">
@@ -129,7 +129,7 @@
         <dt>RN counterpart</dt>
         <dd data-spec="rn">
           <span class="nuri-spec-card__chip"><code>NuriThemeContext</code></span>
-          <span class="nuri-spec-card__meta">single Context · merge-on-override · props 1:1 minus <code>font</code> (web-only · <a href="../decisionlog.md#271-amendment--n57">amendment 27.1</a>). Spec-locked at <a href="../../lib/components/scope/README.md"><code>lib/components/scope/README.md</code></a>; n=1 confirmation pending (<a href="../../docs/RISKS.md">RISKS R1 · F-SCOPE-1</a>).</span>
+          <span class="nuri-spec-card__meta">single Context · merge-on-override · props 1:1 minus <code>font</code> (web-only · <a href="../decisionlog.md#271-amendment--n57">amendment 27.1</a>). Implemented + tsc-confirmed in the migration test (<a href="../decisionlog.md#62-nurithemecontext-implemented--the-single-orthogonal-theming-context-lands-in-the-migration-test--n13">decision 62 · N+13</a>); F-SCOPE-1 closed (<a href="../../docs/RISKS.md">RISKS R1 · F-SCOPE-1</a>).</span>
         </dd>
       </div>
       <div class="nuri-spec-card__row">
@@ -320,7 +320,7 @@
     <dl class="nuri-spec-card" data-section="rn-counterpart">
       <div class="nuri-spec-card__row">
         <dt>Single Context</dt>
-        <dd><code>NuriThemeContext</code> carries one entry per dimension (<code>mode</code>, <code>accent</code>, <code>density</code>, <code>neutral</code>). Defaults mirror the web <code>&lt;html data-*&gt;</code> defaults: <code>mode: 'light'</code>, <code>accent: 'lilac'</code>.</dd>
+        <dd><code>NuriThemeContext</code> carries one entry per <em>live</em> dimension. Today that is <code>mode</code> + <code>accent</code> only; <code>density</code> / <code>neutral</code> are reserved but not yet context entries until their web tokens exist (P11). Defaults mirror the web <code>&lt;html data-*&gt;</code> defaults: <code>mode: 'light'</code>, <code>accent: 'lilac'</code>.</dd>
       </div>
       <div class="nuri-spec-card__row">
         <dt>Merge-on-override</dt>
@@ -339,13 +339,12 @@
         <dd>Consumed for stylesheet ergonomics only, if at all. Its theme <em>registry</em> is bypassed — runtime values come from <code>NuriThemeContext</code>, not <code>UnistylesRuntime.setTheme(…)</code> (which would have to enumerate ∏ dims tuples).</dd>
       </div>
     </dl>
-    <p>Sketch (orientation only — not working code; implementation lands in the first multi-dim migration test):</p>
+    <p>Shipped shape (N+13 · the working code now in <a href="../../docs/migration-tests/button-matrix/_shared.tsx"><code>_shared.tsx</code></a>, tsc-confirmed). The type carries only the two live dimensions; <code>density</code> / <code>neutral</code> join it when their web tokens land:</p>
     <pre><code>type NuriThemeValue = {
   mode: Theme;
   accent: Accent;
-  density?: Density;
-  neutral?: Neutral;
-  // No `font` — web-only per amendment 27.1.
+  // density / neutral RESERVED · not entries until their web tokens
+  // exist (P11). No `font` — web-only per amendment 27.1.
 };
 
 const NuriThemeContext = React.createContext&lt;NuriThemeValue&gt;({
@@ -358,8 +357,11 @@ const NuriScope: React.FC&lt;Partial&lt;NuriThemeValue&gt; &amp; { children: Rea
   ...overrides
 }) =&gt; {
   const ambient = React.useContext(NuriThemeContext);
-  const merged = { ...ambient, ...overrides };
-  return &lt;NuriThemeContext.Provider value={merged}&gt;{children}&lt;/NuriThemeContext.Provider&gt;;
+  return (
+    &lt;NuriThemeContext.Provider value={{ ...ambient, ...overrides }}&gt;
+      {children}
+    &lt;/NuriThemeContext.Provider&gt;
+  );
 };</code></pre>
   </section>
 
@@ -475,7 +477,7 @@ const NuriScope: React.FC&lt;Partial&lt;NuriThemeValue&gt; &amp; { children: Rea
           <td data-cell="code"><code>F-SCOPE-1</code></td>
           <td data-cell="web">One element re-scopes N dimensions at once via N <code>data-*</code> attributes</td>
           <td data-cell="rn">One composite <code>&lt;NuriScope&gt;</code> Provider merges N dimensions into one Context value</td>
-          <td data-cell="delta">Use the composite, not one Provider per dimension (linear nesting). Decision 27 picks composite; <strong>n=1 confirmation still pending</strong> at the next multi-dim migration test.</td>
+          <td data-cell="delta">Use the composite, not one Provider per dimension (linear nesting). Decision 27 picks composite; <strong>✓ closed N+13</strong> — implemented + tsc-confirmed (<a href="../decisionlog.md#62-nurithemecontext-implemented--the-single-orthogonal-theming-context-lands-in-the-migration-test--n13">decision 62</a>).</td>
         </tr>
         <tr data-friction="F-SCOPE-2">
           <td data-cell="code"><code>F-SCOPE-2</code></td>

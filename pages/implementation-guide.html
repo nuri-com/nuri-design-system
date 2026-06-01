@@ -221,13 +221,12 @@
         </dd>
       </div>
     </dl>
-    <p>Sketch (orientation only — not working code; implementation lands in the first multi-dim migration test, N+6 Path A/B or later):</p>
+    <p>Shipped shape (N+13 · working code in <a href="../docs/migration-tests/button-matrix/_shared.tsx"><code>_shared.tsx</code></a>, tsc-confirmed). The type carries only the two live dimensions; <code>density</code> / <code>neutral</code> join it when their web tokens land (P11):</p>
     <pre><code>type NuriThemeValue = {
   mode: Theme;
   accent: Accent;
-  density?: Density;
-  neutral?: Neutral;
-  // No `font` — web-only per amendment 27.1.
+  // density / neutral RESERVED · not entries until their web tokens
+  // exist (P11). No `font` — web-only per amendment 27.1.
 };
 
 const NuriThemeContext = React.createContext&lt;NuriThemeValue&gt;({
@@ -240,8 +239,11 @@ const NuriScope: React.FC&lt;Partial&lt;NuriThemeValue&gt; &amp; { children: Rea
   ...overrides
 }) =&gt; {
   const ambient = React.useContext(NuriThemeContext);
-  const merged = { ...ambient, ...overrides };
-  return &lt;NuriThemeContext.Provider value={merged}&gt;{children}&lt;/NuriThemeContext.Provider&gt;;
+  return (
+    &lt;NuriThemeContext.Provider value={{ ...ambient, ...overrides }}&gt;
+      {children}
+    &lt;/NuriThemeContext.Provider&gt;
+  );
 };</code></pre>
   </section>
 
@@ -258,11 +260,11 @@ const NuriScope: React.FC&lt;Partial&lt;NuriThemeValue&gt; &amp; { children: Rea
       </div>
       <div class="nuri-spec-card__row">
         <dt>RN mechanism</dt>
-        <dd><code>useContext(NuriThemeContext)</code> for ambient · <code>??</code> fallback for the prop · resulting accent + theme index into the nested <code>accent</code> export from <code>build/tokens.ts</code>.</dd>
+        <dd><code>useContext(NuriThemeContext)</code> for ambient · <code>??</code> fallback for the prop · resulting accent + mode index into the nested <code>accent</code> export from <code>build/tokens.ts</code>.</dd>
       </div>
       <div class="nuri-spec-card__row">
         <dt>Worked example</dt>
-        <dd>See <a href="../docs/migration-tests/button-matrix/index.tsx"><code>docs/migration-tests/button-matrix/index.tsx</code></a> · <code>const accent: Accent = accentProp ?? ambientAccent;</code> followed by <code>accentTokens[accent][theme].solid</code>.</dd>
+        <dd>See <a href="../docs/migration-tests/button-matrix/button.tsx"><code>docs/migration-tests/button-matrix/button.tsx</code></a> · <code>const { mode, accent: ambientAccent } = useContext(NuriThemeContext);</code> then <code>const accent: Accent = accentProp ?? ambientAccent;</code> resolved via <code>resolveToken(tokens, button.solidBg)</code> against the live <code>accent × mode</code> slice.</dd>
       </div>
       <div class="nuri-spec-card__row">
         <dt>See</dt>
@@ -281,9 +283,8 @@ const NuriScope: React.FC&lt;Partial&lt;NuriThemeValue&gt; &amp; { children: Rea
   onPress,
   children,
 }) =&gt; {
-  const ambientAccent = React.useContext(AccentContext);
+  const { mode, accent: ambientAccent } = React.useContext(NuriThemeContext);
   const accent: Accent = accentProp ?? ambientAccent;
-  const theme = React.useContext(ThemeContext);
   return (
     &lt;Pressable
       onPress={onPress}
@@ -292,12 +293,12 @@ const NuriScope: React.FC&lt;Partial&lt;NuriThemeValue&gt; &amp; { children: Rea
       accessibilityState={{ disabled: !!disabled }}
       style={({ pressed }) =&gt; [
         styles.base,
-        variantStyle(variant, accent, theme, pressed),
+        variantStyle(variant, accent, mode, pressed),
         pressed &amp;&amp; !disabled &amp;&amp; { transform: [{ scale: button.pressScale }] },
         disabled &amp;&amp; { opacity: button.disabledOpacity },
       ]}
     &gt;
-      &lt;Text style={[styles.label, { color: labelColor(variant, accent, theme) }]}&gt;
+      &lt;Text style={[styles.label, { color: labelColor(variant, accent, mode) }]}&gt;
         {children}
       &lt;/Text&gt;
     &lt;/Pressable&gt;
@@ -391,12 +392,13 @@ const NuriScope: React.FC&lt;Partial&lt;NuriThemeValue&gt; &amp; { children: Rea
             <td>Button</td>
             <td>2 · Accent-consuming leaf</td>
             <td><a href="components/button.html">components/button.html</a></td>
-            <td><a href="../docs/migration-tests/button-matrix/index.tsx"><code>docs/migration-tests/button-matrix/index.tsx</code></a></td>
+            <td><a href="../docs/migration-tests/button-matrix/button.tsx"><code>docs/migration-tests/button-matrix/button.tsx</code></a></td>
           </tr>
         </tbody>
       </table>
     </div>
     <p>Most shipped components now carry both surfaces. A component ships its docs page (with the data-* wiring) alongside its <code>lib/components/&lt;name&gt;/</code> implementation; its typed RN mirror under <code>docs/migration-tests/</code> lands the same session or a close follow-up (recent components — TabBar, Screen / Scroll / Spacer — shipped both at once).</p>
+    <p>The RN mirrors live <strong>one file per component</strong> under <a href="../docs/migration-tests/button-matrix/"><code>docs/migration-tests/button-matrix/</code></a> (shared scaffolding in <code>_shared.tsx</code>, demo composition in <code>app.tsx</code>), split from the former monolithic <code>index.tsx</code> in N+12b — see <a href="../roadmap/N+12b.md"><code>roadmap/N+12b.md</code></a>.</p>
   </section>
 
   <!-- ═════════════════════════════════════════════════════════════

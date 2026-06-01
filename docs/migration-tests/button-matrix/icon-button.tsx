@@ -15,25 +15,24 @@
  * The glyph is a real composed <Icon> over the shared registry
  * (F-ICON-RN-1 CLOSED · N+6.8 · decision 48).
  *
- * ⚠ TOKEN-SOURCING NOTE (logged · roadmap/N+12b.md): build emits a
- * dedicated `build/components/icon-button.ts` (iconButton.size =
- * 'size.lg', .radius = 'radius.full', + its own variant tokens). This
- * mirror intentionally reuses the `button.*` variant funnel (the shared
- * decision 39/40 funnel the web .nuri-icon-button shares with
- * .nuri-button) and HARDCODES size.lg / radius.full for geometry rather
- * than dereferencing the emitted iconButton.size / .radius. Values are
- * identical; whether to dereference the emitted tokens (the decision 52
- * EMIT-not-hardcode principle) is an OPEN, value-neutral cleanup.
+ * TOKEN SOURCING (D4 · N+13 · decision 52 EMIT-not-hardcode): geometry
+ * now DEREFERENCES the emitted `build/components/icon-button.ts`
+ * (iconButton.size = 'size.lg', iconButton.radius = 'radius.full')
+ * through resolveToken rather than hardcoding size.lg / radius.full.
+ * Values are unchanged — this is the value-neutral cleanup N+12b logged.
+ * The variant COLOUR funnel still reuses the shared `button.*` tokens by
+ * design (the decision 39/40 funnel the web .nuri-icon-button shares
+ * with .nuri-button) — D4 touches only the geometry sourcing.
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';
 import { Pressable } from 'react-native';
 import { Icon } from './icon';
 import {
-  AccentContext,
-  ThemeContext,
+  NuriThemeContext,
   resolveToken,
   button,
+  iconButton,
   chrome,
   accentTokens,
   space,
@@ -103,13 +102,18 @@ export const IconButton: React.FC<IconButtonProps> = ({
   onPress,
   fill,
 }) => {
-  const ambientAccent = React.useContext(AccentContext);
+  const { mode, accent: ambientAccent } = React.useContext(NuriThemeContext);
   const accent: Accent = accentProp ?? ambientAccent;
-  const theme = React.useContext(ThemeContext);
 
-  // Single-size-locked md (decision 40): the circular hit area is the
-  // md size token; radius.full makes it a circle.
-  const dimension = size.lg; // md icon-button = 48px (size.lg primitive)
+  // Single-size-locked md (decision 40): the circular hit area + radius
+  // dereference the emitted iconButton.size / .radius (D4 · decision 52).
+  // size/radius are cascade-invariant, so the slice's accent/mode don't
+  // affect the result — but we resolve through the standard funnel anyway.
+  const geomTokens: RuntimeTokens = {
+    chrome: chrome[mode], accent: accentTokens[accent][mode], space, size, radius,
+  };
+  const dimension    = resolveToken(geomTokens, iconButton.size)   as number; // 48px (size.lg)
+  const borderRadius = resolveToken(geomTokens, iconButton.radius) as number; // 9999 (radius.full)
 
   return (
     <Pressable
@@ -124,16 +128,16 @@ export const IconButton: React.FC<IconButtonProps> = ({
         {
           width:           dimension,
           height:          dimension,
-          borderRadius:    radius.full, // circular · radius.full (9999)
+          borderRadius,
           alignItems:      'center',
           justifyContent:  'center',
-          backgroundColor: iconButtonBg(variant, accent, theme, pressed),
+          backgroundColor: iconButtonBg(variant, accent, mode, pressed),
         },
         pressed && !disabled && { transform: [{ scale: button.pressScale }] },
         disabled && { opacity: button.disabledOpacity },
       ]}
     >
-      <Icon name={name} fill={fill} color={iconButtonFg(variant, accent, theme)} />
+      <Icon name={name} fill={fill} color={iconButtonFg(variant, accent, mode)} />
     </Pressable>
   );
 };

@@ -17,7 +17,7 @@
 import * as React from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text } from 'react-native';
 
-import { chrome, typeStyle, AccentProvider, type Accent } from './_shared';
+import { chrome, typeStyle, NuriScope, type Accent } from './_shared';
 import { Stack } from './stack';
 import { Box } from './box';
 import { Button } from './button';
@@ -83,6 +83,8 @@ const TabsDemo: React.FC = () => {
       <Tab value="overview">Overview</Tab>
       <Tab value="activity">Activity</Tab>
       <Tab value="assets">Assets</Tab>
+      {/* D3 · disabled option · non-selectable + muted + a11y disabled */}
+      <Tab value="archived" disabled>Archived</Tab>
     </Tabs>
   );
 };
@@ -171,14 +173,17 @@ const App: React.FC = () => (
             </Stack>
           </Stack>
 
-          {/* ── Row C · Tier 3 · subtree-scope via AccentProvider ─ */}
+          {/* ── Row C · Tier 3 · subtree-scope via NuriScope ────── */}
+          {/* Merge-on-override: accent="neutral" flips the accent dim   */}
+          {/* while mode inherits from ambient (decision 27/62). One     */}
+          {/* composite Provider, not one-per-dimension (F-SCOPE-1 closed). */}
           <Stack gap="sm">
-            <Text style={styles.rowLabel}>Tier 3 · subtree-scope · AccentProvider</Text>
+            <Text style={styles.rowLabel}>Tier 3 · subtree-scope · NuriScope accent="neutral"</Text>
             <Stack direction="row" gap="md">
-              <AccentProvider value="neutral">
+              <NuriScope accent="neutral">
                 <Button variant="solid">Pay</Button>
                 <Button variant="soft">Cancel</Button>
-              </AccentProvider>
+              </NuriScope>
             </Stack>
           </Stack>
 
@@ -188,6 +193,19 @@ const App: React.FC = () => (
             <Stack direction="row" gap="md">
               <Button variant="solid" disabled>Pay</Button>
               <Button variant="soft" disabled>Cancel</Button>
+            </Stack>
+          </Stack>
+
+          {/* ── Row D.1 · Size · lg / md / sm (D2 · decision 41/55) ── */}
+          {/* Per-size geometry triple from button.ts; label type tracks  */}
+          {/* size (sm → smEm · md/lg → mdEm). align="start" so the rows   */}
+          {/* don't stretch to a common height. */}
+          <Stack gap="sm">
+            <Text style={styles.rowLabel}>Size · lg / md / sm · geometry + label type per size</Text>
+            <Stack direction="row" gap="md" align="start">
+              <Button variant="solid" size="lg">Large</Button>
+              <Button variant="solid" size="md">Medium</Button>
+              <Button variant="solid" size="sm">Small</Button>
             </Stack>
           </Stack>
 

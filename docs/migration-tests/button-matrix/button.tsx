@@ -4,18 +4,18 @@
  * API contract mirrors button.js (the web custom-element):
  *   variant?: 'solid' | 'soft'         default 'soft'
  *   accent?:  'lilac'  | 'neutral'     overrides ambient context
+ *   size?:    'lg' | 'md' | 'sm'       default 'md'  (decision 41 · 55)
  *   disabled?: boolean
  *   onPress?: () => void
  *   children: string (label only — no slot for icons; Button is text-only today)
  *
- * ⚠ DRIFT (logged · roadmap/N+12b.md): the web Button ALSO ships a
- * `size` prop (sm | md | lg · button.js ATTRS · button.ts emits the
- * lg/md/sm MinHeight/PaddingX/Radius triples + decision 55 couples the
- * label type: sm → type-sm-em, md/lg → type-md-em). This RN mirror is
- * md-LOCKED — it resolves only the `md*` token triple and the mdEm
- * label. Adding `size` is faithful to the web API and uses already-
- * emitted tokens, but couples label typography to size; logged as an
- * OPEN decision rather than silently expanding the split's scope.
+ * SIZE (decision 41 · D2 · N+13) · faithful to button.js ATTRS. The
+ * emitted button.ts carries the per-size geometry triples (lg/md/sm ×
+ * MinHeight/PaddingX/Radius); this mirror selects the triple by `size`
+ * and resolves it through the runtime sets exactly as the md-locked
+ * path did. Decision 55 couples the LABEL type to size: sm → type-sm-em,
+ * md/lg → type-md-em — so the label's typeStyle key tracks the size,
+ * not a fixed mdEm. No new token surface (the web already emits these).
  *
  * Behavioural deltas the web side hides (see FRICTIONS.md):
  *   - Pressed state · web fires :active automatically via CSS; here
@@ -27,8 +27,7 @@
 import * as React from 'react';
 import { Pressable, Text, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import {
-  AccentContext,
-  ThemeContext,
+  NuriThemeContext,
   resolveToken,
   typeStyle,
   button,
@@ -39,32 +38,45 @@ import {
   radius,
   type Accent,
   type Theme,
+  type TypeKey,
+  type TokenPath,
   type RuntimeTokens,
 } from './_shared';
+
+export type ButtonSize = 'lg' | 'md' | 'sm';
 
 export type ButtonProps = {
   variant?: 'solid' | 'soft';
   accent?: Accent;
+  size?: ButtonSize;
   disabled?: boolean;
   onPress?: () => void;
   children: string;
 };
 
+// Per-size geometry triple (button.ts emits one per size · decision 41)
+// + the label type key decision 55 couples to size (sm → smEm; md/lg → mdEm).
+const GEOMETRY: Record<ButtonSize, { minHeight: TokenPath; paddingX: TokenPath; radius: TokenPath }> = {
+  lg: { minHeight: button.lgMinHeight, paddingX: button.lgPaddingX, radius: button.lgRadius },
+  md: { minHeight: button.mdMinHeight, paddingX: button.mdPaddingX, radius: button.mdRadius },
+  sm: { minHeight: button.smMinHeight, paddingX: button.smPaddingX, radius: button.smRadius },
+};
+const LABEL_KEY: Record<ButtonSize, TypeKey> = { lg: 'mdEm', md: 'mdEm', sm: 'smEm' };
+
 export const Button: React.FC<ButtonProps> = ({
   variant = 'soft',
   accent: accentProp,
+  size: sizeProp = 'md',
   disabled,
   onPress,
   children,
 }) => {
   // Tier 2 self-scope · `accent` prop wins over ambient context.
   // Mirrors button.js #sync: if prop set, mirror to data-accent on
-  // the inner button; if absent, inherit. Here we read context as
-  // the inherit path.
-  const ambientAccent = React.useContext(AccentContext);
+  // the inner button; if absent, inherit. The inherit path is an inline
+  // merge over the single NuriThemeContext (prop-wins semantics).
+  const { mode, accent: ambientAccent } = React.useContext(NuriThemeContext);
   const accent: Accent = accentProp ?? ambientAccent;
-
-  const theme = React.useContext(ThemeContext);
 
   // N+6.1 consumer-side static-vs-dynamic split (decision 36 ·
   // amendment 36.1 · N+6.1.1): `minHeight` + `paddingHorizontal` +
@@ -73,12 +85,13 @@ export const Button: React.FC<ButtonProps> = ({
   // StyleSheet.create. Resolve at render time through resolveToken
   // against the live `tokens` slice.
   const tokens: RuntimeTokens = {
-    chrome: chrome[theme],
-    accent: accentTokens[accent][theme],
+    chrome: chrome[mode],
+    accent: accentTokens[accent][mode],
     space,
     size,
     radius,
   };
+  const geometry = GEOMETRY[sizeProp];
 
   return (
     <Pressable
@@ -89,19 +102,19 @@ export const Button: React.FC<ButtonProps> = ({
       style={({ pressed }) => [
         styles.base,
         {
-          minHeight:         resolveToken(tokens, button.mdMinHeight) as number,
-          paddingHorizontal: resolveToken(tokens, button.mdPaddingX)  as number,
-          borderRadius:      resolveToken(tokens, button.mdRadius)    as number,
+          minHeight:         resolveToken(tokens, geometry.minHeight) as number,
+          paddingHorizontal: resolveToken(tokens, geometry.paddingX)  as number,
+          borderRadius:      resolveToken(tokens, geometry.radius)    as number,
         },
-        variantStyle(variant, accent, theme, pressed),
+        variantStyle(variant, accent, mode, pressed),
         pressed && !disabled && { transform: [{ scale: button.pressScale }] },
         disabled && { opacity: button.disabledOpacity },
       ]}
     >
       <Text
         style={[
-          styles.label,
-          { color: labelColor(variant, accent, theme) },
+          typeStyle(LABEL_KEY[sizeProp]),
+          { color: labelColor(variant, accent, mode) },
         ]}
       >
         {children}
@@ -144,18 +157,16 @@ export function labelColor(variant: 'solid' | 'soft', accent: Accent, theme: The
   return resolveToken(tokens, variant === 'solid' ? button.solidFg : button.softFg) as string;
 }
 
-// Button-internal base + label styling. radius/minHeight/paddingX are
-// runtime-set leaves resolved inline (above), so only the geometry-
-// invariant flex bits live in the static sheet. Label type sources from
-// the shared scale (decision 54/55) — Button is md-only here → mdEm.
+// Button-internal base styling. radius/minHeight/paddingX are runtime-set
+// leaves resolved inline (above), so only the geometry-invariant flex bits
+// live in the static sheet. The label type sources from the shared scale
+// (decision 54/55) and now tracks `size` (LABEL_KEY) — applied inline at
+// the call site, not baked here.
 const styles = StyleSheet.create({
   base: {
     alignItems:     'center',
     justifyContent: 'center',
     flexDirection:  'row',
     flex:           1,
-  },
-  label: {
-    ...typeStyle('mdEm'),
   },
 });

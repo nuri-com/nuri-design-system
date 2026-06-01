@@ -168,6 +168,22 @@ exercises multi-dim scope (N+6 or later). The matrix in this pair
 still uses only `accent`, so the friction remains "directional
 decision locked, n=1 confirmation pending."
 
+### N+13 addendum · CLOSED
+
+The mirrors now IMPLEMENT the locked shape: [`_shared.tsx`](_shared.tsx)
+exposes a single `NuriThemeContext` (`{ mode, accent }`) + the composite
+`NuriScope` with merge-on-override, replacing the two per-dimension
+contexts (`AccentContext` + `ThemeContext`) this pair carried before —
+the shape decision 27 had REJECTED. Every mirror reads one
+`useContext(NuriThemeContext)`; the Tier-3 demo is `<NuriScope
+accent="neutral">` (accent flips, mode inherits). Two live dimensions =
+the n=1 confirmation; the composite-vs-per-dimension question closes in
+the composite's favour. `density` / `neutral` stay reserved (not context
+entries · P11) until their web tokens ship.
+**F-SCOPE-1 CLOSED** ([decision 62](../../../decisionlog.md#62-nurithemecontext-implemented--the-single-orthogonal-theming-context-lands-in-the-migration-test--n13)
+· [RISKS R1](../../RISKS.md) is the SSOT). The N+5.5 gap/where/fix notes
+below are kept as the historical record of the friction before closure.
+
 
 
 - Gap: Web `<nuri-scope accent="neutral" mode="dark" font="android">`

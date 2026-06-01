@@ -32,7 +32,7 @@
 
 import * as React from 'react';
 import { Text } from 'react-native';
-import { ThemeContext, typeStyle, chrome, type TypeSize, type TypeKey } from './_shared';
+import { NuriThemeContext, typeStyle, chrome, type TypeSize, type TypeKey } from './_shared';
 
 export type TypographyProps = {
   size?: TypeSize;
@@ -60,12 +60,12 @@ export const Typography: React.FC<TypographyProps> = ({
   align,
   children,
 }) => {
-  const theme = React.useContext(ThemeContext);
+  const { mode } = React.useContext(NuriThemeContext);
   const key: TypeKey = emphasis ? `${size}Em` : size;
   // `muted` (boolean · decision 53) → text-muted; otherwise text-primary,
   // both from the runtime chrome slice (the RN analogue of the web
   // [data-muted] colour dispatch · decision 42).
-  const color = muted ? chrome[theme].textMuted : chrome[theme].textPrimary;
+  const color = muted ? chrome[mode].textMuted : chrome[mode].textPrimary;
   return (
     <Text style={{ ...typeStyle(key), color, ...(align ? { textAlign: TEXT_ALIGN_MAP[align] } : null) }}>
       {children}

@@ -32,8 +32,7 @@ import { View } from 'react-native';
 import { Icon } from './icon';
 import { iconButtonBg, iconButtonFg } from './icon-button';
 import {
-  AccentContext,
-  ThemeContext,
+  NuriThemeContext,
   chrome,
   size,
   radius,
@@ -56,16 +55,15 @@ export const IconAvatar: React.FC<IconAvatarProps> = ({
   accent: accentProp,
   fill,
 }) => {
-  const ambientAccent = React.useContext(AccentContext);
+  const { mode, accent: ambientAccent } = React.useContext(NuriThemeContext);
   const accent: Accent = accentProp ?? ambientAccent;
-  const theme = React.useContext(ThemeContext);
 
   // solid/soft/ghost reuse IconButton's REST-state funnel (pressed=false)
   // so the shared matrix can never drift. `subtle` is avatar-only:
   // transparent surface, glyph painted in chrome.borderStrong (the same
   // semantic the web .nuri-icon-avatar--subtle consumes).
-  const bg = variant === 'subtle' ? 'transparent' : iconButtonBg(variant, accent, theme, false);
-  const fg = variant === 'subtle' ? chrome[theme].borderStrong : iconButtonFg(variant, accent, theme);
+  const bg = variant === 'subtle' ? 'transparent' : iconButtonBg(variant, accent, mode, false);
+  const fg = variant === 'subtle' ? chrome[mode].borderStrong : iconButtonFg(variant, accent, mode);
 
   return (
     <View

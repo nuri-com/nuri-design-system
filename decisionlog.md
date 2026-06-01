@@ -4376,3 +4376,55 @@ to RN; the migration-test Spacer reads `grow → flex: n`.
 19/19; skip-emit unchanged; the `spacer.html` `grow` token-map rows render.
 
 **Operator signed off (2026-06-01)** on Spacer `grow`, including the `weight`→`grow` rename.
+
+## 62. NuriThemeContext implemented · the single orthogonal theming context lands in the migration test · N+13
+
+**The locked [decision 27](#27-theme-provider--custom-orthogonal-not-cross-product-registry--n55)
+shape is now the IMPLEMENTATION** in the RN migration mirrors
+(`docs/migration-tests/button-matrix/`). Until N+13 the examples carried the
+shape decision 27 explicitly **rejected** — two separate per-dimension contexts
+(`AccentContext` + `ThemeContext`) with a per-dimension `AccentProvider`. The
+reader-facing spec ([`lib/components/scope/README.md`](./lib/components/scope/README.md)
+· [`pages/components/scope.html`](./pages/components/scope.html)) prescribed a
+SINGLE `NuriThemeContext`; the examples contradicted it. That spec↔example gap
+was the open friction **F-SCOPE-1** (see
+[RISKS R1](./docs/RISKS.md#r1--webrn-api-11--props-parity--behavioural-parity)).
+
+**What ships.** `_shared.tsx` exposes:
+
+- **One `NuriThemeContext`** carrying one entry per dimension —
+  `{ mode, accent }` — defaults `mode: 'light'`, `accent: 'lilac'` (mirrors the
+  web `<html data-*>` defaults). NOT two contexts; NOT a pre-computed (∏ dims)
+  registry.
+- **`NuriScope`** · the composite Tier-3 provider with **merge-on-override**:
+  `<NuriThemeContext.Provider value={{ ...ambient, ...overrides }}>`. Unspecified
+  dimensions inherit; specified ones win — `accent` can flip without redeclaring
+  `mode`. One composite Provider, not one-per-dimension.
+
+Every mirror that reads theming now does a single
+`const { mode, accent } = useContext(NuriThemeContext)`; Tier-2 self-scope (a
+component's `accent` prop over ambient) is an inline merge (`accentProp ?? accent`,
+prop-wins); `app.tsx`'s Tier-3 demo is `<NuriScope accent="neutral">`.
+
+**This is the n=1 confirmation decision 27 awaited.** The single context now
+carries TWO dimensions and the demo exercises merge-on-override across them
+(`accent` flips to neutral while `mode` inherits light) — the composite shape's
+first real exercise, closing the "composite vs per-dimension Providers" open
+question in 27's favour. Caveat (P11): only `mode` + `accent` exist as context
+entries today; `density` / `neutral` stay **reserved, not implemented**, until
+their web CSS counterparts ship (no speculative context entry). `font` never
+migrates ([amendment 27.1](#271-amendment--n57)). Full beyond-two-dimension
+confirmation reactivates when a third migrated dimension lands.
+
+**F-SCOPE-1 → closed.** The examples now DO exactly what the spec describes;
+the scope page + README describe exactly what the examples do (zero residual gap).
+
+### Gates
+
+`tsc -p docs/migration-tests/button-matrix/tsconfig.json` exit 0; `npm test`
+green (incl. docs-drift guards); `npm run build` clean (no `build/` diff — this
+touches no `build/` input).
+
+**Operator signed off (2026-06-01)** on the single `NuriThemeContext` +
+`NuriScope` (merge-on-override) landing in the migration test and closing
+F-SCOPE-1 — the examples, the Scope page, and the impl-guide now agree.

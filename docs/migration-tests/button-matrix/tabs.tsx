@@ -10,12 +10,21 @@
  *     value:     string
  *     children:  string (label)
  *
- * ⚠ DRIFT (logged · roadmap/N+12b.md): the web <nuri-tab> observes a
- * `disabled` attribute (tabs.js observedAttributes ['value','active',
- * 'disabled']) — a disabled, non-selectable option. This RN Tab mirror
- * does NOT carry a `disabled` prop. Adding it (non-pressable + muted
- * styling + accessibilityState.disabled) is faithful to the web API;
- * logged as OPEN rather than silently added in the N+12b split.
+ * DISABLED (decision 42/43 · D3 · N+13) · faithful to tabs.js ATTRS
+ * (observedAttributes ['value','active','disabled']) — a disabled,
+ * non-selectable option. The RN Tab now carries `disabled?: boolean`:
+ * non-pressable (Pressable `disabled`), muted (the shared interaction
+ * disabled opacity · button.disabledOpacity = --nuri-interaction-
+ * disabled-opacity, 0.4 · the SAME primitive the web --nuri-tab-disabled-
+ * opacity resolves from), press feedback suppressed, and
+ * accessibilityState.disabled set.
+ *
+ * ⚠ BEHAVIOURAL DELTA (F-TAB-DISABLED-1 · friction-delta): web styles
+ * the disabled option off the inner button's native `:disabled`
+ * pseudo-class (+ cursor: not-allowed) — there is no DOM `:disabled` on
+ * RN, so the mirror drives the muted look from the boolean directly and
+ * the cursor affordance is web-only (the same F-DISABLED-1 cursor gap).
+ * Props stay 1:1; only the disabled-state mechanism differs.
  *
  * The container surface is the RN Box (background + radius + padding —
  * via `style`, decision 42). The inter-tab gap reads the generated
@@ -34,11 +43,11 @@ import * as React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Box } from './box';
 import {
-  ThemeContext,
-  AccentContext,
+  NuriThemeContext,
   resolveToken,
   typeStyle,
   tabsTokens,
+  button,
   chrome,
   accentTokens,
   space,
@@ -51,17 +60,17 @@ import {
 export type TabProps = {
   value: string;
   children: string;
+  disabled?: boolean;
   // Injected by Tabs (not author-set): the controller's selection +
   // change pipe. Optional so a bare <Tab> still typechecks.
   active?: boolean;
   onSelect?: (value: string) => void;
 };
 
-export const Tab: React.FC<TabProps> = ({ value, children, active, onSelect }) => {
-  const theme = React.useContext(ThemeContext);
-  const accent = React.useContext(AccentContext);
+export const Tab: React.FC<TabProps> = ({ value, children, disabled, active, onSelect }) => {
+  const { mode, accent } = React.useContext(NuriThemeContext);
   const tokens: RuntimeTokens = {
-    chrome: chrome[theme], accent: accentTokens[accent][theme], space, size, radius,
+    chrome: chrome[mode], accent: accentTokens[accent][mode], space, size, radius,
   };
 
   const restFg   = resolveToken(tokens, 'chrome.textMuted' as const satisfies TokenPath) as string;
@@ -71,8 +80,9 @@ export const Tab: React.FC<TabProps> = ({ value, children, active, onSelect }) =
   return (
     <Pressable
       onPress={() => onSelect?.(value)}
+      disabled={disabled}
       accessibilityRole="tab"
-      accessibilityState={{ selected: !!active }}
+      accessibilityState={{ selected: !!active, disabled: !!disabled }}
       style={({ pressed }) => [
         {
           flex:            1,
@@ -83,7 +93,8 @@ export const Tab: React.FC<TabProps> = ({ value, children, active, onSelect }) =
           justifyContent:  'center',
           backgroundColor: active ? activeBg : 'transparent',
         },
-        pressed && { transform: [{ scale: 0.97 }] },
+        disabled && { opacity: button.disabledOpacity },
+        pressed && !disabled && { transform: [{ scale: 0.97 }] },
       ]}
     >
       <Text
@@ -105,21 +116,23 @@ export type TabsProps = {
 };
 
 export const Tabs: React.FC<TabsProps> = ({ value, onChange, children }) => {
-  const theme = React.useContext(ThemeContext);
-  const accent = React.useContext(AccentContext);
+  const { mode, accent } = React.useContext(NuriThemeContext);
   const tokens: RuntimeTokens = {
-    chrome: chrome[theme], accent: accentTokens[accent][theme], space, size, radius,
+    chrome: chrome[mode], accent: accentTokens[accent][mode], space, size, radius,
   };
   // gap is the generated tabsTokens.gap TokenPath ('space.2xs') → number.
   const gap = resolveToken(tokens, tabsTokens.gap) as number;
 
   // Container surface via the RN Box (background + radius + padding) —
   // the same composition the web <nuri-tabs> performs (decision 42).
+  // Box now carries the surface props natively (D1 · N+13), so the
+  // strong/md surface is declared, not passed through the style hatch.
   return (
     <Box
       paddingX="xs"
       paddingY="xs"
-      style={{ backgroundColor: chrome[theme].bgStrong, borderRadius: radius.md }}
+      background="strong"
+      radius="md"
     >
       <View style={{ flexDirection: 'row', gap }}>
         {React.Children.map(children, (child) =>
