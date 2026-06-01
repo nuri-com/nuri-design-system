@@ -1,0 +1,37 @@
+name: gates
+
+# The same gates the working sessions run by hand, enforced on every PR
+# (and on pushes to main). Authoritative pre-merge check.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install (locked)
+        run: npm ci
+
+      - name: Test (pipeline drift guards)
+        run: npm test
+
+      - name: Build the RN emit
+        run: npm run build
+
+      - name: build/ must match source (no stale committed emit)
+        # build/ is committed (decision 35). If a source change wasn't
+        # rebuilt, the fresh emit diverges from the committed files —
+        # fail so the author runs `npm run build` and commits the result.
+        run: git diff --exit-code build/
+
+      - name: Typecheck the web↔RN migration mirror
+        run: npx tsc -p docs/migration-tests/button-matrix/tsconfig.json
