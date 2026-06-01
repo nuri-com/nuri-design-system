@@ -4424,3 +4424,7 @@ the scope page + README describe exactly what the examples do (zero residual gap
 `tsc -p docs/migration-tests/button-matrix/tsconfig.json` exit 0; `npm test`
 green (incl. docs-drift guards); `npm run build` clean (no `build/` diff — this
 touches no `build/` input).
+
+**Operator signed off (2026-06-01)** on the single `NuriThemeContext` +
+`NuriScope` (merge-on-override) landing in the migration test and closing
+F-SCOPE-1 — the examples, the Scope page, and the impl-guide now agree.
