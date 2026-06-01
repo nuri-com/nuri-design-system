@@ -62,7 +62,10 @@ const DENSITY_TOKEN: Record<Density, TokenPath> = {
   lg: listTokens.densityLgMinHeight, // 'size.3xl' · 90
 };
 
-export const DensityContext = React.createContext<Density>('md');
+// List-local ROW density (the <nuri-list density> projection onto rows) —
+// NOT the reserved scope theming `density` dimension (that lives on
+// NuriThemeContext when its web tokens land · P11). Named to avoid the collision.
+export const RowDensityContext = React.createContext<Density>('md');
 
 export type ListProps = {
   density?: Density;
@@ -73,9 +76,9 @@ export const List: React.FC<ListProps> = ({ density = 'md', children }) => (
   // role="list" container. No gap (decision 51) — rhythm is the row
   // min-height + author Separators. density projects onto rows via
   // context, NOT a per-row prop (the container owns the decision).
-  <DensityContext.Provider value={density}>
+  <RowDensityContext.Provider value={density}>
     <View accessibilityRole="list">{children}</View>
-  </DensityContext.Provider>
+  </RowDensityContext.Provider>
 );
 
 export type ListItemProps = {
@@ -88,7 +91,7 @@ export type ListItemProps = {
 // guard, and inter-part gutter all dereference emitted listItem tokens.
 export const ListItem: React.FC<ListItemProps> = ({ leading, trailing, children }) => {
   const tokens = useRuntimeTokens();
-  const density = React.useContext(DensityContext);
+  const density = React.useContext(RowDensityContext);
 
   const rowStyle: ViewStyle = {
     minHeight:         resolveToken(tokens, DENSITY_TOKEN[density])   as number,
