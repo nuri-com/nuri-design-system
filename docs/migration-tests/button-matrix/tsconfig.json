@@ -12,7 +12,7 @@
     "isolatedModules": true
   },
   "include": [
-    "index.tsx",
+    "*.tsx",
     "react-native-svg.d.ts",
     "../../../build/tokens.ts",
     "../../../build/token-paths.ts",
@@ -21,6 +21,7 @@
     "../../../build/components/icon-button.ts",
     "../../../build/components/switch.ts",
     "../../../build/components/tabs.ts",
+    "../../../build/components/tab-bar.ts",
     "../../../build/components/list.ts",
     "../../../build/components/list-item.ts",
     "../../../build/components/list-interactive-item.ts"
