@@ -59,7 +59,7 @@
        ═════════════════════════════════════════════════════════════ -->
   <section class="page-section" id="build-assets">
     <h2>Build assets manifest</h2>
-    <p>The RN side consumes four machine-generated files. All are emitted by <code>npm run build</code> from <code>pipeline/tokens-parser.js</code> (orchestrator) which runs the parser slices in <code>pipeline/parsers/</code> (semantic-cascade + per-component CSS walk). Pipeline sources live in <code>pipeline/</code> hand-maintained; outputs in <code>build/</code> are 100% generated and never hand-edited (<a href="../decisionlog.md#35-pipeline-sources-vs-build-outputs-physically-separated--pipeline-source-build-generated-only--n604">decision 35 · N+6.0.4</a>).</p>
+    <p>The RN side consumes five machine-generated files. All are emitted by <code>npm run build</code> from <code>pipeline/tokens-parser.js</code> (orchestrator) which runs the parser slices in <code>pipeline/parsers/</code> (semantic-cascade + per-component CSS walk). Pipeline sources live in <code>pipeline/</code> hand-maintained; outputs in <code>build/</code> are 100% generated and never hand-edited (<a href="../decisionlog.md#35-pipeline-sources-vs-build-outputs-physically-separated--pipeline-source-build-generated-only--n604">decision 35 · N+6.0.4</a>).</p>
     <dl class="nuri-spec-card" data-section="build-assets">
       <div class="nuri-spec-card__row">
         <dt>Tokens JSON (DTCG)</dt>
@@ -72,14 +72,14 @@
         <dt>Tokens TS (runtime sets only)</dt>
         <dd>
           <span class="nuri-spec-card__chip" data-asset="tokens.ts"><code>build/tokens.ts</code></span>
-          <span class="nuri-spec-card__meta">18 semantic tokens grouped into nested runtime exports: <code>chrome: Record&lt;Theme, {…12 leaves}&gt;</code> + <code>accent: Record&lt;Accent, Record&lt;Theme, {…6 leaves}&gt;&gt;</code>. Only context-dependent vocabulary travels with the runtime (<a href="../decisionlog.md#34-per-component-files--tokenpath-union--set-policy--pipeline-emit-shape--n603">decision 34 · N+6.0.3</a>); per-component numerics moved to per-component files and the prior <code>buttonBase</code> constants block is retired.</span>
+          <span class="nuri-spec-card__meta">38 runtime TokenPath leaves across nested + flat sets: the context-dependent <code>chrome: Record&lt;Theme, {…13 leaves}&gt;</code> + <code>accent: Record&lt;Accent, Record&lt;Theme, {…6 leaves}&gt;&gt;</code>, PLUS the cascade-invariant dimension singletons <code>space</code> (8) · <code>size</code> (7) · <code>radius</code> (4) — these travel as flat runtime sets too, returned context-free by <code>resolveToken</code> (dimensions promoted to runtime at N+6.1 / N+6.1.1). So it is <em>not</em> only context-dependent vocabulary that travels (<a href="../decisionlog.md#34-per-component-files--tokenpath-union--set-policy--pipeline-emit-shape--n603">decision 34 · N+6.0.3</a>). The <code>type</code> scale ships as a separate directly-accessed namespace (<a href="../decisionlog.md#54-type-scale-emitted-as-a-directly-accessed-namespace--one-source-two-readers--n83">decision 54</a>). Per-component numerics moved to per-component files; the prior <code>buttonBase</code> constants block is retired.</span>
         </dd>
       </div>
       <div class="nuri-spec-card__row">
         <dt>Component tokens TS (per component)</dt>
         <dd>
           <span class="nuri-spec-card__chip" data-asset="components/button.ts"><code>build/components/&lt;name&gt;.ts</code></span>
-          <span class="nuri-spec-card__meta">One file per component (today: <code>button.ts</code>). References to pipeline-inlined primitive sets resolve to literal numerics / strings at build (e.g. <code>minHeight: 60</code> from <code>var(--nuri-px-60)</code>); references to runtime sets emit as <code>'&lt;group&gt;.&lt;leaf&gt;' as const satisfies TokenPath</code> (e.g. <code>solidBg: 'accent.solid' as const satisfies TokenPath</code>). The consumer dereferences TokenPath strings against the live (accent × theme) runtime slice via a <code>resolveToken(tokens, path)</code> helper.</span>
+          <span class="nuri-spec-card__meta">One file per component — <strong>8 today</strong>: <code>button</code> · <code>icon-button</code> · <code>switch</code> · <code>tabs</code> · <code>list</code> · <code>list-item</code> · <code>list-interactive-item</code> · <code>tab-bar</code> (layout primitives with an empty <code>@layer tokens</code> skip-emit). References to pipeline-inlined primitive sets resolve to literal numerics / strings at build (e.g. <code>pressScale: 0.97</code> from <code>var(--nuri-interaction-press-scale)</code>); references to runtime sets — <strong>now including the dimension fields</strong> — emit as <code>'&lt;group&gt;.&lt;leaf&gt;' as const satisfies TokenPath</code> (e.g. <code>lgMinHeight: 'size.xl'</code>, <code>solidBg: 'accent.solid'</code>). The consumer dereferences TokenPath strings against the live (accent × theme) runtime slice via a <code>resolveToken(tokens, path)</code> helper.</span>
         </dd>
       </div>
       <div class="nuri-spec-card__row">
@@ -87,6 +87,13 @@
         <dd>
           <span class="nuri-spec-card__chip" data-asset="token-paths.ts"><code>build/token-paths.ts</code></span>
           <span class="nuri-spec-card__meta">Discriminated string union over every runtime-set leaf. Mechanically derived from <code>classifyAll</code>; per-component files <code>import type { TokenPath }</code> and TS enforces leaf-name agreement at compile time. Renaming a runtime leaf without re-emitting the union fails the TS compile.</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Icon registry TS</dt>
+        <dd>
+          <span class="nuri-spec-card__chip" data-asset="icons.ts"><code>build/icons.ts</code></span>
+          <span class="nuri-spec-card__meta">The shared glyph registry emitted once as a typed module: an <code>IconName</code> union + <code>IconWeight</code> + <code>icons: Record&lt;IconName, Record&lt;IconWeight, string&gt;&gt;</code> (17 glyphs × 3 weights). RN renders the verbatim SVG path string through <code>react-native-svg</code>'s <code>SvgXml</code> — one registry, two readers (<a href="../decisionlog.md#48-typed-buildiconsts-emit--svgxml-over-the-shared-registry--one-registry-two-readers--n68">decision 48 · N+6.8</a>).</span>
         </dd>
       </div>
       <div class="nuri-spec-card__row">
@@ -170,7 +177,7 @@
        ═════════════════════════════════════════════════════════════ -->
   <section class="page-section" id="nuri-scope-spec">
     <h2>NuriScope composite · spec</h2>
-    <p>The RN counterpart to <code>&lt;nuri-scope&gt;</code> is <strong>orthogonal</strong>, not a cross-product theme registry. Each dimension is one entry in a single <code>NuriThemeContext</code> with merge-on-override semantics; consumers spread additional dimensions onto a child <code>&lt;NuriScope&gt;</code> without enumerating themes. Pre-computed (∏ dimensions) theme tuples are explicitly rejected (8 accent × 3 font × 2 density × 7 neutral = 672 themes is the roadmap reductio).</p>
+    <p>The RN counterpart to <code>&lt;nuri-scope&gt;</code> is <strong>orthogonal</strong>, not a cross-product theme registry. Each dimension is one entry in a single <code>NuriThemeContext</code> with merge-on-override semantics; consumers spread additional dimensions onto a child <code>&lt;NuriScope&gt;</code> without enumerating themes. Pre-computed (∏ dimensions) theme tuples are explicitly rejected (8 accent × 3 font × 2 density × 7 neutral = 336 themes is the roadmap reductio).</p>
     <dl class="nuri-spec-card" data-section="nuri-scope-spec">
       <div class="nuri-spec-card__row">
         <dt>Context</dt>
@@ -299,7 +306,7 @@ const NuriScope: React.FC&lt;Partial&lt;NuriThemeValue&gt; &amp; { children: Rea
        ═════════════════════════════════════════════════════════════ -->
   <section class="page-section" id="behavioural-deltas">
     <h2>Behavioural deltas · web ↔ RN catalogue</h2>
-    <p>Props are 1:1 but behaviour is budgeted per-component (<a href="../docs/RISKS.md">RISKS R1</a>). The current catalogue from the N+4 button-matrix pair:</p>
+    <p>Props are 1:1 but behaviour is budgeted per-component. The <strong>authoritative register is <a href="../docs/RISKS.md">RISKS R1</a></strong> — 17 friction codes today, spanning Button · IconButton · Switch · Tabs · Topbar · the List family · TabBar (some since closed or retired, e.g. F-ICON-RN-1 closed at N+6.8). The table below is a representative teaching sample, not the complete list:</p>
     <div class="nuri-table-scroll">
       <table class="nuri-table" data-table="behavioural-deltas">
         <thead>
@@ -385,7 +392,7 @@ const NuriScope: React.FC&lt;Partial&lt;NuriThemeValue&gt; &amp; { children: Rea
         </tbody>
       </table>
     </div>
-    <p>Today only Button has both surfaces. New components ship their docs page (with the data-* wiring) at the same session as their <code>lib/components/&lt;name&gt;/</code> implementation; a follow-up session or bridge adds the migration-test pair under <code>docs/migration-tests/</code>.</p>
+    <p>Most shipped components now carry both surfaces. A component ships its docs page (with the data-* wiring) alongside its <code>lib/components/&lt;name&gt;/</code> implementation; its typed RN mirror under <code>docs/migration-tests/</code> lands the same session or a close follow-up (recent components — TabBar, Screen / Scroll / Spacer — shipped both at once).</p>
   </section>
 
   <!-- ═════════════════════════════════════════════════════════════
