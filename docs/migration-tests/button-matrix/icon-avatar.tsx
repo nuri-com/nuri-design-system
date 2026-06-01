@@ -33,10 +33,15 @@ import { Icon } from './icon';
 import { iconButtonBg, iconButtonFg } from './icon-button';
 import {
   NuriThemeContext,
+  resolveToken,
   chrome,
+  accentTokens,
+  space,
   size,
   radius,
   type Accent,
+  type TokenPath,
+  type RuntimeTokens,
   type IconName,
 } from './_shared';
 
@@ -65,14 +70,28 @@ export const IconAvatar: React.FC<IconAvatarProps> = ({
   const bg = variant === 'subtle' ? 'transparent' : iconButtonBg(variant, accent, mode, false);
   const fg = variant === 'subtle' ? chrome[mode].borderStrong : iconButtonFg(variant, accent, mode);
 
+  // Geometry dereferences the SHARED semantic scale (size.lg / radius.full)
+  // through resolveToken — mirroring the web .nuri-icon-avatar, which consumes
+  // var(--nuri-size-lg)/var(--nuri-radius-full) DIRECTLY and deliberately does
+  // NOT alias icon-button's tokens (icon-avatar.css :37-40,:46-50 · decision 50:
+  // IconAvatar skip-emits, so it has no component token of its own). This is the
+  // single-size lock (48px / full) — the same semantic leaves IconButton resolves,
+  // sourced from the shared scale rather than coupling to iconButton.*. Cascade-
+  // invariant, so the slice's accent/mode don't affect the result.
+  const geomTokens: RuntimeTokens = {
+    chrome: chrome[mode], accent: accentTokens[accent][mode], space, size, radius,
+  };
+  const dimension    = resolveToken(geomTokens, 'size.lg'     as TokenPath) as number; // 48px
+  const borderRadius = resolveToken(geomTokens, 'radius.full' as TokenPath) as number; // 9999
+
   return (
     <View
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
       style={{
-        width:           size.lg, // 48px · single-size lock · decision 50 · same as IconButton
-        height:          size.lg,
-        borderRadius:    radius.full,
+        width:           dimension,
+        height:          dimension,
+        borderRadius,
         alignItems:      'center',
         justifyContent:  'center',
         backgroundColor: bg,

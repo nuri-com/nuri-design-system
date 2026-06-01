@@ -4,6 +4,25 @@ Session router. Each entry links to its detail file.
 
 ## Current state
 
+N+14 (PR in review): **migration-conformance fixes**. A read-only conformance audit
+(triage-only · not merged) found the button-matrix migration test **FAITHFUL** to
+both specs (0 CODE-DEVIATES · 0 CONCEPT-MISMATCH · theming model matches the
+shipped-shape block verbatim) — only 3 doc/code sbavature plus one operator-gated
+sourcing question. This session fixed exactly those, no new decision: (1) the
+impl-guide cascade cell that called density/neutral *"Optional in `NuriThemeValue`"*
+now reads **"reserved · not fields today"** (matching the page's own shipped-shape
+block + `scope.html`); (2) the Tier-2 self-scope **skeleton** was rewritten to match
+the live `button.tsx` (per-size `GEOMETRY`/`LABEL_KEY` · `typeStyle` label · no
+nonexistent `styles.label`); (3) `list.tsx` `DensityContext` → **`RowDensityContext`**
+(+ comment) to clear the name collision with the reserved scope `density` dimension;
+(4) at the checkpoint the operator chose to source IconAvatar geometry from the
+**shared semantic scale** (`resolveToken('size.lg'/'radius.full')`) — mirroring the
+web `.nuri-icon-avatar` which consumes `var(--nuri-size-lg)`/`var(--nuri-radius-full)`
+directly and does NOT alias icon-button's tokens — removing the lone RN hardcode
+**without** coupling to `iconButton.*` and **without** amending decision 50. Closeout
+audit clean (0 Bugs · 0 Drift). Gates green (test 22/22 · build · no `build/` diff ·
+tsc 0). See [`roadmap/N+14.md`](./N+14.md).
+
 N+13 (PR in review): **migration-test reconciliation**. The N+12a docs-freshness
 pass shipped `pages/components/scope.html` prescribing a SINGLE `NuriThemeContext`,
 and N+12b split the `button-matrix` monolith one-file-per-component — which exposed
@@ -1227,6 +1246,7 @@ surfaces):
 | N+11+ | planned | Second playground document (Coin / Activity behind the TabBar) — the second consumer that evidence-gates the LOGGED BalanceRow / AmountDisplay / swap-overlay candidates · revisit the deferred general `grow` prop · resolve F-TEXTALIGN-RTL if an RTL consumer appears | — |
 | N+12a | ✓ closed | **Docs freshness + Scope page + drift guards** · de-rotted the agent-facing entry points against the **live build** (not the stale prior audit): `principles.html` P10/P11 (Style Dictionary **bypassed** · terminal emitter `pipeline/parsers/semantic.js` → `build/components/<name>.ts` · decisions 2.1/7.1/34 · behavioural-delta "planned"→**shipped** per 24.1) · `README.md` + `llms.txt` counts (38 semantic leaves · 8 component files · 17 glyphs · 5 build assets incl. `build/icons.ts` · 18 component pages) · **new `pages/components/scope.html`** consolidating the web cascade mechanism + RN `NuriThemeContext` spec + cascade↔context delta (NAV "Theming" group · "start here" link from impl-guide §3 · `scope/README.md` 672→**336** math fix) · **`pipeline/docs-drift.test.js`** (sibling · 3 CI guards: page-tree⊂llms.txt · build/components⊂README∩impl-guide · doc counts==live build) · gates green (test **19/19 + 3 drift** · build · tsc 0) | — |
 | N+12b | ✓ closed | **Migration-test split** · the 1961-line `button-matrix/index.tsx` monolith → **one file per component** (shared scaffolding in `_shared.tsx` · demos in `app.tsx` · `index.tsx` retired to a thin re-export) · each mirror **verified against its CURRENT web API** while moved (not a mechanical lift) · 3 pre-existing drifts **logged not fixed** (D1 Box bg/radius · D2 Button size · D3 Tab disabled) + D4 IconButton emit-deref noted · dir name + tsconfig path UNCHANGED (CI gate stable) · gates green (tsc 0 · test 19/19 + 3 drift · no `build/` diff) | [→](./N+12b.md) |
+| N+14 | open (PR in review) | **Migration-conformance fixes** · the read-only conformance audit found the button-matrix test **FAITHFUL** (0 CODE-DEVIATES · 0 CONCEPT-MISMATCH) — only 3 doc/code sbavature + 1 operator-gated sourcing question, all fixed here with **no new decision** · (1) impl-guide cascade cell density/neutral *"Optional"* → **"reserved · not fields"** (matches the page's shipped-shape block + `scope.html`) · (2) Tier-2 **skeleton** rewritten to match live `button.tsx` (per-size `GEOMETRY`/`LABEL_KEY` · `typeStyle` label · drops nonexistent `styles.label` · dec 41/55) · (3) `list.tsx` `DensityContext` → **`RowDensityContext`** (+ comment · clears the name collision with the reserved scope `density` dimension) · (4) operator-chosen at checkpoint: IconAvatar geometry sources the **shared semantic scale** (`resolveToken('size.lg'/'radius.full')`) mirroring the web `var(--nuri-size-lg)`/`var(--nuri-radius-full)` direct consumption — removes the lone RN hardcode **without** coupling to `iconButton.*` and **without** amending decision 50 · closeout audit clean · gates green (test 22/22 · build · no `build/` diff · tsc 0) | [→](./N+14.md) |
 | N+13 | open (PR in review) | **Migration-test reconciliation** · closes the spec↔example contradiction the split surfaced — the mirrors now **IMPLEMENT** decision 27's single `NuriThemeContext` (`{ mode, accent }`) + composite `NuriScope` (merge-on-override), replacing the two per-dimension contexts (decision 27 had REJECTED) · **F-SCOPE-1 CLOSED** (n=1 confirmation · **decision 62**) · **D1–D4 faithful adds** honoring existing decisions (Box `background`/`radius` dec 42 · Button `size` dec 41 · Tab `disabled` dec 42/43 · IconButton emit-deref dec 52) with **F-BOX-FG-1** + **F-TAB-DISABLED-1** logged · scope page + `scope/README.md` + impl-guide now describe EXACTLY what the examples do (zero residual gap) · impl-guide split pointer + deep-link fixes (retired `index.tsx` → `button.tsx`) · `density`/`neutral` stay reserved (P11) · gates green (test 22/22 · build · no `build/` diff · tsc 0) | [→](./N+13.md) |
 
 ## Open questions (in flight)
