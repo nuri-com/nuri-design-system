@@ -36,18 +36,45 @@
  * ── Cascade ordering ──────────────────────────────────────────
  * Selectors are deliberately ordered (later overrides earlier at
  * equal specificity):
- *   1. :root, [data-theme="light"]                — defaults (chrome light + neutral accent light; light re-asserts at any wrapper)
- *   2. [data-theme="dark"]                        — chrome dark + neutral accent dark (anywhere)
- *   3. [data-accent="neutral"]                    — neutral accent light (anywhere; explicit override)
- *   4. [data-accent="neutral"][data-theme="dark"] — neutral accent dark (specificity 0,2,0)
- *   5. [data-accent="lilac"]                      — lilac accent light (anywhere)
- *   6. [data-accent="lilac"][data-theme="dark"]   — lilac accent dark overrides only
+ *   1.  :root, [data-theme="light"]                 — defaults (chrome light + neutral accent light; light re-asserts at any wrapper)
+ *   2.  [data-theme="dark"]                          — chrome dark + neutral accent dark (anywhere)
+ *   3.  [data-accent="neutral"]                      — neutral accent light (anywhere; explicit override)
+ *   4.  [data-accent="neutral"][data-theme="dark"]  — neutral accent dark · SAME element carries both (specificity 0,2,0)
+ *   4b. [data-theme="dark"] [data-accent="neutral"] — neutral accent dark · accent SELF-SCOPED under a dark ancestor (0,2,0)
+ *   5.  [data-accent="lilac"]                        — lilac accent light (anywhere)
+ *   6.  [data-accent="lilac"][data-theme="dark"]    — lilac accent dark overrides only · SAME element (0,2,0)
+ *   6b. [data-theme="dark"] [data-accent="lilac"]   — lilac accent dark adapters · accent SELF-SCOPED under a dark ancestor (0,2,0)
  *
  * Don't reorder these blocks. The single-attr selectors (#1's
  * [data-theme="light"], #2, #3, #5) share specificity (0,1,0); source
  * order is what makes the cascade land on the right values (#1 is first,
  * so dark/#2 and the accent overrides win over it). The combined-attr
- * selectors (#4, #6) win on specificity (0,2,0).
+ * selectors (#4, #6) and the descendant-combinator selectors (#4b, #6b)
+ * all win on specificity (0,2,0); #4b/#6b sit right after their #4/#6
+ * twin so an equal-specificity tie (an element matching both — only when
+ * a scope is nested inside a same-theme outer scope) resolves to the same
+ * value either way.
+ *
+ * ── Why #4b / #6b exist · the self-scoped-accent clobber ──────
+ * Tier 2 (Button / IconButton / IconAvatar `accent=` self-scope) sets
+ * data-accent on the ELEMENT but NOT data-theme (the element can't know
+ * its ancestor's theme). Inside a dark scope, block 2 sets the dark
+ * neutral-accent values at the ancestor (inherited down), but block 3
+ * (or 5) then RE-DECLARES the light values AT THE ELEMENT — clobbering
+ * the inherited dark — while #4 (#6) never matches (no data-theme on the
+ * element). The swap IconButton went dark-on-dark (invisible). #4b/#6b
+ * re-assert the dark accent values for an accent element that merely has
+ * a dark ANCESTOR, beating #3/#5 on specificity. (decision 63 · N+15)
+ *
+ * KNOWN LIMITATION (revisit-trigger · decision 63): a descendant
+ * combinator matches ANY dark ancestor, not the NEAREST theme. So a
+ * self-scoped accent inside a LIGHT scope nested inside a DARK scope
+ * resolves DARK (wrong — nearest is light). CSS can't express "nearest
+ * scope" without a per-element theme. No current consumer nests opposite
+ * themes around a self-scoped accent (the playground scopes ONE theme per
+ * device frame), so this is accepted per P11; if a nested-opposite-theme
+ * consumer lands, revisit (the per-element-theme · RN single-context
+ * model · decision 27/62 — is the clean answer there).
  *
  * Some values are intentionally duplicated across blocks. The accent-*
  * duplication (blocks 1/3, 2/4) and the [data-theme="light"] on block 1
@@ -301,6 +328,37 @@
 
 
 /* ══════════════════════════════════════════════════════════════
+ * 4b · [data-theme="dark"] [data-accent="neutral"] — self-scoped neutral under a dark ancestor
+ *
+ * Specificity (0,2,0) — same as block 4, but the DESCENDANT form:
+ * matches an element that self-scopes data-accent="neutral" (Tier 2)
+ * while a dark theme lives on an ANCESTOR, not on the element itself.
+ * Without this, block 3 re-declares the LIGHT neutral values at the
+ * element and clobbers the dark values inherited from the ancestor
+ * scope (block 4 can't match — the element has no data-theme). Values
+ * mirror block 4 exactly (neutral dark); terse cross-refs point to
+ * block 1 for the full matrix. See the "Why #4b / #6b exist" note at
+ * the top of this file (decision 63 · N+15) — including the
+ * nearest-vs-any-ancestor limitation.
+ * ══════════════════════════════════════════════════════════════ */
+
+[data-theme="dark"] [data-accent="neutral"] {
+  /* accent.fg · self-scoped neutral · dark ancestor · same-scale (matrix in block 1) */
+  --nuri-accent-fg:                    var(--nuri-color-neutral-12-dark);
+  /* accent.solid · self-scoped neutral · dark ancestor · INVERSE (matrix in block 1) */
+  --nuri-accent-solid:                 var(--nuri-color-neutral-1-light);
+  /* accent.solid-pressed · self-scoped neutral · dark ancestor · INVERSE (matrix in block 1) */
+  --nuri-accent-solid-pressed:         var(--nuri-color-neutral-3-light);
+  /* accent.on-solid · self-scoped neutral · dark ancestor · INVERSE (matrix in block 1) */
+  --nuri-accent-on-solid:              var(--nuri-color-neutral-12-light);
+  /* accent.bg-subtle · self-scoped neutral · dark ancestor · same-scale (matrix in block 1) */
+  --nuri-accent-bg-subtle:             var(--nuri-color-neutral-3-dark);
+  /* accent.bg-subtle-pressed · self-scoped neutral · dark ancestor · same-scale (matrix in block 1) */
+  --nuri-accent-bg-subtle-pressed:     var(--nuri-color-neutral-4-dark);
+}
+
+
+/* ══════════════════════════════════════════════════════════════
  * 5 · [data-accent="lilac"] — lilac accent · light
  *
  * Canonical declaration block for lilac-family accent tokens. Each
@@ -356,6 +414,35 @@
   /* accent.bg-subtle · lilac dark partial-redeclare per P4 (matrix in block 5) */
   --nuri-accent-bg-subtle:             var(--nuri-color-lilac-3-dark);
   /* accent.bg-subtle-pressed · lilac dark partial-redeclare per P4 (matrix in block 5) */
+  --nuri-accent-bg-subtle-pressed:     var(--nuri-color-lilac-4-dark);
+  /* --nuri-accent-solid          intentionally not redefined → stays at lilac-9-light  (FROZEN · P4) */
+  /* --nuri-accent-solid-pressed  intentionally not redefined → stays at lilac-10-light (FROZEN · P4) */
+  /* --nuri-accent-on-solid       intentionally not redefined → stays at lilac-12-light (FROZEN · P4) */
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+ * 6b · [data-theme="dark"] [data-accent="lilac"] — self-scoped lilac under a dark ancestor
+ *
+ * Specificity (0,2,0) — the DESCENDANT twin of block 6, for an element
+ * that self-scopes data-accent="lilac" (Tier 2) while a dark theme
+ * lives on an ANCESTOR. Like block 6 it is a PARTIAL redeclare per P4:
+ * ONLY the theme-adapting lilac tokens (fg, bg-subtle, bg-subtle-pressed)
+ * — the frozen brand tokens (solid, solid-pressed, on-solid) are
+ * INTENTIONALLY ABSENT here too, so a self-scoped lilac stays on the
+ * recognisable brand fill in dark (block 5's light values are the frozen
+ * brand; no clobber to repair). Without this, block 5 re-declares the
+ * LIGHT adapters at the element, clobbering the dark adapters inherited
+ * from the ancestor scope. Mirrors block 6; terse cross-refs point to
+ * block 5. See the "Why #4b / #6b exist" note up top (decision 63 · N+15).
+ * ══════════════════════════════════════════════════════════════ */
+
+[data-theme="dark"] [data-accent="lilac"] {
+  /* accent.fg · self-scoped lilac · dark ancestor · partial-redeclare per P4 (matrix in block 5) */
+  --nuri-accent-fg:                    var(--nuri-color-lilac-12-dark);
+  /* accent.bg-subtle · self-scoped lilac · dark ancestor · partial-redeclare per P4 (matrix in block 5) */
+  --nuri-accent-bg-subtle:             var(--nuri-color-lilac-3-dark);
+  /* accent.bg-subtle-pressed · self-scoped lilac · dark ancestor · partial-redeclare per P4 (matrix in block 5) */
   --nuri-accent-bg-subtle-pressed:     var(--nuri-color-lilac-4-dark);
   /* --nuri-accent-solid          intentionally not redefined → stays at lilac-9-light  (FROZEN · P4) */
   /* --nuri-accent-solid-pressed  intentionally not redefined → stays at lilac-10-light (FROZEN · P4) */

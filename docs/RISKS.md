@@ -172,6 +172,24 @@ Full version in
   both override ambient · n/a · keep in scope when re-evaluating R1
   so the catalogue doesn't skew pessimistic. · **target: n/a**.
 
+- **F-SCOPE-3** · Tier-2 self-scope under an opposite-theme ancestor ·
+  ✓ **web cascade clobber FIXED · N+15** ([decision 63](../decisionlog.md#63-accentxtheme-self-scope-cascade-clobber--descendant-combinator-dark-blocks-4b6b--web-css-only--n15)).
+  A self-scoped `data-accent` element sets accent but NOT theme, so inside
+  a dark scope it re-declared the LIGHT accent value and clobbered the
+  inherited dark (swap IconButton went dark-on-dark · invisible). Fixed
+  web-side with descendant-combinator dark blocks
+  (`[data-theme="dark"] [data-accent="X"]`) that re-assert the dark value
+  when a dark ANCESTOR exists. **RN is immune** (single
+  `NuriThemeContext` · `tokens[accent][mode]` · no cascade) — this is a
+  **positive control for the RN model**, like F-SCOPE-2. **Residual
+  limitation (revisit-trigger):** a descendant combinator matches ANY
+  dark ancestor, not the NEAREST theme — a self-scoped accent in a LIGHT
+  scope nested in a DARK scope resolves DARK (wrong). No consumer nests
+  opposite themes around a self-scoped accent today (playground scopes
+  one theme per device frame), so accepted per P11. · **target: revisit
+  if a nested-opposite-theme consumer lands; the per-element-theme · RN
+  single-context model is the clean fix there.**
+
 - **F-DISABLED-1** · `[disabled]` ↔ `disabled` prop is trivial 1:1 ·
   only delta is `cursor: not-allowed` (web-only) · n/a · ✓ **shipped
   N+6.4** · cursor-divergence recorded in the Behavioural-delta

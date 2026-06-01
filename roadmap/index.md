@@ -4,6 +4,30 @@ Session router. Each entry links to its detail file.
 
 ## Current state
 
+N+15 (PR in review): **accent×theme self-scope cascade fix**. A pre-existing
+cascade bug — a Tier-2 component that self-scopes its accent (sets `data-accent`
+on its inner element, NOT `data-theme`) showed the **LIGHT** accent value inside a
+**dark** ancestor scope, so the playground My-vault dark frame rendered the swap
+IconButton (`solid`/`neutral`) and the IconAvatars **dark-on-dark (invisible)**.
+Root cause: the dark accent overrides were **compound** selectors
+(`[data-accent="X"][data-theme="dark"]`) needing both attributes on the **same**
+element, but a self-scope only carries `data-accent` while `data-theme` lives on an
+ancestor — so the light base block clobbered the inherited dark values and the dark
+block never re-matched. Fix (approach A · **parser-transparent**): two
+**descendant-combinator** dark blocks — `[data-theme="dark"] [data-accent="X"]`
+(**#4b** neutral · all 6 adapting tokens · **#6b** lilac · the 3 adapting tokens,
+P4 frozen brand triple intentionally omitted) — so an ancestor's dark theme
+re-applies the dark accent to a self-scoped descendant. Candidate **B**
+(accent-as-pointer indirection) **rejected**: it breaks `classify-by-cascade` and
+the `build/tokens.ts` emit is the RN deliverable. #4b/#6b mirror the existing dark
+cell values → **emit byte-identical**. Documented **known limitation** (a
+descendant combinator matches ANY dark ancestor, not the NEAREST theme · a
+nested light-in-dark self-scope resolves dark) accepted per **P11** as a
+revisit-trigger (**F-SCOPE-3**); no current consumer nests opposite themes. The RN
+single-context model (decisions 27/62) is **immune** (positive control). Web-CSS-
+only · RN mirrors untouched. Gates green (test 22/22 · build byte-identical ·
+tsc 0) ([decision 63](../decisionlog.md)). See [`roadmap/N+15.md`](./N+15.md).
+
 N+13 (PR in review): **migration-test reconciliation**. The N+12a docs-freshness
 pass shipped `pages/components/scope.html` prescribing a SINGLE `NuriThemeContext`,
 and N+12b split the `button-matrix` monolith one-file-per-component — which exposed
