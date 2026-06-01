@@ -28,7 +28,7 @@ merge-on-override semantics; consumers spread additional dimensions
 onto a child `<NuriScope>` without enumerating themes. Pre-computed
 (∏ dimensions) theme tuples are explicitly rejected — they scale
 O(∏ dims) and break the composability decisions 1, 6, 9 and P5 are
-predicated on (8 accent × 3 font × 2 density × 7 neutral = 672
+predicated on (8 accent × 3 font × 2 density × 7 neutral = 336
 themes is the roadmap reductio; even though `font` itself does not
 migrate per amendment 27.1, the math still holds for the web side
 and motivates rejection of cross-product registries).

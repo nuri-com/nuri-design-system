@@ -12,13 +12,38 @@ Spec pages (HTML · served via gh-pages):
   /pages/foundations/dimension/sizing.html            dimension tokens · semantic sizing (T-shirt scale)
   /pages/foundations/dimension/radius.html            dimension tokens · semantic radius (T-shirt scale + 9999px sentinel full)
   /pages/foundations/iconography.html                 <nuri-icon> · 17-glyph phosphor registry · 2 sizes + fill · currentColor
-  /pages/components/button.html      anatomy · token-mapping · variants · states
+  Theming:
+  /pages/components/scope.html          <nuri-scope> · Tier 3 theming primitive · web↔RN scope spec · START HERE for migration
+  Actions:
+  /pages/components/button.html         anatomy · token-mapping · variants · states (canonical template)
+  /pages/components/icon-button.html    icon-only action · behavioural delta (F-ARIA-LABEL-1 · F-TOUCH-TARGET-1)
+  Layout:
+  /pages/components/stack.html          flex stack layout primitive
+  /pages/components/box.html            box primitive · bg + radius props
+  /pages/components/screen.html         screen scaffold primitive
+  /pages/components/scroll.html         scroll container primitive
+  /pages/components/spacer.html         flex spacer primitive
+  Inputs:
+  /pages/components/switch.html         toggle input
+  Display:
+  /pages/components/typography.html        text component
+  /pages/components/typography-stack.html  stacked text component
+  /pages/components/icon-avatar.html       icon-in-circle avatar
+  /pages/components/separator.html         divider
+  Navigation:
+  /pages/components/tabs.html           tabs
+  /pages/components/topbar.html         top app bar
+  /pages/components/tab-bar.html        bottom tab bar
+  List:
+  /pages/components/list-base.html      presentational + interactive list primitives
+  /pages/components/list-nav-item.html  nav-item list recipe
 
-Build assets (dist · fetchable):
+Build assets (dist · fetchable · 5 files · all emitted by `npm run build`):
   /build/tokens.json                 DTCG primitives (W3C standard · 216 colour tokens)
-  /build/tokens.ts                   RN-ready · runtime sets · chrome + accent + space + size + radius
-  /build/components/button.ts        per-component numerics + TokenPath references
-  /build/token-paths.ts              discriminated union of every runtime-set leaf (36 members)
+  /build/tokens.ts                   RN-ready · runtime sets · chrome + accent + space + size + radius (38 leaves) + type scale
+  /build/components/<name>.ts        per-component numerics + TokenPath references · 8 files: button · icon-button · switch · tabs · list · list-item · list-interactive-item · tab-bar
+  /build/token-paths.ts              discriminated union of every runtime-set leaf (38 members)
+  /build/icons.ts                    typed glyph registry · IconName union + icons[name][weight] SVG (17 glyphs × 3 weights)
 
 Repository entry points:
   /README.md                         project overview

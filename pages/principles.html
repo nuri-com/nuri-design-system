@@ -430,7 +430,7 @@
        ═════════════════════════════════════════════════════════════ -->
   <section class="page-section" id="p10-build-not-runtime" data-principle-id="P10">
     <h2>P10 · Tokens become RN at build, not runtime (Pattern C)</h2>
-    <p>Source of truth: CSS vars in <code>/styles</code>. Pipeline: CSS → DTCG JSON → Style Dictionary → typed RN tokens. Style Dictionary resolves every reference at build, so RN ends up with literal values, not <code>var()</code> chains.</p>
+    <p>Source of truth: CSS vars in <code>/styles</code>. Pipeline: CSS → DTCG JSON → custom emitter (<code>pipeline/parsers/semantic.js</code>) → typed RN tokens. Style Dictionary is <strong>bypassed</strong> for the RN-only target — the cascade-aware emitter is terminal (<a href="../decisionlog.md#21-amendment--n55">decision 2.1</a> · <a href="../decisionlog.md#71-amendment--n55">7.1</a>); SD re-enters only if a second target platform lands (iOS / Android / Figma sync). The emitter resolves every reference at build, so RN ends up with literal values + typed <code>TokenPath</code> strings, not <code>var()</code> chains.</p>
     <dl class="nuri-spec-card" data-principle-id="P10" data-principle-status="locked">
       <div class="nuri-spec-card__row">
         <dt>Source</dt>
@@ -449,8 +449,8 @@
       <div class="nuri-spec-card__row">
         <dt>Output</dt>
         <dd data-principle-field="output">
-          <span class="nuri-spec-card__chip">Style Dictionary → typed RN <code>tokens.ts</code></span>
-          <span class="nuri-spec-card__meta">references resolved at build · literal values · per-component <code>&lt;name&gt;.spec.json</code> for variant × accent × parts</span>
+          <span class="nuri-spec-card__chip">custom emitter → typed RN <code>build/tokens.ts</code></span>
+          <span class="nuri-spec-card__meta">references resolved at build · literal values + <code>TokenPath</code> strings · per-component numerics in <code>build/components/&lt;name&gt;.ts</code> (one file per component, not a <code>.spec.json</code>) · <a href="../decisionlog.md#34-per-component-files--tokenpath-union--set-policy--pipeline-emit-shape--n603">decision 34</a></span>
         </dd>
       </div>
       <div class="nuri-spec-card__row">
@@ -460,7 +460,7 @@
       <div class="nuri-spec-card__row">
         <dt>Divergence accepted</dt>
         <dd data-principle-field="divergence">
-          Web prototypes can use patterns RN cannot (deep <code>var()</code> chains, runtime token mutation, reference cycles that no-op on web but fail in Style Dictionary). A future lint will flag the divergent patterns before they reach migration.
+          Web prototypes can use patterns RN cannot (deep <code>var()</code> chains, runtime token mutation, reference cycles that no-op on web but fail at build resolution). A future lint will flag the divergent patterns before they reach migration.
         </dd>
       </div>
       <div class="nuri-spec-card__row">
@@ -505,7 +505,7 @@
       <div class="nuri-spec-card__row">
         <dt>Mechanism · CI</dt>
         <dd data-principle-field="mechanism-ci">
-          <span class="nuri-spec-card__chip"><a href="../pipeline/tokens-parser.test.js"><code>tokens-parser.test.js</code> · test 15</a></span>
+          <span class="nuri-spec-card__chip"><a href="../pipeline/tokens-parser.test.js"><code>tokens-parser.test.js</code> · test 19 of 19</a></span>
           <span class="nuri-spec-card__meta">primitive-layer guardrail · every <code>--nuri-*</code> must be consumed (direct <code>var()</code> or via an alias chain) or explicitly speculative-reserved</span>
         </dd>
       </div>
@@ -541,10 +541,10 @@
     <h2>Roadmap</h2>
     <ul class="nuri-roadmap">
       <li data-feature="behaviour-delta-principle">
-        <span class="nuri-tag nuri-tag--planned">planned</span>
+        <span class="nuri-tag nuri-tag--ready">shipped</span>
         <div class="nuri-roadmap__body">
-          <strong class="nuri-roadmap__title">Behavioural-delta principle (R1 mitigation)</strong>
-          <p class="nuri-roadmap__desc">After N+4 thesis validation, a new principle will codify how components document their web↔RN behavioural delta (layout, touch, text, accessibility). Today the "1:1 API" claim is principle-level but the behavioural gap isn't.</p>
+          <strong class="nuri-roadmap__title">Behavioural-delta documentation (R1 mitigation)</strong>
+          <p class="nuri-roadmap__desc">Shipped as <a href="../decisionlog.md#241-amendment--n64--behavioural-delta-section">decision 24.1</a> (N+6.4): component pages gain a <strong>Behavioural delta</strong> section — a table keyed by friction code (<code>F-PRESSED-1</code> · <code>F-FOCUS-1</code> · <code>F-DISABLED-1</code> · component-specific codes) that states the web behaviour, the RN behaviour, and the delta the migration agent must honour. Shares one vocabulary with <a href="../docs/RISKS.md">RISKS.md</a> R1. Backfilled on Button, forward on IconButton; landed as a section addition (<a href="../decisionlog.md#19-foundation-template-variants-in-service-of-one-structure--n2">decision 19</a> section-flexibility precedent), not a numbered principle.</p>
         </div>
       </li>
       <li data-feature="governance-principle">
