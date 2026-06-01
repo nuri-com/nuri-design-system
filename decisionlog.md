@@ -4428,3 +4428,103 @@ touches no `build/` input).
 **Operator signed off (2026-06-01)** on the single `NuriThemeContext` +
 `NuriScope` (merge-on-override) landing in the migration test and closing
 F-SCOPE-1 — the examples, the Scope page, and the impl-guide now agree.
+
+## 63. Accent×theme self-scope cascade clobber · descendant-combinator dark blocks (#4b/#6b) · web-CSS-only · N+15
+
+### The bug
+
+A Tier-2 component that **self-scopes its accent** (`data-accent` mirrored onto
+its inner element by `icon-button.js` / `icon-avatar.js` / `button.js`) resolved
+the **LIGHT** accent value even inside a **dark ancestor scope**. In the
+playground My-vault dark device frame the swap IconButton
+(`variant="solid" accent="neutral"`) painted `--nuri-accent-solid: #12110b` (light
+neutral) on the `#12110b` dark canvas — a cream circle gone **dark-on-dark
+(invisible)**. IconAvatars under a dark scope had the same failure; Button is
+latent (no Button self-scopes accent in that screen).
+
+**Mechanism.** The accent cascade
+([tokens-semantic.css](../styles/tokens-semantic.css)) declares each accent token
+in attribute-only blocks: `[data-accent="neutral"]` (block 3 · light) and
+`[data-accent="neutral"][data-theme="dark"]` (block 4 · dark · spec 0,2,0). When a
+component self-scopes accent it sets `data-accent` on the ELEMENT but **not**
+`data-theme` (it can't know its ancestor's theme). Inside a dark scope, block 2
+(`[data-theme="dark"]`) sets the dark neutral-accent values at the ANCESTOR
+(inherited down), but block 3 then **re-declares the light values AT THE ELEMENT**,
+clobbering the inherited dark — and block 4 never matches (no `data-theme` on the
+element). Proof: adding `data-theme="dark"` to that same button flipped it to
+`#fffdf2` (computed-style). It is **web-CSS-only**: the RN side
+([decision 27](#27-rn-theming--single-orthogonal-context--n55)/[62](#62-nurithemecontext-implemented--the-single-orthogonal-theming-context-lands-in-the-migration-test--n13))
+reads `{ mode, accent }` from ONE context and resolves `tokens[accent][mode]` — no
+cascade, no clobber. This bug **validates the RN single-context model.**
+
+### The fix · approach A (descendant-combinator dark blocks)
+
+Two new blocks mirror the existing dark values via a **descendant combinator**:
+
+- **#4b** `[data-theme="dark"] [data-accent="neutral"]` — all 6 neutral dark values (mirrors block 4).
+- **#6b** `[data-theme="dark"] [data-accent="lilac"]` — the 3 theme-adapting lilac tokens (fg, bg-subtle, bg-subtle-pressed · mirrors block 6 · the P4-frozen solid/solid-pressed/on-solid stay INTENTIONALLY ABSENT, as in block 6).
+
+Specificity (0,2,0) beats the element-self blocks 3/5 (0,1,0), so a self-scoped
+accent element with a dark ANCESTOR re-resolves to the dark value. Placed right
+after their #4/#6 twin so equal-specificity ties (only when a scope nests inside a
+same-theme outer scope) resolve to the same value either way.
+
+**Why A over B (accent-as-pointer indirection · rejected).** B
+(`[data-accent]` points at a per-theme intermediate `--nuri-accent-neutral-solid`;
+`[data-theme]` defines those) is architecturally cleaner in the browser but
+**breaks the pipeline's classify-by-cascade contract**
+([decision 28](#28-classify-by-cascade--n55)/[34](#34-per-component-files--tokenpath-union--set-policy--pipeline-emit-shape--n603)):
+`--nuri-accent-solid` would classify to signature `accent` (unknown → throws); the
+`--nuri-accent-*`-named intermediates declared under `[data-theme]` only fail the
+naming↔cascade agreement check; and the Node `resolveValue` chases **primitives
+only**, so the semantic→semantic `var()` dangles → build throws. The emit IS the
+deliverable (RN), so that is non-negotiable. **A is parser-transparent**:
+`selectorMatches` counts `[`=2 and resolves #4b/#6b to the same (accent, dark) cell
+as #4/#6 with identical values → **`build/tokens.ts` is byte-identical, zero emit
+change.** A is also the better fit for the N+10 attribute-only cascade model
+([decision 57](#57-playground)): N+10 dropped `:root` so attribute selectors match
+nested scopes — it did not ban combinators, and #4b/#6b add no new dimension.
+
+### KNOWN LIMITATION (revisit-trigger)
+
+A descendant combinator matches **ANY** dark ancestor, not the **NEAREST** theme.
+So a self-scoped accent inside a LIGHT scope nested inside a DARK scope resolves
+DARK (wrong — nearest is light · verified computed-style `#fffdf2`). CSS cannot
+express "nearest scope" without a per-element theme. **No current consumer nests
+opposite themes around a self-scoped accent** (the playground scopes ONE theme per
+device frame), so accepted per **P11**. **Revisit if** a nested-opposite-theme
+consumer lands — the per-element-theme · RN single-context model
+([decision 27](#27-rn-theming--single-orthogonal-context--n55)/62) is the clean
+answer there. Logged at [RISKS F-SCOPE-3](./docs/RISKS.md#r1--webrn-api-11--props-parity--behavioural-parity).
+
+### Verify (both directions · computed-style)
+
+- **Fixed in scope** · swap neutral `--nuri-accent-solid` `#12110b → #fffdf2`;
+  resolved `background-color` `rgb(255,253,242)` (cream) on `rgb(18,17,11)` canvas;
+  IconAvatar (neutral self-scope) also `#fffdf2`; self-scoped lilac fg/bg-subtle
+  adapt to dark while frozen solid stays `#beaaff`.
+- **Light unchanged** · swap stays `#12110b` (no dark ancestor → #4b inert).
+- **No N+10 regression** · same-element `data-theme="dark" data-accent="lilac"`
+  scope still resolves via block 6 (`#e3ddfa`/`#beaaff`); un-self-scoped elements
+  follow nearest theme.
+
+### Gates
+
+`npm test` **22/22** (incl. docs-drift guards); `npm run build` clean +
+`git diff --exit-code build/` **byte-identical** (the accent cascade feeds the
+emit, but #4b/#6b mirror existing dark values so nothing changed); `tsc -p
+docs/migration-tests/button-matrix/tsconfig.json` exit 0.
+
+### Anti-scope (held)
+
+- **Web-CSS-only.** The RN migration mirrors are untouched (single-context · correct).
+- **Not papered over in the composition** — the swap's `variant`/`accent` are
+  unchanged; the underlying cascade is fixed so EVERY self-scoped accent works in a
+  themed scope.
+- **One file** (`styles/tokens-semantic.css`) + this decision + RISKS/roadmap; no
+  `build/` shape change.
+
+**Operator signed off (2026-06-01)** on approach A and the My-vault dark-mode
+visual checkpoint (swap renders as a cream circle · resolved `rgb(255,253,242)` on
+`rgb(18,17,11)`), with the nearest-theme limitation accepted per P11 as a
+documented revisit-trigger.
