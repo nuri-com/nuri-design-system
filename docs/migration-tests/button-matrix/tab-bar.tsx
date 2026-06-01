@@ -31,7 +31,7 @@ import * as React from 'react';
 import { Pressable, View } from 'react-native';
 import { Icon } from './icon';
 import {
-  ThemeContext,
+  NuriThemeContext,
   resolveToken,
   button,
   chrome,
@@ -55,8 +55,8 @@ export type TabBarItemProps = {
 };
 
 export const TabBarItem: React.FC<TabBarItemProps> = ({ value, name, label, active, onSelect }) => {
-  const theme = React.useContext(ThemeContext);
-  const chromeSlice = chrome[theme];
+  const { mode } = React.useContext(NuriThemeContext);
+  const chromeSlice = chrome[mode];
 
   // Direct-semantic item colours (no per-item token · decision 56).
   const restFg     = chromeSlice.borderStrong; // not selected · recedes
@@ -105,9 +105,9 @@ export type TabBarProps = {
 };
 
 export const TabBar: React.FC<TabBarProps> = ({ value, onChange, label, children }) => {
-  const theme = React.useContext(ThemeContext);
+  const { mode } = React.useContext(NuriThemeContext);
   const tokens: RuntimeTokens = {
-    chrome: chrome[theme], accent: accentTokens.lilac[theme], space, size, radius,
+    chrome: chrome[mode], accent: accentTokens.lilac[mode], space, size, radius,
   };
   // The ONE baked token: bar height = tabBarTokens.height ('size.xl') → number.
   const height = resolveToken(tokens, tabBarTokens.height) as number;
@@ -121,7 +121,7 @@ export const TabBar: React.FC<TabBarProps> = ({ value, onChange, label, children
         flexDirection:   'row',
         alignItems:      'stretch',
         height,
-        backgroundColor: chrome[theme].bgCanvas,
+        backgroundColor: chrome[mode].bgCanvas,
       }}
     >
       {React.Children.map(children, (child) =>

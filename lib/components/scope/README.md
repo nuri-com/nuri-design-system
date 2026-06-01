@@ -15,9 +15,12 @@ the platform supplies its own system font stack natively; no
 [decision 27.1 amendment](../../../decisionlog.md#271-amendment--n57).
 
 The web side is the canonical implementation. The RN counterpart is
-spec-locked but **not implemented in this directory** — the working
-component file lands in the migration-test pair that first exercises
-multi-dimensional scope (see [decisions 27 + 28 (N+5.5)](../../../decisionlog.md)
+now **implemented in the migration test** — `NuriThemeContext` +
+`NuriScope` ship in
+[`docs/migration-tests/button-matrix/_shared.tsx`](../../../docs/migration-tests/button-matrix/_shared.tsx)
+and every mirror in that directory consumes the single context. This
+closed F-SCOPE-1 with n=1 confirmation (see
+[decisions 27 + 28 (N+5.5)](../../../decisionlog.md), [decision 62 (N+13)](../../../decisionlog.md#62-nurithemecontext-implemented--the-single-orthogonal-theming-context-lands-in-the-migration-test--n13)
 and [RISKS R1 F-SCOPE-1](../../../docs/RISKS.md#r1--webrn-api-11--props-parity--behavioural-parity)).
 
 ## RN counterpart · `NuriScope` spec (decision 27 · N+5.5)
@@ -36,11 +39,13 @@ and motivates rejection of cross-product registries).
 ### Locked shape
 
 - **Single React Context** · `NuriThemeContext` carries one entry per
-  dimension (`mode`, `accent`, `density`, `neutral`). Default values
-  mirror the web `<html data-*>` defaults: `mode: 'light'`,
-  `accent: 'lilac'`, others undefined until their CSS counterparts
-  exist. `font` is web-only (amendment 27.1) and is NOT a context
-  entry.
+  *live* dimension. Today that is `mode` + `accent` only — the two
+  whose CSS counterparts ship on the web side. `density` / `neutral`
+  are RESERVED by this spec but are NOT context entries until their
+  web tokens exist (P11): adding them to the type before they resolve
+  would be dead surface. Default values mirror the web `<html data-*>`
+  defaults: `mode: 'light'`, `accent: 'lilac'`. `font` is web-only
+  (amendment 27.1) and is NOT a context entry.
 - **Merge-on-override** · `<NuriScope accent="neutral">` reads the
   ambient context and emits a new value `{ ...ambient, accent:
   'neutral' }`. Unspecified dimensions inherit; specified ones win.
@@ -59,17 +64,20 @@ and motivates rejection of cross-product registries).
   from `NuriThemeContext`, not from `UnistylesRuntime.setTheme(...)`,
   because the registry would have to enumerate every (∏ dims) tuple.
 
-### Sketch (NOT working code — for orientation only)
+### Shipped shape (N+13 · `_shared.tsx`)
 
-```ts
-// Locked shape. Implementation lands in the first multi-dim
-// migration test (N+6 Path A/B or later).
+This is the working code now in
+[`docs/migration-tests/button-matrix/_shared.tsx`](../../../docs/migration-tests/button-matrix/_shared.tsx),
+not a sketch. The type carries only the two live dimensions; `density`
+/ `neutral` are reserved (see above) and join the type when their web
+tokens land.
+
+```tsx
 type NuriThemeValue = {
   mode: Theme;
   accent: Accent;
-  density?: Density;
-  neutral?: Neutral;
-  // No `font` — web-only per amendment 27.1.
+  // density / neutral RESERVED · not entries until their web tokens
+  // exist (P11). No `font` — web-only per amendment 27.1.
 };
 
 const NuriThemeContext = React.createContext<NuriThemeValue>({
@@ -82,17 +90,22 @@ const NuriScope: React.FC<Partial<NuriThemeValue> & { children: React.ReactNode 
   ...overrides
 }) => {
   const ambient = React.useContext(NuriThemeContext);
-  const merged = { ...ambient, ...overrides };
-  return <NuriThemeContext.Provider value={merged}>{children}</NuriThemeContext.Provider>;
+  return (
+    <NuriThemeContext.Provider value={{ ...ambient, ...overrides }}>
+      {children}
+    </NuriThemeContext.Provider>
+  );
 };
 ```
 
-### Open at next migration pair (N+6+)
+### Resolved / still open
 
-- Whether `NuriScope` ships as one composite Provider (this spec) or
-  as N per-dimension Providers nested by a tiny helper. The composite
-  matches the web `<nuri-scope>` ergonomics 1:1; per-dimension is
-  what F-SCOPE-1 originally surfaced. Decision N+5.5 picks composite.
+- **RESOLVED (N+13 · F-SCOPE-1)** · `NuriScope` ships as one composite
+  Provider, not N per-dimension Providers. The composite matches the
+  web `<nuri-scope>` ergonomics 1:1; per-dimension nesting is the cost
+  F-SCOPE-1 originally surfaced. Decision N+5.5 picked composite;
+  [decision 62](../../../decisionlog.md#62-nurithemecontext-implemented--the-single-orthogonal-theming-context-lands-in-the-migration-test--n13)
+  confirms it under tsc (n=1).
 - Whether the per-dim type literals (`Accent`, `Theme`, future
   `Density` / `Neutral`) come from `build/tokens.ts` (emitter
   already exports `Accent` + `Theme` for any axis surfaced by a

@@ -23,8 +23,7 @@
 import * as React from 'react';
 import { Pressable, View } from 'react-native';
 import {
-  AccentContext,
-  ThemeContext,
+  NuriThemeContext,
   resolveToken,
   switchTokens,
   chrome,
@@ -49,13 +48,12 @@ export const Switch: React.FC<SwitchProps> = ({
   disabled,
   onChange,
 }) => {
-  const ambientAccent = React.useContext(AccentContext);
+  const { mode, accent: ambientAccent } = React.useContext(NuriThemeContext);
   const accent: Accent = accentProp ?? ambientAccent;
-  const theme = React.useContext(ThemeContext);
 
   const tokens: RuntimeTokens = {
-    chrome: chrome[theme],
-    accent: accentTokens[accent][theme],
+    chrome: chrome[mode],
+    accent: accentTokens[accent][mode],
     space,
     size,
     radius,

@@ -12,7 +12,8 @@
  *   · the `SvgXml` shim re-export (the ambient module lives in
  *     react-native-svg.d.ts · decision 48)
  *   · resolveToken + RuntimeTokens · the consumer-side dereference
- *   · AccentContext / ThemeContext + AccentProvider · the RN cascade
+ *   · NuriThemeContext + NuriScope · the single orthogonal theming
+ *     context (decision 27/62 · merge-on-override · one entry per dim)
  *   · SpaceLeaf · the 5-leaf semantic space subset (Stack/Box/Spacer)
  *   · typeStyle + TypeKey · the single relative→absolute type conversion
  *   · useRuntimeTokens · render-time (accent × theme) slice for the List family
@@ -35,6 +36,7 @@ import {
 } from '../../../build/tokens';
 import type { Accent, Theme, TypeSize, TypeWeight, TypeStep } from '../../../build/tokens';
 import { button } from '../../../build/components/button';
+import { iconButton } from '../../../build/components/icon-button';
 import { switchTokens } from '../../../build/components/switch';
 import { tabs as tabsTokens } from '../../../build/components/tabs';
 import { tabBar as tabBarTokens } from '../../../build/components/tab-bar';
@@ -56,6 +58,7 @@ export {
   radius,
   typeScale,
   button,
+  iconButton,
   switchTokens,
   tabsTokens,
   tabBarTokens,
@@ -102,28 +105,55 @@ export function resolveToken(tokens: RuntimeTokens, path: TokenPath): string | n
 export type SpaceLeaf = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 // ══════════════════════════════════════════════════════════════════
-// THEME + ACCENT CONTEXTS · RN analogues of Nuri's web cascade
+// NURI THEME CONTEXT · the single orthogonal theming context
+// (decision 27 · implemented decision 62 · closes F-SCOPE-1)
 // ──────────────────────────────────────────────────────────────────
 // Web side uses <html data-theme> + <html data-accent>, with nested
-// scopes via <nuri-scope> / per-element data-accent. RN has no
-// cascade — we model the same two dimensions as React Context.
-// One provider per dimension; per AGENTS.md mapping table:
-//   data-accent page-level / <nuri-scope accent=...>  →  AccentProvider
-//   data-theme  page-level / <nuri-scope mode=...>    →  ThemeProvider
+// scopes via <nuri-scope> / per-element data-accent. RN has no cascade —
+// we model the SAME dimensions as ONE React Context whose value carries
+// one entry PER DIMENSION. This is NOT two separate contexts (the
+// per-dimension shape decision 27 REJECTED · the old AccentContext +
+// ThemeContext) and NOT a pre-computed (∏ dims) theme registry (also
+// rejected · scales O(∏ dims) · breaks the composability decisions 1/6/9
+// rest on). Per AGENTS.md mapping table, both <nuri-scope accent=…> and
+// <nuri-scope mode=…> map onto ONE <NuriScope> — no per-dimension synonym.
 //
-// Default values mirror the web defaults: theme 'light', accent 'lilac'.
+// Today only `mode` + `accent` are context entries (their CSS counterparts
+// ship on the web side). `density` / `neutral` are RESERVED by the spec but
+// are NOT context entries until their web tokens exist (P11). `font` is
+// web-only (amendment 27.1) and never migrates.
+//
+// Default values mirror the web <html data-*> defaults: mode 'light',
+// accent 'lilac'.
 // ══════════════════════════════════════════════════════════════════
-export const AccentContext = React.createContext<Accent>('lilac');
-export const ThemeContext = React.createContext<Theme>('light');
+export type NuriThemeValue = {
+  mode: Theme;
+  accent: Accent;
+};
 
-// Tier 3 subtree-scope analogue — same shape as the web
-// <nuri-scope accent="...">; nest providers for multi-dimension
-// scope (the web does it on one element, RN needs one per dim —
-// see FRICTIONS.md F-SCOPE-1).
-export const AccentProvider: React.FC<{ value: Accent; children: React.ReactNode }> = ({
-  value,
+export const NuriThemeContext = React.createContext<NuriThemeValue>({
+  mode: 'light',
+  accent: 'lilac',
+});
+
+// NuriScope · the Tier-3 subtree-scope analogue · the RN twin of the web
+// <nuri-scope mode=… accent=…>. MERGE-ON-OVERRIDE: reads the ambient
+// context and emits { ...ambient, ...overrides }, so unspecified dimensions
+// inherit and specified ones win — `accent` can flip without redeclaring
+// `mode`. ONE composite Provider, not one-per-dimension: the shape
+// decision 27 (N+5.5) picked over the linear-nesting cost F-SCOPE-1
+// originally surfaced.
+export const NuriScope: React.FC<Partial<NuriThemeValue> & { children: React.ReactNode }> = ({
   children,
-}) => <AccentContext.Provider value={value}>{children}</AccentContext.Provider>;
+  ...overrides
+}) => {
+  const ambient = React.useContext(NuriThemeContext);
+  return (
+    <NuriThemeContext.Provider value={{ ...ambient, ...overrides }}>
+      {children}
+    </NuriThemeContext.Provider>
+  );
+};
 
 // ══════════════════════════════════════════════════════════════════
 // TYPE SCALE · relative→absolute conversion (decision 54)
@@ -148,15 +178,15 @@ export function typeStyle(key: TypeKey) {
   };
 }
 
-// ── useRuntimeTokens · render-time (accent × theme) slice ─────────
+// ── useRuntimeTokens · render-time (accent × mode) slice ──────────
 // The List family's hook for the live runtime-token slice resolveToken
-// dereferences against. Reads ambient accent + theme from context.
+// dereferences against. Reads the ambient (accent, mode) pair from the
+// single NuriThemeContext.
 export function useRuntimeTokens(): RuntimeTokens {
-  const ambientAccent = React.useContext(AccentContext);
-  const theme = React.useContext(ThemeContext);
+  const { mode, accent } = React.useContext(NuriThemeContext);
   return {
-    chrome: chrome[theme],
-    accent: accentTokens[ambientAccent][theme],
+    chrome: chrome[mode],
+    accent: accentTokens[accent][mode],
     space,
     size,
     radius,

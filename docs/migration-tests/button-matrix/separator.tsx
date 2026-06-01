@@ -18,14 +18,14 @@
 
 import * as React from 'react';
 import { View } from 'react-native';
-import { ThemeContext, chrome, space } from './_shared';
+import { NuriThemeContext, chrome, space } from './_shared';
 
 export type SeparatorProps = {
   ySpace?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 };
 
 export const Separator: React.FC<SeparatorProps> = ({ ySpace = 'sm' }) => {
-  const theme = React.useContext(ThemeContext);
+  const { mode } = React.useContext(NuriThemeContext);
   return (
     <View
       accessibilityRole="none"
@@ -33,7 +33,7 @@ export const Separator: React.FC<SeparatorProps> = ({ ySpace = 'sm' }) => {
         height:          1,
         alignSelf:       'stretch',
         marginVertical:  space[ySpace],
-        backgroundColor: chrome[theme].borderSubtle,
+        backgroundColor: chrome[mode].borderSubtle,
       }}
     />
   );

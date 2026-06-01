@@ -4,6 +4,24 @@ Session router. Each entry links to its detail file.
 
 ## Current state
 
+N+13 (PR in review): **migration-test reconciliation**. The N+12a docs-freshness
+pass shipped `pages/components/scope.html` prescribing a SINGLE `NuriThemeContext`,
+and N+12b split the `button-matrix` monolith one-file-per-component — which exposed
+that the RN mirrors still carried the **two per-dimension contexts** (`AccentContext`
++ `ThemeContext`) decision 27 had **REJECTED**. N+13 closes that spec↔example gap:
+`_shared.tsx` now exposes one `NuriThemeContext` (`{ mode, accent }`) + a composite
+**`NuriScope`** with merge-on-override, every mirror reads one `useContext`, and the
+Tier-3 demo is `<NuriScope accent="neutral">` (accent flips, mode inherits). Two
+live dimensions = the **n=1 confirmation** decision 27 awaited, so **F-SCOPE-1 is
+CLOSED** ([decision 62](../decisionlog.md#62-nurithemecontext-implemented--the-single-orthogonal-theming-context-lands-in-the-migration-test--n13)).
+The three N+12b-logged drifts landed as faithful-to-web adds (**D1** Box
+`background`/`radius` · **D2** Button `size` · **D3** Tab `disabled` · **D4**
+IconButton emit-deref) with **F-BOX-FG-1** + **F-TAB-DISABLED-1** logged. The scope
+page, `scope/README.md`, and impl-guide now describe EXACTLY what the examples do
+(zero residual gap); `density`/`neutral` stay reserved (P11) until their web tokens
+ship. Gates green (test 22/22 · build · no `build/` diff · tsc 0). See
+[`roadmap/N+13.md`](./N+13.md).
+
 N+11 closed: the **layout scaffold** — building the My-vault wallet screen
 point-by-point (operator-driven) exposed the layout-API gaps a real screen needs,
 and each was closed in the DS rather than papered over with page-local CSS. The
@@ -1208,6 +1226,8 @@ surfaces):
 | N+11 | ✓ closed | **Layout scaffold** · `<nuri-screen>` (full-height column) + `<nuri-scroll>` (grow + overflow · scrolling is a COMPONENT in RN, not a View style → its own primitive · decision 58) + `<nuri-spacer>` (grow / fixed `size` / proportional `grow` · decisions 59/61) · Box+Stack **`fill`** (`flex:1 0 auto` · RN contentContainerStyle flexGrow · decision 60) · Typography **`align`** (text-align · decision 59) · **TabBar is a SIBLING of Screen** (navigator owns the safe-area · primitives inset-agnostic) · fixes: Topbar `size.lg` + empty-side-region collapse (46.3) · IconButton `flex-shrink:0` · playground accent pin (lilac) + shell neutral-gray (57.1) · DS sidebar pinned **Playground** CTA · My-vault now **100% DS composition** (zero page-local CSS) · RN mirror + DS docs · gates green (test 19/19 · build · tsc 0) | [→](./N+11.md) |
 | N+11+ | planned | Second playground document (Coin / Activity behind the TabBar) — the second consumer that evidence-gates the LOGGED BalanceRow / AmountDisplay / swap-overlay candidates · revisit the deferred general `grow` prop · resolve F-TEXTALIGN-RTL if an RTL consumer appears | — |
 | N+12a | ✓ closed | **Docs freshness + Scope page + drift guards** · de-rotted the agent-facing entry points against the **live build** (not the stale prior audit): `principles.html` P10/P11 (Style Dictionary **bypassed** · terminal emitter `pipeline/parsers/semantic.js` → `build/components/<name>.ts` · decisions 2.1/7.1/34 · behavioural-delta "planned"→**shipped** per 24.1) · `README.md` + `llms.txt` counts (38 semantic leaves · 8 component files · 17 glyphs · 5 build assets incl. `build/icons.ts` · 18 component pages) · **new `pages/components/scope.html`** consolidating the web cascade mechanism + RN `NuriThemeContext` spec + cascade↔context delta (NAV "Theming" group · "start here" link from impl-guide §3 · `scope/README.md` 672→**336** math fix) · **`pipeline/docs-drift.test.js`** (sibling · 3 CI guards: page-tree⊂llms.txt · build/components⊂README∩impl-guide · doc counts==live build) · gates green (test **19/19 + 3 drift** · build · tsc 0) | — |
+| N+12b | ✓ closed | **Migration-test split** · the 1961-line `button-matrix/index.tsx` monolith → **one file per component** (shared scaffolding in `_shared.tsx` · demos in `app.tsx` · `index.tsx` retired to a thin re-export) · each mirror **verified against its CURRENT web API** while moved (not a mechanical lift) · 3 pre-existing drifts **logged not fixed** (D1 Box bg/radius · D2 Button size · D3 Tab disabled) + D4 IconButton emit-deref noted · dir name + tsconfig path UNCHANGED (CI gate stable) · gates green (tsc 0 · test 19/19 + 3 drift · no `build/` diff) | [→](./N+12b.md) |
+| N+13 | open (PR in review) | **Migration-test reconciliation** · closes the spec↔example contradiction the split surfaced — the mirrors now **IMPLEMENT** decision 27's single `NuriThemeContext` (`{ mode, accent }`) + composite `NuriScope` (merge-on-override), replacing the two per-dimension contexts (decision 27 had REJECTED) · **F-SCOPE-1 CLOSED** (n=1 confirmation · **decision 62**) · **D1–D4 faithful adds** honoring existing decisions (Box `background`/`radius` dec 42 · Button `size` dec 41 · Tab `disabled` dec 42/43 · IconButton emit-deref dec 52) with **F-BOX-FG-1** + **F-TAB-DISABLED-1** logged · scope page + `scope/README.md` + impl-guide now describe EXACTLY what the examples do (zero residual gap) · impl-guide split pointer + deep-link fixes (retired `index.tsx` → `button.tsx`) · `density`/`neutral` stay reserved (P11) · gates green (test 22/22 · build · no `build/` diff · tsc 0) | [→](./N+13.md) |
 
 ## Open questions (in flight)
 

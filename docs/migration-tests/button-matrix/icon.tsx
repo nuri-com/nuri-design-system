@@ -24,7 +24,7 @@
 import * as React from 'react';
 import {
   SvgXml,
-  ThemeContext,
+  NuriThemeContext,
   size,
   chrome,
   icons,
@@ -46,7 +46,7 @@ const ICON_DIMENSION: Record<NonNullable<IconProps['size']>, number> = {
 };
 
 export const Icon: React.FC<IconProps> = ({ name, size: iconSize = 'md', fill, color }) => {
-  const theme = React.useContext(ThemeContext);
+  const { mode } = React.useContext(NuriThemeContext);
   // Weight coupling (decision 38) · identical to icon.js #render.
   const weight: IconWeight = fill ? 'fill' : iconSize === 'sm' ? 'bold' : 'regular';
   // Re-wrap the registry path in the phosphor viewBox grid — the same
@@ -61,7 +61,7 @@ export const Icon: React.FC<IconProps> = ({ name, size: iconSize = 'md', fill, c
       xml={xml}
       width={dimension}
       height={dimension}
-      color={color ?? chrome[theme].textPrimary}
+      color={color ?? chrome[mode].textPrimary}
     />
   );
 };
