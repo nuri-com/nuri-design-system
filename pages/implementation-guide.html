@@ -160,7 +160,7 @@
           <tr data-cell="future-dims">
             <td><code>data-density</code> · <code>data-neutral</code></td>
             <td><code>density</code> · <code>neutral</code> fields</td>
-            <td>Auto-discoverable once their CSS cascade blocks land (decision 28). Optional in <code>NuriThemeValue</code> today.</td>
+            <td>Auto-discoverable once their CSS cascade blocks land (decision 28). Reserved — <strong>not</strong> <code>NuriThemeValue</code> fields today; they join when their web tokens exist (P11).</td>
           </tr>
           <tr data-cell="web-only-font">
             <td><code>data-font="ios|android|pixel"</code></td>
@@ -275,16 +275,27 @@ const NuriScope: React.FC&lt;Partial&lt;NuriThemeValue&gt; &amp; { children: Rea
         </dd>
       </div>
     </dl>
-    <p>Skeleton (from button-matrix · positive control · F-SCOPE-2):</p>
-    <pre><code>const Button: React.FC&lt;ButtonProps&gt; = ({
+    <p>Skeleton (from button-matrix · positive control · F-SCOPE-2). Illustrative — the live file is <a href="../docs/migration-tests/button-matrix/button.tsx"><code>button.tsx</code></a>. Note the <code>size</code>-coupled geometry + label type (decision 41 · 55): per-size <code>minHeight</code>/<code>paddingX</code>/<code>radius</code> resolve inline through the runtime sets, and the label's <code>typeStyle</code> key tracks <code>size</code> — there is no <code>styles.label</code> StyleSheet entry:</p>
+    <pre><code>// Per-size geometry triple + size-coupled label type (decision 41 · 55).
+const GEOMETRY: Record&lt;ButtonSize, { minHeight: TokenPath; paddingX: TokenPath; radius: TokenPath }&gt; = {
+  lg: { minHeight: button.lgMinHeight, paddingX: button.lgPaddingX, radius: button.lgRadius },
+  md: { minHeight: button.mdMinHeight, paddingX: button.mdPaddingX, radius: button.mdRadius },
+  sm: { minHeight: button.smMinHeight, paddingX: button.smPaddingX, radius: button.smRadius },
+};
+const LABEL_KEY: Record&lt;ButtonSize, TypeKey&gt; = { lg: 'mdEm', md: 'mdEm', sm: 'smEm' };
+
+const Button: React.FC&lt;ButtonProps&gt; = ({
   variant = 'soft',
   accent: accentProp,
+  size: sizeProp = 'md',
   disabled,
   onPress,
   children,
 }) =&gt; {
   const { mode, accent: ambientAccent } = React.useContext(NuriThemeContext);
   const accent: Accent = accentProp ?? ambientAccent;
+  const tokens: RuntimeTokens = { chrome: chrome[mode], accent: accentTokens[accent][mode], space, size, radius };
+  const geometry = GEOMETRY[sizeProp];
   return (
     &lt;Pressable
       onPress={onPress}
@@ -293,12 +304,17 @@ const NuriScope: React.FC&lt;Partial&lt;NuriThemeValue&gt; &amp; { children: Rea
       accessibilityState={{ disabled: !!disabled }}
       style={({ pressed }) =&gt; [
         styles.base,
+        {
+          minHeight:         resolveToken(tokens, geometry.minHeight) as number,
+          paddingHorizontal: resolveToken(tokens, geometry.paddingX)  as number,
+          borderRadius:      resolveToken(tokens, geometry.radius)    as number,
+        },
         variantStyle(variant, accent, mode, pressed),
         pressed &amp;&amp; !disabled &amp;&amp; { transform: [{ scale: button.pressScale }] },
         disabled &amp;&amp; { opacity: button.disabledOpacity },
       ]}
     &gt;
-      &lt;Text style={[styles.label, { color: labelColor(variant, accent, mode) }]}&gt;
+      &lt;Text style={[typeStyle(LABEL_KEY[sizeProp]), { color: labelColor(variant, accent, mode) }]}&gt;
         {children}
       &lt;/Text&gt;
     &lt;/Pressable&gt;
