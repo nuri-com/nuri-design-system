@@ -1273,8 +1273,83 @@ surfaces):
 | N+14 | open (PR in review) | **Migration-conformance fixes** · the read-only conformance audit found the button-matrix test **FAITHFUL** (0 CODE-DEVIATES · 0 CONCEPT-MISMATCH) — only 3 doc/code sbavature + 1 operator-gated sourcing question, all fixed here with **no new decision** · (1) impl-guide cascade cell density/neutral *"Optional"* → **"reserved · not fields"** (matches the page's shipped-shape block + `scope.html`) · (2) Tier-2 **skeleton** rewritten to match live `button.tsx` (per-size `GEOMETRY`/`LABEL_KEY` · `typeStyle` label · drops nonexistent `styles.label` · dec 41/55) · (3) `list.tsx` `DensityContext` → **`RowDensityContext`** (+ comment · clears the name collision with the reserved scope `density` dimension) · (4) operator-chosen at checkpoint: IconAvatar geometry sources the **shared semantic scale** (`resolveToken('size.lg'/'radius.full')`) mirroring the web `var(--nuri-size-lg)`/`var(--nuri-radius-full)` direct consumption — removes the lone RN hardcode **without** coupling to `iconButton.*` and **without** amending decision 50 · closeout audit clean · gates green (test 22/22 · build · no `build/` diff · tsc 0) | [→](./N+14.md) |
 | N+13 | open (PR in review) | **Migration-test reconciliation** · closes the spec↔example contradiction the split surfaced — the mirrors now **IMPLEMENT** decision 27's single `NuriThemeContext` (`{ mode, accent }`) + composite `NuriScope` (merge-on-override), replacing the two per-dimension contexts (decision 27 had REJECTED) · **F-SCOPE-1 CLOSED** (n=1 confirmation · **decision 62**) · **D1–D4 faithful adds** honoring existing decisions (Box `background`/`radius` dec 42 · Button `size` dec 41 · Tab `disabled` dec 42/43 · IconButton emit-deref dec 52) with **F-BOX-FG-1** + **F-TAB-DISABLED-1** logged · scope page + `scope/README.md` + impl-guide now describe EXACTLY what the examples do (zero residual gap) · impl-guide split pointer + deep-link fixes (retired `index.tsx` → `button.tsx`) · `density`/`neutral` stay reserved (P11) · gates green (test 22/22 · build · no `build/` diff · tsc 0) | [→](./N+13.md) |
 
+## Expo consumption feedback · R-EXPO work queue
+
+**Source.** The spec was consumed by a real RN+Expo demo (a separate codebase,
+`expodsdemo/` · the repo snapshot lives there under `DesignSystemSpec/`). The
+demo's single seam imports the real `build/*` emit (decision 35), so it exercises
+the contract — not a re-hardcode. **Two independent external audits converged** on
+the same findings: the demo team's `SPEC-FEEDBACK.md` (6 `F-DEMO-*` findings + 2
+positive controls) and a separate consumer-code review (which added the Topbar
+`<Text>` item). The thesis held on the FIRST real render — token paths,
+single-context theming (decisions 27/62), scope tiers, the N+15 neutral inversion,
+icon `SvgXml`, and the budgeted a11y deltas all confirmed at runtime (positive
+controls). This **takes the repo off "waiting-for-Expo-feedback" pause**: the
+consumer experiment is owned elsewhere — we act on the findings here, we do **not**
+build the RN package in this repo. The original feedback is preserved verbatim as a
+frozen, dated snapshot —
+[`docs/consumer-feedback/SPEC-FEEDBACK-2026-06-02.md`](../docs/consumer-feedback/SPEC-FEEDBACK-2026-06-02.md)
+— so this queue stays auditable against the source (R-EXPO is the synthesis; that
+file is the evidence).
+
+**Why the type-only test missed these.** The `button-matrix` migration test is
+TYPE-ONLY (`noEmit`, never renders), so `tsc` is green while RN runtime layout
+(flex grow/basis, ScrollView content sizing, `<Text>` child validity) is
+unexercised. 4 of the 6 findings are exactly that blind spot — see
+[`docs/RISKS.md`](../docs/RISKS.md) R5 (the Expo consumer is now the render smoke
+path) and R1.
+
+Prioritized DS work queue (codes map 1:1 to the demo's `F-DEMO-*`):
+
+- 🔴 **R-EXPO-1 · Button needs an icon slot (= F-DEMO-1) — CONTRACT gap, needs a
+  DECISION.** Web `<nuri-button>` is slot-like; the RN mirror types
+  `children: string` (text-only · `button.tsx:54`). The spec's own My-vault puts an
+  icon in a Button (Apple-Pay row). Decide the shape — a `leading?`/`trailing?` icon
+  slot, or widen `children` — and how the label colour reaches a nested `<Icon>` (RN
+  `<Text>` colour does not inherit into a child `<Icon>`; no `currentColor` analogue
+  · same family as F-BOX-FG-1). → **Open question** (below).
+- 🟡 **R-EXPO-2 · Topbar cluster (RN mirror · `topbar.tsx`).** Three issues:
+  (a) an empty side region is not collapsed → it reserves a phantom `gap` slot
+  (title nudged inward), violating the DECIDED RN-parity note of amendment 46.3;
+  (b) side regions use `flex: sideFlex` (basis 0) → the trailing region gets 0 width
+  and icons can overflow — intended is `flexGrow` (basis auto); (c) the centre is
+  wrapped in a single `<Text>`, which is **native-fragile** — a non-text centre node
+  is invalid inside `<Text>` on native RN (only react-native-web tolerates it). See
+  the [decision 46.2 consumption note](../decisionlog.md#462-amendment--n84--topbar-is-now-font-bearing-for-its-title).
+- 🟡 **R-EXPO-3 · Remove `flex: 1` from the RN Button base (= F-DEMO-2).**
+  `docs/migration-tests/button-matrix/button.tsx:171` (`styles.base`) hardcodes
+  grow; the web button is `inline-flex` (no grow), so a leaf control should not grow
+  to fill its row. Confirmed against the in-repo mirror.
+- 🟡 **R-EXPO-4 · Scroll needs `contentContainerStyle: { flexGrow: 1 }`
+  (= F-DEMO-3).** A `Box fill` child cannot fill a bare `ScrollView { flex: 1 }` on
+  device — the content container must grow.
+- 🟡 **R-EXPO-5 · Separator must be axis-absolute (= F-DEMO-4).** In a ROW,
+  `alignSelf: 'stretch'` collapses to 0 width; mirror the web `inline-size: 100%`
+  with `width: '100%'` + `flexShrink: 1`.
+- 🟢 **R-EXPO-6 · Build emits TOKENS but not the curated PROP vocab (= F-DEMO-5) —
+  pipeline enhancement.** `SpaceLeaf`, Box `background`/`radius`, variant enums, etc.
+  live only in CSS `[data-*]` selectors (skip-emit primitives · decision 36), so the
+  RN side hand-types them → silent drift (unlike the drift-guarded `TokenPath`). Emit
+  a prop-vocab artifact so RN derives the unions. Systemic; the biggest of the six. →
+  **Open question** (scope · below).
+
+R-EXPO-3/4/5 are mechanical `.tsx` fixes to the migration-test mirrors and R-EXPO-2
+fixes `topbar.tsx` — the demo already carries correct fixes to port back. They are
+queued for the next working session (which reads this block). R-EXPO-1 and R-EXPO-6
+are gated on the two open questions below.
+
 ## Open questions (in flight)
 
+- **Expo consumption · 2 contract questions (R-EXPO-1, R-EXPO-6 · 2026-06-02).**
+  Surfaced by the first real RN render (see the [Expo consumption feedback ·
+  R-EXPO work queue](#expo-consumption-feedback--r-expo-work-queue) above).
+  (1) **Button icon-slot shape (R-EXPO-1)** — a `leading?`/`trailing?` icon slot
+  vs widening `children`, plus how the label colour reaches a nested `<Icon>` (no
+  RN `currentColor`). (2) **Emit the curated prop vocab (R-EXPO-6)** — should the
+  pipeline emit the skip-emit prop unions (`SpaceLeaf`, Box `background`/`radius`,
+  variant enums) so the RN side derives them instead of hand-typing (decision 36
+  keeps them CSS-only today)? Both gate their R-EXPO fixes; the other four items
+  are mechanical and need no decision.
 - **General `grow` prop vs Spacer-only (N+11 · decision 59).** When the
   fill/push need first surfaced (swap-row separators · value-push-right) the
   operator chose to ship **`<nuri-spacer>`** first and "see what emerges" rather
