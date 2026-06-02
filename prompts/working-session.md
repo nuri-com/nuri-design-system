@@ -153,5 +153,6 @@ docs site is live off `main`.
    commit the work (`Co-Authored-By` trailer; include the `npm run build` emit
    if the pipeline output changed), push the branch, and have the **operator**
    open the PR into protected `main` via the `pull/new/<branch>` link. CI
-   re-runs the gates; the **coordinator** reviews the PR and squash-merges once
-   `gates` is green. See `## Git workflow` above.
+   re-runs the gates; the **coordinator reviews the PR** (does NOT self-merge —
+   `gh` is absent and `main` is protected), and the **operator clicks
+   squash-merge** once `gates` is green. See `## Git workflow` above.
