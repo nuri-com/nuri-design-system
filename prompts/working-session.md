@@ -62,7 +62,7 @@
 ## Definition of done
 
 <!-- Concrete, testable. Examples:
-     - "`npm test` passes (14/14)"
+     - "`npm test` passes (22/22)"
      - "`npx tsc -p docs/migration-tests/<pair>/tsconfig.json` exits 0"
      - "Page renders, console clean, theme/accent toggles re-resolve"
      - "Closeout audit ran; findings surfaced in roadmap/index.md" -->
@@ -102,6 +102,35 @@ that matches what you're doing. The session router is
 
 When in doubt: code wins, then `decisionlog.md`, then this prompt.
 
+## Git workflow (FIXED)
+
+The repo is git + GitHub + CI + branch-protected `main`. Never commit to
+`main`; every session ships on a branch and lands via PR. Remote is **SSH**
+(`git@github.com:nuri-com/nuri-design-system.git`) — HTTPS has no token; the
+docs site is live off `main`.
+
+- **Start (single session)** — branch off the freshly-fetched main:
+  `git fetch origin && git checkout -b <type>/<slug> origin/main`
+  (`docs/…` · `fix/…` · `feat/…`).
+- **Start (parallel session)** — concurrent sessions each take their own
+  worktree, so the file trees are disjoint and the work is truly parallel:
+  `git worktree add -b <branch> "$MAIN-<short>" origin/main` + (inside the new
+  worktree) `ln -s "$MAIN/node_modules" node_modules`.
+- **CI** — [`.github/workflows/gates.yml`](../.github/workflows/gates.yml)
+  (job `gates`) runs on every PR + push-to-`main`: `npm ci` · `npm test`
+  (22/22) · `npm run build` · `git diff --exit-code build/` · `npx tsc -p
+  docs/migration-tests/<pair>/tsconfig.json`. Branch protection requires
+  `gates` green to merge; PRs are **squash-merged**.
+- **`build/` is committed** ([decision 35](../decisionlog.md#35-pipeline-sources-vs-build-outputs-physically-separated--pipeline-source-build-generated-only--n604)).
+  If you touched anything the pipeline emits, run `npm run build` and commit
+  the result — the `git diff --exit-code build/` gate fails a stale emit.
+- **Close** — gates green → commit (with a `Co-Authored-By` trailer) → push →
+  open PR into `main`. `gh` is **not installed**, so the **operator** opens
+  the PR via the `pull/new/<branch>` link git prints on push, and clicks
+  merge. The **coordinator reviews the PR** — do NOT self-merge — and
+  reconciles any shared-doc conflict (`roadmap/index.md`, sometimes
+  `decisionlog.md` / `docs/RISKS.md`) by merging `main` into the lagging branch.
+
 ## Close sequence (FIXED · in this exact order)
 
 1. **Build the ship-list.**
@@ -113,9 +142,16 @@ When in doubt: code wins, then `decisionlog.md`, then this prompt.
    present the rendered result to the operator and request design feedback.
    Do NOT run the audit, the gates, or closeout until the operator has
    responded; incorporate their feedback first.
-4. **Only after the operator's feedback:** run the gates (`npm test`,
-   `npm run build`, `npx tsc -p docs/migration-tests/<pair>/tsconfig.json`),
+4. **Only after the operator's feedback:** run the gates (`npm test` 22/22,
+   `npm run build`, `git diff --exit-code build/`,
+   `npx tsc -p docs/migration-tests/<pair>/tsconfig.json`),
    then run [`skills/close-out-session.md`](../skills/close-out-session.md) —
    spawn the general-purpose audit subagent
    ([`prompts/closeout-audit.md`](./closeout-audit.md)) and refresh
    `roadmap/N+X.md` + `roadmap/index.md` + `docs/RISKS.md`.
+5. **Commit → push → open PR (never self-merge).** With the gates green,
+   commit the work (`Co-Authored-By` trailer; include the `npm run build` emit
+   if the pipeline output changed), push the branch, and have the **operator**
+   open the PR into protected `main` via the `pull/new/<branch>` link. CI
+   re-runs the gates; the **coordinator** reviews the PR and squash-merges once
+   `gates` is green. See `## Git workflow` above.

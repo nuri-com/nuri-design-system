@@ -58,6 +58,7 @@ in code comments or other docs — cite the principle / decision number.
 | 18 | Component pages serve four readers; anatomy + token-mapping = migration wiring spec; multi-part components REQUIRE machine-readable `data-*` on those tables | [decision 24](./decisionlog.md#24-component-pages-serve-four-readers-including-migration--n3) |
 | 19 | Docs additions are mechanical — every new page follows its template, no free-form layout | [decisionlog.md](./decisionlog.md) (across decisions 16–24) |
 | 20 | Primitives / components / skills / pages ship only when consumed OR explicitly speculative-reserved with one-line justification | [P11](./pages/principles.html#p11-parsimony) · [decision 30](./decisionlog.md#30-primitive-parsimony--no-speculative-additions--n571) |
+| 21 | `build/` is committed and CI drift-guards it; the `pipeline/docs-drift.test.js` guards (component pages ↔ `llms.txt` · `build/components/*` ↔ README/impl-guide manifest · doc-stated counts ↔ live build) must stay green | [decision 35](./decisionlog.md#35-pipeline-sources-vs-build-outputs-physically-separated--pipeline-source-build-generated-only--n604) · [gates.yml](./.github/workflows/gates.yml) |
 
 ---
 

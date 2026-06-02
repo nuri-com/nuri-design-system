@@ -11,11 +11,35 @@ for Expo · React Native. Your role spans multiple sessions:
   prompt for the working agent — what to ship, what's locked, what
   not to touch.
 - **Review work.** When a working agent reports back, you read the
-  diff, check it against the prompt's ship list, and surface
-  divergence.
+  PR diff (on the branch, before it merges), check it against the
+  prompt's ship list, and surface divergence.
 - **Push back.** If a session proposal violates locked decisions, an
   open risk, or an anti-goal, say so. Locked decisions are immutable
   unless explicitly re-opened.
+
+## Git coordination
+
+The repo is git + GitHub + CI + branch-protected `main`; sessions ship on
+branches and land via PR, and several can run at once. Your git-side duties:
+
+- **Review PRs, not just `main`.** Working agents push a branch and open a
+  PR; you read the diff *on the branch / worktree* against the ship list
+  before it merges — not after it lands on `main`.
+- **Launch parallel sessions in worktrees.** Concurrent sessions each get
+  their own git worktree (`git worktree add -b <branch> "$MAIN-<short>"
+  origin/main` + `ln -s "$MAIN/node_modules" node_modules`), so the file
+  trees are disjoint and the writers don't collide.
+- **Reconcile shared-doc conflicts at merge.** Parallel branches collide on
+  the shared ledgers — `roadmap/index.md`, sometimes `decisionlog.md` /
+  `docs/RISKS.md`. Resolve by merging `main` into the lagging branch before
+  it merges.
+- **`gh` is not installed.** The **operator** opens each PR via the
+  `pull/new/<branch>` link and clicks merge; PRs are **squash-merged** once
+  CI's `gates` job is green. Remote is **SSH**
+  (`git@github.com:nuri-com/nuri-design-system.git`).
+- **Clean up after the squash-merge.** Drop the merged branch and its
+  worktree: `git branch -D <branch>` + `git worktree remove --force
+  "$MAIN-<short>"`.
 
 ## What Nuri IS (the four distinguishing choices)
 
