@@ -64,6 +64,12 @@ naming the gap up front.
   Tier 2 self-scope IS 1:1 modulo runtime). Scratch file dissolves
   into this register at the next session unless N+5 confirms a
   pattern that warrants its own principle.
+- ✓ **Confirmed in consumption (2026-06-02)** · the first real RN render (Expo
+  demo) made R1 concrete — 4 of 6 findings were RN runtime-layout the TYPE-ONLY
+  migration mirrors couldn't catch (Button `flex`, Scroll content sizing,
+  Separator cross-axis, Topbar `<Text>` child validity). Tracked as the R-EXPO
+  queue in [`roadmap/index.md`](../roadmap/index.md); the Expo consumer is now the
+  render smoke path (see R5).
 
 **Frictions list · N+4 (Button matrix, 8 buttons, lilac/neutral · light)**
 
@@ -807,6 +813,23 @@ translation (N+5) and a real-touch RN render (N+5 or N+6 with
 Expo). The thesis "props 1:1, behaviour budgeted per-component"
 holds at the depth N+4 reached; the budget for behaviour is
 concretely 2-4 deltas per leaf component based on Button alone.
+
+**Update · first real RN render (2026-06-02) · the end-to-end validation R5 asked
+for.** A full screen (My-vault) was composed in the spec and consumed by a real
+RN+Expo demo (separate codebase) whose single seam imports the real `build/*`
+emit. **The thesis held**: token paths, single-context theming (decisions 27/62),
+scope tiers, the N+15 neutral inversion, icon `SvgXml`, and the budgeted a11y
+deltas all rendered correctly at runtime (positive controls · two independent
+audits agreed). **Six gaps surfaced** — and 4 of the 6 are RN runtime-layout
+realities the TYPE-ONLY migration test (`noEmit`, never renders) structurally
+cannot catch (flex grow/basis, ScrollView content sizing, `<Text>` child
+validity). They are internalized as the **R-EXPO work queue** in
+[`roadmap/index.md`](../roadmap/index.md). **Mitigation extension**: the Expo
+consumer is now the **render smoke path** that exercises what the type-only test
+cannot — keep it in the loop each fix round rather than building a second render
+harness in this repo (P11). R5 moves from "partially validated (N+4 · type-only)"
+to **validated end-to-end (first real render · positive controls held · gaps
+catalogued)**.
 
 ---
 

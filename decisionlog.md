@@ -2526,6 +2526,19 @@ its title (default lg-em sourced from the shared scale · bare text inherits
 · still owns zero `--nuri-topbar-*` tokens) — confirmed at the N+8.4 visual
 checkpoint.
 
+**Consumption note (2026-06-02) · the centre-`<Text>` wrapper is native-fragile.**
+The first real RN consumer (the Expo demo) confirmed that the RN-parity
+realization above — wrapping `centreNodes` in a single `<Text>` — only renders
+on react-native-web. On native RN a **non-text** centre node (a segmented
+control, an `<Icon>`, an arbitrary `<View>`) is **invalid inside `<Text>`**. The
+web centre region accepts arbitrary children (e.g. the Digital-cash screen's
+segmented control), so the blanket `<Text>`-wrap **under-serves the contract**:
+the title type treatment (`typeStyle('lgEm')` + colour) must apply to **bare
+title text only**, not wrap every centre child. Follow-up tracked as
+**R-EXPO-2c** in [`roadmap/index.md`](../roadmap/index.md); **not yet
+re-decided** — this note flags the hazard so a faithful reading of 46.2 does not
+reproduce the bug, and is superseded when 46.2 is re-decided.
+
 ### 46.3 amendment · N+11 · an empty side region collapses (no phantom gap)
 
 **An empty side region no longer eats a `gap` slot.** The shell ALWAYS builds
