@@ -1286,7 +1286,11 @@ single-context theming (decisions 27/62), scope tiers, the N+15 neutral inversio
 icon `SvgXml`, and the budgeted a11y deltas all confirmed at runtime (positive
 controls). This **takes the repo off "waiting-for-Expo-feedback" pause**: the
 consumer experiment is owned elsewhere — we act on the findings here, we do **not**
-build the RN package in this repo.
+build the RN package in this repo. The original feedback is preserved verbatim as a
+frozen, dated snapshot —
+[`docs/consumer-feedback/SPEC-FEEDBACK-2026-06-02.md`](../docs/consumer-feedback/SPEC-FEEDBACK-2026-06-02.md)
+— so this queue stays auditable against the source (R-EXPO is the synthesis; that
+file is the evidence).
 
 **Why the type-only test missed these.** The `button-matrix` migration test is
 TYPE-ONLY (`noEmit`, never renders), so `tsc` is green while RN runtime layout
