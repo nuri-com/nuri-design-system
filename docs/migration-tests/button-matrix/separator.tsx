@@ -1,8 +1,9 @@
 /* ══════════════════════════════════════════════════════════════════
  * SEPARATOR · the RN side of <nuri-separator> · N+6.9 · decision 49
  * ──────────────────────────────────────────────────────────────────
- * A generic 1px hairline — author-placed. Mirrors separator.css: a
- * 1px-tall View, stretched on the cross axis, filled with the theme's
+ * A generic 1px hairline — author-placed. Mirrors separator.css
+ * (`inline-size: 100%`): a 1px-tall View at axis-ABSOLUTE full width
+ * (`width: '100%'` + `flexShrink: 1`), filled with the theme's
  * border-subtle chrome token. Horizontal only (decision 49). Structural
  * divider · accessibilityRole="none" (the web role="separator" has no
  * exact RN peer, and a non-focusable rule adds no AT semantics beyond
@@ -31,7 +32,15 @@ export const Separator: React.FC<SeparatorProps> = ({ ySpace = 'sm' }) => {
       accessibilityRole="none"
       style={{
         height:          1,
-        alignSelf:       'stretch',
+        // Axis-ABSOLUTE width (mirrors web `inline-size: 100%`), NOT
+        // `alignSelf: 'stretch'`: stretch is axis-RELATIVE (fills the
+        // CROSS axis), so in a ROW the hairline collapses to 0 width (the
+        // explicit height:1 wins, cross axis being vertical there).
+        // width:'100%' + flexShrink:1 keeps the line full-width in a
+        // column AND shrinking-to-share alongside a sibling in a row, so
+        // the hairline survives both (R-EXPO-5 · SPEC-FEEDBACK F-DEMO-4).
+        width:           '100%',
+        flexShrink:      1,
         marginVertical:  space[ySpace],
         backgroundColor: chrome[mode].borderSubtle,
       }}

@@ -4,6 +4,30 @@ Session router. Each entry links to its detail file.
 
 ## Current state
 
+N+16 closed (#11): **RN mirror layout back-ports** (R-EXPO-3/4/5). The first real
+Expo render (SPEC-FEEDBACK `F-DEMO-2/3/4`) surfaced three RN-layout realities the
+TYPE-ONLY migration mirrors structurally couldn't catch; this session back-ported the
+consumer's **already-validated** fixes into the canonical mirrors — a **mechanical
+conformance pass**, no new decisions (same posture as N+14's sbavature). (1) **Button**
+drops its base `flex: 1` — the web `.nuri-button` is `display: inline-flex` with no
+flex-grow, so a leaf control stays content-sized; full width in a column comes from the
+parent's default `alignItems: 'stretch'` (F-DEMO-2). (2) **Scroll** now defaults
+`contentContainerStyle={{ flexGrow: 1 }}` (overridable) — a `ScrollView`'s content
+container is content-sized by default, so a `Box fill` child had no slack to grow into;
+growing the content container is the faithful RN realization of the web's
+definite-height flex-column scroll (F-DEMO-3 · [decision 60](../decisionlog.md#60-box--stack-fill--grow-to-fill-a-flex-parent--the-scrollview-contentcontainer-pattern--n11)).
+(3) **Separator** becomes axis-ABSOLUTE (`width: '100%'` + `flexShrink: 1`, was
+`alignSelf: 'stretch'`) — stretch fills the CROSS axis, so it collapsed to 0 width in a
+ROW; the web is `inline-size: 100%` (F-DEMO-4). Each mirror now matches **both** its web
+SoT and the consumer's resolution; the `scroll.tsx`/`separator.tsx` headers (which
+described the OLD buggy behaviour) were rewritten. **Topbar (R-EXPO-2) deliberately
+EXCLUDED** — a larger migration issue under separate investigation. **Type-only mirrors**
+(`noEmit`) → green `tsc` proves TYPES, not layout; the render validation is the Expo
+consumer (out of scope here). No `lib/` / `pipeline/` / `build/` touched (web already
+correct · `build/` byte-identical · SPEC-FEEDBACK snapshot left frozen). Closeout audit
+clean. Gates green (test 22/22 · build · no `build/` diff · tsc 0). See
+[`roadmap/N+16.md`](./N+16.md).
+
 N+15 closed (#7): **accent×theme self-scope cascade fix**. A pre-existing
 cascade bug — a Tier-2 component that self-scopes its accent (sets `data-accent`
 on its inner element, NOT `data-theme`) showed the **LIGHT** accent value inside a
@@ -1273,6 +1297,7 @@ surfaces):
 | N+14 | ✓ closed (#6) | **Migration-conformance fixes** · the read-only conformance audit found the button-matrix test **FAITHFUL** (0 CODE-DEVIATES · 0 CONCEPT-MISMATCH) — only 3 doc/code sbavature + 1 operator-gated sourcing question, all fixed here with **no new decision** · (1) impl-guide cascade cell density/neutral *"Optional"* → **"reserved · not fields"** (matches the page's shipped-shape block + `scope.html`) · (2) Tier-2 **skeleton** rewritten to match live `button.tsx` (per-size `GEOMETRY`/`LABEL_KEY` · `typeStyle` label · drops nonexistent `styles.label` · dec 41/55) · (3) `list.tsx` `DensityContext` → **`RowDensityContext`** (+ comment · clears the name collision with the reserved scope `density` dimension) · (4) operator-chosen at checkpoint: IconAvatar geometry sources the **shared semantic scale** (`resolveToken('size.lg'/'radius.full')`) mirroring the web `var(--nuri-size-lg)`/`var(--nuri-radius-full)` direct consumption — removes the lone RN hardcode **without** coupling to `iconButton.*` and **without** amending decision 50 · closeout audit clean · gates green (test 22/22 · build · no `build/` diff · tsc 0) | [→](./N+14.md) |
 | N+13 | ✓ closed (#5) | **Migration-test reconciliation** · closes the spec↔example contradiction the split surfaced — the mirrors now **IMPLEMENT** decision 27's single `NuriThemeContext` (`{ mode, accent }`) + composite `NuriScope` (merge-on-override), replacing the two per-dimension contexts (decision 27 had REJECTED) · **F-SCOPE-1 CLOSED** (n=1 confirmation · **decision 62**) · **D1–D4 faithful adds** honoring existing decisions (Box `background`/`radius` dec 42 · Button `size` dec 41 · Tab `disabled` dec 42/43 · IconButton emit-deref dec 52) with **F-BOX-FG-1** + **F-TAB-DISABLED-1** logged · scope page + `scope/README.md` + impl-guide now describe EXACTLY what the examples do (zero residual gap) · impl-guide split pointer + deep-link fixes (retired `index.tsx` → `button.tsx`) · `density`/`neutral` stay reserved (P11) · gates green (test 22/22 · build · no `build/` diff · tsc 0) | [→](./N+13.md) |
 | N+15 | ✓ closed (#7) | **accent×theme self-scope cascade fix** · a Tier-2 self-scope (inner `data-accent`, no `data-theme`) rendered the **LIGHT** accent inside a **DARK** ancestor (playground My-vault dark: swap IconButton + IconAvatars dark-on-dark/invisible) · root cause: dark accent overrides were **compound** selectors `[data-accent="X"][data-theme="dark"]` needing both attrs on one element, but a self-scope carries only `data-accent` · fix (approach A · parser-transparent): two **descendant-combinator** dark blocks `[data-theme="dark"] [data-accent="X"]` (**#4b** neutral · **#6b** lilac · P4 brand triple omitted) → emit **byte-identical** · candidate B (accent-as-pointer) **rejected** (breaks classify-by-cascade) · documented known limitation **F-SCOPE-3** (a descendant combinator matches ANY dark ancestor · P11 revisit-trigger · no consumer nests opposite themes) · RN single-context model **immune** (positive control) · web-CSS-only · decision 63 · gates green (test 22/22 · build byte-identical · tsc 0) | [→](./N+15.md) |
+| N+16 | ✓ closed (#11) | **RN mirror layout back-ports** (R-EXPO-3/4/5 · = SPEC-FEEDBACK F-DEMO-2/3/4) · **mechanical conformance pass, no new decision** (N+14 posture) — back-port the consumer's already-validated fixes into the canonical TYPE-ONLY mirrors · (1) **Button** drops base `flex: 1` (web `.nuri-button` is `inline-flex`, no grow → content-sized leaf; full width in a column from parent `alignItems:'stretch'` · F-DEMO-2) · (2) **Scroll** defaults `contentContainerStyle={{flexGrow:1}}` overridable (a ScrollView content container is content-sized → a `Box fill` child had no slack; the faithful RN realization of the web definite-height flex-column scroll · F-DEMO-3 · decision 60) · (3) **Separator** axis-ABSOLUTE `width:'100%'`+`flexShrink:1` (was `alignSelf:'stretch'` = cross-axis-relative → 0 width in a ROW; web is `inline-size:100%` · F-DEMO-4) · `scroll.tsx`/`separator.tsx` headers rewritten (described OLD behaviour) · **Topbar (R-EXPO-2) EXCLUDED** (larger migration issue · separate investigation) · type-only (`noEmit`) → tsc proves types not layout (render validation = Expo consumer) · no `lib/`/`pipeline/`/`build/` touch · closeout audit clean · gates green (test 22/22 · build byte-identical · tsc 0) | [→](./N+16.md) |
 
 ## Expo consumption feedback · R-EXPO work queue
 
@@ -1309,7 +1334,9 @@ Prioritized DS work queue (codes map 1:1 to the demo's `F-DEMO-*`):
   slot, or widen `children` — and how the label colour reaches a nested `<Icon>` (RN
   `<Text>` colour does not inherit into a child `<Icon>`; no `currentColor` analogue
   · same family as F-BOX-FG-1). → **Open question** (below).
-- 🟡 **R-EXPO-2 · Topbar cluster (RN mirror · `topbar.tsx`).** Three issues:
+- 🟡 **R-EXPO-2 · Topbar cluster (RN mirror · `topbar.tsx`).** **PULLED from this
+  queue (N+16) — under separate investigation as a larger migration issue, NOT a
+  mechanical back-port; deliberately not resolved alongside 3/4/5.** Three issues:
   (a) an empty side region is not collapsed → it reserves a phantom `gap` slot
   (title nudged inward), violating the DECIDED RN-parity note of amendment 46.3;
   (b) side regions use `flex: sideFlex` (basis 0) → the trailing region gets 0 width
@@ -1317,16 +1344,24 @@ Prioritized DS work queue (codes map 1:1 to the demo's `F-DEMO-*`):
   wrapped in a single `<Text>`, which is **native-fragile** — a non-text centre node
   is invalid inside `<Text>` on native RN (only react-native-web tolerates it). See
   the [decision 46.2 consumption note](../decisionlog.md#462-amendment--n84--topbar-is-now-font-bearing-for-its-title).
-- 🟡 **R-EXPO-3 · Remove `flex: 1` from the RN Button base (= F-DEMO-2).**
-  `docs/migration-tests/button-matrix/button.tsx:171` (`styles.base`) hardcodes
+- ✅ **R-EXPO-3 · Remove `flex: 1` from the RN Button base (= F-DEMO-2). · landed N+16 (#11)**
+  `docs/migration-tests/button-matrix/button.tsx` (`styles.base`) hardcoded
   grow; the web button is `inline-flex` (no grow), so a leaf control should not grow
-  to fill its row. Confirmed against the in-repo mirror.
-- 🟡 **R-EXPO-4 · Scroll needs `contentContainerStyle: { flexGrow: 1 }`
-  (= F-DEMO-3).** A `Box fill` child cannot fill a bare `ScrollView { flex: 1 }` on
-  device — the content container must grow.
-- 🟡 **R-EXPO-5 · Separator must be axis-absolute (= F-DEMO-4).** In a ROW,
-  `alignSelf: 'stretch'` collapses to 0 width; mirror the web `inline-size: 100%`
-  with `width: '100%'` + `flexShrink: 1`.
+  to fill its row. **Resolved**: `flex: 1` dropped — full width in a column now comes
+  from the parent Stack's default `alignItems: 'stretch'` (matches web inline-flex:
+  natural width in a row, full width in a column). Confirmed against the in-repo
+  mirror + the `button.css` SoT.
+- ✅ **R-EXPO-4 · Scroll needs `contentContainerStyle: { flexGrow: 1 }`
+  (= F-DEMO-3). · landed N+16 (#11)** A `Box fill` child cannot fill a bare
+  `ScrollView { flex: 1 }` on device — the content container must grow. **Resolved**:
+  `Scroll` now defaults `contentContainerStyle={[{ flexGrow: 1 }, contentContainerStyle]}`
+  (overridable) — the faithful RN realization of the web's definite-height flex-column
+  scroll (`scroll.css` · decision 60).
+- ✅ **R-EXPO-5 · Separator must be axis-absolute (= F-DEMO-4). · landed N+16 (#11)**
+  In a ROW, `alignSelf: 'stretch'` collapses to 0 width; mirror the web
+  `inline-size: 100%` with `width: '100%'` + `flexShrink: 1`. **Resolved**:
+  `alignSelf:'stretch'` replaced with `width:'100%'` + `flexShrink:1` — the hairline
+  now survives both a column and a row.
 - 🟢 **R-EXPO-6 · Build emits TOKENS but not the curated PROP vocab (= F-DEMO-5) —
   pipeline enhancement.** `SpaceLeaf`, Box `background`/`radius`, variant enums, etc.
   live only in CSS `[data-*]` selectors (skip-emit primitives · decision 36), so the
@@ -1334,10 +1369,14 @@ Prioritized DS work queue (codes map 1:1 to the demo's `F-DEMO-*`):
   a prop-vocab artifact so RN derives the unions. Systemic; the biggest of the six. →
   **Open question** (scope · below).
 
-R-EXPO-3/4/5 are mechanical `.tsx` fixes to the migration-test mirrors and R-EXPO-2
-fixes `topbar.tsx` — the demo already carries correct fixes to port back. They are
-queued for the next working session (which reads this block). R-EXPO-1 and R-EXPO-6
-are gated on the two open questions below.
+R-EXPO-3/4/5 **landed in N+16 (#11)** as mechanical conformance back-ports to the
+migration-test mirrors — each brought into parity with **both** its web source-of-truth
+and the consumer's validated F-DEMO resolution (the demo already carried the correct
+fix). They are **type-only** mirrors (`noEmit`, never render), so the green `tsc`
+proves TYPES; the layout validation is the Expo consumer render itself (out of this
+repo). **R-EXPO-2 (Topbar) was pulled from this queue** — it is a larger migration
+issue under separate investigation, not a mechanical back-port, so it was deliberately
+excluded from N+16. R-EXPO-1 and R-EXPO-6 remain gated on the two open questions below.
 
 ## Open questions (in flight)
 
