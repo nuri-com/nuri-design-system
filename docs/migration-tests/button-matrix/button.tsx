@@ -162,11 +162,19 @@ export function labelColor(variant: 'solid' | 'soft', accent: Accent, theme: The
 // live in the static sheet. The label type sources from the shared scale
 // (decision 54/55) and now tracks `size` (LABEL_KEY) — applied inline at
 // the call site, not baked here.
+//
+// NO `flex: 1`. The web source of truth `button.css` styles `.nuri-button`
+// as `display: inline-flex` with a `min-height` and NO flex-grow — a
+// content-sized leaf control. A leaf control must not grow to fill its
+// row; full width in a COLUMN comes from the parent Stack's default
+// `alignItems: 'stretch'`, exactly mirroring web inline-flex (natural
+// width in a row, full width in a column). A baked `flex: 1` over-fit the
+// button-matrix's `direction="row"` demo and balloons the button on the
+// MAIN axis inside a column (R-EXPO-3 · SPEC-FEEDBACK F-DEMO-2).
 const styles = StyleSheet.create({
   base: {
     alignItems:     'center',
     justifyContent: 'center',
     flexDirection:  'row',
-    flex:           1,
   },
 });

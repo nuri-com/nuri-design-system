@@ -1,7 +1,12 @@
 # Risks · Nuri
 
 **Date drafted**: 2026-05-27 (during N+3 philosophy brainstorm)
-**Last updated**: 2026-06-01 (N+13 close · migration-test reconciliation
+**Last updated**: 2026-06-03 (N+16 close · RN mirror layout back-ports — **3 of the
+4 R1 consumption findings landed** [R-EXPO-3/4/5]: Button `flex:1` dropped · Scroll
+`contentContainerStyle.flexGrow:1` default · Separator axis-absolute `width:'100%'` ·
+each matched to web SoT + consumer F-DEMO-2/3/4; **Topbar `<Text>` cluster [R-EXPO-2]
+DEFERRED** to separate investigation · web / `build/` untouched. · Prior 2026-06-01
+N+13 close · migration-test reconciliation
 — the RN mirrors now IMPLEMENT decision 27's single `NuriThemeContext`
 (`{ mode, accent }`) + composite `NuriScope` with merge-on-override,
 replacing the two per-dimension contexts the examples carried before ·
@@ -69,7 +74,16 @@ naming the gap up front.
   migration mirrors couldn't catch (Button `flex`, Scroll content sizing,
   Separator cross-axis, Topbar `<Text>` child validity). Tracked as the R-EXPO
   queue in [`roadmap/index.md`](../roadmap/index.md); the Expo consumer is now the
-  render smoke path (see R5).
+  render smoke path (see R5). · **N+16 update — 3 of the 4 landed** as conformance
+  back-ports to the mirrors (each matched to its web SoT + the consumer's
+  F-DEMO-2/3/4 resolution): Button `flex:1` dropped (R-EXPO-3 · web `.nuri-button`
+  is `inline-flex`, no grow), Scroll defaults `contentContainerStyle.flexGrow:1`
+  (R-EXPO-4 · the content container must grow), Separator axis-absolute
+  `width:'100%'`+`flexShrink:1` (R-EXPO-5 · was `alignSelf:'stretch'`, 0 width in a
+  row). **Topbar (R-EXPO-2 · the `<Text>` child-validity cluster) is DEFERRED** — a
+  larger migration issue under separate investigation, not a mechanical back-port.
+  Green `tsc` proves the TYPES; the layout validation remains the Expo render (these
+  mirrors never run).
 
 **Frictions list · N+4 (Button matrix, 8 buttons, lilac/neutral · light)**
 
