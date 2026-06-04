@@ -4,8 +4,7 @@ Session router. Each entry links to its detail file.
 
 ## Current state
 
-N+18 — gates green · closeout done · **PR pending (gated · must NOT open until Session A's
-`feat/list-content-pivot` merges into `main`)**: **Topbar → content-pivot open primitive**
+N+18 — gates green · closeout done · **PR pending (Session A merged · reconciled · ready)**: **Topbar → content-pivot open primitive**
 (**amendment 46.4** · **decision 64**). Topbar drops JS region-reparenting and becomes an OPEN
 primitive on the **content-pivot** anatomy — a named `<nuri-topbar-content>` layout pivot
 (`flex:1`) + **positional** leading/trailing siblings (anything before the pivot is leading, after
@@ -28,6 +27,30 @@ the positional API (operator-approved). **Skip-emit · `build/` byte-identical �
 Web-first → RN mirror → re-validated vs the 8-shape gallery (preview MCP). Gates green (test 22/22 ·
 build byte-identical · tsc 0). Runs in PARALLEL with Session A (List/NavItem · amendment 52.2) on
 disjoint files. See [`roadmap/N+18.md`](./N+18.md).
+
+N+17 closed (#14): **List family → content-pivot + scalar NavItem** (amendment 52.2 ·
+the List half of [decision 64](../decisionlog.md#64-composition-model--open-primitives--closed-recipes--naming-taxonomy--text-single-owner--n17)).
+Mechanical implementation of a decided contract — **no new decision · no emit-shape change ·
+`build/` byte-identical**. (1) **ListItem** is now an OPEN primitive on the content-pivot:
+`<nuri-list-item-content>` (`flex:1; min-inline-size:0`) is the only wrapped region; leading /
+trailing are **positional siblings** around it. **Deleted** the `<nuri-list-item-leading>` /
+`<nuri-list-item-trailing>` element defs + CSS and the bare-text `margin-inline-start:auto` patch
+— the pivot's `flex:1` pushes trailing by construction. This aligns web to the already-validated
+RN shape, and the pivot maps to a `<View>` (never a `<Text>`), structurally avoiding the
+R-EXPO-2c class. (2) **NavItem** is now a CLOSED scalar recipe — `text` / `icon?` (→ leading
+IconAvatar) / `variant?` / `accent?` / `onpress` (required); the children-distribution `while`-loop
+is gone; caret always-present, muted via `.nuri-nav-item__caret` (decision 38). (3) RN mirrors
+match 1:1 (`ListItemContent` + positional children · scalar `NavItem`); `app.tsx` demos updated;
+tsc 0. (4) Pages updated to the content-pivot + scalar shape; **behavioural-delta sections** added
+to both List pages (the only interactive component pages lacking one · amendment 24.1) surfacing
+the **irreconcilable** a11y gaps `F-LISTITEM-ROLE-1` + `F-FOCUS-1`. **The `flex:1` STOP**: the
+operator flagged that the content-pivot's structural flex values are hand-mirrored in `list.tsx`
+(not machine-checked); the coordinator decided **NOT to emit** them — they are structural
+invariants (like `flex-direction:row`), Topbar's content-pivot shares them but is skip-emit, and
+the systemic fix is **R-EXPO-6** (Open Question #2). They stay hand-mirrored (correct, not debt ·
+known-deferred). **No Topbar** (amendment 46.4 is a separate decision-64 session). Closeout audit
+clean (0 Bugs · 0 actionable Drift). Gates green (test 22/22 · build byte-identical · tsc 0). See
+[`roadmap/N+17.md`](./N+17.md).
 
 N+16 closed (#11): **RN mirror layout back-ports** (R-EXPO-3/4/5). The first real
 Expo render (SPEC-FEEDBACK `F-DEMO-2/3/4`) surfaced three RN-layout realities the
@@ -1325,7 +1348,8 @@ surfaces):
 | N+13 | ✓ closed (#5) | **Migration-test reconciliation** · closes the spec↔example contradiction the split surfaced — the mirrors now **IMPLEMENT** decision 27's single `NuriThemeContext` (`{ mode, accent }`) + composite `NuriScope` (merge-on-override), replacing the two per-dimension contexts (decision 27 had REJECTED) · **F-SCOPE-1 CLOSED** (n=1 confirmation · **decision 62**) · **D1–D4 faithful adds** honoring existing decisions (Box `background`/`radius` dec 42 · Button `size` dec 41 · Tab `disabled` dec 42/43 · IconButton emit-deref dec 52) with **F-BOX-FG-1** + **F-TAB-DISABLED-1** logged · scope page + `scope/README.md` + impl-guide now describe EXACTLY what the examples do (zero residual gap) · impl-guide split pointer + deep-link fixes (retired `index.tsx` → `button.tsx`) · `density`/`neutral` stay reserved (P11) · gates green (test 22/22 · build · no `build/` diff · tsc 0) | [→](./N+13.md) |
 | N+15 | ✓ closed (#7) | **accent×theme self-scope cascade fix** · a Tier-2 self-scope (inner `data-accent`, no `data-theme`) rendered the **LIGHT** accent inside a **DARK** ancestor (playground My-vault dark: swap IconButton + IconAvatars dark-on-dark/invisible) · root cause: dark accent overrides were **compound** selectors `[data-accent="X"][data-theme="dark"]` needing both attrs on one element, but a self-scope carries only `data-accent` · fix (approach A · parser-transparent): two **descendant-combinator** dark blocks `[data-theme="dark"] [data-accent="X"]` (**#4b** neutral · **#6b** lilac · P4 brand triple omitted) → emit **byte-identical** · candidate B (accent-as-pointer) **rejected** (breaks classify-by-cascade) · documented known limitation **F-SCOPE-3** (a descendant combinator matches ANY dark ancestor · P11 revisit-trigger · no consumer nests opposite themes) · RN single-context model **immune** (positive control) · web-CSS-only · decision 63 · gates green (test 22/22 · build byte-identical · tsc 0) | [→](./N+15.md) |
 | N+16 | ✓ closed (#11) | **RN mirror layout back-ports** (R-EXPO-3/4/5 · = SPEC-FEEDBACK F-DEMO-2/3/4) · **mechanical conformance pass, no new decision** (N+14 posture) — back-port the consumer's already-validated fixes into the canonical TYPE-ONLY mirrors · (1) **Button** drops base `flex: 1` (web `.nuri-button` is `inline-flex`, no grow → content-sized leaf; full width in a column from parent `alignItems:'stretch'` · F-DEMO-2) · (2) **Scroll** defaults `contentContainerStyle={{flexGrow:1}}` overridable (a ScrollView content container is content-sized → a `Box fill` child had no slack; the faithful RN realization of the web definite-height flex-column scroll · F-DEMO-3 · decision 60) · (3) **Separator** axis-ABSOLUTE `width:'100%'`+`flexShrink:1` (was `alignSelf:'stretch'` = cross-axis-relative → 0 width in a ROW; web is `inline-size:100%` · F-DEMO-4) · `scroll.tsx`/`separator.tsx` headers rewritten (described OLD behaviour) · **Topbar (R-EXPO-2) EXCLUDED** (larger migration issue · separate investigation) · type-only (`noEmit`) → tsc proves types not layout (render validation = Expo consumer) · no `lib/`/`pipeline/`/`build/` touch · closeout audit clean · gates green (test 22/22 · build byte-identical · tsc 0) | [→](./N+16.md) |
-| N+18 | gates green · **PR gated on Session A** | **Topbar → content-pivot open primitive** (amendment 46.4 · decision 64) · drops JS region-reparenting → a `<nuri-topbar-content>` pivot (`flex:1`) + **positional** leading/trailing siblings · **deletes** the reparenting + `data-leading/-trailing` occupancy + `display:none` empty-side collapse + `<nuri-topbar-start>`/`<nuri-topbar-end>` · keeps `center` + declarative per-edge `inset` (default `lg` · never auto-by-type) · bare-text title **REUSES Typography** (`.nuri-type-lg--em` utility / `<Typography size="lg" emphasis>` · single text-style owner · supersedes 46.2's hand-applied font) · non-text centre passes through · **resolves R-EXPO-2 a/b/c** (= F-DEMO-6) structurally (no phantom gap · no collapsed trailing · non-text not `<Text>`-wrapped) · **center** centres in the pivot (symmetric=true / asymmetric ~7px · operator: ship as-is · true-centre → future recipe) · RN mirror 1:1 (height `size.xl`→`size.lg` to match web) · page + playground (`shell.js` · `my-vault.html`) consumers migrated · **skip-emit · `build/` byte-identical · no new decision** · runs PARALLEL with Session A (List · 52.2) on disjoint files · gates green (test 22/22 · build byte-identical · tsc 0) | [→](./N+18.md) |
+| N+18 | gates green · **PR ready (A merged · #15 pred.)** | **Topbar → content-pivot open primitive** (amendment 46.4 · decision 64) · drops JS region-reparenting → a `<nuri-topbar-content>` pivot (`flex:1`) + **positional** leading/trailing siblings · **deletes** the reparenting + `data-leading/-trailing` occupancy + `display:none` empty-side collapse + `<nuri-topbar-start>`/`<nuri-topbar-end>` · keeps `center` + declarative per-edge `inset` (default `lg` · never auto-by-type) · bare-text title **REUSES Typography** (`.nuri-type-lg--em` utility / `<Typography size="lg" emphasis>` · single text-style owner · supersedes 46.2's hand-applied font) · non-text centre passes through · **resolves R-EXPO-2 a/b/c** (= F-DEMO-6) structurally (no phantom gap · no collapsed trailing · non-text not `<Text>`-wrapped) · **center** centres in the pivot (symmetric=true / asymmetric ~7px · operator: ship as-is · true-centre → future recipe) · RN mirror 1:1 (height `size.xl`→`size.lg` to match web) · page + playground (`shell.js` · `my-vault.html`) consumers migrated · **skip-emit · `build/` byte-identical · no new decision** · runs PARALLEL with Session A (List · 52.2) on disjoint files · gates green (test 22/22 · build byte-identical · tsc 0) | [→](./N+18.md) |
+| N+17 | ✓ closed (#14) | **List family → content-pivot + scalar NavItem** (amendment 52.2 · the List half of **decision 64**) · **mechanical implementation of a decided contract, no new decision · no emit-shape change · `build/` byte-identical** · (1) **ListItem** → OPEN primitive on the content-pivot: `<nuri-list-item-content>` (`flex:1; min-inline-size:0`) is the only wrapped region; leading/trailing are **positional siblings** · **deleted** the `<nuri-list-item-leading>`/`-trailing>` element defs + CSS and the bare-text `margin-inline-start:auto` patch (pivot `flex:1` pushes trailing by construction) · aligns web to the validated RN shape; pivot maps to `<View>` never `<Text>` (avoids R-EXPO-2c) · (2) **NavItem** → CLOSED scalar recipe `text`/`icon?`(→leading IconAvatar)/`variant?`/`accent?`/`onpress` (required) · children-distribution loop gone · caret always-present, muted via `.nuri-nav-item__caret` (dec 38) · arbitrary leading drops to the ListItem primitive (escalation rule) · (3) RN mirrors 1:1 (`ListItemContent` + positional children · scalar `NavItem` · `onPress` required) · app.tsx demos updated · tsc 0 · (4) pages → content-pivot + scalar; **behavioural-delta sections** added to both List pages (only interactive pages lacking one · amendment 24.1) surfacing the irreconcilable `F-LISTITEM-ROLE-1` + `F-FOCUS-1` · **flex:1 STOP**: coordinator decided **NOT to emit** `flex:1`/`min-inline-size:0` (structural invariants like `flex-direction:row`; Topbar content-pivot shares them but is skip-emit; systemic fix is **R-EXPO-6**) → stay hand-mirrored (correct · known-deferred) · **No Topbar** (amendment 46.4 separate) · closeout audit clean · gates green (test 22/22 · build byte-identical · tsc 0) | [→](./N+17.md) |
 
 ## Expo consumption feedback · R-EXPO work queue
 
@@ -1398,6 +1422,17 @@ Prioritized DS work queue (codes map 1:1 to the demo's `F-DEMO-*`):
   RN side hand-types them → silent drift (unlike the drift-guarded `TokenPath`). Emit
   a prop-vocab artifact so RN derives the unions. Systemic; the biggest of the six. →
   **Open question** (scope · below).
+  · **N+17 breadcrumb (known-deferred · do NOT one-off):** the content-pivot's
+  **structural values** (`flex:1` / `min-inline-size:0` on `<nuri-list-item-content>`,
+  same category as `flex-direction:row` / `align-items:center`) live only in
+  `list-item.css` `@layer rules` and are **hand-mirrored** in `list.tsx`. At the N+17
+  checkpoint the operator flagged this; the coordinator decided **NOT to emit** them as
+  component tokens — they are pattern invariants, not tunable baked decisions, and
+  Topbar's content-pivot shares the same `flex:1` while staying skip-emit (decisions
+  46/37) — so a `contentFlex` token would force an incoherent asymmetry. The resolution
+  is **this systemic prop-vocab/structure-emit decision (R-EXPO-6)**, not a per-component
+  token. Until then the structural values stay hand-mirrored (correct, not debt), exactly
+  like `flex-direction:row`.
 
 R-EXPO-3/4/5 **landed in N+16 (#11)** as mechanical conformance back-ports to the
 migration-test mirrors — each brought into parity with **both** its web source-of-truth

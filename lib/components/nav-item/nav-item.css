@@ -1,51 +1,58 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · COMPONENT · NAV-ITEM  (the first RECIPE · decision 52 · N+8)
+ * NURI · COMPONENT · NAV-ITEM  (closed scalar recipe · decision 52 · 64 · N+8/N+17)
  *
- * <nuri-nav-item> is Nuri's FIRST recipe — a named COMPOSITION over
- * primitives, not a new primitive and not a variant bolted onto an
- * existing one. The mocks' disclosure row ("tap to drill in, caret on
- * the right") recurs often enough to earn a name, but it adds NO new
- * style decision: it is exactly
+ * <nuri-nav-item> is Nuri's FIRST recipe — a named, CLOSED COMPOSITION
+ * over primitives, configured by SCALAR props only (decision 64), not a
+ * new primitive and not a variant bolted onto an existing one. The mocks'
+ * disclosure row ("tap to drill in, caret on the right") recurs often
+ * enough to earn a name, but it adds NO new style decision: it is exactly
  *
- *   list-interactive-item  ∘  list-item  ∘  (auto-filled caret)
+ *   list-interactive-item  ∘  list-item  ∘  [icon-avatar]  ∘  content  ∘  caret
  *
- *   <nuri-nav-item onpress="goTo('/card')">Activate card</nuri-nav-item>
+ *   <nuri-nav-item text="Activate card" icon="vault" onpress="goTo('/card')"></nuri-nav-item>
  *
  * composes (in nav-item.js, via a native <template> clone — NOT
  * lit-html / JSX / imperative createElement soup):
  *
  *   <nuri-list-interactive-item onpress="…">
  *     <nuri-list-item>
- *       <nuri-typography size="md" emphasis>Activate card</nuri-typography>  ← author label
- *       <nuri-list-item-trailing>
- *         <nuri-icon name="caret-right" size="md"></nuri-icon> ← auto-filled
- *       </nuri-list-item-trailing>
+ *       <nuri-icon-avatar name="vault"></nuri-icon-avatar>          ← leading · only if `icon`
+ *       <nuri-list-item-content>
+ *         <nuri-typography size="md" emphasis>Activate card</nuri-typography>
+ *       </nuri-list-item-content>
+ *       <nuri-icon name="caret-right" size="md"></nuri-icon>        ← always
  *     </nuri-list-item>
  *   </nuri-list-interactive-item>
  *
- * RECIPE, NOT VARIANT (decision 52): the disclosure pattern could have
- * been a `variant="nav"` on list-item — that path swells one component
- * with use-case branches. A recipe instead NAMES the composition and
- * leaves the primitives single-purpose. Recipes carry NO component
- * tokens of their own (skip-emit · empty @layer tokens below) — every
- * value they use is already a token on the primitive they compose, so
- * there is nothing new to drift. nav-item does NOT port to RN as an
- * element; RN generates the same recipe from the same prop names.
+ * RECIPE, NOT VARIANT (decision 52); CLOSED, NOT a facade (decision 64):
+ * the disclosure pattern could have been a `variant="nav"` on list-item —
+ * that path swells one component with use-case branches. A recipe instead
+ * NAMES the composition, takes scalar props, and leaves the primitives
+ * single-purpose. Recipes carry NO component tokens of their own
+ * (skip-emit · empty @layer tokens below) — every value they use is
+ * already a token on the primitive they compose, so there is nothing new
+ * to drift. nav-item does NOT port to RN as an element; RN generates the
+ * same recipe from the same scalar props.
  *
  * MUTED CARET via currentColor-from-parent (decision 38 · NO `muted`
- * prop on Icon): the trailing book-end sets `color: border-strong`, and
- * <nuri-icon> paints in currentColor, so the caret reads muted WITHOUT
- * teaching Icon a colour prop. Same trick as icon-avatar's `subtle`.
+ * prop on Icon): the caret (a positional trailing sibling · always
+ * present) sets `color: border-strong`, and <nuri-icon> paints in
+ * currentColor, so the caret reads muted WITHOUT teaching Icon a colour
+ * prop. Same trick as icon-avatar's `subtle`. Scoped to the
+ * `.nuri-nav-item__caret` hook so the leading icon-avatar's glyph is
+ * unaffected (and the class out-specificities `.nuri-icon`'s currentColor).
  *
  * EM-WEIGHT LABEL via the Typography primitive: the label composes
- * <nuri-typography size="md" emphasis> (decision 53) — components compose
- * the primitive, not the raw .nuri-type-md--em utility — so there is no
- * nav-item-specific typography token.
+ * <nuri-typography size="md" emphasis> (decision 53) inside the content
+ * PIVOT (a layout part · decision 64) — components compose the primitive,
+ * not the raw .nuri-type-md--em utility, and the pivot never hand-applies
+ * --nuri-type-* — so there is no nav-item-specific typography token.
  *
- * OPTIONAL LEADING: an authored <nuri-list-item-leading> child is hoisted
- * into the composed list-item (nav-item.js), so a disclosure row can carry
- * a leading icon-avatar. No CSS here — list-item already positions the
- * book-end (decision 51).
+ * SCALAR LEADING: `icon` mints a leading <nuri-icon-avatar> positional
+ * sibling (nav-item.js · variant / accent forwarded). Arbitrary leading
+ * is NOT a nav-item concern — drop to <nuri-list-item> to compose it (the
+ * escalation rule · decision 64). No CSS here — list-item positions the
+ * positional sibling (decision 51 · 64).
  * ────────────────────────────────────────────────────────────── */
 
 @layer tokens {
@@ -71,10 +78,13 @@
   }
 
   /* ── Muted caret · currentColor-from-parent (decision 38) ──────
-   * The trailing book-end reads in border-strong; <nuri-icon>
-   * inherits it via currentColor — a muted caret with NO `muted`
-   * prop on Icon. */
-  nuri-nav-item nuri-list-item-trailing {
+   * The trailing caret reads in border-strong; <nuri-icon> inherits it
+   * via currentColor — a muted caret with NO `muted` prop on Icon. The
+   * `.nuri-nav-item__caret` class (kept by icon.js's additive
+   * classList.add) out-specificities `.nuri-icon { color: currentColor }`
+   * and scopes the mute to the caret alone — a leading icon-avatar's
+   * glyph keeps its own colour. */
+  nuri-nav-item .nuri-nav-item__caret {
     color: var(--nuri-border-strong);
   }
 }

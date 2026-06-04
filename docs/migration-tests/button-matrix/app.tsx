@@ -31,7 +31,7 @@ import { Typography } from './typography';
 import { TypographyStack } from './typography-stack';
 import { Separator } from './separator';
 import { IconAvatar } from './icon-avatar';
-import { List, ListItem, InteractiveListItem } from './list';
+import { List, ListItem, ListItemContent, InteractiveListItem } from './list';
 import { NavItem } from './nav-item';
 
 // ══════════════════════════════════════════════════════════════════
@@ -321,75 +321,80 @@ const App: React.FC = () => (
             </Stack>
           </Stack>
 
-          {/* ── Row L · List + ListItem · N+7 · decision 51 ───────── */}
-          {/* The family capstone: ONE row shape — [leading] · content  */}
-          {/* · [trailing] — composed via children, not use-case        */}
-          {/* variants. Disclosure (content + caret, interactive),      */}
-          {/* Transaction (leading avatar + content + amount,           */}
-          {/* interactive), Summary (content + value, non-interactive). */}
-          {/* density projects row min-height; Separators stay 1px.     */}
+          {/* ── Row L · List family · content-pivot · N+7/N+17 · decision 51/52/64 ── */}
+          {/* ONE row shape — leading · <ListItemContent> pivot · trailing — */}
+          {/* composed via POSITIONAL children, not leading/trailing props   */}
+          {/* (decision 64). NavItem is now a CLOSED SCALAR recipe            */}
+          {/* (text/icon/variant/accent/onPress). Disclosure (NavItem),      */}
+          {/* Interactive (pivot + caret), Transaction (avatar + pivot +     */}
+          {/* amount), Summary (pivot + value, non-interactive). density      */}
+          {/* projects row min-height; Separators stay 1px.                  */}
           <Stack gap="sm">
-            <Text style={styles.rowLabel}>List family · primitive ListItem · InteractiveListItem wrapper · NavItem recipe · density sm→lg · decision 52</Text>
+            <Text style={styles.rowLabel}>List family · content-pivot ListItem · InteractiveListItem wrapper · scalar NavItem recipe · density sm→lg · decision 64</Text>
 
-            {/* NavItem · the recipe · auto-filled muted caret + md-em label */}
+            {/* NavItem · the scalar recipe · auto-filled muted caret + md-em label */}
             <List>
-              <NavItem onPress={() => {}}>Linked accounts</NavItem>
+              <NavItem text="Linked accounts" onPress={() => {}} />
               <Separator />
-              <NavItem onPress={() => {}}>Currency</NavItem>
+              <NavItem text="Currency" onPress={() => {}} />
             </List>
 
-            {/* InteractiveListItem · pressable wrapper · custom content + caret */}
+            {/* NavItem · with a leading icon (scalar `icon` → IconAvatar) */}
             <List>
-              <InteractiveListItem
-                onPress={() => {}}
-                trailing={<Icon name="caret-right" size="md" color={chrome.light.borderStrong} />}
-              >
+              <NavItem text="Settings" icon="gear" onPress={() => {}} />
+              <Separator />
+              <NavItem text="Security" icon="vault" variant="solid" onPress={() => {}} />
+            </List>
+
+            {/* InteractiveListItem · pressable wrapper · pivot content + caret */}
+            <List>
+              <InteractiveListItem onPress={() => {}}>
+                <ListItemContent>
+                  <TypographyStack>
+                    <Typography size="md" emphasis>Currency</Typography>
+                    <Typography size="sm" muted>GBP £</Typography>
+                  </TypographyStack>
+                </ListItemContent>
+                <Icon name="caret-right" size="md" color={chrome.light.borderStrong} />
+              </InteractiveListItem>
+            </List>
+
+            {/* transaction · interactive · leading avatar + pivot + trailing amount */}
+            <List>
+              <InteractiveListItem onPress={() => {}}>
+                <IconAvatar name="arrow-up" variant="soft" />
+                <ListItemContent>
+                  <TypographyStack>
+                    <Typography size="md" emphasis>Sent to Alex</Typography>
+                    <Typography size="sm" muted>26 May at 11:34 AM</Typography>
+                  </TypographyStack>
+                </ListItemContent>
                 <TypographyStack>
-                  <Typography size="md" emphasis>Currency</Typography>
-                  <Typography size="sm" muted>GBP £</Typography>
+                  <Typography size="md" emphasis>−£24.00</Typography>
+                  <Typography size="sm" muted>Complete</Typography>
                 </TypographyStack>
               </InteractiveListItem>
             </List>
 
-            {/* transaction · interactive · leading avatar + content + trailing amount */}
+            {/* summary · PRESENTATIONAL ListItem · pivot + trailing value */}
             <List>
-              <InteractiveListItem
-                onPress={() => {}}
-                leading={<IconAvatar name="arrow-up" variant="soft" />}
-                trailing={
+              <ListItem>
+                <ListItemContent>
                   <TypographyStack>
-                    <Typography size="md" emphasis>−£24.00</Typography>
-                    <Typography size="sm" muted>Complete</Typography>
+                    <Typography size="md" emphasis>Total</Typography>
                   </TypographyStack>
-                }
-              >
+                </ListItemContent>
                 <TypographyStack>
-                  <Typography size="md" emphasis>Sent to Alex</Typography>
-                  <Typography size="sm" muted>26 May at 11:34 AM</Typography>
-                </TypographyStack>
-              </InteractiveListItem>
-            </List>
-
-            {/* summary · PRESENTATIONAL ListItem · content + trailing value */}
-            <List>
-              <ListItem
-                trailing={
-                  <TypographyStack>
-                    <Typography size="lg" emphasis>£201.20</Typography>
-                  </TypographyStack>
-                }
-              >
-                <TypographyStack>
-                  <Typography size="md" emphasis>Total</Typography>
+                  <Typography size="lg" emphasis>£201.20</Typography>
                 </TypographyStack>
               </ListItem>
             </List>
 
-            {/* density · sm (60px) · separators stay 1px · NavItem recipe */}
+            {/* density · sm (60px) · separators stay 1px · scalar NavItem recipe */}
             <List density="sm">
-              <NavItem onPress={() => {}}>Security</NavItem>
+              <NavItem text="Security" onPress={() => {}} />
               <Separator />
-              <NavItem onPress={() => {}}>Privacy</NavItem>
+              <NavItem text="Privacy" onPress={() => {}} />
             </List>
           </Stack>
         </Stack>

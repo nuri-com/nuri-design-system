@@ -1,25 +1,43 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · COMPONENT · LIST-ITEM  (presentational row · decision 51 · 52 · N+7/N+8)
+ * NURI · COMPONENT · LIST-ITEM  (presentational row · content-pivot · decision 51 · 52 · 64 · N+7/N+8/N+17)
  *
  * <nuri-list-item> is the ROW half of the List family — ONE shape,
- * composed via slots, NOT a set of use-case variants. The mocks'
- * disclosure rows, transaction rows, and summary rows are all the
- * SAME element with different children dropped into three positions:
+ * composed via positional parts, NOT a set of use-case variants. The
+ * mocks' disclosure rows, transaction rows, and summary rows are all the
+ * SAME element with different children dropped around the content pivot:
  *
- *   [ leading? ] · content · [ trailing? ]
+ *   [ leading? ] · <nuri-list-item-content> · [ trailing? ]
  *
  *   <nuri-list-item>
- *     <nuri-list-item-leading>   …icon-avatar / nothing…   </…>   ← optional
- *     …content (UNWRAPPED middle · typography-stack / text)…       ← flex:1
- *     <nuri-list-item-trailing>  …caret / typography-stack… </…>   ← optional
+ *     <nuri-icon-avatar …/>                ← leading · positional · optional
+ *     <nuri-list-item-content>…</…>        ← the pivot · flex:1 · holds text/rich content
+ *     <nuri-typography …/> / caret / text  ← trailing · positional · optional
  *   </nuri-list-item>
  *
- * Document-order layout · NO reparenting (unlike Topbar · decision
- * 46, which routes children into 3 regions). The host IS the flex
- * row, so list.css's density selector (`nuri-list[density] nuri-
- * list-item { min-block-size }`) lands on a real box. leading and
- * trailing are auto-width book-ends; the middle is whatever ISN'T a
- * named wrapper, stretched to flex:1 via a structural :not() rule.
+ * CONTENT-PIVOT (decision 64 · amendment 52.2) ───────────────────
+ *   Only the CONTENT is wrapped — in the named <nuri-list-item-content>
+ *   LAYOUT pivot (`flex:1; min-inline-size:0`). leading and trailing are
+ *   plain POSITIONAL siblings: anything before the pivot is leading,
+ *   anything after is trailing. They are auto-width and self-styling
+ *   (an icon-avatar is its own 48px circle), vertically centred by the
+ *   row's `align-items: center`. The pivot's `flex:1` absorbs the slack
+ *   and pushes any trailing to the row end BY CONSTRUCTION — so there is
+ *   no <nuri-list-item-leading>/<nuri-list-item-trailing> wrapper and no
+ *   bare-text `margin-inline-start:auto` patch (both deleted at N+17).
+ *   This is identical to the validated RN ListItem shape (list.tsx) — a
+ *   <View {flex:1}> pivot between positional siblings — closing the
+ *   web↔RN structural gap decision 64 names (R1).
+ *
+ *   The pivot is a LAYOUT part, NOT a Typography: it maps to a <View> on
+ *   RN and holds bare text OR rich content (a typography-stack). Bare-text
+ *   title styling comes from a COMPOSED <nuri-typography> (decision 53 ·
+ *   the single text-style owner), NEVER a hand-applied --nuri-type-* block
+ *   here.
+ *
+ * Document-order layout · NO reparenting (unlike the old Topbar · decision
+ * 46). The host IS the flex row, so list.css's density selector
+ * (`nuri-list[density] nuri-list-item { min-block-size }`) lands on a real
+ * box.
  *
  * PURELY PRESENTATIONAL (decision 52) ─────────────────────────────
  *   This row carries NO interactivity. It is `role="listitem"` and
@@ -70,16 +88,18 @@
 
 @layer rules {
   /* ── Row host · the flex row ──────────────────────────────────
-   * Document order: leading (auto) · content (flex:1) · trailing
+   * Document order: leading (auto) · content pivot (flex:1) · trailing
    * (auto). min-block-size is supplied by list.css per the parent
    * List's density — NOT declared here. NO inline padding: content is
    * edge-to-edge so it aligns with the full-width separators (the
    * container supplies the outer margin). Block padding guards tall
-   * content from touching the edge when it exceeds the density min-height. The
-   * skeleton matches the upgraded element (layout is pure CSS), so
-   * there is no FOUC delta. No `position: relative` — the row is no
-   * longer a containing block for any overlay (the press target moved
-   * to the list-interactive-item wrapper · decision 52). */
+   * content from touching the edge when it exceeds the density min-height.
+   * `align-items: center` vertically centres every positional part —
+   * leading, the content pivot, and trailing alike. The skeleton matches
+   * the upgraded element (layout is pure CSS), so there is no FOUC delta.
+   * No `position: relative` — the row is no longer a containing block for
+   * any overlay (the press target moved to the list-interactive-item
+   * wrapper · decision 52). */
   nuri-list-item,
   nuri-list-item:not(:defined) {
     display: flex;
@@ -89,37 +109,19 @@
     padding-block: var(--nuri-list-item-padding-block);
   }
 
-  /* ── Book-ends · leading / trailing (auto width) ──────────────
-   * Both are optional, both shrink-to-content. They flank the
-   * stretched middle. display:flex + align-items:center keeps a
-   * composed icon-avatar / caret / typography-stack vertically
-   * centred against the content. */
-  nuri-list-item-leading,
-  nuri-list-item-trailing,
-  nuri-list-item-leading:not(:defined),
-  nuri-list-item-trailing:not(:defined) {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-  }
-
-  /* Trailing pins to the row's end. The content column normally absorbs
-   * the slack (flex:1) and pushes trailing over, but that only fires when
-   * content is an ELEMENT (the flex:1 selector is `> :not(book-end)`); a
-   * BARE-TEXT content node is an anonymous flex item with no flex:1, so it
-   * wouldn't push. margin-inline-start:auto pins trailing to the end in
-   * BOTH cases — a no-op when content already fills the row. */
-  nuri-list-item-trailing,
-  nuri-list-item-trailing:not(:defined) {
-    margin-inline-start: auto;
-  }
-
-  /* ── Content · the UNWRAPPED middle (flex:1) ──────────────────
-   * Anything that is NOT a named book-end wrapper is the content
-   * column — stretched to fill the row. The min-inline-size:0 lets a
-   * long typography line truncate/wrap inside the flex track instead
-   * of overflowing the row. */
-  nuri-list-item > :not(nuri-list-item-leading):not(nuri-list-item-trailing) {
+  /* ── Content · the named layout pivot (flex:1) ────────────────
+   * The ONLY wrapped region (decision 64 · amendment 52.2). It absorbs
+   * the row's slack (`flex:1`) and so pushes any trailing positional
+   * sibling to the row end BY CONSTRUCTION — no margin-auto patch needed.
+   * `min-inline-size:0` lets a long typography line truncate / wrap
+   * inside the flex track instead of overflowing the row. A LAYOUT part
+   * only — it maps to a <View> on RN and holds bare text OR rich content;
+   * its text style comes from a composed <nuri-typography> (decision 53),
+   * never a hand-applied --nuri-type-* block. leading / trailing need no
+   * rule here: they are auto-width positional siblings, self-styling and
+   * centred by the row above. */
+  nuri-list-item-content,
+  nuri-list-item-content:not(:defined) {
     flex: 1 1 auto;
     min-inline-size: 0;
   }

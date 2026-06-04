@@ -3524,7 +3524,9 @@ single owner), never hand-applied tokens.
 diverged web↔RN): `text: string` · `icon?: IconName` (→ leading IconAvatar) · `variant?` /
 `accent?` (style the leading · no-op without `icon`) · `onpress` **required** · caret
 always-present (not a prop). Unifies web + RN on the scalar contract; arbitrary-leading flexibility
-drops to ListItem composition (the escape hatch). Implementation pending.
+drops to ListItem composition (the escape hatch). **Implemented in N+17** (web content-pivot +
+scalar NavItem + RN mirrors + pages · `build/` byte-identical · the structural `flex:1` /
+`min-inline-size:0` stay hand-mirrored, deferred to R-EXPO-6 · see [`roadmap/N+17.md`](./roadmap/N+17.md)).
 
 ## 53. TypographyStack `-element` eliminated · `muted` on Typography · N+8.2
 

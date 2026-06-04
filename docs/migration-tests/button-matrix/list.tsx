@@ -1,13 +1,25 @@
 /* ══════════════════════════════════════════════════════════════════
- * LIST FAMILY · primitive / interactive wrapper · N+8 · decision 52
+ * LIST FAMILY · primitive / interactive wrapper · content-pivot · N+8/N+17 · decision 52 · 64
  * ──────────────────────────────────────────────────────────────────
- * The N+8 refactor splits the family into clean roles, mirroring the
- * web custom elements one-for-one:
+ * The N+8 refactor split the family into clean roles, mirroring the
+ * web custom elements one-for-one; N+17 (decision 64 · amendment 52.2)
+ * formalizes the CONTENT-PIVOT anatomy:
  *
  *   List                   <nuri-list>                  container · role=list
  *   ListItem               <nuri-list-item>             PRESENTATIONAL row
+ *   ListItemContent        <nuri-list-item-content>     the flex:1 layout PIVOT
  *   InteractiveListItem    <nuri-list-interactive-item> pressable WRAPPER
  *   NavItem                <nuri-nav-item>              RECIPE (see nav-item.tsx)
+ *
+ * CONTENT-PIVOT (decision 64 · amendment 52.2): ListItem +
+ * InteractiveListItem take POSITIONAL `children` (the `leading` /
+ * `trailing` props are GONE). The author wraps the content in
+ * <ListItemContent> (the flex:1 <View> pivot) and drops leading / trailing
+ * as plain positional siblings around it; the pivot absorbs the slack and
+ * pushes trailing to the end by construction. This is the shape the RN
+ * mirror already used internally (the flex:1 View) — now NAMED and exposed,
+ * so web and RN share one explicit anatomy 1:1 (R1) and NavItem can compose
+ * it as a scalar recipe.
  *
  * EMIT, not hardcode (decision 52). Every fixed value below dereferences
  * an emitted component token via resolveToken — the SAME machine-checked
@@ -81,15 +93,25 @@ export const List: React.FC<ListProps> = ({ density = 'md', children }) => (
   </RowDensityContext.Provider>
 );
 
+// The content PIVOT (decision 64 · amendment 52.2) — the RN analogue of
+// <nuri-list-item-content>. The flex:1 <View> that absorbs the row's slack
+// and pushes any trailing positional sibling to the end. A LAYOUT part: it
+// holds bare text (wrapped by the caller in <Typography> · decision 53) OR
+// rich content (a TypographyStack), never styling text itself.
+export const ListItemContent: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
+  <View style={{ flex: 1, minWidth: 0 }}>{children}</View>
+);
+
 export type ListItemProps = {
-  leading?: React.ReactNode;
-  trailing?: React.ReactNode;
   children?: React.ReactNode;
 };
 
-// Presentational row — NO interactivity (decision 52). Inset, block
-// guard, and inter-part gutter all dereference emitted listItem tokens.
-export const ListItem: React.FC<ListItemProps> = ({ leading, trailing, children }) => {
+// Presentational row — NO interactivity (decision 52). Takes POSITIONAL
+// `children` (leading · <ListItemContent> · trailing, in order · decision
+// 64) — the `leading` / `trailing` props are gone. Block guard and
+// inter-part gutter dereference emitted listItem tokens; `alignItems:
+// center` vertically centres every positional part.
+export const ListItem: React.FC<ListItemProps> = ({ children }) => {
   const tokens = useRuntimeTokens();
   const density = React.useContext(RowDensityContext);
 
@@ -101,13 +123,7 @@ export const ListItem: React.FC<ListItemProps> = ({ leading, trailing, children 
     paddingVertical:   resolveToken(tokens, listItem.paddingBlock)   as number,
   };
 
-  return (
-    <View style={rowStyle}>
-      {leading != null ? <View>{leading}</View> : null}
-      <View style={{ flex: 1, minWidth: 0 }}>{children}</View>
-      {trailing != null ? <View>{trailing}</View> : null}
-    </View>
-  );
+  return <View style={rowStyle}>{children}</View>;
 };
 
 export type InteractiveListItemProps = ListItemProps & {
@@ -126,7 +142,7 @@ export type InteractiveListItemProps = ListItemProps & {
 // the flat wash bleeds past the row edges while content stays flush with the
 // Separators. The single press treatment carries no content scale.
 export const InteractiveListItem: React.FC<InteractiveListItemProps> = ({
-  onPress, leading, trailing, children,
+  onPress, children,
 }) => {
   const tokens = useRuntimeTokens();
   const washPressed = resolveToken(tokens, listInteractiveItem.washPressed) as string;
@@ -146,7 +162,7 @@ export const InteractiveListItem: React.FC<InteractiveListItemProps> = ({
         pressed ? { backgroundColor: washPressed } : null,
       ]}
     >
-      <ListItem leading={leading} trailing={trailing}>{children}</ListItem>
+      <ListItem>{children}</ListItem>
     </Pressable>
   );
 };

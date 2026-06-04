@@ -8,9 +8,9 @@
  *
  *   <nuri-list-interactive-item onpress="…">      ← host · role="listitem"
  *     <nuri-list-item>                            ← content · demoted to presentation
- *       <nuri-list-item-leading>…</…>
- *       …content…
- *       <nuri-list-item-trailing>…</…>
+ *       …leading?…                                ← positional (decision 64)
+ *       <nuri-list-item-content>…</…>             ← the pivot · flex:1
+ *       …trailing?…                               ← positional (decision 64)
  *     </nuri-list-item>
  *   </nuri-list-interactive-item>
  *
