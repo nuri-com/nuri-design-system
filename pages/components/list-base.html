@@ -74,7 +74,7 @@
     eyebrow="Components · List · Base"
     title="List · Base"
     status="draft"
-    lead="The container, the presentational row, and the interactive wrapper. List stacks rows and owns per-row rhythm through a single density axis. ListItem is ONE shape — leading · content · trailing — composed via slots, and is purely presentational. InteractiveListItem composes AROUND a row: it wraps the content in a role=button so the content is the accessible name (read once · no double-read). All fixed values are emitted component tokens (decision 52)."
+    lead="The container, the presentational row, and the interactive wrapper. List stacks rows and owns per-row rhythm through a single density axis. ListItem is ONE shape on the content-pivot: only the content is wrapped in &lt;nuri-list-item-content&gt; (flex:1), and leading · trailing are positional siblings around it (decision 64). It is purely presentational. InteractiveListItem composes AROUND a row: it wraps the content in a role=button so the content is the accessible name (read once · no double-read). All fixed values are emitted component tokens (decision 52)."
   ></nuri-page>
 
   <!-- ═════════════════════════════════════════════════════════════
@@ -112,9 +112,9 @@
         <dd data-spec="elements">
           <span class="nuri-spec-card__chip" data-element="list">&lt;nuri-list&gt;</span>
           <span class="nuri-spec-card__chip" data-element="list-item">&lt;nuri-list-item&gt;</span>
+          <span class="nuri-spec-card__chip" data-element="list-item-content">&lt;nuri-list-item-content&gt;</span>
           <span class="nuri-spec-card__chip" data-element="list-interactive-item">&lt;nuri-list-interactive-item&gt;</span>
-          <span class="nuri-spec-card__chip" data-element="list-item-leading">&lt;nuri-list-item-leading&gt;</span>
-          <span class="nuri-spec-card__chip" data-element="list-item-trailing">&lt;nuri-list-item-trailing&gt;</span>
+          <span class="nuri-spec-card__meta">leading / trailing are positional siblings around the content pivot — no wrapper element (decision 64)</span>
         </dd>
       </div>
       <div class="nuri-spec-card__row">
@@ -161,9 +161,9 @@
     <nuri-demo>
       <template>
         <nuri-list density="sm">
-          <nuri-list-item>Item 1</nuri-list-item>
+          <nuri-list-item><nuri-list-item-content>Item 1</nuri-list-item-content></nuri-list-item>
           <nuri-separator></nuri-separator>
-          <nuri-list-item>Item 2</nuri-list-item>
+          <nuri-list-item><nuri-list-item-content>Item 2</nuri-list-item-content></nuri-list-item>
         </nuri-list>
       </template>
     </nuri-demo>
@@ -179,8 +179,12 @@
       <code>&lt;nuri-list-item&gt;</code> is the <strong>presentational</strong>
       row; <code>&lt;nuri-list-interactive-item&gt;</code> is the optional
       pressable <strong>wrapper</strong> that composes around a row. The
-      row's appearance is a function of which positions the author fills,
-      not a <code>variant</code> prop (decision 51). The List has
+      row is a <strong>content-pivot</strong>: only the content is wrapped
+      in <code>&lt;nuri-list-item-content&gt;</code> (flex:1), and leading ·
+      trailing are <strong>positional siblings</strong> around it — anything
+      before the pivot is leading, anything after is trailing (decision 64).
+      The row's appearance is a function of which positions the author
+      fills, not a <code>variant</code> prop (decision 51). The List has
       <strong>no <code>gap</code> prop</strong> — inter-row rhythm is each
       row's <code>density</code>-driven min-height plus author-placed
       <code>&lt;nuri-separator&gt;</code>s.
@@ -211,7 +215,7 @@
           <td data-cell="name"><em>none</em></td>
           <td data-cell="type">—</td>
           <td data-cell="default">—</td>
-          <td data-cell="description">No props. The row is <strong>purely presentational</strong> (<code>role="listitem"</code>) — it carries NO interactivity (decision 52). Appearance is set by which book-end positions the author fills. The row has <strong>no inline padding</strong> — content is edge-to-edge so it aligns with the full-width separators; the container supplies the outer margin. The two fixed spacing values (block guard, inter-part gutter) are EMITted as component tokens (<code>listItem.paddingBlock</code>, <code>listItem.gap</code>).</td>
+          <td data-cell="description">No props. The row is <strong>purely presentational</strong> (<code>role="listitem"</code>) — it carries NO interactivity (decision 52). Appearance is set by which positions the author fills: a <code>&lt;nuri-list-item-content&gt;</code> pivot, with optional leading / trailing positional siblings around it (decision 64). The row has <strong>no inline padding</strong> — content is edge-to-edge so it aligns with the full-width separators; the container supplies the outer margin. The two fixed spacing values (block guard, inter-part gutter) are EMITted as component tokens (<code>listItem.paddingBlock</code>, <code>listItem.gap</code>).</td>
         </tr>
       </tbody>
     </table></div>
@@ -231,8 +235,8 @@
       </tbody>
     </table></div>
 
-    <h3><code>&lt;nuri-list-item-leading&gt;</code> / <code>&lt;nuri-list-item-trailing&gt;</code> · book-end markers</h3>
-    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="list-item-region">
+    <h3><code>&lt;nuri-list-item-content&gt;</code> · the content pivot</h3>
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="list-item-content">
       <thead>
         <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
       </thead>
@@ -241,7 +245,7 @@
           <td data-cell="name"><em>none</em></td>
           <td data-cell="type">—</td>
           <td data-cell="default">—</td>
-          <td data-cell="description">No props. Presence is the API: an authored wrapper becomes an auto-width book-end (leading before the content, trailing after) in document order — content is NOT reparented within the row (decision 51). Omit the wrapper entirely for an empty side.</td>
+          <td data-cell="description">No props. The <strong>layout pivot</strong> (<code>flex:1; min-inline-size:0</code>): wrap the row's content in it and it absorbs the slack, pushing any trailing positional sibling to the row end by construction (decision 64). A LAYOUT part only — it holds bare text OR rich content; its text style comes from a composed <code>&lt;nuri-typography&gt;</code> (decision 53), never a hand-applied <code>--nuri-type-*</code> block. <strong>leading / trailing need no wrapper</strong>: place them as plain positional siblings before / after the pivot (an <code>&lt;nuri-icon-avatar&gt;</code> leading, a caret or amount trailing) — they are auto-width and centred by the row.</td>
         </tr>
       </tbody>
     </table></div>
@@ -254,30 +258,32 @@
     <h2>Anatomy &amp; parts</h2>
     <p>
       A row is a flex row in document order: an optional auto-width
-      <strong>leading</strong> book-end, the stretched
-      <strong>content</strong> (flex:1), and an optional auto-width
-      <strong>trailing</strong> book-end. When interactive, the wrapper
-      adds an <strong>action</strong> element that WRAPS the whole row —
-      its flat press wash bleeds past the row edges via a counter-margin
-      (full-bleed by counter-margin · revised N+8.1). The row has no inline
-      padding, so content sits flush with the full-width separators; the
-      container supplies the outer margin (decision 52).
+      <strong>leading</strong> positional sibling, the
+      <strong>content</strong> pivot (<code>&lt;nuri-list-item-content&gt;</code> ·
+      flex:1), and an optional auto-width <strong>trailing</strong>
+      positional sibling. Only the content is wrapped; leading / trailing
+      are plain siblings around the pivot (decision 64), and the pivot's
+      <code>flex:1</code> pushes the trailing to the row end by
+      construction. When interactive, the wrapper adds an
+      <strong>action</strong> element that WRAPS the whole row — its flat
+      press wash bleeds past the row edges via a counter-margin (full-bleed
+      by counter-margin · revised N+8.1). The row has no inline padding, so
+      content sits flush with the full-width separators; the container
+      supplies the outer margin (decision 52).
     </p>
 
     <div class="nuri-anatomy">
       <div class="nuri-anatomy__visual">
         <nuri-list>
           <nuri-list-item>
-            <nuri-list-item-leading>
-              <nuri-icon-avatar name="arrow-up" variant="soft"></nuri-icon-avatar>
-            </nuri-list-item-leading>
-            <nuri-typography-stack>
-              <nuri-typography size="md" emphasis>Sent to Alex</nuri-typography>
-              <nuri-typography size="sm" muted>26 May at 11:34 AM</nuri-typography>
-            </nuri-typography-stack>
-            <nuri-list-item-trailing>
-              <nuri-typography size="md" emphasis>−£24.00</nuri-typography>
-            </nuri-list-item-trailing>
+            <nuri-icon-avatar name="arrow-up" variant="soft"></nuri-icon-avatar>
+            <nuri-list-item-content>
+              <nuri-typography-stack>
+                <nuri-typography size="md" emphasis>Sent to Alex</nuri-typography>
+                <nuri-typography size="sm" muted>26 May at 11:34 AM</nuri-typography>
+              </nuri-typography-stack>
+            </nuri-list-item-content>
+            <nuri-typography size="md" emphasis>−£24.00</nuri-typography>
           </nuri-list-item>
         </nuri-list>
       </div>
@@ -288,21 +294,21 @@
         <tbody>
           <tr data-part="leading">
             <td data-cell="name"><code>leading</code></td>
-            <td data-cell="element-web"><code>nuri-list-item-leading</code></td>
-            <td data-cell="element-rn"><code>ListItem leading</code> → <code>View</code></td>
-            <td data-cell="owns">the optional start book-end (icon-avatar, etc.); auto width</td>
+            <td data-cell="element-web">positional sibling before content</td>
+            <td data-cell="element-rn">positional child before <code>ListItemContent</code></td>
+            <td data-cell="owns">the optional start affordance (icon-avatar, etc.); auto width · self-styling</td>
           </tr>
           <tr data-part="content">
             <td data-cell="name"><code>content</code></td>
-            <td data-cell="element-web">unwrapped children</td>
-            <td data-cell="element-rn"><code>View</code> (flex:1)</td>
-            <td data-cell="owns">the stretched middle (typography-stack / text); absorbs the slack</td>
+            <td data-cell="element-web"><code>nuri-list-item-content</code> (flex:1)</td>
+            <td data-cell="element-rn"><code>ListItemContent</code> → <code>View</code> (flex:1)</td>
+            <td data-cell="owns">the stretched pivot (typography-stack / text); absorbs the slack</td>
           </tr>
           <tr data-part="trailing">
             <td data-cell="name"><code>trailing</code></td>
-            <td data-cell="element-web"><code>nuri-list-item-trailing</code></td>
-            <td data-cell="element-rn"><code>ListItem trailing</code> → <code>View</code></td>
-            <td data-cell="owns">the optional end book-end (caret, amount stack, etc.); auto width</td>
+            <td data-cell="element-web">positional sibling after content</td>
+            <td data-cell="element-rn">positional child after <code>ListItemContent</code></td>
+            <td data-cell="owns">the optional end affordance (caret, amount stack, etc.); auto width · self-styling</td>
           </tr>
           <tr data-part="action">
             <td data-cell="name"><code>action</code></td>
@@ -331,40 +337,36 @@
 
     <div class="nuri-demo-row">
 
-      <nuri-demo label="presentational · simple" subtitle="content + trailing value · no press">
+      <nuri-demo label="presentational · simple" subtitle="content pivot + trailing value · no press">
         <template>
           <nuri-list density="sm">
             <nuri-list-item>
-              Bitcoin
-              <nuri-list-item-trailing>Sats 20.309</nuri-list-item-trailing>
+              <nuri-list-item-content>Bitcoin</nuri-list-item-content>
+              Sats 20.309
             </nuri-list-item>
             <nuri-separator></nuri-separator>
             <nuri-list-item>
-              Euro
-              <nuri-list-item-trailing>€ 50,00</nuri-list-item-trailing>
+              <nuri-list-item-content>Euro</nuri-list-item-content>
+              € 50,00
             </nuri-list-item>
           </nuri-list>
         </template>
       </nuri-demo>
 
-      <nuri-demo label="interactive · simple" subtitle="plain text + caret · flat bg-subtle wash on press">
+      <nuri-demo label="interactive · simple" subtitle="content pivot + caret · flat bg-subtle wash on press">
         <template>
           <nuri-list density="sm">
             <nuri-list-interactive-item>
               <nuri-list-item>
-                Linked accounts
-                <nuri-list-item-trailing>
-                  <nuri-icon name="caret-right" size="md"></nuri-icon>
-                </nuri-list-item-trailing>
+                <nuri-list-item-content>Linked accounts</nuri-list-item-content>
+                <nuri-icon name="caret-right" size="md"></nuri-icon>
               </nuri-list-item>
             </nuri-list-interactive-item>
             <nuri-separator></nuri-separator>
             <nuri-list-interactive-item>
               <nuri-list-item>
-                Currency
-                <nuri-list-item-trailing>
-                  <nuri-icon name="caret-right" size="md"></nuri-icon>
-                </nuri-list-item-trailing>
+                <nuri-list-item-content>Currency</nuri-list-item-content>
+                <nuri-icon name="caret-right" size="md"></nuri-icon>
               </nuri-list-item>
             </nuri-list-interactive-item>
           </nuri-list>
@@ -393,13 +395,13 @@
         <template>
           <nuri-list density="sm">
             <nuri-list-item>
-              Bitcoin
-              <nuri-list-item-trailing>Sats 20.309</nuri-list-item-trailing>
+              <nuri-list-item-content>Bitcoin</nuri-list-item-content>
+              Sats 20.309
             </nuri-list-item>
             <nuri-separator></nuri-separator>
             <nuri-list-item>
-              Euro
-              <nuri-list-item-trailing>€ 50,00</nuri-list-item-trailing>
+              <nuri-list-item-content>Euro</nuri-list-item-content>
+              € 50,00
             </nuri-list-item>
           </nuri-list>
         </template>
@@ -409,13 +411,13 @@
         <template>
           <nuri-list>
             <nuri-list-item>
-              Bitcoin
-              <nuri-list-item-trailing>Sats 20.309</nuri-list-item-trailing>
+              <nuri-list-item-content>Bitcoin</nuri-list-item-content>
+              Sats 20.309
             </nuri-list-item>
             <nuri-separator></nuri-separator>
             <nuri-list-item>
-              Euro
-              <nuri-list-item-trailing>€ 50,00</nuri-list-item-trailing>
+              <nuri-list-item-content>Euro</nuri-list-item-content>
+              € 50,00
             </nuri-list-item>
           </nuri-list>
         </template>
@@ -425,13 +427,13 @@
         <template>
           <nuri-list density="lg">
             <nuri-list-item>
-              Bitcoin
-              <nuri-list-item-trailing>Sats 20.309</nuri-list-item-trailing>
+              <nuri-list-item-content>Bitcoin</nuri-list-item-content>
+              Sats 20.309
             </nuri-list-item>
             <nuri-separator></nuri-separator>
             <nuri-list-item>
-              Euro
-              <nuri-list-item-trailing>€ 50,00</nuri-list-item-trailing>
+              <nuri-list-item-content>Euro</nuri-list-item-content>
+              € 50,00
             </nuri-list-item>
           </nuri-list>
         </template>
@@ -540,6 +542,64 @@
           <td><code>var(--nuri-focus-ring)</code> · brand ring · web only (F-FOCUS-1)</td>
         </tr>
 
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7b · BEHAVIOURAL DELTA — amendment 24.1
+       ═════════════════════════════════════════════════════════════
+       Decision 24 named anatomy + token-map as the migration wiring
+       spec; amendment 24.1 adds the THIRD machine-readable surface — the
+       web↔RN behavioural-delta register — so the migration agent emits
+       the RN-correct mechanism instead of a naive prop-for-prop port.
+       List is the first component whose web a11y ROLE (listitem) has no
+       RN accessibilityRole peer (F-LISTITEM-ROLE-1), so this surface
+       matters here more than most. Each <tr> carries data-friction (the
+       F-* code · cross-refs RISKS R1), data-surface, data-parity.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="behavioural-delta">
+    <h2>Behavioural delta · web ↔ RN</h2>
+    <p>
+      Props are <code>1:1</code>; behaviour is <strong>budgeted
+      per-component</strong> (<a href="../../docs/RISKS.md">RISKS R1</a>).
+      The content-pivot itself is a parity <em>win</em>: the web
+      <code>&lt;nuri-list-item-content&gt;</code> (flex:1) maps to an RN
+      <code>&lt;View {flex:1}&gt;</code> between positional siblings —
+      <strong>identical structure</strong> (decision 64), and the pivot is
+      a layout <code>View</code>, never a <code>&lt;Text&gt;</code>, which
+      structurally avoids the native-<code>&lt;Text&gt;</code> child
+      invalidity (R-EXPO-2c). The remaining budget is two a11y deltas, the
+      third machine-readable surface alongside
+      <a href="#anatomy">anatomy</a> and
+      <a href="#token-mapping">token mapping</a>.
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="behavioural-delta" data-component="list-item">
+      <thead>
+        <tr>
+          <th>Friction</th>
+          <th>Surface</th>
+          <th>Web</th>
+          <th>React Native</th>
+          <th>Resolution</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-friction="F-LISTITEM-ROLE-1" data-surface="role" data-parity="diverges">
+          <td data-cell="friction"><code>F-LISTITEM-ROLE-1</code></td>
+          <td data-cell="surface"><code>listitem role</code></td>
+          <td data-cell="web">The row host carries <code>role="listitem"</code> inside <code>&lt;nuri-list role="list"&gt;</code> — standard list-membership semantics the browser exposes for free.</td>
+          <td data-cell="rn">RN's <code>AccessibilityRole</code> union has <code>list</code> but <strong>no <code>listitem</code> peer</strong> (the type omits it). The interactive row is a single <code>Pressable accessibilityRole="button"</code>; the presentational row is a plain <code>&lt;View&gt;</code> with no role — membership reads from the <code>list</code> container.</td>
+          <td data-cell="resolution">Budgeted as <code>F-LISTITEM-ROLE-1</code> (RISKS R1). An <strong>honest platform gap</strong>, not a fixable derivation (contrast <code>F-ARIA-LABEL-1</code>); revisit if RN/RN-web adds a <code>listitem</code> role. Props stay 1:1.</td>
+        </tr>
+        <tr data-friction="F-FOCUS-1" data-surface="focus" data-parity="diverges">
+          <td data-cell="friction"><code>F-FOCUS-1</code></td>
+          <td data-cell="surface"><code>focus-visible</code></td>
+          <td data-cell="web">The interactive wrapper's <code>.nuri-list-interactive-item__action</code> shows <code>:focus-visible</code> → <code>2px solid var(--nuri-focus-ring)</code> (inset offset).</td>
+          <td data-cell="rn">No DOM focus model. The <code>Pressable accessibilityRole="button"</code> carries the role; the visual ring is intentionally absent.</td>
+          <td data-cell="resolution">Ring is web-only by design; the RN side ships the a11y role, not the outline. Applies only to the interactive wrapper, not the presentational row.</td>
+        </tr>
       </tbody>
     </table></div>
   </section>

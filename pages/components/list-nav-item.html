@@ -72,7 +72,7 @@
     eyebrow="Components · List · Navigation Item"
     title="NavItem"
     status="draft"
-    lead="The first recipe — a named composition over primitives. NavItem is the disclosure row (tap to drill in, muted caret on the right) that recurs across the mocks. It is exactly InteractiveListItem ∘ ListItem ∘ an auto-filled caret — no new style decision, no recipe tokens (skip-emit). The label gets md em-weight; the caret is muted via currentColor (no muted prop on Icon)."
+    lead="The first recipe — a named, CLOSED composition over primitives, configured by scalar props (text · icon · variant · accent · onpress). NavItem is the disclosure row (tap to drill in, muted caret on the right) that recurs across the mocks. It is exactly InteractiveListItem ∘ ListItem ∘ [icon-avatar] ∘ content pivot ∘ an always-on caret — no new style decision, no recipe tokens (skip-emit). The label gets md em-weight via a composed Typography; the caret is muted via currentColor (no muted prop on Icon). For arbitrary leading or rich content, drop to the ListItem primitive (decision 64)."
   ></nuri-page>
 
   <!-- ═════════════════════════════════════════════════════════════
@@ -115,8 +115,10 @@
         <dd data-spec="composes">
           <span class="nuri-spec-card__chip" data-composes="list-interactive-item">InteractiveListItem</span>
           <span class="nuri-spec-card__chip" data-composes="list-item">ListItem</span>
+          <span class="nuri-spec-card__chip" data-composes="typography">Typography</span>
+          <span class="nuri-spec-card__chip" data-composes="icon-avatar">IconAvatar</span>
           <span class="nuri-spec-card__chip" data-composes="icon">Icon</span>
-          <span class="nuri-spec-card__meta">used as-is · not modified (decision 52)</span>
+          <span class="nuri-spec-card__meta">used as-is · not modified · IconAvatar only when icon is set (decision 52 · 64)</span>
         </dd>
       </div>
       <div class="nuri-spec-card__row">
@@ -143,11 +145,11 @@
     <nuri-demo controls="theme">
       <template>
         <nuri-list density="sm">
-          <nuri-nav-item>Security</nuri-nav-item>
+          <nuri-nav-item text="Security" onpress="console.log('nav: Security')"></nuri-nav-item>
           <nuri-separator></nuri-separator>
-          <nuri-nav-item>Notifications</nuri-nav-item>
+          <nuri-nav-item text="Notifications" onpress="console.log('nav: Notifications')"></nuri-nav-item>
           <nuri-separator></nuri-separator>
-          <nuri-nav-item>Help &amp; support</nuri-nav-item>
+          <nuri-nav-item text="Help &amp; support" onpress="console.log('nav: Help')"></nuri-nav-item>
         </nuri-list>
       </template>
     </nuri-demo>
@@ -159,14 +161,16 @@
   <section class="page-section" id="api">
     <h2>API</h2>
     <p>
-      <code>&lt;nuri-nav-item&gt;</code> takes a text label as its child
-      and an <code>onpress</code> handler. It builds its internal
-      structure by cloning a native <code>&lt;template&gt;</code> (NOT
-      lit-html / JSX / imperative DOM · decision 52) and forwards the
-      press contract to the composed
-      <code>&lt;nuri-list-interactive-item&gt;</code>. An optional
-      <code>&lt;nuri-list-item-leading&gt;</code> child is hoisted into the
-      row as a start book-end; the trailing caret is always auto-filled.
+      <code>&lt;nuri-nav-item&gt;</code> is a <strong>closed scalar
+      recipe</strong> (decision 64): it is configured by scalar attributes
+      only — no slots, no layout knobs. It builds its internal structure by
+      cloning a native <code>&lt;template&gt;</code> (NOT lit-html / JSX /
+      imperative DOM · decision 52) and maps those attributes onto the
+      composed primitives. The trailing caret is always present; a leading
+      <code>&lt;nuri-icon-avatar&gt;</code> appears only when
+      <code>icon</code> is set. For arbitrary leading or rich content, drop
+      to the <a href="list-base.html"><code>&lt;nuri-list-item&gt;</code></a>
+      primitive and compose directly (the escalation rule · decision 64).
     </p>
 
     <div class="nuri-table-scroll"><table class="nuri-table" data-table="props" data-component="nav-item">
@@ -174,23 +178,35 @@
         <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
       </thead>
       <tbody>
+        <tr data-prop="text">
+          <td data-cell="name"><code>text</code></td>
+          <td data-cell="type"><code>string</code></td>
+          <td data-cell="default"><em>required</em></td>
+          <td data-cell="description">The row label. Drives a composed <code>&lt;nuri-typography size="md" emphasis&gt;</code> inside the content pivot (decision 53 · md em-weight). The trailing caret is auto-filled — the author never writes it.</td>
+        </tr>
+        <tr data-prop="icon">
+          <td data-cell="name"><code>icon</code></td>
+          <td data-cell="type"><code>IconName</code></td>
+          <td data-cell="default">—</td>
+          <td data-cell="description">Optional. When set, mints a leading <code>&lt;nuri-icon-avatar name=…&gt;</code> positional sibling before the content pivot.</td>
+        </tr>
+        <tr data-prop="variant">
+          <td data-cell="name"><code>variant</code></td>
+          <td data-cell="type"><code>"solid" | "soft" | "ghost" | "subtle"</code></td>
+          <td data-cell="default"><code>soft</code></td>
+          <td data-cell="description">Forwarded to the leading IconAvatar. <strong>No-op without <code>icon</code></strong>.</td>
+        </tr>
+        <tr data-prop="accent">
+          <td data-cell="name"><code>accent</code></td>
+          <td data-cell="type"><code>Accent</code></td>
+          <td data-cell="default">inherited</td>
+          <td data-cell="description">Forwarded to the leading IconAvatar (Tier-2 self-scope). <strong>No-op without <code>icon</code></strong>.</td>
+        </tr>
         <tr data-prop="onpress">
           <td data-cell="name"><code>onpress</code></td>
           <td data-cell="type"><code>handler</code></td>
-          <td data-cell="default">—</td>
+          <td data-cell="default"><em>required</em></td>
           <td data-cell="description">Forwarded to the composed interactive wrapper, which fires a bubbling <code>press</code> on click / Enter / Space. Nav-agnostic — routing is the author's handler.</td>
-        </tr>
-        <tr data-prop="children">
-          <td data-cell="name"><code>children</code></td>
-          <td data-cell="type"><code>text</code></td>
-          <td data-cell="default">—</td>
-          <td data-cell="description">The label. Wrapped in the <code>.nuri-type-md--em</code> SSOT utility (md em-weight). The trailing caret is auto-filled — the author never writes it.</td>
-        </tr>
-        <tr data-prop="leading">
-          <td data-cell="name"><code>&lt;nuri-list-item-leading&gt;</code></td>
-          <td data-cell="type"><code>slot</code></td>
-          <td data-cell="default">—</td>
-          <td data-cell="description">Optional. An authored leading book-end (e.g. an <code>&lt;nuri-icon-avatar&gt;</code>) is hoisted into the composed row before the label — list-item positions it as the start book-end by element type (decision 51). Everything else stays the label.</td>
         </tr>
       </tbody>
     </table></div>
@@ -205,24 +221,27 @@
       The disclosure pattern could have been a <code>variant="nav"</code>
       on <code>&lt;nuri-list-item&gt;</code> — but that path swells one
       component with use-case branches. A <strong>recipe</strong> instead
-      NAMES the composition and leaves the primitives single-purpose
-      (decision 52). NavItem expands to:
+      NAMES the composition, takes scalar props, and leaves the primitives
+      single-purpose (decision 52 · 64). NavItem expands to:
     </p>
-    <pre class="nuri-code"><code>&lt;nuri-nav-item onpress="goTo('/card')"&gt;Activate card&lt;/nuri-nav-item&gt;
+    <pre class="nuri-code"><code>&lt;nuri-nav-item text="Activate card" onpress="goTo('/card')"&gt;&lt;/nuri-nav-item&gt;
 
   →
 
 &lt;nuri-list-interactive-item onpress="goTo('/card')"&gt;
   &lt;nuri-list-item&gt;
-    &lt;span class="nuri-type-md--em"&gt;Activate card&lt;/span&gt;
-    &lt;nuri-list-item-trailing&gt;
-      &lt;nuri-icon name="caret-right" size="md"&gt;&lt;/nuri-icon&gt;
-    &lt;/nuri-list-item-trailing&gt;
+    &lt;nuri-list-item-content&gt;
+      &lt;nuri-typography size="md" emphasis&gt;Activate card&lt;/nuri-typography&gt;
+    &lt;/nuri-list-item-content&gt;
+    &lt;nuri-icon class="nuri-nav-item__caret" name="caret-right" size="md"&gt;&lt;/nuri-icon&gt;
   &lt;/nuri-list-item&gt;
 &lt;/nuri-list-interactive-item&gt;</code></pre>
     <p>
-      The caret is muted with <strong>no <code>muted</code> prop on
-      Icon</strong> (decision 38): the trailing book-end sets
+      The label composes the <code>&lt;nuri-typography&gt;</code> primitive
+      inside the content pivot (decision 53 · the single text-style owner) —
+      never a hand-applied <code>--nuri-type-*</code> block. The caret is a
+      positional trailing sibling muted with <strong>no <code>muted</code>
+      prop on Icon</strong> (decision 38): the caret sets
       <code>color: var(--nuri-border-strong)</code>, and
       <code>&lt;nuri-icon&gt;</code> paints in <code>currentColor</code>,
       so the caret reads muted by inheritance — the same trick IconAvatar's
@@ -248,29 +267,19 @@
       <nuri-demo label="press · flat wash" subtitle="transparent → bg-subtle on press" controls="theme">
         <template>
           <nuri-list density="sm">
-            <nuri-nav-item>Security</nuri-nav-item>
+            <nuri-nav-item text="Security" onpress="console.log('nav: Security')"></nuri-nav-item>
             <nuri-separator></nuri-separator>
-            <nuri-nav-item>Privacy</nuri-nav-item>
+            <nuri-nav-item text="Privacy" onpress="console.log('nav: Privacy')"></nuri-nav-item>
           </nuri-list>
         </template>
       </nuri-demo>
 
-      <nuri-demo label="leading · icon-avatar" subtitle="optional start book-end + auto caret">
+      <nuri-demo label="leading · icon" subtitle="scalar icon → leading icon-avatar + auto caret">
         <template>
           <nuri-list density="sm">
-            <nuri-nav-item>
-              <nuri-list-item-leading>
-                <nuri-icon-avatar name="gear" variant="soft"></nuri-icon-avatar>
-              </nuri-list-item-leading>
-              Settings
-            </nuri-nav-item>
+            <nuri-nav-item text="Settings" icon="gear" onpress="console.log('nav: Settings')"></nuri-nav-item>
             <nuri-separator></nuri-separator>
-            <nuri-nav-item>
-              <nuri-list-item-leading>
-                <nuri-icon-avatar name="vault" variant="soft"></nuri-icon-avatar>
-              </nuri-list-item-leading>
-              Security
-            </nuri-nav-item>
+            <nuri-nav-item text="Security" icon="vault" onpress="console.log('nav: Security')"></nuri-nav-item>
           </nuri-list>
         </template>
       </nuri-demo>
@@ -305,18 +314,67 @@
       </thead>
       <tbody>
         <tr data-part="trailing" data-css-prop="color">
-          <td>trailing caret</td>
+          <td>caret <code>.nuri-nav-item__caret</code></td>
           <td><code>color</code></td>
           <td><code>chrome.border-strong</code></td>
           <td>—</td>
-          <td><code>var(--nuri-border-strong)</code> · muted via currentColor (decision 38)</td>
+          <td><code>var(--nuri-border-strong)</code> · positional trailing sibling · muted via currentColor (decision 38)</td>
         </tr>
         <tr data-part="label" data-css-prop="font-weight">
           <td>label</td>
           <td><code>font-weight</code></td>
           <td><code>type.md-em-weight</code></td>
           <td>—</td>
-          <td><code>.nuri-type-md--em</code> · SSOT type utility</td>
+          <td>composed <code>&lt;nuri-typography size="md" emphasis&gt;</code> in the content pivot · single text-style owner (decision 53)</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6b · BEHAVIOURAL DELTA — amendment 24.1
+       ═════════════════════════════════════════════════════════════
+       NavItem is a CLOSED scalar recipe — it adds no new mechanism, so
+       its web↔RN deltas are INHERITED wholesale from the composed
+       InteractiveListItem (data-inherited). Surfaced here too so the
+       migration agent reading the recipe page sees the same budget
+       without chasing the primitive page.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="behavioural-delta">
+    <h2>Behavioural delta · web ↔ RN</h2>
+    <p>
+      NavItem is a scalar recipe (props <code>1:1</code>); it introduces
+      no new behaviour, so its budget is <strong>inherited from the
+      composed <a href="list-base.html#behavioural-delta">InteractiveListItem</a></strong>
+      (<a href="../../docs/RISKS.md">RISKS R1</a>). The auto-filled caret
+      and the leading IconAvatar are decorative (<code>aria-hidden</code> /
+      <code>F-DECORATIVE-1</code>), so they add no a11y surface of their own.
+    </p>
+
+    <div class="nuri-table-scroll"><table class="nuri-table" data-table="behavioural-delta" data-component="nav-item">
+      <thead>
+        <tr>
+          <th>Friction</th>
+          <th>Surface</th>
+          <th>Web</th>
+          <th>React Native</th>
+          <th>Resolution</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-friction="F-LISTITEM-ROLE-1" data-surface="role" data-parity="diverges" data-inherited="list-interactive-item">
+          <td data-cell="friction"><code>F-LISTITEM-ROLE-1</code></td>
+          <td data-cell="surface"><code>listitem role</code></td>
+          <td data-cell="web">Composed <code>&lt;nuri-list-interactive-item&gt;</code> carries <code>role="listitem"</code> + an inner <code>role="button"</code>.</td>
+          <td data-cell="rn">Collapses to a single <code>Pressable accessibilityRole="button"</code> — RN has no <code>listitem</code> peer.</td>
+          <td data-cell="resolution">Inherited from InteractiveListItem (RISKS R1). Honest platform gap; props 1:1.</td>
+        </tr>
+        <tr data-friction="F-FOCUS-1" data-surface="focus" data-parity="diverges" data-inherited="list-interactive-item">
+          <td data-cell="friction"><code>F-FOCUS-1</code></td>
+          <td data-cell="surface"><code>focus-visible</code></td>
+          <td data-cell="web">The composed action box's <code>:focus-visible</code> ring.</td>
+          <td data-cell="rn">No DOM focus model; the <code>Pressable</code> a11y role substitutes, ring absent.</td>
+          <td data-cell="resolution">Ring web-only by design; inherited from InteractiveListItem.</td>
         </tr>
       </tbody>
     </table></div>
