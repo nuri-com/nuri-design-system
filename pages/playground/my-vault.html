@@ -131,13 +131,11 @@
     <template>
       <nuri-screen>
 
-        <!-- ── Topbar ──────────────────────────────────────────── -->
-        <nuri-topbar>
-          My vault
-          <nuri-topbar-end>
-            <nuri-icon-button name="question" variant="ghost" label="Help"></nuri-icon-button>
-            <nuri-icon-button name="gear" variant="ghost" label="Settings"></nuri-icon-button>
-          </nuri-topbar-end>
+        <!-- ── Topbar · content-pivot · positional trailing (decision 64 · amendment 46.4) ── -->
+        <nuri-topbar inset-end="sm">
+          <nuri-topbar-content>My vault</nuri-topbar-content>
+          <nuri-icon-button name="question" variant="ghost" label="Help"></nuri-icon-button>
+          <nuri-icon-button name="gear" variant="ghost" label="Settings"></nuri-icon-button>
         </nuri-topbar>
 
         <!-- ── Scrollable body ─────────────────────────────────── -->

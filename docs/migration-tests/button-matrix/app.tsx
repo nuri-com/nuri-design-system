@@ -26,7 +26,7 @@ import { IconButton } from './icon-button';
 import { Switch } from './switch';
 import { Tabs, Tab } from './tabs';
 import { TabBar, TabBarItem } from './tab-bar';
-import { Topbar, TopbarStart, TopbarEnd } from './topbar';
+import { Topbar, TopbarContent } from './topbar';
 import { Typography } from './typography';
 import { TypographyStack } from './typography-stack';
 import { Separator } from './separator';
@@ -90,40 +90,32 @@ const TabsDemo: React.FC = () => {
 };
 
 const TopbarDemo: React.FC = () => {
-  // Title type + color now come from the Topbar centre region itself
-  // (decision 46 amended · decision 55) — the demo passes bare title
-  // text and the component supplies lg-em from the shared scale.
+  // Content-pivot positional API (decision 64 · amendment 46.4): leading /
+  // trailing are plain positional children around <TopbarContent>; a bare
+  // string title reuses Typography (lg-em) INSIDE the pivot (R-EXPO-2c), the
+  // single text-style owner. center centres the content; inset overrides the
+  // edge padding (default lg · no occupancy / center auto · R-EXPO-2a/b
+  // resolved by the positional structure — no side region <View> to collapse).
   return (
     <Stack gap="md">
-      {/* default · left-aligned · back chevron + settings */}
-      <Topbar>
-        <TopbarStart>
-          <IconButton name="caret-left" variant="ghost" label="Back" />
-        </TopbarStart>
-        Account
-        <TopbarEnd>
-          <IconButton name="gear" variant="ghost" label="Settings" />
-        </TopbarEnd>
+      {/* default · back chevron + title + settings · controls hug at sm */}
+      <Topbar inset="sm">
+        <IconButton name="caret-left" variant="ghost" label="Back" />
+        <TopbarContent>Account</TopbarContent>
+        <IconButton name="gear" variant="ghost" label="Settings" />
       </Topbar>
 
-      {/* center · Cancel / Edit / Save action bar (decision 46) · the
-          roomy centred bar opts out of the xs default with inset="lg" */}
+      {/* center · Cancel / Edit / Save action bar · roomy inset="lg" */}
       <Topbar center inset="lg">
-        <TopbarStart>
-          <Button variant="soft">Cancel</Button>
-        </TopbarStart>
-        Edit
-        <TopbarEnd>
-          <Button variant="solid">Save</Button>
-        </TopbarEnd>
+        <Button variant="soft">Cancel</Button>
+        <TopbarContent>Edit</TopbarContent>
+        <Button variant="solid">Save</Button>
       </Topbar>
 
-      {/* close · ghost-fill IconButton (decision 40.1 passthrough) */}
-      <Topbar>
-        Receive
-        <TopbarEnd>
-          <IconButton name="x-circle" variant="ghost" fill label="Close" />
-        </TopbarEnd>
+      {/* title + ghost-fill close · trailing only (no phantom leading gap) */}
+      <Topbar insetEnd="sm">
+        <TopbarContent>Receive</TopbarContent>
+        <IconButton name="x-circle" variant="ghost" fill label="Close" />
       </Topbar>
     </Stack>
   );

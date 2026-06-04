@@ -1,7 +1,13 @@
 # Risks · Nuri
 
 **Date drafted**: 2026-05-27 (during N+3 philosophy brainstorm)
-**Last updated**: 2026-06-04 (N+17 close · **List family → content-pivot + scalar NavItem**
+**Last updated**: 2026-06-04 (N+18 close · **Topbar content-pivot** — the 4th & last R1
+consumption finding **[R-EXPO-2] LANDED** structurally via [decision 64](./../decisionlog.md) /
+amendment 46.4: the content-pivot refactor (a named `<nuri-topbar-content>` pivot · positional
+leading/trailing siblings · bare-text title REUSES Typography) fixes a/b/c [phantom gap ·
+collapsed trailing · non-text `<Text>`-wrap] on BOTH platforms · web `lib/components/topbar/*` +
+page + playground consumers migrated · skip-emit · `build/` byte-identical · no new decision.) ·
+Prior 2026-06-04 (N+17 close · **List family → content-pivot + scalar NavItem**
 [amendment 52.2 · the List half of decision 64] — mechanical implementation, no new decision,
 `build/` byte-identical. The content-pivot **CLOSES the ListItem structural web↔RN divergence**:
 web now wraps content in `<nuri-list-item-content>` (`flex:1`), matching the RN mirror's already-
@@ -17,7 +23,7 @@ them as component tokens (Topbar's content-pivot shares them but is skip-emit); 
 4 R1 consumption findings landed** [R-EXPO-3/4/5]: Button `flex:1` dropped · Scroll
 `contentContainerStyle.flexGrow:1` default · Separator axis-absolute `width:'100%'` ·
 each matched to web SoT + consumer F-DEMO-2/3/4; **Topbar `<Text>` cluster [R-EXPO-2]
-DEFERRED** to separate investigation · web / `build/` untouched. · Prior 2026-06-01
+DEFERRED** to separate investigation (now landed · N+18) · web / `build/` untouched. · Prior 2026-06-01
 N+13 close · migration-test reconciliation
 — the RN mirrors now IMPLEMENT decision 27's single `NuriThemeContext`
 (`{ mode, accent }`) + composite `NuriScope` with merge-on-override,
@@ -95,7 +101,14 @@ naming the gap up front.
   row). **Topbar (R-EXPO-2 · the `<Text>` child-validity cluster) is DEFERRED** — a
   larger migration issue under separate investigation, not a mechanical back-port.
   Green `tsc` proves the TYPES; the layout validation remains the Expo render (these
-  mirrors never run).
+  mirrors never run). · **N+18 update — R-EXPO-2 LANDED (the 4th finding · all four now
+  resolved)**: not a back-port of the old reparenting mirror but a **structural** fix —
+  Topbar became an OPEN primitive on the content-pivot anatomy ([decision 64](../decisionlog.md) ·
+  amendment 46.4): a `<nuri-topbar-content>` pivot (`flex:1`) + positional leading/trailing
+  siblings, web↔RN identical. (a) no phantom gap (a positional empty side is absent), (b) no
+  collapsed trailing (controls are self-sized · no `flex:0` side region), (c) the non-text centre
+  is no longer `<Text>`-wrapped (the lg-em title applies to bare text only via composed
+  Typography). Amendment 46.2's hand-applied font is superseded; `build/` byte-identical (skip-emit).
 
 **Frictions list · N+4 (Button matrix, 8 buttons, lilac/neutral · light)**
 
