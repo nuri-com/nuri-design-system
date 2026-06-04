@@ -4,6 +4,31 @@ Session router. Each entry links to its detail file.
 
 ## Current state
 
+N+18 — gates green · closeout done · **PR pending (gated · must NOT open until Session A's
+`feat/list-content-pivot` merges into `main`)**: **Topbar → content-pivot open primitive**
+(**amendment 46.4** · **decision 64**). Topbar drops JS region-reparenting and becomes an OPEN
+primitive on the **content-pivot** anatomy — a named `<nuri-topbar-content>` layout pivot
+(`flex:1`) + **positional** leading/trailing siblings (anything before the pivot is leading, after
+is trailing). **Deleted**: the reparenting (`querySelector`/`createElement`/`appendChild`), the
+`data-leading/-trailing` occupancy detection, the `display:none` empty-side collapse, and the
+`<nuri-topbar-start>`/`<nuri-topbar-end>` defs. **Kept**: `center` + declarative per-edge `inset`
+(default `lg` · override `xs|sm|lg` · never auto-by-type). The bare-text title **REUSES Typography**
+(the `.nuri-type-lg--em` utility on web / `<Typography size="lg" emphasis>` on RN · the single
+text-style owner · decision 53), **never** a hand-applied `--nuri-type-*` block (supersedes 46.2's
+font-bearing `.nuri-topbar__center`); a non-text centre passes through untyped. This **resolves
+R-EXPO-2 a/b/c** (= SPEC-FEEDBACK `F-DEMO-6`) **structurally**: (a) no phantom gap — a positional
+empty side is absent; (b) no collapsed trailing — controls are self-sized, no `flex:0` side region;
+(c) the non-text centre is not `<Text>`-wrapped. **center** centres the content WITHIN the pivot —
+pixel-perfect for symmetric sides (the segmented switch · the common centred shape), ~7px off for
+asymmetric sides (the action bar · the equal-flex side wrappers are gone); the operator chose
+**ship as-is** (true-centre for asymmetric action bars → a future `screen-header`/`action-bar`
+recipe · P11). RN mirror 1:1 (`topbar.tsx` · `TopbarContent` pivot · height corrected
+`size.xl`→`size.lg` to match web). The playground consumer (`lib/playground/shell.js`) migrated to
+the positional API (operator-approved). **Skip-emit · `build/` byte-identical · no new decision.**
+Web-first → RN mirror → re-validated vs the 8-shape gallery (preview MCP). Gates green (test 22/22 ·
+build byte-identical · tsc 0). Runs in PARALLEL with Session A (List/NavItem · amendment 52.2) on
+disjoint files. See [`roadmap/N+18.md`](./N+18.md).
+
 N+16 closed (#11): **RN mirror layout back-ports** (R-EXPO-3/4/5). The first real
 Expo render (SPEC-FEEDBACK `F-DEMO-2/3/4`) surfaced three RN-layout realities the
 TYPE-ONLY migration mirrors structurally couldn't catch; this session back-ported the
@@ -459,8 +484,10 @@ debt was neither advanced nor deepened. See
 N+6.6 closed: Topbar + IconButton `fill` passthrough landed.
 **Topbar** ([`lib/components/topbar/`](../lib/components/topbar/))
 ships as `<nuri-topbar>` + `<nuri-topbar-start>` / `<nuri-topbar-end>`
-— the **first compositional chrome shell** and the **second light-DOM
-child-reparenting compound** (after Tabs). A three-region layout
+(the region wrappers + JS reparenting were later **retired** → the
+content-pivot open primitive · **amendment 46.4** · N+18 · see Current
+state) — the **first compositional chrome shell** and the **second
+light-DOM child-reparenting compound** (after Tabs). A three-region layout
 (`[leading] · children · [trailing]`) driven by a **single structural
 boolean, `center`** — **slots, not use-case variants**
 ([decision 46](../decisionlog.md#46-compositional-chrome-shell-via-named-light-dom-wrappers--n66)).
@@ -1298,6 +1325,7 @@ surfaces):
 | N+13 | ✓ closed (#5) | **Migration-test reconciliation** · closes the spec↔example contradiction the split surfaced — the mirrors now **IMPLEMENT** decision 27's single `NuriThemeContext` (`{ mode, accent }`) + composite `NuriScope` (merge-on-override), replacing the two per-dimension contexts (decision 27 had REJECTED) · **F-SCOPE-1 CLOSED** (n=1 confirmation · **decision 62**) · **D1–D4 faithful adds** honoring existing decisions (Box `background`/`radius` dec 42 · Button `size` dec 41 · Tab `disabled` dec 42/43 · IconButton emit-deref dec 52) with **F-BOX-FG-1** + **F-TAB-DISABLED-1** logged · scope page + `scope/README.md` + impl-guide now describe EXACTLY what the examples do (zero residual gap) · impl-guide split pointer + deep-link fixes (retired `index.tsx` → `button.tsx`) · `density`/`neutral` stay reserved (P11) · gates green (test 22/22 · build · no `build/` diff · tsc 0) | [→](./N+13.md) |
 | N+15 | ✓ closed (#7) | **accent×theme self-scope cascade fix** · a Tier-2 self-scope (inner `data-accent`, no `data-theme`) rendered the **LIGHT** accent inside a **DARK** ancestor (playground My-vault dark: swap IconButton + IconAvatars dark-on-dark/invisible) · root cause: dark accent overrides were **compound** selectors `[data-accent="X"][data-theme="dark"]` needing both attrs on one element, but a self-scope carries only `data-accent` · fix (approach A · parser-transparent): two **descendant-combinator** dark blocks `[data-theme="dark"] [data-accent="X"]` (**#4b** neutral · **#6b** lilac · P4 brand triple omitted) → emit **byte-identical** · candidate B (accent-as-pointer) **rejected** (breaks classify-by-cascade) · documented known limitation **F-SCOPE-3** (a descendant combinator matches ANY dark ancestor · P11 revisit-trigger · no consumer nests opposite themes) · RN single-context model **immune** (positive control) · web-CSS-only · decision 63 · gates green (test 22/22 · build byte-identical · tsc 0) | [→](./N+15.md) |
 | N+16 | ✓ closed (#11) | **RN mirror layout back-ports** (R-EXPO-3/4/5 · = SPEC-FEEDBACK F-DEMO-2/3/4) · **mechanical conformance pass, no new decision** (N+14 posture) — back-port the consumer's already-validated fixes into the canonical TYPE-ONLY mirrors · (1) **Button** drops base `flex: 1` (web `.nuri-button` is `inline-flex`, no grow → content-sized leaf; full width in a column from parent `alignItems:'stretch'` · F-DEMO-2) · (2) **Scroll** defaults `contentContainerStyle={{flexGrow:1}}` overridable (a ScrollView content container is content-sized → a `Box fill` child had no slack; the faithful RN realization of the web definite-height flex-column scroll · F-DEMO-3 · decision 60) · (3) **Separator** axis-ABSOLUTE `width:'100%'`+`flexShrink:1` (was `alignSelf:'stretch'` = cross-axis-relative → 0 width in a ROW; web is `inline-size:100%` · F-DEMO-4) · `scroll.tsx`/`separator.tsx` headers rewritten (described OLD behaviour) · **Topbar (R-EXPO-2) EXCLUDED** (larger migration issue · separate investigation) · type-only (`noEmit`) → tsc proves types not layout (render validation = Expo consumer) · no `lib/`/`pipeline/`/`build/` touch · closeout audit clean · gates green (test 22/22 · build byte-identical · tsc 0) | [→](./N+16.md) |
+| N+18 | gates green · **PR gated on Session A** | **Topbar → content-pivot open primitive** (amendment 46.4 · decision 64) · drops JS region-reparenting → a `<nuri-topbar-content>` pivot (`flex:1`) + **positional** leading/trailing siblings · **deletes** the reparenting + `data-leading/-trailing` occupancy + `display:none` empty-side collapse + `<nuri-topbar-start>`/`<nuri-topbar-end>` · keeps `center` + declarative per-edge `inset` (default `lg` · never auto-by-type) · bare-text title **REUSES Typography** (`.nuri-type-lg--em` utility / `<Typography size="lg" emphasis>` · single text-style owner · supersedes 46.2's hand-applied font) · non-text centre passes through · **resolves R-EXPO-2 a/b/c** (= F-DEMO-6) structurally (no phantom gap · no collapsed trailing · non-text not `<Text>`-wrapped) · **center** centres in the pivot (symmetric=true / asymmetric ~7px · operator: ship as-is · true-centre → future recipe) · RN mirror 1:1 (height `size.xl`→`size.lg` to match web) · page + playground (`shell.js` · `my-vault.html`) consumers migrated · **skip-emit · `build/` byte-identical · no new decision** · runs PARALLEL with Session A (List · 52.2) on disjoint files · gates green (test 22/22 · build byte-identical · tsc 0) | [→](./N+18.md) |
 
 ## Expo consumption feedback · R-EXPO work queue
 
@@ -1334,16 +1362,18 @@ Prioritized DS work queue (codes map 1:1 to the demo's `F-DEMO-*`):
   slot, or widen `children` — and how the label colour reaches a nested `<Icon>` (RN
   `<Text>` colour does not inherit into a child `<Icon>`; no `currentColor` analogue
   · same family as F-BOX-FG-1). → **Open question** (below).
-- 🟡 **R-EXPO-2 · Topbar cluster (RN mirror · `topbar.tsx`).** **PULLED from this
-  queue (N+16) — under separate investigation as a larger migration issue, NOT a
-  mechanical back-port; deliberately not resolved alongside 3/4/5.** Three issues:
-  (a) an empty side region is not collapsed → it reserves a phantom `gap` slot
-  (title nudged inward), violating the DECIDED RN-parity note of amendment 46.3;
-  (b) side regions use `flex: sideFlex` (basis 0) → the trailing region gets 0 width
-  and icons can overflow — intended is `flexGrow` (basis auto); (c) the centre is
-  wrapped in a single `<Text>`, which is **native-fragile** — a non-text centre node
-  is invalid inside `<Text>` on native RN (only react-native-web tolerates it). See
-  the [decision 46.2 consumption note](../decisionlog.md#462-amendment--n84--topbar-is-now-font-bearing-for-its-title).
+- ✅ **R-EXPO-2 · Topbar cluster (= F-DEMO-6). · RESOLVED N+18 (decision 64 · amendment 46.4)**
+  Resolved **structurally** by the content-pivot refactor — not a patch of the old reparenting
+  mirror. Topbar became an OPEN primitive on the content-pivot anatomy: a `<nuri-topbar-content>`
+  pivot (`flex:1`) + **positional** leading/trailing siblings, web↔RN identical. (a) **no phantom
+  gap** — a positional empty side is absent, so nothing reserves a `gap` slot (the amendment 46.3
+  violation is moot); (b) **no collapsed trailing** — leading/trailing are self-sized positional
+  controls, never a `flex:0` (basis-0) side region (the old `flex: sideFlex` bug has no surface);
+  (c) **non-text centre not `<Text>`-wrapped** — the lg-em title applies to BARE TEXT only via a
+  composed Typography, a non-text centre passes through. The blanket `<Text>`-wrap is gone and
+  amendment 46.2's hand-applied font is superseded (see its re-decided note). The web
+  `lib/components/topbar/*`, the page, and the playground consumers migrated alongside; `build/`
+  byte-identical.
 - ✅ **R-EXPO-3 · Remove `flex: 1` from the RN Button base (= F-DEMO-2). · landed N+16 (#11)**
   `docs/migration-tests/button-matrix/button.tsx` (`styles.base`) hardcoded
   grow; the web button is `inline-flex` (no grow), so a leaf control should not grow
@@ -1374,9 +1404,10 @@ migration-test mirrors — each brought into parity with **both** its web source
 and the consumer's validated F-DEMO resolution (the demo already carried the correct
 fix). They are **type-only** mirrors (`noEmit`, never render), so the green `tsc`
 proves TYPES; the layout validation is the Expo consumer render itself (out of this
-repo). **R-EXPO-2 (Topbar) was pulled from this queue** — it is a larger migration
-issue under separate investigation, not a mechanical back-port, so it was deliberately
-excluded from N+16. R-EXPO-1 and R-EXPO-6 remain gated on the two open questions below.
+repo). **R-EXPO-2 (Topbar) — pulled from N+16 as a larger migration issue — is now RESOLVED in
+N+18** (decision 64 · amendment 46.4): the content-pivot refactor fixes a/b/c structurally on
+both platforms (not a back-port of the old reparenting mirror), so it was the right call to defer
+it from the mechanical N+16 pass. R-EXPO-1 and R-EXPO-6 remain gated on the two open questions below.
 
 ## Open questions (in flight)
 
