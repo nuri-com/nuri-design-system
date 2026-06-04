@@ -1,7 +1,19 @@
 # Risks · Nuri
 
 **Date drafted**: 2026-05-27 (during N+3 philosophy brainstorm)
-**Last updated**: 2026-06-03 (N+16 close · RN mirror layout back-ports — **3 of the
+**Last updated**: 2026-06-04 (N+17 close · **List family → content-pivot + scalar NavItem**
+[amendment 52.2 · the List half of decision 64] — mechanical implementation, no new decision,
+`build/` byte-identical. The content-pivot **CLOSES the ListItem structural web↔RN divergence**:
+web now wraps content in `<nuri-list-item-content>` (`flex:1`), matching the RN mirror's already-
+validated `<View {flex:1}>` pivot, with leading/trailing positional both sides; the pivot maps to
+`<View>` never `<Text>` (structurally avoids the R-EXPO-2c class). The remaining ListItem gaps are
+the two **irreconcilable** a11y deltas **F-LISTITEM-ROLE-1** + **F-FOCUS-1**, now also surfaced on
+the List **component pages** via behavioural-delta sections (amendment 24.1). **Breadcrumb
+(known-deferred):** the pivot's **structural** values (`flex:1` / `min-inline-size:0`, same class
+as `flex-direction:row`) stay **hand-mirrored** in `list.tsx` — the coordinator decided NOT to emit
+them as component tokens (Topbar's content-pivot shares them but is skip-emit); the systemic fix is
+**R-EXPO-6** (emit the curated prop-vocab/structure), not a per-component one-off. · Prior
+2026-06-03 (N+16 close · RN mirror layout back-ports — **3 of the
 4 R1 consumption findings landed** [R-EXPO-3/4/5]: Button `flex:1` dropped · Scroll
 `contentContainerStyle.flexGrow:1` default · Separator axis-absolute `width:'100%'` ·
 each matched to web SoT + consumer F-DEMO-2/3/4; **Topbar `<Text>` cluster [R-EXPO-2]
@@ -437,6 +449,21 @@ Full version in
   gap travels with the component as documented.** (F-FOCUS-1 also recurs
   here — the interactive row's web `:focus-visible` ring has no RN
   `Pressable` analogue, the same web-only-focus delta already catalogued.)
+  · **N+17 update — now surfaced on the component pages.** The N+17
+  content-pivot refactor (amendment 52.2) added the **behavioural-delta
+  section** (amendment 24.1) to BOTH List pages
+  ([`list-base.html`](../pages/components/list-base.html#behavioural-delta)
+  carries the canonical F-LISTITEM-ROLE-1 + F-FOCUS-1 rows;
+  [`list-nav-item.html`](../pages/components/list-nav-item.html#behavioural-delta)
+  marks them `data-inherited="list-interactive-item"`), so this gap now lives
+  on the **migration persona's primary surface** (the component page · per the
+  AGENTS.md audience table), not only in this register + the `list.tsx` mirror.
+  The List pages had been the only interactive component pages lacking the
+  section. **Distinct from the reconcilable flex drift**: the content-pivot's
+  `flex:1` / `min-inline-size:0` are RN-supported pattern invariants
+  (hand-mirrored · deferred to R-EXPO-6 · see the Last-updated breadcrumb), so
+  they are NOT documented as a behavioural delta — only these two
+  irreconcilable a11y gaps are.
 
 - **F-TABBAR-ROLE-1** · TabBar (the icon-only bottom **destination
   switcher** · N+9) is a navigation surface whose correct web a11y model
