@@ -2539,6 +2539,14 @@ title text only**, not wrap every centre child. Follow-up tracked as
 re-decided** — this note flags the hazard so a faithful reading of 46.2 does not
 reproduce the bug, and is superseded when 46.2 is re-decided.
 
+**Re-decided (2026-06-04 · decision 64 · amendment 46.4).** The font-bearing
+`.nuri-topbar__center` is **retired**: hand-applying `--nuri-type-*` here duplicated the scale
+Typography owns (decision 53). The content-pivot (`<nuri-topbar-content>`) is **pure layout**;
+the title type comes from a **composed Typography** (web utility / RN `<Typography>`) applied to
+**bare title text only** — which is also the R-EXPO-2c fix (a non-text centre is no longer
+wrapped in `<Text>`). The no-wrapper ergonomic is preserved by the pivot composing Typography
+for bare text.
+
 ### 46.3 amendment · N+11 · an empty side region collapses (no phantom gap)
 
 **An empty side region no longer eats a `gap` slot.** The shell ALWAYS builds
@@ -2564,6 +2572,26 @@ non-center bars; all 3 center-mode bars keep their regions; filled regions never
 collapse.
 
 **Operator signed off (2026-06-01)** on the Topbar empty-side-region collapse (no phantom gap).
+
+### 46.4 amendment · N+17 · Topbar → content-pivot open primitive (decision 64)
+
+**Topbar becomes an OPEN primitive on the content-pivot anatomy** (decision 64): a
+`<nuri-topbar-content>` **layout pivot** (`flex:1`) + **positional, self-styling**
+leading/trailing controls (IconButton / Button / Tabs · 0..n per side). It exposes its layout
+knobs + `as` (open), keeps `center` as a variant, and keeps the declarative per-edge `inset`
+(default `lg` · override `xs|sm|lg` · **never** auto-resolved by child type — that would be
+type-inspection + web-only). Per-shape inset defaults move to recipes.
+
+**Drops** the JS region-reparenting (`querySelector` + `createElement` + `appendChild`), the
+`data-leading/-trailing` occupancy detection, and the `display:none` empty-side collapse — a
+positional empty side simply contributes nothing, so no phantom gap arises. Resolves
+**R-EXPO-2 a/b/c** structurally.
+
+**`topbar-content` is a LAYOUT part, not a Typography** (maps to `<View>` on RN; holds bare text
+OR a non-text centre like the Digital-cash segmented). The title type comes from a **composed
+Typography**, never a hand-applied `--nuri-type-*` block — this is what **supersedes 46.2** (see
+the 46.2 re-decided note). Recipes (`screen-header`, `action-bar`) deferred (P11). Implementation
+pending (web-first → RN mirror → re-validate vs the Expo render).
 
 ## 47. TypographyStack family · contextual text-hierarchy primitive · level carried by the element · N+6.7
 
@@ -3478,6 +3506,25 @@ family `EMIT` no longer carries a `gap` row.
 EMIT (now without `list.gap`); `separator` stays **skip-emit** (its
 `y-space` is prop-driven · [decision 37](#37-layout-primitives-consume-semantic-vocabulary-via-prop--no-component-token-aliasing--n62)).
 See [`roadmap/N+8.1.md`](./roadmap/N+8.1.md).
+
+### 52.2 amendment · N+17 · List family → content-pivot · NavItem → scalar recipe (decision 64)
+
+**Per decision 64**, the List family (decisions 51/52) moves to the content-pivot anatomy.
+
+**ListItem = OPEN primitive on the content-pivot**: a `<nuri-list-item-content>` **layout pivot**
+(`flex:1` · a `<View>` on RN · holds bare text OR rich content, never a Typography) + **positional
+self-styling** leading/trailing. **Drops** the `<nuri-list-item-leading>` /
+`<nuri-list-item-trailing>` wrappers and the bare-text `margin-inline-start:auto` patch (the
+pivot's `flex:1` pushes trailing by construction). The RN mirror already content-pivots
+(`list.tsx:107`), so this aligns web to the validated RN shape. `InteractiveListItem` (pressable
+WRAPPER) is unchanged in role. Text styling comes from a composed Typography (**decision 53** ·
+single owner), never hand-applied tokens.
+
+**NavItem = CLOSED scalar recipe** (was a children-distribution / `leading: ReactNode` hybrid that
+diverged web↔RN): `text: string` · `icon?: IconName` (→ leading IconAvatar) · `variant?` /
+`accent?` (style the leading · no-op without `icon`) · `onpress` **required** · caret
+always-present (not a prop). Unifies web + RN on the scalar contract; arbitrary-leading flexibility
+drops to ListItem composition (the escape hatch). Implementation pending.
 
 ## 53. TypographyStack `-element` eliminated · `muted` on Typography · N+8.2
 
@@ -4541,3 +4588,103 @@ docs/migration-tests/button-matrix/tsconfig.json` exit 0.
 visual checkpoint (swap renders as a cream circle · resolved `rgb(255,253,242)` on
 `rgb(18,17,11)`), with the nearest-theme limitation accepted per P11 as a
 documented revisit-trigger.
+
+## 64. Composition model · open primitives / closed recipes · naming taxonomy · text single-owner · N+17
+
+**Two layers, opposite API philosophies, with an escalation rule between them.** The
+N+9..N+16 composition review (crystallized in `docs/composition-model.md` and stress-tested
+against the first real Expo render) lands here as the canonical model.
+
+### The two layers
+- **Primitive — OPEN (composition + polymorphism).** Exposes its flexible layout knobs
+  (`gap` / `align` / `justify` where they fit its role + its own structural props), accepts
+  the web-only host-override `as`, and is composed from real, self-styling parts in document
+  order. It has a **fixed identity** (Topbar IS a chrome row; ListItem IS a list row) but is
+  **open on the knobs** — a consumer CAN "break the look" (`<nuri-topbar justify="space-between">`).
+  That is allowed: the safety net is the recipe layer, not the primitive.
+- **Recipe — CLOSED (configuration).** Configured by **scalar props only** (`text`, `icon`,
+  `onpress`…), composes primitives internally, exposes **no layout knobs**, covers the frequent
+  ~80%, and **cannot be broken** by the consumer. Adds **no new tokens / no new design
+  decision** (skip-emit) — pure composition of existing primitives. (`nav-item` is the first
+  recipe · decision 52.)
+
+### Escalation rule (the escape hatch)
+When a recipe doesn't cover a case the consumer does **not** grow the recipe — they **drop to
+the primitive** and compose. Recipes stay thin by construction; the long tail lives at the
+primitive layer.
+
+### `as` / polymorphism — flexibility yes, identity no
+`as` (and `font`) are **web-substrate props** with no RN referent → dropped on RN (the
+primitive renders the platform base element, `<View>` etc.). This is the existing R1 /
+decision 27 rule ("props 1:1 minus web-only"), restated as a layer property:
+- **Flexibility via `as` is fine** — a Topbar is still a Topbar whether its host is `<header>`
+  or `<div>`.
+- **A component's cross-platform IDENTITY must never depend on `as`** — RN cannot reconstruct
+  "this box IS a button because `as="button"`". Identity is the component's own definition, not
+  its host tag. (A polymorphic `<box-accent as="button">` is therefore rejected.)
+
+### RN-parity (R1) preserved
+Open knobs mirror to RN as styles (`justify`→`justifyContent`, `gap`→`gap`…). The only
+non-crossing props remain `as` / `font`. Recipes are an additionally-tighter, fully-1:1 scalar
+contract. The migration tests cover BOTH layers (primitives minus web-only · recipes scalar),
+so parity stays machine-checked.
+
+### Content-pivot — anatomy of a heterogeneous primitive
+A primitive whose regions differ (leading ≠ content ≠ trailing) wraps **only the content** in a
+named **layout pivot** part (`flex:1`); leading/trailing are **positional, self-styling** parts
+around it. The pivot is a layout container (maps to `<View>` on RN — it holds bare text OR rich
+content), **never** a Typography/`<Text>` (a non-text child inside `<Text>` is native-invalid ·
+the R-EXPO-2c class). Identical web↔RN — the RN ListItem mirror already does it
+(`list.tsx:107`) — replacing both the Topbar JS reparenting and the ListItem side-wrappers +
+bare-text `margin-auto` patch. A **homogeneous** primitive (TabBar) needs no pivot: direct
+children + controller state-injection. (The web TabBar's wholesale-wrap into `<nav>` is a benign
+landmark wrap — items moved in block, no type-routing, no restyle — NOT the reparenting
+anti-pattern; the bright line is type-routed region reconstruction, as in the old Topbar.)
+
+### Text-style single-owner — Typography
+**Typography is the sole owner of the text-style scale** (`xs · sm · md · lg · xl · 3xl` +
+emphasis / muted). Nothing else hand-applies `--nuri-type-*` low-level tokens: every component
+that renders text **reuses** Typography (composes it / its generated utility · decision 53),
+never re-derives the scale. This is the text analogue of the variant×accent funnel (`button.*`
+shared by Button/IconButton/IconAvatar): **a shared visual concern has one owner; components
+reuse, they never duplicate the low-level tokens.** Consequence: content-pivots
+(`topbar-content` / `list-item-content`) are **pure layout** — their text comes from a composed
+Typography, not a hand-applied type block. This **supersedes amendment 46.2**'s font-bearing
+`.nuri-topbar__center` (which hand-wrote `--nuri-type-*` — the exact duplication this rule
+forbids · see the 46.2 re-decided note).
+
+### Naming taxonomy
+- Primitives → **structural names** (`nuri-topbar`, `nuri-topbar-content`, `nuri-list-item`,
+  `nuri-list-item-content`, `nuri-list-interactive-item`).
+- Recipes → **use-case names** (`nuri-nav-item`; future `nuri-screen-header`, `nuri-action-bar`).
+- Every component carries a machine-readable **`layer: primitive | recipe`** tag (component page
+  + a registry). **No `-core` / `-raw` suffix.**
+
+### Designed for agent prototyping
+The layers map onto agent skills: a **compose-skill emits recipes only** (safe, DS-adherent by
+construction); a per-component **tweak-skill drops to the primitive** for the off-script 20%.
+Operational test for the split: *a recipe is what a compose-skill may emit; a primitive is what a
+tweak-skill emits.*
+
+### Guardrails
+- **Knob-creep on a recipe is the real "facade" to avoid** — a primitive being open is not.
+- **P11 gates recipe creation**: build a recipe only when a real screen proves the frequent shape.
+- DRY lives in **shared owners** — shared tokens + resolver functions (the variant×accent funnel;
+  Typography for text) and a **shared web host-helper** (the `as` + reflect-attrs machinery
+  `box.js`/`stack.js` duplicate) — **never** in prop-forwarding facades.
+
+### Deferred (P11)
+- Shared **`accentSurface(variant, accent, theme, pressed)`** resolver (neutral home for the
+  Button/IconButton/IconAvatar funnel) — **parked** per operator (start with flexibility).
+- Shared **web host-helper** extraction — separate `chore/`.
+- Future recipes (`screen-header`, `action-bar`, `activity-item`, `balance-row`) — each P11-gated.
+
+**Applied via** amendments **46.4** (Topbar), **52.2** (List family / NavItem), and the **46.2
+re-decided** note. **Supersedes** `docs/composition-model.md` (kept as design narrative; its two
+slips are corrected there: the web TabBar DOES wholesale-wrap into `<nav>` — benign; and the
+content-pivot's real justification is **RN-parity**, not web tidiness).
+
+**Operator signed off (2026-06-04)** on the full model: open primitives / closed recipes, the
+escape-hatch rule, `as` = flexibility-not-identity, content-pivot as a layout part, Typography as
+the single text-style owner (superseding 46.2's hand-applied font), the no-suffix naming
+taxonomy, and the compose/tweak agent-skill mapping.

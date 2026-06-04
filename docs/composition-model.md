@@ -1,10 +1,15 @@
 # Composition model · compound primitive vs recipe + naming convention
 
-**Status**: DECIDED (operator sign-off **2026-06-03**) · **implementation pending**.
-This is the design doctrine that came out of the N+16-era composition review. It
-folds into [`decisionlog.md`](../decisionlog.md) as **decision 64** + amendments to
-decisions **46** (Topbar), **51/52** (List family) once the four components below are
-implemented. Sister to `decisionlog.md` / `docs/RISKS.md` / `roadmap/index.md`.
+**Status**: **Canonical record is now [decision 64](../decisionlog.md) (operator sign-off
+2026-06-04)** — read decision 64 first; this file is kept as the design narrative. **The final
+model refines this doc on two points:** (1) primitives are **OPEN** (flexible / polymorphic —
+invariants live in the *recipe*, not the primitive; so where this doc says a primitive
+"encapsulates", read decision 64's open-primitive layer); (2) the content-pivot's real
+justification is **RN-parity** (an explicit layout pivot translates 1:1 to RN; the web-only
+`:not()` / `margin-auto` do not), not web tidiness. Decision 64 also adds the text-style
+single-owner rule (Typography), the `as` = flexibility-not-identity line, the `layer` naming
+taxonomy, and the agent-skill mapping. Sister to `decisionlog.md` / `docs/RISKS.md` /
+`roadmap/index.md`.
 
 Origin: the first real Expo render surfaced a Topbar `<Text>`/region cluster
 (R-EXPO-2). Digging in showed the bug was not the `<Text>` wrap per se — it was that
@@ -62,11 +67,17 @@ direct children, controller injects state.
     case — a **bare-text** content node is an anonymous flex item with **no flex:1**,
     so it can't push trailing; they bolt on `margin-inline-start:auto`. Wrapping the
     **content** (so the wrapper carries `flex:1` regardless of text-vs-element)
-    dissolves this edge case. → content-pivot, not side-wrappers.
+    dissolves this edge case. → content-pivot, not side-wrappers. **(Correction ·
+    decision 64: the *deeper* reason is RN-parity — the unwrapped-middle `:not()`
+    selector is web-CSS-only; an explicit content pivot translates 1:1 to RN and
+    eliminates the R-EXPO-2c class — not just the web `margin-auto` nicety.)**
 - **TabBar = composition + state injection (correct).** `tab-bar.tsx:127-132`:
   `React.Children.map` + `cloneElement` injects only `active`/`onSelect` into real
   `TabBarItem`s that own their Pressable/Icon/colours/a11y. Touching children to inject
-  **state** is fine; re-styling them is not.
+  **state** is fine; re-styling them is not. **(Correction · decision 64: the WEB
+  `tab-bar.js` DOES wholesale-wrap its items into a created `<nav>` landmark — benign,
+  order-preserving, no type-routing — so the bright line is *type-routed region
+  reconstruction* (old Topbar), not "reparenting yes/no".)**
 - **Topbar = the VIOLATOR (self-acknowledged).** `topbar.js:41-61`: the
   `connectedCallback` does `querySelector` + `createElement` + `appendChild` —
   reparents authored children into rebuilt `__start`/`__center`/`__end` divs. This is
