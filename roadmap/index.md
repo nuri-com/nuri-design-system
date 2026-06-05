@@ -1417,11 +1417,15 @@ Prioritized DS work queue (codes map 1:1 to the demo's `F-DEMO-*`):
   `alignSelf:'stretch'` replaced with `width:'100%'` + `flexShrink:1` — the hairline
   now survives both a column and a row.
 - 🟢 **R-EXPO-6 · Build emits TOKENS but not the curated PROP vocab (= F-DEMO-5) —
-  pipeline enhancement.** `SpaceLeaf`, Box `background`/`radius`, variant enums, etc.
+  pipeline enhancement. DECIDED · [decision 65](./../decisionlog.md#65-r-expo-6--the-emitted-component-descriptor-as-a-frozen-contract--complete-l3--factory-drafted-here--finalized-in-expo--n19).** `SpaceLeaf`, Box `background`/`radius`, variant enums, etc.
   live only in CSS `[data-*]` selectors (skip-emit primitives · decision 36), so the
-  RN side hand-types them → silent drift (unlike the drift-guarded `TokenPath`). Emit
-  a prop-vocab artifact so RN derives the unions. Systemic; the biggest of the six. →
-  **Open question** (scope · below).
+  RN side hand-types them → silent drift (unlike the drift-guarded `TokenPath`).
+  **Resolves at the COMPLETE component descriptor (L3)** — vocab + prop→token
+  mappings + parts/anatomy/layout config emitted as typed `.ts`. The **descriptor is
+  the frozen cross-repo contract** (owned here · schema-shape guard test · post-freeze
+  changes versioned); the RN **factory** is **drafted in-repo typecheck-only** (the
+  evolved migration-mirror) and **finalized in a demo Expo project** — this repo never
+  ships the factory. Systemic; the biggest of the six.
   · **N+17 breadcrumb (known-deferred · do NOT one-off):** the content-pivot's
   **structural values** (`flex:1` / `min-inline-size:0` on `<nuri-list-item-content>`,
   same category as `flex-direction:row` / `align-items:center`) live only in
@@ -1429,9 +1433,9 @@ Prioritized DS work queue (codes map 1:1 to the demo's `F-DEMO-*`):
   checkpoint the operator flagged this; the coordinator decided **NOT to emit** them as
   component tokens — they are pattern invariants, not tunable baked decisions, and
   Topbar's content-pivot shares the same `flex:1` while staying skip-emit (decisions
-  46/37) — so a `contentFlex` token would force an incoherent asymmetry. The resolution
-  is **this systemic prop-vocab/structure-emit decision (R-EXPO-6)**, not a per-component
-  token. Until then the structural values stay hand-mirrored (correct, not debt), exactly
+  46/37) — so a `contentFlex` token would force an incoherent asymmetry. **Resolved-by-design
+  (decision 65)**: the structural values become **descriptor data** (not a per-component token).
+  Still **hand-mirrored until the working session lands** (correct, not debt), exactly
   like `flex-direction:row`.
 
 R-EXPO-3/4/5 **landed in N+16 (#11)** as mechanical conformance back-ports to the
@@ -1442,7 +1446,7 @@ proves TYPES; the layout validation is the Expo consumer render itself (out of t
 repo). **R-EXPO-2 (Topbar) — pulled from N+16 as a larger migration issue — is now RESOLVED in
 N+18** (decision 64 · amendment 46.4): the content-pivot refactor fixes a/b/c structurally on
 both platforms (not a back-port of the old reparenting mirror), so it was the right call to defer
-it from the mechanical N+16 pass. R-EXPO-1 and R-EXPO-6 remain gated on the two open questions below.
+it from the mechanical N+16 pass. R-EXPO-1 remains gated on the open question below; **R-EXPO-6 is now DECIDED ([decision 65](./../decisionlog.md#65-r-expo-6--the-emitted-component-descriptor-as-a-frozen-contract--complete-l3--factory-drafted-here--finalized-in-expo--n19))**.
 
 ## Open questions (in flight)
 
@@ -1454,7 +1458,9 @@ it from the mechanical N+16 pass. R-EXPO-1 and R-EXPO-6 remain gated on the two 
   RN `currentColor`). (2) **Emit the curated prop vocab (R-EXPO-6)** — should the
   pipeline emit the skip-emit prop unions (`SpaceLeaf`, Box `background`/`radius`,
   variant enums) so the RN side derives them instead of hand-typing (decision 36
-  keeps them CSS-only today)? Both gate their R-EXPO fixes; the other four items
+  keeps them CSS-only today)? **RESOLVED by [decision 65](./../decisionlog.md#65-r-expo-6--the-emitted-component-descriptor-as-a-frozen-contract--complete-l3--factory-drafted-here--finalized-in-expo--n19)** — emit the **complete component descriptor (L3)** (vocab + prop→token
+  mappings + parts/anatomy/layout), not just the vocab; the descriptor is the frozen
+  cross-repo contract. (1) gates its R-EXPO fix; the other four items
   are mechanical and need no decision.
 - **General `grow` prop vs Spacer-only (N+11 · decision 59).** When the
   fill/push need first surfaced (swap-row separators · value-push-right) the

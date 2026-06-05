@@ -4690,3 +4690,132 @@ content-pivot's real justification is **RN-parity**, not web tidiness).
 escape-hatch rule, `as` = flexibility-not-identity, content-pivot as a layout part, Typography as
 the single text-style owner (superseding 46.2's hand-applied font), the no-suffix naming
 taxonomy, and the compose/tweak agent-skill mapping.
+
+### 64.1 amendment · N+19 · `composition-` naming for open primitives whose common case is a recipe
+
+**An open primitive whose common case is a recipe takes a `composition-` prefix; the bare name goes
+to the recipe.** Decision 64 gave the *primitive* the plain structural name and the *recipe* a
+use-case name (`list-item` → `nav-item`). Button **inverts the prominence** — the simple case (a
+labelled button) is the common one — so the bare name goes to the **recipe** (`button`) and the open
+primitive takes the prefix (`composition-button`). Rule: *an open primitive whose common case is a
+recipe takes `composition-`; the bare name is the recipe.* Generalises (`composition-list-item`, …);
+the family renames are **deferred · P11**. Base: `docs/resolver-model.md` §5.
+
+**Operator signed off (2026-06-04)** on the `composition-` convention (`button` = recipe ·
+`composition-button` = open primitive) and on deferring the family renames.
+
+## 65. R-EXPO-6 · the emitted component descriptor as a frozen contract · complete (L3) · factory drafted-here / finalized-in-Expo · N+19
+
+**The systemic prop-vocab/structure emit gap (F-DEMO-5 · R-EXPO-6) resolves here.** The build
+emits token *values* (drift-guarded as `TokenPath`) but not the curated **prop vocabulary** nor
+the component **structure**, so the RN side hand-types them with no machine guard → silent drift.
+Live instance at decision time: `build/components/button.ts` emits `ghostBg/ghostBgPressed/ghostFg`
+while the RN `button.tsx` union types only `solid|soft` — unlinked, no compile error either way.
+Base: `docs/emit-model.md` (captured off-chat, the way `composition-model.md` based decision 64).
+This pins the LEVEL **and** the boundary **before any pipeline code**.
+
+### The level — emit a COMPLETE descriptor (L3)
+Emit each component's full descriptor as typed `.ts`: **curated vocab** (the enums/subsets —
+`SpaceLeaf`, Box `background`/`radius`, the variant/size/density enums, …) **+ prop→token
+mappings** (the variant×accent funnel as data — already half-emitted in `button.ts`) **+
+parts/anatomy + layout config** (the content-pivot, `flex:1`, named slots). NOT the base's staged
+L1-first: the operator re-opened skip-emit and chose the complete descriptor up front, because its
+consumer (below) needs the whole structure to be data.
+
+### The contract = the data structure, owned here, FROZEN
+The emitted descriptor **is** the cross-repo interface. Once validated, its **schema is locked**,
+guarded by a schema-shape test (an enforced freeze, not honorary); post-freeze changes are
+**versioned**. This is the artifact this repo owns and stands behind.
+
+### The factory — drafted here as proof, finalized in Expo
+The RN **factory** (the component = JSX anatomy + a helper that assigns tokens→styles and
+props→subcomponents, *interpreting* the descriptor) is the **evolved migration-mirror**: drafted
+in-repo, **typecheck-only**, its sole job to prove the descriptor is *consumable and faithful*.
+The production factory is **finalized in a demo Expo project**. **This repo does not own or ship
+the factory** — it stays a contract-emitter + prover. (Expo boundary, restated: emit the
+contract · draft the proof · never ship the generator.)
+
+### 36/37 re-decided (skip-emit)
+Skip-emit's CSS-authoring rule **stands** — no useless `--nuri-stack-gap-md` aliases on
+Stack/Box/Topbar. The descriptor is a **parallel emitted artifact for a different consumer** (RN /
+the factory), not a CSS alias — so the layout primitives now get a **structure emit they
+previously refused, explicitly**. (Structure-level analogue of the vocabulary clarification:
+*contract ≠ alias*.)
+
+### Alignment with decision 64 — the factory is 64-on-RN
+Declarative composition **only**: recipes by **scalar props** (fixed internal composition), open
+primitives by **named slots** (the author places children). **Never** type-routing / reparenting
+authored children — the banned old-Topbar pattern. The split that keeps the descriptor *data* and
+not a DSL: **structure + mapping = descriptor (data)**; **platform behavior = factory (code,
+parameterized by the descriptor)** — `pressed` via `Pressable`, the no-`currentColor` colour
+pass-through (F-BOX-FG-1), focus, a11y roles, touch targets. Behavior is **never** encoded as data
+(that path makes the descriptor a behavior-DSL and the factory its interpreter — rejected). The
+mapping half is already proven by `button.ts` + `variantStyle`.
+
+### Subsumes the N+17 breadcrumb
+The content-pivot's `flex:1` / `min-inline-size:0` — hand-mirrored in `list.tsx`, deferred at
+N+17 — become **descriptor data** here, **not** a per-component `contentFlex` token (Topbar shares
+the flex while skip-emit → a token forces an incoherent asymmetry · the N+17 reasoning). This is
+the systemic resolution the breadcrumb pointed to.
+
+### Working session — contract-first vertical slice (P11)
+1. Design the descriptor **schema** (the contract).
+2. **Emit** it for the components the **existing mirrors already cover**.
+3. **Draft the factory** (in-repo, typecheck-only).
+4. **Rewire the mirrors to derive** from the descriptor — if the factory reproduces them
+   faithfully (typecheck + structural equivalence), the contract is proven against
+   already-validated anatomy.
+5. **Freeze** the contract (schema-shape guard test).
+→ **Then Digital-cash** (OPEN THREAD 1) is the first **post-freeze** consumer — it stresses the
+frozen contract against **new** anatomy (numeric keypad / amount display), surfacing a clean fit
+or a *versioned* contract gap. Every artifact has a current in-repo consumer (P11); prove on what
+exists before fanning out (lesson of the N+17/18 arc).
+
+### Guardrails
+- The descriptor emits from the **same single sources** — the decision-24.1 `data-*` wiring-spec
+  on the component pages + the `@layer tokens` blocks — **not re-authored** (one source, two
+  readers · decision 48).
+- The factory-draft stays **typecheck-only**; no react-native runtime enters this repo's
+  test/build path.
+- The existing emit stays **byte-identical**; the descriptor is **additive**. Gates green
+  (test · tsc · build).
+
+**Base**: `docs/emit-model.md` (design base · PR `docs/emit-model`). **Related**: R-EXPO-1
+(Button icon-slot · separate, smaller). **Risks**: R-EXPO-6 (this) · R1 breadcrumb (the `flex:1`
+hand-mirror · resolved-by-design here).
+
+**Operator signed off (2026-06-04)** on: the **complete-descriptor (L3)** level; the **contract =
+emitted data structure owned here + frozen**; the **factory drafted-here / finalized in a demo
+Expo project** (the repo stays a contract-emitter + prover, never ships the factory); the
+**36/37 re-decision** (descriptor as a parallel artifact for the RN consumer · the CSS rule
+intact); and the **contract-first sequencing** (prove against the existing mirrors → freeze →
+Digital-cash as the first post-freeze consumer).
+
+### 65.1 amendment · N+19 · the descriptor SHAPE is the foundation · thin variants-model · source-agnostic freeze
+
+**The Button-API + resolver work (`docs/resolver-model.md`) refines decision 65 and pins the
+foundation as the SHAPE, not the source mechanism.**
+
+- **The descriptor is THIN.** Decision 65's "structure + mapping = descriptor (data)" is refined: the
+  **standard resolvers** (`surface+accent → {bg,fg,iconColor}` · `size → typeStyle`) are
+  **platform-native** (factory on RN · CSS on web), fed by the emitted scales — NOT emitted
+  per-component (that was the `build/components/button.ts ≡ icon-button.ts` duplication). The
+  descriptor carries the **variant→style map as data** (the `variants`/`compoundVariants` shape) +
+  per-component **structure** + thin **wiring**; the **engine** applying the map is native;
+  **behaviour** (pressed-source · focus · a11y) stays factory code. (resolver-model.md §1–4)
+- **The SHAPE is the foundation, and is source-agnostic.** The frozen contract is the descriptor
+  *shape*; it is invariant to how it's populated, so freezing is safe even if the source is later
+  flipped. **"Derive from CSS" (decision 65) is the BOOTSTRAP** that proves the shape on real
+  components; only the parser is eventually throwaway. (resolver-model.md §9)
+- **The source flip — author the variants-model · generate CSS + docs (revisits decision 2) — is a
+  SEPARATE, deferred decision.** (resolver-model.md §8) · **OPEN.**
+
+**The precise variants-model shape · Typography-as-transversal · the §8 source-inversion are
+DIRECTION** (resolver-model.md), **going to an architecture audit before the detailed plan.** This
+amendment ratifies the **foundation / sequencing** (shape-first · source-agnostic freeze ·
+derive-as-bootstrap · §8 deferred · audit → apply → plan); the shape's final form lands with the
+detailed plan post-audit.
+
+**Operator signed off (2026-06-04)** on the foundation (the descriptor shape is the source-agnostic
+frozen contract · derive-from-CSS is the bootstrap · the §8 source-flip is deferred · the new concept
+goes to audit before the detailed plan).
