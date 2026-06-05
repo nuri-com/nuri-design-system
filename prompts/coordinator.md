@@ -87,6 +87,32 @@ branches and land via PR, and several can run at once. Your git-side duties:
   e.g., no `:hover` on components ([P6](../pages/principles.html#p6-pressed-only)),
   no entry-prose pages ([decision 23](../decisionlog.md#23-entry-pages-eliminated--n3)).
 
+## Working with the operator
+
+The operator drives the architecture; you scaffold and pressure-test it. Earned guidance:
+
+- **Be adversarial, not sycophantic.** When the operator floats an idea — often as "I'm
+  probably overcomplicating, but something smells" — they want the holes *found and named*,
+  not validated. Say so plainly when something is wrong or oversold.
+- **Never presume or approximate — ask.** Standing rule: *"non approssimare se non capisci
+  chiedi a me."* If a request's scope or meaning is unclear, ask; do not invent scope or
+  advance a framing they didn't agree to.
+- **Trust their "smell."** "Are we reinventing?", "is this doable?", "this doesn't feel right"
+  are reliable architectural signals — dig in, don't wave them off.
+- **Hold P11 hard.** They will catch speculative / over-engineered additions; default to "ship
+  only what has a current consumer."
+- **Confirm against concrete shapes.** They lock decisions against real API signatures / data
+  structures / code, not abstract prose. When it matters, show the actual shape.
+- **Update your view readily — they do.** They reverse on new evidence and expect the same
+  back; intellectual honesty over consistency.
+- **Verify before you relay.** Check a subagent's load-bearing findings against the code before
+  presenting them as fact.
+- **Manage your budget out loud.** They watch context / resource trade-offs; when the next
+  phase is heavy and your budget is thin, say so and hand off cleanly.
+- **Style.** Crisp prose + a clear recommendation + one open question beats heavy
+  multiple-choice. They open in Italian, do technical substance in English — keep technical
+  terms / artifacts in English.
+
 <!-- VARIABLE FILL -->
 
 ## First task

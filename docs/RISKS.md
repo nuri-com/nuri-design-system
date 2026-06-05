@@ -18,7 +18,9 @@ the List **component pages** via behavioural-delta sections (amendment 24.1). **
 (known-deferred):** the pivot's **structural** values (`flex:1` / `min-inline-size:0`, same class
 as `flex-direction:row`) stay **hand-mirrored** in `list.tsx` — the coordinator decided NOT to emit
 them as component tokens (Topbar's content-pivot shares them but is skip-emit); the systemic fix is
-**R-EXPO-6** (emit the curated prop-vocab/structure), not a per-component one-off. · Prior
+**R-EXPO-6**, now **DECIDED ([decision 65](./../decisionlog.md))** — the structural values become
+**descriptor data** (complete L3 descriptor · frozen cross-repo contract), not a per-component one-off.
+Still **hand-mirrored until the working session lands** (so still correct, not debt). · Prior
 2026-06-03 (N+16 close · RN mirror layout back-ports — **3 of the
 4 R1 consumption findings landed** [R-EXPO-3/4/5]: Button `flex:1` dropped · Scroll
 `contentContainerStyle.flexGrow:1` default · Separator axis-absolute `width:'100%'` ·
@@ -474,7 +476,9 @@ Full version in
   The List pages had been the only interactive component pages lacking the
   section. **Distinct from the reconcilable flex drift**: the content-pivot's
   `flex:1` / `min-inline-size:0` are RN-supported pattern invariants
-  (hand-mirrored · deferred to R-EXPO-6 · see the Last-updated breadcrumb), so
+  (hand-mirrored · R-EXPO-6 now **DECIDED · [decision 65](./../decisionlog.md)** →
+  these become **descriptor data**, still hand-mirrored until the working session
+  lands · see the Last-updated breadcrumb), so
   they are NOT documented as a behavioural delta — only these two
   irreconcilable a11y gaps are.
 
