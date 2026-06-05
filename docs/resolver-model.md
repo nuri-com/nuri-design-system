@@ -107,6 +107,12 @@ A layout primitive exposes its substrate's interface; it does not remap (§3). T
   **Behaviour** (pressed-source · focus · a11y) is factory code, never data.
 - **Source-agnostic shape** (65.1): the frozen contract is the descriptor *shape*; derive-from-CSS is
   the bootstrap; the §9 source-flip swaps the *producer* behind the unchanged shape.
+- **Format** — the descriptor is **Unistyles-compatible `variants` / `compoundVariants`** (the team
+  uses Unistyles v3 · decision 7), **compatible *not* a dependency**: the baseline *is* the `theme`,
+  variants reference `theme.*`. The **engine** (a data-driven variants resolver + scoped-theme + the
+  surface context · §12) is a **bounded custom build** on the existing `NuriThemeContext` /
+  `resolveToken` / `typeStyle` — adopting Unistyles is the escape-hatch if it ever grows, never
+  required (answers audit M5). Concrete shapes in §11.
 
 ## 8 · Naming
 
@@ -165,3 +171,90 @@ the interaction decomposition (independent opt-in) · the source-agnostic-shape 
 **Open → the detailed plan**: the precise variants-model schema (spike M3/M4 first) · the semantic
 vocabulary (parked) · Typography-transversal mechanics (web-class + an RN `<Text>` helper) · the §9
 source-inversion · prefix-vs-suffix naming.
+
+## 11 · Worked shapes — the theme, the Button API, the emitted bridge
+
+### The theme (baseline · resolved per accent × mode · Unistyles-shaped)
+```ts
+const theme = {
+  // COLOUR
+  surface: {
+    solid:  { bg: accent.solid,    fg: accent.onSolid,     pressedBg: accent.solidPressed },
+    soft:   { bg: chrome.bgStrong, fg: chrome.textPrimary, pressedBg: chrome.bgPressed },
+    ghost:  { bg: 'transparent',   fg: chrome.textPrimary, pressedBg: chrome.bgSubtle },
+    subtle: { bg: 'transparent',   fg: chrome.borderStrong },        // static-only · no pressed
+  },
+  text:   { primary: chrome.textPrimary, muted: chrome.textMuted, onInverse: chrome.textOnInverse },
+  border: { subtle: chrome.borderSubtle, default: chrome.borderDefault, strong: chrome.borderStrong },
+  // TYPE (each step = {fontSize, lineHeight, fontWeight, letterSpacing} · decision 54)
+  type: {
+    md:   { fontSize: 17, lineHeight: 1.29, fontWeight: '400', letterSpacing: -0.02 },
+    mdEm: { fontSize: 17, lineHeight: 1.29, fontWeight: '600', letterSpacing: -0.02 },
+    smEm: { fontSize: 15, lineHeight: 1.33, fontWeight: '600', letterSpacing: -0.01 },
+    // … xs · sm · lg · xl · 3xl (+Em) …
+  },
+  // GEOMETRY (theme-invariant)
+  space:  { none: 0, '2xs': 2, xs: 4, sm: 6, md: 12, lg: 18, xl: 24, '2xl': 36 },
+  size:   { xs: 18, sm: 28, md: 36, lg: 48, xl: 60, '2xl': 72, '3xl': 90 },
+  radius: { sm: 6, md: 12, lg: 18, full: 9999 },
+  // INTERACTION (the not-colour effects)
+  interaction: { pressScale: 0.97, disabledOpacity: 0.4 },
+}
+```
+`surface` / `text` / `border` resolve per (accent × mode) via `resolveToken` (decision 34 ·
+`NuriThemeContext` provides accent+mode); the rest are theme-invariant. **One owner — nothing
+per-component re-defines it.**
+
+### Button API
+```tsx
+// RECIPE — the 90%
+<Button variant?='solid'|'soft'|'ghost' size?='sm'|'md'|'lg' accent? disabled? onPress?>{label /*string*/}</Button>
+// PRIMITIVE (open) — escalate to compose
+<composition-button variant? shape?='square'|'circle' accent? onPress? pressScale? disabled?>{composed}</composition-button>
+```
+`Button` composes `composition-button` (square · interactive · pressScale) + a **propless** `<Typography>`
+label. `IconButton` / `IconAvatar` are the same recipe shape over the surface (circle; Avatar static).
+Button is `children:string` — **no** icon/align/loading (audit m6).
+
+### The emitted bridge (thin descriptor · Unistyles-shaped · references the theme)
+```ts
+button: (theme) => ({
+  variants: {
+    variant: { solid:{backgroundColor:theme.surface.solid.bg}, soft:{backgroundColor:theme.surface.soft.bg},
+               ghost:{backgroundColor:theme.surface.ghost.bg} },
+    size:    { sm:{minHeight:theme.size.md,paddingHorizontal:theme.space.md,borderRadius:theme.radius.sm},
+               md:{minHeight:theme.size.lg,paddingHorizontal:theme.space.lg,borderRadius:theme.radius.sm},
+               lg:{minHeight:theme.size.xl,paddingHorizontal:theme.space.xl,borderRadius:theme.radius.md} },
+  },
+  compoundVariants: [
+    { variant:'solid', pressed:true, styles:{backgroundColor:theme.surface.solid.pressedBg} },
+    { variant:'soft',  pressed:true, styles:{backgroundColor:theme.surface.soft.pressedBg} },
+    { variant:'ghost', pressed:true, styles:{backgroundColor:theme.surface.ghost.pressedBg} },
+    { pressed:true,  styles:{transform:[{scale:theme.interaction.pressScale}]} },   // pressScale opt-in
+    { disabled:true, styles:{opacity:theme.interaction.disabledOpacity} },
+  ],
+})
+// label tracks size → type: { sm:'smEm', md:'mdEm', lg:'mdEm' } → theme.type[…]  (decision 55 asymmetry)
+// label/icon foreground = theme.surface[variant].fg, delivered via the surface context (§12)
+```
+
+## 12 · Scoping & propagation — TWO distinct scopes (don't conflate)
+
+1. **Theme / accent scope** — *which theme a subtree is on* (modal · inverse section · self-scoped
+   accent · decision 63). A `ScopedTheme`-style nested provider that **switches the resolved
+   (accent×mode) slice** for descendants, who auto-read it (decision 27's `NuriThemeContext` · the RN
+   single-context model decision 63 calls *clean* — no cascade clobber). Unistyles' `ScopedTheme` is
+   the lib-native version (switches a **named** theme only · verified against their docs) — we build
+   the equivalent on `NuriThemeContext` (Unistyles-compatible · not required).
+
+2. **Surface foreground / label-type propagation** — a surface **provides** `{foreground, labelType}`
+   (its resolved fg + its size→type step) via a context; **propless `<typography>` / `<icon>`
+   inherit** it — **colour always** (a surface *constraint* · F-BOX-FG-1 · decision 64 "colour from
+   scope, not threaded"), **type as an overridable default** (an explicit `size` wins). This is a
+   *provided value*, NOT a named-theme switch — so `ScopedTheme` is the **wrong tool** here; it's a
+   direct context.
+
+**Example** — `<composition-button size=lg variant=solid accent=lilac>` ⊃ `<h-typography-stack>`
+[`<typography>Buy Bitcoin with</typography>` · `<icon apple/>` · `<typography>Pay</typography>`]:
+the segments inherit **onSolid-lilac** (colour) **+ lg-type** (overridable) with no props; the
+`h-typography-stack` does the row layout (exposing the Stack interface · §6).
