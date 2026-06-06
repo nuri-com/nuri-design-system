@@ -11,6 +11,12 @@ single-owner rule (Typography), the `as` = flexibility-not-identity line, the `l
 taxonomy, and the agent-skill mapping. Sister to `decisionlog.md` / `docs/RISKS.md` /
 `roadmap/index.md`.
 
+**Further evolved — amendment 65.3 (N+19):** the model matured from *compound primitive vs recipe*
+(§1–5) into **recipe = a pure composition of curated namespaces** (`stack` · `box` · `typography` ·
+`palette` + the `interactive` flag · **§6–9 below**) — the schema *form* for R-EXPO-6, **superseding
+amendment 65.2's raw-style patches** and `resolver-model.md` §11's sketch. To be validated by the
+B1.5 playground prototype.
+
 Origin: the first real Expo render surfaced a Topbar `<Text>`/region cluster
 (R-EXPO-2). Digging in showed the bug was not the `<Text>` wrap per se — it was that
 the RN Topbar **reconstructs** its children. That generalised into a principle, then
@@ -157,3 +163,77 @@ IconAvatar keeps **`name`**; NavItem's own `icon` prop forwards `icon → name`.
 - Supersedes the in-conversation detours (the "flat model", "conform Topbar to
   ListItem's wrappers") — the landing is **content-pivot everywhere heterogeneous,
   direct children where homogeneous, recipes by props**.
+
+---
+
+## 6 · The namespace-composition model (amendment 65.3 · N+19)
+
+The model above matured: **a recipe is 100% a composition of curated primitive namespaces — zero raw
+style** (prototypable in the playground · the litmus). Origin: B1 emitted descriptors as *raw RN
+style* (`flexDirection` / `paddingHorizontal`), which duplicates the primitives' vocabulary — the
+§1–2 anti-pattern, one layer up. The fix: the descriptor speaks the **primitive vocabularies**.
+
+**Five disjoint namespaces** (own-by-domain · no two output the same property):
+- **`stack`** — flexbox: `direction · gap · align · justify · wrap · fill('grow' | 'grow-shrink')`.
+- **`box`** — the element's own visual box: sizing (`width · height · minHeight · maxWidth*`) ·
+  `padding*` · `radii` · `border`* width/style · `transform(scale) · opacity`.
+- **`typography`** — font (`size` / step · decision 54/55) · **no color**.
+- **`palette`** — **all** color, from semantic inputs `{ variant: solid|soft|ghost|outline|subtle,
+  accent?, muted?, interactive? }` → bg · fg · fgMuted · border · pressed. `muted` = the muted
+  *foreground* (`chrome.textMuted`; `onSolid.muted`*). Color flows by **scope** (resolver-model §12 ·
+  F-BOX-FG-1) — text/icon inherit the role's fg, so a `variant` patch touches **root only**. **chrome**
+  (`canvas | subtle | strong` · theme-only) is a **separate slot** (the `subtle` *role* name is taken).
+- **`interactive`** — a cross-cutting **flag**, not a style: pressed-**color** → `palette`,
+  press-**scale** + disabled-**opacity** → `box` (the recipe decides *when* · value from the
+  interaction baseline), **`Pressable`** → factory. `pressScale` never touches `palette`.
+
+The three overlaps, resolved: `backgroundColor` → palette (not box) · `flexGrow/shrink` → stack (not
+box) · text/border **color** → palette (border *geometry* → box).
+
+(`*` `maxWidth` / `border` / `outline` / `onSolid.muted` = **mapped, not built** — no current
+consumer · decision 30.)
+
+## 7 · Two layers + the data model
+- **Composition primitive** (`composition-button` … · 64.1 prefix) — fixes the **anatomy** (parts /
+  slots + load-bearing structural styling like the Topbar pivot's `flex:1`); the rest is **overridable
+  defaults**. Maximally open — "centered" is *not* identity.
+- **Recipe** (`button` …) — **locks the design** (per-variant/size compositions). Closed.
+
+```ts
+type PartAnatomy = { el: 'view' | 'text' | 'icon'; open?: boolean; parts?: Record<string, PartAnatomy> };
+type NS = { stack?; box?; typography?; palette?; interactive? };
+type Descriptor<Axes> = {
+  structure: { anatomy: PartAnatomy; base?: NS };                  // anatomy (invariant) + base (defaults / locked)
+  variants?: { [A in keyof Axes]: Record<Axes[A], Record<string /*part*/, NS>> };  // the recipe's per-axis decisions
+};
+```
+Same data serves both layers; only *openness* differs (the primitive exposes `base` for override; the
+recipe locks it).
+
+## 8 · The three, worked (zero raw style)
+- **Button** — `structure`: `view · stack{row, center, center} · interactive`; part `label{text}`.
+  `variants.variant` → `root.palette.variant`; `variants.size` → `root.box{minHeight, paddingX,
+  radius}` + `label.typography.size` (sm→smEm, md/lg→mdEm · 55; lg→radius.md, md/sm→radius.sm · 41).
+  Pressed-color + scale follow from `interactive` — **no compound**.
+- **IconAvatar** — `structure`: `view · stack{center, center} · box{width:lg, height:lg,
+  radius:full}` (the fixed circle · invariant); part `icon{icon}`. `variants.variant` →
+  `root.palette.variant` (incl. `subtle`). Static — no `interactive`, no compound.
+- **Topbar** — `structure`: `view · stack{row, center, gap:sm} · box{height:lg, paddingStart:lg,
+  paddingEnd:lg} · palette{chrome:'canvas'} · open`; part `content{ view · stack{fill:'grow-shrink'} }`
+  (the pivot · `flex:1` is **anatomy**). `variants.center` → `content.stack{center, center}`.
+
+## 9 · P11 · source · validation
+- **Built** (live consumers): `stack` grow-shrink · `box` sizing (width/height/minHeight) + scale +
+  opacity · `palette` variant/accent + the existing muted fg. **Mapped, not built** (decision 30):
+  `box` maxWidth/border · `palette` outline · the `onSolid.muted` token — each lands with its first
+  real consumer.
+- **Source**: CSS stays the SoT; the composition is *derived* from the `@layer` blocks + the
+  decision-24.1 page anatomy (the 65.1 bootstrap). **Authoring** compositions directly + *generating*
+  web CSS from them (§9 source-inversion · revisits decision 2) stays **deferred** — path-2
+  (Expo-compose → DS promotion) needs the language authorable + the factory to consume it (RN ·
+  decision 65), not web generation.
+- **Validated by B1.5** (playground prototype · the three composed purely from the web primitives),
+  which pins the exact **primitive extensions** + the **CSS→composition mapping**, the
+  anatomy-vs-default line, web **merge-vs-nest**, and the **chrome/`canvas`** slot. On validation: the
+  locked schema → **B2** re-emits in this form + the factory composes + the mirrors derive → **B3**
+  freezes (the schema-shape guard).

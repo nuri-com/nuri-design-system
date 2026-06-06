@@ -4,7 +4,9 @@ Session router. Each entry links to its detail file.
 
 ## Current state
 
-N+19 · B1 — gates green · closeout done · **PR pending (`feat/descriptor-schema`)**: **the emitted
+N+19 · composition model — **design-base landed (no code session yet · [`docs/composition-model.md`](../docs/composition-model.md) §6–9 · amendment 65.3)**: the R-EXPO-6 descriptor schema is refined from raw-style patches (65.2) to a **composition of curated primitive namespaces** — the shared cross-repo authoring language. A recipe = 100% composition (zero raw style) over five disjoint namespaces — `stack`(flexbox) · `box`(sizing/padding/radii/border-w/transform/opacity) · `typography`(font) · `palette`(all color from `{variant, accent, muted, interactive}`) · the `interactive` flag — with two layers (composition primitive fixes *anatomy* + overridable defaults · recipe *locks the design* · decision 64) and the data model `Descriptor = {structure:{anatomy, base}, variants}`. `surface → palette`. CSS stays SoT (the 65.1 bootstrap · §9 source-flip deferred); the contract is **authorable** (Expo composes in it; bottom-up promotion), not only emitted. **Supersedes 65.2's raw-style `$parts` schema** (B1's pipeline / values / part-targeting insight carry forward; the emitted *form* is reworked). Validated next by **B1.5** (playground prototype · the 3 recipes composed purely from the web primitives · proves parity + zero raw style + surfaces the primitive extensions for B2). See [`docs/composition-model.md`](../docs/composition-model.md).
+
+N+19 · B1 closed (#18): **the emitted
 component descriptor — R-EXPO-6 vertical slice 1/3** ([decision 65](../decisionlog.md) · **amendment
 65.2**). The build now emits a per-component **descriptor** — the frozen cross-repo contract instance
 — additively under [`build/descriptors/`](../build/descriptors/): the canonical **schema** (a theme

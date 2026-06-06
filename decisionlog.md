@@ -4833,3 +4833,20 @@ The variants-model spike (M3/M4 · `docs/spikes/variants-model` · throwaway) va
 * F-DEMO-5, demonstrated: freezing the `{solid,soft,ghost}` axis forces the RN union to add `ghost` (today `solid|soft`; `build/` already emits `ghost*`).
 
 Base: `docs/spikes/variants-model/FINDINGS.md`.
+
+### 65.3 amendment · N+19 · the composition model · recipes = pure primitive-composition · supersedes 65.2's raw-style schema
+
+The descriptor schema is refined from raw-style patches (65.2) to a **composition of curated primitive namespaces** — the shared cross-repo authoring language.
+
+* **A recipe is 100% composition, zero raw style** — five disjoint namespaces: `stack`(flexbox) · `box`(sizing/padding/radii/border-w/style/transform/opacity) · `typography`(font) · `palette`(all color from `{variant, accent, muted, interactive}`) · **`interactive`** (a flag — `Pressable` + pressed colors + box pressed/disabled patches).
+* **Two layers** (decision 64): composition primitives (`composition-button`…) fix **anatomy** (incl. load-bearing structural styling like the Topbar pivot `flex:1`) + overridable defaults; recipes **lock** the design.
+* **Data model**: `Descriptor = { structure:{ anatomy, base }, variants }`. **`surface → palette`** (palette owns *all* color, broader than the surface roles).
+* **Interaction decomposes** (resolver-model §5): pressed-**color** → palette; press-**effects** (scale/opacity) → `box` properties, the recipe decides *when*; the flag triggers. `pressScale` never touches palette.
+* **CSS stays SoT** — compositions are *derived* (the 65.1 bootstrap); the §9 source-flip stays deferred. The contract is **authorable** (Expo composes in it; bottom-up promotion into the DS), not only emitted.
+* **P11**: built where a recipe consumes it (`stack` grow-shrink · `box` sizing/scale/opacity · `palette` variant/accent + existing muted fg); **mapped-not-built**: `box` maxWidth/border · `palette` outline · the new `onSolid.muted` token.
+* **chrome/`canvas`** = a separate chrome slot on palette (theme-only · no accent/pressed).
+* **Supersedes 65.2's** raw-style `variants`/`$parts` schema. B1's pipeline, validated values, and part-targeting insight carry forward; the emitted *form* is reworked (B2).
+
+**Operator signed off (2026-06-06)** on the composition model (recipes = pure primitive-composition · the five disjoint namespaces · two layers · `surface→palette` · the CSS-stays-SoT bootstrap · the P11 built-vs-mapped line), to be validated by the B1.5 playground prototype before B2 re-emits.
+
+Base: `docs/composition-model.md` §6–9.
