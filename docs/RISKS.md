@@ -1,7 +1,19 @@
 # Risks · Nuri
 
 **Date drafted**: 2026-05-27 (during N+3 philosophy brainstorm)
-**Last updated**: 2026-06-04 (N+18 close · **Topbar content-pivot** — the 4th & last R1
+**Last updated**: 2026-06-06 (N+19 · B1 close · **R-EXPO-6 vertical slice 1/3 — the descriptor is
+now EMITTED** [decision 65 · amendment 65.2]: the build emits a per-component **descriptor** (the
+frozen cross-repo contract instance) additively under `build/descriptors/` — the canonical schema +
+baseline Theme [surface-as-data · reuses the emitted scale types · decision 48] + one descriptor each
+for Button [`composition-button`] / IconAvatar / Topbar, read from BOTH sources [the `@layer` CSS
+mapping · the 65.1 bootstrap + the page `data-part` structure · decision 24.1 · `button.html` gains
+the `label` part the web's single node hid]. The **breadcrumb below partly discharges**: Topbar's
+content-pivot structural values are now **descriptor data** [`build/descriptors/topbar.ts` ·
+`$parts.content`] — the contract now EXISTS as data; the mirror-rewire to DERIVE from it [retiring the
+hand-mirror] is **B2**. A 4th drift guard [`docs-drift.test.js` D] keeps each descriptor in sync with
+its two sources [renamed/removed part / variant / token breaks build + test]. Additive · existing
+emit byte-identical · 23/23 · tsc 0. **NOT** the factory / mirror-rewire / freeze [B2 · B3].) ·
+Prior 2026-06-04 (N+18 close · **Topbar content-pivot** — the 4th & last R1
 consumption finding **[R-EXPO-2] LANDED** structurally via [decision 64](./../decisionlog.md) /
 amendment 46.4: the content-pivot refactor (a named `<nuri-topbar-content>` pivot · positional
 leading/trailing siblings · bare-text title REUSES Typography) fixes a/b/c [phantom gap ·
@@ -476,9 +488,11 @@ Full version in
   The List pages had been the only interactive component pages lacking the
   section. **Distinct from the reconcilable flex drift**: the content-pivot's
   `flex:1` / `min-inline-size:0` are RN-supported pattern invariants
-  (hand-mirrored · R-EXPO-6 now **DECIDED · [decision 65](./../decisionlog.md)** →
-  these become **descriptor data**, still hand-mirrored until the working session
-  lands · see the Last-updated breadcrumb), so
+  (hand-mirrored · R-EXPO-6 **DECIDED · [decision 65](./../decisionlog.md)** → these
+  become **descriptor data**; the schema + emitter now landed [N+19 · B1 ·
+  `build/descriptors/`] for Button / IconAvatar / Topbar, but the **List family** is
+  the **post-freeze fan-out** [after B3], so List's pivot values stay hand-mirrored
+  until then · see the Last-updated breadcrumb), so
   they are NOT documented as a behavioural delta — only these two
   irreconcilable a11y gaps are.
 

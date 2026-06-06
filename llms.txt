@@ -38,12 +38,13 @@ Spec pages (HTML · served via gh-pages):
   /pages/components/list-base.html      presentational + interactive list primitives
   /pages/components/list-nav-item.html  nav-item list recipe
 
-Build assets (dist · fetchable · 5 files · all emitted by `npm run build`):
+Build assets (dist · fetchable · 6 kinds · all emitted by `npm run build`):
   /build/tokens.json                 DTCG primitives (W3C standard · 216 colour tokens)
   /build/tokens.ts                   RN-ready · runtime sets · chrome + accent + space + size + radius (38 leaves) + type scale
   /build/components/<name>.ts        per-component numerics + TokenPath references · 8 files: button · icon-button · switch · tabs · list · list-item · list-interactive-item · tab-bar
   /build/token-paths.ts              discriminated union of every runtime-set leaf (38 members)
   /build/icons.ts                    typed glyph registry · IconName union + icons[name][weight] SVG (17 glyphs × 3 weights)
+  /build/descriptors/<name>.ts       per-component DESCRIPTOR · the frozen R-EXPO-6 contract (theme thunk · variants / compoundVariants · part-addressable $parts) · schema.ts + 3: composition-button · icon-avatar · topbar (N+19 · decision 65.2)
 
 Repository entry points:
   /README.md                         project overview
@@ -56,4 +57,7 @@ Repository entry points:
   /docs/migration-tests/             web ↔ RN translation pairs (evidence for R5)
 
 Source of truth: this repo's `styles/` CSS files. HTML pages and
-build assets are derived; never edit them directly.
+build assets are derived; never edit them directly. (Descriptors derive
+from two sources — the component `@layer` CSS under `lib/components/` for
+the mapping half + the page `data-part` anatomy under `pages/components/`
+for the structure half · decision 65 / 24.1.)

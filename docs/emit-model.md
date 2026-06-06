@@ -1,10 +1,17 @@
 # Emit model · prop-vocab + structure · R-EXPO-6 design base
 
-**Status**: DRAFT · **design base for R-EXPO-6** (the roadmap's Open Question #2) ·
-**NOT yet decided** — the emit LEVEL is operator-gated (see §Levels). Captured off-chat so
-the next architectural decision has a durable base, exactly as `composition-model.md` was the
-base for decision 64. Sister to [`decisionlog.md`](../decisionlog.md) /
-[`roadmap/index.md`](../roadmap/index.md) / [`docs/RISKS.md`](./RISKS.md).
+**Status**: **DECIDED** · folded into [decision 65](../decisionlog.md) (the **L3**
+complete-descriptor level · operator sign-off 2026-06-04), refined by **65.1** (thin ·
+source-agnostic shape · derive-from-CSS is the bootstrap) and **65.2** (the frozen schema ·
+part-addressable `$parts` patches · validated by the variants-model spike). **N+19 · B1** landed
+the canonical schema and emitted the descriptor for Button / IconAvatar / Topbar
+([`build/descriptors/`](../build/descriptors/) · spike base preserved at
+[`variants-model-spike.md`](./variants-model-spike.md)). The §2 LEVELS framing below is the
+DESIGN BASE that fed the decision (the operator chose L3 up front · §2/§6) — read decision 65 for
+the landing, this doc for the rationale. The §4 Expo boundary still holds: the **factory** (B2 ·
+the generator) is finalized in the Expo project, never shipped here. Sister to
+[`decisionlog.md`](../decisionlog.md) / [`roadmap/index.md`](../roadmap/index.md) /
+[`docs/RISKS.md`](./RISKS.md).
 
 Origin: the N+17 `flex:1` STOP. A content-pivot structural value (`flex:1` / `min-inline-size:0`)
 is hand-mirrored in `list.tsx` with no machine guard. The coordinator decided NOT to one-off

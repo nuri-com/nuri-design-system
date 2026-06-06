@@ -68,6 +68,13 @@ import { emitIconsTs, ICON_WEIGHTS } from './parsers/icons.js';
 
 import { buildTypeScale, emitTypeTs, TYPE_SIZES } from './parsers/type.js';
 
+import {
+  DESCRIPTOR_COMPONENTS,
+  deriveDescriptor,
+  emitDescriptorTs,
+  emitSchemaTs,
+} from './parsers/descriptors.js';
+
 import { ICONS } from '../lib/components/icon/icons.js';
 
 // Re-export so existing imports (and the primitive round-trip tests)
@@ -108,6 +115,10 @@ export {
   buildTypeScale,
   emitTypeTs,
   TYPE_SIZES,
+  DESCRIPTOR_COMPONENTS,
+  deriveDescriptor,
+  emitDescriptorTs,
+  emitSchemaTs,
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -116,11 +127,14 @@ const REPO_ROOT = resolve(__dirname, '..');
 const PRIMITIVE_CSS    = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
 const SEMANTIC_CSS     = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
 const COMPONENTS_DIR   = resolve(REPO_ROOT, 'lib/components');
+const PAGES_DIR        = resolve(REPO_ROOT, 'pages/components');
 const JSON_OUT         = resolve(REPO_ROOT, 'build/tokens.json');
 const TS_OUT           = resolve(REPO_ROOT, 'build/tokens.ts');
 const COMPONENTS_OUT   = resolve(REPO_ROOT, 'build/components');
 const TOKEN_PATHS_OUT  = resolve(REPO_ROOT, 'build/token-paths.ts');
 const ICONS_OUT        = resolve(REPO_ROOT, 'build/icons.ts');
+const DESCRIPTORS_OUT  = resolve(REPO_ROOT, 'build/descriptors');
+const SCHEMA_SRC       = resolve(REPO_ROOT, 'pipeline/descriptors/schema.ts');
 
 // Per-component emit list (decision 34 · N+6.0.3 · extended at
 // decision 37 · N+6.2 · decision 38 · N+6.3 · decision 44 · N+6.5).
@@ -230,6 +244,30 @@ async function main() {
   await writeFile(ICONS_OUT, iconsSource, 'utf8');
   const iconNameCount = Object.keys(ICONS).length;
 
+  // ── Slice 6 · per-component descriptor emit (N+19 · decision 65 · 65.2) ──
+  // ADDITIVE under build/descriptors/ (a separate dir · the existing
+  // build/components emit + counts stay byte-identical). One descriptor per
+  // spike-validated component, read from BOTH sources: the @layer CSS
+  // (mapping · the 65.1 bootstrap) + the page data-part anatomy (structure ·
+  // decision 24.1). The frozen schema (build/descriptors/schema.ts) is the
+  // hand-maintained pipeline source emitted verbatim (tokens-import rewritten).
+  await mkdir(DESCRIPTORS_OUT, { recursive: true });
+  const schemaSource = await readFile(SCHEMA_SRC, 'utf8');
+  await writeFile(resolve(DESCRIPTORS_OUT, 'schema.ts'), emitSchemaTs(schemaSource), 'utf8');
+  const descriptorReports = [];
+  for (const spec of DESCRIPTOR_COMPONENTS) {
+    const descriptorCSS = await readFile(
+      resolve(COMPONENTS_DIR, spec.source, `${spec.source}.css`), 'utf8',
+    );
+    const descriptorHTML = await readFile(
+      resolve(PAGES_DIR, `${spec.source}.html`), 'utf8',
+    );
+    const ir = deriveDescriptor(spec, { css: descriptorCSS, html: descriptorHTML });
+    const out = resolve(DESCRIPTORS_OUT, `${spec.name}.ts`);
+    await writeFile(out, emitDescriptorTs(ir), 'utf8');
+    descriptorReports.push({ name: spec.name, axes: Object.keys(ir.axes).length, out });
+  }
+
   console.log(
     `[tokens-parser] wrote ${jsonCount} colour primitives → ${JSON_OUT}\n` +
     `[tokens-parser] wrote ${semanticCount} semantic tokens × ${ACCENTS.length} accents × ${THEMES.length} themes → ${TS_OUT}\n` +
@@ -240,7 +278,11 @@ async function main() {
         : `[tokens-parser] wrote component '${r.componentName}' (${r.declCount} decls, ${r.referencedPaths.size} TokenPath refs) → ${r.out}`,
     ).join('\n') +
     `\n[tokens-parser] wrote TokenPath union → ${TOKEN_PATHS_OUT}` +
-    `\n[tokens-parser] wrote icon registry (${iconNameCount} names × ${ICON_WEIGHTS.length} weights) → ${ICONS_OUT}`,
+    `\n[tokens-parser] wrote icon registry (${iconNameCount} names × ${ICON_WEIGHTS.length} weights) → ${ICONS_OUT}` +
+    `\n[tokens-parser] wrote descriptor schema → ${resolve(DESCRIPTORS_OUT, 'schema.ts')}` +
+    descriptorReports.map((r) =>
+      `\n[tokens-parser] wrote descriptor '${r.name}' (${r.axes} ${r.axes === 1 ? 'axis' : 'axes'}) → ${r.out}`,
+    ).join(''),
   );
 }
 

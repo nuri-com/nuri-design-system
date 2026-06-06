@@ -4819,3 +4819,17 @@ detailed plan post-audit.
 **Operator signed off (2026-06-04)** on the foundation (the descriptor shape is the source-agnostic
 frozen contract · derive-from-CSS is the bootstrap · the §8 source-flip is deferred · the new concept
 goes to audit before the detailed plan).
+
+### 65.2 amendment · N+19 · the frozen descriptor schema · part-addressable patches · validated by the variants-model spike
+
+The variants-model spike (M3/M4 · `docs/spikes/variants-model` · throwaway) validated 65's open schema against the three hard components + one CSS→descriptor derivation. Freeze-ready, with one change to the resolver-model §11 sketch.
+
+* Schema = the CVA core + part-addressable patches. `variants` (axis→value→patch) + optional `compoundVariants` (condition→patch), as a theme thunk, surface-as-data (`theme.surface.*`) — all held. The one required extension: a patch is part-addressable — `root` = the host default (the bare-`ViewStyle` 90%); an optional `$parts` overlay patches structure-named parts (`label` / `icon` / `content`). Required, not optional: Topbar `center` puts 100% of its effect on the `content` pivot, zero host (verified vs `topbar.css`), so a host-only patch cannot express it.
+* Patch vocabulary = style literals + one semantic `typeStep` ref. Label/icon type is a named step (`smEm` / `mdEm` · decision 55), not a frozen absolute `TextStyle`; the factory expands it via `typeStyle` (relative→absolute + OS fontScale · decision 54). 65's split: mapping = data, expansion = factory behaviour.
+* variant→fg: the descriptor OWNS the mapping; §12 DELIVERS it colour-from-scope (never re-threaded as a child prop · F-BOX-FG-1 · decision 64). Contract ≠ delivery.
+* surface = shared DATA, not a shared component (this arc). The funnel lives once as data in the baseline (`theme.surface.*`); recipes stay distinct and reference it. A shared `surface` component is forward-reuse only (audit C1: the RN funnel is already shared) → deferred · P11. (resolves open choice #2)
+* Freeze guard covers BOTH halves. Mapping half bootstraps from CSS (`@layer` · spike Layer-A clean-equal, asymmetries and all · 65.1 bootstrap ✓); the structure/parts half is un-derivable from CSS (web is one node) → from the decision-24.1 page anatomy. A CSS-only bootstrap underfills the contract.
+* Naming = `composition-` prefix (decision 64.1; rationale sharpened: prefix = kind/layer, suffix = anatomy/part). (resolves open choice #3)
+* F-DEMO-5, demonstrated: freezing the `{solid,soft,ghost}` axis forces the RN union to add `ghost` (today `solid|soft`; `build/` already emits `ghost*`).
+
+Base: `docs/spikes/variants-model/FINDINGS.md`.

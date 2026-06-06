@@ -24,6 +24,10 @@
     "../../../build/components/tab-bar.ts",
     "../../../build/components/list.ts",
     "../../../build/components/list-item.ts",
-    "../../../build/components/list-interactive-item.ts"
+    "../../../build/components/list-interactive-item.ts",
+    "../../../build/descriptors/schema.ts",
+    "../../../build/descriptors/composition-button.ts",
+    "../../../build/descriptors/icon-avatar.ts",
+    "../../../build/descriptors/topbar.ts"
   ]
 }

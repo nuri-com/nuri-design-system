@@ -44,13 +44,23 @@ pipeline/                    Node pipeline · sources · hand-maintained
                              + SET_POLICY (N+5.5 + N+6.0.3)
     components.js            per-component @layer tokens walker · emits
                              build/components/<name>.ts (N+6.0.3)
+    descriptors.js           per-component DESCRIPTOR emitter · reads the
+                             @layer CSS (mapping) + page data-part anatomy
+                             (structure) · emits build/descriptors/<name>.ts
+                             (N+19 · decision 65.2)
+  descriptors/
+    schema.ts                canonical descriptor schema SOURCE (the frozen
+                             R-EXPO-6 contract type · hand-maintained · emitted
+                             verbatim to build/descriptors/schema.ts)
   tokens-parser.js           orchestrator + re-export point · npm run build
   tokens-parser.test.js      node:test · 19 assertions (pipeline round-
                              trip · classify-by-cascade · guardrails)
-  docs-drift.test.js         node:test · entry-point-doc freshness guards:
+  docs-drift.test.js         node:test · 4 entry-point/emit freshness guards:
                              llms.txt covers every component page · README
                              + impl-guide name every build/components/*.ts ·
-                             doc-stated emitted counts match the live build
+                             doc-stated emitted counts match the live build ·
+                             each build/descriptors/*.ts re-emits from its
+                             sources (N+19 · decision 65.2)
 
 build/                       Generated outputs · 100% emitted by the
                              pipeline · never hand-edited
@@ -74,6 +84,15 @@ build/                       Generated outputs · 100% emitted by the
                              icons: Record<IconName, Record<IconWeight,
                              string>> · 17 glyphs × 3 weights (decision
                              48 · N+6.8)
+  descriptors/               per-component DESCRIPTOR · the frozen R-EXPO-6
+                             cross-repo contract (theme thunk · variants /
+                             compoundVariants · part-addressable $parts ·
+                             decision 65.2 · N+19) · additive, separate from
+                             components/ (existing emit byte-identical)
+    schema.ts                the contract type (CVA core + $parts + typeStep)
+    composition-button.ts    Button · recipe + label/icon parts · 5 compounds
+    icon-avatar.ts           IconAvatar · static · subtle · no compounds
+    topbar.ts                Topbar · layout · center → $parts.content
 
 pages/
   principles.html            the WHY of Nuri · numbered principles (N+3)
