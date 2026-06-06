@@ -57,7 +57,7 @@
     1.  Spec card             — component summary (machine-readable)
     2.  Hero demo             — default rendering + canonical snippet
     3.  API                   — props signature (the contract)
-    4.  Anatomy & parts       — parts manifest (1 row for Button)
+    4.  Anatomy & parts       — parts manifest (root + label · 2 rows)
     5.  Variants              — one demo card per variant
     5b. Sizes                 — one demo card per size (decision 41)
     6.  States                — one row per state
@@ -148,7 +148,8 @@
         <dt>Parts</dt>
         <dd data-spec="parts">
           <span class="nuri-spec-card__chip" data-part="root">root</span>
-          <span class="nuri-spec-card__meta">1 part</span>
+          <span class="nuri-spec-card__chip" data-part="label">label</span>
+          <span class="nuri-spec-card__meta">2 parts</span>
         </dd>
       </div>
       <div class="nuri-spec-card__row">
@@ -238,18 +239,23 @@
 
   <!-- ═════════════════════════════════════════════════════════════
        4 · ANATOMY & PARTS
-       Button v0 has 1 part. The parts table is the forward-compat
-       point for multi-part components (Card · ListItem ·
-       SegmentedControl) — same widget, more rows. SVG-annotated
-       diagrams arrive when there's a multi-part component that
-       earns one.
+       Button has 2 parts: root (the surface / pressable host) + label
+       (the text). The web renders both in one <button> node; the
+       cross-platform descriptor (R-EXPO-6 · decision 65) names the
+       label part because RN renders it as a distinct <Text> (decision
+       64 · routed through Typography). SVG-annotated diagrams arrive
+       when a richer multi-part component earns one.
        ═════════════════════════════════════════════════════════════ -->
   <section class="page-section" id="anatomy">
     <h2>Anatomy &amp; parts</h2>
     <p>
-      Button is a <strong>single-part</strong> component in v0. The
-      table below is the parts manifest — for multi-part components
-      (Card, ListItem) it grows to one row per addressable subpart.
+      Button is a <strong>two-part</strong> component: the
+      <code>root</code> surface and the <code>label</code> text. On the
+      web both render in one <code>&lt;button&gt;</code> node; the
+      cross-platform descriptor (R-EXPO-6 · decision 65) names the
+      <code>label</code> part because RN renders it as a distinct
+      <code>&lt;Text&gt;</code> (decision 64). The table below is the
+      parts manifest.
     </p>
 
     <div class="nuri-anatomy">
@@ -268,9 +274,15 @@
         <tbody>
           <tr data-part="root">
             <td data-cell="name"><code>root</code></td>
-            <td data-cell="element"><code>button</code></td>
-            <td data-cell="owns">layout, typography, all state visuals</td>
-            <td data-cell="description">The full surface. Contains the label as a text node.</td>
+            <td data-cell="element"><code>button</code> (web) · <code>Pressable</code> (RN)</td>
+            <td data-cell="owns">layout, surface (variant background), geometry, all state visuals</td>
+            <td data-cell="description">The full surface — the pressable host. Holds the label part.</td>
+          </tr>
+          <tr data-part="label">
+            <td data-cell="name"><code>label</code></td>
+            <td data-cell="element">text node (web) · <code>Text</code> (RN)</td>
+            <td data-cell="owns">the label text — type (size→step · decision 55) + colour (variant→fg)</td>
+            <td data-cell="description">The visible label. A bare text node inside <code>root</code> on the web's single element; a distinct <code>&lt;Text&gt;</code> on RN, routed through Typography (decision 64). The descriptor (R-EXPO-6) addresses it as <code>$parts.label</code>.</td>
           </tr>
         </tbody>
       </table></div>

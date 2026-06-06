@@ -4,7 +4,30 @@ Session router. Each entry links to its detail file.
 
 ## Current state
 
-N+18 — gates green · closeout done · **PR pending (Session A merged · reconciled · ready)**: **Topbar → content-pivot open primitive**
+N+19 · B1 — gates green · closeout done · **PR pending (`feat/descriptor-schema`)**: **the emitted
+component descriptor — R-EXPO-6 vertical slice 1/3** ([decision 65](../decisionlog.md) · **amendment
+65.2**). The build now emits a per-component **descriptor** — the frozen cross-repo contract instance
+— additively under [`build/descriptors/`](../build/descriptors/): the canonical **schema** (a theme
+thunk `(theme) => ({ variants, compoundVariants? })` · the CVA core + part-addressable `$parts` + the
+one semantic `typeStep` ref · hand-maintained source
+[`pipeline/descriptors/schema.ts`](../pipeline/descriptors/schema.ts)) + the baseline **Theme** shape
+(surface-as-data · reuses the emitted scale types · decision 48), and one descriptor each for
+**Button** (`composition-button` · recipe + `label`/icon parts · the asymmetric size×{radius,type} ·
+5 compounds · includes `ghost` → forces the RN union to add it · F-DEMO-5), **IconAvatar** (static ·
+`subtle` · no compounds), **Topbar** (layout primitive · `center` → 100% on `$parts.content`). The
+emitter ([`pipeline/parsers/descriptors.js`](../pipeline/parsers/descriptors.js)) reads BOTH sources
+(decision 65 · one source, two readers): the `@layer` CSS for the mapping half (the 65.1 bootstrap ·
+realizes the spike `derive-button.ts`) + the page `data-part` anatomy for the structure/parts half
+(decision 24.1) — `button.html` gains the `label` part it previously hid (the web is one node). A 4th
+drift guard (`docs-drift.test.js` D) re-derives each descriptor from its sources so a renamed/removed
+part / variant / token breaks the build + test (the TokenPath discipline · ship item 6). **Additive**
+— `tokens.ts` / `components/*.ts` byte-identical; the descriptor is new files only. Schema validated
+by the variants-model spike (preserved at [`variants-model-spike.md`](../docs/variants-model-spike.md)).
+**NOT** the RN factory / mirror-rewire / freeze — those are **B2** (the Expo team's factory boundary ·
+mirror derive) and **B3** (the schema-guard freeze). Gates green (test 23/23 · `build/` additive +
+existing emit byte-identical · tsc 0). See [`roadmap/N+19-B1.md`](./N+19-B1.md).
+
+N+18 closed (#15): **Topbar → content-pivot open primitive**
 (**amendment 46.4** · **decision 64**). Topbar drops JS region-reparenting and becomes an OPEN
 primitive on the **content-pivot** anatomy — a named `<nuri-topbar-content>` layout pivot
 (`flex:1`) + **positional** leading/trailing siblings (anything before the pivot is leading, after
