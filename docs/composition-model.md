@@ -14,8 +14,18 @@ taxonomy, and the agent-skill mapping. Sister to `decisionlog.md` / `docs/RISKS.
 **Further evolved — amendment 65.3 (N+19):** the model matured from *compound primitive vs recipe*
 (§1–5) into **recipe = a pure composition of curated namespaces** (`stack` · `box` · `typography` ·
 `palette` + the `interactive` flag · **§6–9 below**) — the schema *form* for R-EXPO-6, **superseding
-amendment 65.2's raw-style patches** and `resolver-model.md` §11's sketch. To be validated by the
-B1.5 playground prototype.
+amendment 65.2's raw-style patches** and `resolver-model.md` §11's sketch.
+
+**Status: VALIDATED** by the B1.5 playground prototype (N+19 ·
+[`roadmap/N+19-B1.5.md`](../roadmap/N+19-B1.5.md)) — the three recipes compose to pixel-parity with the
+live components from the namespaces alone, with zero raw style (audited), proven in-browser (visual +
+computed-style). The model held; two boundary points were resolved with the operator at the checkpoint:
+(1) **box owns no colour** — `palette` owns *all* colour incl. the chrome slot, so decision 42's
+`box.background` is superseded *for composition* (a Box-API deprecation is a separate follow-on · live
+consumer Tabs · B2/P11); (2) **inline-vs-block dissolves** — RN is flex-only (no inline/block), so a
+recipe root is a plain `flex` node blockified by its flex parent (no stack `inline` knob · measured: live
+`inline-flex` ≡ composed `flex` at equal widths). B1.5 pins the exact B2 extension list + the
+CSS→composition mapping (see the report).
 
 Origin: the first real Expo render surfaced a Topbar `<Text>`/region cluster
 (R-EXPO-2). Digging in showed the bug was not the `<Text>` wrap per se — it was that

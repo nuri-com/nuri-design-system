@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat". -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri · Playground · Composition-model prototype (B1.5)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Pin all three chrome dimensions BEFORE the stylesheets so the token
+       cascade resolves to concrete values on first paint (same fixed
+       light + cream + lilac surface as the rest of the playground ·
+       decision 57). No NuriState.set — this page has no theme controls. -->
+  <script>
+    document.documentElement.dataset.theme = 'light';
+    document.documentElement.dataset.neutral = 'cream';
+    document.documentElement.dataset.accent = 'lilac';
+  </script>
+
+  <!-- Token cake + base body reset/font (the ambient surface: shell.css
+       sets body { background: bg-canvas; color: text-primary } — which is
+       precisely the chrome `canvas` role + the `text-primary` foreground
+       that soft / ghost / canvas variants INHERIT by scope · F-BOX-FG-1). -->
+  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../styles/typography.css" />
+
+  <!-- The curated primitives we compose FROM (the five-namespace vocabulary ·
+       65.3 §6). stack = flexbox · box = sizing/padding/radii (NO colour) ·
+       typography = font · icon = the glyph leaf. palette has no primitive. -->
+  <link rel="stylesheet" href="../../lib/components/box/box.css" />
+  <link rel="stylesheet" href="../../lib/components/stack/stack.css" />
+  <link rel="stylesheet" href="../../lib/components/typography/typography.css" />
+  <link rel="stylesheet" href="../../lib/components/icon/icon.css" />
+
+  <!-- The live recipes we validate AGAINST (the parity reference only). -->
+  <link rel="stylesheet" href="../../lib/components/button/button.css" />
+  <link rel="stylesheet" href="../../lib/components/icon-avatar/icon-avatar.css" />
+  <link rel="stylesheet" href="../../lib/components/icon-button/icon-button.css" />
+  <link rel="stylesheet" href="../../lib/components/topbar/topbar.css" />
+
+  <!-- Custom-element scripts · deferred so connectedCallback sees children
+       (AGENTS.md). Icon is an ES module (imports the registry). -->
+  <script src="../../lib/components/box/box.js" defer></script>
+  <script src="../../lib/components/stack/stack.js" defer></script>
+  <script src="../../lib/components/typography/typography.js" defer></script>
+  <script src="../../lib/components/icon/icon.js" type="module"></script>
+  <script src="../../lib/components/icon-button/icon-button.js" defer></script>
+  <script src="../../lib/components/button/button.js" defer></script>
+  <script src="../../lib/components/icon-avatar/icon-avatar.js" defer></script>
+  <script src="../../lib/components/topbar/topbar.js" defer></script>
+
+  <!-- ════════════════════════════════════════════════════════════════
+       PROTOTYPE HARNESS · page scaffold ONLY — NOT recipe composition.
+       These .proto-* rules lay out the validation page itself (sections,
+       the live|composed comparison cards, labels, the legend). They never
+       target a composed recipe node. The "zero raw style" claim is about
+       the RECIPE compositions in <body>, which use only primitive props +
+       LOGGED inline gaps — never these classes.
+       ════════════════════════════════════════════════════════════════ -->
+  <style>
+    .proto-wrap { max-width: 1000px; margin: 0 auto; padding: var(--nuri-space-xl); }
+    .proto-wrap > header { margin-bottom: var(--nuri-space-xl); }
+    .proto-h1 { margin: 0 0 var(--nuri-space-sm); }
+    .proto-lede { max-width: 70ch; color: var(--nuri-text-muted); margin: 0 0 var(--nuri-space-md); }
+
+    .proto-legend {
+      display: flex; flex-wrap: wrap; gap: var(--nuri-space-md);
+      padding: var(--nuri-space-md); border: 1px solid var(--nuri-border-subtle);
+      border-radius: var(--nuri-radius-md); background: var(--nuri-bg-subtle);
+    }
+    .proto-legend > div { display: flex; gap: var(--nuri-space-xs); align-items: baseline; }
+
+    .proto-section { margin-block: 48px; }
+    .proto-section > h2 { margin: 0 0 var(--nuri-space-xs); }
+    .proto-section > .proto-note { color: var(--nuri-text-muted); margin: 0 0 var(--nuri-space-md); max-width: 78ch; }
+    .proto-sketch {
+      font-family: var(--nuri-font-family-mono, monospace); font-size: 12px; line-height: 1.5;
+      white-space: pre-wrap; background: var(--nuri-bg-subtle); color: var(--nuri-text-primary);
+      padding: var(--nuri-space-md); border-radius: var(--nuri-radius-sm);
+      border: 1px solid var(--nuri-border-subtle); margin: 0 0 var(--nuri-space-lg); overflow-x: auto;
+    }
+
+    .proto-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--nuri-space-md); }
+    .proto-card {
+      border: 1px solid var(--nuri-border-subtle); border-radius: var(--nuri-radius-md);
+      padding: var(--nuri-space-md); display: flex; flex-direction: column; gap: var(--nuri-space-sm);
+      background: var(--nuri-bg-canvas);
+    }
+    .proto-card__title { margin: 0; }
+    .proto-row { display: flex; align-items: center; gap: var(--nuri-space-sm); }
+    .proto-tag {
+      flex: 0 0 74px; font-family: var(--nuri-font-family-mono, monospace); font-size: 10px;
+      letter-spacing: 0.04em; text-transform: uppercase; color: var(--nuri-text-muted);
+      padding-top: 2px;
+    }
+    .proto-tag--composed { color: var(--nuri-accent-solid); }
+    /* A flex context so a composed recipe root (a plain flex node · no
+       inline-flex) renders content-width as a flex item — the RN-faithful
+       setup (RN is flex-only · content-width follows from the flex parent,
+       never an inline-flex on the leaf · see report §4.5). */
+    .proto-specimen { display: flex; align-items: center; min-width: 0; }
+
+    /* Full-width specimens (Topbar) get a phone-ish frame so both renders
+       share an identical bounded width. */
+    .proto-frame {
+      width: 360px; max-width: 100%; border: 1px solid var(--nuri-border-subtle);
+      border-radius: var(--nuri-radius-md); overflow: hidden;
+    }
+    .proto-stackcol { display: flex; flex-direction: column; gap: var(--nuri-space-lg); }
+    .proto-divider { height: 1px; background: var(--nuri-border-subtle); }
+  </style>
+</head>
+<body>
+<div class="proto-wrap">
+
+  <header>
+    <h1 class="proto-h1 nuri-type-3xl--em">Composition-model prototype · B1.5</h1>
+    <p class="proto-lede">
+      Validates <strong>decision 65.3</strong> (<code>docs/composition-model.md</code> §6–9): a recipe
+      is 100&nbsp;% a composition of the five curated primitive namespaces —
+      <code>stack</code> · <code>box</code> · <code>typography</code> · <code>palette</code> ·
+      <code>interactive</code> — with <strong>zero raw style</strong>. Each recipe below is rebuilt
+      purely from the web primitives (<code>nuri-stack</code> / <code>nuri-box</code> /
+      <code>nuri-typography</code> / <code>nuri-icon</code>), placed to reproduce its anatomy, and shown
+      beside the <em>live</em> component for parity. Where a primitive lacks a prop the gap is reproduced
+      inline and flagged <code>LOGGED</code> — those are exactly the extensions B2 will ship.
+    </p>
+    <div class="proto-legend nuri-type-sm">
+      <div><span class="proto-tag">live</span> the shipped component (parity reference)</div>
+      <div><span class="proto-tag proto-tag--composed">composed</span> rebuilt from primitive namespaces</div>
+      <div><code>LOGGED</code> an inline gap = a missing primitive prop (see the report)</div>
+    </div>
+    <p class="proto-lede nuri-type-sm" style="margin-top: var(--nuri-space-md);">
+      Composition notes. (1) On the web each primitive is a <code>display:contents</code> custom-element
+      wrapper around one painting node, so two primitives cannot share an element and a wrapper cannot be
+      inline-augmented. To validate the <em>model</em> (namespaces merged on one node — what the RN factory
+      emits as a single <code>&lt;View style&gt;</code>) the composed painting nodes apply the primitives'
+      own class + <code>data-*</code> vocabulary directly (e.g. <code>class="nuri-box nuri-stack"</code>);
+      the namespaces are disjoint (§6) so the rule-sets co-exist with no collision. Text/glyph leaves use
+      the public <code>&lt;nuri-typography&gt;</code> / <code>&lt;nuri-icon&gt;</code> elements.
+      (2) <strong>Box carries no colour</strong> — under §6 disjointness all colour belongs to
+      <code>palette</code>, which has <strong>no web primitive yet</strong>, so every <code>palette</code>
+      role (bg / fg / pressed) is applied <strong>inline as a LOGGED gap</strong> (never via
+      <code>box.background</code>, a decision-42 prop that would collide with palette · report §4.3).
+      Foreground flows by scope where the role fg = the ambient <code>text-primary</code> (F-BOX-FG-1).
+      (3) Recipe roots are <strong>plain flex nodes</strong> (no <code>inline-flex</code>) — content-width
+      follows from the flex parent, because RN is flex-only with no inline/block (report §4.5).
+    </p>
+  </header>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       1 · BUTTON   (closed recipe · the interactive case)
+       65.3 §8: structure = view · stack{row,center,center} · interactive;
+                part label{text}.
+                variants.variant → root.palette.variant
+                variants.size    → root.box{minHeight,paddingX,radius}
+                                  + label.typography.size
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="proto-section">
+    <h2 class="nuri-type-xl--em">1 · Button</h2>
+    <p class="proto-note">
+      Variant → <code>palette</code> (root · inline · no primitive). Size → <code>box</code>{minHeight,
+      paddingX, radius} + label <code>typography</code> size. Layout → <code>stack</code>{row, center,
+      center}. Pressed colour + press-scale + disabled-opacity follow from the <code>interactive</code> flag.
+    </p>
+    <div class="proto-sketch">root  · class="nuri-box nuri-stack"  data-direction=row data-align=center data-justify=center
+        · box      → data-padding-x={xl|lg|md}  data-radius={md|sm}
+        · LOGGED   → min-height:size-{xl|lg|md}   (box.minHeight — no Box sizing prop)
+        · LOGGED   → palette role INLINE (no palette primitive):
+                       solid = bg accent-solid + fg on-solid · soft = bg bg-strong · ghost = transparent (fg via scope)
+label · &lt;nuri-typography size={md|sm} emphasis&gt;  (lg/md→md-em · sm→sm-em · dec 55)
+state · LOGGED interactive → :active bg (palette.pressed) · scale (box.transform) · disabled opacity (box.opacity)</div>
+
+    <!-- ── Variants × sizes · rest state ─────────────────────────── -->
+    <div class="proto-grid">
+
+      <!-- ===== LG ===== -->
+      <div class="proto-card">
+        <h3 class="proto-card__title nuri-type-sm--em">solid · lg</h3>
+        <div class="proto-row"><span class="proto-tag">live</span>
+          <span class="proto-specimen"><nuri-button variant="solid" size="lg">Pay</nuri-button></span></div>
+        <div class="proto-row"><span class="proto-tag proto-tag--composed">composed</span>
+          <span class="proto-specimen">
+            <!-- box: paddingX=xl radius=md · stack: row/center/center · LOGGED min-height + palette role=solid INLINE -->
+            <div class="nuri-box nuri-stack" data-direction="row" data-align="center" data-justify="center"
+                 data-padding-x="xl" data-radius="md"
+                 style="min-height: var(--nuri-size-xl); background: var(--nuri-accent-solid); color: var(--nuri-accent-on-solid);">
+              <!-- LOGGED: min-height = box.minHeight (no Box sizing prop) · background+color = palette role=solid (no palette primitive) -->
+              <nuri-typography size="md" emphasis>Pay</nuri-typography>
+            </div>
+          </span></div>
+      </div>
+
+      <div class="proto-card">
+        <h3 class="proto-card__title nuri-type-sm--em">soft · lg</h3>
+        <div class="proto-row"><span class="proto-tag">live</span>
+          <span class="proto-specimen"><nuri-button variant="soft" size="lg">Request</nuri-button></span></div>
+        <div class="proto-row"><span class="proto-tag proto-tag--composed">composed</span>
+          <span class="proto-specimen">
+            <div class="nuri-box nuri-stack" data-direction="row" data-align="center" data-justify="center"
+                 data-padding-x="xl" data-radius="md"
+                 style="min-height: var(--nuri-size-xl); background: var(--nuri-bg-strong);">
+              <!-- LOGGED: min-height = box.minHeight · background = palette role=soft (bg-strong) · fg = text-primary via scope (F-BOX-FG-1) -->
+              <nuri-typography size="md" emphasis>Request</nuri-typography>
+            </div>
+          </span></div>
+      </div>
+
+      <div class="proto-card">
+        <h3 class="proto-card__title nuri-type-sm--em">ghost · lg</h3>
+        <div class="proto-row"><span class="proto-tag">live</span>
+          <span class="proto-specimen"><nuri-button variant="ghost" size="lg">Skip</nuri-button></span></div>
+        <div class="proto-row"><span class="proto-tag proto-tag--composed">composed</span>
+          <span class="proto-specimen">
+            <div class="nuri-box nuri-stack" data-direction="row" data-align="center" data-justify="center"
+                 data-padding-x="xl" data-radius="md"
+                 style="min-height: var(--nuri-size-xl);">
+              <!-- LOGGED: min-height = box.minHeight · palette role=ghost = transparent bg + text-primary fg via scope (nothing to set) -->
+              <nuri-typography size="md" emphasis>Skip</nuri-typography>
+            </div>
+          </span></div>
+      </div>
+
+      <!-- ===== MD (default) ===== -->
+      <div class="proto-card">
+        <h3 class="proto-card__title nuri-type-sm--em">solid · md</h3>
+        <div class="proto-row"><span class="proto-tag">live</span>
+          <span class="proto-specimen"><nuri-button variant="solid" size="md">Pay</nuri-button></span></div>
+        <div class="proto-row"><span class="proto-tag proto-tag--composed">composed</span>
+          <span class="proto-specimen">
+            <div class="nuri-box nuri-stack" data-direction="row" data-align="center" data-justify="center"
+                 data-padding-x="lg" data-radius="sm"
+                 style="min-height: var(--nuri-size-lg); background: var(--nuri-accent-solid); color: var(--nuri-accent-on-solid);">
+              <!-- LOGGED: min-height = box.minHeight · background+color = palette role=solid (no palette primitive) -->
+              <nuri-typography size="md" emphasis>Pay</nuri-typography>
+            </div>
+          </span></div>
+      </div>
+
+      <div class="proto-card">
+        <h3 class="proto-card__title nuri-type-sm--em">soft · md</h3>
+        <div class="proto-row"><span class="proto-tag">live</span>
+          <span class="proto-specimen"><nuri-button variant="soft" size="md">Request</nuri-button></span></div>
+        <div class="proto-row"><span class="proto-tag proto-tag--composed">composed</span>
+          <span class="proto-specimen">
+            <div class="nuri-box nuri-stack" data-direction="row" data-align="center" data-justify="center"
+                 data-padding-x="lg" data-radius="sm"
+                 style="min-height: var(--nuri-size-lg); background: var(--nuri-bg-strong);">
+              <!-- LOGGED: min-height = box.minHeight · background = palette role=soft · fg = text-primary via scope -->
+              <nuri-typography size="md" emphasis>Request</nuri-typography>
+            </div>
+          </span></div>
+      </div>
+
+      <div class="proto-card">
+        <h3 class="proto-card__title nuri-type-sm--em">ghost · md</h3>
+        <div class="proto-row"><span class="proto-tag">live</span>
+          <span class="proto-specimen"><nuri-button variant="ghost" size="md">Skip</nuri-button></span></div>
+        <div class="proto-row"><span class="proto-tag proto-tag--composed">composed</span>
+          <span class="proto-specimen">
+            <div class="nuri-box nuri-stack" data-direction="row" data-align="center" data-justify="center"
+                 data-padding-x="lg" data-radius="sm"
+                 style="min-height: var(--nuri-size-lg);">
+              <!-- LOGGED: min-height = box.minHeight · palette role=ghost = transparent + fg via scope -->
+              <nuri-typography size="md" emphasis>Skip</nuri-typography>
+            </div>
+          </span></div>
+      </div>
+
+      <!-- ===== SM ===== -->
+      <div class="proto-card">
+        <h3 class="proto-card__title nuri-type-sm--em">solid · sm</h3>
+        <div class="proto-row"><span class="proto-tag">live</span>
+          <span class="proto-specimen"><nuri-button variant="solid" size="sm">Pay</nuri-button></span></div>
+        <div class="proto-row"><span class="proto-tag proto-tag--composed">composed</span>
+          <span class="proto-specimen">
+            <!-- size sm → box paddingX=md radius=sm · label typography sm-em -->
+            <div class="nuri-box nuri-stack" data-direction="row" data-align="center" data-justify="center"
+                 data-padding-x="md" data-radius="sm"
+                 style="min-height: var(--nuri-size-md); background: var(--nuri-accent-solid); color: var(--nuri-accent-on-solid);">
+              <!-- LOGGED: min-height = box.minHeight · background+color = palette role=solid -->
+              <nuri-typography size="sm" emphasis>Pay</nuri-typography>
+            </div>
+          </span></div>
+      </div>
+
+      <div class="proto-card">
+        <h3 class="proto-card__title nuri-type-sm--em">soft · sm</h3>
+        <div class="proto-row"><span class="proto-tag">live</span>
+          <span class="proto-specimen"><nuri-button variant="soft" size="sm">Request</nuri-button></span></div>
+        <div class="proto-row"><span class="proto-tag proto-tag--composed">composed</span>
+          <span class="proto-specimen">
+            <div class="nuri-box nuri-stack" data-direction="row" data-align="center" data-justify="center"
+                 data-padding-x="md" data-radius="sm"
+                 style="min-height: var(--nuri-size-md); background: var(--nuri-bg-strong);">
+              <!-- LOGGED: min-height = box.minHeight · background = palette role=soft · fg via scope -->
+              <nuri-typography size="sm" emphasis>Request</nuri-typography>
+            </div>
+          </span></div>
+      </div>
+
+      <div class="proto-card">
+        <h3 class="proto-card__title nuri-type-sm--em">ghost · sm</h3>
+        <div class="proto-row"><span class="proto-tag">live</span>
+          <span class="proto-specimen"><nuri-button variant="ghost" size="sm">Skip</nuri-button></span></div>
+        <div class="proto-row"><span class="proto-tag proto-tag--composed">composed</span>
+          <span class="proto-specimen">
+            <div class="nuri-box nuri-stack" data-direction="row" data-align="center" data-justify="center"
+                 data-padding-x="md" data-radius="sm"
+                 style="min-height: var(--nuri-size-md);">
+              <!-- LOGGED: min-height = box.minHeight · palette role=ghost = transparent + fg via scope -->
+              <nuri-typography size="sm" emphasis>Skip</nuri-typography>
+            </div>
+          </span></div>
+      </div>
+
+    </div>
+
+    <!-- ── States · md · solid + soft (rest / pressed / disabled) ── -->
+    <h3 class="nuri-type-md--em" style="margin: var(--nuri-space-lg) 0 var(--nuri-space-sm);">States (md)</h3>
+    <div class="proto-grid">
+
+      <div class="proto-card">
+        <h3 class="proto-card__title nuri-type-sm--em">solid · disabled</h3>
+        <div class="proto-row"><span class="proto-tag">live</span>
+          <span class="proto-specimen"><nuri-button variant="solid" size="md" disabled>Pay</nuri-button></span></div>
+        <div class="proto-row"><span class="proto-tag proto-tag--composed">composed</span>
+          <span class="proto-specimen">
+            <div class="nuri-box nuri-stack" data-direction="row" data-align="center" data-justify="center"
+                 data-padding-x="lg" data-radius="sm"
+                 style="min-height: var(--nuri-size-lg); background: var(--nuri-accent-solid); color: var(--nuri-accent-on-solid); opacity: var(--nuri-interaction-disabled-opacity);">
+              <!-- LOGGED: min-height · palette role=solid · opacity = interactive→box.opacity (disabled) -->
+              <nuri-typography size="md" emphasis>Pay</nuri-typography>
+            </div>
+          </span></div>
+      </div>
+
+      <div class="proto-card">
+        <h3 class="proto-card__title nuri-type-sm--em">solid · pressed (simulated)</h3>
+        <div class="proto-row"><span class="proto-tag">live</span>
+          <span class="proto-specimen nuri-type-sm" style="color: var(--nuri-text-muted);">:active — press to see</span></div>
+        <div class="proto-row"><span class="proto-tag proto-tag--composed">composed</span>
+          <span class="proto-specimen">
+            <div class="nuri-box nuri-stack" data-direction="row" data-align="center" data-justify="center"
+                 data-padding-x="lg" data-radius="sm"
+                 style="min-height: var(--nuri-size-lg); color: var(--nuri-accent-on-solid); background: var(--nuri-accent-solid-pressed); transform: scale(var(--nuri-interaction-press-scale));">
+              <!-- LOGGED: min-height · background = interactive→palette.pressed (accent-solid-pressed) · transform = interactive→box.transform · fg=on-solid -->
+              <nuri-typography size="md" emphasis>Pay</nuri-typography>
+            </div>
+          </span></div>
+      </div>
+
+      <div class="proto-card">
+        <h3 class="proto-card__title nuri-type-sm--em">soft · disabled</h3>
+        <div class="proto-row"><span class="proto-tag">live</span>
+          <span class="proto-specimen"><nuri-button variant="soft" size="md" disabled>Request</nuri-button></span></div>
+        <div class="proto-row"><span class="proto-tag proto-tag--composed">composed</span>
+          <span class="proto-specimen">
+            <div class="nuri-box nuri-stack" data-direction="row" data-align="center" data-justify="center"
+                 data-padding-x="lg" data-radius="sm"
+                 style="min-height: var(--nuri-size-lg); background: var(--nuri-bg-strong); opacity: var(--nuri-interaction-disabled-opacity);">
+              <!-- LOGGED: min-height · palette role=soft · opacity = interactive→box.opacity (disabled) -->
+              <nuri-typography size="md" emphasis>Request</nuri-typography>
+            </div>
+          </span></div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       2 · ICON-AVATAR   (static recipe · the no-interaction case)
+       65.3 §8: structure = view · stack{center,center} ·
+                box{width:lg,height:lg,radius:full}; part icon{icon}.
+                variants.variant → root.palette.variant (incl. subtle)
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="proto-section">
+    <h2 class="nuri-type-xl--em">2 · IconAvatar</h2>
+    <p class="proto-note">
+      A fixed 48&nbsp;px circle (the <code>box</code> sizing + <code>radius:full</code> is anatomy,
+      invariant) centring one glyph (<code>stack</code>{center, center}). Variant → <code>palette</code>;
+      the glyph inherits the role foreground via <code>currentColor</code> (F-BOX-FG-1). No
+      <code>interactive</code>, static. <code>subtle</code> is avatar-only (decision 50).
+    </p>
+    <div class="proto-sketch">root · class="nuri-box nuri-stack"  data-align=center data-justify=center  data-radius="full"
+       · LOGGED  → inline-size:size-lg · block-size:size-lg   (box.width/height — no Box sizing prop)
+       · LOGGED  → palette role INLINE (no palette primitive):
+                     solid = bg accent-solid + fg on-solid · soft = bg bg-strong · ghost = transparent · subtle = fg border-strong (fg-only)
+icon · &lt;nuri-icon name=… size="md"&gt;   (28px · inherits currentColor = role fg)</div>
+
+    <div class="proto-grid">
+
+      <div class="proto-card">
+        <h3 class="proto-card__title nuri-type-sm--em">solid</h3>
+        <div class="proto-row"><span class="proto-tag">live</span>
+          <span class="proto-specimen"><nuri-icon-avatar name="vault" variant="solid"></nuri-icon-avatar></span></div>
+        <div class="proto-row"><span class="proto-tag proto-tag--composed">composed</span>
+          <span class="proto-specimen">
+            <!-- box: radius=full · stack: center/center · LOGGED sizing + palette role=solid INLINE -->
+            <div class="nuri-box nuri-stack" data-align="center" data-justify="center" data-radius="full"
+                 style="inline-size: var(--nuri-size-lg); block-size: var(--nuri-size-lg); background: var(--nuri-accent-solid); color: var(--nuri-accent-on-solid);">
+              <!-- LOGGED: inline-size/block-size = box.width/height · background+color = palette role=solid · glyph inherits on-solid -->
+              <nuri-icon name="vault" size="md"></nuri-icon>
+            </div>
+          </span></div>
+      </div>
+
+      <div class="proto-card">
+        <h3 class="proto-card__title nuri-type-sm--em">soft (default)</h3>
+        <div class="proto-row"><span class="proto-tag">live</span>
+          <span class="proto-specimen"><nuri-icon-avatar name="vault" variant="soft"></nuri-icon-avatar></span></div>
+        <div class="proto-row"><span class="proto-tag proto-tag--composed">composed</span>
+          <span class="proto-specimen">
+            <div class="nuri-box nuri-stack" data-align="center" data-justify="center" data-radius="full"
+                 style="inline-size: var(--nuri-size-lg); block-size: var(--nuri-size-lg); background: var(--nuri-bg-strong);">
+              <!-- LOGGED: inline-size/block-size = box.width/height · background = palette role=soft · glyph inherits text-primary via scope -->
+              <nuri-icon name="vault" size="md"></nuri-icon>
+            </div>
+          </span></div>
+      </div>
+
+      <div class="proto-card">
+        <h3 class="proto-card__title nuri-type-sm--em">ghost</h3>
+        <div class="proto-row"><span class="proto-tag">live</span>
+          <span class="proto-specimen"><nuri-icon-avatar name="vault" variant="ghost"></nuri-icon-avatar></span></div>
+        <div class="proto-row"><span class="proto-tag proto-tag--composed">composed</span>
+          <span class="proto-specimen">
+            <div class="nuri-box nuri-stack" data-align="center" data-justify="center" data-radius="full"
+                 style="inline-size: var(--nuri-size-lg); block-size: var(--nuri-size-lg);">
+              <!-- LOGGED: inline-size/block-size = box.width/height · palette role=ghost = transparent · glyph inherits text-primary -->
+              <nuri-icon name="vault" size="md"></nuri-icon>
+            </div>
+          </span></div>
+      </div>
+
+      <div class="proto-card">
+        <h3 class="proto-card__title nuri-type-sm--em">subtle (avatar-only)</h3>
+        <div class="proto-row"><span class="proto-tag">live</span>
+          <span class="proto-specimen"><nuri-icon-avatar name="vault" variant="subtle"></nuri-icon-avatar></span></div>
+        <div class="proto-row"><span class="proto-tag proto-tag--composed">composed</span>
+          <span class="proto-specimen">
+            <div class="nuri-box nuri-stack" data-align="center" data-justify="center" data-radius="full"
+                 style="inline-size: var(--nuri-size-lg); block-size: var(--nuri-size-lg); color: var(--nuri-border-strong);">
+              <!-- LOGGED: inline-size/block-size = box.width/height · color = palette role=subtle (border-strong · fg-only role) · glyph inherits it -->
+              <nuri-icon name="vault" size="md"></nuri-icon>
+            </div>
+          </span></div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       3 · TOPBAR   (open primitive · content-pivot · the layout case)
+       65.3 §8: structure = view · stack{row,center,gap:sm} ·
+                box{height:lg,paddingStart:lg,paddingEnd:lg} ·
+                palette{chrome:'canvas'} · open;
+                part content{ view · stack{fill:'grow-shrink'} }  (pivot · flex:1 = anatomy)
+                variants.center → content.stack{center,center}
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="proto-section">
+    <h2 class="nuri-type-xl--em">3 · Topbar</h2>
+    <p class="proto-note">
+      A chrome row: host <code>stack</code>{row, center, gap:sm} + <code>box</code>{height,
+      paddingStart, paddingEnd} + <code>palette.chrome=canvas</code>. The content pivot is a
+      <code>stack</code>{fill:'grow-shrink'} (its <code>flex:1</code> is <em>anatomy</em>, not a
+      default). Leading / trailing are positional siblings (author controls). <code>center</code> →
+      the pivot stack adds {center, center}.
+    </p>
+    <div class="proto-sketch">host  · class="nuri-box nuri-stack"  data-direction=row data-align=center data-gap="sm"
+        · box     → data-padding-start="lg"  data-padding-end={lg|sm}
+        · LOGGED  → height:size-lg            (box.height — no Box sizing prop)
+        · LOGGED  → background:bg-canvas      (palette.chrome=canvas · fg=text-primary via scope · no palette primitive)
+pivot · class="nuri-stack"   (+ data-align=center data-justify=center when center)
+        · LOGGED  → flex:1 1 auto · min-inline-size:0   (stack.fill='grow-shrink' — today fill='grow' only)
+        · title   → &lt;nuri-typography size="lg" emphasis&gt;   (the lg-em utility topbar.js applies)
+sides · &lt;nuri-icon-button&gt;  (positional · self-styling · author-supplied)</div>
+
+    <div class="proto-stackcol">
+
+      <!-- Instance A · default title bar (leading title pivot + trailing actions) -->
+      <div>
+        <h3 class="nuri-type-md--em" style="margin: 0 0 var(--nuri-space-sm);">A · title bar (inset-end=sm)</h3>
+        <div class="proto-frame">
+          <!-- live -->
+          <nuri-topbar inset-end="sm">
+            <nuri-topbar-content>My vault</nuri-topbar-content>
+            <nuri-icon-button name="question" variant="ghost" label="Help"></nuri-icon-button>
+            <nuri-icon-button name="gear" variant="ghost" label="Settings"></nuri-icon-button>
+          </nuri-topbar>
+          <div class="proto-divider"></div>
+          <!-- composed -->
+          <!-- host: box{height,paddingStart:lg,paddingEnd:sm} ⊕ stack{row,center,gap:sm} ⊕ LOGGED palette.chrome=canvas -->
+          <div class="nuri-box nuri-stack" data-direction="row" data-align="center" data-gap="sm"
+               data-padding-start="lg" data-padding-end="sm"
+               style="height: var(--nuri-size-lg); background: var(--nuri-bg-canvas);">
+            <!-- LOGGED: height = box.height (no Box sizing prop) · background = palette.chrome=canvas (no palette primitive · fg=text-primary via scope) -->
+            <!-- content pivot · stack{fill:'grow-shrink'} · title = typography lg-em -->
+            <div class="nuri-stack" style="flex: 1 1 auto; min-inline-size: 0;">
+              <!-- LOGGED: flex:1 1 auto + min-inline-size:0 = stack.fill='grow-shrink' (today fill='grow' = 1 0 auto) -->
+              <nuri-typography size="lg" emphasis>My vault</nuri-typography>
+            </div>
+            <!-- trailing positional · author controls (self-styling) -->
+            <nuri-icon-button name="question" variant="ghost" label="Help"></nuri-icon-button>
+            <nuri-icon-button name="gear" variant="ghost" label="Settings"></nuri-icon-button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Instance B · centered action bar (leading back + centered title + trailing) -->
+      <div>
+        <h3 class="nuri-type-md--em" style="margin: 0 0 var(--nuri-space-sm);">B · centered (center · symmetric sides)</h3>
+        <div class="proto-frame">
+          <!-- live -->
+          <nuri-topbar center>
+            <nuri-icon-button name="caret-left" variant="ghost" label="Back"></nuri-icon-button>
+            <nuri-topbar-content>Details</nuri-topbar-content>
+            <nuri-icon-button name="gear" variant="ghost" label="Settings"></nuri-icon-button>
+          </nuri-topbar>
+          <div class="proto-divider"></div>
+          <!-- composed -->
+          <div class="nuri-box nuri-stack" data-direction="row" data-align="center" data-gap="sm"
+               data-padding-start="lg" data-padding-end="lg"
+               style="height: var(--nuri-size-lg); background: var(--nuri-bg-canvas);">
+            <!-- LOGGED: height = box.height · background = palette.chrome=canvas -->
+            <nuri-icon-button name="caret-left" variant="ghost" label="Back"></nuri-icon-button>
+            <!-- pivot · center → stack adds align/justify center -->
+            <div class="nuri-stack" data-align="center" data-justify="center"
+                 style="flex: 1 1 auto; min-inline-size: 0;">
+              <!-- LOGGED: flex:1 1 auto + min-inline-size:0 = stack.fill='grow-shrink' -->
+              <nuri-typography size="lg" emphasis>Details</nuri-typography>
+            </div>
+            <nuri-icon-button name="gear" variant="ghost" label="Settings"></nuri-icon-button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="proto-note nuri-type-sm" style="margin-top: 48px; border-top: 1px solid var(--nuri-border-subtle); padding-top: var(--nuri-space-md);">
+    B1.5 · validates decision 65.3 · report: <code>roadmap/N+19-B1.5.md</code> · not linked in the nav
+    (a validation spike, not a docs page).
+  </footer>
+
+</div>
+</body>
+</html>
