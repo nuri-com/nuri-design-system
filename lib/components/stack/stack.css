@@ -69,15 +69,24 @@
     min-width: 0;
   }
 
-  /* ── Fill · grow to fill a flex parent's main axis (decision 60) ──
-   * Opt-in. The Stack grows to fill its flex parent (e.g. a
-   * <nuri-box fill> inside a <nuri-scroll>), giving an inner
-   * <nuri-spacer> the slack to push trailing content to the end.
-   * `flex: 1 0 auto` (not 1 1 0) so when content EXCEEDS the parent the
-   * Stack keeps its content height (the Scroll scrolls · no clipping).
-   * RN map: a View with style={{ flex: 1 }}. */
-  .nuri-stack[data-fill] {
+  /* ── Fill · grow | grow-shrink enum (decision 60 · B1.5 §3) ──────
+   * Opt-in. `grow` (the default · bare `fill` or `fill="grow"`) →
+   * `flex: 1 0 auto` (not 1 1 0): the Stack grows to fill its flex
+   * parent (e.g. a <nuri-box fill> inside a <nuri-scroll>), giving an
+   * inner <nuri-spacer> the slack to push trailing content to the end,
+   * yet keeps its content height when content EXCEEDS the parent so the
+   * Scroll scrolls (no clipping). `grow-shrink` → `flex: 1 1 auto` +
+   * `min-inline-size: 0`: the Topbar content-pivot — it can shrink below
+   * its content's intrinsic width so trailing actions stay pinned to the
+   * row end. RN map: grow → {flexGrow:1,flexShrink:0}; grow-shrink →
+   * {flexGrow:1,flexShrink:1} (Yoga flex items already floor min main-size
+   * at 0, so no min-size knob is needed there · stack.tsx). */
+  .nuri-stack[data-fill="grow"] {
     flex: 1 0 auto;
+  }
+  .nuri-stack[data-fill="grow-shrink"] {
+    flex: 1 1 auto;
+    min-inline-size: 0;
   }
 
   /* ── Direction · column default; row opt-in ──────────────── */

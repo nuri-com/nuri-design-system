@@ -104,6 +104,16 @@ export function resolveToken(tokens: RuntimeTokens, path: TokenPath): string | n
 // web side (decision 36 / 37).
 export type SpaceLeaf = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
+// ── SizeLeaf · the full 7-leaf semantic size scale ───────────────
+// What Box `width` / `height` / `minHeight` accept — the element-
+// dimension vocabulary (`size.*`), distinct from SpaceLeaf's between-
+// element space. Unlike `gap`/`padding` (a 5-leaf subset), Box sizing
+// exposes the FULL coherent scale (xs..3xl · mirrors how box.css's
+// RADII exposes its whole scale). Sourced from the `size` singleton so
+// it tracks the scale 1:1 (decision 36 sizing vocabulary · 65.3 §6 box
+// = geometry only).
+export type SizeLeaf = keyof typeof size;
+
 // ══════════════════════════════════════════════════════════════════
 // NURI THEME CONTEXT · the single orthogonal theming context
 // (decision 27 · implemented decision 62 · closes F-SCOPE-1)

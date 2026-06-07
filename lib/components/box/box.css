@@ -2,18 +2,21 @@
  * NURI · COMPONENT · BOX
  *
  * Layout primitive · padding-bearing container. Padding (all 7
- * variants), inline-centering, surface background, and corner
- * radius controlled by props. Still no border — pure layout +
+ * variants), inline-centering, surface background, corner radius, and
+ * element sizing controlled by props. Still no border — pure layout +
  * surface per decision 37 (layout-primitive class · N+6.2) extended
- * by decision 42 (background + radius props · N+6.5).
+ * by decision 42 (background + radius props · N+6.5) and B2a (sizing
+ * props · width/height/minHeight · geometry only · 65.3 §6).
  *
  * API · padding/center/as locked at N+6.2 · background/radius at N+6.5
+ *     · width/height/minHeight at B2a
  *
  *   padding?  / paddingX?  / paddingY?:                 'xs' | 'sm' | 'md' | 'lg' | 'xl'
  *   paddingStart?  / paddingEnd?:                       'xs' | 'sm' | 'md' | 'lg' | 'xl'
  *   paddingTop?    / paddingBottom?:                    'xs' | 'sm' | 'md' | 'lg' | 'xl'
  *   background?: 'canvas' | 'subtle' | 'strong' | 'accent-solid' | 'accent-subtle'
  *   radius?:    'sm' | 'md' | 'lg' | 'full'
+ *   width? / height? / minHeight?:  'xs'|'sm'|'md'|'lg'|'xl'|'2xl'|'3xl'  (geometry · size scale)
  *   center?:    boolean    (margin-inline: auto · honors host-resolved width)
  *   fill?:      boolean    (decision 60 · grow to fill a flex parent's main
  *                          axis as a flex column · ScrollView contentContainer)
@@ -145,6 +148,37 @@
   .nuri-box[data-radius="md"]   { border-radius: var(--nuri-radius-md); }
   .nuri-box[data-radius="lg"]   { border-radius: var(--nuri-radius-lg); }
   .nuri-box[data-radius="full"] { border-radius: var(--nuri-radius-full); }
+
+  /* ── Sizing · element dimensions (full 7-leaf semantic size scale) ──
+   * Geometry only — box owns NO colour (decision 65.3 §6). Logical
+   * properties (inline-size / block-size) pair with the logical padding
+   * above (padding-inline / -block) so writing-mode / RTL stay coherent.
+   * width → inline-size · height → block-size · minHeight → min-block-size.
+   * RN mirror maps these to the physical width/height/minHeight (no
+   * logical sizing axis in Yoga · 1:1 in LTR · box.tsx). */
+  .nuri-box[data-width="xs"]   { inline-size: var(--nuri-size-xs);  }
+  .nuri-box[data-width="sm"]   { inline-size: var(--nuri-size-sm);  }
+  .nuri-box[data-width="md"]   { inline-size: var(--nuri-size-md);  }
+  .nuri-box[data-width="lg"]   { inline-size: var(--nuri-size-lg);  }
+  .nuri-box[data-width="xl"]   { inline-size: var(--nuri-size-xl);  }
+  .nuri-box[data-width="2xl"]  { inline-size: var(--nuri-size-2xl); }
+  .nuri-box[data-width="3xl"]  { inline-size: var(--nuri-size-3xl); }
+
+  .nuri-box[data-height="xs"]   { block-size: var(--nuri-size-xs);  }
+  .nuri-box[data-height="sm"]   { block-size: var(--nuri-size-sm);  }
+  .nuri-box[data-height="md"]   { block-size: var(--nuri-size-md);  }
+  .nuri-box[data-height="lg"]   { block-size: var(--nuri-size-lg);  }
+  .nuri-box[data-height="xl"]   { block-size: var(--nuri-size-xl);  }
+  .nuri-box[data-height="2xl"]  { block-size: var(--nuri-size-2xl); }
+  .nuri-box[data-height="3xl"]  { block-size: var(--nuri-size-3xl); }
+
+  .nuri-box[data-min-height="xs"]   { min-block-size: var(--nuri-size-xs);  }
+  .nuri-box[data-min-height="sm"]   { min-block-size: var(--nuri-size-sm);  }
+  .nuri-box[data-min-height="md"]   { min-block-size: var(--nuri-size-md);  }
+  .nuri-box[data-min-height="lg"]   { min-block-size: var(--nuri-size-lg);  }
+  .nuri-box[data-min-height="xl"]   { min-block-size: var(--nuri-size-xl);  }
+  .nuri-box[data-min-height="2xl"]  { min-block-size: var(--nuri-size-2xl); }
+  .nuri-box[data-min-height="3xl"]  { min-block-size: var(--nuri-size-3xl); }
 
   /* ── Center · inline-axis auto margins ───────────────────── */
   /* Only meaningful when the host has a bounded width (e.g., via
