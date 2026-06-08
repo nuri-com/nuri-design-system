@@ -30,11 +30,17 @@ export type StackProps = {
   align?: 'start' | 'center' | 'end' | 'stretch' | 'baseline';
   justify?: 'start' | 'center' | 'end' | 'between' | 'around';
   wrap?: boolean;
-  // fill (decision 60) → grow to fill the flex parent's main axis. RN's
-  // flexBasis defaults to 'auto' and flexShrink to 0, so { flexGrow: 1,
-  // flexShrink: 0 } reproduces the web `flex: 1 0 auto` (fill when short,
-  // keep content height when tall so a Scroll scrolls instead of clipping).
-  fill?: boolean;
+  // fill · enum grow | grow-shrink, keeping the decision-60 boolean
+  // (true / 'grow' → grow; 'grow-shrink' → the Topbar content-pivot · B1.5
+  // §3). grow → { flexGrow:1, flexShrink:0 } == web `flex:1 0 auto` (fill
+  // when short, keep content height when tall so a Scroll scrolls instead
+  // of clipping). grow-shrink → { flexGrow:1, flexShrink:1 } == web
+  // `flex:1 1 auto`.
+  // SEAM (R1): the web grow-shrink ALSO sets `min-inline-size:0` so the
+  // item can shrink below its content's intrinsic width; RN/Yoga flex
+  // items already default their min main-size to 0, so the shrink alone
+  // reproduces it — noted, no extra knob.
+  fill?: boolean | 'grow' | 'grow-shrink';
   children?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
 };
@@ -71,7 +77,11 @@ export const Stack: React.FC<StackProps> = ({
     ...(align ? { alignItems: ALIGN_MAP[align] } : null),
     ...(justify ? { justifyContent: JUSTIFY_MAP[justify] } : null),
     ...(wrap ? { flexWrap: 'wrap' } : null),
-    ...(fill ? { flexGrow: 1, flexShrink: 0 } : null),
+    ...(fill
+      ? (fill === 'grow-shrink'
+          ? { flexGrow: 1, flexShrink: 1 }
+          : { flexGrow: 1, flexShrink: 0 })
+      : null),
   };
   return <View style={[layout, style]}>{children}</View>;
 };
