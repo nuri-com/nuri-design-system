@@ -43,6 +43,7 @@ import { tabBar as tabBarTokens } from '../../../build/components/tab-bar';
 import { list as listTokens } from '../../../build/components/list';
 import { listItem } from '../../../build/components/list-item';
 import { listInteractiveItem } from '../../../build/components/list-interactive-item';
+import { palette } from '../../../build/palette';
 import type { TokenPath } from '../../../build/token-paths';
 import { icons } from '../../../build/icons';
 import type { IconName, IconWeight } from '../../../build/icons';
@@ -65,6 +66,7 @@ export {
   listTokens,
   listItem,
   listInteractiveItem,
+  palette,
   icons,
   SvgXml,
 };

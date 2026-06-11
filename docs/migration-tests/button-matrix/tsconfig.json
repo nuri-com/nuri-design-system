@@ -17,6 +17,7 @@
     "../../../build/tokens.ts",
     "../../../build/token-paths.ts",
     "../../../build/icons.ts",
+    "../../../build/palette.ts",
     "../../../build/components/button.ts",
     "../../../build/components/icon-button.ts",
     "../../../build/components/switch.ts",

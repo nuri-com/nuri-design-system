@@ -10,10 +10,11 @@
  *
  * The static, DECORATIVE twin of IconButton: a circular View filled per
  * the SAME variant→surface map IconButton uses for solid/soft/ghost,
- * REST state only (no pressed/disabled). Those three reuse the
- * iconButtonBg/iconButtonFg funnel — proving "same resolveToken surface"
- * literally, not by copy. IconAvatar ALSO carries an avatar-only `subtle`
- * variant (transparent bg · glyph in chrome.borderStrong) with no
+ * REST state only (no pressed/disabled). Colour resolves through the
+ * generalized palette engine (resolvePalette over build/palette.ts ·
+ * N+19 B2b · 65.3 §6) — the same mapping rows the old iconButtonBg/
+ * iconButtonFg funnel read, now data. The avatar-only `subtle` variant
+ * (fg-only in the mapping · glyph in chrome.borderStrong) has no
  * IconButton counterpart — an actionable control never wants a
  * near-invisible glyph (decision 50). Composes the real Icon: IconAvatar
  * is the FIRST NEW consumer to ship against the resolved Icon
@@ -30,7 +31,7 @@
 import * as React from 'react';
 import { View } from 'react-native';
 import { Icon } from './icon';
-import { iconButtonBg, iconButtonFg } from './icon-button';
+import { resolvePalette } from './palette';
 import {
   NuriThemeContext,
   resolveToken,
@@ -63,12 +64,16 @@ export const IconAvatar: React.FC<IconAvatarProps> = ({
   const { mode, accent: ambientAccent } = React.useContext(NuriThemeContext);
   const accent: Accent = accentProp ?? ambientAccent;
 
-  // solid/soft/ghost reuse IconButton's REST-state funnel (pressed=false)
-  // so the shared matrix can never drift. `subtle` is avatar-only:
-  // transparent surface, glyph painted in chrome.borderStrong (the same
-  // semantic the web .nuri-icon-avatar--subtle consumes).
-  const bg = variant === 'subtle' ? 'transparent' : iconButtonBg(variant, accent, mode, false);
-  const fg = variant === 'subtle' ? chrome[mode].borderStrong : iconButtonFg(variant, accent, mode);
+  // All four variants resolve through the palette engine at REST (no
+  // pressed state — IconAvatar is static), one row per variant in the
+  // emitted mapping (Guard E pins it) — the old per-variant funnel +
+  // `subtle` special-case, generalized. `subtle` is fg-only in the
+  // mapping (no bg cell); the avatar's rest surface is transparent —
+  // mirroring the explicit `background: transparent` the web
+  // .nuri-icon-avatar--subtle declares.
+  const resolved = resolvePalette({ variant }, { mode, accent });
+  const bg = resolved.bg ?? 'transparent';
+  const fg = resolved.fg as string;
 
   // Geometry dereferences the SHARED semantic scale (size.lg / radius.full)
   // through resolveToken — mirroring the web .nuri-icon-avatar, which consumes

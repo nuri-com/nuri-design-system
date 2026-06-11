@@ -15,7 +15,8 @@
  *   node --test pipeline/docs-drift.test.js
  * or via the glob in `npm test`.
  *
- * Four guards (A–C · ship-list item 5 · N+12a · D · N+19 · decision 65.2):
+ * Five guards (A–C · ship-list item 5 · N+12a · D · N+19 · decision 65.2
+ * · E · N+19 B2b · decision 65.3 §6):
  *   A · every pages/components/*.html is listed in llms.txt
  *   B · every build/components/*.ts is named in README + impl-guide
  *   C · doc-stated emitted counts match the live build artefacts
@@ -24,6 +25,10 @@
  *       and the 65.2 validated shapes are pinned — a renamed/removed
  *       part, variant, or token breaks the test (the TokenPath discipline
  *       applied to the descriptor).
+ *   E · build/palette.ts re-emits identically from the palette CSS SoT
+ *       (palette.css + the recipe CSS the cells are asserted against),
+ *       and the operator-settled contract table is pinned — a cell that
+ *       contradicts the CSS fails here (and the build · decision 48).
  * ────────────────────────────────────────────────────────────── */
 
 import { test } from 'node:test';
@@ -39,6 +44,8 @@ import {
   emitSchemaTs,
   pageParts,
 } from './parsers/descriptors.js';
+import { derivePalette, emitPaletteTs } from './parsers/palette.js';
+import { readSemanticRules, classifyAll } from './parsers/semantic.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
@@ -238,4 +245,59 @@ test('D · each build/descriptors/*.ts re-emits identically from its sources', (
       );
     }
   }
+});
+
+// ── Guard E · the palette mapping ⊂ its CSS SoT (N+19 B2b · decision 65.3 §6) ──
+// The decision-48 discipline applied to the colour namespace: the
+// {variant | chrome} → {bg, fg, fgMuted, pressedBg} mapping at
+// build/palette.ts must always re-derive from the live CSS —
+// palette.css (the web dispatch · every bg/fg cell) cross-asserted
+// against the recipe CSS (button.css aliases · icon-avatar.css subtle ·
+// topbar.css's chrome pair · typography.css's muted fg). derivePalette
+// THROWS on any cell↔CSS contradiction, so this test fails on the same
+// drift `npm run build` fails on; the pinned table below additionally
+// catches a coordinated CSS+build change — the operator-settled B2b
+// contract may only move by deliberately updating this pin.
+const EXPECTED_PALETTE = {
+  variant: {
+    solid:  { bg: 'accent.solid',    fg: 'accent.onSolid',     pressedBg: 'accent.solidPressed' },
+    soft:   { bg: 'chrome.bgStrong', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted', pressedBg: 'chrome.bgPressed' },
+    ghost:  { bg: 'transparent',     fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted', pressedBg: 'chrome.bgSubtle' },
+    subtle: { fg: 'chrome.borderStrong' },
+  },
+  chrome: {
+    canvas: { bg: 'chrome.bgCanvas', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
+    subtle: { bg: 'chrome.bgSubtle', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
+    strong: { bg: 'chrome.bgStrong', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
+  },
+};
+
+test('E · build/palette.ts re-derives from the CSS SoT and matches the pinned contract table', () => {
+  const classifiedGroups = classifyAll(readSemanticRules(read('styles/tokens-semantic.css')));
+
+  // derivePalette re-reads every source and THROWS on drift (a cell
+  // pointing at the wrong leaf, a missing complete-pair channel, a
+  // stray .nuri-palette rule, a renamed semantic var) — the call
+  // itself is the cell↔CSS guard.
+  const cells = derivePalette(
+    {
+      button:     read('lib/components/button/button.css'),
+      iconAvatar: read('lib/components/icon-avatar/icon-avatar.css'),
+      topbar:     read('lib/components/topbar/topbar.css'),
+      typography: read('lib/components/typography/typography.css'),
+      palette:    read('lib/components/palette/palette.css'),
+    },
+    { classifiedGroups },
+  );
+
+  // Re-emit must equal the committed build (stale-build / hand-edit guard).
+  assert.equal(
+    read('build/palette.ts'),
+    emitPaletteTs(cells),
+    'build/palette.ts is stale or hand-edited — run `npm run build`.',
+  );
+
+  // The operator-settled contract pin (B2b): a CSS change that flows
+  // through to ANY cell fails here even after a re-build.
+  assert.deepEqual(cells, EXPECTED_PALETTE, 'palette cells drifted from the B2b contract table');
 });

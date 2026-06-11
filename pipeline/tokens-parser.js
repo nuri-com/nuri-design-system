@@ -75,6 +75,12 @@ import {
   emitSchemaTs,
 } from './parsers/descriptors.js';
 
+import {
+  PALETTE_CONTRACT,
+  derivePalette,
+  emitPaletteTs,
+} from './parsers/palette.js';
+
 import { ICONS } from '../lib/components/icon/icons.js';
 
 // Re-export so existing imports (and the primitive round-trip tests)
@@ -119,6 +125,9 @@ export {
   deriveDescriptor,
   emitDescriptorTs,
   emitSchemaTs,
+  PALETTE_CONTRACT,
+  derivePalette,
+  emitPaletteTs,
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -135,6 +144,7 @@ const TOKEN_PATHS_OUT  = resolve(REPO_ROOT, 'build/token-paths.ts');
 const ICONS_OUT        = resolve(REPO_ROOT, 'build/icons.ts');
 const DESCRIPTORS_OUT  = resolve(REPO_ROOT, 'build/descriptors');
 const SCHEMA_SRC       = resolve(REPO_ROOT, 'pipeline/descriptors/schema.ts');
+const PALETTE_OUT      = resolve(REPO_ROOT, 'build/palette.ts');
 
 // Per-component emit list (decision 34 · N+6.0.3 · extended at
 // decision 37 · N+6.2 · decision 38 · N+6.3 · decision 44 · N+6.5).
@@ -147,7 +157,12 @@ const SCHEMA_SRC       = resolve(REPO_ROOT, 'pipeline/descriptors/schema.ts');
 // container tokens emit to build/components/tabs.ts while the
 // `--nuri-tab-` option tokens stay web-CSS-only by design (no
 // separate 'tab' entry).
-const COMPONENTS = ['button', 'stack', 'box', 'screen', 'scroll', 'spacer', 'icon', 'icon-button', 'icon-avatar', 'list', 'list-item', 'list-interactive-item', 'nav-item', 'separator', 'switch', 'tab-bar', 'tabs', 'topbar', 'typography', 'typography-stack'];
+//
+// Note · 'palette' (N+19 B2b · decision 65.3 §6) rides the skip-emit
+// branch here (empty `@layer tokens` · attribute-dispatch like Stack/
+// Box); its MAPPING emits through the dedicated Slice 7 below
+// (build/palette.ts · pipeline/parsers/palette.js).
+const COMPONENTS = ['button', 'stack', 'box', 'screen', 'scroll', 'spacer', 'icon', 'icon-button', 'icon-avatar', 'list', 'list-item', 'list-interactive-item', 'nav-item', 'separator', 'switch', 'tab-bar', 'tabs', 'topbar', 'typography', 'typography-stack', 'palette'];
 
 // Parse the orchestrator's CLI flag `--neutral=<scale>` from argv
 // (decision 31). Default = DEFAULT_NEUTRAL. validateNeutral throws on
@@ -268,6 +283,24 @@ async function main() {
     descriptorReports.push({ name: spec.name, axes: Object.keys(ir.axes).length, out });
   }
 
+  // ── Slice 7 · palette mapping emit (N+19 B2b · decision 65.3 §6) ──
+  // ADDITIVE at build/palette.ts: the {variant | chrome} → {bg, fg,
+  // fgMuted, pressedBg} table as TokenPath data, emitted ONCE in the
+  // baseline (decision 65.2). derivePalette asserts every contract
+  // cell against the CSS SoT (palette.css + the recipe CSS) before
+  // emitting — a contradiction fails the build (decision 48).
+  const paletteSources = {
+    button:     await readFile(resolve(COMPONENTS_DIR, 'button/button.css'), 'utf8'),
+    iconAvatar: await readFile(resolve(COMPONENTS_DIR, 'icon-avatar/icon-avatar.css'), 'utf8'),
+    topbar:     await readFile(resolve(COMPONENTS_DIR, 'topbar/topbar.css'), 'utf8'),
+    typography: await readFile(resolve(COMPONENTS_DIR, 'typography/typography.css'), 'utf8'),
+    palette:    await readFile(resolve(COMPONENTS_DIR, 'palette/palette.css'), 'utf8'),
+  };
+  const paletteCells = derivePalette(paletteSources, { classifiedGroups });
+  await writeFile(PALETTE_OUT, emitPaletteTs(paletteCells), 'utf8');
+  const paletteRowCount =
+    Object.keys(paletteCells.variant).length + Object.keys(paletteCells.chrome).length;
+
   console.log(
     `[tokens-parser] wrote ${jsonCount} colour primitives → ${JSON_OUT}\n` +
     `[tokens-parser] wrote ${semanticCount} semantic tokens × ${ACCENTS.length} accents × ${THEMES.length} themes → ${TS_OUT}\n` +
@@ -282,7 +315,8 @@ async function main() {
     `\n[tokens-parser] wrote descriptor schema → ${resolve(DESCRIPTORS_OUT, 'schema.ts')}` +
     descriptorReports.map((r) =>
       `\n[tokens-parser] wrote descriptor '${r.name}' (${r.axes} ${r.axes === 1 ? 'axis' : 'axes'}) → ${r.out}`,
-    ).join(''),
+    ).join('') +
+    `\n[tokens-parser] wrote palette mapping (${paletteRowCount} rows · CSS-asserted) → ${PALETTE_OUT}`,
   );
 }
 
