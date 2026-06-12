@@ -42,6 +42,7 @@ import {
   type TokenPath,
   type RuntimeTokens,
 } from './_shared';
+import { resolvePalette } from './palette';
 
 export type ButtonSize = 'lg' | 'md' | 'sm';
 
@@ -125,36 +126,26 @@ export const Button: React.FC<ButtonProps> = ({
 
 // ── Variant + accent + pressed → background colour ────────────────
 // Web equivalent: button.css `.nuri-button--{variant}` + `:active`
-// override. We compute the literal each render (tier+accent+pressed
-// combinatorics blow up a memoised cache; inline saves the bookkeeping).
-// TokenPath consumption (decision 34): `button.solidBg` emits as the
-// literal `'accent.solid' as const satisfies TokenPath`; resolveToken
-// dereferences against the live (accent × theme) slice.
+// override. Since N+19 B2b the funnel DELEGATES to the generalized
+// palette engine (resolvePalette over build/palette.ts · 65.3 §6 —
+// palette owns all colour): same paths in (accent.solid/solidPressed ·
+// chrome.bgStrong/bgPressed — Guard E pins them), same colours out.
+// The signature is unchanged on purpose — the Button API stays
+// `'solid' | 'soft'` (the recipe surface is B2c's call); only the
+// colour RESOLUTION moved.
 export function variantStyle(
   variant: 'solid' | 'soft',
   accent: Accent,
   theme: Theme,
   pressed: boolean,
 ): StyleProp<ViewStyle> {
-  const tokens: RuntimeTokens = {
-    chrome: chrome[theme], accent: accentTokens[accent][theme], space, size, radius,
-  };
-  if (variant === 'solid') {
-    return {
-      backgroundColor: resolveToken(tokens, pressed ? button.solidBgPressed : button.solidBg) as string,
-    };
-  }
-  // soft · chrome-only, accent-invariant (P7)
   return {
-    backgroundColor: resolveToken(tokens, pressed ? button.softBgPressed : button.softBg) as string,
+    backgroundColor: resolvePalette({ variant }, { mode: theme, accent }, { pressed }).bg as string,
   };
 }
 
 export function labelColor(variant: 'solid' | 'soft', accent: Accent, theme: Theme): string {
-  const tokens: RuntimeTokens = {
-    chrome: chrome[theme], accent: accentTokens[accent][theme], space, size, radius,
-  };
-  return resolveToken(tokens, variant === 'solid' ? button.solidFg : button.softFg) as string;
+  return resolvePalette({ variant }, { mode: theme, accent }).fg as string;
 }
 
 // Button-internal base styling. radius/minHeight/paddingX are runtime-set

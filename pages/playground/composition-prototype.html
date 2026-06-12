@@ -34,11 +34,15 @@
 
   <!-- The curated primitives we compose FROM (the five-namespace vocabulary ·
        65.3 §6). stack = flexbox · box = sizing/padding/radii (NO colour) ·
-       typography = font · icon = the glyph leaf. palette has no primitive. -->
+       typography = font · icon = the glyph leaf. palette had no primitive at
+       B1.5 validation time; B2b ships its web dispatch (palette.css · class +
+       data-attr on the painting node · merged-node, no element) — the page's
+       composed nodes predate it and keep their inline LOGGED colour. -->
   <link rel="stylesheet" href="../../lib/components/box/box.css" />
   <link rel="stylesheet" href="../../lib/components/stack/stack.css" />
   <link rel="stylesheet" href="../../lib/components/typography/typography.css" />
   <link rel="stylesheet" href="../../lib/components/icon/icon.css" />
+  <link rel="stylesheet" href="../../lib/components/palette/palette.css" />
 
   <!-- The live recipes we validate AGAINST (the parity reference only). -->
   <link rel="stylesheet" href="../../lib/components/button/button.css" />

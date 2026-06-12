@@ -1,0 +1,109 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · PALETTE  (the colour namespace · decision 65.3 §6 · N+19 B2b)
+ *
+ * The web realization of the `palette` namespace — the ONE owner of
+ * all colour in the composition model. A palette surface resolves its
+ * COMPLETE pair — bg AND fg — explicitly: no ambient fallback, no
+ * inheritance semantics, no scope sentinel. Every dispatch row below
+ * paints both channels (`subtle` is the one fg-only role by contract).
+ *
+ * Variant matrix (one input per node: `variant` XOR `chrome`):
+ *
+ *   input            bg               fg                 (pressedBg · data only · B2c)
+ *   ─────────────────────────────────────────────────────────────────
+ *   variant=solid    accent-solid     accent-on-solid    accent-solid-pressed
+ *   variant=soft     bg-strong        text-primary       bg-pressed
+ *   variant=ghost    transparent      text-primary       bg-subtle
+ *   variant=subtle   — (fg-only)      border-strong      —
+ *   chrome=canvas    bg-canvas        text-primary       —
+ *   chrome=subtle    bg-subtle        text-primary       —
+ *   chrome=strong    bg-strong        text-primary       —
+ *
+ *   `chrome` (canvas | subtle | strong) is the theme-only surface slot
+ *   (B1.5 §4.3 · the `subtle` ROLE name is taken, hence a separate
+ *   input). Solid carries accent identity; soft/ghost/subtle and the
+ *   chrome slot are chrome-only (decision 11 family). Accent rides the
+ *   EXISTING scope mechanism — the var(--nuri-accent-*) refs re-point
+ *   under any [data-accent] (tier-2 self-scope / tier-3 nuri-scope);
+ *   no new mechanism here.
+ *
+ * MERGED-NODE model (B1.5 §4.2): there is NO <nuri-palette> custom
+ * element and no palette.js — the class + data-attrs land directly ON
+ * the painting node, co-located with the other namespace classes
+ * (`class="nuri-box nuri-stack nuri-palette" data-variant="…"`), the
+ * faithful web analogue of RN's single merged <View style>. The
+ * namespaces are disjoint (65.3 §6 · box owns NO colour), so the
+ * rule-sets co-exist without collision. A wrapper element is
+ * P11-deferred until a hand-authoring consumer exists.
+ *
+ * NOT here (deferred · B2c, gated on the `interactive` flag):
+ *   · pressed dispatch (`:active` bg swaps) — the recipes' own CSS
+ *     handles their pressed states today; `pressedBg` ships as DATA
+ *     in build/palette.ts only.
+ *   · `muted` — delivered by Typography's existing data-muted dispatch
+ *     (the fgMuted column · decision 53); NO node-level muted rule.
+ * RESERVED — mapped, not built (decision 30): variant `outline` · the
+ * `border` role · the `onSolid.muted` token. No rules, no values.
+ *
+ * ONE SOURCE, TWO READERS (decision 48): this file is parsed by the
+ * pipeline (pipeline/parsers/palette.js) and asserted cell-for-cell
+ * against the recipes' CSS (button.css aliases · icon-avatar.css
+ * subtle · topbar.css's chrome pair · typography.css muted) before
+ * build/palette.ts emits — a row here that contradicts the contract
+ * table fails `npm run build` and `npm test` (Guard E).
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design. Palette dispatches the semantic accent/chrome
+   * vocabulary directly in `@layer rules` via attribute selectors
+   * (decision 37 · the Stack/Box pattern) — component-token aliasing
+   * would be useless indirection. The pipeline rides the skip-emit
+   * branch for this block; the MAPPING emits through the dedicated
+   * palette slice (build/palette.ts) instead. */
+}
+
+@layer rules {
+  /* ── Variant · solid · filled with the active accent ────────── */
+  .nuri-palette[data-variant="solid"] {
+    background: var(--nuri-accent-solid);
+    color: var(--nuri-accent-on-solid);
+  }
+
+  /* ── Variant · soft · chrome-only quiet surface ─────────────── */
+  .nuri-palette[data-variant="soft"] {
+    background: var(--nuri-bg-strong);
+    color: var(--nuri-text-primary);
+  }
+
+  /* ── Variant · ghost · transparent at rest, explicit ────────── */
+  /* The bg is an EXPLICIT transparent (the complete-pair rule — the
+   * engine applies both channels; the ghostBg emit convention), not
+   * an absent declaration. */
+  .nuri-palette[data-variant="ghost"] {
+    background: transparent;
+    color: var(--nuri-text-primary);
+  }
+
+  /* ── Variant · subtle · fg-only (the IconAvatar role) ───────── */
+  /* The ONE contract row with no bg channel — a near-invisible glyph
+   * treatment, never a surface (decision 50). */
+  .nuri-palette[data-variant="subtle"] {
+    color: var(--nuri-border-strong);
+  }
+
+  /* ── Chrome slot · theme-only surfaces (no accent, no pressed) ─ */
+  .nuri-palette[data-chrome="canvas"] {
+    background: var(--nuri-bg-canvas);
+    color: var(--nuri-text-primary);
+  }
+
+  .nuri-palette[data-chrome="subtle"] {
+    background: var(--nuri-bg-subtle);
+    color: var(--nuri-text-primary);
+  }
+
+  .nuri-palette[data-chrome="strong"] {
+    background: var(--nuri-bg-strong);
+    color: var(--nuri-text-primary);
+  }
+}
