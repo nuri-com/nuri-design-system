@@ -70,9 +70,13 @@
   }
 
   /* ── Fill · grow | grow-shrink enum (decision 60 · B1.5 §3) ──────
+   * Stack is fill's ONLY owner (amendment 60.1 · N+19 U3 — box.fill
+   * removed; flex-child behaviour is stack's, 65.3 §6 disjointness).
    * Opt-in. `grow` (the default · bare `fill` or `fill="grow"`) →
    * `flex: 1 0 auto` (not 1 1 0): the Stack grows to fill its flex
-   * parent (e.g. a <nuri-box fill> inside a <nuri-scroll>), giving an
+   * parent (e.g. a <nuri-stack fill> content column directly inside a
+   * <nuri-scroll>, or merged with box padding on one node:
+   * class="nuri-box nuri-stack" data-fill="grow"), giving an
    * inner <nuri-spacer> the slack to push trailing content to the end,
    * yet keeps its content height when content EXCEEDS the parent so the
    * Scroll scrolls (no clipping). `grow-shrink` → `flex: 1 1 auto` +

@@ -1,25 +1,27 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · BOX
  *
- * Layout primitive · padding-bearing container. Padding (all 7
- * variants), inline-centering, surface background, corner radius, and
- * element sizing controlled by props. Still no border — pure layout +
- * surface per decision 37 (layout-primitive class · N+6.2) extended
- * by decision 42 (background + radius props · N+6.5) and B2a (sizing
- * props · width/height/minHeight · geometry only · 65.3 §6).
+ * Layout primitive · the element's own visual box — PURELY GEOMETRIC
+ * (decision 65.3 §6 · N+19 U3). Padding (all 7 variants), corner
+ * radius, element sizing, and inline-centering controlled by props.
+ * Box owns NO colour (`background` removed → the palette namespace's
+ * chrome/variant dispatch · amendment 42.1) and NO flex-child
+ * behaviour (`fill` removed → stack's `fill` enum · amendment 60.1):
+ * one node composes the disjoint class layers
+ * `class="nuri-box nuri-stack nuri-palette"` with zero attribute
+ * overlap. Still no border — decision 37 (layout-primitive class ·
+ * N+6.2) extended by decision 42 (radius · N+6.5) and B2a (sizing
+ * props · width/height/minHeight).
  *
- * API · padding/center/as locked at N+6.2 · background/radius at N+6.5
- *     · width/height/minHeight at B2a
+ * API · padding/center/as locked at N+6.2 · radius at N+6.5
+ *     · width/height/minHeight at B2a · geometry-only at N+19 U3
  *
  *   padding?  / paddingX?  / paddingY?:                 'xs' | 'sm' | 'md' | 'lg' | 'xl'
  *   paddingStart?  / paddingEnd?:                       'xs' | 'sm' | 'md' | 'lg' | 'xl'
  *   paddingTop?    / paddingBottom?:                    'xs' | 'sm' | 'md' | 'lg' | 'xl'
- *   background?: 'canvas' | 'subtle' | 'strong' | 'accent-solid' | 'accent-subtle'
  *   radius?:    'sm' | 'md' | 'lg' | 'full'
  *   width? / height? / minHeight?:  'xs'|'sm'|'md'|'lg'|'xl'|'2xl'|'3xl'  (geometry · size scale)
  *   center?:    boolean    (margin-inline: auto · honors host-resolved width)
- *   fill?:      boolean    (decision 60 · grow to fill a flex parent's main
- *                          axis as a flex column · ScrollView contentContainer)
  *   as?:        string     (host-resolved · defaults to <div>)
  *
  * Padding precedence (more specific wins): top/bottom/start/end
@@ -67,20 +69,11 @@
     min-width: 0;
   }
 
-  /* ── Fill · grow to fill a flex parent's main axis (decision 60) ──
-   * Opt-in. The Box becomes a filling flex column so it both (a) grows
-   * to fill its flex parent — typically a <nuri-scroll>, the web
-   * analogue of RN's ScrollView contentContainerStyle={{flexGrow:1}} —
-   * and (b) can host a <nuri-stack fill> child that fills in turn, so a
-   * <nuri-spacer> pushes trailing content to the end. `flex: 1 0 auto`
-   * (not 1 1 0): when content EXCEEDS the viewport the Box keeps its
-   * content height and the Scroll scrolls (no clipping). RN map: a View
-   * with style={{ flex: 1 }} (the contentContainer). */
-  .nuri-box[data-fill] {
-    flex: 1 0 auto;
-    display: flex;
-    flex-direction: column;
-  }
+  /* No fill rule — flex-CHILD behaviour belongs to stack (decision 60
+   * as amended by 60.1 · N+19 U3): a filling content column is
+   * `.nuri-stack[data-fill="grow"]` (stack base = flex column), merged
+   * onto the same node as the box classes where padding is also
+   * needed (`class="nuri-box nuri-stack" … data-fill="grow"`). */
 
   /* ── Padding · uniform (5-leaf subset of semantic space) ─── */
   .nuri-box[data-padding="xs"] { padding: var(--nuri-space-xs); }
@@ -129,19 +122,10 @@
   .nuri-box[data-padding-bottom="lg"] { padding-block-end: var(--nuri-space-lg); }
   .nuri-box[data-padding-bottom="xl"] { padding-block-end: var(--nuri-space-xl); }
 
-  /* ── Background · surface fill (5-value semantic enum) ───── */
-  /* Chrome surfaces (canvas/subtle/strong) read the theme-only
-   * bg tokens. The accent-* pair reads the accent × theme tokens —
-   * accent-solid also flips text colour to on-solid so labels stay
-   * legible on the inverse/brand fill (decision 42 · N+6.5). */
-  .nuri-box[data-background="canvas"] { background: var(--nuri-bg-canvas); }
-  .nuri-box[data-background="subtle"] { background: var(--nuri-bg-subtle); }
-  .nuri-box[data-background="strong"] { background: var(--nuri-bg-strong); }
-  .nuri-box[data-background="accent-solid"] {
-    background: var(--nuri-accent-solid);
-    color: var(--nuri-accent-on-solid);
-  }
-  .nuri-box[data-background="accent-subtle"] { background: var(--nuri-accent-bg-subtle); }
+  /* No background rules — colour belongs to palette (65.3 §6 ·
+   * amendment 42.1 · N+19 U3): a coloured surface is
+   * `.nuri-palette[data-chrome|data-variant]` (palette.css), merged
+   * onto the same node as the box geometry classes. */
 
   /* ── Radius · corner softness (4-leaf semantic enum) ─────── */
   .nuri-box[data-radius="sm"]   { border-radius: var(--nuri-radius-sm); }

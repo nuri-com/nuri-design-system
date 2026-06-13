@@ -26,8 +26,14 @@
  * the cursor affordance is web-only (the same F-DISABLED-1 cursor gap).
  * Props stay 1:1; only the disabled-state mechanism differs.
  *
- * The container surface is the RN Box (background + radius + padding —
- * via `style`, decision 42). The inter-tab gap reads the generated
+ * The container surface mirrors the web's ONE merged box ⊕ palette
+ * node (65.3 §6 · amendment 42.1 · N+19 U3): geometry (padding +
+ * radius) = the RN Box; colour = resolvePalette({ chrome: 'strong' })
+ * — chrome=strong ≙ the retired Box background="strong" — merged onto
+ * the same <View> via Box's `style` hatch. The resolver returns the
+ * complete pair; the container consumes only the bg channel (RN has
+ * no fg inheritance — each Tab resolves its own text colours, exactly
+ * the F-BOX-FG-1 discipline). The inter-tab gap reads the generated
  * tabsTokens.gap. Per-OPTION shape tokens (--nuri-tab-*) are web-CSS-
  * only by design, so the RN Tab reads the SAME semantic vocabulary
  * directly: size.md, space.md, radius.sm, chrome.textMuted (rest fg),
@@ -42,6 +48,7 @@
 import * as React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Box } from './box';
+import { resolvePalette } from './palette';
 import {
   NuriThemeContext,
   resolveToken,
@@ -123,16 +130,21 @@ export const Tabs: React.FC<TabsProps> = ({ value, onChange, children }) => {
   // gap is the generated tabsTokens.gap TokenPath ('space.2xs') → number.
   const gap = resolveToken(tokens, tabsTokens.gap) as number;
 
-  // Container surface via the RN Box (background + radius + padding) —
-  // the same composition the web <nuri-tabs> performs (decision 42).
-  // Box now carries the surface props natively (D1 · N+13), so the
-  // strong/md surface is declared, not passed through the style hatch.
+  // Container surface = ONE merged node, two disjoint namespaces
+  // (65.3 §6): Box owns the geometry (padding + radius — Box is
+  // purely geometric since N+19 U3 · amendment 42.1); palette owns
+  // the colour — chrome=strong, the theme-only surface slot, resolved
+  // through the emitted build/palette.ts mapping (B2b) and merged
+  // onto the same <View> via the style hatch. Only the bg channel is
+  // consumed here (no RN colour inheritance — the Tabs' own parts
+  // resolve their fg explicitly · F-BOX-FG-1).
+  const surface = resolvePalette({ chrome: 'strong' }, { mode, accent });
   return (
     <Box
       paddingX="xs"
       paddingY="xs"
-      background="strong"
       radius="md"
+      style={{ backgroundColor: surface.bg }}
     >
       <View style={{ flexDirection: 'row', gap }}>
         {React.Children.map(children, (child) =>

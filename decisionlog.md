@@ -1826,6 +1826,35 @@ on its own children, not on Box.
   · `radius` consumes the semantic radius leaves as a subset.
 - See [`roadmap/N+6.5.md`](./roadmap/N+6.5.md) for the source session.
 
+### 42.1 amendment · N+19 U3 · `background` removed — palette owns all colour · `radius` stays (geometry)
+
+**Box is purely geometric.** The `background` prop (and its five `data-background` dispatch rules)
+is removed from Box; **palette owns ALL colour end-to-end** (decision 65.3 §6 · B1.5 §4.3 · the
+engine built in B2b). A coloured surface is the palette class layer merged onto the SAME node —
+the operator-locked disjointness: **one node = box ⊕ stack ⊕ palette, zero attribute overlap**
+(`backgroundColor` → palette, not box):
+
+* the chrome backgrounds (`canvas` / `subtle` / `strong`) ≙ palette's **chrome slot**
+  (`data-chrome` · theme-only · B1.5 §4.3);
+* `accent-solid` ≙ palette **`variant="solid"`** — now with the complete bg+fg pair the
+  decision-42 fg-coupling only approximated (the complete-pair rule · B2b), so the Box half of
+  **F-BOX-FG-1 retires with the prop**;
+* **`accent-subtle` is dropped slotless** (demo-only consumer · P11/decision 30 — the
+  `accent.bgSubtle` semantic tokens stay, same held posture as their `-pressed` twin).
+
+`radius` **STAYS** — corner geometry is box's. Consumers migrated (N+19 U3): Tabs (`tabs.js` — the
+decision-43 composition is now ONE merged node `class="nuri-box nuri-palette" data-chrome="strong"
+data-radius="md" data-padding="xs"`, visually identical), the `screen.html` placeholder surfaces,
+the `box.html` demos (radius cells take the class layer for visibility; the colour story moved to
+[`pages/components/palette.html`](./pages/components/palette.html)), and the RN mirrors (`box.tsx`
+prop + `BACKGROUND_PATH` removed; `tabs.tsx` resolves `chrome=strong` through `resolvePalette` and
+merges it onto the Box `<View>` via `style`).
+
+**Pending operator sign-off (U3 PR review).**
+
+Base: `docs/composition-model.md` §6 · [`roadmap/N+19-B2b.md`](./roadmap/N+19-B2b.md) ·
+[`roadmap/N+19-U3.md`](./roadmap/N+19-U3.md).
+
 ---
 
 ## 43. Tabs · first multi-element compound · first Box composition consumer · N+6.5
@@ -4413,6 +4442,26 @@ Stack[fill](flex:1 0 auto) > … Spacer … buttons`.
 19/19; build skip-emit unchanged; `box.html` / `stack.html` `fill` rows render.
 
 **Operator signed off (2026-06-01)** on Box + Stack `fill` (`flex: 1 0 auto`).
+
+### 60.1 amendment · N+19 U3 · `fill` is stack-only — box.fill removed
+
+**Flex-child behaviour belongs to stack** (decision 65.3 §6: `flexGrow`/`flexShrink` → stack, not
+box — the operator-locked disjointness: one node = box ⊕ stack ⊕ palette, zero attribute overlap).
+Box's `fill` (the boolean prop + the `.nuri-box[data-fill]` rule above) is removed; **stack's
+`fill` enum (`grow` | `grow-shrink` · B2a) carries the semantic**. Stack's base is already a flex
+column, so `.nuri-stack[data-fill="grow"]` (`flex: 1 0 auto`) ≡ the old box.fill exactly (grow +
+column). Where the filling column also needs box padding, the namespaces merge on ONE node via the
+class layer — the My-vault scroll body (this decision's original evidence) now authors precisely
+that: `class="nuri-box nuri-stack" data-padding-x="lg" data-padding-top="md" data-fill="grow"`.
+The vault chain becomes `Scroll(flex col) > [box ⊕ stack · fill=grow] > Stack[fill] > … Spacer …
+buttons` — behaviour byte-identical (the `1 0 auto` scroll rationale above is untouched; it now
+lives solely on stack). RN mirror: `box.tsx` `fill` removed; `stack.tsx` already carries the enum
+(`grow` → `{flexGrow:1, flexShrink:0}`).
+
+**Pending operator sign-off (U3 PR review).**
+
+Base: `docs/composition-model.md` §6 · [`roadmap/N+19-B2a.md`](./roadmap/N+19-B2a.md) ·
+[`roadmap/N+19-U3.md`](./roadmap/N+19-U3.md).
 
 ## 61. Spacer `grow` · proportional grow · N+11
 
