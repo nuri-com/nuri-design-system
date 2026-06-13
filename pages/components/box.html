@@ -22,6 +22,9 @@
   <link rel="stylesheet" href="../../styles/shell.css" />
   <link rel="stylesheet" href="../../lib/components/stack/stack.css" />
   <link rel="stylesheet" href="../../lib/components/box/box.css" />
+  <!-- palette.css · the radius demos get their visible surface from the
+       palette chrome class layer (box owns no colour · 65.3 §6). -->
+  <link rel="stylesheet" href="../../lib/components/palette/palette.css" />
   <link rel="stylesheet" href="../../lib/components/button/button.css" />
   <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
 
@@ -61,7 +64,7 @@
     eyebrow="Components · Layout · Box"
     title="Box"
     status="draft"
-    lead="The padding-bearing surface container. Uniform, axis-asymmetric, and single-edge padding driven by the semantic space vocabulary, inline-centering, plus a semantic background fill and corner radius. Layout + surface — still no border."
+    lead="The element's own visual box — purely geometric. Uniform, axis-asymmetric, and single-edge padding driven by the semantic space vocabulary, corner radius, element sizing, and inline-centering. Box owns no colour (that's the palette namespace) and no flex-child behaviour (that's Stack's fill) — still no border."
   ></nuri-page>
 
   <!-- ═════════════════════════════════════════════════════════════
@@ -199,12 +202,6 @@
           <td data-cell="default"><em>unset</em></td>
           <td data-cell="description">Single edge · block-end.</td>
         </tr>
-        <tr data-prop="background">
-          <td data-cell="name"><code>background</code></td>
-          <td data-cell="type"><code>"canvas" | "subtle" | "strong" | "accent-solid" | "accent-subtle"</code></td>
-          <td data-cell="default"><em>unset</em></td>
-          <td data-cell="description">Surface fill. <code>canvas</code>/<code>subtle</code>/<code>strong</code> read the theme-only chrome bg tokens; the <code>accent-*</code> pair reads the accent × theme tokens. <code>accent-solid</code> also sets text colour to <code>--nuri-accent-on-solid</code> so labels stay legible on the fill. An unknown value warns to the console and paints nothing.</td>
-        </tr>
         <tr data-prop="radius">
           <td data-cell="name"><code>radius</code></td>
           <td data-cell="type"><code>"sm" | "md" | "lg" | "full"</code></td>
@@ -216,12 +213,6 @@
           <td data-cell="type"><code>boolean</code></td>
           <td data-cell="default"><code>false</code></td>
           <td data-cell="description">Inline-axis auto margins (<code>margin-inline: auto</code>). Only meaningful when the host has a bounded width; no-op otherwise.</td>
-        </tr>
-        <tr data-prop="fill">
-          <td data-cell="name"><code>fill</code></td>
-          <td data-cell="type"><code>boolean</code></td>
-          <td data-cell="default"><code>false</code></td>
-          <td data-cell="description">Grow to fill the main axis of a flex parent <em>and</em> become a flex column, so a filling child (e.g. <code>&lt;nuri-stack fill&gt;</code>) fills in turn. The web analogue of RN's ScrollView <code>contentContainerStyle={{ flexGrow: 1 }}</code> — pairs with <a href="scroll.html">Scroll</a> + <a href="spacer.html">Spacer</a> to push trailing content to the bottom. Uses <code>flex: 1 0 auto</code> so content taller than the viewport scrolls instead of clipping (decision 60).</td>
         </tr>
         <tr data-prop="as">
           <td data-cell="name"><code>as</code></td>
@@ -265,7 +256,7 @@
             <td data-cell="name"><code>root</code></td>
             <td data-cell="element-web"><code>div</code> (or <code>as</code>)</td>
             <td data-cell="element-rn"><code>View</code></td>
-            <td data-cell="owns">padding (uniform · axis · single-edge), inline centering, background fill, corner radius</td>
+            <td data-cell="owns">padding (uniform · axis · single-edge), inline centering, corner radius, element sizing — geometry only, no colour (65.3 §6)</td>
           </tr>
         </tbody>
       </table></div>
@@ -354,64 +345,34 @@
   </section>
 
   <!-- ═════════════════════════════════════════════════════════════
-       5b · SURFACE · background + radius (decision 42 · N+6.5)
-       The first non-padding visual props. Unlike padding, these
-       paint — so the Box is visible on its own here.
+       5b · RADIUS (decision 42's surviving, geometric half)
+       Radius is invisible on a colourless box, so each demo cell is
+       ONE merged box ⊕ palette node — the class layer adds a chrome
+       surface purely as the visible witness (65.3 §6: box owns no
+       colour; the old `background` prop is amendment 42.1's removal).
        ═════════════════════════════════════════════════════════════ -->
-  <section class="page-section" id="surface">
-    <h2>Surface · background &amp; radius</h2>
+  <section class="page-section" id="radius">
+    <h2>Radius</h2>
     <p>
-      <code>background</code> and <code>radius</code> (decision 42) extend Box
-      from pure-layout to a paint-bearing surface — the evidence-gate opened
-      by <a href="tabs.html">Tabs</a>, the first real consumer (its tablist
-      surface is a composed Box). Chrome backgrounds
-      (<code>canvas</code> / <code>subtle</code> / <code>strong</code>) stay
-      neutral across accents; the <code>accent-*</code> pair tracks the active
-      accent. <code>accent-solid</code> also flips text to
-      <code>--nuri-accent-on-solid</code>.
+      <code>radius</code> (decision 42 — its <code>background</code> twin was
+      removed by amendment 42.1) rounds the box's own corners with the
+      semantic radius leaves. <strong>Box paints nothing</strong>: all colour —
+      chrome surfaces and accent variants alike — lives on the
+      <a href="palette.html">palette namespace</a>, merged onto the same node
+      via the class layer
+      (<code>class="nuri-box nuri-palette" data-chrome="…"</code>). The demo
+      cells below do exactly that so the radius is visible.
     </p>
 
     <div class="nuri-demo-row">
-      <nuri-demo label="background · chrome ladder" subtitle="canvas · subtle · strong" controls="theme">
+      <nuri-demo label="radius leaves" subtitle="sm · md · lg · full · surface via palette chrome=strong">
         <template>
           <nuri-stack direction="row" gap="md">
-            <nuri-box background="canvas" radius="md" padding="lg">canvas</nuri-box>
-            <nuri-box background="subtle" radius="md" padding="lg">subtle</nuri-box>
-            <nuri-box background="strong" radius="md" padding="lg">strong</nuri-box>
+            <div class="nuri-box nuri-palette" data-chrome="strong" data-radius="sm" data-padding="lg">sm</div>
+            <div class="nuri-box nuri-palette" data-chrome="strong" data-radius="md" data-padding="lg">md</div>
+            <div class="nuri-box nuri-palette" data-chrome="strong" data-radius="lg" data-padding="lg">lg</div>
+            <div class="nuri-box nuri-palette" data-chrome="strong" data-radius="full" data-padding="lg">full</div>
           </nuri-stack>
-        </template>
-      </nuri-demo>
-
-      <nuri-demo label="background · accent" subtitle="accent-solid · accent-subtle" controls="theme accent">
-        <template>
-          <nuri-stack direction="row" gap="md">
-            <nuri-box background="accent-solid" radius="md" padding="lg">accent-solid</nuri-box>
-            <nuri-box background="accent-subtle" radius="md" padding="lg">accent-subtle</nuri-box>
-          </nuri-stack>
-        </template>
-      </nuri-demo>
-    </div>
-
-    <div class="nuri-demo-row">
-      <nuri-demo label="radius leaves" subtitle="sm · md · lg · full">
-        <template>
-          <nuri-stack direction="row" gap="md">
-            <nuri-box background="strong" radius="sm" padding="lg">sm</nuri-box>
-            <nuri-box background="strong" radius="md" padding="lg">md</nuri-box>
-            <nuri-box background="strong" radius="lg" padding="lg">lg</nuri-box>
-            <nuri-box background="strong" radius="full" padding="lg">full</nuri-box>
-          </nuri-stack>
-        </template>
-      </nuri-demo>
-
-      <nuri-demo label="surface card" subtitle="background + radius + padding compose">
-        <template>
-          <nuri-box background="subtle" radius="lg" padding="lg">
-            <nuri-stack gap="md">
-              <nuri-button variant="solid">Pay</nuri-button>
-              <nuri-button variant="soft">Cancel</nuri-button>
-            </nuri-stack>
-          </nuri-box>
         </template>
       </nuri-demo>
     </div>
@@ -474,15 +435,6 @@
         <tr data-prop="padding-top"    data-value="*" data-css-prop="padding-block-start"  data-dtcg="space.*" data-reference="--nuri-space-*"><td><code>padding-top</code></td><td><em>any leaf</em></td><td><code>padding-block-start</code></td><td><code>space.{xs..xl}</code></td><td><code>--nuri-space-{xs..xl}</code></td></tr>
         <tr data-prop="padding-bottom" data-value="*" data-css-prop="padding-block-end"    data-dtcg="space.*" data-reference="--nuri-space-*"><td><code>padding-bottom</code></td><td><em>any leaf</em></td><td><code>padding-block-end</code></td><td><code>space.{xs..xl}</code></td><td><code>--nuri-space-{xs..xl}</code></td></tr>
 
-        <tr class="nuri-table__group" data-group="background">
-          <th scope="rowgroup" colspan="5">Prop · <code>background</code> (surface fill · chrome + accent)</th>
-        </tr>
-        <tr data-prop="background" data-value="canvas"        data-css-prop="background" data-dtcg="chrome.bg-canvas"      data-reference="--nuri-bg-canvas"><td><code>background</code></td><td><code>"canvas"</code></td><td><code>background</code></td><td><code>chrome.bg-canvas</code></td><td><code>--nuri-bg-canvas</code></td></tr>
-        <tr data-prop="background" data-value="subtle"        data-css-prop="background" data-dtcg="chrome.bg-subtle"      data-reference="--nuri-bg-subtle"><td><code>background</code></td><td><code>"subtle"</code></td><td><code>background</code></td><td><code>chrome.bg-subtle</code></td><td><code>--nuri-bg-subtle</code></td></tr>
-        <tr data-prop="background" data-value="strong"        data-css-prop="background" data-dtcg="chrome.bg-strong"      data-reference="--nuri-bg-strong"><td><code>background</code></td><td><code>"strong"</code></td><td><code>background</code></td><td><code>chrome.bg-strong</code></td><td><code>--nuri-bg-strong</code></td></tr>
-        <tr data-prop="background" data-value="accent-solid"  data-css-prop="background" data-dtcg="accent.solid"          data-reference="--nuri-accent-solid"><td><code>background</code></td><td><code>"accent-solid"</code></td><td><code>background</code> + <code>color</code></td><td><code>accent.solid</code> / <code>accent.on-solid</code></td><td><code>--nuri-accent-solid</code> (+ <code>--nuri-accent-on-solid</code>)</td></tr>
-        <tr data-prop="background" data-value="accent-subtle" data-css-prop="background" data-dtcg="accent.bg-subtle"       data-reference="--nuri-accent-bg-subtle"><td><code>background</code></td><td><code>"accent-subtle"</code></td><td><code>background</code></td><td><code>accent.bg-subtle</code></td><td><code>--nuri-accent-bg-subtle</code></td></tr>
-
         <tr class="nuri-table__group" data-group="radius">
           <th scope="rowgroup" colspan="5">Prop · <code>radius</code> (corner softness · semantic radius)</th>
         </tr>
@@ -496,11 +448,6 @@
         </tr>
         <tr data-prop="center" data-value="true" data-css-prop="margin-inline" data-dtcg="—" data-reference="auto"><td><code>center</code></td><td><code>true</code></td><td><code>margin-inline</code></td><td>—</td><td><code>auto</code></td></tr>
 
-        <tr class="nuri-table__group" data-group="fill">
-          <th scope="rowgroup" colspan="5">Prop · <code>fill</code> (boolean · CSS literal · decision 60)</th>
-        </tr>
-        <tr data-prop="fill" data-value="true" data-css-prop="flex" data-dtcg="—" data-reference="1 0 auto"><td><code>fill</code></td><td><code>true</code></td><td><code>flex</code> (+ <code>display:flex</code> column)</td><td>—</td><td><code>1 0 auto</code></td></tr>
-
       </tbody>
     </table></div>
   </section>
@@ -512,24 +459,24 @@
     <h2>Roadmap</h2>
     <ul class="nuri-roadmap">
       <li data-feature="background">
-        <span class="nuri-tag nuri-tag--ready">shipped · N+6.5</span>
+        <span class="nuri-tag nuri-tag--removed">removed · N+19 U3</span>
         <div class="nuri-roadmap__body">
-          <strong class="nuri-roadmap__title"><code>background</code> prop</strong>
-          <p class="nuri-roadmap__desc">Promoted in N+6.5 (decision 42). The evidence-gate cleared when Tabs needed a chrome-filled track surface — the first real consumer. Vocabulary as scoped: chrome (<code>canvas</code> / <code>subtle</code> / <code>strong</code>) + accent (<code>accent-solid</code> / <code>accent-subtle</code>). See the <a href="#surface">Surface</a> section.</p>
+          <strong class="nuri-roadmap__title"><code>background</code> prop · moved to palette</strong>
+          <p class="nuri-roadmap__desc">Shipped in N+6.5 (decision 42 · the Tabs evidence), removed by amendment 42.1: <strong>palette owns all colour</strong> (65.3 §6 disjointness — one node = box ⊕ stack ⊕ palette, zero attribute overlap). Chrome surfaces are the <a href="palette.html">palette</a> <code>chrome</code> slot (<code>canvas</code> / <code>subtle</code> / <code>strong</code>); <code>accent-solid</code> is palette <code>variant="solid"</code> (with the complete bg + fg pair the old fg-coupling only approximated); <code>accent-subtle</code> retired with no palette slot (demo-only consumer · the <code>accent.bgSubtle</code> tokens stay).</p>
         </div>
       </li>
       <li data-feature="border-radius">
         <span class="nuri-tag nuri-tag--ready">shipped · N+6.5</span>
         <div class="nuri-roadmap__body">
           <strong class="nuri-roadmap__title"><code>radius</code> prop</strong>
-          <p class="nuri-roadmap__desc">Promoted alongside <code>background</code> (decision 42) — the same Tabs surface needed rounded corners. Accepts <a href="../foundations/dimension/radius.html">semantic radius leaves</a> (<code>sm</code> · <code>md</code> · <code>lg</code> · <code>full</code>).</p>
+          <p class="nuri-roadmap__desc">Promoted in N+6.5 (decision 42) — the Tabs surface needed rounded corners. The geometric half of decision 42 that <strong>stays</strong> on Box (amendment 42.1). Accepts <a href="../foundations/dimension/radius.html">semantic radius leaves</a> (<code>sm</code> · <code>md</code> · <code>lg</code> · <code>full</code>).</p>
         </div>
       </li>
       <li data-feature="fill">
-        <span class="nuri-tag nuri-tag--ready">shipped · N+11</span>
+        <span class="nuri-tag nuri-tag--removed">removed · N+19 U3</span>
         <div class="nuri-roadmap__body">
-          <strong class="nuri-roadmap__title"><code>fill</code> prop</strong>
-          <p class="nuri-roadmap__desc">Promoted in N+11 (decision 60). The evidence-gate cleared when the My-vault scroll body needed to fill the viewport so a <a href="spacer.html">Spacer</a> could push the fund actions to the bottom — the web analogue of RN's ScrollView <code>contentContainerStyle={{ flexGrow: 1 }}</code>. Pairs with <a href="stack.html">Stack</a> <code>fill</code> and <a href="scroll.html">Scroll</a>.</p>
+          <strong class="nuri-roadmap__title"><code>fill</code> prop · moved to Stack</strong>
+          <p class="nuri-roadmap__desc">Shipped in N+11 (decision 60), removed by amendment 60.1: flex-child behaviour is <strong>stack's</strong> (65.3 §6 — <code>flexGrow</code>/<code>flexShrink</code> → stack, not box). <a href="stack.html">Stack</a>'s <code>fill</code> enum (<code>grow</code> | <code>grow-shrink</code> · B2a) carries the semantic; where the filling column also needs padding, merge the namespaces on one node: <code>class="nuri-box nuri-stack" data-fill="grow" data-padding-x="lg"</code>.</p>
         </div>
       </li>
       <li data-feature="max-width">

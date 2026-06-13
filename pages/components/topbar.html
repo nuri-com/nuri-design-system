@@ -31,8 +31,11 @@
   <link rel="stylesheet" href="../../lib/components/icon/icon.css" />
   <link rel="stylesheet" href="../../lib/components/icon-button/icon-button.css" />
   <link rel="stylesheet" href="../../lib/components/button/button.css" />
-  <!-- Box + Tabs ride along for the centred-tabs demo (Tabs composes a <nuri-box>). -->
+  <!-- Box + Palette + Tabs ride along for the centred-tabs demo (the
+       Tabs controller composes one merged box ⊕ palette surface node ·
+       65.3 §6 · amendment 42.1). -->
   <link rel="stylesheet" href="../../lib/components/box/box.css" />
+  <link rel="stylesheet" href="../../lib/components/palette/palette.css" />
   <link rel="stylesheet" href="../../lib/components/tabs/tabs.css" />
   <link rel="stylesheet" href="../../lib/components/topbar/topbar.css" />
   <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
@@ -46,8 +49,8 @@
   <script src="../../lib/components/icon/icon.js" type="module"></script>
   <script src="../../lib/components/icon-button/icon-button.js" defer></script>
   <script src="../../lib/components/button/button.js" defer></script>
-  <!-- Box must define before Tabs (the controller composes a <nuri-box>). -->
-  <script src="../../lib/components/box/box.js" defer></script>
+  <!-- No box.js — the Tabs surface is a plain div carrying the
+       box + palette class layers, not a <nuri-box> (N+19 U3). -->
   <script src="../../lib/components/tabs/tabs.js" defer></script>
   <script src="../../lib/components/topbar/topbar.js" defer></script>
   <script src="../../lib/docs/demo/demo.js" defer></script>

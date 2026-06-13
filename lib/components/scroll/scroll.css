@@ -59,7 +59,9 @@
   .nuri-scroll {
     flex: 1;
     min-block-size: 0;
-    /* Flex column so a `fill` content container (Box / Stack) can grow
+    /* Flex column so a `fill` content container (a Stack — fill is
+     * stack-only since amendment 60.1 · N+19 U3; merge box padding
+     * onto the same node via the class layer where needed) can grow
      * to fill the viewport — the web analogue of RN's
      * contentContainerStyle={{ flexGrow: 1 }}. Lets a <nuri-spacer>
      * inside push trailing content to the bottom (decision 60 · N+11).

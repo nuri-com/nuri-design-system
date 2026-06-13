@@ -17,14 +17,17 @@
   <script src="../../lib/docs/state.js"></script>
 
   <!-- Token layer cake · primitive → semantic → component → chrome.
-       Tabs is the FIRST Box composition consumer (decision 43): the
-       tablist surface is a composed <nuri-box>, so box.css/js ride
-       along beside tabs.css/js. -->
+       The Tabs controller composes its tablist surface as ONE merged
+       box ⊕ palette node (65.3 §6 · amendment 42.1), so box.css (the
+       geometry class layer) + palette.css (the colour class layer)
+       ride along beside tabs.css/js. No box.js — the surface is a
+       plain div carrying the class layers, not a <nuri-box>. -->
   <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
   <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
   <link rel="stylesheet" href="../../lib/docs/control/control.css" />
   <link rel="stylesheet" href="../../styles/shell.css" />
   <link rel="stylesheet" href="../../lib/components/box/box.css" />
+  <link rel="stylesheet" href="../../lib/components/palette/palette.css" />
   <link rel="stylesheet" href="../../lib/components/tabs/tabs.css" />
   <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
 
@@ -32,10 +35,8 @@
   <script src="../../lib/docs/shell.js" defer></script>
   <script src="../../lib/docs/tokens.js"></script>
   <!-- Custom element scripts MUST be deferred so connectedCallback fires
-       AFTER body parsing (children present). See AGENTS.md. Box must
-       define before Tabs since the controller composes a <nuri-box>. -->
+       AFTER body parsing (children present). See AGENTS.md. -->
   <script src="../../lib/components/scope/scope.js" defer></script>
-  <script src="../../lib/components/box/box.js" defer></script>
   <script src="../../lib/components/tabs/tabs.js" defer></script>
   <script src="../../lib/docs/demo/demo.js" defer></script>
 </head>
@@ -50,10 +51,12 @@
 
   Tabs is the design system's FIRST multi-element compound (decision
   43): <nuri-tabs> (controller · owns the selected value) + <nuri-tab>
-  (one option). It is ALSO the first Box composition consumer — the
-  tablist surface is a composed <nuri-box background=strong radius=md
-  padding=xs>, the concrete evidence that promoted Box's background +
-  radius props (decision 42).
+  (one option). Its tablist surface is ONE merged box ⊕ palette node —
+  class="nuri-box nuri-palette" data-chrome=strong data-radius=md
+  data-padding=xs (65.3 §6 · amendment 42.1: palette owns the colour;
+  box owns the geometry). Historically the first Box composition
+  consumer (the decision-42 background evidence) until box went
+  purely geometric in N+19 U3.
 
   Sections in render order:
     1.  Spec card             — component summary (machine-readable)
@@ -77,7 +80,7 @@
     eyebrow="Components · Navigation · Tabs"
     title="Tabs"
     status="draft"
-    lead="A segmented single-select control with a Radix-like compound shape: a nuri-tabs controller wraps a set of nuri-tab options that share one selected value. The design system's first multi-element compound AND its first Box composition consumer — the tablist surface is a composed Box. Each option is a dense button-sm shape; the active tab fills with the accent. Mobile-first: no hover, pressed feedback via a tactile squash."
+    lead="A segmented single-select control with a Radix-like compound shape: a nuri-tabs controller wraps a set of nuri-tab options that share one selected value. The design system's first multi-element compound — the tablist surface is one merged box + palette node (palette chrome owns the colour, box the geometry). Each option is a dense button-sm shape; the active tab fills with the accent. Mobile-first: no hover, pressed feedback via a tactile squash."
   ></nuri-page>
 
   <!-- ═════════════════════════════════════════════════════════════
@@ -124,7 +127,7 @@
           <span class="nuri-spec-card__chip" data-part="tabs">tabs</span>
           <span class="nuri-spec-card__chip" data-part="list">list</span>
           <span class="nuri-spec-card__chip" data-part="tab">tab</span>
-          <span class="nuri-spec-card__meta">3 parts · list is a composed Box</span>
+          <span class="nuri-spec-card__meta">3 parts · list surface = merged box ⊕ palette node (65.3 §6)</span>
         </dd>
       </div>
       <div class="nuri-spec-card__row">
@@ -137,7 +140,7 @@
         <dt>RN status</dt>
         <dd data-spec="rn-status">
           <span class="nuri-tag nuri-tag--ready">spec implemented</span>
-          <span class="nuri-spec-card__meta">web ↔ RN is 1:1. The RN <code>&lt;Tabs&gt;</code> consumes <code>build/components/tabs.ts</code> and composes the same Box surface — see <a href="../../docs/migration-tests/button-matrix/index.tsx">migration-tests/button-matrix</a>.</span>
+          <span class="nuri-spec-card__meta">web ↔ RN is 1:1. The RN <code>&lt;Tabs&gt;</code> consumes <code>build/components/tabs.ts</code> and merges the same surface — Box geometry + a palette-resolved <code>chrome=strong</code> background — see <a href="../../docs/migration-tests/button-matrix/index.tsx">migration-tests/button-matrix</a>.</span>
         </dd>
       </div>
     </dl>
@@ -222,18 +225,21 @@
 
   <!-- ═════════════════════════════════════════════════════════════
        4 · ANATOMY & PARTS
-       Three parts: tabs (controller), list (the composed Box surface),
-       tab (one option).
+       Three parts: tabs (controller), list (the merged box ⊕ palette
+       surface node), tab (one option).
        ═════════════════════════════════════════════════════════════ -->
   <section class="page-section" id="anatomy">
     <h2>Anatomy &amp; parts</h2>
     <p>
       Tabs is a <strong>three-part</strong> compound. The
       <code>tabs</code> controller owns the selected value; the
-      <code>list</code> is a <strong>composed <code>&lt;nuri-box&gt;</code></strong>
-      that supplies the surface (background + radius + inset padding);
-      each <code>tab</code> is a native <code>&lt;button role="tab"&gt;</code>
-      in a flex row inside that Box.
+      <code>list</code> surface is <strong>one merged box ⊕ palette
+      node</strong> (<code>class="nuri-box nuri-palette"</code> ·
+      65.3 §6 — the <a href="palette.html">palette</a> chrome slot
+      supplies the colour, the box class layer the radius + inset
+      padding); each <code>tab</code> is a native
+      <code>&lt;button role="tab"&gt;</code> in a flex row inside that
+      surface.
     </p>
 
     <div class="nuri-anatomy">
@@ -261,9 +267,9 @@
           </tr>
           <tr data-part="list">
             <td data-cell="name"><code>list</code></td>
-            <td data-cell="element"><code>nuri-box</code> → <code>div[role=tablist]</code></td>
-            <td data-cell="owns">surface (bg + radius + inset), flex rhythm</td>
-            <td data-cell="description">A composed <code>&lt;nuri-box background="strong" radius="md" padding="xs"&gt;</code> wrapping a flex <code>role="tablist"</code>. The gap is <code>--nuri-tabs-gap</code>.</td>
+            <td data-cell="element"><code>div.nuri-box.nuri-palette</code> → <code>div[role=tablist]</code></td>
+            <td data-cell="owns">surface (palette chrome bg + box radius/inset), flex rhythm</td>
+            <td data-cell="description">One merged node <code>class="nuri-box nuri-palette" data-chrome="strong" data-radius="md" data-padding="xs"</code> wrapping a flex <code>role="tablist"</code> (65.3 §6 · amendment 42.1). The gap is <code>--nuri-tabs-gap</code>.</td>
           </tr>
           <tr data-part="tab">
             <td data-cell="name"><code>tab</code></td>
@@ -328,9 +334,10 @@
       The active accent surfaces in <strong>one place</strong>: the
       active tab, which fills with <code>accent-solid</code> +
       <code>accent-on-solid</code> (exactly like a solid Button). The
-      surface Box (<code>bg-subtle</code>) and the rest tabs (muted
-      text) are chrome-only. Three ways to control the accent the active
-      tab follows, increasing locality:
+      tablist surface (palette <code>chrome=strong</code> →
+      <code>bg-strong</code> · theme-only, never accent-driven) and the
+      rest tabs (muted text) are chrome-only. Three ways to control the
+      accent the active tab follows, increasing locality:
     </p>
 
     <div class="nuri-demo-row">
@@ -404,12 +411,12 @@
         </tr>
         <tr data-part="list" data-css-prop="background"
             data-dtcg="—"
-            data-css-var="—" data-reference="box background=strong">
-          <td>list (Box)</td>
+            data-css-var="—" data-reference="palette chrome=strong">
+          <td>list (box ⊕ palette)</td>
           <td><code>background</code> / <code>border-radius</code> / <code>padding</code></td>
           <td>—</td>
           <td>—</td>
-          <td>composed <code>&lt;nuri-box background="strong" radius="md" padding="xs"&gt;</code> · surface delegated to Box (decision 42)</td>
+          <td>one merged node <code>class="nuri-box nuri-palette" data-chrome="strong" data-radius="md" data-padding="xs"</code> · colour delegated to <a href="palette.html">palette</a>, geometry to box (65.3 §6 · amendment 42.1)</td>
         </tr>
 
         <tr class="nuri-table__group" data-group="option">
@@ -623,7 +630,7 @@
         <span class="nuri-tag nuri-tag--ready">spec implemented</span>
         <div class="nuri-roadmap__body">
           <strong class="nuri-roadmap__title">React Native implementation</strong>
-          <p class="nuri-roadmap__desc">The web ↔ RN 1:1 contract is set and the RN <code>&lt;Tabs&gt;</code> already consumes <code>build/components/tabs.ts</code> and composes the same Box surface in the <a href="../../docs/migration-tests/button-matrix/index.tsx">migration test</a>. Promotion to a permanent <code>lib/</code> home tracks the shared RN-spec-home question.</p>
+          <p class="nuri-roadmap__desc">The web ↔ RN 1:1 contract is set and the RN <code>&lt;Tabs&gt;</code> already consumes <code>build/components/tabs.ts</code> and merges the same surface (Box geometry + palette-resolved <code>chrome=strong</code>) in the <a href="../../docs/migration-tests/button-matrix/index.tsx">migration test</a>. Promotion to a permanent <code>lib/</code> home tracks the shared RN-spec-home question.</p>
         </div>
       </li>
       <li data-feature="panels">
@@ -644,7 +651,8 @@
    * Shared widgets (.nuri-spec-card, .nuri-state-grid, .nuri-table,
    * .nuri-roadmap, .nuri-anatomy, .nuri-demo*) live in shell.css /
    * demo.css. Nothing Tabs-specific needs a page-local rule today —
-   * the surface is a composed Box, the option shape is fully tokenised.
+   * the surface is the merged box ⊕ palette class layer, the option
+   * shape is fully tokenised.
    * ═══════════════════════════════════════════════════════════════ */
 </style>
 

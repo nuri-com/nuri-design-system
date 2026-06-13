@@ -138,9 +138,13 @@
           <nuri-icon-button name="gear" variant="ghost" label="Settings"></nuri-icon-button>
         </nuri-topbar>
 
-        <!-- ── Scrollable body ─────────────────────────────────── -->
+        <!-- ── Scrollable body ─────────────────────────────────────
+             One merged box ⊕ stack node (65.3 §6 · the class-layer
+             authoring form): box = the inset padding; stack base
+             (flex column) + data-fill="grow" ≡ the old box `fill`
+             (flex: 1 0 auto · amendment 60.1 — fill is stack-only). -->
         <nuri-scroll>
-          <nuri-box padding-x="lg" padding-top="md" fill>
+          <div class="nuri-box nuri-stack" data-padding-x="lg" data-padding-top="md" data-fill="grow">
             <nuri-stack direction="column" gap="sm" fill>
 
               <!-- Bitcoin line -->
@@ -187,7 +191,7 @@
               </nuri-button>
 
             </nuri-stack>
-          </nuri-box>
+          </div>
         </nuri-scroll>
       </nuri-screen>
 

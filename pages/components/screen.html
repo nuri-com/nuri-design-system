@@ -22,6 +22,9 @@
   <link rel="stylesheet" href="../../styles/shell.css" />
   <link rel="stylesheet" href="../../lib/components/stack/stack.css" />
   <link rel="stylesheet" href="../../lib/components/box/box.css" />
+  <!-- palette.css · the hero demo's placeholder surfaces are merged
+       box ⊕ palette nodes (chrome slot · 65.3 §6 · amendment 42.1). -->
+  <link rel="stylesheet" href="../../lib/components/palette/palette.css" />
   <link rel="stylesheet" href="../../lib/components/screen/screen.css" />
   <link rel="stylesheet" href="../../lib/components/scroll/scroll.css" />
   <link rel="stylesheet" href="../../lib/components/button/button.css" />
@@ -137,7 +140,7 @@
       <template>
         <div style="block-size: 280px; display: flex; flex-direction: column; outline: 1px dashed var(--nuri-border-subtle); border-radius: var(--nuri-radius-md); overflow: hidden;">
           <nuri-screen>
-            <nuri-box background="strong" padding="md">Pinned header (Topbar)</nuri-box>
+            <div class="nuri-box nuri-palette" data-padding="md" data-chrome="strong">Pinned header (Topbar)</div>
             <nuri-scroll>
               <nuri-box padding="lg">
                 <nuri-stack gap="sm">
@@ -153,7 +156,7 @@
               </nuri-box>
             </nuri-scroll>
           </nuri-screen>
-          <nuri-box background="subtle" padding="md">Sibling tab bar</nuri-box>
+          <div class="nuri-box nuri-palette" data-padding="md" data-chrome="subtle">Sibling tab bar</div>
         </div>
       </template>
     </nuri-demo>
@@ -273,7 +276,7 @@
     <h2>Structure · no tokens</h2>
     <p>
       Unlike <a href="stack.html">Stack</a> (gap → space) or
-      <a href="box.html">Box</a> (padding → space, background → chrome), Screen
+      <a href="box.html">Box</a> (padding → space, radius → radius), Screen
       dereferences <strong>no design tokens</strong>. Its fill is pure structure —
       <code>display:flex; flex-direction:column; flex:1; min-block-size:0</code> —
       not a design-scale value. So <code>screen.css</code> carries an empty

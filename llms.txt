@@ -14,12 +14,13 @@ Spec pages (HTML · served via gh-pages):
   /pages/foundations/iconography.html                 <nuri-icon> · 17-glyph phosphor registry · 2 sizes + fill · currentColor
   Theming:
   /pages/components/scope.html          <nuri-scope> · Tier 3 theming primitive · web↔RN scope spec · START HERE for migration
+  /pages/components/palette.html        colour namespace · class-layer dispatch (variant/chrome) · merged-node authoring · owns ALL colour (65.3 §6)
   Actions:
   /pages/components/button.html         anatomy · token-mapping · variants · states (canonical template)
   /pages/components/icon-button.html    icon-only action · behavioural delta (F-ARIA-LABEL-1 · F-TOUCH-TARGET-1)
   Layout:
   /pages/components/stack.html          flex stack layout primitive
-  /pages/components/box.html            box primitive · bg + radius props
+  /pages/components/box.html            box primitive · purely geometric (padding · radius · sizing · center)
   /pages/components/screen.html         screen scaffold primitive
   /pages/components/scroll.html         scroll container primitive
   /pages/components/spacer.html         flex spacer primitive

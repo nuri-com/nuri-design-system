@@ -537,8 +537,20 @@ Full version in
   background-only surface · this is the same `font-family: inherit`
   family of RN-text-non-inheritance F-FONT-1 names, realised for
   colour · ✓ documented in the `box.tsx` header ·
-  **target: revisit if Box grows a managed-foreground variant; until
-  then the foreground is the caller's responsibility.**
+  **N+19 U3 update — the Box case is RETIRED with the prop.**
+  `box.background` (incl. `accent-solid` and its fg-coupling) is
+  removed (amendment 42.1 · box is purely geometric per 65.3 §6), so
+  there is no Box surface left to half-couple a foreground to. Colour
+  ownership is now **palette's end-to-end** (engine: B2b — the
+  complete-pair contract: `resolvePalette` returns bg AND fg and the
+  CALLER passes the resolved fg to each text/icon part explicitly,
+  never via inheritance · `palette.tsx` header; delivery: B2c — the
+  factory routes the role fg to the parts). The friction NAME stays as
+  the canonical citation for the RN no-colour-inheritance class the
+  palette contract is designed around ·
+  **target: closed for Box (prop removed); the inheritance gap itself
+  is honoured by design in the palette engine — revisit only if a
+  surface ever reintroduces implicit fg coupling.**
 
 - **F-TAB-DISABLED-1** · Tab `disabled` · web `tabs.js` renders a
   non-selectable muted option with `aria-disabled`; the RN Tab mirror

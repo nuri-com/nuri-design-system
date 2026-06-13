@@ -201,7 +201,7 @@
           <td data-cell="name"><code>fill</code></td>
           <td data-cell="type"><code>boolean</code></td>
           <td data-cell="default"><code>false</code></td>
-          <td data-cell="description">Grow to fill the main axis of a flex parent (<code>flex: 1 0 auto</code>) — e.g. a <code>&lt;nuri-box fill&gt;</code> inside a <a href="scroll.html">Scroll</a>, giving an inner <a href="spacer.html">Spacer</a> the slack to push trailing content to the end (decision 60).</td>
+          <td data-cell="description">Grow to fill the main axis of a flex parent (<code>flex: 1 0 auto</code>) — e.g. the content column inside a <a href="scroll.html">Scroll</a>, giving an inner <a href="spacer.html">Spacer</a> the slack to push trailing content to the end (decision 60). Stack is <code>fill</code>'s only owner (amendment 60.1 · the old Box <code>fill</code> is removed); where the filling column also needs padding, merge the class layers on one node: <code>class="nuri-box nuri-stack" data-fill="grow" data-padding-x="lg"</code>.</td>
         </tr>
         <tr data-prop="as">
           <td data-cell="name"><code>as</code></td>
