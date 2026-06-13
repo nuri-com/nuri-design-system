@@ -1850,7 +1850,7 @@ the `box.html` demos (radius cells take the class layer for visibility; the colo
 prop + `BACKGROUND_PATH` removed; `tabs.tsx` resolves `chrome=strong` through `resolvePalette` and
 merges it onto the Box `<View>` via `style`).
 
-**Pending operator sign-off (U3 PR review).**
+**Operator signed off (2026-06-13)** — ratified at the U3 PR (#25) merge.
 
 Base: `docs/composition-model.md` §6 · [`roadmap/N+19-B2b.md`](./roadmap/N+19-B2b.md) ·
 [`roadmap/N+19-U3.md`](./roadmap/N+19-U3.md).
@@ -4458,7 +4458,7 @@ buttons` — behaviour byte-identical (the `1 0 auto` scroll rationale above is 
 lives solely on stack). RN mirror: `box.tsx` `fill` removed; `stack.tsx` already carries the enum
 (`grow` → `{flexGrow:1, flexShrink:0}`).
 
-**Pending operator sign-off (U3 PR review).**
+**Operator signed off (2026-06-13)** — ratified at the U3 PR (#25) merge.
 
 Base: `docs/composition-model.md` §6 · [`roadmap/N+19-B2a.md`](./roadmap/N+19-B2a.md) ·
 [`roadmap/N+19-U3.md`](./roadmap/N+19-U3.md).
