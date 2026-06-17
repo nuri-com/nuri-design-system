@@ -251,13 +251,20 @@ test('D · each build/descriptors/*.ts re-emits identically from its sources', (
 // The decision-48 discipline applied to the colour namespace: the
 // {variant | chrome} → {bg, fg, fgMuted, pressedBg} mapping at
 // build/palette.ts must always re-derive from the live CSS —
-// palette.css (the web dispatch · every bg/fg cell) cross-asserted
-// against the recipe CSS (button.css aliases · icon-avatar.css subtle ·
-// topbar.css's chrome pair · typography.css's muted fg). derivePalette
-// THROWS on any cell↔CSS contradiction, so this test fails on the same
-// drift `npm run build` fails on; the pinned table below additionally
-// catches a coordinated CSS+build change — the operator-settled B2b
-// contract may only move by deliberately updating this pin.
+// palette.css (the web dispatch · every bg/fg cell + the gated pressed
+// `:active` swap · B2c·1) cross-asserted against the recipe CSS
+// (button.css aliases · icon-avatar.css subtle · topbar.css's chrome
+// pair · typography.css's muted fg). derivePalette THROWS on any
+// cell↔CSS contradiction (incl. a stray/absent `[data-press-color]`
+// pressed row), so this test fails on the same drift `npm run build`
+// fails on; the pinned table below additionally catches a coordinated
+// CSS+build change — the operator-settled contract may only move by
+// deliberately updating this pin.
+//
+// B2c·1 also pins the pressed-dispatch witness EXPLICITLY: the new
+// palette `:active` bg swap must paint the same value the live Button
+// presses with (button.css's `:active` rules — the SoT witness the
+// parser's alias check does NOT read), i.e. the `pressedBg` column.
 const EXPECTED_PALETTE = {
   variant: {
     solid:  { bg: 'accent.solid',    fg: 'accent.onSolid',     pressedBg: 'accent.solidPressed' },
@@ -300,4 +307,40 @@ test('E · build/palette.ts re-derives from the CSS SoT and matches the pinned c
   // The operator-settled contract pin (B2b): a CSS change that flows
   // through to ANY cell fails here even after a re-build.
   assert.deepEqual(cells, EXPECTED_PALETTE, 'palette cells drifted from the B2b contract table');
+
+  // ── Pressed-dispatch witness (N+19 B2c·1) ──────────────────────────
+  // The palette `:active` bg swap (gated `[data-press-color]`) must
+  // paint the SAME value the live Button presses with — i.e. the
+  // `pressedBg` column build/palette.ts emits. derivePalette already
+  // cross-asserts every cell (a contradiction throws above); this pins
+  // the button.css ↔ palette.css ↔ emit equality directly against the
+  // live Button's `:active` rules — which the parser's `@layer tokens`
+  // alias check (section A) does NOT read — so a divergence reads as
+  // the bug it is (decision 48 · the SoT witness).
+  const buttonCss  = read('lib/components/button/button.css');
+  const paletteCss = read('lib/components/palette/palette.css');
+  const cap = (re, src, label) => {
+    const m = src.match(re);
+    assert.ok(m, `[docs-drift] Guard E pressed witness: expected to match ${re} (${label})`);
+    return m[1];
+  };
+  // A semantic --nuri-* var → its runtime TokenPath (the same resolution
+  // derivePalette emits), so the witness ties straight to the cells.
+  const pathFor = (cssVar) => {
+    for (const [groupName, group] of classifiedGroups) {
+      const entry = group.entries.find((e) => e.cssVar === cssVar);
+      if (entry) return `${groupName}.${entry.leafName}`;
+    }
+    return null;
+  };
+  for (const v of ['solid', 'soft', 'ghost']) {
+    // button.css `:active` rule → the pressed alias → (one hop through
+    // `@layer tokens`) the semantic var the live Button presses with.
+    const alias  = cap(new RegExp(`\\.nuri-button--${v}:active\\s*\\{\\s*background:\\s*var\\((--nuri-button-${v}-bg-pressed)\\)`), buttonCss, `button ${v} :active`);
+    const btnVar = cap(new RegExp(`${alias}:\\s*var\\((--[\\w-]+)\\)`), buttonCss, `button ${v} pressed alias`);
+    // palette.css pressed row → the semantic var it paints on `:active`.
+    const palVar = cap(new RegExp(`\\.nuri-palette\\[data-variant="${v}"\\]\\[data-press-color\\]:active\\s*\\{\\s*background:\\s*var\\((--[\\w-]+)\\)`), paletteCss, `palette ${v} pressed`);
+    assert.equal(palVar, btnVar, `palette ${v} pressed :active bg must equal the live Button's :active bg (button.css SoT witness)`);
+    assert.equal(cells.variant[v].pressedBg, pathFor(btnVar), `build/palette.ts ${v}.pressedBg must equal the live Button's :active bg as a TokenPath (button.css SoT witness · decision 48)`);
+  }
 });

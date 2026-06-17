@@ -1,0 +1,108 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · INTERACTIVE  (the interaction namespace · decision 65.3 §6 · N+19 B2c·1)
+ *
+ * The web realization of the `interactive` namespace — the structured
+ * per-part opt-in that wires interaction onto a merged node. It is NOT
+ * a boolean: interaction DECOMPOSES (65.3 §6 · resolver-model §5) into
+ * independent effects, each its own gate, so a node opts into exactly
+ * the effects it needs:
+ *
+ *   channel          gate (data-*)       effect (web)                     witness (live · on main)
+ *   ──────────────────────────────────────────────────────────────────────────────────────────
+ *   pressScale       data-press-scale    :active transform: scale()       Button · TabBar
+ *   pressColor       data-press-color    :active bg swap → PALETTE         Button · list-interactive-item
+ *   disabledOpacity  (automatic)         disabled → opacity               Button
+ *   affordance       (automatic)         cursor · transition · focus-ring  every interactive surface
+ *
+ * WHY a per-part opt-in, not a boolean — the effects are PROVEN
+ * INDEPENDENT on main: Button = pressScale + pressColor · TabBar =
+ * pressScale only (no bg swap · decision 56) · list-interactive-item =
+ * pressColor only (no scale · decision 52). A static surface carries
+ * NO marker, so it never matches `:active` — a non-reactive surface is
+ * the default (Tabs / Topbar chrome stay inert).
+ *
+ * OWNERSHIP (65.3 §6 decomposes interaction; 42.1 / 60.1 made box
+ * geometry-only; the scale/opacity→interactive reassignment is the agreed
+ * 65.4 · B2c·2): `interactive` owns the effect-SET. box stays purely
+ * geometric — the press-SCALE and disabled-OPACITY are interactive's
+ * transients, NOT box props (the transform/opacity moved off box at U3).
+ * palette stays purely colour — pressColor
+ * is the one effect palette REALIZES (the `:active` bg swap lives in
+ * palette.css, gated `[data-press-color]`), because colour is palette's
+ * by contract. interactive's gate + palette's dispatch are the two
+ * halves of one opt-in; `pressScale` never touches palette.
+ *
+ * AFFORDANCES are AUTOMATIC with interactivity (cursor / transition /
+ * focus-ring) — only the state EFFECTS are opt-ins. Every value mirrors
+ * the live Button (button.css is the SoT witness · decision 48):
+ *   · press-scale      --nuri-interaction-press-scale      (0.97)
+ *   · disabled-opacity --nuri-interaction-disabled-opacity (0.4)
+ *   · focus ring       --nuri-focus-ring
+ * consumed as bare interaction CONSTANTS directly (the carve-out of
+ * decision 45 · the TabBar precedent), not aliased into --nuri-interactive-*.
+ *
+ * MERGED-NODE model (B1.5 §4.2 · the palette/box precedent): there is
+ * NO <nuri-interactive> element and no interactive.js — the
+ * `.nuri-interactive` class + independent `data-*` gates land directly
+ * ON the painting node, co-located with the other namespace classes
+ * (`class="nuri-box nuri-palette nuri-interactive" data-press-scale
+ * data-press-color`), the faithful web analogue of RN's single merged
+ * <View>/<Pressable>. The namespaces are disjoint (65.3 §6), so the
+ * rule-sets co-exist with no collision.
+ *
+ * NOT here (deferred): the factory that wires Pressable / native-button
+ * + the RN resolver (B2c·3); the descriptor / schema (B2c·2). This shape
+ * lands as decisionlog amendment 65.4 with the schema in B2c·2 — cited
+ * here as the coordinator-agreed design, not authored in this session.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design — the decision-37 pattern (the Stack/Box/Palette
+   * precedent). interactive dispatches the shared --nuri-interaction-* /
+   * --nuri-focus-ring vocabulary directly in `@layer rules`; a
+   * --nuri-interactive-* alias would be useless indirection. The
+   * pipeline rides the skip-emit branch for this block. */
+}
+
+@layer rules {
+  /* ── Affordance · automatic with interactivity ───────────────────
+   * cursor + the press transition fire on EVERY interactive node; only
+   * the state effects below are opt-in. The transition mirrors
+   * button.css:203 — background-color carries the pressColor swap,
+   * transform carries the pressScale. */
+  .nuri-interactive {
+    cursor: pointer;
+    transition: background-color var(--nuri-duration-fast) ease,
+                transform var(--nuri-duration-fast) ease;
+  }
+
+  /* ── Focus ring · brand-coloured, never accent-derived (button.css:305) */
+  .nuri-interactive:focus-visible {
+    outline: 2px solid var(--nuri-focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* ── pressScale · opt-in (data-press-scale) ──────────────────────
+   * The tactile :active scale, gated so a static surface never reacts.
+   * Mirrors .nuri-button:active (button.css:240). */
+  .nuri-interactive[data-press-scale]:active {
+    transform: scale(var(--nuri-interaction-press-scale));
+  }
+  /* Disabled guard · revert the press SCALE when disabled (button.css:287).
+   * A non-form [aria-disabled] node still fires `:active`, so the scale
+   * needs an explicit revert. NOTE — no `pointer-events:none` here (unlike
+   * button.css:282): full disabled press-blocking, incl. palette's bg swap
+   * (which carries no disabled guard), is the factory's Pressable (B2c·3);
+   * this CSS layer only dims (opacity, below) + reverts the scale. */
+  .nuri-interactive[aria-disabled="true"]:active {
+    transform: none;
+  }
+
+  /* ── disabledOpacity · automatic when disabled ───────────────────
+   * Both the native :disabled (form controls) and [aria-disabled] (a
+   * non-form painting node) dim to the shared opacity (button.css:274). */
+  .nuri-interactive:disabled,
+  .nuri-interactive[aria-disabled="true"] {
+    opacity: var(--nuri-interaction-disabled-opacity);
+  }
+}

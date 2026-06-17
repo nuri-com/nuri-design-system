@@ -25,6 +25,14 @@
        geometry on ONE node (the 65.3 §6 disjoint class layers). -->
   <link rel="stylesheet" href="../../lib/components/box/box.css" />
   <link rel="stylesheet" href="../../lib/components/palette/palette.css" />
+  <!-- interactive.css rides along: the interaction namespace (press-
+       scale · disabled-opacity · affordances) merges onto the SAME node
+       as palette colour + box geometry (the 65.3 §6 disjoint class
+       layers · B2c·1). pressColor is realized in palette.css above. -->
+  <link rel="stylesheet" href="../../lib/components/interactive/interactive.css" />
+  <!-- Button · the SoT witness for the pressed checkpoint — the merged
+       interactive node must press pixel-identical to a live <nuri-button>. -->
+  <link rel="stylesheet" href="../../lib/components/button/button.css" />
   <!-- Tabs · the live impl consumer (its tablist surface is a merged
        box ⊕ palette node composed by tabs.js · amendment 42.1). -->
   <link rel="stylesheet" href="../../lib/components/tabs/tabs.css" />
@@ -37,6 +45,7 @@
        AFTER body parsing (children present). See AGENTS.md. -->
   <script src="../../lib/components/scope/scope.js" defer></script>
   <script src="../../lib/components/stack/stack.js" defer></script>
+  <script src="../../lib/components/button/button.js" defer></script>
   <script src="../../lib/components/tabs/tabs.js" defer></script>
   <script src="../../lib/docs/demo/demo.js" defer></script>
 </head>
@@ -302,7 +311,79 @@
   </section>
 
   <!-- ═════════════════════════════════════════════════════════════
-       6 · TOKEN MAPPING · the dispatch table (the B2b contract)
+       6 · INTERACTIVE · PRESSED (the interaction namespace · B2c·1)
+       The press effects merge onto the SAME node as palette colour +
+       box geometry; a static surface (no marker) never reacts. The
+       visual checkpoint: the merged node presses pixel-identical to a
+       live <nuri-button>.
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="interactive">
+    <h2>Interactive · pressed</h2>
+    <p>
+      Interaction is the fifth namespace (decision 65.3 §6). It is a
+      <strong>structured per-part opt-in, not a boolean</strong> — the
+      effects decompose into independent channels, each its own
+      <code>data-*</code> gate on the merged node alongside
+      <code>nuri-box</code> + <code>nuri-palette</code>:
+    </p>
+    <ul>
+      <li><strong>pressScale</strong> — <code>data-press-scale</code> → the <code>:active</code> scale (<a href="../../lib/components/interactive/interactive.css">interactive.css</a>). The TabBar pattern (scale, no bg swap).</li>
+      <li><strong>pressColor</strong> — <code>data-press-color</code> → the <code>:active</code> background swap (palette.css · colour is palette's by contract). The list-interactive-item pattern (bg swap, no scale).</li>
+      <li><strong>disabled-opacity</strong> + <strong>affordances</strong> (cursor · transition · focus-ring) — <strong>automatic</strong> with the <code>nuri-interactive</code> class; only the state effects are opt-ins.</li>
+    </ul>
+    <p>
+      A <strong>static surface carries no marker</strong> — no
+      <code>nuri-interactive</code> class, no gate — so it never matches
+      <code>:active</code>. That is why the chrome ladder and the variant
+      roles above stay inert (the Tabs · Topbar chrome). box stays purely
+      geometric and palette purely colour (amendments 42.1 / 60.1);
+      <code>interactive</code> owns the effect-set (the schema lands in
+      amendment 65.4 · B2c·2).
+    </p>
+
+    <div class="nuri-demo-row">
+      <nuri-demo label="pressed · merged node vs live Button" subtitle="left = nuri-box ⊕ nuri-stack ⊕ nuri-palette ⊕ nuri-interactive (both gates) · right = live &lt;nuri-button&gt; · press both: identical scale + bg swap" controls="theme accent">
+        <template>
+          <nuri-stack direction="row" gap="md" align="center">
+            <div class="nuri-box nuri-stack nuri-palette nuri-interactive"
+                 data-direction="row" data-align="center" data-justify="center"
+                 data-variant="solid" data-press-scale data-press-color
+                 data-min-height="lg" data-padding-x="lg" data-radius="sm"
+                 tabindex="0">merged node</div>
+            <nuri-button variant="solid">live Button</nuri-button>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+    </div>
+
+    <div class="nuri-demo-row">
+      <nuri-demo label="the independent channels" subtitle="same soft surface · differing only in the interactive markers — the static cell (no marker) never reacts on press" controls="theme">
+        <template>
+          <nuri-stack direction="row" gap="md" align="center">
+            <div class="nuri-box nuri-stack nuri-palette nuri-interactive"
+                 data-direction="row" data-align="center" data-justify="center"
+                 data-variant="soft" data-press-scale
+                 data-min-height="md" data-padding-x="md" data-radius="sm" tabindex="0">scale only</div>
+            <div class="nuri-box nuri-stack nuri-palette nuri-interactive"
+                 data-direction="row" data-align="center" data-justify="center"
+                 data-variant="soft" data-press-color
+                 data-min-height="md" data-padding-x="md" data-radius="sm" tabindex="0">color only</div>
+            <div class="nuri-box nuri-stack nuri-palette nuri-interactive"
+                 data-direction="row" data-align="center" data-justify="center"
+                 data-variant="soft" data-press-scale data-press-color
+                 data-min-height="md" data-padding-x="md" data-radius="sm" tabindex="0">both</div>
+            <div class="nuri-box nuri-stack nuri-palette"
+                 data-direction="row" data-align="center" data-justify="center"
+                 data-variant="soft"
+                 data-min-height="md" data-padding-x="md" data-radius="sm">static (inert)</div>
+          </nuri-stack>
+        </template>
+      </nuri-demo>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · TOKEN MAPPING · the dispatch table (the B2b contract)
        Input × value → CSS channels → DTCG → CSS var. Source of
        truth: palette.css @layer rules, asserted cell-for-cell
        against the recipe CSS at build (decision 48 · Guard E) and
@@ -350,12 +431,16 @@
         <tr data-prop="chrome" data-value="subtle" data-css-prop="background color" data-dtcg="chrome.bg-subtle chrome.text-primary" data-reference="--nuri-bg-subtle --nuri-text-primary"><td><code>chrome</code></td><td><code>"subtle"</code></td><td><code>background</code> + <code>color</code></td><td><code>chrome.bgSubtle</code> / <code>chrome.textPrimary</code></td><td><code>--nuri-bg-subtle</code> + <code>--nuri-text-primary</code></td></tr>
         <tr data-prop="chrome" data-value="strong" data-css-prop="background color" data-dtcg="chrome.bg-strong chrome.text-primary" data-reference="--nuri-bg-strong --nuri-text-primary"><td><code>chrome</code></td><td><code>"strong"</code></td><td><code>background</code> + <code>color</code></td><td><code>chrome.bgStrong</code> / <code>chrome.textPrimary</code></td><td><code>--nuri-bg-strong</code> + <code>--nuri-text-primary</code></td></tr>
 
-        <tr class="nuri-table__group" data-group="data-only">
-          <th scope="rowgroup" colspan="5">Emitted data only — no web rule yet (<code>build/palette.ts</code>)</th>
+        <tr class="nuri-table__group" data-group="pressed">
+          <th scope="rowgroup" colspan="5">Pressed · the <code>:active</code> bg swap (N+19 B2c·1 · gated <code>[data-press-color]</code> — interactive's opt-in · solid/soft/ghost only)</th>
         </tr>
-        <tr data-prop="variant" data-value="solid" data-state="pressed" data-css-prop="—" data-dtcg="accent.solid-pressed" data-reference="--nuri-accent-solid-pressed"><td><code>solid</code> pressed</td><td><code>pressedBg</code></td><td>— (B2c · gated on <code>interactive</code>)</td><td><code>accent.solidPressed</code></td><td><code>--nuri-accent-solid-pressed</code></td></tr>
-        <tr data-prop="variant" data-value="soft" data-state="pressed" data-css-prop="—" data-dtcg="chrome.bg-pressed" data-reference="--nuri-bg-pressed"><td><code>soft</code> pressed</td><td><code>pressedBg</code></td><td>— (B2c)</td><td><code>chrome.bgPressed</code></td><td><code>--nuri-bg-pressed</code></td></tr>
-        <tr data-prop="variant" data-value="ghost" data-state="pressed" data-css-prop="—" data-dtcg="chrome.bg-subtle" data-reference="--nuri-bg-subtle"><td><code>ghost</code> pressed</td><td><code>pressedBg</code></td><td>— (B2c)</td><td><code>chrome.bgSubtle</code></td><td><code>--nuri-bg-subtle</code></td></tr>
+        <tr data-prop="variant" data-value="solid" data-state="pressed" data-css-prop="background" data-gate="press-color" data-dtcg="accent.solid-pressed" data-reference="--nuri-accent-solid-pressed"><td><code>solid</code> pressed</td><td><code>pressedBg</code></td><td><code>background</code> · <code>[data-press-color]:active</code></td><td><code>accent.solidPressed</code></td><td><code>--nuri-accent-solid-pressed</code></td></tr>
+        <tr data-prop="variant" data-value="soft" data-state="pressed" data-css-prop="background" data-gate="press-color" data-dtcg="chrome.bg-pressed" data-reference="--nuri-bg-pressed"><td><code>soft</code> pressed</td><td><code>pressedBg</code></td><td><code>background</code> · <code>[data-press-color]:active</code></td><td><code>chrome.bgPressed</code></td><td><code>--nuri-bg-pressed</code></td></tr>
+        <tr data-prop="variant" data-value="ghost" data-state="pressed" data-css-prop="background" data-gate="press-color" data-dtcg="chrome.bg-subtle" data-reference="--nuri-bg-subtle"><td><code>ghost</code> pressed</td><td><code>pressedBg</code></td><td><code>background</code> · <code>[data-press-color]:active</code></td><td><code>chrome.bgSubtle</code></td><td><code>--nuri-bg-subtle</code></td></tr>
+
+        <tr class="nuri-table__group" data-group="delivered-elsewhere">
+          <th scope="rowgroup" colspan="5">Delivered elsewhere — emitted in <code>build/palette.ts</code>, no node-level palette rule</th>
+        </tr>
         <tr data-prop="fgMuted" data-value="*" data-css-prop="—" data-dtcg="chrome.text-muted" data-reference="--nuri-text-muted"><td><code>fgMuted</code> (all chrome-fg rows)</td><td><em>channel</em></td><td>— (delivered by <a href="typography.html">Typography</a> <code>data-muted</code> · decision 53)</td><td><code>chrome.textMuted</code></td><td><code>--nuri-text-muted</code></td></tr>
 
       </tbody>
@@ -363,7 +448,7 @@
   </section>
 
   <!-- ═════════════════════════════════════════════════════════════
-       7 · RESERVED · mapped, not built (decision 30)
+       8 · RESERVED · mapped, not built (decision 30)
        ═════════════════════════════════════════════════════════════ -->
   <section class="page-section" id="reserved">
     <h2>Reserved · mapped, not built</h2>
@@ -392,13 +477,6 @@
         <div class="nuri-roadmap__body">
           <strong class="nuri-roadmap__title"><code>onSolid.muted</code> token (solid's <code>fgMuted</code> cell)</strong>
           <p class="nuri-roadmap__desc">The solid row has no muted-foreground cell — the token doesn't exist yet (decision 30).</p>
-        </div>
-      </li>
-      <li data-feature="pressed-dispatch">
-        <span class="nuri-tag nuri-tag--planned">deferred · B2c</span>
-        <div class="nuri-roadmap__body">
-          <strong class="nuri-roadmap__title">pressed dispatch (<code>:active</code> bg swaps)</strong>
-          <p class="nuri-roadmap__desc">Gated on the <code>interactive</code> flag (B2c). <code>pressedBg</code> ships as data in <code>build/palette.ts</code> only; the recipes' own CSS handles their pressed states today.</p>
         </div>
       </li>
       <li data-feature="element-sugar">

@@ -180,12 +180,18 @@ export function derivePalette(cssSources, { classifiedGroups }) {
     }
   }
 
-  // E · EVERY bg/fg cell ← palette.css's own dispatch (the web reader
-  // restates the table — and nothing more: pressed/muted dispatch is
-  // deferred to B2c / typography, a surprise row throws).
+  // E · palette.css's own dispatch (the web reader restates the table):
+  //   E.1 · the rest-state bg/fg rows (every cell · the complete pair).
+  //   E.2 · the pressed `:active` bg swap (N+19 B2c·1 · gated
+  //         `[data-press-color]`) — interactive's one palette-realized
+  //         effect (65.3 §6: pressed-COLOUR → palette).
+  // Nothing else: muted is typography's, scale/opacity are interactive's —
+  // a surprise row throws (the stray-rule rejection below).
   const paletteRules = rulesInLayer(cssSources.palette, 'rules')
     .filter((r) => r.selector.includes('.nuri-palette'));
   const expectedSelectors = [];
+
+  // E.1 · rest-state rows.
   for (const axis of AXIS_ORDER) {
     for (const row of ROW_ORDER[axis]) {
       const selector = `.nuri-palette[data-${axis}="${row}"]`;
@@ -207,14 +213,37 @@ export function derivePalette(cssSources, { classifiedGroups }) {
       }
       const extra = [...rule.decls.keys()].filter((p) => p !== 'background' && p !== 'color');
       if (extra.length) {
-        fail(`palette.css ${selector}`, `unexpected declaration(s) ${extra.join(', ')} — palette dispatch is bg/fg only (pressed = B2c · muted = typography)`);
+        fail(`palette.css ${selector}`, `unexpected declaration(s) ${extra.join(', ')} — rest-state dispatch is bg/fg only (pressed = the gated :active rows · muted = typography)`);
       }
     }
   }
+
+  // E.2 · pressed `:active` rows. variant solid/soft/ghost only — subtle
+  // is fg-only and the chrome slot has no pressed channel by contract.
+  // Each row's background ≡ the `pressedBg` cell, the value the live
+  // Button presses with (button.css the SoT witness; section A pins the
+  // matching `--nuri-button-<v>-bg-pressed` alias). background-only —
+  // the scale/opacity transients are interactive's, not palette's.
+  for (const row of ROW_ORDER.variant) {
+    const pressedBg = PALETTE_CONTRACT.variant[row].pressedBg;
+    if (pressedBg === undefined) continue; // subtle · no pressed channel
+    const selector = `.nuri-palette[data-variant="${row}"][data-press-color]:active`;
+    expectedSelectors.push(selector);
+    const rule = ruleFor(paletteRules, selector);
+    if (!rule) fail('palette.css', `pressed dispatch rule ${selector} not found`);
+    const declared = rule.decls.get('background');
+    if (declared === undefined) fail(`palette.css ${selector}`, `missing 'background' (the pressed bg swap)`);
+    assertCell(varTarget(declared), pressedBg, `palette.css ${selector} background`);
+    const extra = [...rule.decls.keys()].filter((p) => p !== 'background');
+    if (extra.length) {
+      fail(`palette.css ${selector}`, `unexpected declaration(s) ${extra.join(', ')} — pressed dispatch is background only (scale/opacity are interactive's)`);
+    }
+  }
+
   for (const { selector } of paletteRules) {
     for (const single of selector.split(',').map((s) => s.trim())) {
       if (!expectedSelectors.includes(single)) {
-        fail('palette.css', `unexpected .nuri-palette rule '${single}' — not a contract row (pressed dispatch is B2c; muted is typography's)`);
+        fail('palette.css', `unexpected .nuri-palette rule '${single}' — not a contract row (rest-state bg/fg or the gated [data-press-color]:active pressed swap; muted is typography's, scale/opacity are interactive's)`);
       }
     }
   }
