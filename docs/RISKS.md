@@ -1,7 +1,16 @@
 # Risks · Nuri
 
 **Date drafted**: 2026-05-27 (during N+3 philosophy brainstorm)
-**Last updated**: 2026-06-18 (N+19 · B2c·1+·2 close · **R-EXPO-6 — the descriptor is now
+**Last updated**: 2026-06-18 (N+19 · R1/R1.5 close · **R7 partially mitigated — the RN render proof is
+RELOCATED to `expodsdemo` and made real**: **R1** [PR #2] the generic descriptor-factory +
+`react-test-renderer` render-smoke proving the frozen contract [`build/descriptors/*`] **consumable
+end-to-end** [parity vs the hand-written Button, now RENDERED · the proof relocates · 65.5]; **R1.5**
+[PR #3] the **1:1 typed consumer API** [`<Button variant size>` ≅ `<nuri-button>` · *what Nuri IS #4*]
++ a demo under `NuriThemeProvider`, and the migration era retired [−41,825 lines · `expodsdemo` is now
+the clean factory example]. The gate **body** exists [`npm test` = typecheck + render]; the gating
+**wire** [block at version-cut] is **R2**. Four consumability findings = the first-versioned-bump
+agenda. The **B3 freeze** [#30 · Guard F · 65.6] landed prior.) · Prior 2026-06-18 (N+19 · B2c·1+·2
+close · **R-EXPO-6 — the descriptor is now
 composition-form complete** [amendments **65.4** · **65.5**]: B2c·1 [#27] shipped the `interactive`
 namespace web channels [a structured per-part opt-in · `interactive.css` + the B2b-deferred palette
 pressed `:active` · Guard E extended]; B2c·2 [#28] re-emitted the descriptor from the raw-style schema
@@ -977,9 +986,18 @@ re-formed at the repo boundary.
 - The B3 freeze (the schema-shape guard) stays in-repo — the contract's *well-formedness* is
   guaranteed here regardless of the seam; only RN-*consumability* depends on expodsdemo.
 
-**Status**: **open · named at B2c close (2026-06-18)**. The seam does not exist yet; the RN-relocation
-session designs it. Until then the in-repo `button-matrix` type-only mirror remains the (weaker,
-type-only) gate.
+**Status**: **open · partially mitigated (2026-06-18 · R1/R1.5)**. The RN proof now **exists and is
+real** — `expodsdemo`'s generic descriptor-factory renders the frozen contract (**R1** · PR #2) behind
+a **1:1 typed consumer API** (**R1.5** · PR #3 · `<Button variant size>` ≅ `<nuri-button>`), guarded by
+a `react-test-renderer` render-smoke; **`npm test` (typecheck + render) is the gate body**. What's still
+missing is the **gating wire**: nothing yet blocks a nuri contract change on `expodsdemo` going green.
+**R2** mechanizes it — a **version-cut** gate that runs `expodsdemo`'s `npm test` against the candidate
+`build/*` and refuses to tag on red (the proof captured **per-version**, not per-PR — the freeze makes
+contract changes deliberate · 65.6). The in-repo `button-matrix` type-only mirror stays the (weaker)
+gate until **R3** retires it (after R2 · no validation gap · 65.5). R1/R1.5 also surfaced **four
+consumability findings** — the first-versioned-bump agenda (no default-per-axis · stringly-typed boolean
+axes · no transversal interaction emit · `subtle` §11 doc-reconciliation · see
+[`roadmap/N+19-R1.md`](../roadmap/N+19-R1.md) / [`N+19-R1.5.md`](../roadmap/N+19-R1.5.md)).
 
 ---
 
