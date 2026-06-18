@@ -15,8 +15,8 @@
  *   node --test pipeline/docs-drift.test.js
  * or via the glob in `npm test`.
  *
- * Five guards (A–C · ship-list item 5 · N+12a · D · N+19 · the composition
- * model 65.3 · E · N+19 B2b · decision 65.3 §6):
+ * Six guards (A–C · ship-list item 5 · N+12a · D · N+19 · the composition
+ * model 65.3 · E · N+19 B2b · decision 65.3 §6 · F · N+19 B3 · decision 65 step 5):
  *   A · every pages/components/*.html is listed in llms.txt
  *   B · every build/components/*.ts is named in README + impl-guide
  *   C · doc-stated emitted counts match the live build artefacts
@@ -31,6 +31,14 @@
  *       (palette.css + the recipe CSS the cells are asserted against),
  *       and the operator-settled contract table is pinned — a cell that
  *       contradicts the CSS fails here (and the build · decision 48).
+ *   F · the FROZEN schema SHAPE — the cross-repo contract TYPE is locked
+ *       (decision 65 step 5 · "an enforced freeze, not honorary"). The
+ *       five namespace field vocabularies, the leaf/structural unions, and
+ *       the Descriptor/PartAnatomy/PartMap envelope are pinned EXACTLY as
+ *       pipeline/descriptors/schema.ts declares them; a field added /
+ *       removed / renamed / retyped, or a union member moved, breaks here.
+ *       Distinct from D: D keeps the INSTANCES faithful to live CSS (the
+ *       per-component axes/values stay free); F freezes the schema shape.
  * ────────────────────────────────────────────────────────────── */
 
 import { test } from 'node:test';
@@ -371,5 +379,165 @@ test('E · build/palette.ts re-derives from the CSS SoT and matches the pinned c
     const palVar = cap(new RegExp(`\\.nuri-palette\\[data-variant="${v}"\\]\\[data-press-color\\]:active\\s*\\{\\s*background:\\s*var\\((--[\\w-]+)\\)`), paletteCss, `palette ${v} pressed`);
     assert.equal(palVar, btnVar, `palette ${v} pressed :active bg must equal the live Button's :active bg (button.css SoT witness)`);
     assert.equal(cells.variant[v].pressedBg, pathFor(btnVar), `build/palette.ts ${v}.pressedBg must equal the live Button's :active bg as a TokenPath (button.css SoT witness · decision 48)`);
+  }
+});
+
+// ── Guard F · the FROZEN schema shape (N+19 B3 · decision 65 step 5) ──
+// The cross-repo contract IS the schema shape (decision 65 · 65.1 · the
+// source-agnostic freeze). B2c·2 (#28) landed it in its final composition form;
+// B3 LOCKS it. This guard pins the schema's field vocabularies, leaf/structural
+// unions, and the descriptor envelope EXACTLY as pipeline/descriptors/schema.ts
+// declares them, then asserts the source still declares precisely that — "a
+// schema-shape test · an enforced freeze, not honorary" (decision 65 step 5).
+//
+// What it LOCKS: the five namespace field vocabularies (StackNS / BoxNS /
+// TypographyNS / PaletteNS / InteractiveNS · field name → declared value type),
+// the leaf vocabs (SpaceLeaf / RadiusLeaf member sets · SizeLeaf / TypeKey
+// declaration forms), the palette sub-vocabs, and the Part / El / NS /
+// PartAnatomy / PartMap / Axes / Variants / Descriptor envelope. A field
+// added / removed / renamed / retyped, or a union member moved, BREAKS here.
+// What it does NOT lock: the per-component AXES + instance VALUES (Guard D ·
+// they re-derive from live CSS) — F is the cross-repo TYPE contract, D keeps
+// the instances faithful. Post-freeze the contract only moves DELIBERATELY:
+// update the pin below + log it as a versioned contract change (decision 65 ·
+// "post-freeze changes are versioned"; the version-negotiation machinery lands
+// with the first real bump · P11).
+//
+// Mechanism: a runtime structural pin in the repo's pin-and-assert guard style
+// (Guard D/E), reading the hand-maintained schema SOURCE (Guard D already locks
+// build ≡ emit(source), so the freeze flows transitively to build/). The §A
+// compile-time AssertEqual<Live, Frozen> mirror was the considered alternative
+// (robustness fallback · settled with the operator at the B3 checkpoint).
+const FROZEN_SCHEMA = {
+  // The five disjoint namespaces (65.3 §6) · field → declared value type. The
+  // `?` in a key is the optional marker — flipping required/optional drifts it.
+  namespaces: {
+    StackNS: {
+      'direction?': "'row' | 'column'",
+      'align?': "'start' | 'center' | 'end' | 'stretch' | 'baseline'",
+      'justify?': "'start' | 'center' | 'end' | 'between' | 'around'",
+      'gap?': 'SpaceLeaf',
+      'wrap?': 'boolean',
+      'fill?': "'grow' | 'grow-shrink'",
+    },
+    BoxNS: {
+      'width?': 'SizeLeaf', 'height?': 'SizeLeaf', 'minHeight?': 'SizeLeaf',
+      'padding?': 'SpaceLeaf', 'paddingX?': 'SpaceLeaf', 'paddingY?': 'SpaceLeaf',
+      'paddingStart?': 'SpaceLeaf', 'paddingEnd?': 'SpaceLeaf',
+      'paddingTop?': 'SpaceLeaf', 'paddingBottom?': 'SpaceLeaf', 'radius?': 'RadiusLeaf',
+    },
+    TypographyNS: { 'size?': 'TypeKey' },
+    PaletteNS: { 'variant?': 'PaletteVariant', 'accent?': 'Accent', 'muted?': 'boolean', 'chrome?': 'PaletteChrome' },
+    InteractiveNS: { 'pressColor?': 'boolean', 'pressScale?': 'boolean', 'disabledOpacity?': 'boolean' },
+  },
+  // Leaf VOCABULARIES the namespaces reference. Pure string-literal unions are
+  // pinned member-for-member (order-insensitive); the two scale-derived leaves
+  // are pinned by DECLARATION FORM — their members live in the tokens emit
+  // (governed by Guard C / tokens-parser, not the shape freeze).
+  leafUnions: {
+    SpaceLeaf: ['xs', 'sm', 'md', 'lg', 'xl'],
+    RadiusLeaf: ['sm', 'md', 'lg', 'full'],
+    PaletteVariant: ['solid', 'soft', 'ghost', 'subtle'],
+    PaletteChrome: ['canvas', 'subtle', 'strong'],
+  },
+  leafForms: {
+    SizeLeaf: "keyof typeof import('../../build/tokens').size",
+    TypeKey: 'TypeSize | `${TypeSize}Em`',
+  },
+  // The parts + composition + envelope (65.3 §7 · decision 24.1).
+  Part: ['root', 'label', 'icon', 'content'],
+  El: ['view', 'text', 'icon'],
+  NS: { 'stack?': 'StackNS', 'box?': 'BoxNS', 'typography?': 'TypographyNS', 'palette?': 'PaletteNS', 'interactive?': 'InteractiveNS' },
+  PartAnatomy: { 'el': 'El', 'open?': 'boolean', 'parts?': "Partial<Record<Exclude<Part, 'root'>, PartAnatomy>>" },
+  Descriptor: { 'structure': '{ anatomy: PartAnatomy; base?: PartMap }', 'variants?': 'Variants<A>' },
+  aliasForms: {
+    PartMap: 'Partial<Record<Part, NS>>',
+    Axes: 'Record<string, string>',
+    Variants: '{ [Axis in keyof A]: { [Value in A[Axis]]: PartMap }; }',
+  },
+};
+
+// Normalize a TS type fragment to a canonical token stream — collapse
+// whitespace, standardize spacing around `|` / `,` / `;` / `:` — so the freeze
+// catches CONTENT drift (a member/field/type change), not benign reformatting.
+const normType = (s) =>
+  s.replace(/\s+/g, ' ').replace(/\s*\|\s*/g, ' | ').replace(/\s*([,;:])\s*/g, '$1 ').trim();
+
+// Pull the RHS of `export type <Name>...= <rhs>;` from the schema source —
+// brace/paren/bracket-aware scan to the top-level terminating `;` (every `;`
+// we must skip past lives inside `{}`; unions/generics never hold one). A
+// missing/renamed type throws here with a legible message (drift, not a pass).
+function typeRhs(src, name) {
+  const m = new RegExp(`export type ${name}\\b[^=]*=\\s*`).exec(src);
+  assert.ok(m, `[freeze] schema declares no \`export type ${name}\` — the frozen contract type was renamed or removed (B3 · decision 65)`);
+  let depth = 0, i = m.index + m[0].length;
+  const start = i;
+  for (; i < src.length; i++) {
+    const c = src[i];
+    if (c === '{' || c === '(' || c === '[') depth++;
+    else if (c === '}' || c === ')' || c === ']') depth--;
+    else if (c === ';' && depth === 0) break;
+  }
+  return src.slice(start, i).trim();
+}
+
+// An object-type RHS `{ field?: T; … }` → { 'field?': 'normT', … } (the key
+// keeps its optional `?`). Splits on top-level `;` (brace-depth-aware, so a
+// nested object's inner `;` stays with its field's value).
+function typeFields(rhs) {
+  const inner = rhs.replace(/^\{/, '').replace(/\}$/, '');
+  const out = {};
+  let depth = 0, buf = '';
+  const flush = () => {
+    const f = buf.trim(); buf = '';
+    if (!f) return;
+    const ci = f.indexOf(':');
+    out[f.slice(0, ci).trim()] = normType(f.slice(ci + 1));
+  };
+  for (const c of inner) {
+    if (c === '{' || c === '(' || c === '[') depth++;
+    else if (c === '}' || c === ')' || c === ']') depth--;
+    if (c === ';' && depth === 0) flush();
+    else buf += c;
+  }
+  flush();
+  return out;
+}
+
+// A pure string-literal union RHS `'a' | 'b'` → its sorted member set.
+const unionMembers = (rhs) => rhs.split('|').map((s) => s.trim().replace(/^'|'$/g, '')).sort();
+
+test('F · the descriptor schema shape is frozen (B3 · decision 65 step 5)', () => {
+  const src = read('pipeline/descriptors/schema.ts');
+  const drift = (what) =>
+    `${what} drifted from the FROZEN schema shape (B3). The cross-repo contract is locked — ` +
+    `if this is deliberate, update the FROZEN_SCHEMA pin AND version the change (decision 65 · ` +
+    `post-freeze changes are versioned); otherwise the schema was changed by accident.`;
+
+  // The five namespace field vocabularies (field name → value type).
+  for (const [name, pinned] of Object.entries(FROZEN_SCHEMA.namespaces)) {
+    assert.deepEqual(typeFields(typeRhs(src, name)), pinned, drift(`namespace ${name}`));
+  }
+
+  // The leaf vocabularies — member sets + the two scale-derived declaration forms.
+  for (const [name, pinned] of Object.entries(FROZEN_SCHEMA.leafUnions)) {
+    assert.deepEqual(unionMembers(typeRhs(src, name)), [...pinned].sort(), drift(`leaf vocab ${name}`));
+  }
+  for (const [name, pinned] of Object.entries(FROZEN_SCHEMA.leafForms)) {
+    assert.equal(normType(typeRhs(src, name)), normType(pinned), drift(`leaf form ${name}`));
+  }
+
+  // The parts + structural unions (member sets).
+  assert.deepEqual(unionMembers(typeRhs(src, 'Part')), [...FROZEN_SCHEMA.Part].sort(), drift('Part'));
+  assert.deepEqual(unionMembers(typeRhs(src, 'El')), [...FROZEN_SCHEMA.El].sort(), drift('El'));
+
+  // The composition + anatomy + descriptor envelope (field maps).
+  assert.deepEqual(typeFields(typeRhs(src, 'NS')), FROZEN_SCHEMA.NS, drift('the NS composition'));
+  assert.deepEqual(typeFields(typeRhs(src, 'PartAnatomy')), FROZEN_SCHEMA.PartAnatomy, drift('PartAnatomy'));
+  assert.deepEqual(typeFields(typeRhs(src, 'Descriptor')), FROZEN_SCHEMA.Descriptor, drift('the Descriptor envelope'));
+
+  // The remaining structural alias forms (PartMap · Axes · Variants).
+  for (const [name, pinned] of Object.entries(FROZEN_SCHEMA.aliasForms)) {
+    assert.equal(normType(typeRhs(src, name)), normType(pinned), drift(`alias ${name}`));
   }
 });
