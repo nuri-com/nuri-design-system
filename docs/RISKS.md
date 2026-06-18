@@ -1,7 +1,19 @@
 # Risks · Nuri
 
 **Date drafted**: 2026-05-27 (during N+3 philosophy brainstorm)
-**Last updated**: 2026-06-06 (N+19 · B1 close · **R-EXPO-6 vertical slice 1/3 — the descriptor is
+**Last updated**: 2026-06-18 (N+19 · B2c·1+·2 close · **R-EXPO-6 — the descriptor is now
+composition-form complete** [amendments **65.4** · **65.5**]: B2c·1 [#27] shipped the `interactive`
+namespace web channels [a structured per-part opt-in · `interactive.css` + the B2b-deferred palette
+pressed `:active` · Guard E extended]; B2c·2 [#28] re-emitted the descriptor from the raw-style schema
+[65.2] to **pure-data composition form** [65.3 §7 · `{structure:{anatomy,base},variants?}` · the five
+namespaces in semantic names · no theme thunk · Guard D reworked]. **The RN proof model is reversed
+[65.5 · "X-wired"]**: the repo stays the contract [emitted descriptors + the B3 frozen schema guard];
+the **RN render proof relocates to the Expo consumer** [`expodsdemo` · CI-wired]; the in-repo
+`docs/migration-tests/button-matrix/` scaffold + the planned in-repo factory-draft are **retired**
+[post-thesis-validation · R5 · retired LAST, after expodsdemo is the green replacement — no validation
+gap]. Reshapes **R1/R3/R5** below — the props-1:1 / render machine-check moves from the in-repo
+type-only mirror to expodsdemo's CI; the mirror stays gating through B3, then retires. **New: R7** [the
+cross-repo gating seam]. Not yet done: the seam mechanism + the relocation) · Prior 2026-06-06 (N+19 · B1 close · **R-EXPO-6 vertical slice 1/3 — the descriptor is
 now EMITTED** [decision 65 · amendment 65.2]: the build emits a per-component **descriptor** (the
 frozen cross-repo contract instance) additively under `build/descriptors/` — the canonical schema +
 baseline Theme [surface-as-data · reuses the emitted scale types · decision 48] + one descriptor each
@@ -939,6 +951,35 @@ isn't catastrophic — just unused docs structure.
 
 **Status**: open. Acknowledged trade-off. Codifying now buys clarity
 but accepts a re-evaluation cost.
+
+---
+
+## R7 · Cross-repo contract seam — the RN render proof is out-of-CI unless the seam gates
+
+**Failure mode**. Post-X-wired ([decision 65.5](../decisionlog.md)), the repo emits the contract
+(`build/descriptors/*`) and the **Expo consumer** (`expodsdemo`) is the single factory that renders it
+— in a **separate repo**. If the `build/*` ↔ expodsdemo seam is **non-blocking** (manual or async), a
+contract change can merge green here while **breaking the RN render**, discovered only later in
+expodsdemo. That is exactly the "eyeballed, not machine-checked" smell 65.5 set out to kill — merely
+relocated to the other repo.
+
+**Why it matters**. The whole point of X-wired is that the RN proof is *real* (a render) **and**
+*gating*. A loose seam keeps the proof real but **not gating** — so the props-1:1 / render guarantee
+silently degrades to "someone re-runs expodsdemo when they remember." This is the R3 verification gap,
+re-formed at the repo boundary.
+
+**Mitigation**.
+- The seam must **block** a contract change here unless expodsdemo consumes it green (typecheck +
+  render) — the seam mechanism (a versioned package emitted here · git submodule · cross-repo CI
+  trigger) is the **first task** of the RN-relocation session, not an afterthought.
+- Keep `docs/migration-tests/button-matrix/` **gating through B3** and retire it **only after**
+  expodsdemo is the proven-green replacement on the frozen descriptor (65.5 · no validation gap).
+- The B3 freeze (the schema-shape guard) stays in-repo — the contract's *well-formedness* is
+  guaranteed here regardless of the seam; only RN-*consumability* depends on expodsdemo.
+
+**Status**: **open · named at B2c close (2026-06-18)**. The seam does not exist yet; the RN-relocation
+session designs it. Until then the in-repo `button-matrix` type-only mirror remains the (weaker,
+type-only) gate.
 
 ---
 

@@ -212,13 +212,21 @@ consumer · decision 30.)
 ```ts
 type PartAnatomy = { el: 'view' | 'text' | 'icon'; open?: boolean; parts?: Record<string, PartAnatomy> };
 type NS = { stack?; box?; typography?; palette?; interactive? };
+type PartMap = Partial<Record<Part, NS>>;                          // per-part composition (root · label · icon · content)
 type Descriptor<Axes> = {
-  structure: { anatomy: PartAnatomy; base?: NS };                  // anatomy (invariant) + base (defaults / locked)
-  variants?: { [A in keyof Axes]: Record<Axes[A], Record<string /*part*/, NS>> };  // the recipe's per-axis decisions
+  structure: { anatomy: PartAnatomy; base?: PartMap };             // anatomy (structural: el/open/parts) + base (per-part defaults / locked)
+  variants?: { [A in keyof Axes]: Record<Axes[A], PartMap> };      // the recipe's per-axis decisions (per-part)
 };
 ```
 Same data serves both layers; only *openness* differs (the primitive exposes `base` for override; the
 recipe locks it).
+
+> **B2c·2 refinement (ratified 65.4 / 65.5).** The shipped schema sharpens this sketch on two points:
+> (1) **`base` is per-part** (`PartMap`, not the sketch's root-only `NS`) — so a part's *invariant* base
+> (the Topbar content-pivot's `stack{fill:'grow-shrink'}`) lives in `base.content`, and `PartAnatomy`
+> stays **purely structural** (`el`/`open`/`parts`, no styling slot). (2) **`interactive` is a structured
+> per-part opt-in** `{ pressColor?, pressScale?, disabledOpacity? }` (65.4), not a bare flag — the values
+> are engine-derived; no `compoundVariants` (the press transition is the factory's, not data).
 
 ## 8 · The three, worked (zero raw style)
 - **Button** — `structure`: `view · stack{row, center, center} · interactive`; part `label{text}`.
