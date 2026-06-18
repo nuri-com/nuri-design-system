@@ -1,13 +1,26 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · DESCRIPTOR SCHEMA · CANONICAL SOURCE (hand-maintained)
  *
- * The frozen cross-repo contract type (decision 65 · the composition
- * model · amendment 65.3 · to be ratified 65.4). This is the pipeline
+ * The FROZEN cross-repo contract type (decision 65 · the composition
+ * model · amendments 65.3 · 65.4 · 65.5 · ratified). This is the pipeline
  * SOURCE; `pipeline/tokens-parser.js` emits it verbatim (rewriting the
  * two `../../build/tokens` references — the named import + the inline
  * `import(...)` scale query — to the build-local `./tokens`) to
  * build/descriptors/schema.ts on `npm run build`. Edit HERE, never the
  * emitted copy (decision 35 · build/ is generated).
+ *
+ * FROZEN as of B3 (N+19 · decision 65 step 5 · "an enforced freeze, not
+ * honorary"). The schema SHAPE — the five namespace field vocabularies
+ * (Stack/Box/Typography/Palette/Interactive NS), the leaf vocabs (SizeLeaf/
+ * SpaceLeaf/RadiusLeaf/TypeKey), and the Descriptor/PartAnatomy/PartMap/
+ * Part/El envelope — is locked by Guard F (pipeline/docs-drift.test.js · the
+ * FROZEN_SCHEMA pin); a field added/removed/renamed/retyped breaks the build.
+ * A post-freeze shape change is DELIBERATE + VERSIONED: update the freeze pin
+ * AND log it as a contract change in the decisionlog (a 65 amendment) — the
+ * version-negotiation machinery lands with the first real bump (P11). The
+ * per-component AXES + instance VALUES are NOT frozen here (Guard D · they
+ * re-derive from the live CSS). The RN factory relocates to the CI-wired Expo
+ * consumer (X-wired · 65.5); this repo emits + freezes the contract.
  *
  * THE SHAPE — pure data, no theme thunk (65.3 · supersedes 65.2's
  * raw-style `(theme) => ({ variants, compoundVariants? })`):
