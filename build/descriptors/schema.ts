@@ -4,122 +4,188 @@
  * Source · pipeline/descriptors/schema.ts (the canonical contract · hand-maintained)
  * Emitter · pipeline/tokens-parser.js — run `npm run build`
  *
- * The FROZEN cross-repo contract type (decision 65 · 65.2): each
- * component descriptor is `(theme) => ({ variants, compoundVariants? })`
- * — the CVA core + part-addressable `$parts` + the one semantic
- * `typeStep` ref. Validated by the variants-model spike
- * (docs/variants-model-spike.md). The RN factory (B2 · finalized in the
- * Expo project) imports THIS type; engine + behaviour are native, never
- * data (decision 65 · 65.1 · resolver-model §7). Reuses the emitted
- * scale types from ./tokens verbatim (decision 48). Type-only
- * react-native import (the migration-mirror posture · no RN runtime).
+ * The FROZEN cross-repo contract type (decision 65 · the composition
+ * model · amendment 65.3 · to be ratified 65.4): a descriptor is PURE
+ * DATA — `{ structure: { anatomy, base }, variants? }` — a composition of
+ * the five disjoint primitive namespaces (stack · box · typography ·
+ * palette · interactive · 65.3 §6) in SEMANTIC names, ZERO raw style. The
+ * platform-native engine resolves them (factory on RN · CSS on web · 65.1);
+ * behaviour is the factory's, never data. Reuses the emitted scale types
+ * from ./tokens verbatim (decision 48). Validated by the B1.5 playground
+ * prototype (roadmap/N+19-B1.5.md). The RN factory (B2c·3 · finalized in
+ * the Expo project) imports THIS type; engine + behaviour are native.
  * ────────────────────────────────────────────────────────────── */
-import type { ViewStyle, TextStyle } from 'react-native';
-import type { TypeSize, TypeStep } from '../tokens';
+import type { TypeSize, Accent } from '../tokens';
 
-// ── TypeKey · the type-step namespace (decision 54 · 6 steps × {·,Em}) ──
-// Mirrors docs/migration-tests/button-matrix/_shared.tsx. A `typeStep`
-// patch references one of these named steps; the factory (B2 · native)
-// expands it via typeStyle (relative→absolute · decision 54 · 55).
+// ══════════════════════════════════════════════════════════════════
+// LEAF VOCABULARIES · reuse the emitted scales (decision 48)
+// ══════════════════════════════════════════════════════════════════
+
+// box sizing (width · height · minHeight) takes the FULL 7-leaf `size`
+// scale — `keyof typeof size`, reused from the emit (box.css dispatches
+// xs…3xl). Distinct from SpaceLeaf's between-elements rhythm.
+export type SizeLeaf = keyof typeof import('../tokens').size;
+
+// padding + gap take the curated 5-leaf semantic space subset the layout
+// primitives dispatch (stack.css gap · box.css padding* · the Stack/Box
+// SpaceLeaf). NOT the full `space` scale — none/2xs/2xl have no primitive
+// dispatch, so the contract does not over-promise them.
+export type SpaceLeaf = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+
+// corner geometry (box radii · box.css data-radius · the Box BoxRadius).
+export type RadiusLeaf = 'sm' | 'md' | 'lg' | 'full';
+
+// TypeKey · the type-step namespace (decision 54 · 6 steps × {·,Em}).
+// A `typography.size` value references one named step; the factory
+// (B2c·3 · native) expands it via typeStyle (relative→absolute · 54 · 55).
 export type TypeKey = TypeSize | `${TypeSize}Em`;
 
 // ══════════════════════════════════════════════════════════════════
-// THE BASELINE THEME · resolver-model §11 · surface-as-data (65.2)
-// ──────────────────────────────────────────────────────────────────
-// The transversal vocabularies resolved per (accent × mode), shaped as
-// a Unistyles-compatible theme the variants reference (`theme.surface.*`
-// · `theme.size.*` · …). Reuses the emitted scale types verbatim
-// (decision 48 · one source, two readers); the `surface` role grouping
-// is the resolver-model §11 baseline layered on top. ONE owner —
-// nothing per-component redefines it (resolver-model §1).
+// THE FIVE NAMESPACES · disjoint by domain (65.3 §6 · no two emit the
+// same property) · semantic-name value vocab the engine resolves
 // ══════════════════════════════════════════════════════════════════
 
-// surface roles · each INTERACTIVE role carries rest {bg,fg} + pressedBg;
-// `subtle` is STATIC-only (IconAvatar · decision 50) → NO pressedBg.
-// Encoding that absence in the TYPE is deliberate (resolver-model §5): a
-// static role exposes only rest, so a pressed value it lacks is not even
-// reachable (65.2 · a `subtle`-pressed compound is inexpressible).
-export type InteractiveSurface = { bg: string; fg: string; pressedBg: string };
-export type StaticSurface = { bg: string; fg: string };
-
-export type Surface = {
-  solid: InteractiveSurface;
-  soft: InteractiveSurface;
-  ghost: InteractiveSurface;
-  subtle: StaticSurface; // avatar-only · transparent bg · fg = chrome.borderStrong
+// `stack` — flexbox (mirrors the Stack primitive · stack.css). `fill` is
+// stack-only (decision 60.1); its `grow | grow-shrink` enum is B2a (65.3
+// §6 names it · the Topbar pivot's flex:1 1 auto + min-inline-size:0 is
+// `grow-shrink` · B1.5 §3).
+export type StackNS = {
+  direction?: 'row' | 'column';
+  align?: 'start' | 'center' | 'end' | 'stretch' | 'baseline';
+  justify?: 'start' | 'center' | 'end' | 'between' | 'around';
+  gap?: SpaceLeaf;
+  wrap?: boolean;
+  fill?: 'grow' | 'grow-shrink';
 };
 
-export type Theme = {
-  // COLOUR — surface roles (rest + pressed) · the variant×accent funnel as data.
-  surface: Surface;
-  // TYPE — each step = {fontSize, lineHeight, fontWeight, letterSpacing} · decision 54.
-  // Reuse the emitted table type verbatim; the factory applies typeStyle (relative→absolute).
-  type: Record<TypeKey, TypeStep>;
-  // GEOMETRY — theme-invariant primitive scales (reuse the emitted shapes · decision 48).
-  space: typeof import('../tokens').space;
-  size: typeof import('../tokens').size;
-  radius: typeof import('../tokens').radius;
-  // INTERACTION — the not-colour effects (independent opt-ins · resolver-model §5).
-  interaction: { pressScale: number; disabledOpacity: number };
+// `box` — the element's own visual box: GEOMETRY ONLY, no colour
+// (decision 42.1 · 60.1 · 65.3 §6 · box.background removed → palette).
+// Sizing = the `size` scale; padding = the space subset; radii = RadiusLeaf.
+// `maxWidth` / `border` stay mapped-not-built (decision 30 · no member);
+// press-scale `transform` + disabled `opacity` are realized by the
+// `interactive` opt-in (the recipe decides WHEN · value from the
+// interaction baseline · 65.3 §6), not authored as box props here.
+export type BoxNS = {
+  width?: SizeLeaf;
+  height?: SizeLeaf;
+  minHeight?: SizeLeaf;
+  padding?: SpaceLeaf;
+  paddingX?: SpaceLeaf;
+  paddingY?: SpaceLeaf;
+  paddingStart?: SpaceLeaf;
+  paddingEnd?: SpaceLeaf;
+  paddingTop?: SpaceLeaf;
+  paddingBottom?: SpaceLeaf;
+  radius?: RadiusLeaf;
+};
+
+// `typography` — font only, NO colour (decision 64 · the single text-style
+// owner; colour is palette's). `size` carries the emphasis in its key
+// (`mdEm`) — the one semantic step ref the factory expands via typeStyle.
+export type TypographyNS = {
+  size?: TypeKey;
+};
+
+// `palette` — ALL colour, from the semantic inputs (65.3 §6 · mirrors the
+// PaletteNS the RN resolver consumes · build/palette.ts is the mapping).
+// `variant` is the accent/chrome-funnel role; `chrome` is the separate
+// theme-only surface slot (the `subtle` ROLE name is taken). At most one
+// of variant|chrome per node (variant wins · not encoded in the type). The
+// label/icon FG drops out of a variant patch — it follows by SCOPE
+// (F-BOX-FG-1 · the factory threads the role-fg · B2c·3). `outline` /
+// `border` / the onSolid.muted token = mapped-not-built (decision 30).
+export type PaletteVariant = 'solid' | 'soft' | 'ghost' | 'subtle';
+export type PaletteChrome = 'canvas' | 'subtle' | 'strong';
+export type PaletteNS = {
+  variant?: PaletteVariant;
+  accent?: Accent;
+  muted?: boolean;
+  chrome?: PaletteChrome;
+};
+
+// `interactive` — a STRUCTURED per-part opt-in, not a style (65.3 §6 ·
+// the B2c·1 channels · 65.4). Each flag opts the node into one independent
+// effect; the VALUE is derived by the engine (pressColor → the node's
+// variant pressedBg · pressScale/disabledOpacity → the interaction
+// baseline · decision 45). A static surface carries no `interactive` →
+// never reacts. The effects are proven independent on main (Button =
+// all three · TabBar = pressScale-only · list-interactive-item =
+// pressColor-only · Switch = pressScale + disabledOpacity). Affordance
+// (cursor · transition · focus ring) is automatic with interactivity,
+// not an opt-in. The per-channel value-override (Switch's 0.92 knob
+// scale) + the pressed-fg-muted stay mapped-not-built (decision 30).
+export type InteractiveNS = {
+  pressColor?: boolean;
+  pressScale?: boolean;
+  disabledOpacity?: boolean;
+};
+
+// A node's namespace composition — any subset of the five. On RN this is
+// one merged `<View style>`; on web one painting node carrying the merged
+// namespace classes/`data-*` (B1.5 §4.2 · the merged-node model).
+export type NS = {
+  stack?: StackNS;
+  box?: BoxNS;
+  typography?: TypographyNS;
+  palette?: PaletteNS;
+  interactive?: InteractiveNS;
 };
 
 // ══════════════════════════════════════════════════════════════════
-// THE STYLE PATCH · host (root) + the `$parts` overlay (65.2)
+// THE PARTS · anatomy (structure) + the per-part namespace maps
 // ══════════════════════════════════════════════════════════════════
 
-// Named parts a patch may target. The structure half (decision 65 · the
-// decision-24.1 page anatomy) declares which parts a component has; the
-// variants (mapping) half patches them by name. `root` is the host (the
-// §11 default · implicit when `$parts` is absent · the bare-ViewStyle 90%).
+// The named parts a composition addresses. The structure half (the
+// decision-24.1 page anatomy) declares which a component has; base +
+// variants compose them by name. `root` is the host. leading/trailing
+// are POSITIONAL slots of an `open` primitive (the author places them ·
+// decision 64) — not styled parts, so not enumerated here.
 export type Part = 'root' | 'label' | 'icon' | 'content';
 
-// A label/icon may carry a SEMANTIC type-step reference (decision 55:
-// sm→smEm, md/lg→mdEm) rather than a frozen absolute TextStyle — the
-// factory expands it via typeStyle (relative→absolute · decision 54 ·
-// future OS fontScale). This `typeStep` is the ONE non-literal in the
-// patch vocabulary (65.2 · mapping = data, expansion = factory behaviour).
-export type TypeRef = { typeStep: TypeKey };
+// The structural elements a part renders as — view-ish, text-ish, or the
+// glyph leaf. Drives the factory's JSX (and the web painting node);
+// un-derivable from CSS (web is one node · 65.2) → structure knowledge.
+export type El = 'view' | 'text' | 'icon';
 
-// The style for a non-root part. label/icon render text-ish
-// (TextStyle | TypeRef); content / root render view-ish (ViewStyle). The
-// union is intentionally loose — a per-part-typed schema would bind each
-// part to its element's style set, but that is gold-plating (P11).
-export type PartStyle = ViewStyle | TextStyle | TypeRef;
-
-// A patch IS a bare ViewStyle on the host (root) + an OPTIONAL `$parts`
-// overlay for the non-root parts (65.2 · the spike's single shape change:
-// Topbar `center` lands 100% on `content`, inexpressible host-only).
-export type StyleValue = ViewStyle & {
-  $parts?: Partial<Record<Exclude<Part, 'root'>, PartStyle>>;
+// A part's anatomy: its element, whether it is OPEN (accepts positional
+// children · the §7 open-primitive layer), and any nested named parts.
+export type PartAnatomy = {
+  el: El;
+  open?: boolean;
+  parts?: Partial<Record<Exclude<Part, 'root'>, PartAnatomy>>;
 };
 
+// A per-part namespace map — `{ root: NS, label: NS, … }`. The SAME shape
+// serves `structure.base` (invariant / locked defaults · incl. the Topbar
+// content-pivot's `stack{fill}` which is a PART's base) and each variant
+// value (the recipe's per-axis decision). base is per-part, not root-only,
+// so a part's invariant base (the pivot) has a home.
+export type PartMap = Partial<Record<Part, NS>>;
+
 // ══════════════════════════════════════════════════════════════════
-// THE DESCRIPTOR · CVA `variants` / `compoundVariants` · theme thunk
+// THE DESCRIPTOR · pure data (65.3 §7) · structure + variants
 // ══════════════════════════════════════════════════════════════════
 
 // An axis map: axis name → the union of its string values
 // (e.g. { variant: 'solid'|'soft'|'ghost'; size: 'sm'|'md'|'lg' }).
 export type Axes = Record<string, string>;
 
-// variants: every value of every axis maps to a patch.
+// variants: every value of every axis maps to a per-part composition.
+// No `compoundVariants` — the press transition is no longer data
+// (decision 65 · behaviour ≠ data); interaction is the `interactive`
+// opt-in in `structure.base` (Button is interactive across all variants).
 export type Variants<A extends Axes> = {
-  [Axis in keyof A]: { [Value in A[Axis]]: StyleValue };
+  [Axis in keyof A]: { [Value in A[Axis]]: PartMap };
 };
 
-// A compound CONDITION = a partial selection over the axes PLUS the
-// interaction flags. pressed/disabled are NOT axes — they are independent
-// opt-in states (resolver-model §5), modelled as compound conditions only.
-export type Condition<A extends Axes> = Partial<{ [Axis in keyof A]: A[Axis] }> & {
-  pressed?: boolean;
-  disabled?: boolean;
-};
-export type CompoundVariant<A extends Axes> = Condition<A> & { styles: StyleValue };
-
-// The per-component descriptor. A theme thunk (resolver-model §11) — the
-// baseline IS the theme; variants reference `theme.*`. `compoundVariants`
-// is OPTIONAL → "no interaction" is expressed by ABSENCE, not a
-// forced-empty `[]` (the static-component story · IconAvatar · 65.2).
-export type Descriptor<A extends Axes> = (theme: Theme) => {
-  variants: Variants<A>;
-  compoundVariants?: CompoundVariant<A>[];
+// The per-component descriptor — PURE DATA (no theme thunk). `structure`
+// = the anatomy (invariant parts/slots + the open flag) + `base` (the
+// per-part invariant / locked-default composition); `variants` = the
+// recipe's per-axis decisions. The SAME data serves both composition
+// layers (decision 64 · 65.3 §7); only OPENNESS differs — the open
+// `composition-` primitive exposes `base` for override, the recipe locks
+// it (the anatomy-vs-base load-bearing marker is deferred · B1.5 §4.1 · P11).
+export type Descriptor<A extends Axes> = {
+  structure: { anatomy: PartAnatomy; base?: PartMap };
+  variants?: Variants<A>;
 };

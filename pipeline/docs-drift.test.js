@@ -15,16 +15,18 @@
  *   node --test pipeline/docs-drift.test.js
  * or via the glob in `npm test`.
  *
- * Five guards (A–C · ship-list item 5 · N+12a · D · N+19 · decision 65.2
- * · E · N+19 B2b · decision 65.3 §6):
+ * Five guards (A–C · ship-list item 5 · N+12a · D · N+19 · the composition
+ * model 65.3 · E · N+19 B2b · decision 65.3 §6):
  *   A · every pages/components/*.html is listed in llms.txt
  *   B · every build/components/*.ts is named in README + impl-guide
  *   C · doc-stated emitted counts match the live build artefacts
- *   D · each build/descriptors/*.ts re-emits identically from its live
- *       sources (the @layer CSS mapping + the page data-part structure),
- *       and the 65.2 validated shapes are pinned — a renamed/removed
- *       part, variant, or token breaks the test (the TokenPath discipline
- *       applied to the descriptor).
+ *   D · each build/descriptors/*.ts re-emits identically — in the
+ *       COMPOSITION form (65.3 §7 · structure { anatomy, base } +
+ *       variants · the five primitive namespaces) — from its live sources
+ *       (the @layer CSS mapping + the page data-part structure), and the
+ *       validated shapes are pinned: a renamed/removed part, variant, or
+ *       namespace value (incl. the collapsed `interactive` opt-in) breaks
+ *       the test (the TokenPath discipline applied to the descriptor).
  *   E · build/palette.ts re-emits identically from the palette CSS SoT
  *       (palette.css + the recipe CSS the cells are asserted against),
  *       and the operator-settled contract table is pinned — a cell that
@@ -152,44 +154,59 @@ test('C · doc-stated emitted counts match the live build', () => {
   );
 });
 
-// ── Guard D · descriptors ⊂ their live sources (decision 65.2 · R-EXPO-6) ──
+// ── Guard D · descriptors ⊂ their live sources (the composition model 65.3 · R-EXPO-6) ──
 // The TokenPath discipline (decision 34) applied to the per-component
-// descriptor: the emitted contract must always re-derive from its two
-// sources — the @layer CSS (mapping · the 65.1 bootstrap) and the page
-// data-part anatomy (structure · decision 24.1). A renamed/removed part,
-// variant, or token breaks the build (deriveDescriptor throws) AND this
-// test; the pinned shapes catch a dropped axis value even if the build was
-// re-emitted. The 65.2 validated shapes (the spike's three components).
+// descriptor: the emitted contract must always re-derive — in the
+// COMPOSITION form (65.3 §7 · structure { anatomy, base } + variants ·
+// the five primitive namespaces) — from its two sources: the @layer CSS
+// (mapping · the 65.1 bootstrap) and the page data-part anatomy (structure
+// · decision 24.1). A renamed/removed part, variant, or namespace value
+// breaks the build (deriveDescriptor throws — the surface funnel,
+// scale-leaf, interaction-baseline, and page-part assertions) AND this
+// test; the pinned shapes catch a dropped axis value, a moved part, or a
+// changed `interactive` opt-in even if the build was re-emitted. The
+// validated shapes (B1.5 · the three composed recipes).
 const EXPECTED_DESCRIPTORS = {
   'composition-button': {
     axes: { variant: ['solid', 'soft', 'ghost'], size: ['sm', 'md', 'lg'] },
-    parts: ['label'], // non-root parts the $parts overlay targets
-    compoundVariants: 5, // 3× pressed colour + pressScale + disabledOpacity
+    parts: ['label'], // the anatomy's non-root parts
+    interactive: ['pressColor', 'pressScale', 'disabledOpacity'], // the collapsed root opt-in (§8 · no compound)
   },
   'icon-avatar': {
     axes: { variant: ['solid', 'soft', 'ghost', 'subtle'] },
     parts: ['icon'],
-    compoundVariants: 0, // static · "no interaction" by omission (65.2)
+    interactive: [], // static · no `interactive` (65.3 · the IconAvatar story)
   },
   topbar: {
     axes: { center: ['false', 'true'] },
-    parts: ['content'], // center lands 100% on the content pivot
-    compoundVariants: 0,
+    parts: ['content'], // the pivot · center lands 100% on it
+    interactive: [],
   },
 };
 
-// Every non-root part the descriptor's `$parts` overlay touches.
-function partsTargetedBy(ir) {
+// The anatomy's non-root parts (the structural declaration).
+function anatomyParts(ir) {
+  return Object.keys((ir.anatomy && ir.anatomy.parts) || {});
+}
+
+// Every non-root part a namespace composition ADDRESSES (base + variants).
+function addressedParts(ir) {
   const names = new Set();
-  for (const axis of Object.keys(ir.variants)) {
-    for (const value of Object.keys(ir.variants[axis])) {
-      for (const p of Object.keys(ir.variants[axis][value].parts || {})) names.add(p);
-    }
-  }
-  for (const cv of ir.compoundVariants || []) {
-    for (const p of Object.keys((cv.styles && cv.styles.parts) || {})) names.add(p);
+  const collect = (pm) => {
+    for (const p of Object.keys(pm || {})) if (p !== 'root') names.add(p);
+  };
+  collect(ir.base);
+  for (const axis of Object.keys(ir.variants || {})) {
+    for (const value of Object.keys(ir.variants[axis])) collect(ir.variants[axis][value]);
   }
   return [...names];
+}
+
+// The root's `interactive` opt-in channels (the collapsed pressed/scale/
+// disabled flags · §8) — [] for a static surface.
+function interactiveChannels(ir) {
+  const it = ir.base && ir.base.root && ir.base.root.interactive;
+  return it ? Object.keys(it).filter((k) => it[k]) : [];
 }
 
 test('D · each build/descriptors/*.ts re-emits identically from its sources', () => {
@@ -206,9 +223,11 @@ test('D · each build/descriptors/*.ts re-emits identically from its sources', (
     const html = read(`pages/components/${spec.source}.html`);
 
     // deriveDescriptor re-reads BOTH sources and THROWS on drift: a surface
-    // token pointing at the wrong chrome/accent leaf (surfaceExpr), a routed
-    // part absent from the page anatomy (assertPart), or an unknown variant
-    // modifier (assertCovered). So this call itself is the token/part/variant guard.
+    // bg/fg/pressedBg pointing at the wrong chrome/accent leaf (assertSurface),
+    // a geometry decl off its scale (scaleLeaf), a press-scale/disabled effect
+    // off the interaction baseline (assertInteraction), a routed part absent
+    // from the page anatomy (assertPart), or an unknown variant modifier
+    // (assertCovered). So this call itself is the token/part/variant guard.
     const ir = deriveDescriptor(spec, { css, html });
 
     // Re-emit must equal the committed build (stale-build / hand-edit guard).
@@ -218,30 +237,40 @@ test('D · each build/descriptors/*.ts re-emits identically from its sources', (
       `build/descriptors/${spec.name}.ts is stale or hand-edited — run \`npm run build\`.`,
     );
 
-    // The 65.2 frozen-shape pins: a renamed/removed axis value, $parts target,
-    // or compound breaks here EVEN IF the build was re-emitted — a deliberate
-    // contract change must update this guard.
+    // The composition-form pins: a renamed/removed axis value, a moved
+    // anatomy part, or a changed `interactive` opt-in breaks here EVEN IF the
+    // build was re-emitted — a deliberate contract change must update this guard.
     const expected = EXPECTED_DESCRIPTORS[spec.name];
     assert.ok(expected, `[docs-drift] no pinned shape for descriptor '${spec.name}'`);
-    assert.deepEqual(ir.axes, expected.axes, `${spec.name}: axis values drifted from the 65.2 shape`);
+    assert.deepEqual(ir.axes, expected.axes, `${spec.name}: axis values drifted from the 65.3 shape`);
     assert.deepEqual(
-      partsTargetedBy(ir).sort(),
+      anatomyParts(ir).sort(),
       [...expected.parts].sort(),
-      `${spec.name}: $parts targets drifted from the 65.2 shape`,
+      `${spec.name}: anatomy parts drifted from the 65.3 shape`,
     );
-    assert.equal(
-      (ir.compoundVariants || []).length,
-      expected.compoundVariants,
-      `${spec.name}: compoundVariants count drifted from the 65.2 shape`,
+    assert.deepEqual(
+      interactiveChannels(ir).sort(),
+      [...expected.interactive].sort(),
+      `${spec.name}: the root \`interactive\` opt-in drifted from the 65.3 shape`,
     );
 
-    // Every $parts target is a page-declared part (decision 24.1 · the
-    // structure source); `root` is the implicit host.
+    // Every addressed/anatomy part is a page-declared part (decision 24.1 ·
+    // the structure source); `root` is the implicit host. Positional slots
+    // (leading/trailing) are not styled parts → not addressed.
     const declared = new Set(['root', ...pageParts(html)]);
-    for (const p of partsTargetedBy(ir)) {
+    for (const p of [...anatomyParts(ir), ...addressedParts(ir)]) {
       assert.ok(
         declared.has(p),
-        `${spec.name}: $parts targets '${p}' absent from the page anatomy (${[...declared].join(', ')})`,
+        `${spec.name}: part '${p}' absent from the page anatomy (${[...declared].join(', ')})`,
+      );
+    }
+    // A part a composition addresses must be in the anatomy (you cannot patch
+    // an undeclared part).
+    const inAnatomy = new Set(['root', ...anatomyParts(ir)]);
+    for (const p of addressedParts(ir)) {
+      assert.ok(
+        inAnatomy.has(p),
+        `${spec.name}: composition addresses part '${p}' not in the anatomy (${[...inAnatomy].join(', ')})`,
       );
     }
   }
