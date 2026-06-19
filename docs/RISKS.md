@@ -986,17 +986,19 @@ re-formed at the repo boundary.
 - The B3 freeze (the schema-shape guard) stays in-repo — the contract's *well-formedness* is
   guaranteed here regardless of the seam; only RN-*consumability* depends on expodsdemo.
 
-**Status**: **open · partially mitigated (2026-06-18 · R1/R1.5)**. The RN proof now **exists and is
-real** — `expodsdemo`'s generic descriptor-factory renders the frozen contract (**R1** · PR #2) behind
-a **1:1 typed consumer API** (**R1.5** · PR #3 · `<Button variant size>` ≅ `<nuri-button>`), guarded by
-a `react-test-renderer` render-smoke; **`npm test` (typecheck + render) is the gate body**. What's still
-missing is the **gating wire**: nothing yet blocks a nuri contract change on `expodsdemo` going green.
-**R2** mechanizes it — a **version-cut** gate that runs `expodsdemo`'s `npm test` against the candidate
-`build/*` and refuses to tag on red (the proof captured **per-version**, not per-PR — the freeze makes
-contract changes deliberate · 65.6). The in-repo `button-matrix` type-only mirror stays the (weaker)
-gate until **R3** retires it (after R2 · no validation gap · 65.5). R1/R1.5 also surfaced **four
-consumability findings** — the first-versioned-bump agenda (no default-per-axis · stringly-typed boolean
-axes · no transversal interaction emit · `subtle` §11 doc-reconciliation · see
+**Status**: **open · approach PIVOTED to intra-repo (2026-06-19 · 65.7) — R7 dissolves on landing**. The
+RN proof exists and is real (R1/R1.5 · `expodsdemo`'s generic factory renders the frozen contract behind
+a **1:1 typed API** · `react-test-renderer` render-smoke). The **gating wire is no longer a cross-repo
+seam**: [decision **65.7**](../decisionlog.md) makes the repo an npm-workspaces monorepo and absorbs
+`expodsdemo` as a **`factory` workspace**, so the render-smoke gates `spec/build` as an **intra-repo
+per-workspace CI job** — no cross-repo checkout / hook / clone. The failure mode (a contract change
+merges green here while breaking the RN render) is **closed by construction** once the factory + the
+spec live in one repo gated together. **R2 (the cross-repo seam · the version-cut pre-push hook) is
+DROPPED**; `button-matrix` retires trivially once the in-repo gate lands (**R3** · same repo · no
+validation gap). R7 **closes** at the migration's intra-repo-gate step
+([`roadmap/N+19-monorepo.md`](../roadmap/N+19-monorepo.md)). R1/R1.5 surfaced **four consumability
+findings** — the first-versioned-bump agenda (no default-per-axis · stringly-typed boolean axes · no
+transversal interaction emit · `subtle` §11 doc-reconciliation · see
 [`roadmap/N+19-R1.md`](../roadmap/N+19-R1.md) / [`N+19-R1.5.md`](../roadmap/N+19-R1.5.md)).
 
 ---
