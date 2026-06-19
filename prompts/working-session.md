@@ -31,12 +31,12 @@
 ## Ship list
 
 <!-- Numbered, file-precise, verifiable. Example:
-     1. `lib/components/<name>/<name>.css` (new) — single file with
+     1. `packages/spec/lib/components/<name>/<name>.css` (new) — single file with
         `@layer tokens` + `@layer rules`; selector
         `:root, [data-accent], [data-theme]`.
-     2. `lib/components/<name>/<name>.js` (new) — custom element
+     2. `packages/spec/lib/components/<name>/<name>.js` (new) — custom element
         wrapping native, `display: contents`, defer-loaded.
-     3. `pages/components/<name>.html` (new) — follow
+     3. `packages/spec/pages/components/<name>.html` (new) — follow
         [skills/add-component.md](../skills/add-component.md)
         section order. -->
 
@@ -47,14 +47,14 @@
 - **No speculative additions** · don't add tokens, components,
   skills, or pages anticipating future need. Ship what the brief
   asks. Speculative-reserved entries require explicit registry
-  listing + one-line justification ([P11](../pages/principles.html#p11-parsimony) ·
+  listing + one-line justification ([P11](../packages/spec/pages/principles.html#p11-parsimony) ·
   [decision 30](../decisionlog.md#30-primitive-parsimony--no-speculative-additions--n571)).
 
 <!-- VARIABLE FILL · session-specific anti-goals -->
 
 <!-- What NOT to do. Things easy to drift into. Examples:
      - "No new decisions in this session — restructure only."
-     - "Do not change `build/tokens.ts` shape; only the emitter
+     - "Do not change `packages/spec/build/tokens.ts` shape; only the emitter
        internals."
      - "No new pages beyond <name>; if scope expands, surface it
        in roadmap/index.md 'Open questions' and stop." -->
@@ -62,7 +62,7 @@
 ## Definition of done
 
 <!-- Concrete, testable. Examples:
-     - "`npm test` passes (22/22)"
+     - "`npm test -w @nuri/spec` passes (25/25)"
      - "`npx tsc -p docs/migration-tests/<pair>/tsconfig.json` exits 0"
      - "Page renders, console clean, theme/accent toggles re-resolve"
      - "Closeout audit ran; findings surfaced in roadmap/index.md" -->
@@ -83,13 +83,13 @@ You are working on Nuri, a mobile-first design system for Expo ·
 React Native. The four distinguishing choices:
 
 1. **Doc-to-code ratio is HIGH on purpose** — tokens / principles /
-   skills / decision-log / roadmap exceed the actual `styles/` +
-   `lib/` source.
+   skills / decision-log / roadmap exceed the actual `packages/spec/styles/` +
+   `packages/spec/lib/` source.
 2. **Agent-first workflow** — no Figma. Operator prompts → agent
    composes → translate ([decision 21](../decisionlog.md#21-consumer-model--three-agent-personas--operator--n3)).
 3. **Web zero-build composition** — docs site renders without a
-   build step. The Node pipeline in `build/` is opt-in
-   (`npm run build`) for the RN sync workstream only.
+   build step. The Node pipeline in `packages/spec/build/` is opt-in
+   (`npm run build -w @nuri/spec`) for the RN sync workstream only.
 4. **1:1 API match at props layer** — web `<nuri-button>` matches
    RN `<Button>` 1:1 at props. Behaviour is budgeted per-component
    ([RISKS R1](../docs/RISKS.md#r1--webrn-api-11--props-parity--behavioural-parity)).
@@ -117,13 +117,16 @@ docs site is live off `main`.
   `git worktree add -b <branch> "$MAIN-<short>" origin/main` + (inside the new
   worktree) `ln -s "$MAIN/node_modules" node_modules`.
 - **CI** — [`.github/workflows/gates.yml`](../.github/workflows/gates.yml)
-  (job `gates`) runs on every PR + push-to-`main`: `npm ci` · `npm test`
-  (22/22) · `npm run build` · `git diff --exit-code build/` · `npx tsc -p
-  docs/migration-tests/<pair>/tsconfig.json`. Branch protection requires
-  `gates` green to merge; PRs are **squash-merged**.
-- **`build/` is committed** ([decision 35](../decisionlog.md#35-pipeline-sources-vs-build-outputs-physically-separated--pipeline-source-build-generated-only--n604)).
-  If you touched anything the pipeline emits, run `npm run build` and commit
-  the result — the `git diff --exit-code build/` gate fails a stale emit.
+  (job `gates`) runs on every PR + push-to-`main`: `npm ci` · `npm test -w
+  @nuri/spec` (25/25) · `npm run build -w @nuri/spec` · `git diff --exit-code
+  packages/spec/build/` · `npx tsc -p docs/migration-tests/<pair>/tsconfig.json`.
+  Branch protection requires `gates` green to merge; PRs are **squash-merged**.
+  (The job keeps the `gates` name through M1 — a single workspace-scoped job;
+  M3 makes it a per-workspace matrix · [decision 65.8](../decisionlog.md).)
+- **`packages/spec/build/` is committed** ([decision 35](../decisionlog.md#35-pipeline-sources-vs-build-outputs-physically-separated--pipeline-source-build-generated-only--n604)).
+  If you touched anything the pipeline emits, run `npm run build -w @nuri/spec`
+  and commit the result — the `git diff --exit-code packages/spec/build/` gate
+  fails a stale emit.
 - **Close** — gates green → commit (with a `Co-Authored-By` trailer) → push →
   open PR into `main`. `gh` is **not installed**, so the **operator** opens
   the PR via the `pull/new/<branch>` link git prints on push, and clicks
@@ -142,15 +145,15 @@ docs site is live off `main`.
    present the rendered result to the operator and request design feedback.
    Do NOT run the audit, the gates, or closeout until the operator has
    responded; incorporate their feedback first.
-4. **Only after the operator's feedback:** run the gates (`npm test` 22/22,
-   `npm run build`, `git diff --exit-code build/`,
+4. **Only after the operator's feedback:** run the gates (`npm test -w @nuri/spec`
+   25/25, `npm run build -w @nuri/spec`, `git diff --exit-code packages/spec/build/`,
    `npx tsc -p docs/migration-tests/<pair>/tsconfig.json`),
    then run [`skills/close-out-session.md`](../skills/close-out-session.md) —
    spawn the general-purpose audit subagent
    ([`prompts/closeout-audit.md`](./closeout-audit.md)) and refresh
    `roadmap/N+X.md` + `roadmap/index.md` + `docs/RISKS.md`.
 5. **Commit → push → open PR (never self-merge).** With the gates green,
-   commit the work (`Co-Authored-By` trailer; include the `npm run build` emit
+   commit the work (`Co-Authored-By` trailer; include the `npm run build -w @nuri/spec` emit
    if the pipeline output changed), push the branch, and have the **operator**
    open the PR into protected `main` via the `pull/new/<branch>` link. CI
    re-runs the gates; the **coordinator reviews the PR** (does NOT self-merge —

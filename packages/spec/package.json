@@ -1,0 +1,21 @@
+{
+  "name": "@nuri/spec",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Nuri spec · the radix workspace: lib/ (web CSS + custom-elements · CSS is SoT) + pipeline/ (emitter) + build/ (frozen emitted contract · Guard F)",
+  "//": "No `exports` map yet — it lands + validates in M2 with @nuri/factory, the spec's first importer (factory-face subpaths: ./build/descriptors/*, ./build/tokens, ./build/icons, ./build/palette; pipeline/ stays internal, never exported). decision 65.7/65.8.",
+  "scripts": {
+    "build": "node pipeline/tokens-parser.js",
+    "test": "node --test pipeline/*.test.js"
+  },
+  "devDependencies": {
+    "@phosphor-icons/core": "^2.1.1",
+    "@types/react": "^19.2.15",
+    "@types/react-native": "^0.72.8",
+    "postcss": "^8.4.49",
+    "react": "^19.2.6",
+    "react-native": "^0.80.3",
+    "typescript": "^6.0.3"
+  }
+}

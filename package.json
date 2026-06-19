@@ -2,19 +2,13 @@
   "name": "nuri",
   "version": "0.0.1",
   "private": true,
-  "description": "Nuri Design System · docs site + CSS → DTCG pipeline (thin slice)",
-  "type": "module",
+  "description": "Nuri Design System · npm-workspaces monorepo · radix @nuri/spec (CSS SoT + pipeline + frozen build/) · decision 65.7",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build": "node pipeline/tokens-parser.js",
-    "test": "node --test pipeline/*.test.js"
-  },
-  "devDependencies": {
-    "@phosphor-icons/core": "^2.1.1",
-    "@types/react": "^19.2.15",
-    "@types/react-native": "^0.72.8",
-    "postcss": "^8.4.49",
-    "react": "^19.2.6",
-    "react-native": "^0.80.3",
-    "typescript": "^6.0.3"
+    "test": "npm test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck:migration": "tsc -p docs/migration-tests/button-matrix/tsconfig.json"
   }
 }
