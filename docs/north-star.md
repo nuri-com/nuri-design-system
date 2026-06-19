@@ -62,6 +62,12 @@ mirror when external consumption is real (P11).
 
 ## Migration sequence (LOCKED structure · 65.7 · handed off separately)
 
+**Progress (2026-06-19):** M1 `@nuri/spec` carve-out ✓ ([65.8](../decisionlog.md)) · M2 absorb `expodsdemo` →
+`@nuri/factory` + `@nuri/expo-demo` ✓ ([65.9](../decisionlog.md)) · **M3 the intra-repo gate ✓ — [`gates.yml`](../.github/workflows/gates.yml)
+now runs three per-workspace jobs (`spec` · `factory` · `expo-demo`); the `factory` render-smoke gates `@nuri/spec/build`
+INTRA-REPO, so a contract change that breaks the RN render fails CI by construction · R7 CLOSED** ([65.10](../decisionlog.md)).
+Next: **M4** retire `button-matrix`. The locked sequence:
+
 `skeleton workspaces` (nuri → `spec` + scaffolds) → `absorb expodsdemo` (`factory` + `expo-demo` ·
 the snapshot → `workspace:*`) → `intra-repo gate` (per-workspace matrix in `gates.yml` · the
 `factory` render-smoke gates `spec/build` · **= R7 closed**) → `retire button-matrix` (trivial, same

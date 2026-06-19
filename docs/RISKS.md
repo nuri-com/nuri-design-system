@@ -1,7 +1,17 @@
 # Risks · Nuri
 
 **Date drafted**: 2026-05-27 (during N+3 philosophy brainstorm)
-**Last updated**: 2026-06-19 (N+19 · M2 · **`expodsdemo` absorbed → `@nuri/factory` + `@nuri/expo-demo`**
+**Last updated**: 2026-06-19 (N+19 · M3 · **the intra-repo gate landed — R7 CLOSED**: [`gates.yml`](../.github/workflows/gates.yml)'s single
+`gates` job reshaped into **three parallel per-workspace jobs** [`spec` · `factory` · `expo-demo`]; the **`factory`
+render-smoke now gates `packages/spec/build/` INTRA-REPO** [it imports `@nuri/spec`'s frozen descriptors+tokens through
+the exports map and RENDERS them via `react-test-renderer`, so a contract change that breaks the RN render fails CI by
+construction · no cross-repo seam]. **R7 MOVED to the Closed section** [decision **65.10**]; **R2** already dropped at the
+pivot [65.7], **R3 / `button-matrix`** stays gating in the `spec` job + retires at **M4**. Install-scoping verified: `npm ci -w`
+does NOT scope [`npm ci` rebuilds the whole lockfile tree], so each job runs full `npm ci` — the RN-free-spec-CI
+optimization is **DEFERRED** [the zero-build *iteration* property is unaffected]. **CI + docs only · no package code change.**
+Operator action: branch-protection required check `gates` → `spec` + `factory` + `expo-demo` [decision B · reconfigured ONCE
+at M3]. Local re-run green: spec 25/25 · factory 27/27 + tsc 0 · expo-demo tsc 0 · `build/` byte-identical · migration tsc 0.) ·
+Prior 2026-06-19 (N+19 · M2 · **`expodsdemo` absorbed → `@nuri/factory` + `@nuri/expo-demo`**
 [clean-copy · R1 `fa78e13` + R1.5 `aef962a`]; **`@nuri/spec`'s `exports` map landed + VALIDATED** [the
 factory's `tsc` 0 through the 9 subpaths · the M1-deferred boundary · §65.8→**65.9**]; the **RN toolchain
 entered the repo** [cost #1 of 65.7 · accepted]. R7's subject — the `factory` render-smoke + the RN
@@ -974,7 +984,54 @@ but accepts a re-evaluation cost.
 
 ---
 
-## R7 · Cross-repo contract seam — the RN render proof is out-of-CI unless the seam gates
+## How to update this file
+
+Each session, before closing (run the
+[`skills/close-out-session.md`](../skills/close-out-session.md) procedure):
+
+1. Re-read each risk
+2. Move resolved risks to a **Closed** section at the bottom — don't
+   delete. The reasoning is valuable for future sessions and
+   prevents re-litigating
+3. Add new risks discovered, with the same shape (failure mode · why
+   it matters · mitigation · status)
+4. Update mitigation status if mitigation work shipped
+5. The closeout audit (general-purpose sub-agent, read-only) will
+   flag R-status fields that don't match reality — fix in the same
+   pass as decision drift
+
+Only add risks with a named failure mode visible from the project's
+own choices. Hypothetical or generic risks (e.g., "what if the team
+grows") don't belong here.
+
+---
+
+## Closed risks
+
+## R7 · Cross-repo contract seam — the RN render proof is out-of-CI unless the seam gates · **CLOSED** (2026-06-19 · N+19 · M3 · [decision 65.10](../decisionlog.md))
+
+**Resolution**. The gating wire is now an **intra-repo per-workspace CI job**, not a
+cross-repo seam. [`gates.yml`](../.github/workflows/gates.yml) runs a **`factory`** job that
+imports `@nuri/spec`'s frozen descriptors+tokens (through the `exports` map) and **renders**
+them with `react-test-renderer`, so a `packages/spec/build/*` change that breaks the RN render
+**fails CI by construction** — in the same repo, on the same PR. The failure mode this risk
+named (a contract change merging green here while breaking the RN render, discovered only later
+in a *separate* repo) is therefore **closed by construction**: there is no cross-repo checkout /
+hook / clone to forget to run. The single `gates` job became three parallel per-workspace jobs
+(**`spec`** · **`factory`** · **`expo-demo`**); the branch-protection required check was
+reconfigured ONCE (`gates` → those three · decision B). Verified local-green at the gate the
+job encodes: the `factory` render-smoke is **27/27 · 7 snapshots**, consuming `@nuri/spec/build`
+via the exports map (a spec/build break would fail it).
+
+**Related risks (disposition)**. **R2** (the cross-repo seam · the version-cut pre-push hook /
+cross-repo CI checkout) was already **DROPPED** at the monorepo pivot ([65.7](../decisionlog.md)) —
+superseded, never built. **R3 / `button-matrix`** (the type-only web↔RN migration mirror) stays
+gating in the **`spec`** job and **retires at M4**: the `factory` render-smoke now gates the
+contract intra-repo, so the mirror's machine-check role is done (no validation gap · same repo).
+
+*The original R7 reasoning is preserved below (per the "move, don't delete" convention).*
+
+---
 
 **Failure mode**. Post-X-wired ([decision 65.5](../decisionlog.md)), the repo emits the contract
 (`build/descriptors/*`) and the **Expo consumer** (`expodsdemo`) is the single factory that renders it
@@ -1019,31 +1076,3 @@ ONCE (decision B). `gates.yml` is UNCHANGED through M2
 findings** — the first-versioned-bump agenda (no default-per-axis · stringly-typed boolean axes · no
 transversal interaction emit · `subtle` §11 doc-reconciliation · see
 [`roadmap/N+19-R1.md`](../roadmap/N+19-R1.md) / [`N+19-R1.5.md`](../roadmap/N+19-R1.5.md)).
-
----
-
-## How to update this file
-
-Each session, before closing (run the
-[`skills/close-out-session.md`](../skills/close-out-session.md) procedure):
-
-1. Re-read each risk
-2. Move resolved risks to a **Closed** section at the bottom — don't
-   delete. The reasoning is valuable for future sessions and
-   prevents re-litigating
-3. Add new risks discovered, with the same shape (failure mode · why
-   it matters · mitigation · status)
-4. Update mitigation status if mitigation work shipped
-5. The closeout audit (general-purpose sub-agent, read-only) will
-   flag R-status fields that don't match reality — fix in the same
-   pass as decision drift
-
-Only add risks with a named failure mode visible from the project's
-own choices. Hypothetical or generic risks (e.g., "what if the team
-grows") don't belong here.
-
----
-
-## Closed risks
-
-*(none yet)*
