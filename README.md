@@ -8,109 +8,116 @@ This repo is the **living source of truth** for tokens, foundations, and
 ## What's in here
 
 ```
-styles/                      the CSS that IS the design system
-  tokens-primitive.css       colour scales, sizes, radii, font, duration
-  tokens-semantic.css        role-based tokens
-  shell.css                  docs shell + shared widgets · typography v2 globals
-  typography.css             .nuri-type-* utilities (chained-class selectors,
-                             specificity 0,0,2) · MUST load after shell.css
+packages/                      npm-workspaces monorepo · workspaces: ["packages/*"]
+                               (decision 65.7 · the radix workspace is @nuri/spec)
+  spec/                        @nuri/spec · the radix: the CSS SoT + the pipeline +
+                               the frozen emitted contract · depends on nothing
+    package.json               @nuri/spec · build + test scripts · devDeps
+                               (workspace-hoisted to the root node_modules)
+    styles/                      the CSS that IS the design system
+      tokens-primitive.css       colour scales, sizes, radii, font, duration
+      tokens-semantic.css        role-based tokens
+      shell.css                  docs shell + shared widgets · typography v2 globals
+      typography.css             .nuri-type-* utilities (chained-class selectors,
+                                 specificity 0,0,2) · MUST load after shell.css
 
-lib/                         vanilla JS — physically split by migration target
-                             (decision 26)
-  components/                DS surfaces · migrate to RN
-    scope/scope.js           <nuri-scope> Tier 3 primitive
-    scope/README.md          NuriScope RN spec (decision 27 · N+5.5)
-    button/
-      button.css             @layer tokens + @layer rules
-                             (selector :root, [data-accent], [data-theme])
-      button.js              <nuri-button> custom element
-  docs/                      docs-chrome · web-only · never migrates
-    state.js                 localStorage ↔ data-* bridge
-    shell.js                 <nuri-shell>, <nuri-page>, NAV, topbar
-    tokens.js                CSS → DTCG parser + token-table renderer
-                             (companion to pipeline/tokens-parser.js)
-    demo/demo.{js,css}       <nuri-demo> interactive example container
-    control/control.{js,css} NuriControl select-pill + icon-button factory
+    lib/                         vanilla JS — physically split by migration target
+                                 (decision 26)
+      components/                DS surfaces · migrate to RN
+        scope/scope.js           <nuri-scope> Tier 3 primitive
+        scope/README.md          NuriScope RN spec (decision 27 · N+5.5)
+        button/
+          button.css             @layer tokens + @layer rules
+                                 (selector :root, [data-accent], [data-theme])
+          button.js              <nuri-button> custom element
+      docs/                      docs-chrome · web-only · never migrates
+        state.js                 localStorage ↔ data-* bridge
+        shell.js                 <nuri-shell>, <nuri-page>, NAV, topbar
+        tokens.js                CSS → DTCG parser + token-table renderer
+                                 (companion to pipeline/tokens-parser.js)
+        demo/demo.{js,css}       <nuri-demo> interactive example container
+        control/control.{js,css} NuriControl select-pill + icon-button factory
 
-pipeline/                    Node pipeline · sources · hand-maintained
-                             (decision 35 · N+6.0.4: pipeline = source,
-                             build = generated outputs only, never
-                             hand-edited)
-  parsers/
-    primitive.js             postcss-based · readPrimitives, buildDtcg,
-                             inferType, pathFor (N+3.5)
-    semantic.js              cascade walker · classifySemantic +
-                             GROUP_NAMES + AXIS_REGISTRY + classifyAll
-                             + SET_POLICY (N+5.5 + N+6.0.3)
-    components.js            per-component @layer tokens walker · emits
-                             build/components/<name>.ts (N+6.0.3)
-    descriptors.js           per-component DESCRIPTOR emitter · reads the
-                             @layer CSS (mapping) + page data-part anatomy
-                             (structure) · emits build/descriptors/<name>.ts
-                             (N+19 · decision 65.2)
-  descriptors/
-    schema.ts                canonical descriptor schema SOURCE (the frozen
-                             R-EXPO-6 contract type · hand-maintained · emitted
-                             verbatim to build/descriptors/schema.ts)
-  tokens-parser.js           orchestrator + re-export point · npm run build
-  tokens-parser.test.js      node:test · 19 assertions (pipeline round-
-                             trip · classify-by-cascade · guardrails)
-  docs-drift.test.js         node:test · 4 entry-point/emit freshness guards:
-                             llms.txt covers every component page · README
-                             + impl-guide name every build/components/*.ts ·
-                             doc-stated emitted counts match the live build ·
-                             each build/descriptors/*.ts re-emits from its
-                             sources (N+19 · decision 65.2)
+    pipeline/                    Node pipeline · sources · hand-maintained
+                                 (decision 35 · N+6.0.4: pipeline = source,
+                                 build = generated outputs only, never
+                                 hand-edited)
+      parsers/
+        primitive.js             postcss-based · readPrimitives, buildDtcg,
+                                 inferType, pathFor (N+3.5)
+        semantic.js              cascade walker · classifySemantic +
+                                 GROUP_NAMES + AXIS_REGISTRY + classifyAll
+                                 + SET_POLICY (N+5.5 + N+6.0.3)
+        components.js            per-component @layer tokens walker · emits
+                                 build/components/<name>.ts (N+6.0.3)
+        descriptors.js           per-component DESCRIPTOR emitter · reads the
+                                 @layer CSS (mapping) + page data-part anatomy
+                                 (structure) · emits build/descriptors/<name>.ts
+                                 (N+19 · decision 65.2)
+      descriptors/
+        schema.ts                canonical descriptor schema SOURCE (the frozen
+                                 R-EXPO-6 contract type · hand-maintained · emitted
+                                 verbatim to build/descriptors/schema.ts)
+      tokens-parser.js           orchestrator + re-export point · npm run build
+      tokens-parser.test.js      node:test · 19 assertions (pipeline round-
+                                 trip · classify-by-cascade · guardrails)
+      docs-drift.test.js         node:test · entry-point/emit freshness guards:
+                                 llms.txt covers every component page · README
+                                 + impl-guide name every build/components/*.ts ·
+                                 doc-stated emitted counts match the live build ·
+                                 each build/descriptors/*.ts re-emits from its
+                                 sources · the frozen schema shape (Guard F)
+                                 (N+19 · decision 65.2 / 65.6)
 
-build/                       Generated outputs · 100% emitted by the
-                             pipeline · never hand-edited
-  tokens.json                216 colour primitives (DTCG-nested)
-  tokens.ts                  38 runtime semantic leaves · nested + flat
-                             exports (chrome 13 + accent 6 · cascade-
-                             varying · N+5.5 / N+6.0.3 · space 8 + size 7
-                             + radius 4 · cascade-invariant · N+6.1 /
-                             N+6.1.1 · decision 36 + amendment 36.1) ·
-                             PLUS the `type` scale namespace (6 steps ×
-                             {regular, em} · decision 54 · N+8.3)
-                             (consumed by docs/migration-tests/button-matrix/)
-  components/                one file per component · 8 today: button ·
-                             icon-button · switch · tabs · list ·
-                             list-item · list-interactive-item · tab-bar
-    button.ts                per-component literals + TokenPath strings
-                             (N+6.0.3 · decision 34)
-  token-paths.ts             TokenPath discriminated union over every
-                             runtime-set leaf · 38 members (N+6.0.3)
-  icons.ts                   shared glyph registry · IconName union +
-                             icons: Record<IconName, Record<IconWeight,
-                             string>> · 17 glyphs × 3 weights (decision
-                             48 · N+6.8)
-  descriptors/               per-component DESCRIPTOR · the frozen R-EXPO-6
-                             cross-repo contract (theme thunk · variants /
-                             compoundVariants · part-addressable $parts ·
-                             decision 65.2 · N+19) · additive, separate from
-                             components/ (existing emit byte-identical)
-    schema.ts                the contract type (CVA core + $parts + typeStep)
-    composition-button.ts    Button · recipe + label/icon parts · 5 compounds
-    icon-avatar.ts           IconAvatar · static · subtle · no compounds
-    topbar.ts                Topbar · layout · center → $parts.content
+    build/                       Generated outputs · 100% emitted by the
+                                 pipeline · never hand-edited
+      tokens.json                216 colour primitives (DTCG-nested)
+      tokens.ts                  38 runtime semantic leaves · nested + flat
+                                 exports (chrome 13 + accent 6 · cascade-
+                                 varying · N+5.5 / N+6.0.3 · space 8 + size 7
+                                 + radius 4 · cascade-invariant · N+6.1 /
+                                 N+6.1.1 · decision 36 + amendment 36.1) ·
+                                 PLUS the `type` scale namespace (6 steps ×
+                                 {regular, em} · decision 54 · N+8.3)
+                                 (consumed by docs/migration-tests/button-matrix/)
+      components/                one file per component · 8 today: button ·
+                                 icon-button · switch · tabs · list ·
+                                 list-item · list-interactive-item · tab-bar
+        button.ts                per-component literals + TokenPath strings
+                                 (N+6.0.3 · decision 34)
+      token-paths.ts             TokenPath discriminated union over every
+                                 runtime-set leaf · 38 members (N+6.0.3)
+      icons.ts                   shared glyph registry · IconName union +
+                                 icons: Record<IconName, Record<IconWeight,
+                                 string>> · 17 glyphs × 3 weights (decision
+                                 48 · N+6.8)
+      descriptors/               per-component DESCRIPTOR · the frozen R-EXPO-6
+                                 cross-repo contract (theme thunk · variants /
+                                 compoundVariants · part-addressable $parts ·
+                                 decision 65.2 · N+19) · additive, separate from
+                                 components/ (existing emit byte-identical)
+        schema.ts                the contract type (CVA core + $parts + typeStep)
+        composition-button.ts    Button · recipe + label/icon parts · 5 compounds
+        icon-avatar.ts           IconAvatar · static · subtle · no compounds
+        topbar.ts                Topbar · layout · center → $parts.content
 
-pages/
-  principles.html            the WHY of Nuri · numbered principles (N+3)
-  implementation-guide.html  HOW · web→RN migration spec (N+5.6)
-  foundations/
-    colour/primitive.html    REFERENCE foundation page + index.html
-                             redirect target · token-driven
-    colour/semantic.html     token-driven · per-accent sections × light/dark cols
-    colour/exploration.html  token-driven · exploratory status
-    typography.html          sample-driven · .nuri-scale-list ramp
-    dimension/primitive.html token-driven · --nuri-px-N · 12 leaves (N+6.1.1)
-    dimension/spacing.html   token-driven · semantic spacing T-shirt scale (N+6.1)
-    dimension/sizing.html    token-driven · semantic sizing T-shirt scale (N+6.1)
-    dimension/radius.html    token-driven · semantic radius T-shirt + full=9999px sentinel (N+6.1.1)
-  components/                17 component pages today · button.html is the
-    button.html              CANONICAL TEMPLATE for component docs
-    scope.html               Tier 3 theming primitive (<nuri-scope>) ·
-                             web↔RN scope spec · start here for migration
+    pages/
+      principles.html            the WHY of Nuri · numbered principles (N+3)
+      implementation-guide.html  HOW · web→RN migration spec (N+5.6)
+      foundations/
+        colour/primitive.html    REFERENCE foundation page · the root index.html
+                                 redirect target · token-driven
+        colour/semantic.html     token-driven · per-accent sections × light/dark cols
+        colour/exploration.html  token-driven · exploratory status
+        typography.html          sample-driven · .nuri-scale-list ramp
+        dimension/primitive.html token-driven · --nuri-px-N · 12 leaves (N+6.1.1)
+        dimension/spacing.html   token-driven · semantic spacing T-shirt scale (N+6.1)
+        dimension/sizing.html    token-driven · semantic sizing T-shirt scale (N+6.1)
+        dimension/radius.html    token-driven · semantic radius T-shirt + full=9999px sentinel (N+6.1.1)
+      components/                17 component pages today · button.html is the
+        button.html              CANONICAL TEMPLATE for component docs
+        scope.html               Tier 3 theming primitive (<nuri-scope>) ·
+                                 web↔RN scope spec · start here for migration
 
 decisionlog.md               immutable ledger · all locked decisions
                              (N+5.6 · was docs/HANDOFF.md "Decisions locked")
@@ -138,19 +145,24 @@ prompts/                     reusable agent prompt templates (N+5.6)
 docs/
   RISKS.md                   open risks with named failure modes
   migration-tests/           web ↔ RN translation pairs (evidence for R5)
-    button-matrix/           first translation pair (N+4)
+    button-matrix/           first translation pair (N+4) · imports the emitted
+                             contract from packages/spec/build/ (NOT a workspace ·
+                             retires at M4 · decision 65.7)
 
 playground/                  RESERVED for future view-composition workstream
-                             (intentionally empty today)
+                             (root · not yet a workspace · empty today)
 
-index.html                   redirect → pages/foundations/colour/primitive.html
+index.html                   redirect → packages/spec/pages/foundations/colour/primitive.html
+.nojekyll                    disable Jekyll · serve packages/* + dotfiles verbatim
 llms.txt                     AI-consumer manifest (links + paths only)
 AGENTS.md                    skill router for spec-authoring agents
-package.json                 Node deps (postcss) + build / test scripts
+package.json                 workspace ROOT · private · workspaces: ["packages/*"] ·
+                             thin scripts (test/build delegate to the workspaces ·
+                             typecheck:migration runs the button-matrix tsc gate)
 ```
 
 The docs site has no build step — the browser resolves `var()` references
-natively. The Node pipeline in `build/` is opt-in (`npm run build`) and
+natively. The Node pipeline in `packages/spec/build/` is opt-in (`npm run build`) and
 exists for the React Native sync workstream.
 
 ## Quick start
@@ -203,21 +215,21 @@ Layout (Stack · Box · Screen · Scroll · Spacer), Inputs (Switch),
 Display (Typography · TypographyStack · IconAvatar · Separator),
 Navigation (Tabs · Topbar · TabBar), and List (Base · Navigation Item).
 Button is the canonical template; `<nuri-scope>` (the Tier 3 theming
-primitive) is documented at [`pages/components/scope.html`](./pages/components/scope.html).
+primitive) is documented at [`packages/spec/pages/components/scope.html`](./packages/spec/pages/components/scope.html).
 See [`roadmap/index.md`](./roadmap/index.md) for the planned sequence and
 the deferred component backlog.
 
 ## Two layers, briefly
 
-- **`styles/tokens-primitive.css`** — flat catalogue of raw values, theme-agnostic.
+- **`packages/spec/styles/tokens-primitive.css`** — flat catalogue of raw values, theme-agnostic.
   Every colour exists as both `-light` and `-dark`.
-- **`styles/tokens-semantic.css`** — role-based tokens composing
+- **`packages/spec/styles/tokens-semantic.css`** — role-based tokens composing
   `data-theme` × `data-accent`. Components consume these.
 
 Full architecture is documented across the
-[Colour primitive](./pages/foundations/colour/primitive.html) and
-[Colour semantic](./pages/foundations/colour/semantic.html) pages,
-the locked rules in [`pages/principles.html`](./pages/principles.html),
+[Colour primitive](./packages/spec/pages/foundations/colour/primitive.html) and
+[Colour semantic](./packages/spec/pages/foundations/colour/semantic.html) pages,
+the locked rules in [`packages/spec/pages/principles.html`](./packages/spec/pages/principles.html),
 and the consumer-facing summary in [`llms.txt`](./llms.txt).
 
 ## For AI agents and contributors
@@ -234,29 +246,29 @@ the code wins — open an issue or fix the docs.
 
 ## React Native pipeline
 
-The CSS files in `styles/` are parsed into W3C DTCG-format tokens
+The CSS files in `packages/spec/styles/` are parsed into W3C DTCG-format tokens
 (`tokens.json`) and emitted as a typed `tokens.ts` for the Expo app by a
-**custom cascade-aware emitter** (`pipeline/parsers/semantic.js`) — Style
+**custom cascade-aware emitter** (`packages/spec/pipeline/parsers/semantic.js`) — Style
 Dictionary is bypassed for the RN-only target and re-enters only if a second
 platform lands (decisions [2.1](./decisionlog.md#21-amendment--n55) /
 [7.1](./decisionlog.md#71-amendment--n55)). Naming-prefix conventions in
 `tokens-primitive.css` let the pipeline infer each token's `$type` without
 metadata files.
 
-**Thin slice landed (N+3.5)** · `pipeline/tokens-parser.js` reads
-`styles/tokens-primitive.css` and emits `build/tokens.json` (DTCG-nested,
+**Thin slice landed (N+3.5)** · `packages/spec/pipeline/tokens-parser.js` reads
+`packages/spec/styles/tokens-primitive.css` and emits `packages/spec/build/tokens.json` (DTCG-nested,
 216 colour tokens since N+5.7 cleanup) with a `node:test` round-trip
 suite.
 
 **Semantic cascade slice landed (N+5) · refactored to classify-by-
 cascade (N+5.5)** · the parser is split into
-[`pipeline/parsers/{primitive,semantic}.js`](./pipeline/parsers) with
-`pipeline/tokens-parser.js` as the orchestrator. The semantic walker
-reads the cascade blocks of `styles/tokens-semantic.css`, chases the
+[`packages/spec/pipeline/parsers/{primitive,semantic}.js`](./packages/spec/pipeline/parsers) with
+`packages/spec/pipeline/tokens-parser.js` as the orchestrator. The semantic walker
+reads the cascade blocks of `packages/spec/styles/tokens-semantic.css`, chases the
 var() chain through the build's selected `--neutral` scope (default
 `cream` since N+5.8 · [decision 31](./decisionlog.md#31-default-neutral-scale--cream--cli-parameter---neutral=scale--n58)),
 then emits
-[`build/tokens.ts`](./build/tokens.ts) (machine-generated, replaces
+[`packages/spec/build/tokens.ts`](./packages/spec/build/tokens.ts) (machine-generated, replaces
 the N+4 hand-rolled stand-in) — but the **shape** of each export is
 now derived from which `[data-<dim>=…]` blocks declare each var
 (N+5.5 · decision 28). The runtime export started at 18 leaves
@@ -269,17 +281,17 @@ Record<Theme, {…6}>>`, plus flat `space` (8) · `size` (7) ·
 The hardcoded export lists are gone; future dimensions
 (font / density / neutral) auto-discover when their CSS blocks
 land. N+6.0.3 added two more emit surfaces (decision 34): per-
-component files at [`build/components/<name>.ts`](./build/components/)
+component files at [`packages/spec/build/components/<name>.ts`](./packages/spec/build/components/)
 (**8 today** — button · icon-button · switch · tabs · list ·
 list-item · list-interactive-item · tab-bar) carry the component-
 token numerics directly from the live CSS (the pre-N+6.0.3
 hardcoded `BUTTON_BASE` block is gone), and
-[`build/token-paths.ts`](./build/token-paths.ts) exposes a
+[`packages/spec/build/token-paths.ts`](./packages/spec/build/token-paths.ts) exposes a
 `TokenPath` discriminated union over every runtime-set leaf (38
 members) for type-checked consumer references. A typed icon
-registry ships at [`build/icons.ts`](./build/icons.ts) (17 glyphs
+registry ships at [`packages/spec/build/icons.ts`](./packages/spec/build/icons.ts) (17 glyphs
 × 3 weights · decision 48).
-`pipeline/tokens-parser.test.js` runs 19 assertions: 6 primitive
+`packages/spec/pipeline/tokens-parser.test.js` runs 19 assertions: 6 primitive
 round-trip, 4 semantic cross-product (hand-derived oracle, P4
 bright-vs-saturated asymmetry, `selectorMatches` port,
 `resolveValue` chain walker), 4 classify-by-cascade invariants
@@ -289,7 +301,7 @@ component emit guardrails (N+6.0.3), 2 emit-shape guards (icon
 registry · type-scale single-source · N+6.8 / N+8.3), and 1
 primitive-consumption guardrail (N+5.7 — every `--nuri-*` is
 consumed via `var()` / alias chain or explicitly reserved). A
-sibling `pipeline/docs-drift.test.js` adds entry-point-doc
+sibling `packages/spec/pipeline/docs-drift.test.js` adds entry-point-doc
 freshness guards (llms.txt component-page coverage · component-
 file manifest · emitted-count sync). Style Dictionary is
 conditional on a second target platform (decision 2 amendment,

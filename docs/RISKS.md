@@ -1,7 +1,11 @@
 # Risks · Nuri
 
 **Date drafted**: 2026-05-27 (during N+3 philosophy brainstorm)
-**Last updated**: 2026-06-18 (N+19 · R1/R1.5 close · **R7 partially mitigated — the RN render proof is
+**Last updated**: 2026-06-19 (N+19 · M1 · **monorepo skeleton landed** — the repo is an npm-workspaces
+monorepo; the radix `@nuri/spec` is carved [`lib`+`pipeline`+`build`+`styles`+`pages` → `packages/spec/`
+as one block · byte-identical render + emit · decision **65.8**]. R7's intra-repo-gate structure is now
+in place; **R7 dissolves at M3** [the `factory` render-smoke gates `packages/spec/build/` per-workspace].
+No M1 Settings action — the gate job keeps its `gates` name; the rename + per-workspace matrix land at M3.) · Prior 2026-06-18 (N+19 · R1/R1.5 close · **R7 partially mitigated — the RN render proof is
 RELOCATED to `expodsdemo` and made real**: **R1** [PR #2] the generic descriptor-factory +
 `react-test-renderer` render-smoke proving the frozen contract [`build/descriptors/*`] **consumable
 end-to-end** [parity vs the hand-written Button, now RENDERED · the proof relocates · 65.5]; **R1.5**
@@ -995,8 +999,12 @@ per-workspace CI job** — no cross-repo checkout / hook / clone. The failure mo
 merges green here while breaking the RN render) is **closed by construction** once the factory + the
 spec live in one repo gated together. **R2 (the cross-repo seam · the version-cut pre-push hook) is
 DROPPED**; `button-matrix` retires trivially once the in-repo gate lands (**R3** · same repo · no
-validation gap). R7 **closes** at the migration's intra-repo-gate step
-([`roadmap/N+19-monorepo.md`](../roadmap/N+19-monorepo.md)). R1/R1.5 surfaced **four consumability
+validation gap). **M1 (the skeleton · PR pending) has LANDED** — the repo is now an npm-workspaces
+monorepo and `@nuri/spec` is carved (decision **65.8** · gates green at the new paths · the docs site
+byte-identical · `git diff packages/spec/build/` clean); the structure R7's intra-repo gate needs is in
+place. The RN toolchain + the `factory` workspace are **M2**; R7 **fully closes at M3** — the
+per-workspace CI matrix where the `factory` render-smoke gates `packages/spec/build/` in-repo
+([`roadmap/N+19-monorepo.md`](../roadmap/N+19-monorepo.md) · [`N+19-skeleton.md`](../roadmap/N+19-skeleton.md)). R1/R1.5 surfaced **four consumability
 findings** — the first-versioned-bump agenda (no default-per-axis · stringly-typed boolean axes · no
 transversal interaction emit · `subtle` §11 doc-reconciliation · see
 [`roadmap/N+19-R1.md`](../roadmap/N+19-R1.md) / [`N+19-R1.5.md`](../roadmap/N+19-R1.5.md)).

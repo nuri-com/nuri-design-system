@@ -8,7 +8,7 @@
  *
  * Contents:
  *   · the `build/*` re-exports — every mirror reaches its tokens
- *     through `./_shared`, never into `../../../build/` directly
+ *     through `./_shared`, never into `../../../packages/spec/build/` directly
  *   · the `SvgXml` shim re-export (the ambient module lives in
  *     react-native-svg.d.ts · decision 48)
  *   · resolveToken + RuntimeTokens · the consumer-side dereference
@@ -33,20 +33,20 @@ import {
   size,
   radius,
   type as typeScale,
-} from '../../../build/tokens';
-import type { Accent, Theme, TypeSize, TypeWeight, TypeStep } from '../../../build/tokens';
-import { button } from '../../../build/components/button';
-import { iconButton } from '../../../build/components/icon-button';
-import { switchTokens } from '../../../build/components/switch';
-import { tabs as tabsTokens } from '../../../build/components/tabs';
-import { tabBar as tabBarTokens } from '../../../build/components/tab-bar';
-import { list as listTokens } from '../../../build/components/list';
-import { listItem } from '../../../build/components/list-item';
-import { listInteractiveItem } from '../../../build/components/list-interactive-item';
-import { palette } from '../../../build/palette';
-import type { TokenPath } from '../../../build/token-paths';
-import { icons } from '../../../build/icons';
-import type { IconName, IconWeight } from '../../../build/icons';
+} from '../../../packages/spec/build/tokens';
+import type { Accent, Theme, TypeSize, TypeWeight, TypeStep } from '../../../packages/spec/build/tokens';
+import { button } from '../../../packages/spec/build/components/button';
+import { iconButton } from '../../../packages/spec/build/components/icon-button';
+import { switchTokens } from '../../../packages/spec/build/components/switch';
+import { tabs as tabsTokens } from '../../../packages/spec/build/components/tabs';
+import { tabBar as tabBarTokens } from '../../../packages/spec/build/components/tab-bar';
+import { list as listTokens } from '../../../packages/spec/build/components/list';
+import { listItem } from '../../../packages/spec/build/components/list-item';
+import { listInteractiveItem } from '../../../packages/spec/build/components/list-interactive-item';
+import { palette } from '../../../packages/spec/build/palette';
+import type { TokenPath } from '../../../packages/spec/build/token-paths';
+import { icons } from '../../../packages/spec/build/icons';
+import type { IconName, IconWeight } from '../../../packages/spec/build/icons';
 import { SvgXml } from 'react-native-svg';
 import type { SvgXmlProps } from 'react-native-svg';
 

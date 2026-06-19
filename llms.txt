@@ -1,51 +1,51 @@
 # Nuri DS · consumer manifest
 
 Spec pages (HTML · served via gh-pages):
-  /pages/principles.html             WHY · cascade · P4 · tier model
-  /pages/implementation-guide.html   HOW · web→RN migration
-  /pages/foundations/colour/primitive.html      colour tokens · primitive
-  /pages/foundations/colour/semantic.html       colour tokens · semantic (mode × accent)
-  /pages/foundations/colour/exploration.html    colour tokens · exploration
-  /pages/foundations/typography.html                  type scale
-  /pages/foundations/dimension/primitive.html         dimension tokens · primitive (--nuri-px-N · 12 leaves)
-  /pages/foundations/dimension/spacing.html           dimension tokens · semantic spacing (T-shirt scale)
-  /pages/foundations/dimension/sizing.html            dimension tokens · semantic sizing (T-shirt scale)
-  /pages/foundations/dimension/radius.html            dimension tokens · semantic radius (T-shirt scale + 9999px sentinel full)
-  /pages/foundations/iconography.html                 <nuri-icon> · 17-glyph phosphor registry · 2 sizes + fill · currentColor
+  /packages/spec/pages/principles.html             WHY · cascade · P4 · tier model
+  /packages/spec/pages/implementation-guide.html   HOW · web→RN migration
+  /packages/spec/pages/foundations/colour/primitive.html      colour tokens · primitive
+  /packages/spec/pages/foundations/colour/semantic.html       colour tokens · semantic (mode × accent)
+  /packages/spec/pages/foundations/colour/exploration.html    colour tokens · exploration
+  /packages/spec/pages/foundations/typography.html                  type scale
+  /packages/spec/pages/foundations/dimension/primitive.html         dimension tokens · primitive (--nuri-px-N · 12 leaves)
+  /packages/spec/pages/foundations/dimension/spacing.html           dimension tokens · semantic spacing (T-shirt scale)
+  /packages/spec/pages/foundations/dimension/sizing.html            dimension tokens · semantic sizing (T-shirt scale)
+  /packages/spec/pages/foundations/dimension/radius.html            dimension tokens · semantic radius (T-shirt scale + 9999px sentinel full)
+  /packages/spec/pages/foundations/iconography.html                 <nuri-icon> · 17-glyph phosphor registry · 2 sizes + fill · currentColor
   Theming:
-  /pages/components/scope.html          <nuri-scope> · Tier 3 theming primitive · web↔RN scope spec · START HERE for migration
-  /pages/components/palette.html        colour namespace · class-layer dispatch (variant/chrome) · merged-node authoring · owns ALL colour (65.3 §6)
+  /packages/spec/pages/components/scope.html          <nuri-scope> · Tier 3 theming primitive · web↔RN scope spec · START HERE for migration
+  /packages/spec/pages/components/palette.html        colour namespace · class-layer dispatch (variant/chrome) · merged-node authoring · owns ALL colour (65.3 §6)
   Actions:
-  /pages/components/button.html         anatomy · token-mapping · variants · states (canonical template)
-  /pages/components/icon-button.html    icon-only action · behavioural delta (F-ARIA-LABEL-1 · F-TOUCH-TARGET-1)
+  /packages/spec/pages/components/button.html         anatomy · token-mapping · variants · states (canonical template)
+  /packages/spec/pages/components/icon-button.html    icon-only action · behavioural delta (F-ARIA-LABEL-1 · F-TOUCH-TARGET-1)
   Layout:
-  /pages/components/stack.html          flex stack layout primitive
-  /pages/components/box.html            box primitive · purely geometric (padding · radius · sizing · center)
-  /pages/components/screen.html         screen scaffold primitive
-  /pages/components/scroll.html         scroll container primitive
-  /pages/components/spacer.html         flex spacer primitive
+  /packages/spec/pages/components/stack.html          flex stack layout primitive
+  /packages/spec/pages/components/box.html            box primitive · purely geometric (padding · radius · sizing · center)
+  /packages/spec/pages/components/screen.html         screen scaffold primitive
+  /packages/spec/pages/components/scroll.html         scroll container primitive
+  /packages/spec/pages/components/spacer.html         flex spacer primitive
   Inputs:
-  /pages/components/switch.html         toggle input
+  /packages/spec/pages/components/switch.html         toggle input
   Display:
-  /pages/components/typography.html        text component
-  /pages/components/typography-stack.html  stacked text component
-  /pages/components/icon-avatar.html       icon-in-circle avatar
-  /pages/components/separator.html         divider
+  /packages/spec/pages/components/typography.html        text component
+  /packages/spec/pages/components/typography-stack.html  stacked text component
+  /packages/spec/pages/components/icon-avatar.html       icon-in-circle avatar
+  /packages/spec/pages/components/separator.html         divider
   Navigation:
-  /pages/components/tabs.html           tabs
-  /pages/components/topbar.html         top app bar
-  /pages/components/tab-bar.html        bottom tab bar
+  /packages/spec/pages/components/tabs.html           tabs
+  /packages/spec/pages/components/topbar.html         top app bar
+  /packages/spec/pages/components/tab-bar.html        bottom tab bar
   List:
-  /pages/components/list-base.html      presentational + interactive list primitives
-  /pages/components/list-nav-item.html  nav-item list recipe
+  /packages/spec/pages/components/list-base.html      presentational + interactive list primitives
+  /packages/spec/pages/components/list-nav-item.html  nav-item list recipe
 
 Build assets (dist · fetchable · 6 kinds · all emitted by `npm run build`):
-  /build/tokens.json                 DTCG primitives (W3C standard · 216 colour tokens)
-  /build/tokens.ts                   RN-ready · runtime sets · chrome + accent + space + size + radius (38 leaves) + type scale
-  /build/components/<name>.ts        per-component numerics + TokenPath references · 8 files: button · icon-button · switch · tabs · list · list-item · list-interactive-item · tab-bar
-  /build/token-paths.ts              discriminated union of every runtime-set leaf (38 members)
-  /build/icons.ts                    typed glyph registry · IconName union + icons[name][weight] SVG (17 glyphs × 3 weights)
-  /build/descriptors/<name>.ts       per-component DESCRIPTOR · the frozen R-EXPO-6 contract (theme thunk · variants / compoundVariants · part-addressable $parts) · schema.ts + 3: composition-button · icon-avatar · topbar (N+19 · decision 65.2)
+  /packages/spec/build/tokens.json                 DTCG primitives (W3C standard · 216 colour tokens)
+  /packages/spec/build/tokens.ts                   RN-ready · runtime sets · chrome + accent + space + size + radius (38 leaves) + type scale
+  /packages/spec/build/components/<name>.ts        per-component numerics + TokenPath references · 8 files: button · icon-button · switch · tabs · list · list-item · list-interactive-item · tab-bar
+  /packages/spec/build/token-paths.ts              discriminated union of every runtime-set leaf (38 members)
+  /packages/spec/build/icons.ts                    typed glyph registry · IconName union + icons[name][weight] SVG (17 glyphs × 3 weights)
+  /packages/spec/build/descriptors/<name>.ts       per-component DESCRIPTOR · the frozen R-EXPO-6 contract (theme thunk · variants / compoundVariants · part-addressable $parts) · schema.ts + 3: composition-button · icon-avatar · topbar (N+19 · decision 65.2)
 
 Repository entry points:
   /README.md                         project overview
@@ -57,8 +57,8 @@ Repository entry points:
   /docs/RISKS.md                     open risks with named failure modes
   /docs/migration-tests/             web ↔ RN translation pairs (evidence for R5)
 
-Source of truth: this repo's `styles/` CSS files. HTML pages and
-build assets are derived; never edit them directly. (Descriptors derive
-from two sources — the component `@layer` CSS under `lib/components/` for
-the mapping half + the page `data-part` anatomy under `pages/components/`
-for the structure half · decision 65 / 24.1.)
+Source of truth: this repo's `packages/spec/styles/` CSS files. HTML pages
+and build assets are derived; never edit them directly. (Descriptors derive
+from two sources — the component `@layer` CSS under `packages/spec/lib/components/`
+for the mapping half + the page `data-part` anatomy under
+`packages/spec/pages/components/` for the structure half · decision 65 / 24.1.)

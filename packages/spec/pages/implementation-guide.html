@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see other pages for the rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri Design System · Implementation guide</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
+  <script src="../lib/docs/state.js"></script>
+
+  <link rel="stylesheet" href="../styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../lib/docs/control/control.css" />
+  <link rel="stylesheet" href="../styles/shell.css" />
+  <script src="../lib/docs/control/control.js" defer></script>
+  <script src="../lib/docs/shell.js" defer></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  IMPLEMENTATION GUIDE · the HOW of web→RN migration
+  ═══════════════════════════════════════════════════════════════
+
+  Read by the migration agent (the persona that translates Nuri
+  spec → RN per decision 21) and the operator reviewing the result.
+  AGENTS.md is the parallel procedural surface for spec-authoring;
+  principles.html carries the WHY. This page is the wiring spec.
+
+  Procedure pages serving a concrete agent persona per decision 21
+  are allowed as siblings to non-prose surfaces (decision 23.1
+  amendment · N+5.6). This page is one such procedure surface.
+
+  Structure: one <section class="page-section"> per topic. Cross-
+  refs land in decisionlog.md (locked decisions), RISKS.md (open
+  frictions catalogue), per-component pages (anatomy + token-map
+  wiring), and lib/components/scope/README.md (NuriScope spec).
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-shell active="implementation-guide">
+  <nuri-page
+    eyebrow="HOW"
+    title="Implementation guide"
+    status="draft"
+    lead="Web→RN migration spec for Nuri's tokens, scope, and component primitives."
+  ></nuri-page>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       1 · Build assets manifest
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="build-assets">
+    <h2>Build assets manifest</h2>
+    <p>The RN side consumes five machine-generated files. All are emitted by <code>npm run build</code> from <code>pipeline/tokens-parser.js</code> (orchestrator) which runs the parser slices in <code>pipeline/parsers/</code> (semantic-cascade + per-component CSS walk). Pipeline sources live in <code>pipeline/</code> hand-maintained; outputs in <code>build/</code> are 100% generated and never hand-edited (<a href="../../../decisionlog.md#35-pipeline-sources-vs-build-outputs-physically-separated--pipeline-source-build-generated-only--n604">decision 35 · N+6.0.4</a>).</p>
+    <dl class="nuri-spec-card" data-section="build-assets">
+      <div class="nuri-spec-card__row">
+        <dt>Tokens JSON (DTCG)</dt>
+        <dd>
+          <span class="nuri-spec-card__chip" data-asset="tokens.json"><code>build/tokens.json</code></span>
+          <span class="nuri-spec-card__meta">216 colour primitives · DTCG-nested · <code>{ $type, $value }</code> per leaf · themed scales 4-deep, alphas 3-deep · W3C standard, ingestible by any DTCG-aware tool</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Tokens TS (runtime sets only)</dt>
+        <dd>
+          <span class="nuri-spec-card__chip" data-asset="tokens.ts"><code>build/tokens.ts</code></span>
+          <span class="nuri-spec-card__meta">38 runtime TokenPath leaves across nested + flat sets: the context-dependent <code>chrome: Record&lt;Theme, {…13 leaves}&gt;</code> + <code>accent: Record&lt;Accent, Record&lt;Theme, {…6 leaves}&gt;&gt;</code>, PLUS the cascade-invariant dimension singletons <code>space</code> (8) · <code>size</code> (7) · <code>radius</code> (4) — these travel as flat runtime sets too, returned context-free by <code>resolveToken</code> (dimensions promoted to runtime at N+6.1 / N+6.1.1). So it is <em>not</em> only context-dependent vocabulary that travels (<a href="../../../decisionlog.md#34-per-component-files--tokenpath-union--set-policy--pipeline-emit-shape--n603">decision 34 · N+6.0.3</a>). The <code>type</code> scale ships as a separate directly-accessed namespace (<a href="../../../decisionlog.md#54-type-scale-emitted-as-a-directly-accessed-namespace--one-source-two-readers--n83">decision 54</a>). Per-component numerics moved to per-component files; the prior <code>buttonBase</code> constants block is retired.</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Component tokens TS (per component)</dt>
+        <dd>
+          <span class="nuri-spec-card__chip" data-asset="components/button.ts"><code>build/components/&lt;name&gt;.ts</code></span>
+          <span class="nuri-spec-card__meta">One file per component — <strong>8 today</strong>: <code>button</code> · <code>icon-button</code> · <code>switch</code> · <code>tabs</code> · <code>list</code> · <code>list-item</code> · <code>list-interactive-item</code> · <code>tab-bar</code> (layout primitives with an empty <code>@layer tokens</code> skip-emit). References to pipeline-inlined primitive sets resolve to literal numerics / strings at build (e.g. <code>pressScale: 0.97</code> from <code>var(--nuri-interaction-press-scale)</code>); references to runtime sets — <strong>now including the dimension fields</strong> — emit as <code>'&lt;group&gt;.&lt;leaf&gt;' as const satisfies TokenPath</code> (e.g. <code>lgMinHeight: 'size.xl'</code>, <code>solidBg: 'accent.solid'</code>). The consumer dereferences TokenPath strings against the live (accent × theme) runtime slice via a <code>resolveToken(tokens, path)</code> helper.</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>TokenPath union</dt>
+        <dd>
+          <span class="nuri-spec-card__chip" data-asset="token-paths.ts"><code>build/token-paths.ts</code></span>
+          <span class="nuri-spec-card__meta">Discriminated string union over every runtime-set leaf. Mechanically derived from <code>classifyAll</code>; per-component files <code>import type { TokenPath }</code> and TS enforces leaf-name agreement at compile time. Renaming a runtime leaf without re-emitting the union fails the TS compile.</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Icon registry TS</dt>
+        <dd>
+          <span class="nuri-spec-card__chip" data-asset="icons.ts"><code>build/icons.ts</code></span>
+          <span class="nuri-spec-card__meta">The shared glyph registry emitted once as a typed module: an <code>IconName</code> union + <code>IconWeight</code> + <code>icons: Record&lt;IconName, Record&lt;IconWeight, string&gt;&gt;</code> (17 glyphs × 3 weights). RN renders the verbatim SVG path string through <code>react-native-svg</code>'s <code>SvgXml</code> — one registry, two readers (<a href="../../../decisionlog.md#48-typed-buildiconsts-emit--svgxml-over-the-shared-registry--one-registry-two-readers--n68">decision 48 · N+6.8</a>).</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Shape contract</dt>
+        <dd data-section-field="shape">
+          Each runtime export's nesting depth equals the dimensions its source CSS vars span across <code>[data-&lt;dim&gt;=…]</code> selectors (<a href="../../../decisionlog.md#28-emitter-shape-derives-from-cascade-structure-not-from-a-hardcoded-list--n55">decision 28 · classify-by-cascade</a>). Adding a new cascade dimension auto-extends the shape; unmapped signatures fail the build. Group names (<code>chrome</code> / <code>accent</code>) are stable consumer API — don't rename them in app code. The <code>SET_POLICY</code> registry at <code>pipeline/parsers/semantic.js</code> routes each set between runtime emit and pipeline-inline emit (<a href="../../../decisionlog.md#34-per-component-files--tokenpath-union--set-policy--pipeline-emit-shape--n603">decision 34</a>).
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Import path (from migration tests)</dt>
+        <dd>
+          <code>import { Accent, Theme, chrome, accent } from '../../../build/tokens';</code><br>
+          <code>import { button } from '../../../build/components/button';</code><br>
+          <code>import type { TokenPath } from '../../../build/token-paths';</code>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>See</dt>
+        <dd>
+          <a href="../../../skills/pipeline-dtcg-export.md"><code>skills/pipeline-dtcg-export.md</code></a>
+          · <a href="../../../decisionlog.md">decisionlog.md</a> decisions 2, 7, 28, 34
+          · <a href="../../../docs/RISKS.md">RISKS.md R2</a>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       2 · Cascade → Context mapping
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="cascade-context-mapping">
+    <h2>Cascade → Context mapping</h2>
+    <p>The web side uses the CSS cascade via <code>data-*</code> attributes; the RN side uses a single React Context with merge-on-override semantics (<a href="../../../decisionlog.md">decision 27</a>). The translation is attribute → field on a single context value, not Provider-per-dimension.</p>
+    <div class="nuri-table-scroll">
+      <table class="nuri-table" data-table="cascade-mapping">
+        <thead>
+          <tr>
+            <th>Web (Nuri)</th>
+            <th>RN (NuriThemeContext)</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-cell="theme">
+            <td><code>data-theme="light"|"dark"</code> on <code>&lt;html&gt;</code> or any wrapper</td>
+            <td><code>mode</code> field on <code>NuriThemeContext</code></td>
+            <td>Default <code>'light'</code>. Web internal name is <code>theme</code> for the attribute; the public RN prop is <code>mode</code> (1:1 with web prop on <code>&lt;nuri-scope&gt;</code>).</td>
+          </tr>
+          <tr data-cell="accent">
+            <td><code>data-accent="lilac"|"neutral"|…</code></td>
+            <td><code>accent</code> field on <code>NuriThemeContext</code></td>
+            <td>Default <code>'lilac'</code>. <code>Accent</code> type is exported from <code>build/tokens.ts</code>.</td>
+          </tr>
+          <tr data-cell="multi-dim-scope">
+            <td><code>&lt;nuri-scope accent="…" mode="…"&gt;</code></td>
+            <td><code>&lt;NuriScope accent="…" mode="…"&gt;</code> (composite)</td>
+            <td>One Provider wraps the subtree; reads ambient context, spreads overrides. Per-dimension Providers explicitly rejected — see <a href="../../../docs/RISKS.md">RISKS R1 F-SCOPE-1</a>.</td>
+          </tr>
+          <tr data-cell="self-scope">
+            <td><code>&lt;nuri-button accent="neutral"&gt;</code> (Tier 2)</td>
+            <td><code>&lt;Button accent="neutral"&gt;</code> prop</td>
+            <td>Same name, different mechanism. Web writes <code>data-accent</code> on the inner element; RN reads <code>useContext(NuriThemeContext)</code> with <code>accent</code> prop as override.</td>
+          </tr>
+          <tr data-cell="future-dims">
+            <td><code>data-density</code> · <code>data-neutral</code></td>
+            <td><code>density</code> · <code>neutral</code> fields</td>
+            <td>Auto-discoverable once their CSS cascade blocks land (decision 28). Reserved — <strong>not</strong> <code>NuriThemeValue</code> fields today; they join when their web tokens exist (P11).</td>
+          </tr>
+          <tr data-cell="web-only-font">
+            <td><code>data-font="ios|android|pixel"</code></td>
+            <td>— (no counterpart)</td>
+            <td>Web-only emulation overlay for design exploration. RN inherits the platform's system font stack natively; no <code>font</code> field on <code>NuriThemeContext</code> (<a href="../../../decisionlog.md">amendment 27.1</a>).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       3 · NuriScope composite spec
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="nuri-scope-spec">
+    <h2>NuriScope composite · spec</h2>
+    <div class="nuri-note" data-kind="start-here">
+      <p class="nuri-note__label">Start here for migration</p>
+      <p>The <a href="components/scope.html"><code>&lt;nuri-scope&gt;</code> page</a> consolidates the web cascade mechanism, this RN <code>NuriThemeContext</code> spec, and the cascade↔context delta in one place. It is the canonical web↔RN scope reference; this section is the condensed spec.</p>
+    </div>
+    <p>The RN counterpart to <code>&lt;nuri-scope&gt;</code> is <strong>orthogonal</strong>, not a cross-product theme registry. Each dimension is one entry in a single <code>NuriThemeContext</code> with merge-on-override semantics; consumers spread additional dimensions onto a child <code>&lt;NuriScope&gt;</code> without enumerating themes. Pre-computed (∏ dimensions) theme tuples are explicitly rejected (8 accent × 3 font × 2 density × 7 neutral = 336 themes is the roadmap reductio).</p>
+    <dl class="nuri-spec-card" data-section="nuri-scope-spec">
+      <div class="nuri-spec-card__row">
+        <dt>Context</dt>
+        <dd>
+          <span class="nuri-spec-card__chip" data-symbol="NuriThemeContext"><code>NuriThemeContext</code></span>
+          <span class="nuri-spec-card__meta">single React Context carrying one entry per dimension</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Merge semantics</dt>
+        <dd><code>&lt;NuriScope accent="neutral"&gt;</code> reads ambient via <code>useContext</code> and emits <code>{ ...ambient, accent: 'neutral' }</code>. Unspecified dimensions inherit; specified ones win. No dimension is "all-or-nothing".</dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Props (1:1 with web, minus <code>font</code>)</dt>
+        <dd>
+          <span class="nuri-spec-card__chip"><code>mode</code></span>
+          <span class="nuri-spec-card__chip"><code>accent</code></span>
+          <span class="nuri-spec-card__chip"><code>density</code></span>
+          <span class="nuri-spec-card__chip"><code>neutral</code></span>
+          <span class="nuri-spec-card__meta">same names, same value sets as the web <code>&lt;nuri-scope&gt;</code> attributes. <code>font</code> exists on web for emulation overlay only; not migrated (<a href="../../../decisionlog.md">amendment 27.1</a>).</span>
+        </dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Component consumption</dt>
+        <dd>Single <code>const { accent, mode, ... } = useContext(NuriThemeContext)</code> then destructure. No per-dimension Provider chain.</dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Unistyles posture</dt>
+        <dd>Consumed for stylesheet ergonomics only if used at all. Its theme registry is bypassed — runtime values come from <code>NuriThemeContext</code>, not <code>UnistylesRuntime.setTheme(...)</code> (which would have to enumerate ∏ dims tuples).</dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>See</dt>
+        <dd>
+          <a href="../lib/components/scope/README.md"><code>lib/components/scope/README.md</code></a>
+          · <a href="../../../decisionlog.md">decisionlog.md decision 27</a>
+          · <a href="../../../docs/RISKS.md">RISKS R1 F-SCOPE-1</a>
+        </dd>
+      </div>
+    </dl>
+    <p>Shipped shape (N+13 · working code in <a href="../../../docs/migration-tests/button-matrix/_shared.tsx"><code>_shared.tsx</code></a>, tsc-confirmed). The type carries only the two live dimensions; <code>density</code> / <code>neutral</code> join it when their web tokens land (P11):</p>
+    <pre><code>type NuriThemeValue = {
+  mode: Theme;
+  accent: Accent;
+  // density / neutral RESERVED · not entries until their web tokens
+  // exist (P11). No `font` — web-only per amendment 27.1.
+};
+
+const NuriThemeContext = React.createContext&lt;NuriThemeValue&gt;({
+  mode: 'light',
+  accent: 'lilac',
+});
+
+const NuriScope: React.FC&lt;Partial&lt;NuriThemeValue&gt; &amp; { children: React.ReactNode }&gt; = ({
+  children,
+  ...overrides
+}) =&gt; {
+  const ambient = React.useContext(NuriThemeContext);
+  return (
+    &lt;NuriThemeContext.Provider value={{ ...ambient, ...overrides }}&gt;
+      {children}
+    &lt;/NuriThemeContext.Provider&gt;
+  );
+};</code></pre>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       4 · Tier 2 self-scope pattern
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="tier-2-self-scope">
+    <h2>Tier 2 self-scope pattern · per-component <code>accent</code> prop</h2>
+    <p>Leaf components (Button, Tag, Chip, IconButton — <a href="principles.html#p5-tier-model">P5</a>) take an optional <code>accent</code> prop that overrides the ambient context for the component itself only. The pattern: read ambient via <code>useContext</code>, override with the prop using nullish coalescing, then use the result to index into <code>accent[a][t]</code>.</p>
+    <dl class="nuri-spec-card" data-section="tier-2-self-scope">
+      <div class="nuri-spec-card__row">
+        <dt>Web mechanism</dt>
+        <dd>Writes <code>data-accent</code> on the inner element. CSS cascade re-resolves the component-token <code>var()</code> chain at that element (<a href="../../../decisionlog.md">decision 9</a> · component-token selector pattern).</dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>RN mechanism</dt>
+        <dd><code>useContext(NuriThemeContext)</code> for ambient · <code>??</code> fallback for the prop · resulting accent + mode index into the nested <code>accent</code> export from <code>build/tokens.ts</code>.</dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>Worked example</dt>
+        <dd>See <a href="../../../docs/migration-tests/button-matrix/button.tsx"><code>docs/migration-tests/button-matrix/button.tsx</code></a> · <code>const { mode, accent: ambientAccent } = useContext(NuriThemeContext);</code> then <code>const accent: Accent = accentProp ?? ambientAccent;</code> resolved via <code>resolveToken(tokens, button.solidBg)</code> against the live <code>accent × mode</code> slice.</dd>
+      </div>
+      <div class="nuri-spec-card__row">
+        <dt>See</dt>
+        <dd>
+          <a href="../../../decisionlog.md">decisionlog.md decision 9</a>
+          · <a href="components/button.html">Button</a> (Tier 2 example)
+          · <a href="principles.html#p5-tier-model">P5 · 3-tier component model</a>
+        </dd>
+      </div>
+    </dl>
+    <p>Skeleton (from button-matrix · positive control · F-SCOPE-2). Illustrative — the live file is <a href="../../../docs/migration-tests/button-matrix/button.tsx"><code>button.tsx</code></a>. Note the <code>size</code>-coupled geometry + label type (decision 41 · 55): per-size <code>minHeight</code>/<code>paddingX</code>/<code>radius</code> resolve inline through the runtime sets, and the label's <code>typeStyle</code> key tracks <code>size</code> — there is no <code>styles.label</code> StyleSheet entry:</p>
+    <pre><code>// Per-size geometry triple + size-coupled label type (decision 41 · 55).
+const GEOMETRY: Record&lt;ButtonSize, { minHeight: TokenPath; paddingX: TokenPath; radius: TokenPath }&gt; = {
+  lg: { minHeight: button.lgMinHeight, paddingX: button.lgPaddingX, radius: button.lgRadius },
+  md: { minHeight: button.mdMinHeight, paddingX: button.mdPaddingX, radius: button.mdRadius },
+  sm: { minHeight: button.smMinHeight, paddingX: button.smPaddingX, radius: button.smRadius },
+};
+const LABEL_KEY: Record&lt;ButtonSize, TypeKey&gt; = { lg: 'mdEm', md: 'mdEm', sm: 'smEm' };
+
+const Button: React.FC&lt;ButtonProps&gt; = ({
+  variant = 'soft',
+  accent: accentProp,
+  size: sizeProp = 'md',
+  disabled,
+  onPress,
+  children,
+}) =&gt; {
+  const { mode, accent: ambientAccent } = React.useContext(NuriThemeContext);
+  const accent: Accent = accentProp ?? ambientAccent;
+  const tokens: RuntimeTokens = { chrome: chrome[mode], accent: accentTokens[accent][mode], space, size, radius };
+  const geometry = GEOMETRY[sizeProp];
+  return (
+    &lt;Pressable
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: !!disabled }}
+      style={({ pressed }) =&gt; [
+        styles.base,
+        {
+          minHeight:         resolveToken(tokens, geometry.minHeight) as number,
+          paddingHorizontal: resolveToken(tokens, geometry.paddingX)  as number,
+          borderRadius:      resolveToken(tokens, geometry.radius)    as number,
+        },
+        variantStyle(variant, accent, mode, pressed),
+        pressed &amp;&amp; !disabled &amp;&amp; { transform: [{ scale: button.pressScale }] },
+        disabled &amp;&amp; { opacity: button.disabledOpacity },
+      ]}
+    &gt;
+      &lt;Text style={[typeStyle(LABEL_KEY[sizeProp]), { color: labelColor(variant, accent, mode) }]}&gt;
+        {children}
+      &lt;/Text&gt;
+    &lt;/Pressable&gt;
+  );
+};</code></pre>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       5 · Behavioural deltas catalogue
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="behavioural-deltas">
+    <h2>Behavioural deltas · web ↔ RN catalogue</h2>
+    <p>Props are 1:1 but behaviour is budgeted per-component. The <strong>authoritative register is <a href="../../../docs/RISKS.md">RISKS R1</a></strong> — 17 friction codes today, spanning Button · IconButton · Switch · Tabs · Topbar · the List family · TabBar (some since closed or retired, e.g. F-ICON-RN-1 closed at N+6.8). The table below is a representative teaching sample, not the complete list:</p>
+    <div class="nuri-table-scroll">
+      <table class="nuri-table" data-table="behavioural-deltas">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Delta</th>
+            <th>Web</th>
+            <th>RN</th>
+            <th>Workaround</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-cell="F-PRESSED-1">
+            <td><code>F-PRESSED-1</code></td>
+            <td>Pressed-state mechanism</td>
+            <td><code>:active</code> CSS pseudo-class + <code>transform: scale()</code></td>
+            <td><code>Pressable</code> render-prop <code>style={({ pressed }) =&gt; …}</code> + manual transform</td>
+            <td>Compute background + transform inline based on <code>pressed</code>; same visual outcome via different mechanism. See <a href="../../../docs/RISKS.md">RISKS R1 F-PRESSED-1</a>.</td>
+          </tr>
+          <tr data-cell="F-FOCUS-1">
+            <td><code>F-FOCUS-1</code></td>
+            <td>Focus ring</td>
+            <td><code>:focus-visible</code> outline (browser-managed)</td>
+            <td>No DOM focus model; visual ring intentionally absent</td>
+            <td><code>accessibilityRole="button"</code> + <code>accessibilityState</code> substitute the behaviour; document the absence on the component page. See <a href="../../../docs/RISKS.md">RISKS R1 F-FOCUS-1</a>.</td>
+          </tr>
+          <tr data-cell="F-DISABLED-1">
+            <td><code>F-DISABLED-1</code></td>
+            <td>Disabled cursor</td>
+            <td><code>cursor: not-allowed</code></td>
+            <td>No cursor concept</td>
+            <td>Opacity + <code>accessibilityState.disabled</code> carry the affordance. Cursor divergence is web-only — record it but don't translate. See <a href="../../../docs/RISKS.md">RISKS R1 F-DISABLED-1</a>.</td>
+          </tr>
+          <tr data-cell="F-FONT-1">
+            <td><code>F-FONT-1</code></td>
+            <td><code>font-family</code> propagation</td>
+            <td>Inherits through the cascade</td>
+            <td>Does NOT inherit through <code>Pressable</code>; falls back to platform default</td>
+            <td>Pipeline emits <code>fontFamily</code> from primitive token; generated component declares it explicitly. Resolves with the typography pipeline slice. See <a href="../../../docs/RISKS.md">RISKS R1 F-FONT-1</a>.</td>
+          </tr>
+          <tr data-cell="F-LAYOUT-1" data-status="retired">
+            <td><code>F-LAYOUT-1</code></td>
+            <td>Layout primitives</td>
+            <td><code>&lt;nuri-stack&gt;</code> + <code>&lt;nuri-box&gt;</code></td>
+            <td>Local <code>&lt;Stack&gt;</code> + <code>&lt;Box&gt;</code> · same prop API</td>
+            <td><strong>Retired in N+6.2.</strong> Stack + Box ship as layout primitives under <a href="../../../decisionlog.md#37-layout-primitives-consume-semantic-vocabulary-via-prop--no-component-token-aliasing--n62">decision 37</a> · empty <code>@layer tokens</code> + attribute-selector dispatch. See <a href="../../../roadmap/N+6.2.md">roadmap/N+6.2.md</a> for the retrospective.</td>
+          </tr>
+          <tr data-cell="F-SCOPE-2">
+            <td><code>F-SCOPE-2</code></td>
+            <td>Tier 2 self-scope</td>
+            <td><code>&lt;nuri-button accent="neutral"&gt;</code></td>
+            <td><code>&lt;Button accent="neutral"&gt;</code></td>
+            <td><strong>Positive control</strong> — 1:1, behaviour 1:1 (modulo runtime mechanism). Keep in scope so the catalogue doesn't skew pessimistic.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       6 · Per-component wiring
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="per-component-wiring">
+    <h2>Per-component wiring</h2>
+    <p>The migration agent reads <strong>anatomy</strong> + <strong>token-mapping</strong> sections on each component's docs page as the per-part × per-variant × per-state wiring spec (<a href="../../../decisionlog.md">decision 24</a>). Multi-part components carry machine-readable <code>data-*</code> attrs on those table rows (<code>data-part</code>, <code>data-element</code>, <code>data-property</code>, <code>data-token</code>, <code>data-conditions</code>) so the wiring is extractable without parsing prose (<a href="../../../AGENTS.md">AGENTS.md hard-rule 18</a>).</p>
+    <div class="nuri-table-scroll">
+      <table class="nuri-table" data-table="per-component-wiring">
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Tier</th>
+            <th>Page</th>
+            <th>RN reference</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-cell="button">
+            <td>Button</td>
+            <td>2 · Accent-consuming leaf</td>
+            <td><a href="components/button.html">components/button.html</a></td>
+            <td><a href="../../../docs/migration-tests/button-matrix/button.tsx"><code>docs/migration-tests/button-matrix/button.tsx</code></a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Most shipped components now carry both surfaces. A component ships its docs page (with the data-* wiring) alongside its <code>lib/components/&lt;name&gt;/</code> implementation; its typed RN mirror under <code>docs/migration-tests/</code> lands the same session or a close follow-up (recent components — TabBar, Screen / Scroll / Spacer — shipped both at once).</p>
+    <p>The RN mirrors live <strong>one file per component</strong> under <a href="../../../docs/migration-tests/button-matrix/"><code>docs/migration-tests/button-matrix/</code></a> (shared scaffolding in <code>_shared.tsx</code>, demo composition in <code>app.tsx</code>), split from the former monolithic <code>index.tsx</code> in N+12b — see <a href="../../../roadmap/N+12b.md"><code>roadmap/N+12b.md</code></a>.</p>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       7 · Out of scope
+       ═════════════════════════════════════════════════════════════ -->
+  <section class="page-section" id="out-of-scope">
+    <h2>Out of scope</h2>
+    <p>What this page does NOT cover:</p>
+    <ul class="nuri-roadmap">
+      <li><span class="nuri-tag nuri-tag--planned">conditional</span> <strong>Style Dictionary wiring</strong> · gated on a second target platform (iOS / Android / Figma sync) per <a href="../../../decisionlog.md">decision 2.1 amendment · N+5.5</a>. For RN-only, the custom emitter at <code>pipeline/parsers/semantic.js</code> is terminal.</li>
+      <li><span class="nuri-tag nuri-tag--planned">deferred</span> <strong>Unistyles theme registry</strong> · bypassed per <a href="../../../decisionlog.md">decision 7.1 amendment · N+5.5</a>. The runtime values come from <code>NuriThemeContext</code>, not <code>UnistylesRuntime.setTheme</code>.</li>
+      <li><span class="nuri-tag nuri-tag--ready">closed</span> <strong>Component-token CSS walk</strong> · landed at N+6.0.3 (<a href="../../../decisionlog.md#34-per-component-files--tokenpath-union--set-policy--pipeline-emit-shape--n603">decision 34</a>). <code>pipeline/parsers/components.js</code> walks <code>lib/components/&lt;name&gt;/&lt;name&gt;.css</code> <code>@layer tokens</code> and emits <code>build/components/&lt;name&gt;.ts</code>; the pre-N+6.0.3 <code>buttonBase</code> constants block is gone. F-FONT-1 (<code>font-family</code> propagation through <code>Pressable</code>) is a residual RN-runtime delta — the pipeline can surface <code>fontFamily</code> from <code>--nuri-font-family-*</code> primitives if a consumer references them, but the constant-held drift class itself is closed.</li>
+      <li><span class="nuri-tag nuri-tag--planned">later</span> <strong>Real Expo render</strong> · the typecheck contract is one half of R5; an actual mobile render of the button-matrix pair (or a successor) closes the other half. See <a href="../../../docs/RISKS.md">RISKS R5</a>.</li>
+    </ul>
+  </section>
+
+</nuri-shell>
+
+</body>
+</html>

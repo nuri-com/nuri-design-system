@@ -59,18 +59,18 @@
   <!-- Tokens cascade. No shell.css, no docs widgets, no state.js —
        the playground page hard-codes data-theme + data-accent on
        <html> so the page is deterministic across reloads. -->
-  <link rel="stylesheet" href="../../../styles/tokens-primitive.css" />
-  <link rel="stylesheet" href="../../../styles/tokens-semantic.css" />
-  <link rel="stylesheet" href="../../../lib/components/button/button.css" />
-  <link rel="stylesheet" href="../../../lib/components/stack/stack.css" />
-  <link rel="stylesheet" href="../../../lib/components/box/box.css" />
+  <link rel="stylesheet" href="../../../packages/spec/styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../../packages/spec/styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../../packages/spec/lib/components/button/button.css" />
+  <link rel="stylesheet" href="../../../packages/spec/lib/components/stack/stack.css" />
+  <link rel="stylesheet" href="../../../packages/spec/lib/components/box/box.css" />
 
   <!-- Custom elements · MUST be deferred so children parse before
        connectedCallback fires (AGENTS.md rule). -->
-  <script src="../../../lib/components/scope/scope.js" defer></script>
-  <script src="../../../lib/components/button/button.js" defer></script>
-  <script src="../../../lib/components/stack/stack.js" defer></script>
-  <script src="../../../lib/components/box/box.js" defer></script>
+  <script src="../../../packages/spec/lib/components/scope/scope.js" defer></script>
+  <script src="../../../packages/spec/lib/components/button/button.js" defer></script>
+  <script src="../../../packages/spec/lib/components/stack/stack.js" defer></script>
+  <script src="../../../packages/spec/lib/components/box/box.js" defer></script>
 
   <style>
     /* ── Minimum page-local CSS for the page frame ─────────────────

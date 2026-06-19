@@ -27,15 +27,21 @@ branches and land via PR, and several can run at once. Your git-side duties:
   before it merges — not after it lands on `main`.
 - **Launch parallel sessions in worktrees.** Concurrent sessions each get
   their own git worktree (`git worktree add -b <branch> "$MAIN-<short>"
-  origin/main` + `ln -s "$MAIN/node_modules" node_modules`), so the file
-  trees are disjoint and the writers don't collide.
+  origin/main`), so the file trees are disjoint and the writers don't collide.
+  Then run `npm install` **inside** the new worktree — under npm workspaces
+  (decision 65.7) the install wires `node_modules/@nuri/*` to *that worktree's*
+  `packages/*`; the old `ln -s "$MAIN/node_modules"` shortcut now cross-links
+  `@nuri/spec` to the MAIN tree's spec (harmless in M1 — nothing imports it by
+  name yet — but wrong once `factory` does · M2).
 - **Reconcile shared-doc conflicts at merge.** Parallel branches collide on
   the shared ledgers — `roadmap/index.md`, sometimes `decisionlog.md` /
   `docs/RISKS.md`. Resolve by merging `main` into the lagging branch before
   it merges.
 - **`gh` is not installed.** The **operator** opens each PR via the
   `pull/new/<branch>` link and clicks merge; PRs are **squash-merged** once
-  CI's `gates` job is green. Remote is **SSH**
+  CI's `gates` job is green (it keeps the `gates` name through M1 — a single
+  workspace-scoped job; M3 makes it a per-workspace matrix ·
+  [decision 65.8](../decisionlog.md)). Remote is **SSH**
   (`git@github.com:nuri-com/nuri-design-system.git`).
 - **Clean up after the squash-merge.** Drop the merged branch and its
   worktree: `git branch -D <branch>` + `git worktree remove --force
@@ -44,8 +50,8 @@ branches and land via PR, and several can run at once. Your git-side duties:
 ## What Nuri IS (the four distinguishing choices)
 
 1. **Doc-to-code ratio is HIGH on purpose.** Tokens / principles /
-   skills / decision-log / roadmap exceed the actual `styles/` +
-   `lib/` source. Nuri optimises for an agent reader — the docs are
+   skills / decision-log / roadmap exceed the actual `packages/spec/styles/` +
+   `packages/spec/lib/` source. Nuri optimises for an agent reader — the docs are
    the spec.
 2. **Agent-first workflow.** No Figma. The iteration loop is
    operator-prompts → agent-composes → translate. Humans browsing
@@ -53,8 +59,8 @@ branches and land via PR, and several can run at once. Your git-side duties:
    ([decision 21](../decisionlog.md#21-consumer-model--three-agent-personas--operator--n3)).
 3. **Web zero-build composition.** The docs site renders without a
    build step — the browser resolves `var()` references natively.
-   The Node pipeline in `build/` exists only for the RN sync
-   workstream and is opt-in (`npm run build`).
+   The Node pipeline in `packages/spec/build/` exists only for the RN sync
+   workstream and is opt-in (`npm run build -w @nuri/spec`).
 4. **1:1 API match at props layer.** Web `<nuri-button variant="...">`
    matches RN `<Button variant="...">` 1:1 at the props layer.
    Behaviour is budgeted per-component
@@ -70,7 +76,7 @@ branches and land via PR, and several can run at once. Your git-side duties:
   modes.
 - [`AGENTS.md`](../AGENTS.md) — skill router (hard rules +
   cascade ordering).
-- [`pages/principles.html`](../pages/principles.html) — the WHY of
+- [`pages/principles.html`](../packages/spec/pages/principles.html) — the WHY of
   Nuri (numbered principles, stable IDs).
 
 ## Anti-goals
@@ -84,7 +90,7 @@ branches and land via PR, and several can run at once. Your git-side duties:
   procedure is needed, propose adding a skill file (one-line entry in
   AGENTS.md's skill router), don't ad-hoc it.
 - Do not push toward generic DS conventions. Nuri is intentional —
-  e.g., no `:hover` on components ([P6](../pages/principles.html#p6-pressed-only)),
+  e.g., no `:hover` on components ([P6](../packages/spec/pages/principles.html#p6-pressed-only)),
   no entry-prose pages ([decision 23](../decisionlog.md#23-entry-pages-eliminated--n3)).
 
 ## Working with the operator
