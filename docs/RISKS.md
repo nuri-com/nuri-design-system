@@ -1,7 +1,14 @@
 # Risks · Nuri
 
 **Date drafted**: 2026-05-27 (during N+3 philosophy brainstorm)
-**Last updated**: 2026-06-19 (N+19 · M1 · **monorepo skeleton landed** — the repo is an npm-workspaces
+**Last updated**: 2026-06-19 (N+19 · M2 · **`expodsdemo` absorbed → `@nuri/factory` + `@nuri/expo-demo`**
+[clean-copy · R1 `fa78e13` + R1.5 `aef962a`]; **`@nuri/spec`'s `exports` map landed + VALIDATED** [the
+factory's `tsc` 0 through the 9 subpaths · the M1-deferred boundary · §65.8→**65.9**]; the **RN toolchain
+entered the repo** [cost #1 of 65.7 · accepted]. R7's subject — the `factory` render-smoke + the RN
+workspace — is now **in-repo source** [factory `npm test` 27/27 · the demo renders intra-repo, light+dark ·
+proven LOCALLY]; **R7 still OPEN · closes at M3** [the per-workspace matrix gates `packages/spec/build/` ·
+the gate-job rename + branch-protection reshape land THEN · decision B]. `gates.yml` UNCHANGED in M2 · no
+Settings action.) · Prior 2026-06-19 (N+19 · M1 · **monorepo skeleton landed** — the repo is an npm-workspaces
 monorepo; the radix `@nuri/spec` is carved [`lib`+`pipeline`+`build`+`styles`+`pages` → `packages/spec/`
 as one block · byte-identical render + emit · decision **65.8**]. R7's intra-repo-gate structure is now
 in place; **R7 dissolves at M3** [the `factory` render-smoke gates `packages/spec/build/` per-workspace].
@@ -999,12 +1006,16 @@ per-workspace CI job** — no cross-repo checkout / hook / clone. The failure mo
 merges green here while breaking the RN render) is **closed by construction** once the factory + the
 spec live in one repo gated together. **R2 (the cross-repo seam · the version-cut pre-push hook) is
 DROPPED**; `button-matrix` retires trivially once the in-repo gate lands (**R3** · same repo · no
-validation gap). **M1 (the skeleton · PR pending) has LANDED** — the repo is now an npm-workspaces
-monorepo and `@nuri/spec` is carved (decision **65.8** · gates green at the new paths · the docs site
-byte-identical · `git diff packages/spec/build/` clean); the structure R7's intra-repo gate needs is in
-place. The RN toolchain + the `factory` workspace are **M2**; R7 **fully closes at M3** — the
-per-workspace CI matrix where the `factory` render-smoke gates `packages/spec/build/` in-repo
-([`roadmap/N+19-monorepo.md`](../roadmap/N+19-monorepo.md) · [`N+19-skeleton.md`](../roadmap/N+19-skeleton.md)). R1/R1.5 surfaced **four consumability
+validation gap). **M1 (the skeleton) + M2 (the absorb · both PRs pending) have LANDED** — the repo is an
+npm-workspaces monorepo, `@nuri/spec` is carved (decision **65.8**), and **`@nuri/factory` + `@nuri/expo-demo`
+now live in-repo** (decision **65.9** · clean-copied from `expodsdemo` · the `factory` consumes `@nuri/spec`
+through its newly-landed `exports` map). R7's subject is now **in-repo source and proven LOCALLY**: the
+`factory` `react-test-renderer` render-smoke is **27/27** (consuming `@nuri/spec/build` via the exports
+map) and the demo renders intra-repo (Expo Web · light+dark · console clean). What remains is the **GATE**:
+**R7 fully closes at M3** — the per-workspace CI matrix where the `factory` render-smoke gates
+`packages/spec/build/` in-repo, the `gates` job becomes the matrix, and the required check is reconfigured
+ONCE (decision B). `gates.yml` is UNCHANGED through M2
+([`roadmap/N+19-monorepo.md`](../roadmap/N+19-monorepo.md) · [`N+19-skeleton.md`](../roadmap/N+19-skeleton.md) · [`N+19-M2.md`](../roadmap/N+19-M2.md)). R1/R1.5 surfaced **four consumability
 findings** — the first-versioned-bump agenda (no default-per-axis · stringly-typed boolean axes · no
 transversal interaction emit · `subtle` §11 doc-reconciliation · see
 [`roadmap/N+19-R1.md`](../roadmap/N+19-R1.md) / [`N+19-R1.5.md`](../roadmap/N+19-R1.5.md)).

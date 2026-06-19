@@ -1,0 +1,120 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render-smoke — the ergonomic components mount headless Button — typed named props · interactive (Pressable) · label children 1`] = `
+<View
+  accessibilityRole="button"
+  accessibilityState={
+    {
+      "busy": undefined,
+      "checked": undefined,
+      "disabled": false,
+      "expanded": undefined,
+      "selected": undefined,
+    }
+  }
+  accessibilityValue={
+    {
+      "max": undefined,
+      "min": undefined,
+      "now": undefined,
+      "text": undefined,
+    }
+  }
+  accessible={true}
+  collapsable={false}
+  focusable={true}
+  onBlur={[Function]}
+  onClick={[Function]}
+  onFocus={[Function]}
+  onResponderGrant={[Function]}
+  onResponderMove={[Function]}
+  onResponderRelease={[Function]}
+  onResponderTerminate={[Function]}
+  onResponderTerminationRequest={[Function]}
+  onStartShouldSetResponder={[Function]}
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#beaaff",
+      "borderRadius": 6,
+      "flexDirection": "row",
+      "justifyContent": "center",
+      "minHeight": 48,
+      "paddingHorizontal": 18,
+    }
+  }
+>
+  <Text
+    style={
+      [
+        {
+          "fontSize": 17,
+          "fontWeight": "600",
+          "letterSpacing": -0.34,
+          "lineHeight": 21.93,
+        },
+        {
+          "color": "#381b6a",
+        },
+        {},
+      ]
+    }
+  >
+    Buy Bitcoin
+  </Text>
+</View>
+`;
+
+exports[`render-smoke — the ergonomic components mount headless IconAvatar — static (View) · glyph children inherit the scope fg 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#f3f1e2",
+      "borderRadius": 9999,
+      "height": 48,
+      "justifyContent": "center",
+      "width": 48,
+    }
+  }
+>
+  <View
+    accessibilityLabel="glyph:#222013"
+  />
+</View>
+`;
+
+exports[`render-smoke — the ergonomic components mount headless Topbar — OPEN primitive · title children → the content pivot · leading via content 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#fffdf2",
+      "flexDirection": "row",
+      "gap": 6,
+      "height": 48,
+      "paddingEnd": 18,
+      "paddingStart": 18,
+    }
+  }
+>
+  <View
+    accessibilityLabel="leading"
+  />
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexGrow": 1,
+        "flexShrink": 1,
+        "justifyContent": "center",
+        "minWidth": 0,
+      }
+    }
+  >
+    <Text>
+      My Vault
+    </Text>
+  </View>
+</View>
+`;
