@@ -1,0 +1,32 @@
+{
+  "name": "@nuri/factory",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Nuri factory · the bare certified RN engine: theme runtime + createNuriComponent + the ergonomic 1:1 components. Consumes @nuri/spec (the frozen descriptors+tokens) through its exports map · decision 65.7/65.8.",
+  "//expo": "`expo` is pinned ^54.0.0 even though the factory does not import it at runtime: babel-preset-expo declares `peerOptional expo@\"*\"`, so WITHOUT this pin npm floats it to the latest major (56), whose winter runtime crashes jest-expo's RN transform. Pinning aligns it with jest-expo/babel-preset-expo 54 (the Expo-54 toolchain). M2 integration · decision 65.8.",
+  "main": "index.ts",
+  "dependencies": {
+    "@nuri/spec": "*"
+  },
+  "peerDependencies": {
+    "react": ">=19.1.0",
+    "react-native": ">=0.81.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/react": "~19.1.10",
+    "@types/react-test-renderer": "^19.1.0",
+    "babel-preset-expo": "~54.0.0",
+    "expo": "^54.0.0",
+    "jest": "^29.7.0",
+    "jest-expo": "~54.0.0",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "react-test-renderer": "19.1.0",
+    "typescript": "^6.0.3"
+  },
+  "scripts": {
+    "test": "jest",
+    "typecheck": "tsc"
+  }
+}

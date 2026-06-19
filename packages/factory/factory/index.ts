@@ -1,0 +1,56 @@
+/* ══════════════════════════════════════════════════════════════════
+ * NURI · FACTORY · public surface
+ * ──────────────────────────────────────────────────────────────────
+ * The generic descriptor → RN factory (decision 65 · 65.5 X-wired). ALONGSIDE
+ * the hand-written src/nuri/components/* (the golden reference) — proves the
+ * frozen contract is consumable end-to-end, it does NOT replace them (R3 ·
+ * clean-slate retirement is LAST · 65.5).
+ *
+ * GENERICITY, demonstrated: the three pre-built components below are the SAME
+ * createNuriComponent applied to the three frozen descriptors — zero
+ * per-component code.
+ * ══════════════════════════════════════════════════════════════════ */
+
+export { buildNuriTheme, INTERACTION_BASELINE } from './theme';
+export type { NuriTheme, SurfaceRole, ChromeRole } from './theme';
+
+export {
+  resolveNS,
+  resolveAnatomy,
+  flattenPart,
+  toUnistylesRecipe,
+  recipeFor,
+  assertNever,
+} from './resolve';
+export type {
+  ResolvedNode,
+  ResolvedPalette,
+  AnatomyNode,
+  PartFlat,
+  Selection,
+  State,
+  CompoundVariant,
+  PartRecipe,
+  ComponentRecipe,
+} from './resolve';
+
+export { createNuriComponent, NuriSurfaceContext } from './createNuriComponent';
+export type { NuriComponentProps, NuriBaseProps } from './createNuriComponent';
+
+import { createNuriComponent } from './createNuriComponent';
+import {
+  compositionButtonDescriptor,
+  iconAvatarDescriptor,
+  topbarDescriptor,
+} from '../contract';
+
+// The three frozen descriptors, each through the SAME factory — the ergonomic,
+// 1:1-with-web components the RN team consumes (typed named props derived from
+// each descriptor's axes; zero per-component code). These ARE the public Nuri
+// RN components now (the hand-written migration mirrors are retired · R1.5).
+//   <Button variant="solid" size="md" accent="lilac" onPress={…}>Buy</Button>
+//   <IconAvatar variant="soft"><Glyph/></IconAvatar>
+//   <Topbar center="true"><Title/></Topbar>
+export const Button = createNuriComponent(compositionButtonDescriptor, 'Button');
+export const IconAvatar = createNuriComponent(iconAvatarDescriptor, 'IconAvatar');
+export const Topbar = createNuriComponent(topbarDescriptor, 'Topbar');

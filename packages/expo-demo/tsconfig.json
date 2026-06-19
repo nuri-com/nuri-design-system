@@ -1,0 +1,9 @@
+{
+  "//": "Extends expo/tsconfig.base → moduleResolution 'bundler', so the bare `@nuri/factory` import resolves via that package's `main` (index.ts) and transitively `@nuri/spec` via its exports map (N+19 · M2 · decision 65.8).",
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true
+  },
+  "include": ["App.tsx", "index.ts", "src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "dist", ".expo"]
+}

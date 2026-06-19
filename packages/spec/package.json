@@ -4,7 +4,18 @@
   "private": true,
   "type": "module",
   "description": "Nuri spec · the radix workspace: lib/ (web CSS + custom-elements · CSS is SoT) + pipeline/ (emitter) + build/ (frozen emitted contract · Guard F)",
-  "//": "No `exports` map yet — it lands + validates in M2 with @nuri/factory, the spec's first importer (factory-face subpaths: ./build/descriptors/*, ./build/tokens, ./build/icons, ./build/palette; pipeline/ stays internal, never exported). decision 65.7/65.8.",
+  "//": "exports map LANDED + VALIDATED in M2 — @nuri/factory (contract.ts) is the spec's first importer (decision 65.8 deferred the validation to here). The 9 factory-face subpaths map to the frozen build/*.ts (RAW TS · no dist · resolved under TS bundler/nodenext moduleResolution + Metro package-exports). pipeline/ + lib/ + styles/ + pages/ stay INTERNAL — never exported. The build/ dir name is exports-hidden (decision 65.8 · the dist rename stays rejected).",
+  "exports": {
+    "./tokens": "./build/tokens.ts",
+    "./token-paths": "./build/token-paths.ts",
+    "./icons": "./build/icons.ts",
+    "./palette": "./build/palette.ts",
+    "./components/button": "./build/components/button.ts",
+    "./descriptors/schema": "./build/descriptors/schema.ts",
+    "./descriptors/composition-button": "./build/descriptors/composition-button.ts",
+    "./descriptors/icon-avatar": "./build/descriptors/icon-avatar.ts",
+    "./descriptors/topbar": "./build/descriptors/topbar.ts"
+  },
   "scripts": {
     "build": "node pipeline/tokens-parser.js",
     "test": "node --test pipeline/*.test.js"

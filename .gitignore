@@ -1,6 +1,16 @@
 # Dependencies
 node_modules/
 
+# Expo / RN workspace build + cache cruft (N+19 · M2 · packages/expo-demo).
+# The RN toolchain entered the repo with @nuri/factory + @nuri/expo-demo
+# (cost #1 of decision 65.7); these are generated, never committed.
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+.metro-health-check*
+*.tsbuildinfo
+
 # OS / editor cruft
 .DS_Store
 
