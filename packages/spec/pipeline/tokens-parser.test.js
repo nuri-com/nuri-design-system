@@ -52,6 +52,9 @@ import {
   buildTypeScale,
   emitTypeTs,
   TYPE_SIZES,
+  buildInteraction,
+  emitInteractionTs,
+  INTERACTION_PRIMITIVES,
 } from './tokens-parser.js';
 
 import { ICONS } from '../lib/components/icon/icons.js';
@@ -65,9 +68,7 @@ const ICON_BUTTON_CSS_PATH = resolve(REPO_ROOT, 'lib/components/icon-button/icon
 const TAB_BAR_CSS_PATH = resolve(REPO_ROOT, 'lib/components/tab-bar/tab-bar.css');
 const JSON_PATH = resolve(REPO_ROOT, 'build/tokens.json');
 const TS_PATH = resolve(REPO_ROOT, 'build/tokens.ts');
-const BUTTON_TS_PATH = resolve(REPO_ROOT, 'build/components/button.ts');
-const ICON_BUTTON_TS_PATH = resolve(REPO_ROOT, 'build/components/icon-button.ts');
-const TAB_BAR_TS_PATH = resolve(REPO_ROOT, 'build/components/tab-bar.ts');
+const INTERACTION_TS_PATH = resolve(REPO_ROOT, 'build/interaction.ts');
 const TOKEN_PATHS_PATH = resolve(REPO_ROOT, 'build/token-paths.ts');
 const ICONS_TS_PATH = resolve(REPO_ROOT, 'build/icons.ts');
 
@@ -447,10 +448,11 @@ test('generated build/tokens.ts emits one nested export per runtime-classified g
   // Drop-in contract narrowed to grep-only (N+5.5; tightened at
   // N+6.0.3 · decision 34): the emitter is responsible for one
   // nested-object export per non-empty cascade-classified runtime
-  // group. `buttonBase` left tokens.ts at N+6.0.3 — per-component
-  // numerics now live at build/components/<name>.ts. If the
-  // orchestrator regresses to flat per-var exports OR brings the
-  // BUTTON_BASE constants block back, this fires.
+  // group. `buttonBase` left tokens.ts at N+6.0.3 — its per-component
+  // numerics were emitted to build/components/<name>.ts, now RETIRED
+  // (Smell-1 · decision 66 arc #0). Either way tokens.ts must stay
+  // runtime-only; if the orchestrator regresses to flat per-var exports
+  // OR brings the BUTTON_BASE constants block back, this fires.
   const ts = await readFile(TS_PATH, 'utf8');
   for (const name of [
     'export type Accent',
@@ -475,13 +477,13 @@ test('generated build/tokens.ts emits one nested export per runtime-classified g
       `accent-keyed tokens into a single nested 'accent' export. Re-derive against ` +
       `pipeline/parsers/semantic.js#emitTokensTs.`);
   }
-  // Negative: buttonBase migrated out of tokens.ts at N+6.0.3 — per-
-  // component numerics live at build/components/button.ts now.
+  // Negative: buttonBase migrated out of tokens.ts at N+6.0.3 (its
+  // per-component numerics were emitted to build/components/, retired at
+  // Smell-1 · decision 66 arc #0). tokens.ts must stay runtime-only.
   assert.ok(!ts.includes('export const buttonBase'),
-    `tokens.ts re-introduced 'export const buttonBase' — per-component numerics ` +
-    `moved to build/components/<name>.ts at N+6.0.3 (decision 34). Either the ` +
-    `per-component emit step in pipeline/tokens-parser.js#main regressed or the ` +
-    `BUTTON_BASE constants block came back inside semantic.js.`);
+    `tokens.ts re-introduced 'export const buttonBase' — tokens.ts carries ` +
+    `ONLY runtime sets (decision 34). The BUTTON_BASE constants block must not ` +
+    `come back inside semantic.js#emitTokensTs.`);
 });
 
 test('every semantic var classifies to a GROUP_NAMES signature and lands in tokens.ts', async () => {
@@ -671,82 +673,18 @@ test('SET_POLICY mechanism · auto-rule + orphan + missing-entry checks throw', 
 
 
 // ──────────────────────────────────────────────────────────────
-// N+6.0.3 · per-component emit (decision 34)
-// Every component CSS file's `@layer tokens` block resolves to a
-// per-component .ts file: literal values for references through
-// pipeline-inlined primitive sets, TokenPath strings for runtime-
-// set references. The TokenPath union at build/token-paths.ts is
-// mechanically derived from every runtime-set leaf.
+// N+6.0.3 · per-component @layer tokens resolve (decision 34)
+// Every component CSS file's `@layer tokens` block resolves per the
+// SET_POLICY: literal values for references through pipeline-inlined
+// primitive sets, TokenPath strings for runtime-set references. The
+// per-component FILE emission (build/components/<name>.ts) was RETIRED
+// at Smell-1 (decision 66 arc #0); the resolver (resolveComponentValue)
+// is unchanged, so the CSS-resolution contract is still pinned here on a
+// fresh parse. The TokenPath union at build/token-paths.ts derives from
+// every runtime-set leaf (the semantic cascade · independent of this walk).
 // ──────────────────────────────────────────────────────────────
-test('per-component emit · button.ts contains literals + TokenPath strings; token-paths.ts covers runtime leaves', async () => {
-  // 1. button.ts on disk matches the brief's expected shape.
-  const buttonTs = await readFile(BUTTON_TS_PATH, 'utf8');
-  // Literal numerics from primitive references (chain walked at build).
-  // N+6.1 (decision 36): minHeight + paddingX retired from the
-  // literal list — they reference the semantic dimension layer
-  // (size + space). N+6.1.1 (amendment 36.1) extends the same
-  // retirement to `radius` — the primitive radius vocabulary moved
-  // to the semantic layer, so `var(--nuri-radius-md)` now resolves
-  // to a runtime set and auto-promotes to a TokenPath string.
-  // fontSize / fontWeight / pressScale / disabledOpacity continue
-  // to chain through pipeline-inlined primitive sets (type / font /
-  // pure literal).
-  // N+6.4 (decision 41): the single-size base retired into a 3-size
-  // matrix. Box metrics are now per-size (lg/md/sm prefixes) with the
-  // asymmetric coupling — radius breaks at lg/md (lg = radius-md,
-  // md + sm = radius-sm). pressScale / disabledOpacity stay base.
-  // ghostBg is a pure `transparent` literal (decision 39).
-  // N+8.4 (decision 55): the label font tokens
-  // (lg/md/smFontSize + fontWeight) are RETIRED — Button's label type
-  // now sources directly from the ONE shared --nuri-type-* scale in
-  // button.css @layer rules, so those values no longer round-trip
-  // through a --nuri-button-* component token and are NOT emitted here.
-  const expectedLiterals = [
-    /\bpressScale:\s+0\.97\b/,
-    /\bdisabledOpacity:\s+0\.4\b/,
-    /\bghostBg:\s+'transparent'/,
-  ];
-  for (const re of expectedLiterals) {
-    assert.match(buttonTs, re, `button.ts missing expected literal matching ${re}`);
-  }
-  // The retired label-type fields must NOT reappear in the emit
-  // (decision 55 · they belong to the shared type scale, not Button).
-  for (const re of [/\bfontSize:/, /\bfontWeight:/]) {
-    assert.doesNotMatch(buttonTs, re,
-      `button.ts should no longer emit a label-type field matching ${re} (decision 55)`);
-  }
-  // TokenPath strings for runtime-set references. The per-size box
-  // metrics dereference the runtime semantic dimension layer (size /
-  // space) and the radius vocabulary (amendment 36.1). ghost joins the
-  // chrome family alongside soft (decision 39).
-  const expectedPaths = [
-    /lgMinHeight:\s+'size\.xl'\s+as const satisfies TokenPath/,
-    /lgPaddingX:\s+'space\.xl'\s+as const satisfies TokenPath/,
-    /lgRadius:\s+'radius\.md'\s+as const satisfies TokenPath/,
-    /mdMinHeight:\s+'size\.lg'\s+as const satisfies TokenPath/,
-    /mdPaddingX:\s+'space\.lg'\s+as const satisfies TokenPath/,
-    /mdRadius:\s+'radius\.sm'\s+as const satisfies TokenPath/,
-    /smMinHeight:\s+'size\.md'\s+as const satisfies TokenPath/,
-    /smPaddingX:\s+'space\.md'\s+as const satisfies TokenPath/,
-    /smRadius:\s+'radius\.sm'\s+as const satisfies TokenPath/,
-    /solidBg:\s+'accent\.solid'\s+as const satisfies TokenPath/,
-    /solidBgPressed:\s+'accent\.solidPressed'\s+as const satisfies TokenPath/,
-    /solidFg:\s+'accent\.onSolid'\s+as const satisfies TokenPath/,
-    /softBg:\s+'chrome\.bgStrong'\s+as const satisfies TokenPath/,
-    /softBgPressed:\s+'chrome\.bgPressed'\s+as const satisfies TokenPath/,
-    /softFg:\s+'chrome\.textPrimary'\s+as const satisfies TokenPath/,
-    /ghostBgPressed:\s+'chrome\.bgSubtle'\s+as const satisfies TokenPath/,
-    /ghostFg:\s+'chrome\.textPrimary'\s+as const satisfies TokenPath/,
-  ];
-  for (const re of expectedPaths) {
-    assert.match(buttonTs, re, `button.ts missing expected TokenPath matching ${re}`);
-  }
-  // The import header must point at ../token-paths so the consumer
-  // gets the union type without manually wiring it.
-  assert.match(buttonTs, /import type { TokenPath } from '\.\.\/token-paths'/,
-    'button.ts should import TokenPath from the sibling token-paths file');
-
-  // 2. token-paths.ts union covers every runtime-set leaf.
+test('per-component resolve · resolveComponentValue dispatch (button · icon-button · tab-bar) + token-paths.ts covers runtime leaves', async () => {
+  // 1. token-paths.ts union covers every runtime-set leaf.
   const tokenPaths = await readFile(TOKEN_PATHS_PATH, 'utf8');
   const semanticCSS = await readFile(SEMANTIC_CSS_PATH, 'utf8');
   const groups = classifyAll(readSemanticRules(semanticCSS));
@@ -768,9 +706,12 @@ test('per-component emit · button.ts contains literals + TokenPath strings; tok
     `token-paths.ts should declare a non-empty discriminated union ` +
     `(found header but no union members)`);
 
-  // 3. resolveComponentValue dispatches correctly on a fresh parse
-  // — sanity that the orchestrator's emit path is the same path the
-  // tests exercise (not a snapshot disconnect).
+  // 2. resolveComponentValue dispatches correctly on a fresh parse of
+  // Button's @layer tokens — the CSS-resolution contract, unchanged by
+  // Smell-1's relocation of the EMIT. The interaction baseline alias
+  // (--nuri-button-press-scale → the decision-45 --nuri-interaction-
+  // press-scale) still resolves to its pure numeric literal here — the
+  // SAME resolution build/interaction.ts now reads transversally.
   const buttonCss = await readFile(BUTTON_CSS_PATH, 'utf8');
   const primitiveCss = await readFile(CSS_PATH, 'utf8');
   const decls = readComponentTokens(buttonCss, '--nuri-button-');
@@ -836,34 +777,12 @@ test('per-component emit · button.ts contains literals + TokenPath strings; tok
     { kind: 'literal', expression: '0.97' },
   );
 
-  // ── 4. IconButton (decision 40) · second per-component emit ──────
-  // IconButton is the first Icon consumer. It carries its own
-  // --nuri-icon-button-* namespace: a single-size box (decision 40) +
-  // the shared 3-variant matrix including ghost (decision 39). The
-  // hyphenated component name must camelCase into a valid
-  // `export const iconButton` identifier (the emitter's exportNameFor).
+  // ── 3. IconButton (decision 40) · fresh-parse dispatch ──────
+  // IconButton carries its own --nuri-icon-button-* namespace: a
+  // single-size box (decision 40) + the shared 3-variant matrix
+  // including ghost (decision 39). resolveComponentValue dispatches the
+  // box geometry to a size TokenPath and the ghost rest to a literal.
   {
-  const iconButtonTs = await readFile(ICON_BUTTON_TS_PATH, 'utf8');
-  // The hyphenated component name must NOT leak into the identifier.
-  assert.match(iconButtonTs, /export const iconButton = \{/,
-    'icon-button.ts must export a camelCased `iconButton` const (hyphen is invalid in a JS identifier)');
-  assert.doesNotMatch(iconButtonTs, /export const icon-button/,
-    'icon-button.ts must not emit a hyphenated identifier');
-  // Single-size box (decision 40): a 48px circle.
-  const expectedPaths = [
-    /size:\s+'size\.lg'\s+as const satisfies TokenPath/,
-    /radius:\s+'radius\.full'\s+as const satisfies TokenPath/,
-    /solidBg:\s+'accent\.solid'\s+as const satisfies TokenPath/,
-    /softBg:\s+'chrome\.bgStrong'\s+as const satisfies TokenPath/,
-    /ghostBgPressed:\s+'chrome\.bgSubtle'\s+as const satisfies TokenPath/,
-  ];
-  for (const re of expectedPaths) {
-    assert.match(iconButtonTs, re, `icon-button.ts missing expected TokenPath matching ${re}`);
-  }
-  assert.match(iconButtonTs, /\bghostBg:\s+'transparent'/,
-    'icon-button.ts ghost bg should be a pure transparent literal (decision 39)');
-
-  // resolveComponentValue dispatches the same way on a fresh parse.
   const iconButtonCss = await readFile(ICON_BUTTON_CSS_PATH, 'utf8');
   const primitiveCss = await readFile(CSS_PATH, 'utf8');
   const semanticCSS = await readFile(SEMANTIC_CSS_PATH, 'utf8');
@@ -886,23 +805,12 @@ test('per-component emit · button.ts contains literals + TokenPath strings; tok
   );
   }
 
-  // ── 5. TabBar (decision 56) · single baked structural token ──────
+  // ── 4. TabBar (decision 56) · fresh-parse dispatch ──────
   // The icon-only bottom destination switcher (N+9) bakes exactly ONE
-  // fixed decision — its bar height (--nuri-size-xl, shared with
-  // Topbar's chrome row) — and dispatches everything else from the
-  // semantic vocabulary directly in @layer rules (EMIT vs skip-emit ·
-  // decision 52). The hyphenated component name must camelCase into a
-  // valid `export const tabBar` identifier (the emitter's exportNameFor).
+  // fixed decision — its bar height (--nuri-size-xl, shared with Topbar's
+  // chrome row) — and dispatches everything else from the semantic
+  // vocabulary directly in @layer rules (EMIT vs skip-emit · decision 52).
   {
-  const tabBarTs = await readFile(TAB_BAR_TS_PATH, 'utf8');
-  assert.match(tabBarTs, /export const tabBar = \{/,
-    'tab-bar.ts must export a camelCased `tabBar` const (hyphen is invalid in a JS identifier)');
-  assert.doesNotMatch(tabBarTs, /export const tab-bar/,
-    'tab-bar.ts must not emit a hyphenated identifier');
-  assert.match(tabBarTs, /height:\s+'size\.xl'\s+as const satisfies TokenPath/,
-    'tab-bar.ts must emit the baked bar height as size.xl (shared with Topbar chrome row)');
-
-  // resolveComponentValue dispatches the same way on a fresh parse.
   const tabBarCss = await readFile(TAB_BAR_CSS_PATH, 'utf8');
   const primitiveCss = await readFile(CSS_PATH, 'utf8');
   const semanticCSS = await readFile(SEMANTIC_CSS_PATH, 'utf8');
@@ -920,6 +828,58 @@ test('per-component emit · button.ts contains literals + TokenPath strings; tok
     { kind: 'tokenPath', path: 'size.xl' },
   );
   }
+});
+
+
+// ──────────────────────────────────────────────────────────────
+// Smell-1 · transversal interaction baseline (decision 66 arc #0 · decision 45)
+// The decision-45 cross-component constants (pressScale · disabledOpacity)
+// now ship as their OWN transversal emit at build/interaction.ts — read from
+// the --nuri-interaction-* primitive family — instead of being pipeline-
+// inlined into per-component files (build/components/*, retired). The factory's
+// INTERACTION_BASELINE reads this directly. Single-source guard: re-derive from
+// the primitives, and the on-disk emit must re-emit identically (a hand-edit or
+// a stale build both fail here · decision 35).
+// ──────────────────────────────────────────────────────────────
+test('build/interaction.ts carries the relocated interaction baseline (0.97 / 0.4) and re-emits from the --nuri-interaction-* primitives', async () => {
+  const primitiveCss = await readFile(CSS_PATH, 'utf8');
+  const map = buildPrimitiveMap(primitiveCss);
+
+  // 1. The two constants re-derive from the primitive map (NOT hardcoded).
+  const interaction = buildInteraction(map);
+  assert.deepEqual(
+    Object.keys(interaction).sort(),
+    Object.keys(INTERACTION_PRIMITIVES).sort(),
+    'buildInteraction must cover exactly the --nuri-interaction-* family',
+  );
+  assert.equal(interaction.pressScale, '0.97',
+    'pressScale must re-derive from --nuri-interaction-press-scale');
+  assert.equal(interaction.disabledOpacity, '0.4',
+    'disabledOpacity must re-derive from --nuri-interaction-disabled-opacity');
+
+  // 2. The on-disk emit carries the relocated literals AND re-emits
+  //    identically (decision 35 · stale-build / hand-edit guard).
+  const onDisk = await readFile(INTERACTION_TS_PATH, 'utf8');
+  assert.match(onDisk, /export const interaction = \{/,
+    'interaction.ts must export an `interaction` const');
+  assert.match(onDisk, /\bpressScale:\s+0\.97\b/,
+    'interaction.ts must carry the relocated pressScale: 0.97 (decision 45)');
+  assert.match(onDisk, /\bdisabledOpacity:\s+0\.4\b/,
+    'interaction.ts must carry the relocated disabledOpacity: 0.4 (decision 45)');
+  assert.match(onDisk, /\} as const;/,
+    'interaction.ts must close `as const` (the directly-accessed shape)');
+  assert.equal(
+    onDisk, emitInteractionTs(interaction),
+    'build/interaction.ts is out of sync with the --nuri-interaction-* primitives — run `npm run build`',
+  );
+
+  // 3. The retired per-component file is gone (Smell-1 · decision 66 arc #0):
+  //    build/components/button.ts no longer exists — its lone live value
+  //    (the interaction baseline) lives here now.
+  await assert.rejects(
+    access(resolve(REPO_ROOT, 'build/components/button.ts')),
+    'build/components/button.ts must be deleted — the interaction baseline relocated to build/interaction.ts',
+  );
 });
 
 

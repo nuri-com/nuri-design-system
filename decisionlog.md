@@ -182,6 +182,8 @@ session).
 
 **Consumer model · three agent personas + operator** · Nuri's docs surfaces are optimised for an agent reader. Three personas: **spec-authoring** (modifies Nuri itself — reads AGENTS.md, HANDOFF, ROADMAP), **composing** (uses Nuri components to assemble prototypes / screens — reads component pages + principles), **migration** (translates Nuri spec → RN — reads pipeline output + component anatomy/token-mapping). The **operator** is the human prompting/reviewing all three. Humans browsing the docs as cold readers are NOT a primary use case — README is the "what is Nuri" surface for newcomers.
 
+**Amendment 21.1 · N+21** — the **migration persona is retired**. Its workflow was `button-matrix`, deleted at M4 (decision 65.11), so decision 21's third persona no longer has a live workflow. Forward-pointers: the [57.2 amendment](#572-amendment--n20--composing-isnt-ds-work--the-playground-is-a-consumer-tool-decision-66--sharpens-21) (composing isn't DS work · the *composing* persona owns composition) and decision 66 (the post-migration direction · Smell-1 is arc #0). The spec-authoring + composing personas + the operator stand.
+
 ## 22. Principles split · N+3
 
 **Principles split** · The WHY of Nuri lives in `pages/principles.html`, read by composing / migration agents and the operator. AGENTS.md is procedure-only for the spec-authoring agent; it cites principles by ID and doesn't restate them. Reason: principles change rarely, procedure changes per session — versioning them together (the pre-N+3 shape) caused the staleness banner that prompted this refactor.
@@ -2338,6 +2340,16 @@ None of these ship today. Promotion criterion above gates each.
   same philosophical move.
 - See [`roadmap/N+6.5.md`](./roadmap/N+6.5.md) post-close polish
   section.
+
+### 45.1 amendment · N+21 · as-built · the interaction family gets its own transversal emit (`build/interaction.ts`) · Smell-1 · decision 66 arc #0
+
+**As-built.** The two constants now ship as a dedicated **transversal** artifact — `packages/spec/build/interaction.ts` (`export const interaction = { pressScale: 0.97, disabledOpacity: 0.4 } as const;`), emitted by `pipeline/parsers/interaction.js` from the `--nuri-interaction-*` primitives (the family + its `primitive.interaction` classification in `parsers/semantic.js` are unchanged). `@nuri/spec` exports `./interaction`; the `@nuri/factory` theme reads it **directly** (`INTERACTION_BASELINE` ← `interaction.pressScale` / `interaction.disabledOpacity`).
+
+**What it resolves.** Until N+21 the family had no transversal emit: each consumer's `@layer tokens` alias pipeline-inlined the literal into a per-component file (`build/components/{button,icon-button}.ts`), and the factory reached into `button` for a non-button value to pin its interaction baseline. Per resolver-model §1/§7/§11 the interaction baseline is transversal (theme/factory-owned, NOT per-component), so that home was a contract smell — logged as the **R1 "no transversal interaction emit"** finding (one of the four R1/R1.5 Digital-cash first-bump findings). Now **resolved** (`docs/RISKS.md` · Closed risks).
+
+**Arc #0 (Smell-1) — substance done, NOT 100% closed.** This is the substance of decision 66 arc #0: baseline relocated · the dead `build/components/` dir (all 8 files · read only by the retired `button-matrix` mirror) retired · the `exports` map, the factory seam, the docs-drift guards (**Guard B retired**), and the stale docs updated. A **Smell-1.1** dead-code tail is **deferred**: the now-vestigial per-component `@layer` walk in the orchestrator + the 3 emitted-file header echoes (`build/{tokens,token-paths,palette}.ts` headers still name `build/components/<name>.ts` · header-only re-emit · gate-green). See [`roadmap/N+21.md`](./roadmap/N+21.md) + [`roadmap/post-migration-cleanup.md`](./roadmap/post-migration-cleanup.md) row #3.
+
+**Unchanged / locked.** The CSS SoT is untouched (`--nuri-interaction-*` stays in `tokens-primitive.css` · family-prefixed · `var()`-referenced · decision 2 STANDS · §9 not taken). `build/tokens.ts` / `build/token-paths.ts` / `build/descriptors/*` / `build/palette.ts` re-emit byte-identical; the switch-knob `0.92` deliberate override stays. Gates: spec **25/25** (Guard B −1 · the interaction-emit test +1 · same total) · factory **27/27 + 7 snapshots** · tsc **0 / 0** · `build/` = the 8 deletions + `interaction.ts`.
 
 ---
 
@@ -5089,6 +5101,8 @@ This direction *contradicts* prose locked in earlier decisions. Each is flagged 
 - **The other 7** (`icon-button` · `switch` · `tabs` · `list` · `list-item` · `list-interactive-item` · `tab-bar`) have **no `exports` entry and no live importer** → **retire**.
 
 This is a cleanup *arc* (it moves the emit + the `exports` map + the factory seam + the docs-drift guards + the stale docs), not a one-line flag — hence arc #0. It is one of the four R1/R1.5 consumability findings that form the **Digital-cash first-bump agenda**.
+
+**As-built (N+21 · Smell-1 · arc #0).** Shipped: the interaction baseline relocated to `build/interaction.ts`, `build/components/` retired, the `exports` map + factory seam + Guard B + the stale docs updated — and the **R1 "no transversal interaction emit"** finding **resolved** (`docs/RISKS.md` · Closed). See decision 45.1 (the as-built amendment) + [`roadmap/N+21.md`](../roadmap/N+21.md). Arc #0's **SUBSTANCE is done**; a **Smell-1.1** dead-code tail (the vestigial per-component walk + the 3 emitted-file header echoes that still name `build/components/<name>.ts` · header-only re-emit · gate-green) is **deferred** — so arc #0 is not 100% closed.
 
 ### Parked (explore-later · no arc yet)
 

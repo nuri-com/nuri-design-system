@@ -8,7 +8,7 @@
  *   · load-bearing values are spot-asserted against the token emit;
  *   · the resolved style tree is snapshotted (committed).
  * All values are re-derived from the contract (accentTokens / chrome /
- * size / space / radius / buttonTokens) — never hardcoded — so a token
+ * size / space / radius / interactionTokens) — never hardcoded — so a token
  * change re-derives instead of silently passing.
  * ══════════════════════════════════════════════════════════════════ */
 
@@ -23,7 +23,7 @@ import {
   size,
   space,
   radius,
-  button as buttonTokens,
+  interaction as interactionTokens,
 } from '../../contract';
 
 describe('baseline theme (resolver-model §11)', () => {
@@ -58,11 +58,11 @@ describe('baseline theme (resolver-model §11)', () => {
     expect(buildNuriTheme('neutral', 'dark').surface.solid.bg).toBe(accentTokens.neutral.dark.solid); // #fffdf2
   });
 
-  test('interaction baseline is PINNED to the contract embeds (no drift)', () => {
-    // The frozen build emits no transversal interaction set; the factory carries
-    // it, pinned to the per-component numerics (build/components/button.ts).
-    expect(INTERACTION_BASELINE.pressScale).toBe(buttonTokens.pressScale); // 0.97
-    expect(INTERACTION_BASELINE.disabledOpacity).toBe(buttonTokens.disabledOpacity); // 0.4
+  test('interaction baseline is PINNED to the contract emit (no drift)', () => {
+    // The frozen build emits a TRANSVERSAL interaction set (build/interaction.ts ·
+    // Smell-1 · decision 66 arc #0); the factory reads it directly and pins to it.
+    expect(INTERACTION_BASELINE.pressScale).toBe(interactionTokens.pressScale); // 0.97
+    expect(INTERACTION_BASELINE.disabledOpacity).toBe(interactionTokens.disabledOpacity); // 0.4
   });
 });
 
@@ -95,8 +95,8 @@ describe('Button — the richest descriptor (every namespace + interactive)', ()
         { variant: 'solid', pressed: true, styles: { backgroundColor: accentTokens.lilac.light.solidPressed } },
         { variant: 'soft', pressed: true, styles: { backgroundColor: chrome.light.bgPressed } },
         { variant: 'ghost', pressed: true, styles: { backgroundColor: chrome.light.bgSubtle } },
-        { pressed: true, styles: { transform: [{ scale: buttonTokens.pressScale }] } },
-        { disabled: true, styles: { opacity: buttonTokens.disabledOpacity } },
+        { pressed: true, styles: { transform: [{ scale: interactionTokens.pressScale }] } },
+        { disabled: true, styles: { opacity: interactionTokens.disabledOpacity } },
       ]),
     );
   });
@@ -212,7 +212,7 @@ describe('genericity + the resolved style tree (snapshots committed)', () => {
       paddingHorizontal: space.lg,
       borderRadius: radius.sm,
       backgroundColor: accentTokens.lilac.light.solidPressed,
-      transform: [{ scale: buttonTokens.pressScale }],
+      transform: [{ scale: interactionTokens.pressScale }],
     });
   });
 });

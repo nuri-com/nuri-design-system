@@ -1,7 +1,7 @@
 # Risks · Nuri
 
 **Date drafted**: 2026-05-27 (during N+3 philosophy brainstorm)
-**Last updated**: 2026-06-20 (N+19 · M4 · **`button-matrix` retired — the migration is COMPLETE**: the type-only
+**Last updated**: 2026-06-20 (N+21 · **Smell-1** · the decision-45 interaction baseline relocated to its own transversal emit `build/interaction.ts`, `build/components/` retired — the **R1 "no transversal interaction emit" finding is CLOSED** [Closed risks below]; the factory seam reads `@nuri/spec/interaction`, Guard B retired, docs de-staled. Gates: spec 25/25 · factory 27/27 + 7 snapshots · tsc 0/0 · `build/` = 8 deletions + `interaction.ts`. A **Smell-1.1** dead-code tail [the vestigial per-component walk + 3 emitted-file header echoes] is deferred.) · Prior 2026-06-20 (N+19 · M4 · **`button-matrix` retired — the migration is COMPLETE**: the type-only
 web↔RN mirror [`docs/migration-tests/button-matrix/`] + its CI tsc + the root's button-matrix-only RN devDeps [`react`/`react-native`/
 `@types/react`/`@types/react-native`/`typescript` on `@nuri/spec`] are **deleted** ([decision **65.11**](../decisionlog.md)). The
 **`factory` render-smoke is the sole contract gate** — **R1/R3/R5 repointed** to it [below]. **Finding**: removing the spec devDeps did
@@ -1040,6 +1040,16 @@ grows") don't belong here.
 ---
 
 ## Closed risks
+
+## R1 finding · "no transversal interaction emit" (one of the four R1/R1.5 consumability findings) · **CLOSED** (2026-06-20 · N+21 · Smell-1 · [decision 66 arc #0](../decisionlog.md))
+
+**Finding (surfaced N+19 · R1/R1.5)**. The frozen build emitted **no transversal interaction artifact**: the decision-45 cross-component constants (`pressScale: 0.97` / `disabledOpacity: 0.4`) were pipeline-inlined per-component (`build/components/{button,icon-button}.ts`), so `@nuri/factory`'s theme reached into `button` for a non-button value to pin `INTERACTION_BASELINE`. Per resolver-model §1/§7/§11 the interaction baseline is **transversal** (theme/factory-owned, NOT descriptor / per-component data), so the per-component home was a contract smell — the factory's own `theme.ts` carried a "CONTRACT FINDING (R1)" comment flagging exactly this.
+
+**Resolution (N+21 · Smell-1 · the [decision 45.1 amendment](../decisionlog.md))**. The family relocated to its own transversal emit at `packages/spec/build/interaction.ts` (`export const interaction = { pressScale: 0.97, disabledOpacity: 0.4 } as const`), emitted by `pipeline/parsers/interaction.js` from the `--nuri-interaction-*` primitives; `@nuri/spec` exports `./interaction`; the factory reads it **directly** (`INTERACTION_BASELINE` ← `interaction.*`); and the per-component `build/components/` files (read only by the retired `button-matrix` mirror) were deleted. The "CONTRACT FINDING (R1)" comment is flipped to resolved (the faithfulness test still pins the baseline to the contract emit, now `interaction.*`).
+
+**Scope**. Closes ONE of the four R1/R1.5 consumability findings; the other three (no default-per-axis · stringly-typed boolean axes · `subtle` §11 doc-reconciliation) stay open as the Digital-cash first-bump agenda. A **Smell-1.1** dead-code tail (the now-vestigial per-component `@layer` walk + the 3 emitted-file header echoes still naming `build/components/<name>.ts`) is deferred — see [`roadmap/N+21.md`](../roadmap/N+21.md).
+
+*The original four-findings summary remains in the R7 entry below (per the "move, don't delete" convention).*
 
 ## R7 · Cross-repo contract seam — the RN render proof is out-of-CI unless the seam gates · **CLOSED** (2026-06-19 · N+19 · M3 · [decision 65.10](../decisionlog.md))
 

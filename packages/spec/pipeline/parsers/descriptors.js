@@ -37,8 +37,9 @@ import postcss from 'postcss';
 // Naming (decision 64.1 · "resolves open choice #3"): the open Button
 // primitive takes the `composition-` prefix (bare `button` = the recipe);
 // IconAvatar / Topbar keep bare names — their family renames are deferred ·
-// P11. The token emit at build/components/button.ts is a different artifact
-// and is untouched.
+// P11. (The per-component token emit at build/components/button.ts was a
+// separate artifact, retired at Smell-1 · decision 66 arc #0; the descriptor
+// emit here is independent and unaffected.)
 export const DESCRIPTOR_COMPONENTS = [
   { name: 'composition-button', source: 'button',      kind: 'button',      fgPart: 'label' },
   { name: 'icon-avatar',        source: 'icon-avatar',  kind: 'iconAvatar',  fgPart: 'icon'  },

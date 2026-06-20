@@ -15,8 +15,7 @@
  * CSS SoT before anything emits:
  *
  *   · variant solid/soft/ghost — button.css `@layer tokens` aliases
- *     (--nuri-button-<v>-{bg,fg,bg-pressed} · the funnel build/
- *     components/button.ts already emits).
+ *     (--nuri-button-<v>-{bg,fg,bg-pressed}).
  *   · variant subtle (fg-only)  — icon-avatar.css `.nuri-icon-avatar--
  *     subtle` colour (the avatar-only role · decision 50).
  *   · chrome canvas             — topbar.css's direct background/color

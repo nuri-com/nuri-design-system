@@ -48,8 +48,9 @@ packages/                      npm-workspaces monorepo · workspaces: ["packages
         semantic.js              cascade walker · classifySemantic +
                                  GROUP_NAMES + AXIS_REGISTRY + classifyAll
                                  + SET_POLICY (N+5.5 + N+6.0.3)
-        components.js            per-component @layer tokens walker · emits
-                                 build/components/<name>.ts (N+6.0.3)
+        components.js            per-component @layer tokens walker + resolver
+                                 (per-component FILE emit retired · Smell-1 ·
+                                 dec 66; the walk feeds TokenPath coverage)
         descriptors.js           per-component DESCRIPTOR emitter · reads the
                                  @layer CSS (mapping) + page data-part anatomy
                                  (structure) · emits build/descriptors/<name>.ts
@@ -59,15 +60,15 @@ packages/                      npm-workspaces monorepo · workspaces: ["packages
                                  R-EXPO-6 contract type · hand-maintained · emitted
                                  verbatim to build/descriptors/schema.ts)
       tokens-parser.js           orchestrator + re-export point · npm run build
-      tokens-parser.test.js      node:test · 19 assertions (pipeline round-
+      tokens-parser.test.js      node:test · 20 assertions (pipeline round-
                                  trip · classify-by-cascade · guardrails)
       docs-drift.test.js         node:test · entry-point/emit freshness guards:
-                                 llms.txt covers every component page · README
-                                 + impl-guide name every build/components/*.ts ·
+                                 llms.txt covers every component page ·
                                  doc-stated emitted counts match the live build ·
                                  each build/descriptors/*.ts re-emits from its
                                  sources · the frozen schema shape (Guard F)
-                                 (N+19 · decision 65.2 / 65.6)
+                                 (N+19 · decision 65.2 / 65.6 · Guard B retired
+                                 at Smell-1 · dec 66 with build/components/)
 
     build/                       Generated outputs · 100% emitted by the
                                  pipeline · never hand-edited
@@ -80,14 +81,13 @@ packages/                      npm-workspaces monorepo · workspaces: ["packages
                                  PLUS the `type` scale namespace (6 steps ×
                                  {regular, em} · decision 54 · N+8.3)
                                  (consumed by @nuri/factory via @nuri/spec/tokens)
-      components/                one file per component · 8 today: button ·
-                                 icon-button · switch · tabs · list ·
-                                 list-item · list-interactive-item · tab-bar
-        button.ts                per-component literals + TokenPath strings
-                                 (N+6.0.3 · decision 34) · ⚠ post-M4 the ONLY
-                                 live build/components file (Smell-1 · dec 66):
-                                 the factory's mis-homed dec-45 interaction
-                                 baseline → relocate; the other 7 are dead → retire
+      interaction.ts             transversal interaction baseline ·
+                                 { pressScale · disabledOpacity } · the dec-45
+                                 cross-component constants, read from the
+                                 --nuri-interaction-* primitives. The factory
+                                 theme reads it directly (Smell-1 · dec 66 arc #0:
+                                 the per-component build/components/ files were
+                                 retired; this is where their lone live value went)
       token-paths.ts             TokenPath discriminated union over every
                                  runtime-set leaf · 38 members (N+6.0.3)
       icons.ts                   shared glyph registry · IconName union +
@@ -277,30 +277,30 @@ Record<Theme, {…6}>>`, plus flat `space` (8) · `size` (7) ·
 36.1), and a separate `type` scale namespace (decision 54).
 The hardcoded export lists are gone; future dimensions
 (font / density / neutral) auto-discover when their CSS blocks
-land. N+6.0.3 added two more emit surfaces (decision 34): per-
-component files at [`packages/spec/build/components/<name>.ts`](./packages/spec/build/components/)
-(**8 today** — button · icon-button · switch · tabs · list ·
-list-item · list-interactive-item · tab-bar) carry the component-
-token numerics directly from the live CSS (the pre-N+6.0.3
-hardcoded `BUTTON_BASE` block is gone), and
+land. N+6.0.3 added the `TokenPath` union surface (decision 34):
 [`packages/spec/build/token-paths.ts`](./packages/spec/build/token-paths.ts) exposes a
-`TokenPath` discriminated union over every runtime-set leaf (38
-members) for type-checked consumer references. A typed icon
+discriminated union over every runtime-set leaf (38 members) for
+type-checked consumer references. (The per-component files at
+`build/components/<name>.ts` that carried component-token numerics
+were **retired at Smell-1** · decision 66 arc #0; the lone live
+value — the decision-45 interaction baseline — relocated to its own
+transversal emit at
+[`packages/spec/build/interaction.ts`](./packages/spec/build/interaction.ts).) A typed icon
 registry ships at [`packages/spec/build/icons.ts`](./packages/spec/build/icons.ts) (17 glyphs
 × 3 weights · decision 48).
-`packages/spec/pipeline/tokens-parser.test.js` runs 19 assertions: 6 primitive
+`packages/spec/pipeline/tokens-parser.test.js` runs 20 assertions: 6 primitive
 round-trip, 4 semantic cross-product (hand-derived oracle, P4
 bright-vs-saturated asymmetry, `selectorMatches` port,
 `resolveValue` chain walker), 4 classify-by-cascade invariants
 (nested-export grep, every var classifies and lands, naming-vs-
 cascade agreement, `GROUP_NAMES` exhaustive), 2 set-policy + per-
-component emit guardrails (N+6.0.3), 2 emit-shape guards (icon
-registry · type-scale single-source · N+6.8 / N+8.3), and 1
-primitive-consumption guardrail (N+5.7 — every `--nuri-*` is
-consumed via `var()` / alias chain or explicitly reserved). A
-sibling `packages/spec/pipeline/docs-drift.test.js` adds entry-point-doc
-freshness guards (llms.txt component-page coverage · component-
-file manifest · emitted-count sync). Style Dictionary is
+component resolve guardrails (N+6.0.3), 3 emit-shape guards
+(interaction baseline · icon registry · type-scale single-source ·
+Smell-1 / N+6.8 / N+8.3), and 1 primitive-consumption guardrail
+(N+5.7 — every `--nuri-*` is consumed via `var()` / alias chain or
+explicitly reserved). A sibling `packages/spec/pipeline/docs-drift.test.js`
+adds entry-point-doc freshness guards (llms.txt component-page
+coverage · emitted-count sync). Style Dictionary is
 conditional on a second target platform (decision 2 amendment,
 N+5.5); Unistyles consumption is the remaining pipeline slice
 — see [`roadmap/index.md`](./roadmap/index.md) "Pipeline" workstream.

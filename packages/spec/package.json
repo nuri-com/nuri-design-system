@@ -8,9 +8,9 @@
   "exports": {
     "./tokens": "./build/tokens.ts",
     "./token-paths": "./build/token-paths.ts",
+    "./interaction": "./build/interaction.ts",
     "./icons": "./build/icons.ts",
     "./palette": "./build/palette.ts",
-    "./components/button": "./build/components/button.ts",
     "./descriptors/schema": "./build/descriptors/schema.ts",
     "./descriptors/composition-button": "./build/descriptors/composition-button.ts",
     "./descriptors/icon-avatar": "./build/descriptors/icon-avatar.ts",
