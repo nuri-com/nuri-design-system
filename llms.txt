@@ -55,7 +55,6 @@ Repository entry points:
   /skills/                           per-skill procedures (kebab-case files)
   /prompts/                          reusable agent prompt templates
   /docs/RISKS.md                     open risks with named failure modes
-  /docs/migration-tests/             web ↔ RN translation pairs (evidence for R5)
 
 Source of truth: this repo's `packages/spec/styles/` CSS files. HTML pages
 and build assets are derived; never edit them directly. (Descriptors derive

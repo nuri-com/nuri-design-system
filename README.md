@@ -79,7 +79,7 @@ packages/                      npm-workspaces monorepo · workspaces: ["packages
                                  N+6.1.1 · decision 36 + amendment 36.1) ·
                                  PLUS the `type` scale namespace (6 steps ×
                                  {regular, em} · decision 54 · N+8.3)
-                                 (consumed by docs/migration-tests/button-matrix/)
+                                 (consumed by @nuri/factory via @nuri/spec/tokens)
       components/                one file per component · 8 today: button ·
                                  icon-button · switch · tabs · list ·
                                  list-item · list-interactive-item · tab-bar
@@ -140,14 +140,9 @@ prompts/                     reusable agent prompt templates (N+5.6)
   coordinator.md             multi-session strategic role
   working-session.md         per-session task briefing
   closeout-audit.md          audit-subagent briefing
-  migration-test.md          web↔RN translation pair briefing
 
 docs/
   RISKS.md                   open risks with named failure modes
-  migration-tests/           web ↔ RN translation pairs (evidence for R5)
-    button-matrix/           first translation pair (N+4) · imports the emitted
-                             contract from packages/spec/build/ (NOT a workspace ·
-                             retires at M4 · decision 65.7)
 
 playground/                  RESERVED for future view-composition workstream
                              (root · not yet a workspace · empty today)
@@ -157,8 +152,7 @@ index.html                   redirect → packages/spec/pages/foundations/colour
 llms.txt                     AI-consumer manifest (links + paths only)
 AGENTS.md                    skill router for spec-authoring agents
 package.json                 workspace ROOT · private · workspaces: ["packages/*"] ·
-                             thin scripts (test/build delegate to the workspaces ·
-                             typecheck:migration runs the button-matrix tsc gate)
+                             thin scripts (test/build delegate to the workspaces)
 ```
 
 The docs site has no build step — the browser resolves `var()` references
@@ -308,13 +302,14 @@ conditional on a second target platform (decision 2 amendment,
 N+5.5); Unistyles consumption is the remaining pipeline slice
 — see [`roadmap/index.md`](./roadmap/index.md) "Pipeline" workstream.
 
-**Thesis validation landed (N+4)** · [`docs/migration-tests/button-matrix/`](./docs/migration-tests/button-matrix/)
-is the first web ↔ RN translation pair. An 8-instance Button
-cross-product (variant × accent × state × scope-tier). Web side renders
-in 390px viewport; RN hand-translation typechecks under `tsc --jsx
-react-native --strict`. 8 frictions captured at
-[`docs/migration-tests/button-matrix/FRICTIONS.md`](./docs/migration-tests/button-matrix/FRICTIONS.md)
-and folded into [`docs/RISKS.md`](./docs/RISKS.md) R1 + R5; F-TOKEN-1
-retired in N+5 (now machine-generated). The top-level
-[`playground/`](./playground/) dir is reserved for a future
-view-composition workstream and is intentionally empty today.
+**Thesis validation landed (N+4), now superseded by the live render gate.**
+The first web ↔ RN translation proof was the `button-matrix` pair — an
+8-instance Button cross-product (variant × accent × state × scope-tier) whose
+RN hand-translation typechecked against the emitted contract. It validated the
+props-1:1 thesis (frictions folded into [`docs/RISKS.md`](./docs/RISKS.md)
+R1 + R5; F-TOKEN-1 retired in N+5, now machine-generated) and was **retired at
+M4** (decision 65.11) once the [`@nuri/factory`](./packages/factory/)
+`react-test-renderer` render-smoke became the live intra-repo contract gate —
+it RENDERS the frozen descriptors on RN, a stronger machine-check than the
+type-only mirror. The top-level [`playground/`](./playground/) dir is reserved
+for a future view-composition workstream and is intentionally empty today.

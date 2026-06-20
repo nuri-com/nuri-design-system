@@ -17,6 +17,6 @@ expo-env.d.ts
 # Claude local-only settings (launch.json is shared, kept)
 .claude/settings.local.json
 
-# Note: build/ is intentionally COMMITTED (decision 35 — gitignore deferred
-# until the output platform locks; the RN migration-test tsc gate imports
-# from it, and committing keeps the emitted RN contract diff reviewable).
+# Note: packages/spec/build/ is intentionally COMMITTED (decision 35 — gitignore
+# deferred until the output platform locks; the @nuri/factory render-smoke
+# consumes it, and committing keeps the emitted RN contract diff reviewable).

@@ -339,7 +339,7 @@
         <dd>Consumed for stylesheet ergonomics only, if at all. Its theme <em>registry</em> is bypassed — runtime values come from <code>NuriThemeContext</code>, not <code>UnistylesRuntime.setTheme(…)</code> (which would have to enumerate ∏ dims tuples).</dd>
       </div>
     </dl>
-    <p>Shipped shape (N+13 · the working code now in <a href="../../../../docs/migration-tests/button-matrix/_shared.tsx"><code>_shared.tsx</code></a>, tsc-confirmed). The type carries only the two live dimensions; <code>density</code> / <code>neutral</code> join it when their web tokens land:</p>
+    <p>Shipped shape (N+13 · the working code now in <code>_shared.tsx</code>, tsc-confirmed). The type carries only the two live dimensions; <code>density</code> / <code>neutral</code> join it when their web tokens land:</p>
     <pre><code>type NuriThemeValue = {
   mode: Theme;
   accent: Accent;

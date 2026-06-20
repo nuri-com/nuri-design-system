@@ -27,7 +27,6 @@ on:
 
 jobs:
   # The web/pipeline radix · = the pre-M3 `gates` job, workspace-scoped to @nuri/spec.
-  # button-matrix STAYS gating here (the migration tsc · retires at M4).
   spec:
     runs-on: ubuntu-latest
     steps:
@@ -52,13 +51,6 @@ jobs:
         # rebuilt, the fresh emit diverges from the committed files — fail
         # so the author runs `npm run build -w @nuri/spec` and commits it.
         run: git diff --exit-code packages/spec/build/
-
-      - name: Typecheck the web↔RN migration mirror
-        # button-matrix stays at docs/migration-tests/ (NOT a workspace);
-        # it imports the emitted contract relative to packages/spec/build/.
-        # Retires at M4 (the factory render-smoke below already gates the
-        # contract intra-repo · decision 65.7/65.10).
-        run: npx tsc -p docs/migration-tests/button-matrix/tsconfig.json
 
   # The bare certified RN engine. THIS JOB IS THE INTRA-REPO CONTRACT GATE (R7).
   # The render-smoke imports @nuri/spec's frozen descriptors+tokens through the

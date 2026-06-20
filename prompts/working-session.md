@@ -63,7 +63,7 @@
 
 <!-- Concrete, testable. Examples:
      - "`npm test -w @nuri/spec` passes (25/25)"
-     - "`npx tsc -p docs/migration-tests/<pair>/tsconfig.json` exits 0"
+     - "`npm test -w @nuri/factory` passes (the render-smoke) · tsc 0"
      - "Page renders, console clean, theme/accent toggles re-resolve"
      - "Closeout audit ran; findings surfaced in roadmap/index.md" -->
 
@@ -117,12 +117,13 @@ docs site is live off `main`.
   `git worktree add -b <branch> "$MAIN-<short>" origin/main` + (inside the new
   worktree) `ln -s "$MAIN/node_modules" node_modules`.
 - **CI** — [`.github/workflows/gates.yml`](../.github/workflows/gates.yml)
-  (job `gates`) runs on every PR + push-to-`main`: `npm ci` · `npm test -w
-  @nuri/spec` (25/25) · `npm run build -w @nuri/spec` · `git diff --exit-code
-  packages/spec/build/` · `npx tsc -p docs/migration-tests/<pair>/tsconfig.json`.
-  Branch protection requires `gates` green to merge; PRs are **squash-merged**.
-  (The job keeps the `gates` name through M1 — a single workspace-scoped job;
-  M3 makes it a per-workspace matrix · [decision 65.8](../decisionlog.md).)
+  runs on every PR + push-to-`main` as three per-workspace jobs: **`spec`**
+  (`npm ci` · `npm test -w @nuri/spec` 25/25 · `npm run build -w @nuri/spec` ·
+  `git diff --exit-code packages/spec/build/`) · **`factory`** (`npm test -w
+  @nuri/factory` — the render-smoke that gates `packages/spec/build/` intra-repo ·
+  `npm run typecheck -w @nuri/factory`) · **`expo-demo`** (`npm run typecheck -w
+  @nuri/expo-demo`). Branch protection requires all three green to merge; PRs are
+  **squash-merged** ([decision 65.10](../decisionlog.md)).
 - **`packages/spec/build/` is committed** ([decision 35](../decisionlog.md#35-pipeline-sources-vs-build-outputs-physically-separated--pipeline-source-build-generated-only--n604)).
   If you touched anything the pipeline emits, run `npm run build -w @nuri/spec`
   and commit the result — the `git diff --exit-code packages/spec/build/` gate
@@ -147,7 +148,8 @@ docs site is live off `main`.
    responded; incorporate their feedback first.
 4. **Only after the operator's feedback:** run the gates (`npm test -w @nuri/spec`
    25/25, `npm run build -w @nuri/spec`, `git diff --exit-code packages/spec/build/`,
-   `npx tsc -p docs/migration-tests/<pair>/tsconfig.json`),
+   `npm test -w @nuri/factory`, `npm run typecheck -w @nuri/factory`,
+   `npm run typecheck -w @nuri/expo-demo`),
    then run [`skills/close-out-session.md`](../skills/close-out-session.md) —
    spawn the general-purpose audit subagent
    ([`prompts/closeout-audit.md`](./closeout-audit.md)) and refresh

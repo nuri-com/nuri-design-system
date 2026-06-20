@@ -8,7 +8,6 @@
   ],
   "scripts": {
     "test": "npm test --workspaces --if-present",
-    "build": "npm run build --workspaces --if-present",
-    "typecheck:migration": "tsc -p docs/migration-tests/button-matrix/tsconfig.json"
+    "build": "npm run build --workspaces --if-present"
   }
 }

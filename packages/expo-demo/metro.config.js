@@ -23,7 +23,7 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, 'node_modules'),
 ];
 
-// ── Single React instance (M2 monorepo integration · decision 65.8) ──
+// ── Single React instance (M2 monorepo integration · decision 65.8/65.11) ──
 // @nuri/factory is symlinked, and the workspace install nests its OWN
 // react@19.1.0 under packages/factory while the app carries its own copy under
 // packages/expo-demo. Metro would then bundle TWO react instances — the factory
@@ -31,10 +31,13 @@ config.resolver.nodeModulesPaths = [
 // set, so `useContext` reads null and the first render throws (empty #root /
 // blank screen). Redirect every `react`/`react-dom` request — including those
 // originating inside the symlinked factory — to resolve from the app root, so
-// the whole bundle shares ONE react. (Faithful to 65.7's "let the 19.1 runtime
-// and the root's 19.2 type-only pin coexist": this touches only the app's
-// bundler, not @nuri/spec's resolution.) `react-native` is left to Metro's
-// platform-aware resolution (web aliases it to the single react-native-web).
+// the whole bundle shares ONE react. (This touches only the app's bundler, not
+// @nuri/spec's resolution. M4 [§65.11] removed @nuri/spec's button-matrix
+// react@19.2.6 pin, but npm's conservative re-dedupe leaves the orphaned root
+// hoist in place and the workspaces still nest their own react, so the
+// multi-instance hazard this guards against persists — the redirect STAYS.)
+// `react-native` is left to Metro's platform-aware resolution (web aliases it
+// to the single react-native-web).
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   if (
     moduleName === 'react' ||
