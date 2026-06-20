@@ -4303,6 +4303,20 @@ Two playground-surface fixes from the N+11 composition work:
 
 **Operator signed off (2026-06-01)** on the playground shell pinning all three chrome dimensions and rendering on the neutral gray ramp.
 
+### 57.2 amendment · N+20 · composing isn't DS work · the playground is a consumer TOOL (decision 66) · sharpens 21
+
+**Composing a screen is NOT design-system work.** The DS ships the **primitives + recipes** — the 1:1 web/RN components generated from one SoT (decisions 64 · 65). **Composing those parts into a screen is the consumer's job** (the *composing* persona · decision 21), done in the **zero-build environment** (the playground, or a chat artifact), and the output — the 1:1 RN JSX — is handed to the RN `nuri-expo` consumer. The DS does not own compositions.
+
+This reframes **WHERE** composition happens and **WHAT** the playground / `my-vault` ARE; it does **NOT** change any DS deliverable.
+
+- **The playground is a CONSUMER TOOL, not DS content.** Decision 57 introduced it as "a separate composition area" inside the docs; it is sharpened here to **the composition tool consumers use**. It may externalize — its own workspace (the north-star's `playground`) or a claude-chat artifact — without loss to the DS.
+- **`my-vault` (any composed screen in the repo) is a DEMO of the tool, not DS spec.** It validates the tool + the components on a real layout; it is not a contract surface and ships no DS decision. (Decision 57's anti-scope — "no new component / token / glyph from a composition" — already held this; 57.2 names the consequence: a composition is a consumer artifact.)
+- **Sharpens decision 21.** The *composing* persona composes in the zero-build environment and hands the translated RN JSX to the RN project; the WC→RN "translate" step becomes a playground feature (decision 66 · arc 2). The **migration persona is retired** (its workflow was `button-matrix` · M4) — decision 21's third persona no longer has a live workflow.
+
+This is the one decision **LOCKED** in the decision-66 direction-record; the rest of 66 is pending / per-arc.
+
+**Operator signed off (2026-06-20)** that composing isn't DS work — the playground is the consumer's composition tool (may externalize), a composed screen is a demo not spec, and decision 21's composing persona owns composition (the migration persona retired).
+
 ## 58. Screen + Scroll · per-screen layout scaffold · navigator owns the safe-area · TabBar is a SIBLING, not a child · N+11
 
 **Two new layout primitives decompose "a full mobile screen" into composable DS
@@ -5031,3 +5045,59 @@ The 65.7 layout is the **target** (5 workspaces); M1 deliberately built **only `
 **Operator**: **no open operator action.** The three CI job names are unchanged (`spec`/`factory`/`expo-demo`), so branch protection is untouched (unlike M3's required-check reconfig). The post-M4 board opens to the north-star arcs (`website` doc-gen · §9 · the external mirror) and **Digital-cash** (the four R1/R1.5 consumability findings are its first-bump agenda).
 
 **Base**: 65.5 (the X-wired "retire-last · no validation gap" condition this satisfies) · 65.7 (the monorepo · the migration sequence) · 65.9 (M2's jest/Metro single-React/RN integration this attempted to simplify · the `override` it rejected, now unblocked) · 65.10 (M3 · the factory render-smoke is the gate that makes the scaffold redundant) · decision 35 (`build/` committed) · P11. **As-built retrospective**: [`roadmap/N+19-M4.md`](../roadmap/N+19-M4.md). **Closes**: the N+19 monorepo migration (M1→M4 · `button-matrix` retired).
+
+## 66. Post-migration direction · the generation thesis · N+20
+
+**The N+19 monorepo migration is COMPLETE (M1→M4 · the 65.7 arc closed · `button-matrix` retired at 65.11).** This entry is a **direction-record**, not a spec: it names the through-line the migration opens, sequences the arcs that realize it, and enumerates the prior decisions each arc re-opens — so a future agent reads those re-openings as *pending*, not as quietly-overturned history. **Exactly one thing is DECIDED here** ("composing isn't DS work" · the [57.2 amendment](#572-amendment--n20--composing-isnt-ds-work--the-playground-is-a-consumer-tool-decision-66--sharpens-21)); everything else is **direction / per-arc**, built only when a consumer needs it (P11). This is docs-only — the arcs do the work.
+
+### The generation thesis
+
+One idea, extended layer by layer: **generate from the source of truth** instead of hand-maintaining a parallel artifact that drifts. The migration proved it on **components** (the descriptor → the certified RN factory · one source, *rendered*). The remaining layers apply the same move:
+
+- **components** ✓ — the factory (descriptor → RN · decision 65 · R1/R1.5).
+- **docs** — the dense hand-written pages die → generated from the data (the `website` doc-gen arc · already framed in [`docs/north-star.md`](../docs/north-star.md) move 3).
+- **web-CSS** — author the descriptor → generate the CSS (the **§9 source-inversion** · revisits decision 2 · direction · audit-gated).
+- **meta** — the spec's own FORM moves prose → data (the **meta-slim** · last phase · direction).
+
+### The arc sequence
+
+The order is dependency / priority, not a strict timeline; each arc is independently P11-gated and built when its consumer is real.
+
+| # | Arc | Status |
+|---|-----|--------|
+| 0 | **Smell-1 cleanup** — retire the dead `build/components/*` · relocate the mis-homed interaction baseline (firm call below) | direction · **firm** |
+| 1 | **`website` doc-gen** — generated MD + `<nuri-demo>` stories (the hand-written pages die) | direction |
+| 2 | **WC→RN playground tab** — the decision-21 "translate" step as a feature: one `<nuri-demo>` `<template>`, two serializations (web markup · RN JSX) | direction |
+| 3 | **composing-boundary** — externalize the playground as a consumer tool (acts on 57.2) | **LOCKED (57.2)** |
+| 4 | **§9 source-inversion** — `descriptor → CSS` direct (revisits decision 2) | direction · **audit-gated · NOT decided** |
+| 5 | **meta-slim** — prose → data · `llms.txt` retired · the decision-log becomes an archive, not the entry-point | direction · last phase |
+
+### The re-openings (enumerated · pending / per-arc — the deliberate part)
+
+This direction *contradicts* prose locked in earlier decisions. Each is flagged here as **pending its arc**, never silently reversed — the discipline this record exists to enforce:
+
+- **decision 2 (CSS is SoT)** → **§9 reverses it.** Mechanism, stated positively: **`descriptor → CSS` direct** — author the variants-model (the frozen descriptor *shape* · 65.1) and **generate** the web-CSS from it, inverting this repo's own pipeline (today's 65.1 bootstrap runs the other way: CSS → descriptor). **Audit-gated · NOT decided here** — ratified at the §9 arc, after the resolver-model §9/§10 checks clear (does inline-CSS-var rendering preserve the decision-63 cascade fix · does an off-the-shelf compiler already do the generation). **Until then decision 2 STANDS.**
+- **decisions 21 + 57** → **amended by "composing isn't DS work" · LOCKED here** (the [57.2 amendment](#572-amendment--n20--composing-isnt-ds-work--the-playground-is-a-consumer-tool-decision-66--sharpens-21)). The playground is a **consumer tool**, not DS content; a composed screen (`my-vault`) is a **demo of the tool**, not DS spec.
+- **decision 24 (component pages serve four readers, incl. migration)** → the **migration reader is dead** (its workflow was `button-matrix` · retired at M4), and the doc-gen (arc 1) **obsoletes the hand-written pages** the four-reader model describes. Resolved at the `website` arc. *(The decision-24.1 `data-*` anatomy is NOT dead — it is now a descriptor-generation source, Guard D · what dies is the four-reader framing, not the machine-readable markup.)*
+- **"What Nuri IS" #1 (doc-to-code ratio HIGH on purpose)** → the **meta-slim revises it.** The high ratio was the **exploratory phase's tool** (cold-starting an agent into a young, fast-moving system), not a permanent identity. As the system stabilizes, the spec's FORM moves prose → data and the ratio falls. Last phase · direction.
+
+### Firm call — Smell-1 (`build/components/*` · a cleanup arc · #0)
+
+`build/components/*` was consumed by `button-matrix`, retired at M4 — so it is now **dead, with one exception**:
+
+- **`button.ts` is the lone live file.** The factory's `contract.ts` imports `{ button }` and pins `INTERACTION_BASELINE` to `button.pressScale` / `button.disabledOpacity`. But those two numerics (`0.97` / `0.4`) are a **decision-45 CROSS-COMPONENT (transversal) constant**, mis-homed inside a per-component file. The factory's own `theme.ts` already flags this ("CONTRACT FINDING (R1): the frozen build emits NO transversal interaction artifact — `pressScale`/`disabledOpacity` are embedded per-component"). → **relocate** the baseline to a transversal home (its own emit), so the factory stops reaching into `button` for a non-button value.
+- **The other 7** (`icon-button` · `switch` · `tabs` · `list` · `list-item` · `list-interactive-item` · `tab-bar`) have **no `exports` entry and no live importer** → **retire**.
+
+This is a cleanup *arc* (it moves the emit + the `exports` map + the factory seam + the docs-drift guards + the stale docs), not a one-line flag — hence arc #0. It is one of the four R1/R1.5 consumability findings that form the **Digital-cash first-bump agenda**.
+
+### Parked (explore-later · no arc yet)
+
+**NuriElement** — an anatomy-less element — sits **OUTSIDE decision 64's primitive / recipe taxonomy** and is therefore not adopted on direction alone. The **palettizable-primitives** alternative (the existing `nuri-stack` / `nuri-box` carrying the disjoint `palette` + `box` namespaces · U3's zero-overlap preserved) may obviate it entirely. **Resolved when the playground reveals a real composition limit** — not before (P11).
+
+### The living stale-map
+
+The in-code prose this direction contradicts is tracked in [`roadmap/post-migration-cleanup.md`](../roadmap/post-migration-cleanup.md) — a **LIVING** table (contradicted assertion · location · the new position · resolving arc · fix-now-vs-flag), deliberately **NOT** in this immutable ledger (it shrinks as the arcs land). The three highest-risk live assertions carry in-place one-line flags pointing back here.
+
+**Operator-directed (2026-06-20).** This captures the operator's post-migration direction; the single *locked* decision is the 57.2 amendment ("composing isn't DS work"). Decision 2's reversal is explicitly **NOT** taken here — it is flagged pending the §9 arc.
+
+**Base**: §65.7–§65.11 (the migration · COMPLETE) · [`docs/north-star.md`](../docs/north-star.md) (the direction this extends, not contradicts) · decisions 2 (CSS SoT · §9 revisits) / 21 + 57 (composing · 57.2 amends) / 24 (four readers · the migration reader dead) / 45 (the interaction baseline · Smell-1) / 64 (the taxonomy · NuriElement parked) · P11. **Realizes**: nothing in code (docs-only · the arcs build).
