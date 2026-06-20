@@ -114,8 +114,12 @@ docs site is live off `main`.
   (`docs/…` · `fix/…` · `feat/…`).
 - **Start (parallel session)** — concurrent sessions each take their own
   worktree, so the file trees are disjoint and the work is truly parallel:
-  `git worktree add -b <branch> "$MAIN-<short>" origin/main` + (inside the new
-  worktree) `ln -s "$MAIN/node_modules" node_modules`.
+  `git worktree add -b <branch> "$MAIN-<short>" origin/main`, then run
+  `npm install` **inside** the new worktree. (Under npm workspaces —
+  [decision 65.7](../decisionlog.md) — the install wires `node_modules/@nuri/*`
+  to *that worktree's* `packages/*`. The old `ln -s "$MAIN/node_modules"
+  node_modules` shortcut is WRONG now: it cross-links `@nuri/spec` to the MAIN
+  tree and breaks `@nuri/factory`'s resolution of its sibling.)
 - **CI** — [`.github/workflows/gates.yml`](../.github/workflows/gates.yml)
   runs on every PR + push-to-`main` as three per-workspace jobs: **`spec`**
   (`npm ci` · `npm test -w @nuri/spec` 25/25 · `npm run build -w @nuri/spec` ·
@@ -138,14 +142,18 @@ docs site is live off `main`.
 ## Close sequence (FIXED · in this exact order)
 
 1. **Build the ship-list.**
-2. **Visual feedback FIRST — before any audit or gate.** Render the work in
-   the preview MCP and self-review the *actual rendered result* (screenshots
-   + DOM / computed-style inspection), not the code in the abstract. Fix
-   obvious visual / interaction defects you can see.
-3. **Operator checkpoint — STOP and ask.** When the work is visually ready,
-   present the rendered result to the operator and request design feedback.
-   Do NOT run the audit, the gates, or closeout until the operator has
-   responded; incorporate their feedback first.
+2. **If the session has a rendered surface — visual feedback FIRST, before any
+   audit or gate.** Render the work in the preview MCP and self-review the
+   *actual rendered result* (screenshots + DOM / computed-style inspection),
+   not the code in the abstract. Fix obvious visual / interaction defects you
+   can see. *(Non-visual sessions — pipeline / emit / guards / docs, e.g. the
+   post-migration arcs — skip this: there is nothing to render. The proof is
+   the gates, especially the `@nuri/factory` render-smoke.)*
+3. **Operator checkpoint — STOP and ask.** When the work is ready, present it
+   to the operator and request feedback — the *rendered result* for a visual
+   session, the *diff + ship-list* for a non-visual one. Do NOT run the audit,
+   the gates, or closeout until the operator has responded; incorporate their
+   feedback first.
 4. **Only after the operator's feedback:** run the gates (`npm test -w @nuri/spec`
    25/25, `npm run build -w @nuri/spec`, `git diff --exit-code packages/spec/build/`,
    `npm test -w @nuri/factory`, `npm run typecheck -w @nuri/factory`,
