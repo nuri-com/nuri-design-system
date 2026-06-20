@@ -1,0 +1,12 @@
+# Nuri website · Jekyll + just-the-docs (remote theme) · N+22 · decision 66 arc #1.
+# Pinned to Jekyll 4; just-the-docs is pulled via remote_theme (_config.yml), so
+# its runtime plugins (include-cache · seo-tag) are listed here explicitly —
+# remote_theme fetches the theme files, not the theme gem's dependency closure.
+# Gemfile.lock is gitignored: the local toolchain (system Ruby 2.6) is below
+# Jekyll 4's floor, so the lock is resolved fresh in CI (ruby/setup-ruby · Ruby 3).
+source "https://rubygems.org"
+
+gem "jekyll", "~> 4.3"
+gem "jekyll-remote-theme"
+gem "jekyll-include-cache"
+gem "jekyll-seo-tag"

@@ -88,6 +88,8 @@ import {
   emitPaletteTs,
 } from './parsers/palette.js';
 
+import { emitDocPage } from './parsers/docs.js';
+
 import { ICONS } from '../lib/components/icon/icons.js';
 
 // Re-export so existing imports (and the primitive round-trip tests)
@@ -138,6 +140,7 @@ export {
   PALETTE_CONTRACT,
   derivePalette,
   emitPaletteTs,
+  emitDocPage,
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -155,6 +158,14 @@ const ICONS_OUT        = resolve(REPO_ROOT, 'build/icons.ts');
 const DESCRIPTORS_OUT  = resolve(REPO_ROOT, 'build/descriptors');
 const SCHEMA_SRC       = resolve(REPO_ROOT, 'pipeline/descriptors/schema.ts');
 const PALETTE_OUT      = resolve(REPO_ROOT, 'build/palette.ts');
+const DOCS_OUT         = resolve(REPO_ROOT, 'build/docs');
+
+// Component sources whose doc page is GENERATED (N+22 · decision 66 arc #1 ·
+// the website vertical slice). Button only this increment; generalizes to the
+// full DESCRIPTOR_COMPONENTS set as the website coverage grows (P11 · the
+// old hand-written pages/components/*.html die incrementally as the generated
+// pages cover them).
+const DOC_COMPONENTS = ['composition-button'];
 
 // Per-component `@layer tokens` WALK list (decision 34 · N+6.0.3 ·
 // extended at decisions 37 / 38 / 44). The per-component FILE emission
@@ -316,6 +327,37 @@ async function main() {
   const paletteRowCount =
     Object.keys(paletteCells.variant).length + Object.keys(paletteCells.chrome).length;
 
+  // ── Slice 9 · component doc page emit (N+22 · decision 66 arc #1) ──
+  // Render the descriptor IR as a just-the-docs Markdown page — the
+  // generation thesis applied to docs (north-star move 3). READ-ONLY on the
+  // descriptor (NOT §9 · decision 2 STANDS): we read the frozen machine-spec
+  // to EMIT docs, we do NOT generate CSS from it. Additive committed build
+  // output (decision 35 · build/docs/<source>.md · re-emits byte-identical).
+  // The <nuri-demo> STORY is authored in website/_includes (decision 57.2),
+  // the page only carries an `## Example` include slot. The leaf-validation
+  // `tokens` map is built from the same scales tokens.ts emits (one source).
+  const scaleLeaves = (name) =>
+    new Set(((classifiedGroups.get(name) || { entries: [] }).entries).map((e) => e.leafName));
+  const docTokens = {
+    size: scaleLeaves('size'),
+    space: scaleLeaves('space'),
+    radius: scaleLeaves('radius'),
+    type: new Set(Object.keys(typeScale)),
+  };
+  await mkdir(DOCS_OUT, { recursive: true });
+  const docReports = [];
+  for (const spec of DESCRIPTOR_COMPONENTS) {
+    if (!DOC_COMPONENTS.includes(spec.name)) continue;
+    const docCSS = await readFile(
+      resolve(COMPONENTS_DIR, spec.source, `${spec.source}.css`), 'utf8',
+    );
+    const docHTML = await readFile(resolve(PAGES_DIR, `${spec.source}.html`), 'utf8');
+    const ir = deriveDescriptor(spec, { css: docCSS, html: docHTML });
+    const out = resolve(DOCS_OUT, `${spec.source}.md`);
+    await writeFile(out, emitDocPage(ir, { palette: paletteCells, tokens: docTokens }), 'utf8');
+    docReports.push({ source: spec.source, axes: Object.keys(ir.axes).length, out });
+  }
+
   console.log(
     `[tokens-parser] wrote ${jsonCount} colour primitives → ${JSON_OUT}\n` +
     `[tokens-parser] wrote ${semanticCount} semantic tokens × ${ACCENTS.length} accents × ${THEMES.length} themes → ${TS_OUT}\n` +
@@ -332,7 +374,10 @@ async function main() {
     descriptorReports.map((r) =>
       `\n[tokens-parser] wrote descriptor '${r.name}' (${r.axes} ${r.axes === 1 ? 'axis' : 'axes'}) → ${r.out}`,
     ).join('') +
-    `\n[tokens-parser] wrote palette mapping (${paletteRowCount} rows · CSS-asserted) → ${PALETTE_OUT}`,
+    `\n[tokens-parser] wrote palette mapping (${paletteRowCount} rows · CSS-asserted) → ${PALETTE_OUT}` +
+    docReports.map((r) =>
+      `\n[tokens-parser] wrote doc page '${r.source}' (${r.axes} ${r.axes === 1 ? 'axis' : 'axes'} · generated) → ${r.out}`,
+    ).join(''),
   );
 }
 

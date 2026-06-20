@@ -15,8 +15,9 @@
  *   node --test pipeline/docs-drift.test.js
  * or via the glob in `npm test`.
  *
- * Five guards (A · C · N+12a · D · N+19 · the composition model 65.3 ·
- * E · N+19 B2b · decision 65.3 §6 · F · N+19 B3 · decision 65 step 5).
+ * Six guards (A · C · N+12a · D · N+19 · the composition model 65.3 ·
+ * E · N+19 B2b · decision 65.3 §6 · F · N+19 B3 · decision 65 step 5 ·
+ * G · N+22 · decision 66 arc #1 · the website doc-gen).
  * (Guard B — every build/components/*.ts named in README + impl-guide —
  * was RETIRED at Smell-1 · decision 66 arc #0 when build/components/ was
  * deleted and the interaction baseline relocated to build/interaction.ts.)
@@ -41,6 +42,15 @@
  *       removed / renamed / retyped, or a union member moved, breaks here.
  *       Distinct from D: D keeps the INSTANCES faithful to live CSS (the
  *       per-component axes/values stay free); F freezes the schema shape.
+ *   G · each build/docs/*.md re-emits identically from its descriptor (the
+ *       generation thesis applied to docs · decision 66 arc #1). The page
+ *       is BUILD OUTPUT — the stale-build / hand-edit guard (Guard D/E
+ *       posture) plus the arc-#1 page contract pinned: the just-the-docs
+ *       front-matter, the authored-story `## Example` include slot
+ *       (decision 57.2 · the story is NOT generated), and the four data
+ *       sections (API · Anatomy · Base · Token map). The token-map's
+ *       variant→palette derefs flow from Guard E's cells; the size→scale
+ *       leaves from Guard D's descriptor — G pins the RENDERING.
  * ────────────────────────────────────────────────────────────── */
 
 import { test } from 'node:test';
@@ -57,6 +67,7 @@ import {
   pageParts,
 } from './parsers/descriptors.js';
 import { derivePalette, emitPaletteTs } from './parsers/palette.js';
+import { emitDocPage } from './parsers/docs.js';
 import { readSemanticRules, classifyAll } from './parsers/semantic.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -518,4 +529,71 @@ test('F · the descriptor schema shape is frozen (B3 · decision 65 step 5)', ()
   for (const [name, pinned] of Object.entries(FROZEN_SCHEMA.aliasForms)) {
     assert.equal(normType(typeRhs(src, name)), normType(pinned), drift(`alias ${name}`));
   }
+});
+
+// ── Guard G · the generated doc pages ⊂ their descriptor (N+22 · decision 66 arc #1) ──
+// The §35 discipline (committed build re-emits identically) applied to the
+// website doc-gen: build/docs/<source>.md is RENDERED from the descriptor IR
+// (read-only · NOT §9 · decision 2 STANDS) by pipeline/parsers/docs.js. The
+// re-emit identity is the stale-build / hand-edit guard (Guard D/E posture);
+// the structural pins lock the arc-#1 page contract — a future emitter change
+// that drops the front-matter, the authored-story include slot, or a data
+// section breaks HERE, not only at `git diff --exit-code build/`. The page's
+// OUTPUT is a pure function of (ir · palette) — `tokens` is an emit-time leaf
+// VALIDATION guard only (it never reaches the bytes), so the re-emit here
+// omits it and still matches the committed file byte-for-byte.
+const DOC_COMPONENTS = ['composition-button'];
+
+test('G · each build/docs/*.md re-emits identically from its descriptor', () => {
+  const classifiedGroups = classifyAll(readSemanticRules(read('styles/tokens-semantic.css')));
+  // The same palette cells the page derefs (build/palette.ts · Guard E's SoT).
+  const palette = derivePalette(
+    {
+      button:     read('lib/components/button/button.css'),
+      iconAvatar: read('lib/components/icon-avatar/icon-avatar.css'),
+      topbar:     read('lib/components/topbar/topbar.css'),
+      typography: read('lib/components/typography/typography.css'),
+      palette:    read('lib/components/palette/palette.css'),
+    },
+    { classifiedGroups },
+  );
+
+  // Re-emit must equal the committed build (stale-build / hand-edit guard).
+  for (const spec of DESCRIPTOR_COMPONENTS) {
+    if (!DOC_COMPONENTS.includes(spec.name)) continue;
+    const css = read(`lib/components/${spec.source}/${spec.source}.css`);
+    const html = read(`pages/components/${spec.source}.html`);
+    const ir = deriveDescriptor(spec, { css, html });
+    assert.equal(
+      read(`build/docs/${spec.source}.md`),
+      emitDocPage(ir, { palette }),
+      `build/docs/${spec.source}.md is stale or hand-edited — run \`npm run build\`.`,
+    );
+  }
+
+  // The arc-#1 page contract (Button · the vertical slice). A deliberate
+  // emitter change must update these pins.
+  const btn = read('build/docs/button.md');
+  assert.match(
+    btn, /^---\ntitle: Button\nlayout: default\nnav_order: 1\n---/,
+    'the just-the-docs front-matter drifted',
+  );
+  assert.match(
+    btn, /\n\{% include demo\/button\.html %\}\n/,
+    'the authored <nuri-demo> story include slot is missing (decision 57.2)',
+  );
+  for (const h of ['## Example', '## API', '## Anatomy', '## Base', '## Token map']) {
+    assert.ok(btn.includes(`\n${h}\n`), `the generated page is missing the '${h}' section`);
+  }
+  // The token-map RENDERING: variant → the palette.ts derefs (mapping = data ·
+  // decision 65.1) and size → the resolved scale leaves. One attribute per line
+  // (the `<br>` dt/dd cell · operator readability · N+22).
+  assert.ok(
+    btn.includes('| `variant` | `solid` | `root` | `palette` | **bg** `accent.solid`<br>**fg** `accent.onSolid`<br>**pressed** `accent.solidPressed` |'),
+    'the variant→palette deref rendering drifted from build/palette.ts',
+  );
+  assert.ok(
+    btn.includes('| `size` | `lg` | `root` | `box` | **minHeight** `size.xl`<br>**paddingX** `space.xl`<br>**radius** `radius.md` |'),
+    'the size→box scale-leaf rendering drifted from the descriptor',
+  );
 });

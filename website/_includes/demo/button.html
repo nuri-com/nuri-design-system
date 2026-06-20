@@ -1,0 +1,14 @@
+<!-- AUTHORED <nuri-demo> story for Button (a consumer story · decision 57.2 ·
+     NOT generated — composing isn't DS work). The generated page
+     (build/docs/button.md · `## Example`) includes this partial. ONE demo, the
+     build-free <template> → live preview + code from one source (decision 10);
+     it HYDRATES via the runtime injected in _includes/head_custom.html. Raw
+     block HTML so kramdown passes the <template> through verbatim (the
+     de-risk spike · north-star move 3) — the include's output is HTML the
+     page's kramdown pass leaves intact at block level. Per-prop demo
+     selects are a deferred increment. -->
+<nuri-demo controls="theme,accent" label="solid" subtitle="filled · follows accent">
+  <template>
+    <nuri-button variant="solid">Pay</nuri-button>
+  </template>
+</nuri-demo>
