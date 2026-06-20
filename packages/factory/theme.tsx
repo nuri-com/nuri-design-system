@@ -133,11 +133,12 @@ export function runtimeTokens(accent: Accent, mode: Theme): RuntimeTokens {
 }
 
 // ── resolveToken · consumer-side dereference (decision 34) ────────
-// A per-component file emits e.g. button.solidBg as the literal string
-// 'accent.solid' as const satisfies TokenPath; this turns that path into a
-// concrete value by indexing the live slice. Returns string for colour
-// leaves (chrome/accent), number for dimension leaves (space/size/radius)
-// — handle the union at the call site (cast `as string` / `as number`).
+// The frozen build emits TokenPath strings (e.g. build/palette.ts's
+// `solid.bg = 'accent.solid' as const satisfies TokenPath`); this turns
+// that path into a concrete value by indexing the live slice. Returns
+// string for colour leaves (chrome/accent), number for dimension leaves
+// (space/size/radius) — handle the union at the call site (cast `as
+// string` / `as number`).
 export function resolveToken(tokens: RuntimeTokens, path: TokenPath): string | number {
   const [group, leaf] = path.split('.') as [keyof RuntimeTokens, string];
   return (tokens[group] as Record<string, string | number>)[leaf];

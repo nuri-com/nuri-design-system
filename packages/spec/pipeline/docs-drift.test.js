@@ -10,15 +10,17 @@
  * falls behind the live tree, so the drift is caught at PR time, not
  * by a confused reader three sessions later.
  *
- * Sibling to tokens-parser.test.js (kept separate so its
- * "19 of 19" assertion count stays stable · N+12a). Run with:
+ * Sibling to tokens-parser.test.js (kept separate so its assertion
+ * count stays stable · N+12a). Run with:
  *   node --test pipeline/docs-drift.test.js
  * or via the glob in `npm test`.
  *
- * Six guards (A–C · ship-list item 5 · N+12a · D · N+19 · the composition
- * model 65.3 · E · N+19 B2b · decision 65.3 §6 · F · N+19 B3 · decision 65 step 5):
+ * Five guards (A · C · N+12a · D · N+19 · the composition model 65.3 ·
+ * E · N+19 B2b · decision 65.3 §6 · F · N+19 B3 · decision 65 step 5).
+ * (Guard B — every build/components/*.ts named in README + impl-guide —
+ * was RETIRED at Smell-1 · decision 66 arc #0 when build/components/ was
+ * deleted and the interaction baseline relocated to build/interaction.ts.)
  *   A · every pages/components/*.html is listed in llms.txt
- *   B · every build/components/*.ts is named in README + impl-guide
  *   C · doc-stated emitted counts match the live build artefacts
  *   D · each build/descriptors/*.ts re-emits identically — in the
  *       COMPOSITION form (65.3 §7 · structure { anatomy, base } +
@@ -44,7 +46,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
-import { dirname, resolve, basename } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
@@ -98,34 +100,11 @@ test('A · every pages/components/*.html appears in llms.txt', () => {
   );
 });
 
-// ── Guard B · build/components ⊂ README ∩ impl-guide ──────────────
-test('B · every build/components/*.ts is named in README + impl-guide', () => {
-  const readme = readRoot('README.md');
-  const guide = read('pages/implementation-guide.html');
-  const comps = listFiles('build/components', '.ts').map((f) => basename(f, '.ts'));
-  assert.ok(comps.length > 0, 'expected at least one build/components file');
-
-  const missingReadme = comps.filter((c) => !readme.includes(c));
-  const missingGuide = comps.filter((c) => !guide.includes(c));
-
-  assert.deepEqual(
-    missingReadme,
-    [],
-    `README.md manifest omits build/components file(s): ${missingReadme.join(', ')}.`,
-  );
-  assert.deepEqual(
-    missingGuide,
-    [],
-    `implementation-guide.html manifest omits build/components file(s): ${missingGuide.join(', ')}.`,
-  );
-});
-
 // ── Guard C · doc-stated counts == live build ────────────────────
 test('C · doc-stated emitted counts match the live build', () => {
   // Live truths derived from the emitted artefacts.
   const tokenPathMembers = (read('build/token-paths.ts').match(/^\s+\| '/gm) || []).length;
   const iconCount = (read('build/icons.ts').match(/^\s+\| '/gm) || []).length;
-  const componentFiles = listFiles('build/components', '.ts').length;
 
   const llms = readRoot('llms.txt');
   const readme = readRoot('README.md');
@@ -146,13 +125,6 @@ test('C · doc-stated emitted counts match the live build', () => {
     extractCount(readme, /runtime-set leaf · (\d+) members/, 'README token-paths members'),
     tokenPathMembers,
     'README member count drifted from build/token-paths.ts',
-  );
-
-  // per-component file count.
-  assert.equal(
-    extractCount(llms, /TokenPath references · (\d+) files:/, 'llms.txt component-file count'),
-    componentFiles,
-    'llms.txt component-file count drifted from build/components/',
   );
 
   // glyph registry count.

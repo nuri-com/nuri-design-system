@@ -18,8 +18,9 @@
  *   @nuri/spec/tokens          runtime sets: chrome · accent · space
  *                              · size · radius · type (+ Accent/Theme)
  *   @nuri/spec/token-paths     the TokenPath discriminated union
+ *   @nuri/spec/interaction     the transversal interaction baseline
+ *                              ({ pressScale · disabledOpacity } · decision 45)
  *   @nuri/spec/icons           IconName × weight SVG registry
- *   @nuri/spec/components/<n>  per-component numerics + TokenPath refs
  * ────────────────────────────────────────────────────────────── */
 
 import {
@@ -35,12 +36,14 @@ import type { TokenPath } from '@nuri/spec/token-paths';
 import { icons } from '@nuri/spec/icons';
 import type { IconName, IconWeight } from '@nuri/spec/icons';
 
-// Per-component spec consumed by the factory: `button` carries the
-// interaction baseline numerics (pressScale/disabledOpacity) the factory
-// theme pins against (build/components/button.ts · decision 34). The other
-// per-component token files stay in build/ (the read-only spec) but are
-// no longer imported — the migration mirrors that read them are retired (R1.5).
-import { button } from '@nuri/spec/components/button';
+// The transversal interaction baseline consumed by the factory:
+// `interaction` carries the decision-45 cross-component constants
+// (pressScale/disabledOpacity) the factory theme pins against. It now
+// ships as its OWN transversal emit (build/interaction.ts · Smell-1 ·
+// decision 66 arc #0), so the factory no longer reaches into a
+// per-component file for a non-component value (the retired
+// build/components/button.ts · the R1 finding resolved).
+import { interaction } from '@nuri/spec/interaction';
 
 // ── The FROZEN descriptor contract (decision 65 · 65.3 · 65.6 · Guard F) ──
 // The cross-repo authoring language the generic factory consumes: the
@@ -80,7 +83,7 @@ export {
   radius,
   typeScale,
   icons,
-  button,
+  interaction,
   // descriptor contract
   palette,
   compositionButtonDescriptor,

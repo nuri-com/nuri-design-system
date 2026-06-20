@@ -1,7 +1,12 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · PARSER · COMPONENTS
- * Walks `@layer tokens` declarations of a component CSS file and
- * emits a per-component TS file under build/components/<name>.ts.
+ * Walks the `@layer tokens` declarations of a component CSS file and
+ * resolves each per the set-policy. (The per-component FILE emission to
+ * build/components/<name>.ts was RETIRED at Smell-1 · decision 66 arc #0;
+ * the orchestrator keeps the walk for TokenPath coverage + the resolver
+ * tests, and emitComponentTs is retained as the resolver's source-string
+ * form. The decision-45 interaction baseline those files carried now ships
+ * transversally at build/interaction.ts · pipeline/parsers/interaction.js.)
  *
  * Each `--nuri-<component>-*` declaration is resolved per the
  * set-policy registry in pipeline/parsers/semantic.js (decision 34 ·
@@ -22,11 +27,11 @@
  *     numeric literal.
  *
  * Together with the runtime tokens.ts and the TokenPath union at
- * build/token-paths.ts, the per-component file replaces the
+ * build/token-paths.ts, the per-component resolve replaced the
  * pre-N+6.0.3 hardcoded `BUTTON_BASE` constants block — the
  * minHeight/paddingX drift that lingered after the
  * --nuri-px-{60,18} primitive rename is structurally killed
- * because the emitter always reads from the live CSS source.
+ * because the resolver always reads from the live CSS source.
  * ────────────────────────────────────────────────────────────── */
 
 import postcss from 'postcss';
@@ -205,10 +210,12 @@ export function resolveComponentValue(
   return { kind: 'literal', expression: formatPrimitiveLiteral(literal, lastVar) };
 }
 
-// Emit the source of build/components/<name>.ts as a string.
-// Caller owns the file write so the orchestrator can collect the
-// list of TokenPath strings referenced (for the union emit) in the
-// same pass.
+// Resolve a component's `@layer tokens` to a source string (the
+// resolver's string form) + the set of TokenPath strings it references.
+// The orchestrator no longer WRITES this string — the per-component
+// build/components/<name>.ts emission was retired at Smell-1 (decision 66
+// arc #0) — but still calls this to collect referencedPaths for the build
+// log's TokenPath coverage. Exercised directly by the resolver tests.
 export function emitComponentTs(componentName, declarations, { primitives, classifiedGroups }) {
   const componentPrefix = `--nuri-${componentName}-`;
   const referencedPaths = new Set();

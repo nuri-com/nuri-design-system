@@ -27,7 +27,7 @@ import {
   size,
   radius,
   typeScale,
-  button,
+  interaction,
 } from '../contract';
 import type {
   Accent,
@@ -64,16 +64,17 @@ export type NuriTheme = {
 };
 
 // ── The interaction baseline (resolver-model §1 · the not-colour effects) ──
-// CONTRACT FINDING (R1): the frozen build emits NO transversal interaction
-// artifact — `pressScale`/`disabledOpacity` are embedded per-component
-// (build/components/{button,icon-button}.ts = 0.97 / 0.4). Per resolver-model
-// §1/§7/§11 the interaction baseline is TRANSVERSAL (theme/factory-owned, NOT
-// descriptor data), so the factory carries it here. The values are PINNED to
-// the contract's embedded numerics by `button.pressScale`/`disabledOpacity`
-// below (and asserted in the faithfulness test) so they cannot silently drift.
+// CONTRACT FINDING (R1) · RESOLVED (Smell-1 · decision 66 arc #0): the frozen
+// build now emits a TRANSVERSAL interaction artifact (build/interaction.ts =
+// { pressScale: 0.97, disabledOpacity: 0.4 }), so the factory reads it
+// directly instead of reaching into a per-component file for a non-component
+// value. Per resolver-model §1/§7/§11 the interaction baseline is TRANSVERSAL
+// (theme/factory-owned, NOT descriptor data), so the factory still carries the
+// shape here, pinned to the contract emit by `interaction.pressScale`/
+// `disabledOpacity` (asserted in the faithfulness test) so it cannot drift.
 export const INTERACTION_BASELINE: { pressScale: number; disabledOpacity: number } = {
-  pressScale: button.pressScale,
-  disabledOpacity: button.disabledOpacity,
+  pressScale: interaction.pressScale,
+  disabledOpacity: interaction.disabledOpacity,
 };
 
 // The runtime-set groups a TokenPath can address (build/token-paths.ts).
