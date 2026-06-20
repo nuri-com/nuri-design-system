@@ -10,7 +10,7 @@ This repo is the **living source of truth** for tokens, foundations, and
 ```
 packages/                      npm-workspaces monorepo · workspaces: ["packages/*"]
                                (decision 65.7 · the radix workspace is @nuri/spec)
-  spec/                        @nuri/spec · the radix: the CSS SoT + the pipeline +
+  spec/                        @nuri/spec · the radix: the CSS SoT (§9 will revisit · dec 66) + the pipeline +
                                the frozen emitted contract · depends on nothing
     package.json               @nuri/spec · build + test scripts · devDeps
                                (workspace-hoisted to the root node_modules)
@@ -84,7 +84,10 @@ packages/                      npm-workspaces monorepo · workspaces: ["packages
                                  icon-button · switch · tabs · list ·
                                  list-item · list-interactive-item · tab-bar
         button.ts                per-component literals + TokenPath strings
-                                 (N+6.0.3 · decision 34)
+                                 (N+6.0.3 · decision 34) · ⚠ post-M4 the ONLY
+                                 live build/components file (Smell-1 · dec 66):
+                                 the factory's mis-homed dec-45 interaction
+                                 baseline → relocate; the other 7 are dead → retire
       token-paths.ts             TokenPath discriminated union over every
                                  runtime-set leaf · 38 members (N+6.0.3)
       icons.ts                   shared glyph registry · IconName union +
