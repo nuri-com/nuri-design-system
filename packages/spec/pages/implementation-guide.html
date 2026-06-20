@@ -221,7 +221,7 @@
         </dd>
       </div>
     </dl>
-    <p>Shipped shape (N+13 · working code in <a href="../../../docs/migration-tests/button-matrix/_shared.tsx"><code>_shared.tsx</code></a>, tsc-confirmed). The type carries only the two live dimensions; <code>density</code> / <code>neutral</code> join it when their web tokens land (P11):</p>
+    <p>Shipped shape (N+13 · working code in <code>_shared.tsx</code>, tsc-confirmed). The type carries only the two live dimensions; <code>density</code> / <code>neutral</code> join it when their web tokens land (P11):</p>
     <pre><code>type NuriThemeValue = {
   mode: Theme;
   accent: Accent;
@@ -264,7 +264,7 @@ const NuriScope: React.FC&lt;Partial&lt;NuriThemeValue&gt; &amp; { children: Rea
       </div>
       <div class="nuri-spec-card__row">
         <dt>Worked example</dt>
-        <dd>See <a href="../../../docs/migration-tests/button-matrix/button.tsx"><code>docs/migration-tests/button-matrix/button.tsx</code></a> · <code>const { mode, accent: ambientAccent } = useContext(NuriThemeContext);</code> then <code>const accent: Accent = accentProp ?? ambientAccent;</code> resolved via <code>resolveToken(tokens, button.solidBg)</code> against the live <code>accent × mode</code> slice.</dd>
+        <dd>See <code>docs/migration-tests/button-matrix/button.tsx</code> · <code>const { mode, accent: ambientAccent } = useContext(NuriThemeContext);</code> then <code>const accent: Accent = accentProp ?? ambientAccent;</code> resolved via <code>resolveToken(tokens, button.solidBg)</code> against the live <code>accent × mode</code> slice.</dd>
       </div>
       <div class="nuri-spec-card__row">
         <dt>See</dt>
@@ -275,7 +275,7 @@ const NuriScope: React.FC&lt;Partial&lt;NuriThemeValue&gt; &amp; { children: Rea
         </dd>
       </div>
     </dl>
-    <p>Skeleton (from button-matrix · positive control · F-SCOPE-2). Illustrative — the live file is <a href="../../../docs/migration-tests/button-matrix/button.tsx"><code>button.tsx</code></a>. Note the <code>size</code>-coupled geometry + label type (decision 41 · 55): per-size <code>minHeight</code>/<code>paddingX</code>/<code>radius</code> resolve inline through the runtime sets, and the label's <code>typeStyle</code> key tracks <code>size</code> — there is no <code>styles.label</code> StyleSheet entry:</p>
+    <p>Skeleton (from button-matrix · positive control · F-SCOPE-2). Illustrative — the live file is <code>button.tsx</code>. Note the <code>size</code>-coupled geometry + label type (decision 41 · 55): per-size <code>minHeight</code>/<code>paddingX</code>/<code>radius</code> resolve inline through the runtime sets, and the label's <code>typeStyle</code> key tracks <code>size</code> — there is no <code>styles.label</code> StyleSheet entry:</p>
     <pre><code>// Per-size geometry triple + size-coupled label type (decision 41 · 55).
 const GEOMETRY: Record&lt;ButtonSize, { minHeight: TokenPath; paddingX: TokenPath; radius: TokenPath }&gt; = {
   lg: { minHeight: button.lgMinHeight, paddingX: button.lgPaddingX, radius: button.lgRadius },
@@ -408,13 +408,13 @@ const Button: React.FC&lt;ButtonProps&gt; = ({
             <td>Button</td>
             <td>2 · Accent-consuming leaf</td>
             <td><a href="components/button.html">components/button.html</a></td>
-            <td><a href="../../../docs/migration-tests/button-matrix/button.tsx"><code>docs/migration-tests/button-matrix/button.tsx</code></a></td>
+            <td><code>docs/migration-tests/button-matrix/button.tsx</code></td>
           </tr>
         </tbody>
       </table>
     </div>
     <p>Most shipped components now carry both surfaces. A component ships its docs page (with the data-* wiring) alongside its <code>lib/components/&lt;name&gt;/</code> implementation; its typed RN mirror under <code>docs/migration-tests/</code> lands the same session or a close follow-up (recent components — TabBar, Screen / Scroll / Spacer — shipped both at once).</p>
-    <p>The RN mirrors live <strong>one file per component</strong> under <a href="../../../docs/migration-tests/button-matrix/"><code>docs/migration-tests/button-matrix/</code></a> (shared scaffolding in <code>_shared.tsx</code>, demo composition in <code>app.tsx</code>), split from the former monolithic <code>index.tsx</code> in N+12b — see <a href="../../../roadmap/N+12b.md"><code>roadmap/N+12b.md</code></a>.</p>
+    <p>The RN mirrors live <strong>one file per component</strong> under <code>docs/migration-tests/button-matrix/</code> (shared scaffolding in <code>_shared.tsx</code>, demo composition in <code>app.tsx</code>), split from the former monolithic <code>index.tsx</code> in N+12b — see <a href="../../../roadmap/N+12b.md"><code>roadmap/N+12b.md</code></a>.</p>
   </section>
 
   <!-- ═════════════════════════════════════════════════════════════

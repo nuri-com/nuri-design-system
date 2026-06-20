@@ -17,7 +17,7 @@ the platform supplies its own system font stack natively; no
 The web side is the canonical implementation. The RN counterpart is
 now **implemented in the migration test** — `NuriThemeContext` +
 `NuriScope` ship in
-[`docs/migration-tests/button-matrix/_shared.tsx`](../../../docs/migration-tests/button-matrix/_shared.tsx)
+`docs/migration-tests/button-matrix/_shared.tsx`
 and every mirror in that directory consumes the single context. This
 closed F-SCOPE-1 with n=1 confirmation (see
 [decisions 27 + 28 (N+5.5)](../../../decisionlog.md), [decision 62 (N+13)](../../../decisionlog.md#62-nurithemecontext-implemented--the-single-orthogonal-theming-context-lands-in-the-migration-test--n13)
@@ -67,7 +67,7 @@ and motivates rejection of cross-product registries).
 ### Shipped shape (N+13 · `_shared.tsx`)
 
 This is the working code now in
-[`docs/migration-tests/button-matrix/_shared.tsx`](../../../docs/migration-tests/button-matrix/_shared.tsx),
+`docs/migration-tests/button-matrix/_shared.tsx`,
 not a sketch. The type carries only the two live dimensions; `density`
 / `neutral` are reserved (see above) and join the type when their web
 tokens land.

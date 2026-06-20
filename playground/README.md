@@ -15,22 +15,21 @@ counts as "composing with the DS", (b) the repo-structure decision
 
 ## If you arrived here looking for the N+4 button-matrix
 
-It is **not in this directory**. The N+4 thesis-validation pair
-(web HTML + RN hand-translation + frictions) lives at
-[`docs/migration-tests/button-matrix/`](../docs/migration-tests/button-matrix/).
-That path is honest about what it is: evidence for [RISKS.md R1
-+ R5](../docs/RISKS.md), not source for production code, and not
-view composition.
+It was **retired at M4** ([decision 65.11](../decisionlog.md)). The N+4
+thesis-validation pair (web HTML + RN hand-translation + frictions) once lived
+at `docs/migration-tests/button-matrix/`; it proved the props-1:1 thesis and
+was removed once the [`@nuri/factory`](../packages/factory/)
+`react-test-renderer` render-smoke became the live intra-repo contract gate (it
+RENDERS the frozen descriptors on RN in CI · [decision 65.10](../decisionlog.md)).
+The frictions it captured live on in [`docs/RISKS.md`](../docs/RISKS.md) R1.
 
-The brief explanation: a mid-N+4 rename. The initial dir was
-`playground/button-matrix/` because the N+4 prompt used "playground"
-loosely. The operator caught the conflict with the established
-view-composition meaning of "playground" and the directory moved.
-The semantic tokens at [`build/tokens.ts`](../build/tokens.ts) were
-hand-rolled at N+4 and are **machine-generated since N+5** (see
-[`docs/RISKS.md`](../docs/RISKS.md) R2 and the F-TOKEN-1 entry in
-[`docs/migration-tests/button-matrix/FRICTIONS.md`](../docs/migration-tests/button-matrix/FRICTIONS.md));
-the migration pair's `index.tsx` import is unchanged across the swap.
+The brief history: the pair briefly sat at `playground/button-matrix/` (the
+N+4 prompt used "playground" loosely) before the operator moved it to
+`docs/migration-tests/`, resolving the conflict with the established
+view-composition meaning of "playground". Its semantic tokens were hand-rolled
+at N+4 and are **machine-generated since N+5** (F-TOKEN-1 · now at
+[`packages/spec/build/tokens.ts`](../packages/spec/build/tokens.ts) · see
+[`docs/RISKS.md`](../docs/RISKS.md)).
 
 ## Do not add files here yet
 

@@ -1,7 +1,15 @@
 # Risks · Nuri
 
 **Date drafted**: 2026-05-27 (during N+3 philosophy brainstorm)
-**Last updated**: 2026-06-19 (N+19 · M3 · **the intra-repo gate landed — R7 CLOSED**: [`gates.yml`](../.github/workflows/gates.yml)'s single
+**Last updated**: 2026-06-20 (N+19 · M4 · **`button-matrix` retired — the migration is COMPLETE**: the type-only
+web↔RN mirror [`docs/migration-tests/button-matrix/`] + its CI tsc + the root's button-matrix-only RN devDeps [`react`/`react-native`/
+`@types/react`/`@types/react-native`/`typescript` on `@nuri/spec`] are **deleted** ([decision **65.11**](../decisionlog.md)). The
+**`factory` render-smoke is the sole contract gate** — **R1/R3/R5 repointed** to it [below]. **Finding**: removing the spec devDeps did
+NOT collapse the dual-version tree under npm's conservative re-dedupe [the Expo ecosystem's floating `*` peers keep `react@19.2.6` +
+`react-native@0.80.3` hoisted at root], so the M2 jest/Metro single-React/RN workarounds are **RETAINED** [VERIFIED: removing the jest
+mapper reproduces `__fbBatchedBridgeConfig`; `expo --web` + render-smoke stay green with them kept · comments repointed]. CI + cleanup
+only · no package code change. Gates green: spec 25/25 · factory 27/27 · factory tsc 0 · expo-demo tsc 0 · `build/` byte-identical.
+**No branch-protection change** [the 3 job names unchanged].) · Prior 2026-06-19 (N+19 · M3 · **the intra-repo gate landed — R7 CLOSED**: [`gates.yml`](../.github/workflows/gates.yml)'s single
 `gates` job reshaped into **three parallel per-workspace jobs** [`spec` · `factory` · `expo-demo`]; the **`factory`
 render-smoke now gates `packages/spec/build/` INTRA-REPO** [it imports `@nuri/spec`'s frozen descriptors+tokens through
 the exports map and RENDERS them via `react-test-renderer`, so a contract change that breaks the RN render fails CI by
@@ -137,7 +145,7 @@ naming the gap up front.
 - Sequence components by behavioural simplicity first (Tag,
   IconButton, Card) before complex ones (Sheet, AmountInput)
 - ✓ **Frictions captured (N+4)** at
-  [`docs/migration-tests/button-matrix/FRICTIONS.md`](./migration-tests/button-matrix/FRICTIONS.md)
+  `docs/migration-tests/button-matrix/FRICTIONS.md`
   — 8 entries from the Button-only matrix, including 2 behavioural
   deltas (F-PRESSED-1, F-FOCUS-1) and 1 positive control (F-SCOPE-2,
   Tier 2 self-scope IS 1:1 modulo runtime). Scratch file dissolves
@@ -170,7 +178,7 @@ naming the gap up front.
 
 For each, format is: gap · where · workaround · fix proposed · target.
 Full version in
-[`docs/migration-tests/button-matrix/FRICTIONS.md`](./migration-tests/button-matrix/FRICTIONS.md).
+`docs/migration-tests/button-matrix/FRICTIONS.md`.
 
 - **F-PRESSED-1** · `:active` ↔ Pressable `pressed` is the same role
   played by different mechanisms · button.css uses CSS pseudo-class
@@ -235,7 +243,7 @@ Full version in
   two layout primitives under
   [decision 37](../decisionlog.md#37-layout-primitives-consume-semantic-vocabulary-via-prop--no-component-token-aliasing--n62).
   Both sides of the
-  [migration-test pair](./migration-tests/button-matrix/index.tsx)
+  migration-test pair
   composed their layout via the new primitives — web side uses
   `<nuri-stack>` + `<nuri-box>` (replacing `.playground-row-group`
   + `.playground-row` page-local styles); RN side defines local
@@ -307,7 +315,7 @@ Full version in
   **pipelineInline** ([decision 34](../decisionlog.md#34-per-component-files--tokenpath-union--set-policy--pipeline-emit-shape--n603))
   — so `build/tokens.ts` exposes **no runtime font namespace** to
   dereference. The RN
-  [`TYPOGRAPHY_SIZES`](./migration-tests/button-matrix/index.tsx)
+  `TYPOGRAPHY_SIZES`
   record therefore **hand-declares** the px metrics from the
   `--nuri-type-*` primitives (lg=22 / md=17 / sm=15 · em 600 / regular
   400 · line-heights 1.27/1.29/1.33), while **colour** resolves cleanly
@@ -391,7 +399,7 @@ Full version in
   no RN runtime). When a real RN build lands, delete the shim and add
   the package; the Icon source is written against that exact prop
   surface, so the swap is mechanical. See
-  [`docs/migration-tests/button-matrix/index.tsx`](./migration-tests/button-matrix/index.tsx).
+  `docs/migration-tests/button-matrix/index.tsx`.
   **N+6.9 update.** IconAvatar
   ([decision 50](../decisionlog.md#50-iconavatar--static-decorative-twin-of-iconbutton--composes-icon-directly--skip-emit--avatar-name-reserved--n69))
   is the **first new direct `<nuri-icon>` consumer after this closure** —
@@ -669,6 +677,15 @@ logged, not solved; (b) **Box `fill` mechanism delta** — on web Box is
 `display:block` so `fill` must also switch it to a flex column, whereas an RN
 `<View>` is already a column, so the RN side needs only the grow part. Both keep
 props 1:1; only the mechanism differs — exactly the budget R1 already names.
+**N+19 · M4 update — the machine-check moved off the type-only mirror.** The
+`button-matrix` mirror (the props-1:1 typecheck corpus these frictions were
+captured against) is **retired** ([decision 65.11](../decisionlog.md)). Its
+verification role is now the [`@nuri/factory`](../packages/factory/)
+`react-test-renderer` render-smoke, which RENDERS the frozen descriptors on RN in
+CI (a stronger check than the `noEmit` mirror — it catches the RN runtime-layout
+class the type-only test structurally could not · the R-EXPO findings). The
+frictions catalogued above remain the canonical budget record; only their former
+in-repo mirror location is gone (the prose keeps the historical names).
 
 ---
 
@@ -805,6 +822,13 @@ reviews" is the entire verification story today.
 **Status**: partially mitigated. One automated test now exists (token
 round-trip for the colour layer). Page-level + API-level verification
 still relies on the operator's eyeball.
+**N+19 · M4 update.** The migration-smoke verification this risk named ("does an
+RN component generated from the spec actually render?") is now the
+[`@nuri/factory`](../packages/factory/) render-smoke — it gates
+`packages/spec/build/` intra-repo in CI (R7, Closed below · [65.10](../decisionlog.md)).
+The `button-matrix` type-only mirror that previously stood in for this is
+**retired** ([65.11](../decisionlog.md)); it never rendered, so the render-smoke
+is a strict improvement on this verification axis.
 
 ---
 
@@ -956,6 +980,15 @@ cannot — keep it in the loop each fix round rather than building a second rend
 harness in this repo (P11). R5 moves from "partially validated (N+4 · type-only)"
 to **validated end-to-end (first real render · positive controls held · gaps
 catalogued)**.
+
+**N+19 · M4 update — the render proof is now in-repo + GATING.** The
+`button-matrix` type-only pair — R5's original N+4 partial-validation artifact —
+is **retired** ([65.11](../decisionlog.md)). The end-to-end render validation R5
+asked for is now permanent and gating in the same repo: the
+[`@nuri/factory`](../packages/factory/) `react-test-renderer` render-smoke mounts
+the frozen descriptors on every CI run (R7 closed · [65.10](../decisionlog.md)).
+The thesis is validated end-to-end and the proof is wired into CI by construction,
+not re-run by hand in a separate repo.
 
 ---
 
