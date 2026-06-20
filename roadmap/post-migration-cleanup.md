@@ -16,6 +16,14 @@ hasn't made.
 `flag` = warrants one (not yet done) · `table` = recorded here only; resolve at the arc, no in-place
 flag yet (avoid noise / immutable-ledger lines / last-phase prose).
 
+**Arc status (2026-06-20).** Arc **(1) `website` doc-gen is STARTED** — N+22 increment 1
+([`N+22.md`](./N+22.md)) landed the mechanism end-to-end for **Button** (the in-pipeline emitter →
+generated MD → Jekyll/just-the-docs → hydrating `<nuri-demo>`). No row shrinks yet: increment 1 ADDS a
+generated page alongside the hand-written ones — rows **#2** and **#3(b)** shrink only as the emitter
+generalizes to all components (the human pages retire incrementally; **their `data-spec="parts"`
+anatomy STAYS** as the descriptor STRUCTURE source · Guard D · decision 24.1 — so the pages are
+trimmed, never deleted wholesale).
+
 | # | Contradicted assertion | Location(s) | The new position (decision 66) | Resolving arc | now |
 |---|---|---|---|---|---|
 | 1 | **"CSS is SoT" / "Source of truth = the CSS files"** | `docs/north-star.md:15,48` · `README.md:13` · `llms.txt` (the "Source of truth" footer + the per-component "8 files" line) · `packages/spec/package.json` `description` | **§9 inverts the source** — author the descriptor → generate the CSS (`descriptor → CSS` direct · revisits decision 2). **Audit-gated · NOT decided** — CSS-is-SoT **STANDS** until the §9 arc ratifies the reversal | (4) §9 source-inversion | **flagged** (north-star · README:13); the rest `table` — do **not** rewrite the prose |

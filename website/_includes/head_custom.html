@@ -1,0 +1,33 @@
+{%- comment -%}
+  NURI runtime injection · so <nuri-demo> HYDRATES on the generated pages
+  (N+22 · decision 66 arc #1). just-the-docs includes this file at the end of
+  <head>. The assets are STAGED into /assets/nuri by stage.mjs — the single SoT
+  is packages/spec/{lib,styles}; they are copied at build, never committed (no
+  drift). Loaded as the spec pages load them (pages/components/button.html):
+  state.js FIRST + synchronous so the data-* scope attrs are set before the
+  token CSS parses (no FOUC · lib/docs/state.js); the custom-element scripts
+  deferred so connectedCallback fires after body parse; control.js (defines
+  NuriControl) precedes demo.js (which depends on it).
+{%- endcomment -%}
+
+<script src="{{ '/assets/nuri/docs/state.js' | relative_url }}"></script>
+
+<link rel="stylesheet" href="{{ '/assets/nuri/styles/tokens-primitive.css' | relative_url }}" />
+<link rel="stylesheet" href="{{ '/assets/nuri/styles/tokens-semantic.css' | relative_url }}" />
+<link rel="stylesheet" href="{{ '/assets/nuri/styles/typography.css' | relative_url }}" />
+<link rel="stylesheet" href="{{ '/assets/nuri/docs/control/control.css' | relative_url }}" />
+<link rel="stylesheet" href="{{ '/assets/nuri/components/button/button.css' | relative_url }}" />
+<link rel="stylesheet" href="{{ '/assets/nuri/docs/demo/demo.css' | relative_url }}" />
+
+<!-- The two <nuri-demo>/<nuri-scope> base rules that live in styles/shell.css
+     (the SoT) — inlined here because website does NOT load the 53KB docs shell
+     (it would fight just-the-docs' own layout). Stable web-platform glue. -->
+<style>
+  nuri-scope { display: contents; }
+  nuri-demo { display: block; }
+</style>
+
+<script src="{{ '/assets/nuri/docs/control/control.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/nuri/components/scope/scope.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/nuri/components/button/button.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/nuri/docs/demo/demo.js' | relative_url }}" defer></script>

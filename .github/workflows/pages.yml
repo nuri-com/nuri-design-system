@@ -1,0 +1,80 @@
+name: pages
+
+# Deploy the GENERATED docs site to GitHub Pages (N+22 · decision 66 arc #1 ·
+# north-star move 3). SEPARATE from gates.yml — it does NOT gate merges; the
+# three per-workspace gates (spec · factory · expo-demo) stay the merge bar.
+#
+# Pipeline: regenerate the docs (npm run build -w @nuri/spec emits
+# build/docs/*.md) → stage them + the nuri runtime assets into website/
+# (stage.mjs) → jekyll build (just-the-docs remote theme) → upload + deploy.
+#
+# OPERATOR PREREQ: Settings → Pages → Source = "GitHub Actions" (this repo
+# currently serves the legacy .nojekyll site from the root; flipping to Actions
+# mode hands deployment to this workflow). Until then this workflow is inert.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least-privilege, plus the Pages OIDC deploy token.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; let an in-flight deploy finish (don't cancel).
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install (locked · workspace-aware)
+        run: npm ci
+
+      - name: Regenerate the docs (emits packages/spec/build/docs/*.md)
+        run: npm run build -w @nuri/spec
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: website
+
+      - name: Stage generated pages + nuri runtime assets into the site
+        run: node website/stage.mjs
+
+      - name: Configure Pages (resolves the project baseurl)
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Jekyll build (just-the-docs · correct baseurl)
+        working-directory: website
+        env:
+          JEKYLL_ENV: production
+        run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
+
+      - name: Upload the built site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: website/_site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
