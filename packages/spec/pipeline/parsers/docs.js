@@ -78,6 +78,12 @@ const PALETTE_CHANNELS = [['bg', 'bg'], ['fg', 'fg'], ['fgMuted', 'muted'], ['pr
 const ATTR_SEP = '<br>';
 const attr = (term, value) => `**${term}** \`${value}\``;
 
+// The "Resolves to" column marks a literal/flag attribute (a stack enum · an
+// interactive opt-in) — no token→value indirection to resolve — with an em dash,
+// so the value column aligns line-for-line with the Token column (N+23 · the
+// resolved values live in their own column · operator request).
+const NO_VALUE = '—';
+
 // A live colour chip — an inline <span> (kramdown passes span-level HTML through
 // inside a table cell · N+22) whose background is the LIVE semantic var(), so it
 // re-themes with the page/scope rather than baking a literal. `background` is
@@ -164,9 +170,10 @@ function assertLeaf(tokens, scale, leaf, where) {
   }
 }
 
-// palette node ({ variant } | { chrome }) → its resolved TokenPath cells
-// dereferenced through build/palette.ts, one channel per line (dt/dd style ·
-// **bg** `accent.solid` …).
+// palette node ({ variant } | { chrome }) → { token, value } cell pair: the
+// channel TokenPaths dereferenced through build/palette.ts (token column) and
+// the live var() swatch + default-scope hex (value column), one channel per
+// line (dt/dd style · the two columns align line-for-line).
 function renderPalette(ns, palette, colors, where) {
   let cells;
   if (ns.variant !== undefined) cells = palette.variant[ns.variant];
@@ -174,63 +181,76 @@ function renderPalette(ns, palette, colors, where) {
   if (!cells) {
     throw new Error(`[docs] ${where}: no palette cell for ${JSON.stringify(ns)} (palette.ts drift)`);
   }
-  const segs = [];
+  const toks = [], vals = [];
   for (const [key, label] of PALETTE_CHANNELS) {
     if (cells[key] === undefined) continue;
-    segs.push(renderChannel(label, cells[key], colors));
+    const { token, value } = renderChannel(label, cells[key], colors);
+    toks.push(token); vals.push(value);
   }
-  return segs.join(ATTR_SEP);
+  return { token: toks.join(ATTR_SEP), value: vals.join(ATTR_SEP) };
 }
 
-// One palette channel → its cell segment: the bold label + the resolved colour
-// (a TokenPath, or the literal 'transparent' for the ghost bg) + a live var()
-// swatch + the default-scope hex. transparent is the special case (decision 30 ·
-// the ghostBg literal): no hex, the swatch is the bordered empty square.
+// One palette channel → { token, value }: token = the bold label + the channel
+// TokenPath (or the literal 'transparent' for the ghost bg); value = a live
+// var() swatch + the default-scope hex. transparent is the special case
+// (decision 30 · the ghostBg literal): the swatch is the bordered empty square,
+// no hex.
 function renderChannel(label, value, colors) {
   if (value === 'transparent') {
-    return `${attr(label, value)} ${swatch('transparent')}`;
+    return { token: attr(label, value), value: swatch('transparent') };
   }
   const { var: cssVar, hex } = colors(value);
-  return `${attr(label, value)} ${swatch(`var(${cssVar})`)} \`${hex}\``;
+  return { token: attr(label, value), value: `${swatch(`var(${cssVar})`)} \`${hex}\`` };
 }
 
-// one namespace → the "Resolves to" cell string · one attribute per line
-// (canonical prop order). Each attribute is a bold term + a code value
-// (the interactive flags are bare opt-in terms · no value).
+// one namespace → { token, value } — the two parallel cell strings (the Token
+// column + the Resolves-to column), one attribute per line in canonical prop
+// order. token = the composition (the bold term + its token-path / literal /
+// flag); value = the CONCRETE resolution (the scale px · the type composite ·
+// the colour swatch + hex), or NO_VALUE for a literal/flag (no indirection).
 function renderNsDetail(nsName, ns, { palette, tokens, colors }, where) {
   if (nsName === 'palette') return renderPalette(ns, palette, colors, where);
   if (nsName === 'interactive') {
-    return NS_PROP_ORDER.interactive.filter((f) => ns[f]).map((f) => `\`${f}\``).join(ATTR_SEP);
+    const flags = NS_PROP_ORDER.interactive.filter((f) => ns[f]);
+    return {
+      token: flags.map((f) => `\`${f}\``).join(ATTR_SEP),
+      value: flags.map(() => NO_VALUE).join(ATTR_SEP),
+    };
   }
   if (nsName === 'typography') {
     assertLeaf(tokens, 'type', ns.size, `${where}.typography.size`);
-    // Expand the type composite (decision 54): the step key + every resolved
-    // field on its own dt/dd line (fontSize · lineHeight · weight · letterSpacing).
+    // The type-scale key is the token; the resolved composite (decision 54) is
+    // its value — every field on its own dt/dd line in the value column.
     const step = tokens.type[ns.size];
-    return [
-      attr('size', ns.size),
-      attr('fontSize', step.fontSize),
-      attr('lineHeight', step.lineHeight),
-      attr('weight', step.fontWeight),
-      attr('letterSpacing', step.letterSpacing),
-    ].join(ATTR_SEP);
+    return {
+      token: attr('size', ns.size),
+      value: [
+        attr('fontSize', step.fontSize),
+        attr('lineHeight', step.lineHeight),
+        attr('weight', step.fontWeight),
+        attr('letterSpacing', step.letterSpacing),
+      ].join(ATTR_SEP),
+    };
   }
-  // stack | box · prop → scale-path (+ the resolved px) or literal
-  const segs = [];
+  // stack | box · prop → scale-path + the resolved px, or a literal (NO_VALUE)
+  const toks = [], vals = [];
   for (const prop of NS_PROP_ORDER[nsName]) {
     if (ns[prop] === undefined) continue;
     const scale = PROP_SCALE[prop];
     if (scale) {
       assertLeaf(tokens, scale, ns[prop], `${where}.${nsName}.${prop}`);
-      segs.push(`${attr(prop, `${scale}.${ns[prop]}`)} \`${tokens[scale][ns[prop]]}\``);
+      toks.push(attr(prop, `${scale}.${ns[prop]}`));
+      vals.push(`\`${tokens[scale][ns[prop]]}\``);
     } else {
-      segs.push(attr(prop, ns[prop]));
+      toks.push(attr(prop, ns[prop]));
+      vals.push(NO_VALUE);
     }
   }
-  return segs.join(ATTR_SEP);
+  return { token: toks.join(ATTR_SEP), value: vals.join(ATTR_SEP) };
 }
 
-// a PartMap → [[part, nsName, detail], …] in canonical part × namespace order.
+// a PartMap → [[part, nsName, token, value], …] in canonical part × namespace
+// order. token = the composition column, value = the resolved-value column.
 function compositionRows(partMap, opts, where) {
   const rows = [];
   if (!partMap) return rows;
@@ -239,7 +259,8 @@ function compositionRows(partMap, opts, where) {
     if (!ns) continue;
     for (const nsName of NS_ORDER) {
       if (!ns[nsName]) continue;
-      rows.push([part, nsName, renderNsDetail(nsName, ns[nsName], opts, `${where}.${part}`)]);
+      const { token, value } = renderNsDetail(nsName, ns[nsName], opts, `${where}.${part}`);
+      rows.push([part, nsName, token, value]);
     }
   }
   return rows;
@@ -312,26 +333,28 @@ export function emitDocPage(ir, opts = {}) {
   if (baseRows.length) {
     lines.push('## Base');
     lines.push('');
-    lines.push('| Part | Namespace | Resolves to |');
-    lines.push('| --- | --- | --- |');
-    for (const [part, nsName, detail] of baseRows) {
-      lines.push(`| \`${part}\` | \`${nsName}\` | ${detail} |`);
+    lines.push('| Part | Namespace | Token | Resolves to |');
+    lines.push('| --- | --- | --- | --- |');
+    for (const [part, nsName, token, value] of baseRows) {
+      lines.push(`| \`${part}\` | \`${nsName}\` | ${token} | ${value} |`);
     }
     lines.push('');
   }
 
-  // ── Token map · per axis value → the per-part namespace composition,
-  // resolved to token paths (variant → palette.ts derefs · box/typography
-  // → scale leaves). The agent-critical surface, generated. ──
+  // ── Token map · per axis value → the per-part namespace composition. The
+  // Token column carries the semantic composition (variant → palette.ts derefs ·
+  // box/typography → scale leaves); the Resolves-to column carries its CONCRETE
+  // value (the swatch + hex · the px · the type composite). The agent-critical
+  // surface, generated. ──
   lines.push('## Token map');
   lines.push('');
-  lines.push('| Axis | Value | Part | Namespace | Resolves to |');
-  lines.push('| --- | --- | --- | --- | --- |');
+  lines.push('| Axis | Value | Part | Namespace | Token | Resolves to |');
+  lines.push('| --- | --- | --- | --- | --- | --- |');
   for (const axis of Object.keys(ir.axes)) {
     for (const value of ir.axes[axis]) {
       const pm = ir.variants && ir.variants[axis] && ir.variants[axis][value];
-      for (const [part, nsName, detail] of compositionRows(pm, opts, `${axis}.${value}`)) {
-        lines.push(`| \`${axis}\` | \`${value}\` | \`${part}\` | \`${nsName}\` | ${detail} |`);
+      for (const [part, nsName, token, resolved] of compositionRows(pm, opts, `${axis}.${value}`)) {
+        lines.push(`| \`${axis}\` | \`${value}\` | \`${part}\` | \`${nsName}\` | ${token} | ${resolved} |`);
       }
     }
   }

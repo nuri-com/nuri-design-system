@@ -26,16 +26,16 @@ nav_order: 2
 
 ## Base
 
-| Part | Namespace | Resolves to |
-| --- | --- | --- |
-| `root` | `stack` | **align** `center`<br>**justify** `center` |
-| `root` | `box` | **width** `size.lg` `48px`<br>**height** `size.lg` `48px`<br>**radius** `radius.full` `9999px` |
+| Part | Namespace | Token | Resolves to |
+| --- | --- | --- | --- |
+| `root` | `stack` | **align** `center`<br>**justify** `center` | —<br>— |
+| `root` | `box` | **width** `size.lg`<br>**height** `size.lg`<br>**radius** `radius.full` | `48px`<br>`48px`<br>`9999px` |
 
 ## Token map
 
-| Axis | Value | Part | Namespace | Resolves to |
-| --- | --- | --- | --- | --- |
-| `variant` | `solid` | `root` | `palette` | **bg** `accent.solid` <span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid)"></span> `#12110b`<br>**fg** `accent.onSolid` <span class="nuri-doc-swatch" style="background:var(--nuri-accent-on-solid)"></span> `#f0eee3`<br>**pressed** `accent.solidPressed` <span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid-pressed)"></span> `#242319` |
-| `variant` | `soft` | `root` | `palette` | **bg** `chrome.bgStrong` <span class="nuri-doc-swatch" style="background:var(--nuri-bg-strong)"></span> `#f3f1e2`<br>**fg** `chrome.textPrimary` <span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `#222013`<br>**muted** `chrome.textMuted` <span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `#666455`<br>**pressed** `chrome.bgPressed` <span class="nuri-doc-swatch" style="background:var(--nuri-bg-pressed)"></span> `#ece9da` |
-| `variant` | `ghost` | `root` | `palette` | **bg** `transparent` <span class="nuri-doc-swatch" style="background:transparent"></span><br>**fg** `chrome.textPrimary` <span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `#222013`<br>**muted** `chrome.textMuted` <span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `#666455`<br>**pressed** `chrome.bgSubtle` <span class="nuri-doc-swatch" style="background:var(--nuri-bg-subtle)"></span> `#fbf9ee` |
-| `variant` | `subtle` | `root` | `palette` | **fg** `chrome.borderStrong` <span class="nuri-doc-swatch" style="background:var(--nuri-border-strong)"></span> `#bfbcac` |
+| Axis | Value | Part | Namespace | Token | Resolves to |
+| --- | --- | --- | --- | --- | --- |
+| `variant` | `solid` | `root` | `palette` | **bg** `accent.solid`<br>**fg** `accent.onSolid`<br>**pressed** `accent.solidPressed` | <span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid)"></span> `#12110b`<br><span class="nuri-doc-swatch" style="background:var(--nuri-accent-on-solid)"></span> `#f0eee3`<br><span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid-pressed)"></span> `#242319` |
+| `variant` | `soft` | `root` | `palette` | **bg** `chrome.bgStrong`<br>**fg** `chrome.textPrimary`<br>**muted** `chrome.textMuted`<br>**pressed** `chrome.bgPressed` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-strong)"></span> `#f3f1e2`<br><span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `#222013`<br><span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `#666455`<br><span class="nuri-doc-swatch" style="background:var(--nuri-bg-pressed)"></span> `#ece9da` |
+| `variant` | `ghost` | `root` | `palette` | **bg** `transparent`<br>**fg** `chrome.textPrimary`<br>**muted** `chrome.textMuted`<br>**pressed** `chrome.bgSubtle` | <span class="nuri-doc-swatch" style="background:transparent"></span><br><span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `#222013`<br><span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `#666455`<br><span class="nuri-doc-swatch" style="background:var(--nuri-bg-subtle)"></span> `#fbf9ee` |
+| `variant` | `subtle` | `root` | `palette` | **fg** `chrome.borderStrong` | <span class="nuri-doc-swatch" style="background:var(--nuri-border-strong)"></span> `#bfbcac` |

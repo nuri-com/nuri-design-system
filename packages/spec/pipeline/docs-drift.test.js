@@ -557,40 +557,45 @@ test('F · the descriptor schema shape is frozen (B3 · decision 65 step 5)', ()
 const DOC_COMPONENTS = ['composition-button', 'icon-avatar', 'topbar'];
 
 // Per-page contract (N+23): front-matter title/nav · the authored `## Example`
-// include · the data sections · and ≥1 ENRICHED cell exercising the new value
-// rendering (geometry px · the type composite · the live var() swatch + hex).
-// The enriched cells are the FAITHFUL R1.5 surface — icon-avatar's `subtle`
-// fg-only variant + radius.full (the 9999px sentinel) · topbar's LONE
-// `center true` token-map row (center=false is an empty partmap · no rows). A
-// deliberate emitter change must update these pins.
+// include · the data sections · the 2-column split (the resolved value in its
+// OWN "Resolves to" column beside the "Token" composition · operator request) ·
+// and ≥1 ENRICHED value cell exercising each format (geometry px · the type
+// composite · the live var() swatch + hex · the em-dash for a literal/flag). The
+// enriched cells are the FAITHFUL R1.5 surface — icon-avatar's `subtle` fg-only
+// variant + radius.full (the 9999px sentinel) · topbar's MIXED stack (literals →
+// em-dash, gap → px) + its LONE `center true` token-map row (center=false is an
+// empty partmap · no rows). A deliberate emitter change must update these pins.
 const PAGE_CONTRACT = {
   'composition-button': {
     source: 'button', title: 'Button', nav: 1,
     cells: [
-      // colour · the live var() swatch + the default-scope hex beside each channel
-      '| `variant` | `solid` | `root` | `palette` | **bg** `accent.solid` <span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid)"></span> `#12110b`<br>**fg** `accent.onSolid` <span class="nuri-doc-swatch" style="background:var(--nuri-accent-on-solid)"></span> `#f0eee3`<br>**pressed** `accent.solidPressed` <span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid-pressed)"></span> `#242319` |',
-      // geometry · the resolved px beside the scale path
-      '| `size` | `lg` | `root` | `box` | **minHeight** `size.xl` `60px`<br>**paddingX** `space.xl` `24px`<br>**radius** `radius.md` `12px` |',
-      // typography · the expanded composite
-      '| `size` | `md` | `label` | `typography` | **size** `mdEm`<br>**fontSize** `17`<br>**lineHeight** `1.29`<br>**weight** `600`<br>**letterSpacing** `-0.02` |',
+      // colour · the live var() swatch + the default-scope hex in the VALUE column
+      '| `variant` | `solid` | `root` | `palette` | **bg** `accent.solid`<br>**fg** `accent.onSolid`<br>**pressed** `accent.solidPressed` | <span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid)"></span> `#12110b`<br><span class="nuri-doc-swatch" style="background:var(--nuri-accent-on-solid)"></span> `#f0eee3`<br><span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid-pressed)"></span> `#242319` |',
+      // geometry · the resolved px in the value column
+      '| `size` | `lg` | `root` | `box` | **minHeight** `size.xl`<br>**paddingX** `space.xl`<br>**radius** `radius.md` | `60px`<br>`24px`<br>`12px` |',
+      // typography · the expanded composite in the value column
+      '| `size` | `md` | `label` | `typography` | **size** `mdEm` | **fontSize** `17`<br>**lineHeight** `1.29`<br>**weight** `600`<br>**letterSpacing** `-0.02` |',
     ],
   },
   'icon-avatar': {
     source: 'icon-avatar', title: 'Icon Avatar', nav: 2,
     cells: [
-      // geometry · the radius.full sentinel surfaced faithfully (9999px)
-      '| `root` | `box` | **width** `size.lg` `48px`<br>**height** `size.lg` `48px`<br>**radius** `radius.full` `9999px` |',
-      // the `subtle` fg-only variant (the R1.5 subtle row · single channel)
-      '| `variant` | `subtle` | `root` | `palette` | **fg** `chrome.borderStrong` <span class="nuri-doc-swatch" style="background:var(--nuri-border-strong)"></span> `#bfbcac` |',
+      // geometry · the radius.full sentinel (9999px) in the value column
+      '| `root` | `box` | **width** `size.lg`<br>**height** `size.lg`<br>**radius** `radius.full` | `48px`<br>`48px`<br>`9999px` |',
+      // the `subtle` fg-only variant · a single swatch in the value column
+      '| `variant` | `subtle` | `root` | `palette` | **fg** `chrome.borderStrong` | <span class="nuri-doc-swatch" style="background:var(--nuri-border-strong)"></span> `#bfbcac` |',
     ],
   },
   topbar: {
     source: 'topbar', title: 'Topbar', nav: 3,
     cells: [
-      // chrome surface · the canvas bg swatch + hex (the topbar's base palette)
-      '| `root` | `palette` | **bg** `chrome.bgCanvas` <span class="nuri-doc-swatch" style="background:var(--nuri-bg-canvas)"></span> `#fffdf2`<br>**fg** `chrome.textPrimary` <span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `#222013`<br>**muted** `chrome.textMuted` <span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `#666455` |',
-      // the LONE token-map row — center=false is an empty partmap (faithful R1.5)
-      '| `center` | `true` | `content` | `stack` | **align** `center`<br>**justify** `center` |',
+      // chrome surface · the canvas swatch + hex in the value column
+      '| `root` | `palette` | **bg** `chrome.bgCanvas`<br>**fg** `chrome.textPrimary`<br>**muted** `chrome.textMuted` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-canvas)"></span> `#fffdf2`<br><span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `#222013`<br><span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `#666455` |',
+      // the MIXED stack cell · literals → the em-dash, gap → the resolved px (the
+      // value column aligns line-for-line with the Token column)
+      '| `root` | `stack` | **direction** `row`<br>**align** `center`<br>**gap** `space.sm` | —<br>—<br>`6px` |',
+      // the LONE token-map row · center=false is an empty partmap (faithful R1.5)
+      '| `center` | `true` | `content` | `stack` | **align** `center`<br>**justify** `center` | —<br>— |',
     ],
   },
 };
@@ -648,6 +653,16 @@ test('G · each build/docs/*.md re-emits identically from its descriptor', () =>
     for (const h of ['## Example', '## API', '## Anatomy', '## Base', '## Token map']) {
       assert.ok(md.includes(`\n${h}\n`), `${contract.source}.md: missing the '${h}' section`);
     }
+    // The N+23 two-column split — the composition (Token) and its concrete value
+    // (Resolves to) in separate columns, in BOTH tables.
+    assert.ok(
+      md.includes('| Part | Namespace | Token | Resolves to |'),
+      `${contract.source}.md: the Base table lost the 2-column Token / Resolves-to split`,
+    );
+    assert.ok(
+      md.includes('| Axis | Value | Part | Namespace | Token | Resolves to |'),
+      `${contract.source}.md: the Token map lost the 2-column Token / Resolves-to split`,
+    );
     // ≥1 enriched cell per page — the N+23 value/swatch/composite RENDERING.
     for (const cell of contract.cells) {
       assert.ok(

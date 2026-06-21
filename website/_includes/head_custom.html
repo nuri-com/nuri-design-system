@@ -56,6 +56,10 @@
     border: 1px solid var(--nuri-border-strong, rgba(128, 128, 128, 0.5));
     border-radius: 3px;
   }
+  /* Top-align the generated table cells so the Token column and its Resolves-to
+     value column read line-for-line (N+23 · the 2-column split). Scoped to the
+     just-the-docs content wrapper so it never touches the theme's own chrome. */
+  .main-content td { vertical-align: top; }
 </style>
 
 <script src="{{ '/assets/nuri/docs/control/control.js' | relative_url }}" defer></script>
