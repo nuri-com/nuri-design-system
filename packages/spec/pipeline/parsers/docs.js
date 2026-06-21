@@ -13,7 +13,7 @@
  *   the 65.1 bootstrap), so doc-gen does not wait for the source
  *   inversion (north-star move 3 · the decoupling).
  *
- * Sources, two readers each (decision 48 · "emit FROM, never re-author"):
+ * Sources (decision 48 · "emit FROM, never re-author"):
  *   · ir       — the composition descriptor (build/descriptors/<name>.ts ·
  *                axes · anatomy · structure.base · variants), produced
  *                live by deriveDescriptor during the build.
@@ -21,15 +21,26 @@
  *                (build/palette.ts · pipeline/parsers/palette.js). The
  *                token-map table dereferences each `palette:{variant}`
  *                node through it to the resolved TokenPaths.
- *   · tokens   — the scale leaf sets (size · space · radius · type),
- *                a VALIDATION guard: a box/typography leaf the descriptor
- *                references that is absent from its scale throws at emit
- *                (faithfulness · decision 48). Output is a pure function
- *                of (ir · palette); `tokens` never reaches the bytes.
+ *   · tokens   — the size · space · radius · type VALUE maps. TWO uses
+ *                (N+23 · one map): the leaf-VALIDATION sets (a box/typography
+ *                leaf the descriptor references but absent from its scale
+ *                throws · faithfulness · decision 48) AND the value SOURCE —
+ *                the resolved px / the type composite the Resolves-to column
+ *                renders.
+ *   · colors   — the default-scope (neutral + light · cream) colour resolver
+ *                (makeColorResolver · N+23): a palette TokenPath → { var, hex }.
+ *                The swatch reads `var` LIVE (re-themes with scope); `hex` is
+ *                the literal it coincides with at the page :root.
+ *
+ *   Output is a pure function of (ir · palette · tokens · colors) — all
+ *   SoT-derived through buildDocTokenInputs (the one builder Slice 9 AND
+ *   Guard G call), so the page re-emits byte-identical.
  *
  * SPEC ONLY — no prose (DRY · P11). The page carries the derivable
- * data (axes/API · anatomy · the per-axis composition resolved to token
- * paths · the interactive opt-ins) plus ONE structural slot — an
+ * data (axes/API · anatomy · the per-part composition [the Token column] +
+ * its resolved values [the Resolves-to column · px · the type composite · the
+ * live var() swatch + the default-scope hex] · the interactive opt-ins) plus
+ * ONE structural slot — an
  * `## Example` that `{% include %}`s an AUTHORED <nuri-demo> story
  * (a consumer story · decision 57.2 · NOT generated · authored in
  * website/_includes/demo/<source>.html). The "+" in north-star move 3
