@@ -25,22 +25,35 @@ const WEBSITE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(WEBSITE, '..');
 const SPEC = resolve(REPO_ROOT, 'packages/spec');
 
-// Runtime assets the <nuri-demo> needs to hydrate — mirrors the <head> of a
-// spec component page (pages/components/button.html). src (under packages/spec)
-// → dst (under website/assets/nuri). The single SoT is packages/spec; these are
-// copies, regenerated every stage.
+// Runtime assets the <nuri-demo> stories need to hydrate — mirrors the <head> of
+// the spec component pages (pages/components/{button,icon-avatar,topbar}.html).
+// src (under packages/spec) → dst (under website/assets/nuri). The single SoT is
+// packages/spec; these are copies, regenerated every stage. As the generated nav
+// grows, the per-component runtime grows with it (N+23 · increment 2 added the
+// IconAvatar + Topbar trees + the shared <nuri-icon> glyph runtime).
 const ASSETS = [
-  ['styles/tokens-primitive.css',          'assets/nuri/styles/tokens-primitive.css'],
-  ['styles/tokens-semantic.css',           'assets/nuri/styles/tokens-semantic.css'],
-  ['styles/typography.css',                'assets/nuri/styles/typography.css'],
-  ['lib/docs/state.js',                    'assets/nuri/docs/state.js'],
-  ['lib/docs/control/control.css',         'assets/nuri/docs/control/control.css'],
-  ['lib/docs/control/control.js',          'assets/nuri/docs/control/control.js'],
-  ['lib/docs/demo/demo.css',               'assets/nuri/docs/demo/demo.css'],
-  ['lib/docs/demo/demo.js',                'assets/nuri/docs/demo/demo.js'],
-  ['lib/components/button/button.css',     'assets/nuri/components/button/button.css'],
-  ['lib/components/button/button.js',      'assets/nuri/components/button/button.js'],
-  ['lib/components/scope/scope.js',        'assets/nuri/components/scope/scope.js'],
+  ['styles/tokens-primitive.css',                'assets/nuri/styles/tokens-primitive.css'],
+  ['styles/tokens-semantic.css',                 'assets/nuri/styles/tokens-semantic.css'],
+  ['styles/typography.css',                      'assets/nuri/styles/typography.css'],
+  ['lib/docs/state.js',                          'assets/nuri/docs/state.js'],
+  ['lib/docs/control/control.css',               'assets/nuri/docs/control/control.css'],
+  ['lib/docs/control/control.js',                'assets/nuri/docs/control/control.js'],
+  ['lib/docs/demo/demo.css',                     'assets/nuri/docs/demo/demo.css'],
+  ['lib/docs/demo/demo.js',                      'assets/nuri/docs/demo/demo.js'],
+  ['lib/components/button/button.css',           'assets/nuri/components/button/button.css'],
+  ['lib/components/button/button.js',            'assets/nuri/components/button/button.js'],
+  // <nuri-icon> glyph runtime (icon.js is an ES module · imports icons.js as a
+  // staged sibling) — shared by IconAvatar + the Topbar's IconButton controls.
+  ['lib/components/icon/icon.css',               'assets/nuri/components/icon/icon.css'],
+  ['lib/components/icon/icon.js',                'assets/nuri/components/icon/icon.js'],
+  ['lib/components/icon/icons.js',               'assets/nuri/components/icon/icons.js'],
+  ['lib/components/icon-avatar/icon-avatar.css', 'assets/nuri/components/icon-avatar/icon-avatar.css'],
+  ['lib/components/icon-avatar/icon-avatar.js',  'assets/nuri/components/icon-avatar/icon-avatar.js'],
+  ['lib/components/icon-button/icon-button.css', 'assets/nuri/components/icon-button/icon-button.css'],
+  ['lib/components/icon-button/icon-button.js',  'assets/nuri/components/icon-button/icon-button.js'],
+  ['lib/components/topbar/topbar.css',           'assets/nuri/components/topbar/topbar.css'],
+  ['lib/components/topbar/topbar.js',            'assets/nuri/components/topbar/topbar.js'],
+  ['lib/components/scope/scope.js',              'assets/nuri/components/scope/scope.js'],
 ];
 
 const DOCS_SRC = resolve(SPEC, 'build/docs');     // the generated pages

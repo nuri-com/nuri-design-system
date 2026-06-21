@@ -16,13 +16,17 @@ hasn't made.
 `flag` = warrants one (not yet done) · `table` = recorded here only; resolve at the arc, no in-place
 flag yet (avoid noise / immutable-ledger lines / last-phase prose).
 
-**Arc status (2026-06-20).** Arc **(1) `website` doc-gen is STARTED** — N+22 increment 1
-([`N+22.md`](./N+22.md)) landed the mechanism end-to-end for **Button** (the in-pipeline emitter →
-generated MD → Jekyll/just-the-docs → hydrating `<nuri-demo>`). No row shrinks yet: increment 1 ADDS a
-generated page alongside the hand-written ones — rows **#2** and **#3(b)** shrink only as the emitter
-generalizes to all components (the human pages retire incrementally; **their `data-spec="parts"`
-anatomy STAYS** as the descriptor STRUCTURE source · Guard D · decision 24.1 — so the pages are
-trimmed, never deleted wholesale).
+**Arc status (2026-06-21).** Arc **(1) `website` doc-gen is IN PROGRESS** — N+22 increment 1
+([`N+22.md`](./N+22.md)) landed the mechanism end-to-end for **Button**; N+23 increment 2
+([`N+23.md`](./N+23.md)) **generalized the emitter to all three `DESCRIPTOR_COMPONENTS`** (button ·
+icon-avatar · topbar → the full descriptor-backed nav) and enriched every token-map cell with its
+resolved value (px · the type composite · a live `var()` swatch + the default-scope hex). **Rows #2
+and #3(b) STILL do NOT shrink**: generalizing the emitter ADDS the generated pages, but **no hand page
+is retired** — the **retire-gate is OPEN** (gated on the derivable-spec gaps the generated docs
+surfaced: **no default-per-axis** [≡ R1.5] + **axes ⊂ props** · the a/b/c options are the next
+session's first decision · see [`N+23.md`](./N+23.md)). Until that gate resolves, the human pages STAY
+in full — **their `data-spec="parts"` anatomy is the descriptor STRUCTURE source** (Guard D · decision
+24.1). Do **NOT** mark rows #2/#3(b) retired.
 
 | # | Contradicted assertion | Location(s) | The new position (decision 66) | Resolving arc | now |
 |---|---|---|---|---|---|

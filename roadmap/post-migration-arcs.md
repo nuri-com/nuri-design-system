@@ -6,8 +6,9 @@
 > sequence: the migration is COMPLETE, **arc #0 (Smell-1)** and **arc #1 increment 1 (website doc-gen ·
 > Button)** are MERGED.
 >
-> **Prerequisite — re-verify the baseline** (`main` at the N+22 commit `353f6f5` · #42):
-> - `npm test -w @nuri/spec` → **26/26** (Guard G added at N+22 · the doc re-emit teeth)
+> **Prerequisite — re-verify the baseline** (`main` after the N+23 merge of `feat/website-increment-2` ·
+> increment 2 · the counts below are UNCHANGED — Guard G was EXTENDED to 3 pages, not added):
+> - `npm test -w @nuri/spec` → **26/26** (Guard G · the doc re-emit teeth · now covers all 3 generated pages)
 > - `npm test -w @nuri/factory` → **27/27 + 7 snapshots**
 > - `npx tsc -p packages/factory/tsconfig.json --noEmit` → **0** · same for `packages/expo-demo` → **0**
 > - `npm run build -w @nuri/spec` then `git diff --exit-code packages/spec/build/` → **clean**
@@ -27,13 +28,26 @@ generation thesis applied to docs). *As coordinator* (plan · brief · review di
   `.github/workflows/pages.yml` Pages-Actions deploy. **DRY:** only the Jekyll shell + the AUTHORED
   `<nuri-demo>` partial + `stage.mjs` are committed; the runtime assets + the generated MD are
   gitignored staged copies of the SoT (`packages/spec/{lib,styles,build}`).
+- ✅ **increment 2 (N+23 · [`roadmap/N+23.md`](./N+23.md)):** the emitter **GENERALIZED** Button → all
+  three `DESCRIPTOR_COMPONENTS` (button · icon-avatar · topbar → the full descriptor-backed nav) + every
+  token-map cell **ENRICHED** with its resolved value (the **2-column** `Token | Resolves to` · geometry px
+  · the type composite · a live `var()` swatch + the default-scope hex · em-dash on literals/flags · the
+  swatch-var DERIVED from the classified groups · the scope ANCHORED to neutral·cream·light so swatch==hex).
+  **Still read-only · NOT §9 · the 3 hand pages NOT retired** (Guard D · the retire-gate is OPEN, below).
 
-**Coordinator lean for the START — increment 2: generalize the emitter.** Extend the emitter from
-Button to **all `DESCRIPTOR_COMPONENTS`** (→ the full just-the-docs nav · retire the hand-written
-`pages/components/*.html` **INCREMENTALLY**). This is the most direct kill of the stale-prose +
-manual-token/prop-sync burden the operator named as the reason for the arc. **Resolve the
-derivable-spec gaps (below) WITH THE OPERATOR FIRST** — they're the substance. After it: the
-axis-driven `<nuri-demo>` selects (retire the authored demo partials).
+**Coordinator lean for the START — increment 3: the retire-gate decision (a/b/c), THEN the axis-driven
+selects** (STUB · operator refines). The generalized emitter surfaced the substance the operator must now
+settle: **when is a generated page "covering enough" to retire its hand-written counterpart?** It is gated
+on the two derivable-spec gaps the docs now make visible — **no default-per-axis** (≡ the R1.5 finding · the
+API table can't mark `soft`/`md` defaults) + **axes ⊂ the element props** (`accent`/`disabled` are not
+composition axes → absent from the generated API → narrower than the hand pages). **The a/b/c options to
+resolve WITH THE OPERATOR FIRST:** (a) **accept the narrower descriptor-faithful surface** and retire on it
+(the hand pages lose their accent/disabled/default prose) · (b) **GROW the frozen contract** to carry
+defaults + extra props (a **Guard-F schema change** · versioned · ties to the Digital-cash first-bump) ·
+(c) a **hybrid** — retire the derivable half, keep a thin hand-written prose stub for accent/disabled. Only
+after the retire-gate: the **axis-driven `<nuri-demo>` selects** (per-prop selects derived from the
+descriptor's axes → retires the authored demo partials · the operator's story endgame). The **`@layer`
+font live-check** stays HELD (verify on the live themed render · don't apply blind).
 
 ## Context drop
 

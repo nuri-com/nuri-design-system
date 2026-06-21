@@ -1,0 +1,19 @@
+<!-- AUTHORED <nuri-demo> story for Topbar (a consumer story · decision 57.2 ·
+     NOT generated — composing isn't DS work). The generated page
+     (build/docs/topbar.md · `## Example`) includes this partial. ONE demo, the
+     build-free <template> → live preview + code from one source (decision 10);
+     it HYDRATES via the runtime injected in _includes/head_custom.html (the
+     leading/trailing controls ride the staged icon-button + icon runtime). Raw
+     block HTML so kramdown passes the <template> through verbatim (the de-risk
+     spike · north-star move 3). PORTED from pages/components/topbar.html — the
+     canonical content-pivot story (leading Back · centred title · trailing
+     Settings). Per-prop demo selects are a deferred increment. -->
+<nuri-demo controls="theme,accent" label="account" subtitle="content pivot · leading + trailing">
+  <template>
+    <nuri-topbar inset="sm">
+      <nuri-icon-button name="caret-left" variant="ghost" label="Back"></nuri-icon-button>
+      <nuri-topbar-content>Account</nuri-topbar-content>
+      <nuri-icon-button name="gear" variant="ghost" label="Settings"></nuri-icon-button>
+    </nuri-topbar>
+  </template>
+</nuri-demo>

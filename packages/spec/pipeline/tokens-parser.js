@@ -88,7 +88,7 @@ import {
   emitPaletteTs,
 } from './parsers/palette.js';
 
-import { emitDocPage } from './parsers/docs.js';
+import { emitDocPage, buildDocTokenInputs } from './parsers/docs.js';
 
 import { ICONS } from '../lib/components/icon/icons.js';
 
@@ -141,6 +141,7 @@ export {
   derivePalette,
   emitPaletteTs,
   emitDocPage,
+  buildDocTokenInputs,
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -161,11 +162,11 @@ const PALETTE_OUT      = resolve(REPO_ROOT, 'build/palette.ts');
 const DOCS_OUT         = resolve(REPO_ROOT, 'build/docs');
 
 // Component sources whose doc page is GENERATED (N+22 · decision 66 arc #1 ·
-// the website vertical slice). Button only this increment; generalizes to the
-// full DESCRIPTOR_COMPONENTS set as the website coverage grows (P11 · the
-// old hand-written pages/components/*.html die incrementally as the generated
-// pages cover them).
-const DOC_COMPONENTS = ['composition-button'];
+// the website vertical slice). Generalized at N+23 (increment 2) from Button to
+// the FULL DESCRIPTOR_COMPONENTS set — the descriptor-backed nav now covers all
+// three ergonomic components (P11 · the old hand-written pages/components/*.html
+// die incrementally as the generated pages cover them).
+const DOC_COMPONENTS = ['composition-button', 'icon-avatar', 'topbar'];
 
 // Per-component `@layer tokens` WALK list (decision 34 · N+6.0.3 ·
 // extended at decisions 37 / 38 / 44). The per-component FILE emission
@@ -334,16 +335,14 @@ async function main() {
   // to EMIT docs, we do NOT generate CSS from it. Additive committed build
   // output (decision 35 · build/docs/<source>.md · re-emits byte-identical).
   // The <nuri-demo> STORY is authored in website/_includes (decision 57.2),
-  // the page only carries an `## Example` include slot. The leaf-validation
-  // `tokens` map is built from the same scales tokens.ts emits (one source).
-  const scaleLeaves = (name) =>
-    new Set(((classifiedGroups.get(name) || { entries: [] }).entries).map((e) => e.leafName));
-  const docTokens = {
-    size: scaleLeaves('size'),
-    space: scaleLeaves('space'),
-    radius: scaleLeaves('radius'),
-    type: new Set(Object.keys(typeScale)),
-  };
+  // the page only carries an `## Example` include slot. The value-bearing inputs
+  // (the scale maps that DOUBLE as the leaf-validation sets · the type composite ·
+  // the default-scope colour resolver) are built from the same live build data
+  // tokens.ts/palette.ts emit (decision 48 · one source, two readers) — the
+  // SINGLE builder Guard G also calls, so the page re-emits byte-identical (N+23).
+  const { tokens: docTokens, colors: docColors } = buildDocTokenInputs(
+    classifiedGroups, resolved, typeScale,
+  );
   await mkdir(DOCS_OUT, { recursive: true });
   const docReports = [];
   for (const spec of DESCRIPTOR_COMPONENTS) {
@@ -354,7 +353,9 @@ async function main() {
     const docHTML = await readFile(resolve(PAGES_DIR, `${spec.source}.html`), 'utf8');
     const ir = deriveDescriptor(spec, { css: docCSS, html: docHTML });
     const out = resolve(DOCS_OUT, `${spec.source}.md`);
-    await writeFile(out, emitDocPage(ir, { palette: paletteCells, tokens: docTokens }), 'utf8');
+    await writeFile(
+      out, emitDocPage(ir, { palette: paletteCells, tokens: docTokens, colors: docColors }), 'utf8',
+    );
     docReports.push({ source: spec.source, axes: Object.keys(ir.axes).length, out });
   }
 

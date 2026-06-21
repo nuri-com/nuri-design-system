@@ -62,7 +62,7 @@
 ## Definition of done
 
 <!-- Concrete, testable. Examples:
-     - "`npm test -w @nuri/spec` passes (25/25)"
+     - "`npm test -w @nuri/spec` passes (all green · the count drifts — don't pin it)"
      - "`npm test -w @nuri/factory` passes (the render-smoke) · tsc 0"
      - "Page renders, console clean, theme/accent toggles re-resolve"
      - "Closeout audit ran; findings surfaced in roadmap/index.md" -->
@@ -122,7 +122,7 @@ docs site is live off `main`.
   tree and breaks `@nuri/factory`'s resolution of its sibling.)
 - **CI** — [`.github/workflows/gates.yml`](../.github/workflows/gates.yml)
   runs on every PR + push-to-`main` as three per-workspace jobs: **`spec`**
-  (`npm ci` · `npm test -w @nuri/spec` 25/25 · `npm run build -w @nuri/spec` ·
+  (`npm ci` · `npm test -w @nuri/spec` all-green · `npm run build -w @nuri/spec` ·
   `git diff --exit-code packages/spec/build/`) · **`factory`** (`npm test -w
   @nuri/factory` — the render-smoke that gates `packages/spec/build/` intra-repo ·
   `npm run typecheck -w @nuri/factory`) · **`expo-demo`** (`npm run typecheck -w
@@ -154,8 +154,8 @@ docs site is live off `main`.
    session, the *diff + ship-list* for a non-visual one. Do NOT run the audit,
    the gates, or closeout until the operator has responded; incorporate their
    feedback first.
-4. **Only after the operator's feedback:** run the gates (`npm test -w @nuri/spec`
-   25/25, `npm run build -w @nuri/spec`, `git diff --exit-code packages/spec/build/`,
+4. **Only after the operator's feedback:** run the gates (`npm test -w @nuri/spec`,
+   `npm run build -w @nuri/spec`, `git diff --exit-code packages/spec/build/`,
    `npm test -w @nuri/factory`, `npm run typecheck -w @nuri/factory`,
    `npm run typecheck -w @nuri/expo-demo`),
    then run [`skills/close-out-session.md`](../skills/close-out-session.md) —
