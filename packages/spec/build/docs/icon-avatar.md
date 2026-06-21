@@ -1,36 +1,35 @@
 ---
-title: Button
+title: Icon Avatar
 layout: default
-nav_order: 1
+nav_order: 2
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: build/descriptors/composition-button.ts
+<!-- GENERATED · DO NOT EDIT BY HAND · source: build/descriptors/icon-avatar.ts
      emitter: pipeline/parsers/docs.js · re-emit: `npm run build -w @nuri/spec` -->
 
-# Button
+# Icon Avatar
 
 ## Example
 
-{% include demo/button.html %}
+{% include demo/icon-avatar.html %}
 
 ## API
 
 | Axis | Values |
 | --- | --- |
-| `variant` | `solid` · `soft` · `ghost` |
-| `size` | `sm` · `md` · `lg` |
+| `variant` | `solid` · `soft` · `ghost` · `subtle` |
 
 ## Anatomy
 
 - **root** · `view`
-  - **label** · `text`
+  - **icon** · `icon`
 
 ## Base
 
 | Part | Namespace | Resolves to |
 | --- | --- | --- |
-| `root` | `stack` | **direction** `row`<br>**align** `center`<br>**justify** `center` |
-| `root` | `interactive` | `pressColor`<br>`pressScale`<br>`disabledOpacity` |
+| `root` | `stack` | **align** `center`<br>**justify** `center` |
+| `root` | `box` | **width** `size.lg` `48px`<br>**height** `size.lg` `48px`<br>**radius** `radius.full` `9999px` |
 
 ## Token map
 
@@ -39,9 +38,4 @@ nav_order: 1
 | `variant` | `solid` | `root` | `palette` | **bg** `accent.solid` <span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid)"></span> `#12110b`<br>**fg** `accent.onSolid` <span class="nuri-doc-swatch" style="background:var(--nuri-accent-on-solid)"></span> `#f0eee3`<br>**pressed** `accent.solidPressed` <span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid-pressed)"></span> `#242319` |
 | `variant` | `soft` | `root` | `palette` | **bg** `chrome.bgStrong` <span class="nuri-doc-swatch" style="background:var(--nuri-bg-strong)"></span> `#f3f1e2`<br>**fg** `chrome.textPrimary` <span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `#222013`<br>**muted** `chrome.textMuted` <span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `#666455`<br>**pressed** `chrome.bgPressed` <span class="nuri-doc-swatch" style="background:var(--nuri-bg-pressed)"></span> `#ece9da` |
 | `variant` | `ghost` | `root` | `palette` | **bg** `transparent` <span class="nuri-doc-swatch" style="background:transparent"></span><br>**fg** `chrome.textPrimary` <span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `#222013`<br>**muted** `chrome.textMuted` <span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `#666455`<br>**pressed** `chrome.bgSubtle` <span class="nuri-doc-swatch" style="background:var(--nuri-bg-subtle)"></span> `#fbf9ee` |
-| `size` | `sm` | `root` | `box` | **minHeight** `size.md` `36px`<br>**paddingX** `space.md` `12px`<br>**radius** `radius.sm` `6px` |
-| `size` | `sm` | `label` | `typography` | **size** `smEm`<br>**fontSize** `15`<br>**lineHeight** `1.33`<br>**weight** `600`<br>**letterSpacing** `-0.01` |
-| `size` | `md` | `root` | `box` | **minHeight** `size.lg` `48px`<br>**paddingX** `space.lg` `18px`<br>**radius** `radius.sm` `6px` |
-| `size` | `md` | `label` | `typography` | **size** `mdEm`<br>**fontSize** `17`<br>**lineHeight** `1.29`<br>**weight** `600`<br>**letterSpacing** `-0.02` |
-| `size` | `lg` | `root` | `box` | **minHeight** `size.xl` `60px`<br>**paddingX** `space.xl` `24px`<br>**radius** `radius.md` `12px` |
-| `size` | `lg` | `label` | `typography` | **size** `mdEm`<br>**fontSize** `17`<br>**lineHeight** `1.29`<br>**weight** `600`<br>**letterSpacing** `-0.02` |
+| `variant` | `subtle` | `root` | `palette` | **fg** `chrome.borderStrong` <span class="nuri-doc-swatch" style="background:var(--nuri-border-strong)"></span> `#bfbcac` |

@@ -43,14 +43,18 @@
  *       Distinct from D: D keeps the INSTANCES faithful to live CSS (the
  *       per-component axes/values stay free); F freezes the schema shape.
  *   G · each build/docs/*.md re-emits identically from its descriptor (the
- *       generation thesis applied to docs · decision 66 arc #1). The page
+ *       generation thesis applied to docs · decision 66 arc #1 · generalized
+ *       to all three DESCRIPTOR_COMPONENTS at N+23 · increment 2). The page
  *       is BUILD OUTPUT — the stale-build / hand-edit guard (Guard D/E
- *       posture) plus the arc-#1 page contract pinned: the just-the-docs
+ *       posture) plus the per-page contract pinned: the just-the-docs
  *       front-matter, the authored-story `## Example` include slot
- *       (decision 57.2 · the story is NOT generated), and the four data
- *       sections (API · Anatomy · Base · Token map). The token-map's
- *       variant→palette derefs flow from Guard E's cells; the size→scale
- *       leaves from Guard D's descriptor — G pins the RENDERING.
+ *       (decision 57.2 · the story is NOT generated), the data sections
+ *       (API · Anatomy · Base · Token map), and ≥1 ENRICHED cell per page —
+ *       the resolved value beside the token path (geometry px · the type
+ *       composite · a live var() colour swatch + default-scope hex · N+23).
+ *       The token-map's variant→palette derefs flow from Guard E's cells; the
+ *       size→scale leaves + swatch hexes from the same build data tokens.ts
+ *       emits — G pins the RENDERING.
  * ────────────────────────────────────────────────────────────── */
 
 import { test } from 'node:test';
@@ -67,8 +71,14 @@ import {
   pageParts,
 } from './parsers/descriptors.js';
 import { derivePalette, emitPaletteTs } from './parsers/palette.js';
-import { emitDocPage } from './parsers/docs.js';
-import { readSemanticRules, classifyAll } from './parsers/semantic.js';
+import { emitDocPage, buildDocTokenInputs } from './parsers/docs.js';
+import {
+  readSemanticRules,
+  classifyAll,
+  buildPrimitiveMap,
+  resolveSemanticCrossProduct,
+} from './parsers/semantic.js';
+import { buildTypeScale } from './parsers/type.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // The pipeline lives in the @nuri/spec workspace (decision 65.7), so REPO_ROOT
@@ -531,21 +541,71 @@ test('F · the descriptor schema shape is frozen (B3 · decision 65 step 5)', ()
   }
 });
 
-// ── Guard G · the generated doc pages ⊂ their descriptor (N+22 · decision 66 arc #1) ──
+// ── Guard G · the generated doc pages ⊂ their descriptor (N+22 · decision 66
+// arc #1 · generalized to all three at N+23 · increment 2) ──
 // The §35 discipline (committed build re-emits identically) applied to the
 // website doc-gen: build/docs/<source>.md is RENDERED from the descriptor IR
 // (read-only · NOT §9 · decision 2 STANDS) by pipeline/parsers/docs.js. The
 // re-emit identity is the stale-build / hand-edit guard (Guard D/E posture);
-// the structural pins lock the arc-#1 page contract — a future emitter change
-// that drops the front-matter, the authored-story include slot, or a data
-// section breaks HERE, not only at `git diff --exit-code build/`. The page's
-// OUTPUT is a pure function of (ir · palette) — `tokens` is an emit-time leaf
-// VALIDATION guard only (it never reaches the bytes), so the re-emit here
-// omits it and still matches the committed file byte-for-byte.
-const DOC_COMPONENTS = ['composition-button'];
+// the per-page pins lock the contract — a future emitter change that drops the
+// front-matter, the authored-story include slot, a data section, or the N+23
+// VALUE enrichment breaks HERE, not only at `git diff --exit-code build/`. The
+// page OUTPUT is now a pure function of (ir · palette · tokens · colors) — all
+// SoT-derived via the SAME builder the orchestrator feeds (buildDocTokenInputs ·
+// the scale maps that double as the leaf-validation sets · the type composite ·
+// the default-scope colour resolver), so the re-emit matches byte-for-byte.
+const DOC_COMPONENTS = ['composition-button', 'icon-avatar', 'topbar'];
+
+// Per-page contract (N+23): front-matter title/nav · the authored `## Example`
+// include · the data sections · and ≥1 ENRICHED cell exercising the new value
+// rendering (geometry px · the type composite · the live var() swatch + hex).
+// The enriched cells are the FAITHFUL R1.5 surface — icon-avatar's `subtle`
+// fg-only variant + radius.full (the 9999px sentinel) · topbar's LONE
+// `center true` token-map row (center=false is an empty partmap · no rows). A
+// deliberate emitter change must update these pins.
+const PAGE_CONTRACT = {
+  'composition-button': {
+    source: 'button', title: 'Button', nav: 1,
+    cells: [
+      // colour · the live var() swatch + the default-scope hex beside each channel
+      '| `variant` | `solid` | `root` | `palette` | **bg** `accent.solid` <span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid)"></span> `#12110b`<br>**fg** `accent.onSolid` <span class="nuri-doc-swatch" style="background:var(--nuri-accent-on-solid)"></span> `#f0eee3`<br>**pressed** `accent.solidPressed` <span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid-pressed)"></span> `#242319` |',
+      // geometry · the resolved px beside the scale path
+      '| `size` | `lg` | `root` | `box` | **minHeight** `size.xl` `60px`<br>**paddingX** `space.xl` `24px`<br>**radius** `radius.md` `12px` |',
+      // typography · the expanded composite
+      '| `size` | `md` | `label` | `typography` | **size** `mdEm`<br>**fontSize** `17`<br>**lineHeight** `1.29`<br>**weight** `600`<br>**letterSpacing** `-0.02` |',
+    ],
+  },
+  'icon-avatar': {
+    source: 'icon-avatar', title: 'Icon Avatar', nav: 2,
+    cells: [
+      // geometry · the radius.full sentinel surfaced faithfully (9999px)
+      '| `root` | `box` | **width** `size.lg` `48px`<br>**height** `size.lg` `48px`<br>**radius** `radius.full` `9999px` |',
+      // the `subtle` fg-only variant (the R1.5 subtle row · single channel)
+      '| `variant` | `subtle` | `root` | `palette` | **fg** `chrome.borderStrong` <span class="nuri-doc-swatch" style="background:var(--nuri-border-strong)"></span> `#bfbcac` |',
+    ],
+  },
+  topbar: {
+    source: 'topbar', title: 'Topbar', nav: 3,
+    cells: [
+      // chrome surface · the canvas bg swatch + hex (the topbar's base palette)
+      '| `root` | `palette` | **bg** `chrome.bgCanvas` <span class="nuri-doc-swatch" style="background:var(--nuri-bg-canvas)"></span> `#fffdf2`<br>**fg** `chrome.textPrimary` <span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `#222013`<br>**muted** `chrome.textMuted` <span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `#666455` |',
+      // the LONE token-map row — center=false is an empty partmap (faithful R1.5)
+      '| `center` | `true` | `content` | `stack` | **align** `center`<br>**justify** `center` |',
+    ],
+  },
+};
 
 test('G · each build/docs/*.md re-emits identically from its descriptor', () => {
-  const classifiedGroups = classifyAll(readSemanticRules(read('styles/tokens-semantic.css')));
+  const semanticRules = readSemanticRules(read('styles/tokens-semantic.css'));
+  const classifiedGroups = classifyAll(semanticRules);
+  // The default-scope (neutral + light · cream) resolved cross-product + type
+  // scale — the SAME data the orchestrator's Slice 9 feeds buildDocTokenInputs,
+  // so the value-bearing inputs (px · composite · swatch var + hex) reconstruct
+  // identically and the page re-emits byte-for-byte.
+  const primitiveMap = buildPrimitiveMap(read('styles/tokens-primitive.css'));
+  const resolved = resolveSemanticCrossProduct(semanticRules, primitiveMap);
+  const typeScale = buildTypeScale(primitiveMap);
+  const { tokens, colors } = buildDocTokenInputs(classifiedGroups, resolved, typeScale);
   // The same palette cells the page derefs (build/palette.ts · Guard E's SoT).
   const palette = derivePalette(
     {
@@ -566,34 +626,34 @@ test('G · each build/docs/*.md re-emits identically from its descriptor', () =>
     const ir = deriveDescriptor(spec, { css, html });
     assert.equal(
       read(`build/docs/${spec.source}.md`),
-      emitDocPage(ir, { palette }),
+      emitDocPage(ir, { palette, tokens, colors }),
       `build/docs/${spec.source}.md is stale or hand-edited — run \`npm run build\`.`,
     );
   }
 
-  // The arc-#1 page contract (Button · the vertical slice). A deliberate
-  // emitter change must update these pins.
-  const btn = read('build/docs/button.md');
-  assert.match(
-    btn, /^---\ntitle: Button\nlayout: default\nnav_order: 1\n---/,
-    'the just-the-docs front-matter drifted',
-  );
-  assert.match(
-    btn, /\n\{% include demo\/button\.html %\}\n/,
-    'the authored <nuri-demo> story include slot is missing (decision 57.2)',
-  );
-  for (const h of ['## Example', '## API', '## Anatomy', '## Base', '## Token map']) {
-    assert.ok(btn.includes(`\n${h}\n`), `the generated page is missing the '${h}' section`);
+  // The per-page contract pins (a deliberate emitter change must update these).
+  for (const spec of DESCRIPTOR_COMPONENTS) {
+    const contract = PAGE_CONTRACT[spec.name];
+    if (!contract) continue;
+    const md = read(`build/docs/${contract.source}.md`);
+    assert.match(
+      md,
+      new RegExp(`^---\\ntitle: ${contract.title}\\nlayout: default\\nnav_order: ${contract.nav}\\n---`),
+      `${contract.source}.md: the just-the-docs front-matter drifted`,
+    );
+    assert.ok(
+      md.includes(`\n{% include demo/${contract.source}.html %}\n`),
+      `${contract.source}.md: the authored <nuri-demo> story include slot is missing (decision 57.2)`,
+    );
+    for (const h of ['## Example', '## API', '## Anatomy', '## Base', '## Token map']) {
+      assert.ok(md.includes(`\n${h}\n`), `${contract.source}.md: missing the '${h}' section`);
+    }
+    // ≥1 enriched cell per page — the N+23 value/swatch/composite RENDERING.
+    for (const cell of contract.cells) {
+      assert.ok(
+        md.includes(cell),
+        `${contract.source}.md: an enriched cell rendering drifted —\n  expected substring: ${cell}`,
+      );
+    }
   }
-  // The token-map RENDERING: variant → the palette.ts derefs (mapping = data ·
-  // decision 65.1) and size → the resolved scale leaves. One attribute per line
-  // (the `<br>` dt/dd cell · operator readability · N+22).
-  assert.ok(
-    btn.includes('| `variant` | `solid` | `root` | `palette` | **bg** `accent.solid`<br>**fg** `accent.onSolid`<br>**pressed** `accent.solidPressed` |'),
-    'the variant→palette deref rendering drifted from build/palette.ts',
-  );
-  assert.ok(
-    btn.includes('| `size` | `lg` | `root` | `box` | **minHeight** `size.xl`<br>**paddingX** `space.xl`<br>**radius** `radius.md` |'),
-    'the size→box scale-leaf rendering drifted from the descriptor',
-  );
 });

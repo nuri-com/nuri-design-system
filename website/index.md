@@ -18,3 +18,5 @@ source.
 ## Components
 
 - [Button](components/button.html)
+- [Icon Avatar](components/icon-avatar.html)
+- [Topbar](components/topbar.html)

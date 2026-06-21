@@ -40,6 +40,8 @@
  * part/namespace/prop order, no timestamps, deterministic throughout.
  * ────────────────────────────────────────────────────────────── */
 
+import { ACCENTS, THEMES } from './semantic.js';
+
 // ── Canonical orderings · mirror pipeline/parsers/descriptors.js so the
 // page's row order matches the descriptor's emit order (byte-stable). ──
 const PART_ORDER = ['root', 'label', 'icon', 'content'];
@@ -76,9 +78,77 @@ const PALETTE_CHANNELS = [['bg', 'bg'], ['fg', 'fg'], ['fgMuted', 'muted'], ['pr
 const ATTR_SEP = '<br>';
 const attr = (term, value) => `**${term}** \`${value}\``;
 
+// A live colour chip — an inline <span> (kramdown passes span-level HTML through
+// inside a table cell · N+22) whose background is the LIVE semantic var(), so it
+// re-themes with the page/scope rather than baking a literal. `background` is
+// either `var(--nuri-…)` (a resolved palette channel) or the literal
+// `transparent` (the ghost bg · a bordered empty square). The `.nuri-doc-swatch`
+// rule is inlined in website/_includes/head_custom.html — stable platform glue,
+// alongside the nuri-scope/nuri-demo base rules.
+const swatch = (background) => `<span class="nuri-doc-swatch" style="background:${background}"></span>`;
+
+// ── Value resolution · the SoT-derived inputs the emitter renders (N+23) ──
+// increment 2: every "Resolves to" cell now carries the RESOLVED value beside
+// the token path — a px for geometry, the type composite for typography, a live
+// swatch + default-scope hex for colour. The values derive from the SAME
+// in-memory build data tokens.ts/palette.ts emit (decision 48 · one source, two
+// readers): the classified semantic groups (leaf→cssVar · VERIFIED against
+// tokens-semantic.css, never hand-kebabed) and the resolved (accent × theme)
+// cross-product. buildDocTokenInputs is the SINGLE builder the orchestrator
+// (Slice 9) AND Guard G call, so the page re-emits byte-identical.
+
+// A palette TokenPath ('accent.solid' · 'chrome.bgStrong') → { var, hex }.
+//   var — the semantic custom property the live swatch reads, looked up from the
+//         classified groups (the leaf→cssVar map the cascade itself emits · the
+//         CSS SoT · NOT hand-kebabed: accent.solid→--nuri-accent-solid keeps its
+//         group prefix, chrome.bgStrong→--nuri-bg-strong drops it).
+//   hex — the default-scope (neutral + light · the page :root) resolved literal
+//         the live swatch coincides with at :root (it re-themes away from there).
+// Throws on an unresolvable path (faithfulness · decision 48).
+export function makeColorResolver(classifiedGroups, resolved) {
+  return (path) => {
+    const [group, leaf] = path.split('.');
+    const g = classifiedGroups.get(group);
+    const entry = g && g.entries.find((e) => e.leafName === leaf);
+    if (!entry) {
+      throw new Error(`[docs] colour path '${path}' has no semantic var (classify/palette drift)`);
+    }
+    const r = resolved[entry.cssVar];
+    const hex = r && r[ACCENTS[0]] && r[ACCENTS[0]][THEMES[0]];
+    if (hex == null) {
+      throw new Error(`[docs] colour path '${path}' (${entry.cssVar}) dangled at the default scope`);
+    }
+    return { var: entry.cssVar, hex };
+  };
+}
+
+// Build the value-bearing emitter inputs from the live build data. The scale
+// maps ({ leaf: 'NNpx' }) double as the leaf-VALIDATION sets (assertLeaf reads
+// them by Object.hasOwn) AND the value source (the px each cell renders) — one
+// map, two uses. `type` is the full typeScale (the step → its composite fields).
+export function buildDocTokenInputs(classifiedGroups, resolved, typeScale) {
+  const scaleValues = (name) => {
+    const group = classifiedGroups.get(name);
+    const out = {};
+    for (const { cssVar, leafName } of (group ? group.entries : [])) {
+      out[leafName] = resolved[cssVar][ACCENTS[0]][THEMES[0]];
+    }
+    return out;
+  };
+  return {
+    tokens: {
+      size: scaleValues('size'),
+      space: scaleValues('space'),
+      radius: scaleValues('radius'),
+      type: typeScale,
+    },
+    colors: makeColorResolver(classifiedGroups, resolved),
+  };
+}
+
 // nav_order per component source (the website slice grows this as coverage
-// does · P11). Button is the first page; default 1 for an un-listed source.
-const NAV_ORDER = { button: 1 };
+// does · P11). default 1 for an un-listed source.
+const NAV_ORDER = { button: 1, 'icon-avatar': 2, topbar: 3 };
 
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const titleFor = (source) => source.split('-').map(cap).join(' ');
@@ -97,7 +167,7 @@ function assertLeaf(tokens, scale, leaf, where) {
 // palette node ({ variant } | { chrome }) → its resolved TokenPath cells
 // dereferenced through build/palette.ts, one channel per line (dt/dd style ·
 // **bg** `accent.solid` …).
-function renderPalette(ns, palette, where) {
+function renderPalette(ns, palette, colors, where) {
   let cells;
   if (ns.variant !== undefined) cells = palette.variant[ns.variant];
   else if (ns.chrome !== undefined) cells = palette.chrome[ns.chrome];
@@ -107,31 +177,52 @@ function renderPalette(ns, palette, where) {
   const segs = [];
   for (const [key, label] of PALETTE_CHANNELS) {
     if (cells[key] === undefined) continue;
-    segs.push(attr(label, cells[key]));
+    segs.push(renderChannel(label, cells[key], colors));
   }
   return segs.join(ATTR_SEP);
+}
+
+// One palette channel → its cell segment: the bold label + the resolved colour
+// (a TokenPath, or the literal 'transparent' for the ghost bg) + a live var()
+// swatch + the default-scope hex. transparent is the special case (decision 30 ·
+// the ghostBg literal): no hex, the swatch is the bordered empty square.
+function renderChannel(label, value, colors) {
+  if (value === 'transparent') {
+    return `${attr(label, value)} ${swatch('transparent')}`;
+  }
+  const { var: cssVar, hex } = colors(value);
+  return `${attr(label, value)} ${swatch(`var(${cssVar})`)} \`${hex}\``;
 }
 
 // one namespace → the "Resolves to" cell string · one attribute per line
 // (canonical prop order). Each attribute is a bold term + a code value
 // (the interactive flags are bare opt-in terms · no value).
-function renderNsDetail(nsName, ns, { palette, tokens }, where) {
-  if (nsName === 'palette') return renderPalette(ns, palette, where);
+function renderNsDetail(nsName, ns, { palette, tokens, colors }, where) {
+  if (nsName === 'palette') return renderPalette(ns, palette, colors, where);
   if (nsName === 'interactive') {
     return NS_PROP_ORDER.interactive.filter((f) => ns[f]).map((f) => `\`${f}\``).join(ATTR_SEP);
   }
   if (nsName === 'typography') {
     assertLeaf(tokens, 'type', ns.size, `${where}.typography.size`);
-    return attr('size', ns.size);
+    // Expand the type composite (decision 54): the step key + every resolved
+    // field on its own dt/dd line (fontSize · lineHeight · weight · letterSpacing).
+    const step = tokens.type[ns.size];
+    return [
+      attr('size', ns.size),
+      attr('fontSize', step.fontSize),
+      attr('lineHeight', step.lineHeight),
+      attr('weight', step.fontWeight),
+      attr('letterSpacing', step.letterSpacing),
+    ].join(ATTR_SEP);
   }
-  // stack | box · prop → scale-path or literal
+  // stack | box · prop → scale-path (+ the resolved px) or literal
   const segs = [];
   for (const prop of NS_PROP_ORDER[nsName]) {
     if (ns[prop] === undefined) continue;
     const scale = PROP_SCALE[prop];
     if (scale) {
       assertLeaf(tokens, scale, ns[prop], `${where}.${nsName}.${prop}`);
-      segs.push(attr(prop, `${scale}.${ns[prop]}`));
+      segs.push(`${attr(prop, `${scale}.${ns[prop]}`)} \`${tokens[scale][ns[prop]]}\``);
     } else {
       segs.push(attr(prop, ns[prop]));
     }
@@ -172,8 +263,10 @@ function renderAnatomyLines(ir) {
 // EMIT · the descriptor IR → the just-the-docs Markdown page string
 // ════════════════════════════════════════════════════════════════════
 export function emitDocPage(ir, opts = {}) {
-  const { palette } = opts;
+  const { palette, tokens, colors } = opts;
   if (!palette) throw new Error('[docs] emitDocPage requires { palette } — the variant derefs resolve through it');
+  if (!tokens) throw new Error('[docs] emitDocPage requires { tokens } — the box/typography cells resolve their value (px · composite) through the scale maps');
+  if (!colors) throw new Error('[docs] emitDocPage requires { colors } — the palette swatches resolve their var + default-scope hex through it');
   const title = titleFor(ir.source);
   const lines = [];
 
