@@ -5,7 +5,7 @@ const path = require('path');
 
 // ── Single React + single React Native (M2 monorepo integration · 65.8/65.11) ──
 // The workspace install nests this package's react@19.1.0 + react-native@0.81.5
-// (the Expo-54 runtime) UNDER packages/factory, while the repo ROOT still carries
+// (the Expo-54 runtime) UNDER packages/rn, while the repo ROOT still carries
 // react@19.2.6 + react-native@0.80.3. With several physical copies in the tree,
 // the toolchain binds the WRONG ones:
 //   · react-test-renderer's peer is `^19.1.0`, so npm hoists it to the root,

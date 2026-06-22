@@ -1,7 +1,7 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · WEB FACTORY · buildComponent (the runtime web mirror · decision 67 · S3)
  *
- * The browser analogue of the RN factory (packages/factory/createNuriComponent
+ * The browser analogue of the RN factory (packages/rn/createNuriComponent
  * + resolve.ts). Given a FROZEN descriptor + an axis selection it returns a
  * de-collapsed `nuri-*` DOM tree styled ENTIRELY by the existing hand-authored
  * @layer CSS — option A (operator-chosen · decision 67): the web emit is

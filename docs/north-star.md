@@ -25,8 +25,8 @@ spec        SoT · lib/ (web CSS + custom-elements · CSS is SoT · dec 2 · §9
 
 - **The theme provider lives in `factory`** (the RN token-resolution runtime the factory requires).
   The web's parallel "theme runtime" is the CSS cascade + `data-*` scoping, which lives in `spec`.
-- **The RN team imports only `@nuri/factory`** (`NuriThemeProvider` · the ergonomic components ·
-  `createNuriComponent`); `@nuri/spec` arrives transitively. `@nuri/factory@vN` is render-gated
+- **The RN team imports only `@nuri/rn`** (`NuriThemeProvider` · the ergonomic components ·
+  `createNuriComponent`); `@nuri/spec` arrives transitively. `@nuri/rn@vN` is render-gated
   against `@nuri/spec@vN` — the certified factory pulled as one thing.
 
 ## The four moves (direction · each its own arc)
@@ -114,7 +114,7 @@ may obviate it. Resolved when the playground reveals a real composition limit �
 ## External consumption — the only-git wall
 
 npm cannot natively git-install a single subdirectory/workspace package by version (RFC #462 is an
-unshipped, different-case discussion). So the RN team consuming **one clean `@nuri/factory`
+unshipped, different-case discussion). So the RN team consuming **one clean `@nuri/rn`
 only-git** needs either a **git subtree-split mirror** (an auto-generated read-only repo) or to
 consume the **whole monorepo at a tag**. Neither is a registry publish (only-git holds). Build the
 mirror when external consumption is real (P11).
@@ -122,7 +122,7 @@ mirror when external consumption is real (P11).
 ## Migration sequence (LOCKED structure · 65.7 · handed off separately)
 
 **Progress (2026-06-20):** M1 `@nuri/spec` carve-out ✓ ([65.8](../decisionlog.md)) · M2 absorb `expodsdemo` →
-`@nuri/factory` + `@nuri/expo-demo` ✓ ([65.9](../decisionlog.md)) · **M3 the intra-repo gate ✓ — [`gates.yml`](../.github/workflows/gates.yml)
+`@nuri/rn` + `@nuri/expo-demo` ✓ ([65.9](../decisionlog.md)) · **M3 the intra-repo gate ✓ — [`gates.yml`](../.github/workflows/gates.yml)
 now runs three per-workspace jobs (`spec` · `factory` · `expo-demo`); the `factory` render-smoke gates `@nuri/spec/build`
 INTRA-REPO, so a contract change that breaks the RN render fails CI by construction · R7 CLOSED** ([65.10](../decisionlog.md)) ·
 **M4 retire `button-matrix` ✓ — the type-only migration mirror + its CI tsc are gone; the `factory` render-smoke is the

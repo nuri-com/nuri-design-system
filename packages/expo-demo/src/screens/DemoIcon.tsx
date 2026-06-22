@@ -11,8 +11,8 @@
 
 import * as React from 'react';
 import { SvgXml } from 'react-native-svg';
-import { icons, size } from '@nuri/factory';
-import type { IconName } from '@nuri/factory';
+import { icons, size } from '@nuri/rn';
+import type { IconName } from '@nuri/rn';
 
 export type DemoIconProps = {
   name: IconName;

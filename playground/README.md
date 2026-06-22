@@ -18,7 +18,7 @@ counts as "composing with the DS", (b) the repo-structure decision
 It was **retired at M4** ([decision 65.11](../decisionlog.md)). The N+4
 thesis-validation pair (web HTML + RN hand-translation + frictions) once lived
 at `docs/migration-tests/button-matrix/`; it proved the props-1:1 thesis and
-was removed once the [`@nuri/factory`](../packages/factory/)
+was removed once the [`@nuri/rn`](../packages/rn/)
 `react-test-renderer` render-smoke became the live intra-repo contract gate (it
 RENDERS the frozen descriptors on RN in CI · [decision 65.10](../decisionlog.md)).
 The frictions it captured live on in [`docs/RISKS.md`](../docs/RISKS.md) R1.
