@@ -185,6 +185,9 @@ cut across packages):
 
 ## 6. Migration & gating (the delta to today)
 
+> The **session-level sequence + sizing** live in [`roadmap/package-migration.md`](../roadmap/package-migration.md)
+> (the path to the target · ~9–12 sessions · the gemello of `factory-rewrite.md`).
+
 Two halves with **different gates**:
 
 - **§9-independent — safe under decision 2 · lands first.** Rename `factory → rn`; carve `@nuri/prototype`
