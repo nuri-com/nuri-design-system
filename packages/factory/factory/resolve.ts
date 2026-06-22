@@ -33,8 +33,6 @@ import {
 } from '../contract';
 import type {
   NS,
-  StackNS,
-  BoxNS,
   PaletteNS,
   InteractiveNS,
   Part,
@@ -49,6 +47,11 @@ import type {
 import type { TypeKey } from '../theme';
 import type { NuriTheme } from './theme';
 import { buildNuriTheme } from './theme';
+// The agnostic namespace→style mapping is DATA (resolve-map.ts · the S1
+// extraction); this file holds the RN applier that consumes it + the per-target
+// resolver registry (RN column).
+import { STACK_FIELDS, BOX_FIELDS } from './resolve-map';
+import type { Field, ScaleName } from './resolve-map';
 
 // Exhaustiveness guard — a new schema namespace / element / fill value that
 // the factory does not handle becomes a COMPILE error here, and a runtime
@@ -61,63 +64,50 @@ export function assertNever(x: never, what: string): never {
 export type Selection = Record<string, string>;
 export type State = { pressed?: boolean; disabled?: boolean };
 
-// ── stack → flex (the canonical mappings · mirrors the hand Stack) ──
-const ALIGN: Record<NonNullable<StackNS['align']>, ViewStyle['alignItems']> = {
-  start: 'flex-start',
-  center: 'center',
-  end: 'flex-end',
-  stretch: 'stretch',
-  baseline: 'baseline',
-};
-const JUSTIFY: Record<NonNullable<StackNS['justify']>, ViewStyle['justifyContent']> = {
-  start: 'flex-start',
-  center: 'center',
-  end: 'flex-end',
-  between: 'space-between',
-  around: 'space-around',
-};
+// ── the RN binding of the neutral scale tags (resolve-map.ts) — the per-target
+// half of the agnostic emit (web/CSS bind the same tags to their own scale
+// repr). The shared table says `from the space scale`; THIS says `space` = the
+// numeric scale object. ──
+const SCALES: Record<ScaleName, Record<string, number>> = { space, size, radius };
 
-function resolveFill(fill: NonNullable<StackNS['fill']>): ViewStyle {
-  switch (fill) {
-    // `grow` = grow to fill, do NOT shrink below content (web flex:1 0 auto ·
-    // the hand Stack's boolean `fill`).
-    case 'grow':
-      return { flexGrow: 1, flexShrink: 0 };
-    // `grow-shrink` = the Topbar content-pivot (web flex:1 1 auto +
-    // min-inline-size:0 · schema §6 / B1.5 §3) — grow AND shrink past content.
-    case 'grow-shrink':
-      return { flexGrow: 1, flexShrink: 1, minWidth: 0 };
-    default:
-      return assertNever(fill, 'stack.fill');
+// applyFields · the GENERIC RN APPLIER for the agnostic namespaces (box · stack).
+// Walks the shared mapping table (resolve-map.ts) and emits an RN ViewStyle —
+// the per-target EMIT that S3's web resolver replaces while reusing the SAME
+// table. ⚠ Iterate the TABLE's keys (its fixed declaration order), NOT the
+// input's, so the emit order reproduces the old `resolveStack`/`resolveBox`
+// if-walls byte-for-byte (pretty-format keeps key order · the snapshot anchor).
+function applyFields(fields: Record<string, Field>, ns: Record<string, unknown>): ViewStyle {
+  const out: ViewStyle = {};
+  const set = (prop: keyof ViewStyle, value: unknown): void => {
+    (out as Record<string, unknown>)[prop] = value;
+  };
+  for (const key of Object.keys(fields)) {
+    const value = ns[key];
+    if (value === undefined) continue; // mirrors the old `if (ns.x !== undefined)`
+    const f = fields[key];
+    switch (f.via) {
+      case 'scale':
+        set(f.prop, SCALES[f.scale][value as string]);
+        break;
+      case 'keyword':
+        set(f.prop, f.map[value as string]);
+        break;
+      case 'literal':
+        set(f.prop, value);
+        break;
+      case 'flag':
+        set(f.prop, value ? f.on : f.off);
+        break;
+      case 'expand':
+        Object.assign(out, f.cases[value as string]);
+        break;
+      default:
+        // a new Field arm without a case is a COMPILE error here (f: never) —
+        // the field-kind analogue of the namespace exhaustiveness below.
+        return assertNever(f, 'field');
+    }
   }
-}
-
-function resolveStack(ns: StackNS): ViewStyle {
-  const s: ViewStyle = {};
-  if (ns.direction !== undefined) s.flexDirection = ns.direction;
-  if (ns.align !== undefined) s.alignItems = ALIGN[ns.align];
-  if (ns.justify !== undefined) s.justifyContent = JUSTIFY[ns.justify];
-  if (ns.gap !== undefined) s.gap = space[ns.gap];
-  if (ns.wrap !== undefined) s.flexWrap = ns.wrap ? 'wrap' : 'nowrap';
-  if (ns.fill !== undefined) Object.assign(s, resolveFill(ns.fill));
-  return s;
-}
-
-// ── box → sizing · padding · radii (geometry only · 65.3 §6 · no colour) ──
-function resolveBox(ns: BoxNS): ViewStyle {
-  const s: ViewStyle = {};
-  if (ns.width !== undefined) s.width = size[ns.width];
-  if (ns.height !== undefined) s.height = size[ns.height];
-  if (ns.minHeight !== undefined) s.minHeight = size[ns.minHeight];
-  if (ns.padding !== undefined) s.padding = space[ns.padding];
-  if (ns.paddingX !== undefined) s.paddingHorizontal = space[ns.paddingX];
-  if (ns.paddingY !== undefined) s.paddingVertical = space[ns.paddingY];
-  if (ns.paddingStart !== undefined) s.paddingStart = space[ns.paddingStart];
-  if (ns.paddingEnd !== undefined) s.paddingEnd = space[ns.paddingEnd];
-  if (ns.paddingTop !== undefined) s.paddingTop = space[ns.paddingTop];
-  if (ns.paddingBottom !== undefined) s.paddingBottom = space[ns.paddingBottom];
-  if (ns.radius !== undefined) s.borderRadius = radius[ns.radius];
-  return s;
+  return out;
 }
 
 // ── palette → colour (theme.surface / theme.chrome · §12 fg-by-scope) ──
@@ -160,49 +150,98 @@ export type ResolvedNode = {
   interactive?: InteractiveNS;
 };
 
+// ── the per-target resolver registry (target §6.1 · roadmap §1 · decision 67) ──
+// One resolver per namespace, per target. The AGNOSTIC namespaces (stack · box)
+// delegate to the shared mapping table via `applyFields`; `typography` ·
+// `palette` · `interactive` are BESPOKE RN mechanism (behaviour is the factory's,
+// never data · decision 65). Typed TOTAL over `keyof NS`, so a sixth namespace
+// without a resolver is a COMPILE error — the `assertNever` exhaustiveness of
+// old, now per target (the consumability proof · R7).
+type ResolveCtx = { node: ResolvedNode; theme: NuriTheme; mode: Theme };
+type NSResolver<K extends keyof NS> = (value: NonNullable<NS[K]>, ctx: ResolveCtx) => void;
+// `-?` STRIPS the optional modifier NS's keys carry (the mapped type is
+// homomorphic — without `-?` every resolver would be optional and the totality
+// would NOT bite). With it, a namespace missing from a target column is a
+// compile error (verified · S1).
+type TargetResolvers = { [K in keyof NS]-?: NSResolver<K> };
+
+const RN_RESOLVERS: TargetResolvers = {
+  // agnostic → the shared table + the generic RN emit.
+  stack: (v, { node }) => {
+    Object.assign(node.view, applyFields(STACK_FIELDS, v));
+  },
+  box: (v, { node }) => {
+    Object.assign(node.view, applyFields(BOX_FIELDS, v));
+  },
+  // typography → the one agnostic identity that is NOT a ViewStyle prop: a type
+  // STEP ref (size → typeKey · decision 55); the factory expands it via typeStyle
+  // at render (mapping = data · expansion = behaviour · 65.2).
+  typography: (v, { node }) => {
+    if (v.size !== undefined) node.typeKey = v.size;
+  },
+  // palette → BESPOKE (decision 65 · the platform-divergence point: web
+  // currentColor / RN threads fg / CSS cascade vars). Logic VERBATIM from the old
+  // `palette` case: bg lands on the view, fg/fgMuted/pressedBg are sibling
+  // channels (fg flows by SCOPE · §12 · F-BOX-FG-1).
+  palette: (v, { node, theme, mode }) => {
+    const p = resolvePalette(v, theme, mode);
+    if (p.bg !== undefined) node.view.backgroundColor = p.bg;
+    if (p.fg !== undefined) node.fg = p.fg;
+    if (p.fgMuted !== undefined) node.fgMuted = p.fgMuted;
+    if (p.pressedBg !== undefined) node.pressedBg = p.pressedBg;
+  },
+  // interactive → BESPOKE (decision 65/65.4): the opt-in is config; HOW
+  // (Pressable, the pressed render-prop) is createNuriComponent's. Carry the
+  // opt-in onto the node; flattenPart/buildPartRecipe realise it as state.
+  interactive: (v, { node }) => {
+    node.interactive = v;
+  },
+};
+
+// The registry, shaped for the per-target columns S2/S3/§9 add (web runtime ·
+// css build-time · §9). S1 populates RN ONLY (roadmap §1/§3 · no speculative
+// emit). `satisfies` keeps `.rn` precisely typed (always present) while the
+// `Partial<Record<Target, …>>` documents the second-column shape.
+type Target = 'rn' | 'web' | 'css';
+const RESOLVERS = { rn: RN_RESOLVERS } satisfies Partial<Record<Target, TargetResolvers>>;
+
 export function resolveNS(ns: NS, theme: NuriTheme, mode: Theme): ResolvedNode {
   const node: ResolvedNode = { view: {} };
-  // Iterate the present namespace keys and dispatch EXHAUSTIVELY — a sixth
-  // namespace added to the frozen schema would hit assertNever (65.3 §6 says
-  // the five are disjoint; this is where the factory consumes exactly them).
+  const ctx: ResolveCtx = { node, theme, mode };
+  // Dispatch each PRESENT namespace through the RN column (authored key order ·
+  // unchanged from the old forEach, so node.view's key order is byte-identical).
+  // The registry is a total map → every schema key has a resolver; a key OUTSIDE
+  // the schema (a malformed runtime descriptor) still hits assertNever — the
+  // runtime backstop the type cannot see.
   (Object.keys(ns) as (keyof NS)[]).forEach((key) => {
-    switch (key) {
-      case 'stack':
-        Object.assign(node.view, resolveStack(ns.stack as StackNS));
-        break;
-      case 'box':
-        Object.assign(node.view, resolveBox(ns.box as BoxNS));
-        break;
-      case 'typography':
-        if (ns.typography!.size !== undefined) node.typeKey = ns.typography!.size;
-        break;
-      case 'palette': {
-        const p = resolvePalette(ns.palette as PaletteNS, theme, mode);
-        if (p.bg !== undefined) node.view.backgroundColor = p.bg;
-        if (p.fg !== undefined) node.fg = p.fg;
-        if (p.fgMuted !== undefined) node.fgMuted = p.fgMuted;
-        if (p.pressedBg !== undefined) node.pressedBg = p.pressedBg;
-        break;
-      }
-      case 'interactive':
-        node.interactive = ns.interactive;
-        break;
-      default:
-        return assertNever(key, 'namespace');
-    }
+    const resolver = RESOLVERS.rn[key];
+    if (!resolver) return assertNever(key as never, 'namespace');
+    (resolver as (value: unknown, c: ResolveCtx) => void)(ns[key], ctx);
   });
   return node;
 }
 
 // ── merge: base ⊕ each selected axis patch, per part (later wins) ──
+// The canonical namespace order the factory merges in. ⚠ ORDER IS LOAD-BEARING:
+// mergeNS inserts keys in THIS order, fixing node.view's key order downstream
+// (the old 5 hardcoded merges checked stack→box→typography→palette→interactive
+// in sequence). The type-level check keeps NS_ORDER TOTAL over keyof NS — a
+// sixth namespace must be added here too, else its patch silently skips the
+// merge (now a COMPILE error, not a runtime gap).
+const NS_ORDER = ['stack', 'box', 'typography', 'palette', 'interactive'] as const;
+type _NSOrderComplete = Exclude<keyof NS, (typeof NS_ORDER)[number]> extends never ? true : never;
+const _nsOrderComplete: _NSOrderComplete = true;
+void _nsOrderComplete;
+
 function mergeNS(list: NS[]): NS {
   const out: NS = {};
   for (const ns of list) {
-    if (ns.stack) out.stack = { ...out.stack, ...ns.stack };
-    if (ns.box) out.box = { ...out.box, ...ns.box };
-    if (ns.typography) out.typography = { ...out.typography, ...ns.typography };
-    if (ns.palette) out.palette = { ...out.palette, ...ns.palette };
-    if (ns.interactive) out.interactive = { ...out.interactive, ...ns.interactive };
+    for (const key of NS_ORDER) {
+      const patch = ns[key];
+      if (patch) {
+        (out as Record<string, object>)[key] = { ...(out as Record<string, object>)[key], ...patch };
+      }
+    }
   }
   return out;
 }
