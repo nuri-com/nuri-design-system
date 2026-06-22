@@ -69,7 +69,7 @@ not independent.**
 
 | # | Session | Ships | Gate | Dec 2 |
 |---|---------|-------|------|-------|
-| **S1** | RN resolver → data-driven | extract the shared namespace→style table + restructure `resolveNS` into the per-target registry (RN column) · `palette`/`interactive` stay bespoke · preserve `assertNever` + the `toUnistylesRecipe` parity oracle | factory **27/27 + 7 snapshots byte-identical** · tsc 0 | STANDS |
+| **S1 ✓** | RN resolver → data-driven **(shipped · N+25)** | extract the shared namespace→style table (`resolve-map.ts`) + restructure `resolveNS` into the per-target registry (RN column · `RESOLVERS.rn`) · `palette`/`interactive` stay bespoke · preserve `assertNever` + the `toUnistylesRecipe` parity oracle | factory **27/27 + 7 snapshots byte-identical** · tsc 0 ✓ | STANDS |
 | **S2** | Web primitives | `nuri-pressable` · `nuri-text` · `nuri-screen` · `nuri-scroll` (vocabulary = data · mirror RN 1:1 · like the existing `nuri-box`/`nuri-stack`) · resolve `view` = box vs a `nuri-view` | render + 1:1 RN API · console clean | STANDS |
 | **S3** | Web factory · slice | the web-target resolver (consumes S1's table · runtime emit) + **de-collapse Button** into `<nuri-pressable><nuri-text>` styled from the descriptor · prove equivalence | visual proof (preview MCP) vs today · the **N+23 docs token-map is the reference** | STANDS |
 | **S4** | Web factory · generalize + retire | extend to icon-avatar + topbar · **retire the hand-written `button.js` / `icon-avatar.js` / `topbar.js`** | the 3 recipes rendered by the factory · gates green | STANDS (`button.css` → the vestige) |
