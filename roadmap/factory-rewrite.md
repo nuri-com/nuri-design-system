@@ -83,7 +83,8 @@ not independent.**
 | **S1 ✓** | RN resolver → data-driven **(shipped · N+25)** | extract the shared namespace→style table (`resolve-map.ts`) + restructure `resolveNS` into the per-target registry (RN column · `RESOLVERS.rn`) · `palette`/`interactive` stay bespoke · preserve `assertNever` + the `toUnistylesRecipe` parity oracle | factory **27/27 + 7 snapshots byte-identical** · tsc 0 ✓ | STANDS |
 | **S2 ✓** | Web primitives **(shipped · N+26)** | ship the one missing el-host — **`nuri-pressable`** (the interactive `view`, generic extraction of `button.js`'s inline `<button>` · applies `.nuri-interactive`, not the recipe · the interactive vocab as `data-*` gates · never-clobbered host for the S3 merge). **Scope narrower than this row, verified first-hand**: `nuri-screen`/`nuri-scroll` already exist (dec 58) · `text` → REUSE `nuri-typography` (no `nuri-text`) · `view` → resolved to a **dedicated `nuri-view`** (≠ `nuri-box`) **built at S4** (shape locked N+26 · P11). | render + 1:1 RN `<Pressable>` · preview-MCP smoke · console clean ✓ | STANDS |
 | **S3 ✓** | Web factory · slice **(shipped · N+27)** | the browser web-factory (`lib/runtime/factory.js` · `buildComponent`) **de-collapses Button** into `<nuri-pressable><nuri-typography>` styled from the descriptor — **option A** (operator-chosen · decision 67): the web emit is `field→data-*`/namespace-class, REUSING the hand `@layer` CSS as the styler (**NOT a `resolve-map.ts` consumer** · the table stays RN-only) + the browser-ESM descriptor twin (`build/descriptors/composition-button.js` · Button-gated) + the hand-written `reset.css` (native-`<button>` host normalization · kept OUT of the §9-target namespace CSS) | **14/14 computed-style cells + pixel-parity vs `<nuri-button>`** · values trace to `build/docs/button.md` · console clean | STANDS |
-| **S4** | Web factory · generalize + retire | extend to icon-avatar + topbar · **retire the hand-written `button.js` / `icon-avatar.js` / `topbar.js`** | the 3 recipes rendered by the factory · gates green | STANDS (`button.css` → the vestige) |
+| **S4 ✓** | Web factory · generalize · **engine** **(shipped · N+28·A2)** | extend the SAME `buildComponent` engine to **icon-avatar** + **topbar**: static `view` → **`nuri-view`** (built here · the merged-node host · the element IS the node · ≠ `nuri-box`) · `icon` → `<nuri-icon name=X>` · the two S3 `S4`-throws collapse into a `renderPart` switch + a default throw (the web `assertNever`) · un-gate the browser-ESM `.js` twins (`icon-avatar.js`/`topbar.js` · additive). **ENGINE-ONLY** — the hand recipes STAY; **recipe retirement split out → A6** (decision 68 · operator-scoped). | factory ≡ live recipes at explicit axis values (icon-avatar **9/9** computed cells incl. flex-shrink · topbar chrome+pivot+center · console clean · values trace to `build/docs/{icon-avatar,topbar}.md`) ✓ | STANDS (`button.css` → the vestige at A6) |
+| **A6** | Recipe retirement (decision 68 · split from S4) | **retire the hand `button.js` / `icon-avatar.js` / `topbar.js`** · register the factory as the custom-element backing · resolve the R1.5 default decision | the 3 recipes gone · the factory backs `<nuri-*>` · gates green | STANDS (`button.css` → the build-time derivation vestige) |
 | **§9** | CSS resolver · source inversion | build-time `descriptor → CSS` + author the descriptor in TS + the **dec-2/§9 audit** | **separate · audit-gated** | **REVERSES** (recipes) |
 
 **Why this order (two corrections to the naïve sequence):**
@@ -97,11 +98,12 @@ not independent.**
    resolver is §9 (reverses dec 2 · audit-gated). It is the endgame, not a peer of the runtime mirror.
 
 **Dependencies.** S1 is the foundation (no dependency). **S2 was disjoint from S1 → parallelizable**.
-**S1 ✓ (N+25) · S2 ✓ (N+26) · S3 ✓ (N+27)** all shipped (S3 consumed S2's `nuri-pressable` + the frozen
-Button descriptor · option A reused the `@layer` CSS, so it did NOT need S1's table). S4 needs S3. §9 is a
-separate gated arc, sized when reached. **~4 sessions to the runtime mirror** (S1→S4); S1–S3 done,
-**~1 wall-clock remains** (S4 · generalize to IconAvatar/Topbar · build `nuri-view` · retire the hand
-recipes). Then §9 separately (~2–4 · sized later).
+**S1 ✓ (N+25) · S2 ✓ (N+26) · S3 ✓ (N+27) · S4 ✓ (N+28·A2)** all shipped (S3 consumed S2's `nuri-pressable`
++ the frozen Button descriptor · option A reused the `@layer` CSS, so it did NOT need S1's table; S4
+generalized the SAME engine to IconAvatar/Topbar + built `nuri-view`). §9 is a separate gated arc, sized
+when reached. **The runtime mirror's ENGINE is COMPLETE** (S1→S4 · all four shipped). S4 was scoped
+**engine-only** (operator-directed): generalize + build `nuri-view`; the **recipe retirement** originally
+bundled into S4 is **split out → A6** (decision 68 · package-migration). Then §9 separately (~2–4 · sized later).
 
 ---
 

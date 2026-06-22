@@ -1,5 +1,5 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · WEB FACTORY · buildComponent (the runtime web mirror · decision 67 · S3)
+ * NURI · WEB FACTORY · buildComponent (the runtime web mirror · decision 67 · S3/S4)
  *
  * The browser analogue of the RN factory (packages/rn/createNuriComponent
  * + resolve.ts). Given a FROZEN descriptor + an axis selection it returns a
@@ -19,14 +19,18 @@
  * The walker is generic (component-/axis-agnostic · the engine is fixed); the
  * surface it walks is the generated descriptor.
  *
- * THE el → web-primitive map (the N+26 lock · roadmap/N+26.md):
- *   view + interactive → <nuri-pressable>   (the RN <Pressable> case)  ·  BUILT
- *   text               → <nuri-typography>  (REUSE · text parts are single-NS)
- *   view (static)      → <nuri-view>         · S4 (not built · Button has none)
- *   icon               → <nuri-icon>         · S4 (Button has none)
- * S3 is the BUTTON slice: only `view+interactive` (root) + `text` (label) are
- * exercised; the other arms throw a clear "S4" error rather than silently
- * mis-rendering.
+ * THE el → web-primitive map (the N+26 lock · roadmap/N+26.md · ALL BUILT @S4):
+ *   view + interactive → <nuri-pressable>     (the RN <Pressable> case)
+ *   view (static)      → <nuri-view>           (the RN static <View> · the element IS the merged node)
+ *   text               → <nuri-typography>     (REUSE · text parts are single-NS)
+ *   icon               → <nuri-icon name=X>    (glyph leaf · name routed · fg by currentColor)
+ * S3 shipped the BUTTON slice (view+interactive + text). S4 generalizes the
+ * SAME engine to IconAvatar (static view + icon child) + Topbar (open static
+ * view + a static-view content pivot) — `open` needs NO branch (the RN oracle's
+ * renderPart does not branch on it: a view renders own-content + child parts
+ * regardless; `open` only marks that the host accepts positional children, which
+ * the own-content append already serves). An unknown el hits the renderPart
+ * default throw — the web analogue of the RN factory's assertNever (R7).
  *
  * THE MERGED NODE (B1.5 §4.2 · the faithful web analogue of RN's single
  * <View style>): box ⊕ stack ⊕ palette ⊕ interactive co-exist on ONE node —
@@ -36,6 +40,9 @@
  * geometry/colour data-* onto the same button with no clobber. The button is
  * created lazily in the pressable's connectedCallback, so the merge is DEFERRED
  * until it exists (a one-shot MutationObserver · applied before first paint).
+ * For a STATIC view (no interactive · IconAvatar / Topbar) the merged node is
+ * the <nuri-view> ELEMENT ITSELF — no inner element, so the classes + data-*
+ * land directly and synchronously, no MutationObserver.
  *
  * INTERACTIVE (decision 65.4 · a structured per-part opt-in, not a boolean):
  *   pressScale → the host's `press-scale` attr  (→ data-press-scale gate)
@@ -169,21 +176,22 @@ function applyToInteractiveHost(host, merge) {
   obs.observe(host, { childList: true });
 }
 
-// ── render one anatomy node → its nuri-* element ──
+// ── render one anatomy node → its nuri-* element (the el → web-primitive map) ──
 function renderPart(node, ctx) {
   const ns = mergedNSForPart(ctx.descriptor, ctx.selection, node.name);
-
-  if (node.el === 'view') {
-    if (!ns.interactive) {
-      // view (static) → <nuri-view>, built at S4 (Button has no static view).
-      throw new Error(`[nuri-factory] static 'view' part '${node.name}' needs nuri-view (S4)`);
-    }
-    return renderInteractiveView(node, ns, ctx);
+  switch (node.el) {
+    case 'view':
+      // interactive view → <nuri-pressable> (S3); static view → <nuri-view> (S4).
+      return ns.interactive ? renderInteractiveView(node, ns, ctx) : renderStaticView(node, ns, ctx);
+    case 'text':
+      return renderText(node, ns, ctx);
+    case 'icon':
+      return renderIcon(node, ctx);
+    default:
+      // The web analogue of the RN factory's assertNever (R7): an el outside the
+      // frozen vocabulary is a hard error, never a silent mis-render.
+      throw new Error(`[nuri-factory] unhandled el '${node.el}' (part '${node.name}')`);
   }
-  if (node.el === 'text') return renderText(node, ns, ctx);
-
-  // icon (S4) / any other el — out of the S3 Button slice.
-  throw new Error(`[nuri-factory] el '${node.el}' (part '${node.name}') is out of the S3 Button slice (S4)`);
 }
 
 // view + interactive → <nuri-pressable> + the merged inner <button>.
@@ -211,6 +219,35 @@ function renderInteractiveView(node, ns, ctx) {
   return host;
 }
 
+// view (static) → <nuri-view> · the element IS the merged node (no inner
+// element, no interactive, no deferral · the simple counterpart of the
+// pressable). box ⊕ stack ⊕ palette land directly; the @layer CSS resolves it.
+// IconAvatar's circle (box+stack+palette) and Topbar's chrome row + content
+// pivot are all static views. `open` carries no extra branch — own content +
+// child parts render the same whether the host accepts positional children.
+function renderStaticView(node, ns, ctx) {
+  const host = document.createElement('nuri-view');
+
+  // box ⊕ stack ⊕ palette → applied DIRECTLY (the element is the painting node;
+  // mergeAttrs handles palette variant XOR chrome — IconAvatar uses variant,
+  // Topbar uses chrome:canvas).
+  const { classes, data } = mergeAttrs(ns);
+  if (classes.length) host.classList.add(...classes);
+  for (const [k, v] of Object.entries(data)) host.setAttribute(k, v);
+
+  // accent self-scope (Tier-2 · decision 27/62) — mirror to data-accent on this
+  // node so the token cascade re-resolves accent tokens here only (the
+  // icon-avatar.js inner-span mechanism; the node IS the surface).
+  if (ctx.base.accent) host.setAttribute('data-accent', ctx.base.accent);
+
+  // own content (an `open` host's positional children · ctx.content[root]) then
+  // the child parts — the RN renderPart order (own content keyed before kids).
+  const own = ctx.content[node.name];
+  if (own != null) host.append(own);
+  for (const child of node.children) host.appendChild(renderPart(child, ctx));
+  return host;
+}
+
 // text → <nuri-typography size emphasis> (the label · single-namespace).
 function renderText(node, ns, ctx) {
   const el = document.createElement('nuri-typography');
@@ -224,6 +261,20 @@ function renderText(node, ns, ctx) {
   return el;
 }
 
+// icon → <nuri-icon name=X> · the glyph leaf (IconAvatar's icon part). MINIMAL
+// by design: the descriptor's icon part carries NO namespace ({el:'icon'}), so
+// we emit ONLY the routed glyph name. fg flows by SCOPE — the parent view's
+// palette sets `color`, and <nuri-icon>'s SVG (fill="currentColor") inherits it
+// (the same mechanism as the typography label; this is how `subtle`'s fg-only
+// variant tints the glyph). size/weight are NOT set — the post-A3 icon arc owns
+// the glyph vocabulary; <nuri-icon> defaults to size=md (the recipe's value).
+function renderIcon(node, ctx) {
+  const el = document.createElement('nuri-icon');
+  const name = ctx.content[node.name];
+  if (name != null) el.setAttribute('name', String(name));
+  return el;
+}
+
 /**
  * buildComponent · descriptor + selection → a de-collapsed nuri-* tree.
  *
@@ -231,9 +282,11 @@ function renderText(node, ns, ctx) {
  * @param selection  axis → value (e.g. { variant:'solid', size:'md' }); an
  *                   unset axis falls back to the descriptor's FIRST value
  *                   (the createNuriComponent defaultByAxis mirror · R1.5).
- * @param props      instance/base props { children, disabled, accent,
+ * @param props      instance/base props { children, name, disabled, accent,
  *                   accessibilityLabel, content } — `children` routes to the
- *                   lone non-root part (Button → label), like the RN factory.
+ *                   lone non-root part (Button → label · Topbar → content pivot);
+ *                   `name` routes the glyph to an `icon` primary part
+ *                   (IconAvatar), like the RN factory's primary-part routing.
  * @returns the root nuri-* HTMLElement (the smoke mounts it).
  */
 export function buildComponent(descriptor, selection = {}, props = {}) {
@@ -250,11 +303,14 @@ export function buildComponent(descriptor, selection = {}, props = {}) {
   }
 
   // `children` → the PRIMARY content part (the lone non-root part), unless
-  // `content` already set it (the createNuriComponent routing).
-  const primaryPart = anatomy.children.length === 1 ? anatomy.children[0].name : undefined;
+  // `content` already set it (the createNuriComponent routing). For an `icon`
+  // primary part (IconAvatar) the routed content is the glyph NAME instead —
+  // <nuri-icon-avatar name=X> routes `name`, not children (the recipe's API).
+  const primary = anatomy.children.length === 1 ? anatomy.children[0] : undefined;
   const content = { ...props.content };
-  if (props.children !== undefined && primaryPart && content[primaryPart] === undefined) {
-    content[primaryPart] = props.children;
+  if (primary && content[primary.name] === undefined) {
+    if (props.children !== undefined) content[primary.name] = props.children;
+    else if (props.name !== undefined && primary.el === 'icon') content[primary.name] = props.name;
   }
 
   return renderPart(anatomy, { descriptor, selection: sel, content, base: props });
