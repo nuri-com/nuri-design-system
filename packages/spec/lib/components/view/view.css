@@ -1,0 +1,59 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · VIEW  (the static merged-node host · S4 · decision 67)
+ *
+ * The host rule for <nuri-view> (view.js). Unlike <nuri-box> /
+ * <nuri-stack> / <nuri-pressable> — which are display:contents
+ * wrappers around an inner painting node — <nuri-view> IS the
+ * painting node: the web factory applies the merged box ⊕ stack ⊕
+ * palette classes + data-* directly ONTO this element (the merged-node
+ * model · palette.css · B1.5 §4.2), so there is no inner element and
+ * no attribute sync (view.js is a bare registration). It is the web
+ * analogue of RN's static <View> (the el:'view' non-interactive case in
+ * createNuriComponent.tsx · the N+26 el→primitive lock) and is
+ * DEDICATED — distinct from <nuri-box> (geometry-only): a `view` part
+ * carries the FULL box+stack+palette merge on one node.
+ *
+ * The only thing the host itself needs is a sensible default BOX: an
+ * unknown custom element defaults to display:inline, which would
+ * collapse the merged geometry. The faithful default is RN <View>'s Yoga
+ * box — a flex column that does NOT shrink (web flexbox defaults
+ * flex-shrink to 1; RN/Yoga to 0). So this host sets
+ * display:flex; flex-direction:column; flex-shrink:0. The .nuri-stack
+ * base agrees on display/direction and sets NO flex-shrink, so a stacked
+ * fill-less view keeps this RIGID default; an EXPLICIT `fill` OVERRIDES
+ * it — RN's "explicit fill beats the default" model — because
+ * .nuri-stack[data-fill] (0,2,0) outranks this element rule (0,0,1) in
+ * the same @layer, so the Topbar grow-shrink content pivot still
+ * grows/shrinks while the IconAvatar circle + the Topbar chrome row stay
+ * rigid (verified live · the S4 smoke). Styled ENTIRELY by the existing
+ * @layer CSS otherwise (option A · NOT §9 · decision 2 STANDS).
+ *
+ * @layer tokens is empty by design (the interactive.css / pressable /
+ * decision-37 skip-emit precedent): view aliases no component token. The
+ * pipeline does not walk this file (view is not in tokens-parser.js's
+ * COMPONENTS list), so build/ stays byte-identical; the empty block
+ * keeps the convention explicit for the day a consumer adds it.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design — the decision-37 pattern (the interactive / palette /
+   * box / stack / pressable precedent). view carries no component token. */
+}
+
+@layer rules {
+  /* <nuri-view> is the painting node itself (no inner element). Default to the
+   * RN <View> box — Yoga's flex column with flex-shrink:0 (web flexbox defaults
+   * shrink to 1; RN/Yoga to 0) — so a merged node always has a real, RIGID box
+   * even before any stack lands on it. The .nuri-stack base agrees on
+   * display/direction and sets NO flex-shrink, so a stacked fill-less view keeps
+   * this rigid default; an EXPLICIT fill OVERRIDES it (the RN "explicit fill
+   * beats the default" model): .nuri-stack[data-fill] (0,2,0) outranks this
+   * element rule (0,0,1) in the same @layer, so a grow / grow-shrink pivot still
+   * grows/shrinks while a fill-less view (the IconAvatar circle · the Topbar
+   * chrome row) stays rigid — matching RN's Yoga defaults. */
+  nuri-view {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+}

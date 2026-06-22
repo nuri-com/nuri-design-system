@@ -170,13 +170,13 @@ const DOCS_OUT         = resolve(REPO_ROOT, 'build/docs');
 // die incrementally as the generated pages cover them).
 const DOC_COMPONENTS = ['composition-button', 'icon-avatar', 'topbar'];
 
-// Component descriptors that ALSO emit a browser-ESM twin (decision 67 · S3 ·
-// the runtime web factory). The .js form lets a browser `import` the descriptor
-// and resolve it with NO build step (zero-build · what Nuri IS #3). SCOPED to
-// Button for S3 — the de-collapse slice the web factory proves equivalent to
-// <nuri-button>; icon-avatar / topbar get theirs at S4 when the factory
-// generalizes (P11 · decision 30 · no speculative emit ahead of a consumer).
-const BROWSER_DESCRIPTOR_COMPONENTS = ['composition-button'];
+// Component descriptors that ALSO emit a browser-ESM twin (decision 67 · the
+// runtime web factory). The .js form lets a browser `import` the descriptor and
+// resolve it with NO build step (zero-build · what Nuri IS #3). WIDENED at S4 to
+// the FULL DESCRIPTOR_COMPONENTS set — the web factory now de-collapses all
+// three frozen descriptors (Button at S3 · icon-avatar + topbar at S4), so each
+// has a live consumer (P11 · decision 30 · no speculative emit ahead of one).
+const BROWSER_DESCRIPTOR_COMPONENTS = ['composition-button', 'icon-avatar', 'topbar'];
 
 // Per-component `@layer tokens` WALK list (decision 34 · N+6.0.3 ·
 // extended at decisions 37 / 38 / 44). The per-component FILE emission
@@ -317,8 +317,9 @@ async function main() {
     const ir = deriveDescriptor(spec, { css: descriptorCSS, html: descriptorHTML });
     const out = resolve(DESCRIPTORS_OUT, `${spec.name}.ts`);
     await writeFile(out, emitDescriptorTs(ir), 'utf8');
-    // Browser-ESM twin (decision 67 · S3) — gated to Button; the runtime web
-    // factory imports it with no build step. Additive (decision 35).
+    // Browser-ESM twin (decision 67 · S3/S4) — gated to BROWSER_DESCRIPTOR_COMPONENTS
+    // (Button at S3 · + icon-avatar/topbar at S4); the runtime web factory imports
+    // it with no build step. Additive (decision 35).
     let browser = false;
     if (BROWSER_DESCRIPTOR_COMPONENTS.includes(spec.name)) {
       await writeFile(resolve(DESCRIPTORS_OUT, `${spec.name}.js`), emitDescriptorJs(ir), 'utf8');

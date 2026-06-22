@@ -654,7 +654,7 @@ function descriptorHeaderJs(ir) {
     ` * (no \`import type\`, no axes type, no \`: Descriptor<…>\` annotation). A`,
     ` * browser can \`import { ${ir.exportName} }\` from it at runtime with NO build`,
     ` * step — the runtime web factory (lib/runtime/factory.js · the decision-67`,
-    ` * S3 mirror) consumes it to render a de-collapsed nuri-* tree, preserving the`,
+    ` * web factory) consumes it to render a de-collapsed nuri-* tree, preserving the`,
     ` * zero-build composition property (decision 66 · what Nuri IS #3).`,
     ` *`,
     ` * Sources (decision 65 · the composition model 65.3 · one source, two readers · decision 48):`,
