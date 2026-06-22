@@ -70,7 +70,7 @@ not independent.**
 | # | Session | Ships | Gate | Dec 2 |
 |---|---------|-------|------|-------|
 | **S1 ✓** | RN resolver → data-driven **(shipped · N+25)** | extract the shared namespace→style table (`resolve-map.ts`) + restructure `resolveNS` into the per-target registry (RN column · `RESOLVERS.rn`) · `palette`/`interactive` stay bespoke · preserve `assertNever` + the `toUnistylesRecipe` parity oracle | factory **27/27 + 7 snapshots byte-identical** · tsc 0 ✓ | STANDS |
-| **S2** | Web primitives | `nuri-pressable` · `nuri-text` · `nuri-screen` · `nuri-scroll` (vocabulary = data · mirror RN 1:1 · like the existing `nuri-box`/`nuri-stack`) · resolve `view` = box vs a `nuri-view` | render + 1:1 RN API · console clean | STANDS |
+| **S2 ✓** | Web primitives **(shipped · N+26)** | ship the one missing el-host — **`nuri-pressable`** (the interactive `view`, generic extraction of `button.js`'s inline `<button>` · applies `.nuri-interactive`, not the recipe · the interactive vocab as `data-*` gates · never-clobbered host for the S3 merge). **Scope narrower than this row, verified first-hand**: `nuri-screen`/`nuri-scroll` already exist (dec 58) · `text` → REUSE `nuri-typography` (no `nuri-text`) · `view` → resolved to a **dedicated `nuri-view`** (≠ `nuri-box`) **built at S4** (shape locked N+26 · P11). | render + 1:1 RN `<Pressable>` · preview-MCP smoke · console clean ✓ | STANDS |
 | **S3** | Web factory · slice | the web-target resolver (consumes S1's table · runtime emit) + **de-collapse Button** into `<nuri-pressable><nuri-text>` styled from the descriptor · prove equivalence | visual proof (preview MCP) vs today · the **N+23 docs token-map is the reference** | STANDS |
 | **S4** | Web factory · generalize + retire | extend to icon-avatar + topbar · **retire the hand-written `button.js` / `icon-avatar.js` / `topbar.js`** | the 3 recipes rendered by the factory · gates green | STANDS (`button.css` → the vestige) |
 | **§9** | CSS resolver · source inversion | build-time `descriptor → CSS` + author the descriptor in TS + the **dec-2/§9 audit** | **separate · audit-gated** | **REVERSES** (recipes) |
@@ -85,9 +85,10 @@ not independent.**
 2. **CSS LAST and separate, not co-located with the web factory.** Per the runtime/build split, the CSS
    resolver is §9 (reverses dec 2 · audit-gated). It is the endgame, not a peer of the runtime mirror.
 
-**Dependencies.** S1 is the foundation (no dependency). **S2 is disjoint from S1 → parallelizable**
-(separate worktree). S3 needs S1 (the table) + S2 (the primitives). S4 needs S3. §9 is a separate gated
-arc, sized when reached. **~4 sessions to the runtime mirror** (S1→S4); with S1 ∥ S2, ~3 wall-clock.
+**Dependencies.** S1 is the foundation (no dependency). **S2 was disjoint from S1 → parallelizable**.
+**S1 ✓ (N+25) and S2 ✓ (N+26) are both shipped → S3 is unblocked** (it needs S1's table + S2's
+primitives, both now on a branch). S4 needs S3. §9 is a separate gated arc, sized when reached.
+**~4 sessions to the runtime mirror** (S1→S4); S1+S2 done, **~2 wall-clock remain** (S3, then S4).
 Then §9 separately (~2–4 · sized later).
 
 ---
