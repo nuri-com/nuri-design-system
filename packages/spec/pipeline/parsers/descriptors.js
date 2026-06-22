@@ -632,6 +632,56 @@ export function emitDescriptorTs(ir) {
 }
 
 // ════════════════════════════════════════════════════════════════════
+// BROWSER-ESM TWIN · descriptor IR → a browser-loadable .js (decision 67 · S3)
+// ════════════════════════════════════════════════════════════════════
+// The runtime web factory (lib/runtime/factory.js · the S3 mirror) consumes
+// the descriptor IN THE BROWSER to render a de-collapsed nuri-* tree. ES
+// modules cannot `import` a .ts at runtime, so the descriptor also emits as
+// plain browser ESM — the .ts MINUS the type apparatus (no `import type`, no
+// axes type, no `: Descriptor<…>` annotation). The data is byte-for-byte the
+// same: SAME IR, SAME canonical-order renderers (renderStructure/Variants),
+// so the .js is the .ts with the three TS-only lines removed. This preserves
+// the zero-build composition property (decision 66 · what Nuri IS #3): a page
+// `import`s the descriptor + the factory and resolves with no build step.
+
+function descriptorHeaderJs(ir) {
+  return [
+    `/* ──────────────────────────────────────────────────────────────`,
+    ` * NURI · COMPONENT DESCRIPTOR · ${ir.name.toUpperCase()} · BROWSER ESM · GENERATED · DO NOT EDIT BY HAND`,
+    ` *`,
+    ` * The browser-ESM twin of ${ir.name}.ts — IDENTICAL data, emitted from the`,
+    ` * SAME IR via the SAME canonical-order renderers, MINUS the TS apparatus`,
+    ` * (no \`import type\`, no axes type, no \`: Descriptor<…>\` annotation). A`,
+    ` * browser can \`import { ${ir.exportName} }\` from it at runtime with NO build`,
+    ` * step — the runtime web factory (lib/runtime/factory.js · the decision-67`,
+    ` * S3 mirror) consumes it to render a de-collapsed nuri-* tree, preserving the`,
+    ` * zero-build composition property (decision 66 · what Nuri IS #3).`,
+    ` *`,
+    ` * Sources (decision 65 · the composition model 65.3 · one source, two readers · decision 48):`,
+    ` *   · mapping   — lib/components/${ir.source}/${ir.source}.css @layer (axis→namespace values)`,
+    ` *   · structure — pages/components/${ir.source}.html data-part anatomy (decision 24.1)`,
+    ` * Emitter · pipeline/tokens-parser.js — run \`npm run build\``,
+    ` *`,
+    ` * Committed (decision 35) · the \`git diff --exit-code build/\` gate covers it.`,
+    ` * NEVER hand-edited — re-emit from the sources above.`,
+    ` * ────────────────────────────────────────────────────────────── */`,
+  ].join('\n');
+}
+
+export function emitDescriptorJs(ir) {
+  const lines = [
+    descriptorHeaderJs(ir),
+    ``,
+    `export const ${ir.exportName} = {`,
+    ...renderStructureLines(ir),
+    ...renderVariantsLines(ir),
+    `};`,
+    ``,
+  ];
+  return lines.join('\n');
+}
+
+// ════════════════════════════════════════════════════════════════════
 // SCHEMA emit · copy the hand-maintained pipeline source verbatim,
 // rewriting the build-relative tokens import (decision 35).
 // ════════════════════════════════════════════════════════════════════

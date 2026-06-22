@@ -42,6 +42,17 @@ its namespace→resolver map; the type forces it **total** — a namespace witho
 
 Net: **~3 shared tables + ~6 bespoke resolvers + the dispatch** — not a 15-cell hand-written matrix.
 
+**S3 refinement — the WEB column is `option A`, not a shared-table consumer (as-built · N+27).** The
+agnostic-namespace "web → a CSS var / inline" emit above describes the *eventual* shape; the operator
+chose **option A** for the runtime web mirror (decision 67): the web factory emits `field → data-*` +
+the namespace class and **reuses the existing hand-authored `@layer` CSS as the styler** — the mapping
+already lives in `box.css`/`stack.css`/`palette.css` (the CSS SoT · decision 2), so the web target reads
+**no shared table at all**. The `resolve-map.ts` table stays **RN-only**. The table feeds the web only at
+**§9**, when the namespace CSS is *generated* from `table × tokens` (the operator's deferred idea) — at
+which point the agnostic web "emit" is the generated rule, and the hand-written
+[`lib/runtime/reset.css`](../packages/spec/lib/runtime/reset.css) (the native-`<button>` host
+normalization · NOT token-derived) is the boundary §9's generator must leave intact.
+
 ---
 
 ## 2. Runtime vs build-time — and why the mirror is NOT §9
@@ -71,7 +82,7 @@ not independent.**
 |---|---------|-------|------|-------|
 | **S1 ✓** | RN resolver → data-driven **(shipped · N+25)** | extract the shared namespace→style table (`resolve-map.ts`) + restructure `resolveNS` into the per-target registry (RN column · `RESOLVERS.rn`) · `palette`/`interactive` stay bespoke · preserve `assertNever` + the `toUnistylesRecipe` parity oracle | factory **27/27 + 7 snapshots byte-identical** · tsc 0 ✓ | STANDS |
 | **S2 ✓** | Web primitives **(shipped · N+26)** | ship the one missing el-host — **`nuri-pressable`** (the interactive `view`, generic extraction of `button.js`'s inline `<button>` · applies `.nuri-interactive`, not the recipe · the interactive vocab as `data-*` gates · never-clobbered host for the S3 merge). **Scope narrower than this row, verified first-hand**: `nuri-screen`/`nuri-scroll` already exist (dec 58) · `text` → REUSE `nuri-typography` (no `nuri-text`) · `view` → resolved to a **dedicated `nuri-view`** (≠ `nuri-box`) **built at S4** (shape locked N+26 · P11). | render + 1:1 RN `<Pressable>` · preview-MCP smoke · console clean ✓ | STANDS |
-| **S3** | Web factory · slice | the web-target resolver (consumes S1's table · runtime emit) + **de-collapse Button** into `<nuri-pressable><nuri-text>` styled from the descriptor · prove equivalence | visual proof (preview MCP) vs today · the **N+23 docs token-map is the reference** | STANDS |
+| **S3 ✓** | Web factory · slice **(shipped · N+27)** | the browser web-factory (`lib/runtime/factory.js` · `buildComponent`) **de-collapses Button** into `<nuri-pressable><nuri-typography>` styled from the descriptor — **option A** (operator-chosen · decision 67): the web emit is `field→data-*`/namespace-class, REUSING the hand `@layer` CSS as the styler (**NOT a `resolve-map.ts` consumer** · the table stays RN-only) + the browser-ESM descriptor twin (`build/descriptors/composition-button.js` · Button-gated) + the hand-written `reset.css` (native-`<button>` host normalization · kept OUT of the §9-target namespace CSS) | **14/14 computed-style cells + pixel-parity vs `<nuri-button>`** · values trace to `build/docs/button.md` · console clean | STANDS |
 | **S4** | Web factory · generalize + retire | extend to icon-avatar + topbar · **retire the hand-written `button.js` / `icon-avatar.js` / `topbar.js`** | the 3 recipes rendered by the factory · gates green | STANDS (`button.css` → the vestige) |
 | **§9** | CSS resolver · source inversion | build-time `descriptor → CSS` + author the descriptor in TS + the **dec-2/§9 audit** | **separate · audit-gated** | **REVERSES** (recipes) |
 
@@ -86,10 +97,11 @@ not independent.**
    resolver is §9 (reverses dec 2 · audit-gated). It is the endgame, not a peer of the runtime mirror.
 
 **Dependencies.** S1 is the foundation (no dependency). **S2 was disjoint from S1 → parallelizable**.
-**S1 ✓ (N+25) and S2 ✓ (N+26) are both shipped → S3 is unblocked** (it needs S1's table + S2's
-primitives, both now on a branch). S4 needs S3. §9 is a separate gated arc, sized when reached.
-**~4 sessions to the runtime mirror** (S1→S4); S1+S2 done, **~2 wall-clock remain** (S3, then S4).
-Then §9 separately (~2–4 · sized later).
+**S1 ✓ (N+25) · S2 ✓ (N+26) · S3 ✓ (N+27)** all shipped (S3 consumed S2's `nuri-pressable` + the frozen
+Button descriptor · option A reused the `@layer` CSS, so it did NOT need S1's table). S4 needs S3. §9 is a
+separate gated arc, sized when reached. **~4 sessions to the runtime mirror** (S1→S4); S1–S3 done,
+**~1 wall-clock remains** (S4 · generalize to IconAvatar/Topbar · build `nuri-view` · retire the hand
+recipes). Then §9 separately (~2–4 · sized later).
 
 ---
 
