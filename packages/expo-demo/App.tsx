@@ -16,7 +16,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { NuriThemeProvider, chrome, type Theme } from '@nuri/factory';
+import { NuriThemeProvider, chrome, type Theme } from '@nuri/rn';
 import { Demo } from './src/screens/Demo';
 
 function Root() {

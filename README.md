@@ -80,7 +80,7 @@ packages/                      npm-workspaces monorepo · workspaces: ["packages
                                  N+6.1.1 · decision 36 + amendment 36.1) ·
                                  PLUS the `type` scale namespace (6 steps ×
                                  {regular, em} · decision 54 · N+8.3)
-                                 (consumed by @nuri/factory via @nuri/spec/tokens)
+                                 (consumed by @nuri/rn via @nuri/spec/tokens)
       interaction.ts             transversal interaction baseline ·
                                  { pressScale · disabledOpacity } · the dec-45
                                  cross-component constants, read from the
@@ -311,7 +311,7 @@ The first web ↔ RN translation proof was the `button-matrix` pair — an
 RN hand-translation typechecked against the emitted contract. It validated the
 props-1:1 thesis (frictions folded into [`docs/RISKS.md`](./docs/RISKS.md)
 R1 + R5; F-TOKEN-1 retired in N+5, now machine-generated) and was **retired at
-M4** (decision 65.11) once the [`@nuri/factory`](./packages/factory/)
+M4** (decision 65.11) once the [`@nuri/rn`](./packages/rn/)
 `react-test-renderer` render-smoke became the live intra-repo contract gate —
 it RENDERS the frozen descriptors on RN, a stronger machine-check than the
 type-only mirror. The top-level [`playground/`](./playground/) dir is reserved

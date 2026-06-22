@@ -22,7 +22,7 @@ import {
   NuriSurfaceContext,
   typeStyle,
   useToken,
-} from '@nuri/factory';
+} from '@nuri/rn';
 import { DemoIcon } from './DemoIcon';
 
 // A propless title — inherits the Topbar surface foreground by SCOPE (§12).

@@ -1,7 +1,7 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · DS CONTRACT · the single seam into the read-only spec
  * ──────────────────────────────────────────────────────────────
- * This is the ONLY file in @nuri/factory that reaches into the
+ * This is the ONLY file in @nuri/rn that reaches into the
  * @nuri/spec package — everything else imports the contract from
  * here, so if the spec's surface ever moves, exactly one path
  * changes. (N+19 · M2 · decision 65.7/65.8: the vendored

@@ -9,8 +9,8 @@
 > **Prerequisite — re-verify the baseline** (`main` after the N+23 merge of `feat/website-increment-2` ·
 > increment 2 · the counts below are UNCHANGED — Guard G was EXTENDED to 3 pages, not added):
 > - `npm test -w @nuri/spec` → **26/26** (Guard G · the doc re-emit teeth · now covers all 3 generated pages)
-> - `npm test -w @nuri/factory` → **27/27 + 7 snapshots**
-> - `npx tsc -p packages/factory/tsconfig.json --noEmit` → **0** · same for `packages/expo-demo` → **0**
+> - `npm test -w @nuri/rn` → **27/27 + 7 snapshots**
+> - `npx tsc -p packages/rn/tsconfig.json --noEmit` → **0** · same for `packages/expo-demo` → **0**
 > - `npm run build -w @nuri/spec` then `git diff --exit-code packages/spec/build/` → **clean**
 >   (`build/docs/*.md` is now part of the committed, re-emit-byte-identical output · decision 35).
 

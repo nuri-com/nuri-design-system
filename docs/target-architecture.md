@@ -63,7 +63,7 @@ The shape:
       ┌───────────────┐                  ┌───────────────┐
       │ RN factory    │                  │ WC mirror     │
       │ surface       │                  │ surface       │
-      │ (@nuri/factory│                  │ (nuri-* recipe│
+      │ (@nuri/rn     │                  │ (nuri-* recipe│
       │  barrel)      │                  │  elements)    │
       └───────┬───────┘                  └───────┬───────┘
               │ composes                         │ composes
@@ -309,7 +309,7 @@ The asymmetry the whole model rests on:
   code that knows nothing about *which* recipes exist. It changes only when the *mechanism* changes —
   a new namespace, a new `el` kind, a new interaction channel — never when a recipe is added.
 
-So `@nuri/factory` contains **both kinds of file**: the fixed engine (authored, reviewed like code)
+So `@nuri/rn` contains **both kinds of file**: the fixed engine (authored, reviewed like code)
 and the generated surface (emitted, reviewed like build output — ideally regenerated and trusted, the
 way the descriptors themselves are).
 
@@ -324,7 +324,7 @@ surfaces.
   authored (a human edits)              generated (codegen emits)
   ────────────────────────              ─────────────────────────
   the token/vocabulary source    ──►    (flows into all of the below)
-  the descriptor registry        ──►    RN factory surface  (@nuri/factory barrel)
+  the descriptor registry        ──►    RN factory surface  (@nuri/rn barrel)
   the engine library             ──►    WC mirror surface   (nuri-* recipe elements)
   the primitive implementations          (CSS-for-production · §9 · gated · maybe-later)
   (per platform · mechanism only)
@@ -408,7 +408,7 @@ hand-maintained code with the testing that implies, even though the catalog abov
 ### 8.3 Debugging across generation — provenance is unsolved
 
 A non-runtime cost, real on any generated system. When an RN component renders wrong, the engineer
-reads a *generated* `export const` in `@nuri/factory`, and must trace back to the registry, then to
+reads a *generated* `export const` in `@nuri/rn`, and must trace back to the registry, then to
 the generator, to tell whether it is the data or the projection. §6.2's "ideally not reviewed —
 regenerated and trusted" is good for trust and hostile to debugging: an artifact nobody reads is one
 nobody knows how to read when it breaks. The target does not specify a **sourcemap / provenance**

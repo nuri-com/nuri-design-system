@@ -2,7 +2,7 @@ name: pages
 
 # Deploy the GENERATED docs site to GitHub Pages (N+22 · decision 66 arc #1 ·
 # north-star move 3). SEPARATE from gates.yml — it does NOT gate merges; the
-# three per-workspace gates (spec · factory · expo-demo) stay the merge bar.
+# three per-workspace gates (spec · rn · expo-demo) stay the merge bar.
 #
 # Pipeline: regenerate the docs (npm run build -w @nuri/spec emits
 # build/docs/*.md) → stage them + the nuri runtime assets into website/

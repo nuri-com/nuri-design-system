@@ -63,7 +63,7 @@
 
 <!-- Concrete, testable. Examples:
      - "`npm test -w @nuri/spec` passes (all green · the count drifts — don't pin it)"
-     - "`npm test -w @nuri/factory` passes (the render-smoke) · tsc 0"
+     - "`npm test -w @nuri/rn` passes (the render-smoke) · tsc 0"
      - "Page renders, console clean, theme/accent toggles re-resolve"
      - "Closeout audit ran; findings surfaced in roadmap/index.md" -->
 
@@ -119,13 +119,13 @@ docs site is live off `main`.
   [decision 65.7](../decisionlog.md) — the install wires `node_modules/@nuri/*`
   to *that worktree's* `packages/*`. The old `ln -s "$MAIN/node_modules"
   node_modules` shortcut is WRONG now: it cross-links `@nuri/spec` to the MAIN
-  tree and breaks `@nuri/factory`'s resolution of its sibling.)
+  tree and breaks `@nuri/rn`'s resolution of its sibling.)
 - **CI** — [`.github/workflows/gates.yml`](../.github/workflows/gates.yml)
   runs on every PR + push-to-`main` as three per-workspace jobs: **`spec`**
   (`npm ci` · `npm test -w @nuri/spec` all-green · `npm run build -w @nuri/spec` ·
-  `git diff --exit-code packages/spec/build/`) · **`factory`** (`npm test -w
-  @nuri/factory` — the render-smoke that gates `packages/spec/build/` intra-repo ·
-  `npm run typecheck -w @nuri/factory`) · **`expo-demo`** (`npm run typecheck -w
+  `git diff --exit-code packages/spec/build/`) · **`rn`** (`npm test -w
+  @nuri/rn` — the render-smoke that gates `packages/spec/build/` intra-repo ·
+  `npm run typecheck -w @nuri/rn`) · **`expo-demo`** (`npm run typecheck -w
   @nuri/expo-demo`). Branch protection requires all three green to merge; PRs are
   **squash-merged** ([decision 65.10](../decisionlog.md)).
 - **`packages/spec/build/` is committed** ([decision 35](../decisionlog.md#35-pipeline-sources-vs-build-outputs-physically-separated--pipeline-source-build-generated-only--n604)).
@@ -148,7 +148,7 @@ docs site is live off `main`.
    not the code in the abstract. Fix obvious visual / interaction defects you
    can see. *(Non-visual sessions — pipeline / emit / guards / docs, e.g. the
    post-migration arcs — skip this: there is nothing to render. The proof is
-   the gates, especially the `@nuri/factory` render-smoke.)*
+   the gates, especially the `@nuri/rn` render-smoke.)*
 3. **Operator checkpoint — STOP and ask.** When the work is ready, present it
    to the operator and request feedback — the *rendered result* for a visual
    session, the *diff + ship-list* for a non-visual one. Do NOT run the audit,
@@ -156,7 +156,7 @@ docs site is live off `main`.
    feedback first.
 4. **Only after the operator's feedback:** run the gates (`npm test -w @nuri/spec`,
    `npm run build -w @nuri/spec`, `git diff --exit-code packages/spec/build/`,
-   `npm test -w @nuri/factory`, `npm run typecheck -w @nuri/factory`,
+   `npm test -w @nuri/rn`, `npm run typecheck -w @nuri/rn`,
    `npm run typecheck -w @nuri/expo-demo`),
    then run [`skills/close-out-session.md`](../skills/close-out-session.md) —
    spawn the general-purpose audit subagent

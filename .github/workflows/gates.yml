@@ -5,14 +5,14 @@ name: gates
 #
 # Monorepo (decision 65.7/65.8/65.9/65.10): the repo is an npm-workspaces
 # monorepo. M3 reshapes the single `gates` job into THREE parallel
-# per-workspace jobs — `spec` · `factory` · `expo-demo` — so the gate becomes
-# INTRA-REPO: the `factory` render-smoke imports @nuri/spec's frozen
+# per-workspace jobs — `spec` · `rn` · `expo-demo` — so the gate becomes
+# INTRA-REPO: the `rn` render-smoke imports @nuri/spec's frozen
 # descriptors+tokens and RENDERS them, so a contract change that breaks the RN
 # render fails CI by construction (no cross-repo seam). This is the per-workspace
 # CI the monorepo was built to make possible — it CLOSES R7 (decision 65.10).
 #
 # Required checks (operator · decision B · reconfigured ONCE at M3):
-#   branch protection `gates` → `spec` + `factory` + `expo-demo` (the 3 job names).
+#   branch protection `gates` → `spec` + `rn` + `expo-demo` (the 3 job names).
 #
 # Install scoping (verified M3): `npm ci -w @nuri/<job>` does NOT scope — `npm ci`
 # reconstructs the whole lockfile tree by design (`-w` only scopes the focus
@@ -59,7 +59,7 @@ jobs:
   # same repo, by construction. This is the failure mode R7 named (a contract
   # change merging green while breaking RN render) closed without a cross-repo
   # seam (decision 65.10).
-  factory:
+  rn:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -72,19 +72,19 @@ jobs:
       - name: Install (locked · workspace-aware)
         run: npm ci
 
-      - name: Render-smoke (@nuri/factory · GATES @nuri/spec/build intra-repo)
+      - name: Render-smoke (@nuri/rn · GATES @nuri/spec/build intra-repo)
         # Imports the frozen contract from @nuri/spec and RENDERS it (jest-expo +
         # react-test-renderer · 7 snapshots). A spec/build change that breaks the
         # RN render fails this step — the gate the monorepo was built to make
         # intra-repo (R7 closed · decision 65.10).
-        run: npm test -w @nuri/factory
+        run: npm test -w @nuri/rn
 
-      - name: Typecheck the @nuri/spec → @nuri/factory exports boundary
+      - name: Typecheck the @nuri/spec → @nuri/rn exports boundary
         # The factory consumes @nuri/spec through its exports map; a contract
         # TYPE break (a renamed/retyped descriptor subpath) fails here.
-        run: npm run typecheck -w @nuri/factory
+        run: npm run typecheck -w @nuri/rn
 
-  # The consumable EXAMPLE app · must compile against @nuri/factory's ergonomic
+  # The consumable EXAMPLE app · must compile against @nuri/rn's ergonomic
   # components (the RN team's reference for how the spec is consumed).
   expo-demo:
     runs-on: ubuntu-latest
@@ -99,5 +99,5 @@ jobs:
       - name: Install (locked · workspace-aware)
         run: npm ci
 
-      - name: Typecheck the reference example (@nuri/expo-demo → @nuri/factory)
+      - name: Typecheck the reference example (@nuri/expo-demo → @nuri/rn)
         run: npm run typecheck -w @nuri/expo-demo
