@@ -442,8 +442,11 @@ Out of scope on purpose — roadmap, not architecture:
 - **Sequencing.** Which projection lands first, whether barrel generation precedes any CSS inversion
   (it can), how the arcs order.
 - **Packaging / versioning / external consumption** (the only-git wall, the subtree mirror) —
-  orthogonal to the projection model.
-- **Where codegen physically runs** (which package owns each generator, build wiring).
+  orthogonal to the projection model. *(Update: the workspace **layout** is now resolved —
+  [`package-architecture.md`](./package-architecture.md) · [decision 68](../decisionlog.md): six packages
+  on two axes. Versioning / external consumption stays deferred.)*
+- **Where codegen physically runs** (which package owns each generator, build wiring). *(Still open · a
+  `@nuri/codegen` package vs per-library build scripts — see [`package-architecture.md`](./package-architecture.md) §7.)*
 
 The target commits to exactly this: **one authored TS catalog source; vocabulary as data everywhere;
 a thin hand-written primitive layer whose mechanism (not vocabulary) is per-platform; the factory a
