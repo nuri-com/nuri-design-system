@@ -1,0 +1,33 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · PRESSABLE  (the interactive el-host · S2 · decision 67)
+ *
+ * The host rule for <nuri-pressable> (pressable.js). The custom element
+ * is a layout-invisible wrapper (display:contents) — the inner native
+ * <button class="nuri-interactive"> that pressable.js injects is the
+ * painting node, styled entirely by the generic interactive namespace
+ * (interactive.css) plus whatever box ⊕ stack ⊕ palette a descriptor
+ * merges onto it at S3 (the merged-node model). NO recipe CSS lives
+ * here — pressable is the bare host, not the .nuri-button recipe.
+ *
+ * @layer tokens is empty by design (the interactive.css / decision-37
+ * skip-emit precedent): pressable aliases no component token — it
+ * dispatches the shared --nuri-interaction-* / --nuri-focus-ring
+ * vocabulary through .nuri-interactive directly. The pipeline does not
+ * walk this file (pressable is not in tokens-parser.js's COMPONENTS
+ * list), so build/ stays byte-identical; the empty block keeps the
+ * convention explicit for the day a consumer adds it.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design — the decision-37 pattern (the interactive / palette /
+   * box / stack precedent). pressable carries no component token. */
+}
+
+@layer rules {
+  /* The wrapper is invisible in layout (display:contents); the styles
+   * target the inner native <button> that pressable.js injects — the
+   * same display:contents wrapper pattern as nuri-button (button.css:134). */
+  nuri-pressable {
+    display: contents;
+  }
+}
