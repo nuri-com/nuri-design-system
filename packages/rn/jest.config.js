@@ -26,11 +26,20 @@ const path = require('path');
 // `react-native@"*"` floating peers still dedupe against them, so npm sees no
 // reason to move them). The dual-version tree this redirect guards against thus
 // PERSISTS, so the workaround STAYS (VERIFIED: removing it at M4 reproduced the
-// `__fbBatchedBridgeConfig` failure). Two clean collapses to a single
-// 19.1.0/0.81.5 exist as FUTURE options (neither taken — out of M4's CI-only
-// scope · the conservative tree is green · don't-force-it): a from-scratch
-// lockfile regen, or — now that the migration tsc no longer needs RN 0.80.3 —
-// the M2-rejected global dedupe `override` (its rejection reason is void). §65.11.
+// `__fbBatchedBridgeConfig` failure). N+28 · A2.5 ATTEMPTED the collapse and
+// found it NON-VIABLE *and* UNNECESSARY (§65.11 · roadmap/N+28-A2.5.md), so the
+// "future options" the M4 note floated are now CLOSED, not pending:
+//   · IN-PLACE is impossible — a plain `npm install` no-ops (npm 10.8.2 won't
+//     rebuild a satisfiable lockfile); `npm dedupe` ERESOLVEs on jest-expo's
+//     `react-native@"*"` peer vs the orphan 0.80.3; the M2-rejected `override`
+//     is INERT in-place (npm won't apply a new override to a valid lockfile).
+//   · The only mechanism that collapses — a from-scratch regen — refreshes the
+//     WHOLE tree (~63 transitive deps drift), breaking jest-expo's preset
+//     resolution + dropping lodash (the M4 breakage, reproduced on node 20.19.3
+//     — the whole-tree drift is the blocker, not the node version).
+//   · And it's UNNECESSARY: a non-RN carve-add (@nuri/prototype/doc/playground)
+//     is conservative (npm leaves the RN tree untouched), so the dual tree is a
+//     harmless vestige. The workaround STAYS. §65.11.
 const react = require.resolve('react');
 const reactNativeDir = path.dirname(require.resolve('react-native/package.json'));
 
