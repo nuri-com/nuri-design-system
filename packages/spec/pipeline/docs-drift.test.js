@@ -61,12 +61,17 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import {
   DESCRIPTOR_COMPONENTS,
   deriveDescriptor,
   emitDescriptorTs,
+  emitDescriptorTsFromSource,
+  emitDescriptorJsFromSource,
+  descriptorBody,
+  docIrFromDescriptor,
+  exportNameFor,
   emitSchemaTs,
   pageParts,
 } from './parsers/descriptors.js';
@@ -216,7 +221,7 @@ function interactiveChannels(ir) {
   return it ? Object.keys(it).filter((k) => it[k]) : [];
 }
 
-test('D · each build/descriptors/*.ts re-emits identically from its sources', () => {
+test('D · build/descriptors/* re-emits from the authored SoT + the CSS oracle proves it faithful', () => {
   // Schema · the hand-maintained pipeline source emitted (import rewritten)
   // must equal the committed build (decision 35 · stale-build / hand-edit guard).
   assert.equal(
@@ -226,27 +231,46 @@ test('D · each build/descriptors/*.ts re-emits identically from its sources', (
   );
 
   for (const spec of DESCRIPTOR_COMPONENTS) {
+    const authored = read(`pipeline/descriptors/${spec.name}.ts`);
     const css = read(`lib/components/${spec.source}/${spec.source}.css`);
     const html = read(`pages/components/${spec.source}.html`);
 
-    // deriveDescriptor re-reads BOTH sources and THROWS on drift: a surface
-    // bg/fg/pressedBg pointing at the wrong chrome/accent leaf (assertSurface),
-    // a geometry decl off its scale (scaleLeaf), a press-scale/disabled effect
-    // off the interaction baseline (assertInteraction), a routed part absent
-    // from the page anatomy (assertPart), or an unknown variant modifier
-    // (assertCovered). So this call itself is the token/part/variant guard.
-    const ir = deriveDescriptor(spec, { css, html });
-
-    // Re-emit must equal the committed build (stale-build / hand-edit guard).
+    // ── (1) STALE-BUILD / HAND-EDIT · build/ is the passthrough of the authored
+    // SoT (decision 69 · §9 step 1 · the inversion): the .ts is the source with
+    // the GENERATED header, the .js is it type-stripped — both DATA byte-identical.
     assert.equal(
       read(`build/descriptors/${spec.name}.ts`),
-      emitDescriptorTs(ir),
+      emitDescriptorTsFromSource(spec, authored),
       `build/descriptors/${spec.name}.ts is stale or hand-edited — run \`npm run build\`.`,
     );
+    assert.equal(
+      read(`build/descriptors/${spec.name}.js`),
+      emitDescriptorJsFromSource(spec, authored),
+      `build/descriptors/${spec.name}.js is stale or hand-edited — run \`npm run build\`.`,
+    );
 
-    // The composition-form pins: a renamed/removed axis value, a moved
+    // ── (2) THE PARITY ORACLE (the inversion's safety bridge · decision 69) ·
+    // deriveDescriptor re-reads the LIVE CSS+HTML and THROWS on drift: a surface
+    // bg/fg/pressedBg off the funnel (assertSurface), a geometry decl off its
+    // scale (scaleLeaf), a press-scale/disabled effect off the interaction
+    // baseline (assertInteraction), a routed part absent from the page anatomy
+    // (assertPart), or an unknown variant modifier (assertCovered). Its rendered
+    // body must then EQUAL the authored body: derive(CSS,HTML) ≡ the authored
+    // descriptor. NOT a tautology — the LHS reads the hand CSS, the RHS the TS SoT;
+    // they agree only while the CSS still renders this descriptor (the cross-check
+    // that keeps the inversion faithful + reversible until B2 generates the CSS).
+    const ir = deriveDescriptor(spec, { css, html });
+    assert.equal(
+      descriptorBody(emitDescriptorTs(ir)),
+      descriptorBody(authored),
+      `${spec.name}: the live CSS no longer derives the authored descriptor — the ` +
+        `parity oracle failed (decision 69 · §9 step 1). Either the CSS drifted from ` +
+        `pipeline/descriptors/${spec.name}.ts, or the authored data is wrong.`,
+    );
+
+    // ── (3) THE COMPOSITION-FORM PINS · a renamed/removed axis value, a moved
     // anatomy part, or a changed `interactive` opt-in breaks here EVEN IF the
-    // build was re-emitted — a deliberate contract change must update this guard.
+    // build + oracle agree — a deliberate contract change must update this guard.
     const expected = EXPECTED_DESCRIPTORS[spec.name];
     assert.ok(expected, `[docs-drift] no pinned shape for descriptor '${spec.name}'`);
     assert.deepEqual(ir.axes, expected.axes, `${spec.name}: axis values drifted from the 65.3 shape`);
@@ -600,7 +624,7 @@ const PAGE_CONTRACT = {
   },
 };
 
-test('G · each build/docs/*.md re-emits identically from its descriptor', () => {
+test('G · each build/docs/*.md re-emits identically from its descriptor', async () => {
   const semanticRules = readSemanticRules(read('styles/tokens-semantic.css'));
   const classifiedGroups = classifyAll(semanticRules);
   // The default-scope (neutral + light · cream) resolved cross-product + type
@@ -623,12 +647,15 @@ test('G · each build/docs/*.md re-emits identically from its descriptor', () =>
     { classifiedGroups },
   );
 
-  // Re-emit must equal the committed build (stale-build / hand-edit guard).
+  // Re-emit must equal the committed build (stale-build / hand-edit guard). The
+  // doc IR is sourced from the AUTHORED descriptor (decision 69 · the SoT), via
+  // the browser-ESM twin (node cannot import the .ts SoT) — NOT re-derived from
+  // CSS. Mirrors Slice 9; Guard D separately proves derive(CSS) ≡ the authored data.
   for (const spec of DESCRIPTOR_COMPONENTS) {
     if (!DOC_COMPONENTS.includes(spec.name)) continue;
-    const css = read(`lib/components/${spec.source}/${spec.source}.css`);
-    const html = read(`pages/components/${spec.source}.html`);
-    const ir = deriveDescriptor(spec, { css, html });
+    const twin = pathToFileURL(resolve(REPO_ROOT, `build/descriptors/${spec.name}.js`)).href;
+    const descriptor = (await import(twin))[exportNameFor(spec.name)];
+    const ir = docIrFromDescriptor(spec, descriptor);
     assert.equal(
       read(`build/docs/${spec.source}.md`),
       emitDocPage(ir, { palette, tokens, colors }),

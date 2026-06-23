@@ -140,9 +140,22 @@ compoundVariants: [ { pressed:true, styles:{ transform:'scale(0.97)' } }, … ]
 - **Boundary** (decision 65): the *schema* is OURS (the frozen contract); the *engine* is the factory
   = Expo's (adopt vs build is their call); the web + docs *generation* is OURS — the genuinely new
   piece.
-- **Status: OPEN · deferred** — revisits decision 2. Gated by the audit (§10 · M2/M5): does inline-CSS-var
-  rendering preserve the decision-63 cascade fix; does an off-the-shelf compiler already do the
-  "novel" generation. Sequence *after* the shape is proven & frozen.
+- **Status: §9 STEP 1 RATIFIED for the descriptor layer** ([decision 69](../decisionlog.md) · N+29 B1) ·
+  the CSS→TS half remains gated. The reversal is **separable**, so it lands in two steps:
+  - **Step 1 (B1 · DONE)** — the descriptor LAYER (Layer A) is inverted: the three frozen descriptors are
+    HAND-AUTHORED at `packages/spec/pipeline/descriptors/<name>.ts` (the SoT) and the build emits them by
+    passthrough; `build/descriptors/*` is byte-identical (provenance header only). decision 2 is reversed
+    **for the descriptor layer only**. The hand CSS still renders web AND still proves the descriptor
+    faithful — the forward parser (`deriveDescriptor`) is repurposed from PRODUCER to **parity oracle**
+    (Guard D asserts `deriveDescriptor(CSS,HTML) ≡ the authored data`), keeping the move faithful +
+    reversible until B2. **No CSS is generated** and **no token is inverted**.
+  - **Token vocabulary (Layer B) stays CSS-SoT — ring-fenced.** `styles/tokens-*.css` (incl. the
+    decision-63 #4b/#6b self-scope cascade) is untouched; the decision-63 cascade-preservation question is
+    a Layer-B concern, deferred with B2. This is what makes step 1 the low-risk half.
+  - **Step 2 (B2 · still gated)** — the build-time `descriptor → CSS` generation (inline-CSS-var rendering ·
+    into `@nuri/prototype`). Gated by §10's M2/M5: does the generated CSS preserve the decision-63 cascade
+    fix; does an off-the-shelf compiler already do the "novel" generation. The `button.css` / namespace CSS
+    becomes a derivation source (the "vestige") only when B2 lands.
 
 ## 10 · Audit outcome + firm / open
 
@@ -170,7 +183,8 @@ the interaction decomposition (independent opt-in) · the source-agnostic-shape 
 
 **Open → the detailed plan**: the precise variants-model schema (spike M3/M4 first) · the semantic
 vocabulary (parked) · Typography-transversal mechanics (web-class + an RN `<Text>` helper) · the §9
-source-inversion · prefix-vs-suffix naming.
+source-inversion (**step 1 RATIFIED + DONE — the descriptor layer is TS-authored · decision 69 · N+29 B1**;
+step 2 = the CSS resolver, still gated · §9 above) · prefix-vs-suffix naming.
 
 ## 11 · Worked shapes — the theme, the Button API, the emitted bridge
 

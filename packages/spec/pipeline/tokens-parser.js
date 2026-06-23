@@ -24,7 +24,7 @@
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import {
   readPrimitives,
@@ -79,7 +79,10 @@ import {
   DESCRIPTOR_COMPONENTS,
   deriveDescriptor,
   emitDescriptorTs,
-  emitDescriptorJs,
+  emitDescriptorTsFromSource,
+  emitDescriptorJsFromSource,
+  docIrFromDescriptor,
+  exportNameFor,
   emitSchemaTs,
 } from './parsers/descriptors.js';
 
@@ -137,7 +140,10 @@ export {
   DESCRIPTOR_COMPONENTS,
   deriveDescriptor,
   emitDescriptorTs,
-  emitDescriptorJs,
+  emitDescriptorTsFromSource,
+  emitDescriptorJsFromSource,
+  docIrFromDescriptor,
+  exportNameFor,
   emitSchemaTs,
   PALETTE_CONTRACT,
   derivePalette,
@@ -152,13 +158,13 @@ const REPO_ROOT = resolve(__dirname, '..');
 const PRIMITIVE_CSS    = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
 const SEMANTIC_CSS     = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
 const COMPONENTS_DIR   = resolve(REPO_ROOT, 'lib/components');
-const PAGES_DIR        = resolve(REPO_ROOT, 'pages/components');
 const JSON_OUT         = resolve(REPO_ROOT, 'build/tokens.json');
 const TS_OUT           = resolve(REPO_ROOT, 'build/tokens.ts');
 const INTERACTION_OUT  = resolve(REPO_ROOT, 'build/interaction.ts');
 const TOKEN_PATHS_OUT  = resolve(REPO_ROOT, 'build/token-paths.ts');
 const ICONS_OUT        = resolve(REPO_ROOT, 'build/icons.ts');
 const DESCRIPTORS_OUT  = resolve(REPO_ROOT, 'build/descriptors');
+const DESCRIPTORS_SRC  = resolve(REPO_ROOT, 'pipeline/descriptors');
 const SCHEMA_SRC       = resolve(REPO_ROOT, 'pipeline/descriptors/schema.ts');
 const PALETTE_OUT      = resolve(REPO_ROOT, 'build/palette.ts');
 const DOCS_OUT         = resolve(REPO_ROOT, 'build/docs');
@@ -296,36 +302,33 @@ async function main() {
   await writeFile(ICONS_OUT, iconsSource, 'utf8');
   const iconNameCount = Object.keys(ICONS).length;
 
-  // ── Slice 7 · per-component descriptor emit (N+19 · decision 65 · 65.2) ──
-  // Under build/descriptors/ (a separate dir · independent of every other
-  // slice · re-emits byte-identical). One descriptor per spike-validated
-  // component, read from BOTH sources: the @layer CSS
-  // (mapping · the 65.1 bootstrap) + the page data-part anatomy (structure ·
-  // decision 24.1). The frozen schema (build/descriptors/schema.ts) is the
-  // hand-maintained pipeline source emitted verbatim (tokens-import rewritten).
+  // ── Slice 7 · per-component descriptor emit (N+19 · decision 65 · §9 step 1 · decision 69) ──
+  // Under build/descriptors/ (a separate dir · independent of every other slice).
+  // §9 step 1 INVERTED the source: each descriptor is HAND-AUTHORED at
+  // pipeline/descriptors/<name>.ts (the SoT · decision 2 reversed for the layer ·
+  // decision 69) and emitted FROM there as a verbatim passthrough — the DATA is
+  // byte-identical, only the provenance header changes. No CSS is read here;
+  // derivation is now the parity oracle (Guard D), not the producer. The frozen
+  // schema (build/descriptors/schema.ts) is likewise the hand-maintained source
+  // emitted verbatim (its tokens-import rewritten · the descriptors' `./schema`
+  // import needs no rewrite — it resolves in both locations).
   await mkdir(DESCRIPTORS_OUT, { recursive: true });
   const schemaSource = await readFile(SCHEMA_SRC, 'utf8');
   await writeFile(resolve(DESCRIPTORS_OUT, 'schema.ts'), emitSchemaTs(schemaSource), 'utf8');
   const descriptorReports = [];
   for (const spec of DESCRIPTOR_COMPONENTS) {
-    const descriptorCSS = await readFile(
-      resolve(COMPONENTS_DIR, spec.source, `${spec.source}.css`), 'utf8',
-    );
-    const descriptorHTML = await readFile(
-      resolve(PAGES_DIR, `${spec.source}.html`), 'utf8',
-    );
-    const ir = deriveDescriptor(spec, { css: descriptorCSS, html: descriptorHTML });
+    const source = await readFile(resolve(DESCRIPTORS_SRC, `${spec.name}.ts`), 'utf8');
     const out = resolve(DESCRIPTORS_OUT, `${spec.name}.ts`);
-    await writeFile(out, emitDescriptorTs(ir), 'utf8');
-    // Browser-ESM twin (decision 67 · S3/S4) — gated to BROWSER_DESCRIPTOR_COMPONENTS
-    // (Button at S3 · + icon-avatar/topbar at S4); the runtime web factory imports
-    // it with no build step. Additive (decision 35).
+    await writeFile(out, emitDescriptorTsFromSource(spec, source), 'utf8');
+    // Browser-ESM twin (decision 67) — the authored .ts type-stripped (the runtime
+    // web factory imports it with no build step · zero-build). Gated to
+    // BROWSER_DESCRIPTOR_COMPONENTS. Additive (decision 35).
     let browser = false;
     if (BROWSER_DESCRIPTOR_COMPONENTS.includes(spec.name)) {
-      await writeFile(resolve(DESCRIPTORS_OUT, `${spec.name}.js`), emitDescriptorJs(ir), 'utf8');
+      await writeFile(resolve(DESCRIPTORS_OUT, `${spec.name}.js`), emitDescriptorJsFromSource(spec, source), 'utf8');
       browser = true;
     }
-    descriptorReports.push({ name: spec.name, axes: Object.keys(ir.axes).length, out, browser });
+    descriptorReports.push({ name: spec.name, out, browser });
   }
 
   // ── Slice 8 · palette mapping emit (N+19 B2b · decision 65.3 §6) ──
@@ -346,11 +349,13 @@ async function main() {
   const paletteRowCount =
     Object.keys(paletteCells.variant).length + Object.keys(paletteCells.chrome).length;
 
-  // ── Slice 9 · component doc page emit (N+22 · decision 66 arc #1) ──
-  // Render the descriptor IR as a just-the-docs Markdown page — the
-  // generation thesis applied to docs (north-star move 3). READ-ONLY on the
-  // descriptor (NOT §9 · decision 2 STANDS): we read the frozen machine-spec
-  // to EMIT docs, we do NOT generate CSS from it. Additive committed build
+  // ── Slice 9 · component doc page emit (N+22 · decision 66 arc #1 · decision 69) ──
+  // Render the descriptor as a just-the-docs Markdown page — the generation thesis
+  // applied to docs (north-star move 3). The doc IR is sourced from the AUTHORED
+  // descriptor (the SoT · decision 69 · §9 step 1), NOT re-derived from CSS: we
+  // import the browser-ESM twin emitted in Slice 7 (node 20 cannot import the .ts
+  // SoT directly) and build the IR via docIrFromDescriptor. Still READ-ONLY (we
+  // EMIT docs, we generate NO CSS — CSS generation is B2). Additive committed build
   // output (decision 35 · build/docs/<source>.md · re-emits byte-identical).
   // The <nuri-demo> STORY is authored in website/_includes (decision 57.2),
   // the page only carries an `## Example` include slot. The value-bearing inputs
@@ -362,14 +367,24 @@ async function main() {
     classifiedGroups, resolved, typeScale,
   );
   await mkdir(DOCS_OUT, { recursive: true });
+  // Slice 9 sources each doc IR from the component's browser-ESM twin (decision 69),
+  // so every DOC_COMPONENTS entry MUST also emit one. Assert the subset explicitly —
+  // fail loud here rather than on a cryptic import ENOENT below.
+  const missingTwin = DOC_COMPONENTS.filter((n) => !BROWSER_DESCRIPTOR_COMPONENTS.includes(n));
+  if (missingTwin.length) {
+    throw new Error(
+      `[tokens-parser] Slice 9 reads the descriptor SoT via its browser-ESM twin, but ` +
+      `DOC_COMPONENTS has no twin for: ${missingTwin.join(', ')}. Add them to ` +
+      `BROWSER_DESCRIPTOR_COMPONENTS (DOC_COMPONENTS ⊆ BROWSER_DESCRIPTOR_COMPONENTS).`,
+    );
+  }
   const docReports = [];
   for (const spec of DESCRIPTOR_COMPONENTS) {
     if (!DOC_COMPONENTS.includes(spec.name)) continue;
-    const docCSS = await readFile(
-      resolve(COMPONENTS_DIR, spec.source, `${spec.source}.css`), 'utf8',
-    );
-    const docHTML = await readFile(resolve(PAGES_DIR, `${spec.source}.html`), 'utf8');
-    const ir = deriveDescriptor(spec, { css: docCSS, html: docHTML });
+    // DOC_COMPONENTS ⊆ BROWSER_DESCRIPTOR_COMPONENTS (asserted above), so the twin exists.
+    const twin = pathToFileURL(resolve(DESCRIPTORS_OUT, `${spec.name}.js`)).href;
+    const descriptor = (await import(twin))[exportNameFor(spec.name)];
+    const ir = docIrFromDescriptor(spec, descriptor);
     const out = resolve(DOCS_OUT, `${spec.source}.md`);
     await writeFile(
       out, emitDocPage(ir, { palette: paletteCells, tokens: docTokens, colors: docColors }), 'utf8',
@@ -391,7 +406,7 @@ async function main() {
     `\n[tokens-parser] wrote icon registry (${iconNameCount} names × ${ICON_WEIGHTS.length} weights) → ${ICONS_OUT}` +
     `\n[tokens-parser] wrote descriptor schema → ${resolve(DESCRIPTORS_OUT, 'schema.ts')}` +
     descriptorReports.map((r) =>
-      `\n[tokens-parser] wrote descriptor '${r.name}' (${r.axes} ${r.axes === 1 ? 'axis' : 'axes'})${r.browser ? ' + browser ESM' : ''} → ${r.out}`,
+      `\n[tokens-parser] wrote descriptor '${r.name}' (authored SoT${r.browser ? ' + browser ESM' : ''}) → ${r.out}`,
     ).join('') +
     `\n[tokens-parser] wrote palette mapping (${paletteRowCount} rows · CSS-asserted) → ${PALETTE_OUT}` +
     docReports.map((r) =>
