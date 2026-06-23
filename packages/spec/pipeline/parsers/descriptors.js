@@ -1,9 +1,15 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · PARSER · DESCRIPTORS (R-EXPO-6 · decision 65 · the composition model 65.3)
  *
- * Emits the per-component DESCRIPTOR — the frozen cross-repo contract
- * instance — additively under build/descriptors/. Two sources, one
- * reader each (decision 48 · 65 guardrail · "emit FROM, never re-author"):
+ * §9 STEP 1 · THE DESCRIPTOR LAYER IS NOW TS-AUTHORED (decision 69 · N+29 B1).
+ * decision 2 (CSS is SoT) is reversed FOR THE DESCRIPTOR LAYER ONLY: the per-
+ * component descriptors are HAND-AUTHORED at pipeline/descriptors/<name>.ts (the
+ * SoT) and emitted FROM that source as a verbatim passthrough (emitDescriptor*
+ * FromSource below). The token vocabulary stays CSS-SoT (decision 63 · ring-
+ * fenced). DERIVATION HERE = THE PARITY ORACLE, NOT THE PRODUCER: deriveDescriptor
+ * is the cross-check Guard D runs (deriveDescriptor(CSS,HTML) ≡ the authored
+ * data), reading the two sources, one reader each (decision 48 · "emit FROM,
+ * never re-author") to keep the inversion faithful + reversible until B2:
  *
  *   · MAPPING half  — lib/components/<name>/<name>.css @layer blocks.
  *     Each declaration maps to ONE primitive namespace prop (the B1.5 §3
@@ -23,10 +29,11 @@
  * each value a SEMANTIC namespace name. The pressed/scale/opacity/affordance
  * collapse to the `interactive` opt-in on the root (Button); IconAvatar /
  * Topbar are static. NO `compoundVariants` — the press transition is no
- * longer data (decision 65 · behaviour ≠ data). The RN factory (B2c·3 ·
- * native · finalized in Expo) interprets it; this repo only emits + proves
- * the contract. Additive — build/palette.ts / tokens.ts / components/* stay
- * byte-identical; only build/descriptors/* re-emits.
+ * longer data (decision 65 · behaviour ≠ data). The RN/web factory + the docs
+ * consume the AUTHORED descriptor; this module emits it (passthrough), proves it
+ * (the oracle), and builds the doc IR from it (docIrFromDescriptor · Slice 9).
+ * Additive — build/palette.ts / tokens.ts / components/* stay byte-identical;
+ * only build/descriptors/* re-emits (data byte-identical · provenance header only).
  * ────────────────────────────────────────────────────────────── */
 
 import postcss from 'postcss';
@@ -263,7 +270,7 @@ export function pageParts(html) {
 // PartMap = { <part>: NS } · NS = { stack?, box?, typography?, palette?,
 //   interactive? } · every value a SEMANTIC name (string) or boolean.
 
-function exportNameFor(name) {
+export function exportNameFor(name) {
   return camel(name) + 'Descriptor';
 }
 function typeNameFor(name) {
@@ -487,6 +494,12 @@ function deriveTopbar(spec, css, html) {
 
 const DERIVERS = { button: deriveButton, iconAvatar: deriveIconAvatar, topbar: deriveTopbar };
 
+// THE PARITY ORACLE (decision 69 · §9 step 1 · N+29 B1) — no longer the build's
+// producer. Guard D runs deriveDescriptor(CSS,HTML) and asserts it ≡ the authored
+// pipeline/descriptors/<name>.ts data; the assertSurface / scaleLeaf /
+// assertInteraction / assertPart / assertCovered checks throw on any CSS↔descriptor
+// drift. This keeps the hand CSS a live cross-check (it still renders web) until B2
+// generates the CSS — the §9 boundary that makes the inversion faithful + reversible.
 export function deriveDescriptor(spec, { css, html }) {
   const deriver = DERIVERS[spec.kind];
   if (!deriver) throw new Error(`[descriptors] no deriver for kind '${spec.kind}'`);
@@ -494,8 +507,11 @@ export function deriveDescriptor(spec, { css, html }) {
 }
 
 // ════════════════════════════════════════════════════════════════════
-// RENDER · IR → the descriptor .ts source string (canonical-order →
-// byte-stable emit · decision 35 · git diff --exit-code build/)
+// RENDER · IR → the descriptor .ts source string (canonical-order). Post-
+// inversion (decision 69) this no longer PRODUCES build/ — it is the ORACLE's
+// canonical renderer: Guard D renders the CSS-derived IR and compares its BODY
+// (descriptorBody · the header is sliced) against the authored source, so a CSS
+// drift that changes the derived shape fails the parity check.
 // ════════════════════════════════════════════════════════════════════
 
 const NS_ORDER = ['stack', 'box', 'typography', 'palette', 'interactive'];
@@ -614,6 +630,10 @@ function descriptorHeader(ir) {
   ].join('\n');
 }
 
+// The oracle's canonical .ts render (header + body). Guard D compares only the
+// BODY — descriptorBody(emitDescriptorTs(deriveIR)) ≡ descriptorBody(authored) —
+// so descriptorHeader's legacy CSS-sources banner here is sliced away; build/'s
+// header comes from emitDescriptorTsFromSource (the authored-source provenance).
 export function emitDescriptorTs(ir) {
   const lines = [
     descriptorHeader(ir),
@@ -632,53 +652,115 @@ export function emitDescriptorTs(ir) {
 }
 
 // ════════════════════════════════════════════════════════════════════
-// BROWSER-ESM TWIN · descriptor IR → a browser-loadable .js (decision 67 · S3)
+// PASSTHROUGH · the AUTHORED descriptor source → build/ (decision 69 · §9 step 1)
 // ════════════════════════════════════════════════════════════════════
-// The runtime web factory (lib/runtime/factory.js · the S3 mirror) consumes
-// the descriptor IN THE BROWSER to render a de-collapsed nuri-* tree. ES
-// modules cannot `import` a .ts at runtime, so the descriptor also emits as
-// plain browser ESM — the .ts MINUS the type apparatus (no `import type`, no
-// axes type, no `: Descriptor<…>` annotation). The data is byte-for-byte the
-// same: SAME IR, SAME canonical-order renderers (renderStructure/Variants),
-// so the .js is the .ts with the three TS-only lines removed. This preserves
-// the zero-build composition property (decision 66 · what Nuri IS #3): a page
-// `import`s the descriptor + the factory and resolves with no build step.
+// The descriptor layer is now TS-authored (pipeline/descriptors/<name>.ts is the
+// SoT · decision 2 reversed for the layer). build/descriptors/<name>.{ts,js} are
+// emitted FROM that source: the .ts is a verbatim passthrough (swap the authored-
+// source header for the GENERATED header · the DATA body is byte-identical · the
+// `./schema` import resolves in both locations so nothing in the body is rewritten,
+// unlike the schema emit's tokens-import hop); the .js is the same body MINUS the
+// TS apparatus (the browser-ESM twin · decision 67 · the runtime web factory
+// imports it with no build step · zero-build · what Nuri IS #3). This is a
+// mechanical transform of the SoT — NOT a CSS derivation (that is now the oracle).
 
-function descriptorHeaderJs(ir) {
+// The DATA body of a descriptor module — `import type …` to EOF. The authored
+// source and the emitted .ts share this slice point (both lead with `import type
+// { Descriptor } from './schema'`), so the passthrough preserves it byte-for-byte
+// and Guard D's oracle compares the derived render's body against it.
+export function descriptorBody(source) {
+  // Anchor on the actual statement at line-start (the `m` flag) — NOT a bare
+  // `indexOf('import type')`, since the authored header text mentions the phrase.
+  const m = source.match(/^import type \{ Descriptor \} from '\.\/schema';/m);
+  if (!m) throw new Error("[descriptors] descriptor source has no `import type { Descriptor } from './schema'` statement — cannot slice the body");
+  return source.slice(m.index);
+}
+
+function passthroughHeaderTs(spec) {
   return [
     `/* ──────────────────────────────────────────────────────────────`,
-    ` * NURI · COMPONENT DESCRIPTOR · ${ir.name.toUpperCase()} · BROWSER ESM · GENERATED · DO NOT EDIT BY HAND`,
+    ` * NURI · COMPONENT DESCRIPTOR · ${spec.name.toUpperCase()} · GENERATED · DO NOT EDIT BY HAND`,
     ` *`,
-    ` * The browser-ESM twin of ${ir.name}.ts — IDENTICAL data, emitted from the`,
-    ` * SAME IR via the SAME canonical-order renderers, MINUS the TS apparatus`,
-    ` * (no \`import type\`, no axes type, no \`: Descriptor<…>\` annotation). A`,
-    ` * browser can \`import { ${ir.exportName} }\` from it at runtime with NO build`,
-    ` * step — the runtime web factory (lib/runtime/factory.js · the decision-67`,
-    ` * web factory) consumes it to render a de-collapsed nuri-* tree, preserving the`,
-    ` * zero-build composition property (decision 66 · what Nuri IS #3).`,
+    ` * Source · pipeline/descriptors/${spec.name}.ts (the AUTHORED SoT · the`,
+    ` * descriptor layer is TS-authored as of §9 step 1 · decision 69 · N+29 B1).`,
+    ` * Emitter · pipeline/tokens-parser.js — run \`npm run build\` (a verbatim`,
+    ` * passthrough: the authored DATA is emitted unchanged with this header; the`,
+    ` * \`./schema\` import resolves in both locations · the .js twin is the same`,
+    ` * data type-stripped).`,
     ` *`,
-    ` * Sources (decision 65 · the composition model 65.3 · one source, two readers · decision 48):`,
-    ` *   · mapping   — lib/components/${ir.source}/${ir.source}.css @layer (axis→namespace values)`,
-    ` *   · structure — pages/components/${ir.source}.html data-part anatomy (decision 24.1)`,
-    ` * Emitter · pipeline/tokens-parser.js — run \`npm run build\``,
-    ` *`,
-    ` * Committed (decision 35) · the \`git diff --exit-code build/\` gate covers it.`,
-    ` * NEVER hand-edited — re-emit from the sources above.`,
+    ` * PURE DATA (no theme thunk · 65.3 §7): structure { anatomy, base } +`,
+    ` * variants, composed from the five primitive namespaces (stack · box ·`,
+    ` * typography · palette · interactive · 65.3 §6) in SEMANTIC names. The`,
+    ` * platform-native engine resolves them (factory on RN · CSS on web · 65.1);`,
+    ` * behaviour is the factory's, never data. The hand CSS still renders web +`,
+    ` * still proves this descriptor faithful — Guard D asserts deriveDescriptor(`,
+    ` * CSS,HTML) ≡ the authored data until B2 generates the CSS. NEVER hand-edit`,
+    ` * build/ — edit the authored source above (decision 35 · build/ is generated).`,
     ` * ────────────────────────────────────────────────────────────── */`,
   ].join('\n');
 }
 
-export function emitDescriptorJs(ir) {
-  const lines = [
-    descriptorHeaderJs(ir),
-    ``,
-    `export const ${ir.exportName} = {`,
-    ...renderStructureLines(ir),
-    ...renderVariantsLines(ir),
-    `};`,
-    ``,
-  ];
-  return lines.join('\n');
+function passthroughHeaderJs(spec) {
+  return [
+    `/* ──────────────────────────────────────────────────────────────`,
+    ` * NURI · COMPONENT DESCRIPTOR · ${spec.name.toUpperCase()} · BROWSER ESM · GENERATED · DO NOT EDIT BY HAND`,
+    ` *`,
+    ` * The browser-ESM twin of build/descriptors/${spec.name}.ts — IDENTICAL data,`,
+    ` * the authored source type-stripped (no \`import type\`, no axes type, no`,
+    ` * \`: Descriptor<…>\` annotation). A browser can \`import { ${exportNameFor(spec.name)} }\``,
+    ` * from it at runtime with NO build step — the runtime web factory`,
+    ` * (lib/runtime/factory.js · decision 67) consumes it to render a de-collapsed`,
+    ` * nuri-* tree, preserving the zero-build composition property (decision 66 ·`,
+    ` * what Nuri IS #3).`,
+    ` *`,
+    ` * Source · pipeline/descriptors/${spec.name}.ts (the AUTHORED SoT · §9 step 1 ·`,
+    ` * decision 69 · N+29 B1). Emitter · pipeline/tokens-parser.js — \`npm run build\`.`,
+    ` * Committed (decision 35) · the \`git diff --exit-code build/\` gate covers it.`,
+    ` * NEVER hand-edit build/ — edit the authored source above.`,
+    ` * ────────────────────────────────────────────────────────────── */`,
+  ].join('\n');
+}
+
+// Passthrough emit · authored .ts → build/descriptors/<name>.ts (header swap only).
+export function emitDescriptorTsFromSource(spec, source) {
+  return passthroughHeaderTs(spec) + '\n\n' + descriptorBody(source);
+}
+
+// Type-strip emit · authored .ts → build/descriptors/<name>.js. The three TS-only
+// removals (the documented browser-ESM transform · decision 67): drop the `import
+// type`, the axes `type … = {…};`, and the `: Descriptor<…>` annotation. Byte-
+// identical DATA to the .ts (a transform of the SoT · not a CSS derivation).
+export function emitDescriptorJsFromSource(spec, source) {
+  const body = descriptorBody(source)
+    .replace(/^import type \{ Descriptor \} from '\.\/schema';\n\n/, '')
+    .replace(/^type \w+ = \{[\s\S]*?\};\n\n/, '')
+    .replace(/^(export const \w+): Descriptor<[^>]*> = /, '$1 = ');
+  return passthroughHeaderJs(spec) + '\n\n' + body;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// DOC IR · the AUTHORED descriptor DATA → the IR parsers/docs.js consumes
+// ════════════════════════════════════════════════════════════════════
+// Slice 9 + Guard G read the SoT, not CSS (decision 69): the build imports the
+// browser-ESM twin (the JS-accessible form of the .ts SoT · node 20 cannot import
+// a .ts) and converts it here. axes derive from the variants keys in authored (=
+// canonical) order; anatomy/base/variants flow straight through. Equivalent to
+// deriveDescriptor's IR for the fields emitDocPage reads (Guard D proves derive ≡
+// authored), so the doc pages re-emit byte-identical.
+export function docIrFromDescriptor(spec, descriptor) {
+  const variants = descriptor.variants || {};
+  const axes = {};
+  for (const axis of Object.keys(variants)) axes[axis] = Object.keys(variants[axis]);
+  return {
+    name: spec.name,
+    source: spec.source,
+    exportName: exportNameFor(spec.name),
+    typeName: typeNameFor(spec.name),
+    axes,
+    anatomy: descriptor.structure.anatomy,
+    base: descriptor.structure.base,
+    variants,
+  };
 }
 
 // ════════════════════════════════════════════════════════════════════

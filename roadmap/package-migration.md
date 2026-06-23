@@ -15,12 +15,14 @@
 
 ## The shape — front-load the reversible prep, §9 last
 
-The whole journey has **one** irreversible, audit-gated step: **§9** (reverse decision 2 · the CSS→TS
-SoT inversion). Everything else is **reversible prep under decision 2**. So the strategy: do **all** the
-§9-independent work first — the runtime mirror, the package structure, the generated surfaces — then make
-the **§9 call last**, with a clean structure and maximum information. Most of the target's value (the
-6-package split, the generated surfaces, the full runtime mirror) lands **before** committing to the
-decision-2 reversal.
+The journey's irreversible move is **§9** (reverse decision 2 · the CSS→TS SoT inversion); everything
+before it is **reversible prep under decision 2**. The §9 audit then **split §9 itself into two steps**
+([decision 69](../decisionlog.md)): **B1** authors the *descriptor* layer in TS (still **reversible** — the
+CSS is retained as the live parity oracle · two agreeing sources), and **B2** generates `descriptor → CSS`
++ inverts the token vocabulary and **deletes the hand CSS** (the **irreversible** step). So the strategy: do
+**all** the §9-independent work first — the runtime mirror, the package structure, the generated surfaces —
+then take B1 (low-risk · reversible), then B2 last with a clean structure and maximum information. Most of
+the target's value lands **before** the one irreversible commit.
 
 ```
   Phase A · §9-INDEPENDENT (reversible · decision 2 STANDS)
@@ -49,17 +51,20 @@ decision-2 reversal.
 (minus `spec = TS SoT`), the surfaces are generated — **all from a descriptor still derived-from-CSS**
 (decision 2 INTACT · everything reversible).
 
-## The §9 gate — the dec-2 audit (a decision, not a build)
+## The §9 gate — the dec-2 audit (a decision, not a build) · CLEARED
 
-Clear the [`resolver-model.md`](../docs/resolver-model.md) §9/§10 checks → **decide** to reverse
-decision 2. The lone irreversible step; everything before it is reversible.
+Clear the [`resolver-model.md`](../docs/resolver-model.md) §9/§10 checks → **decide** to reverse decision 2.
+**CLEARED for Layer A** ([decision 69](../decisionlog.md) · N+29): the audit authorized reversing decision 2
+for the **descriptor layer** (B1 · reversible · the CSS retained as the parity oracle) while ring-fencing the
+**token vocabulary** (decision 63) into B2. The irreversible commit is **B2** (CSS deletion), still gated on
+§10's M2/M5 (does the generated CSS preserve the decision-63 cascade).
 
 ## Phase B — §9 · the SoT inversion (gated · last)
 
 | # | session | ships | size | gate |
 |---|---|---|---|---|
-| **B1** | author the SoT in **TS** | author the descriptor registry + the token vocabulary in TS (`spec` = pure SoT) · the descriptor stops being CSS-derived | **M** | the descriptor + tokens are TS-authored · `spec` exports them · consumers unchanged |
-| **B2** | the CSS resolver (**§9**) | build-time `descriptor → CSS` · generate the namespace + recipe CSS **into `prototype`** · the dec-2/§9 audit clears | **L** | the generated CSS ≡ the prior hand CSS (parity) · `prototype` renders from generated CSS |
+| **B1** ✓ | author the **descriptor** SoT in **TS** (the audited **Layer-A** scope · [decision 69](../decisionlog.md) · N+29) | author the 3 frozen descriptors in `spec/pipeline/descriptors/*.ts` (the SoT) · the descriptor stops being CSS-derived (the build is a passthrough · `build/descriptors/*` byte-identical) · the CSS becomes the **parity oracle** (Guard D · still renders web). **REVERSIBLE** (no CSS deleted · two agreeing sources). **Token vocabulary EXCLUDED** — it touches decision 63, moved to B2. | **M** | DONE · the descriptors are TS-authored · `spec` emits them · consumers (`@nuri/rn` contract + exports) unchanged · gates green |
+| **B2** | the CSS resolver + token SoT (**§9 · the irreversible step**) | build-time `descriptor → CSS` · **author the token vocabulary in TS** (**Layer B** · incl. the decision-63 #4b/#6b cascade) and generate the namespace + recipe CSS **into `prototype`** · delete the hand CSS (the parity oracle retires) · the dec-2/§9 audit fully clears | **L** | the generated CSS ≡ the prior hand CSS (parity) · `prototype` renders from generated CSS · the token cascade preserved (decision 63) |
 
 → **~3–5 sessions.** CSS becomes output; `prototype`'s CSS is generated; `spec` → pure TS SoT; the
 `prototype → spec` graph is finally true.
