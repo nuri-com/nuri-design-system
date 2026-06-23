@@ -61,10 +61,12 @@ for the **descriptor layer** (B1 · reversible · the CSS retained as the parity
 
 ## Phase B — §9 · the SoT inversion (gated · last)
 
+> **⚠ REFRAMED at N+29 — see [`cascade.md`](../docs/cascade.md) (the authoritative §9 model).** §9-web generates the **token-cascade + namespace CSS** from the TS SoT (RN consumes the same source); the per-component **recipe CSS RETIRES** — redundant with the namespace projection (the factory already renders via `data-*` + the namespace CSS). **"B2 = generate the recipe CSS" is obsolete.** The flip is bottom-up: **L3 axes → namespace CSS + retire recipes**, then **L1/L2 tokens → the cascade**. The rows below are kept for size/gate context; read them through `cascade.md`.
+
 | # | session | ships | size | gate |
 |---|---|---|---|---|
 | **B1** ✓ | author the **descriptor** SoT in **TS** (the audited **Layer-A** scope · [decision 69](../decisionlog.md) · N+29) | author the 3 frozen descriptors in `spec/pipeline/descriptors/*.ts` (the SoT) · the descriptor stops being CSS-derived (the build is a passthrough · `build/descriptors/*` byte-identical) · the CSS becomes the **parity oracle** (Guard D · still renders web). **REVERSIBLE** (no CSS deleted · two agreeing sources). **Token vocabulary EXCLUDED** — it touches decision 63, moved to B2. | **M** | DONE · the descriptors are TS-authored · `spec` emits them · consumers (`@nuri/rn` contract + exports) unchanged · gates green |
-| **B2** | the CSS resolver + token SoT (**§9 · the irreversible step**) | build-time `descriptor → CSS` · **author the token vocabulary in TS** (**Layer B** · incl. the decision-63 #4b/#6b cascade) and generate the namespace + recipe CSS **into `prototype`** · delete the hand CSS (the parity oracle retires) · the dec-2/§9 audit fully clears | **L** | the generated CSS ≡ the prior hand CSS (parity) · `prototype` renders from generated CSS · the token cascade preserved (decision 63) |
+| **B2** | the CSS resolver + token SoT (**§9 · the irreversible step**) | build-time `descriptor → CSS` · **author the token vocabulary in TS** (**Layer B** · incl. the decision-63 #4b/#6b cascade) and generate the **namespace + token-cascade CSS into `prototype`** (the **recipe CSS retires** · redundant with the namespace projection · see [`cascade.md`](../docs/cascade.md)) · delete the hand CSS (the parity oracle retires) · the dec-2/§9 audit fully clears | **L** | the generated CSS ≡ the prior hand CSS (parity) · `prototype` renders from generated CSS · the token cascade preserved (decision 63) |
 
 → **~3–5 sessions.** CSS becomes output; `prototype`'s CSS is generated; `spec` → pure TS SoT; the
 `prototype → spec` graph is finally true.

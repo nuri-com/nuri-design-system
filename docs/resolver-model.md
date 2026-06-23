@@ -125,6 +125,8 @@ A layout primitive exposes its substrate's interface; it does not remap (§3). T
 
 ## 9 · OPEN — invert the source of truth? (revisits decision 2)
 
+> **⚠ SUPERSEDED on the rendering model + the §9 web target — see [`cascade.md`](./cascade.md) (N+29 · the consolidated direction).** The *"inline-CSS-vars"* web rendering and *"descriptor → CSS"* (per-component) framing below are at the wrong altitude: the shipped web model is the **namespace + `data-*`** projection (the factory + the namespace CSS · `palette.css` resolves `[data-variant]` directly, incl. the decision-63 self-scope), and §9-web generates the **token-cascade + namespace CSS** from the TS SoT — the per-component **recipe CSS retires** (redundant with the namespace projection). Step 1 (B1 · the descriptor layer) below is accurate; read the rest through `cascade.md`.
+
 Make a `variants` / `compoundVariants` data structure (CVA / Stitches shape) the **source of truth**
 and *generate* both web CSS and the component docs from it (today CSS is the source · decision 2). The
 shape is the concrete form of the descriptor (§7); it is also what an authored source would carry.
