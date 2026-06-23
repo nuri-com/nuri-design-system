@@ -1,0 +1,47 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · NAMESPACE CSS · STACK · GENERATED · SHADOW · DO NOT EDIT / DO NOT REPOINT
+ *
+ * The L3.1 reversible spike (decision 70 · docs/cascade.md L3 step 1). GENERATED
+ * from the Field table (packages/rn/factory/resolve-map.ts · STACK_FIELDS)
+ * + the web spelling layer (pipeline/parsers/namespace-css.js) by
+ * pipeline/css-preview.js. SHADOW OUTPUT — proven structurally + computed-
+ * style EQUIVALENT to the hand SoT lib/components/stack/stack.css (the parity
+ * oracle · pipeline/css-preview.test.js), but NOTHING points at this file:
+ * the live web factory + pages still load the hand CSS. It exists to PROVE
+ * "one table → web CSS" without flipping anything. The L3 flip (a later
+ * session) makes this the source and retires the hand CSS + the recipe layer.
+ * NEVER hand-edit — re-run pipeline/css-preview.js.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design (decision 37 · layout primitives parametrize semantic
+   * vocabulary via prop, not via component-token aliasing). Mirrors the hand
+   * stack.css. */
+}
+
+@layer rules {
+  nuri-stack { display: contents; }
+  nuri-stack:not(:defined) { display: flex; flex-direction: column; }
+  nuri-stack:not(:defined)[direction="row"] { flex-direction: row; }
+  .nuri-stack { display: flex; flex-direction: column; min-width: 0; }
+  .nuri-stack[data-direction="row"] { flex-direction: row; }
+  .nuri-stack[data-direction="column"] { flex-direction: column; }
+  .nuri-stack[data-align="start"] { align-items: flex-start; }
+  .nuri-stack[data-align="center"] { align-items: center; }
+  .nuri-stack[data-align="end"] { align-items: flex-end; }
+  .nuri-stack[data-align="stretch"] { align-items: stretch; }
+  .nuri-stack[data-align="baseline"] { align-items: baseline; }
+  .nuri-stack[data-justify="start"] { justify-content: flex-start; }
+  .nuri-stack[data-justify="center"] { justify-content: center; }
+  .nuri-stack[data-justify="end"] { justify-content: flex-end; }
+  .nuri-stack[data-justify="between"] { justify-content: space-between; }
+  .nuri-stack[data-justify="around"] { justify-content: space-around; }
+  .nuri-stack[data-gap="xs"] { gap: var(--nuri-space-xs); }
+  .nuri-stack[data-gap="sm"] { gap: var(--nuri-space-sm); }
+  .nuri-stack[data-gap="md"] { gap: var(--nuri-space-md); }
+  .nuri-stack[data-gap="lg"] { gap: var(--nuri-space-lg); }
+  .nuri-stack[data-gap="xl"] { gap: var(--nuri-space-xl); }
+  .nuri-stack[data-wrap="true"] { flex-wrap: wrap; }
+  .nuri-stack[data-fill="grow"] { flex: 1 0 auto; }
+  .nuri-stack[data-fill="grow-shrink"] { flex: 1 1 auto; min-inline-size: 0; }
+}
