@@ -1,0 +1,87 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · NAMESPACE CSS · BOX · GENERATED · SHADOW · DO NOT EDIT / DO NOT REPOINT
+ *
+ * The L3.1 reversible spike (decision 70 · docs/cascade.md L3 step 1). GENERATED
+ * from the Field table (packages/rn/factory/resolve-map.ts · BOX_FIELDS)
+ * + the web spelling layer (pipeline/parsers/namespace-css.js) by
+ * pipeline/css-preview.js. SHADOW OUTPUT — proven structurally + computed-
+ * style EQUIVALENT to the hand SoT lib/components/box/box.css (the parity
+ * oracle · pipeline/css-preview.test.js), but NOTHING points at this file:
+ * the live web factory + pages still load the hand CSS. It exists to PROVE
+ * "one table → web CSS" without flipping anything. The L3 flip (a later
+ * session) makes this the source and retires the hand CSS + the recipe layer.
+ * NEVER hand-edit — re-run pipeline/css-preview.js.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design (decision 37 · layout primitives parametrize semantic
+   * vocabulary via prop, not via component-token aliasing). Mirrors the hand
+   * box.css. */
+}
+
+@layer rules {
+  nuri-box { display: contents; }
+  nuri-box:not(:defined) { display: block; }
+  .nuri-box { min-width: 0; }
+  .nuri-box[data-width="xs"] { inline-size: var(--nuri-size-xs); }
+  .nuri-box[data-width="sm"] { inline-size: var(--nuri-size-sm); }
+  .nuri-box[data-width="md"] { inline-size: var(--nuri-size-md); }
+  .nuri-box[data-width="lg"] { inline-size: var(--nuri-size-lg); }
+  .nuri-box[data-width="xl"] { inline-size: var(--nuri-size-xl); }
+  .nuri-box[data-width="2xl"] { inline-size: var(--nuri-size-2xl); }
+  .nuri-box[data-width="3xl"] { inline-size: var(--nuri-size-3xl); }
+  .nuri-box[data-height="xs"] { block-size: var(--nuri-size-xs); }
+  .nuri-box[data-height="sm"] { block-size: var(--nuri-size-sm); }
+  .nuri-box[data-height="md"] { block-size: var(--nuri-size-md); }
+  .nuri-box[data-height="lg"] { block-size: var(--nuri-size-lg); }
+  .nuri-box[data-height="xl"] { block-size: var(--nuri-size-xl); }
+  .nuri-box[data-height="2xl"] { block-size: var(--nuri-size-2xl); }
+  .nuri-box[data-height="3xl"] { block-size: var(--nuri-size-3xl); }
+  .nuri-box[data-min-height="xs"] { min-block-size: var(--nuri-size-xs); }
+  .nuri-box[data-min-height="sm"] { min-block-size: var(--nuri-size-sm); }
+  .nuri-box[data-min-height="md"] { min-block-size: var(--nuri-size-md); }
+  .nuri-box[data-min-height="lg"] { min-block-size: var(--nuri-size-lg); }
+  .nuri-box[data-min-height="xl"] { min-block-size: var(--nuri-size-xl); }
+  .nuri-box[data-min-height="2xl"] { min-block-size: var(--nuri-size-2xl); }
+  .nuri-box[data-min-height="3xl"] { min-block-size: var(--nuri-size-3xl); }
+  .nuri-box[data-padding="xs"] { padding: var(--nuri-space-xs); }
+  .nuri-box[data-padding="sm"] { padding: var(--nuri-space-sm); }
+  .nuri-box[data-padding="md"] { padding: var(--nuri-space-md); }
+  .nuri-box[data-padding="lg"] { padding: var(--nuri-space-lg); }
+  .nuri-box[data-padding="xl"] { padding: var(--nuri-space-xl); }
+  .nuri-box[data-padding-x="xs"] { padding-inline: var(--nuri-space-xs); }
+  .nuri-box[data-padding-x="sm"] { padding-inline: var(--nuri-space-sm); }
+  .nuri-box[data-padding-x="md"] { padding-inline: var(--nuri-space-md); }
+  .nuri-box[data-padding-x="lg"] { padding-inline: var(--nuri-space-lg); }
+  .nuri-box[data-padding-x="xl"] { padding-inline: var(--nuri-space-xl); }
+  .nuri-box[data-padding-y="xs"] { padding-block: var(--nuri-space-xs); }
+  .nuri-box[data-padding-y="sm"] { padding-block: var(--nuri-space-sm); }
+  .nuri-box[data-padding-y="md"] { padding-block: var(--nuri-space-md); }
+  .nuri-box[data-padding-y="lg"] { padding-block: var(--nuri-space-lg); }
+  .nuri-box[data-padding-y="xl"] { padding-block: var(--nuri-space-xl); }
+  .nuri-box[data-padding-start="xs"] { padding-inline-start: var(--nuri-space-xs); }
+  .nuri-box[data-padding-start="sm"] { padding-inline-start: var(--nuri-space-sm); }
+  .nuri-box[data-padding-start="md"] { padding-inline-start: var(--nuri-space-md); }
+  .nuri-box[data-padding-start="lg"] { padding-inline-start: var(--nuri-space-lg); }
+  .nuri-box[data-padding-start="xl"] { padding-inline-start: var(--nuri-space-xl); }
+  .nuri-box[data-padding-end="xs"] { padding-inline-end: var(--nuri-space-xs); }
+  .nuri-box[data-padding-end="sm"] { padding-inline-end: var(--nuri-space-sm); }
+  .nuri-box[data-padding-end="md"] { padding-inline-end: var(--nuri-space-md); }
+  .nuri-box[data-padding-end="lg"] { padding-inline-end: var(--nuri-space-lg); }
+  .nuri-box[data-padding-end="xl"] { padding-inline-end: var(--nuri-space-xl); }
+  .nuri-box[data-padding-top="xs"] { padding-block-start: var(--nuri-space-xs); }
+  .nuri-box[data-padding-top="sm"] { padding-block-start: var(--nuri-space-sm); }
+  .nuri-box[data-padding-top="md"] { padding-block-start: var(--nuri-space-md); }
+  .nuri-box[data-padding-top="lg"] { padding-block-start: var(--nuri-space-lg); }
+  .nuri-box[data-padding-top="xl"] { padding-block-start: var(--nuri-space-xl); }
+  .nuri-box[data-padding-bottom="xs"] { padding-block-end: var(--nuri-space-xs); }
+  .nuri-box[data-padding-bottom="sm"] { padding-block-end: var(--nuri-space-sm); }
+  .nuri-box[data-padding-bottom="md"] { padding-block-end: var(--nuri-space-md); }
+  .nuri-box[data-padding-bottom="lg"] { padding-block-end: var(--nuri-space-lg); }
+  .nuri-box[data-padding-bottom="xl"] { padding-block-end: var(--nuri-space-xl); }
+  .nuri-box[data-radius="sm"] { border-radius: var(--nuri-radius-sm); }
+  .nuri-box[data-radius="md"] { border-radius: var(--nuri-radius-md); }
+  .nuri-box[data-radius="lg"] { border-radius: var(--nuri-radius-lg); }
+  .nuri-box[data-radius="full"] { border-radius: var(--nuri-radius-full); }
+  .nuri-box[data-center="true"] { margin-inline: auto; }
+}
