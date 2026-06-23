@@ -35,7 +35,13 @@ config.resolver.nodeModulesPaths = [
 // @nuri/spec's resolution. M4 [§65.11] removed @nuri/spec's button-matrix
 // react@19.2.6 pin, but npm's conservative re-dedupe leaves the orphaned root
 // hoist in place and the workspaces still nest their own react, so the
-// multi-instance hazard this guards against persists — the redirect STAYS.)
+// multi-instance hazard this guards against persists — the redirect STAYS.
+// N+28 · A2.5 ATTEMPTED the dual-tree collapse and found it non-viable *and*
+// unnecessary (§65.11 · roadmap/N+28-A2.5.md · the detail is in jest.config.js):
+// in-place is impossible (plain `npm install` no-ops · the override is inert),
+// the only mechanism — a from-scratch regen — refreshes the whole tree and
+// breaks the RN toolchain, and a non-RN carve-add is conservative anyway, so
+// the multi-instance hazard (and this redirect) persists by design.)
 // `react-native` is left to Metro's platform-aware resolution (web aliases it
 // to the single react-native-web).
 config.resolver.resolveRequest = (context, moduleName, platform) => {
