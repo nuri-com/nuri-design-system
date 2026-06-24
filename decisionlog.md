@@ -26,6 +26,12 @@ Android / Figma sync); for RN-only, the custom emitter at
 `pipeline/parsers/semantic.js` is terminal — SD adds no value over
 what the cascade-aware resolver already produces.
 
+**Re-validated · N+31** (the token-standards eval) — post-inversion
+the call stands: the TS SoT's authoring *shape* is DTCG-aligned
+(borrowed), the *transform* stays bespoke, SD deferred; the trigger
+is a **third** target. See
+[`roadmap/token-standards-eval.md`](./roadmap/token-standards-eval.md).
+
 ## 3. Mobile-first interaction model · N+1
 
 **Mobile-first interaction model** · components have `:active`

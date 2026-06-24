@@ -9,9 +9,9 @@
 
 | layer | before (CSS-SoT) | after (TS-SoT) |
 |---|---|---|
-| L1 px primitives | `--nuri-px-36: 36px;` hand-authored | `PX_SCALE` in [`dimensions.ts`](../packages/spec/pipeline/dimensions.ts) (value == name · decision 32) → emitted |
-| L2 space/size/radius | `--nuri-size-md: var(--nuri-px-36);` hand-authored | `SIZE.md = { px: 36 }` → emitted as `var(--nuri-px-36)` (the reference structure px←semantic **is** the cascade) |
-| the two literals | `--nuri-space-none: 0;` · `--nuri-radius-full: 9999px;` | `{ literal: '0' }` · `{ literal: '9999px' }` (the sentinels outside the px scale by design · decision 32 / 36.1) |
+| L1 px primitives | `--nuri-px-36: 36px;` hand-authored | the `px` object in [`dimensions.ts`](../packages/spec/pipeline/dimensions.ts) (the keys ARE the scale · value == name · decision 32 · `Px = keyof typeof px`) → emitted |
+| L2 space/size/radius | `--nuri-size-md: var(--nuri-px-36);` hand-authored | `size.md = { ref: 36 }` → emitted as `var(--nuri-px-36)` (the reference structure px←semantic **is** the cascade) |
+| the two literals | `--nuri-space-none: 0;` · `--nuri-radius-full: 9999px;` | `{ value: 0, unit: 'px' }` → `0` (unitless · decision 32) · `{ value: 9999, unit: 'px' }` → `9999px` (the sentinels outside the px scale by design · 36.1) |
 
 `build/tokens.ts` (the RN contract · the space/size/radius singletons resolved to numerics) and every other `build/*` artifact are **byte-identical** — the flip moved the *source*, not a value.
 
@@ -26,7 +26,7 @@ The emit is postcss-surgical: parse the CSS, set each dimension declaration's va
 
 ## What shipped (ship list · as built)
 
-1. **`packages/spec/pipeline/dimensions.ts`** (new · the SoT) — `PX_SCALE` (12 leaves) + `SPACE`/`SIZE`/`RADIUS` (8/7/4) as `{ px } | { literal }`. Authored to be trivially type-strippable (single-line `export type …;` + `const X: T =` only · no imports).
+1. **`packages/spec/pipeline/dimensions.ts`** (new · the SoT) — the DTCG `name → value | reference` shape (per [`token-standards-eval.md`](./token-standards-eval.md)): `px` (12 leaves · a keyed `as const` object · the keys ARE the scale · `Px = keyof typeof px`) + `space`/`size`/`radius` (8/7/4 · `as const satisfies Record<string, Leaf>`) where a leaf is `{ ref: Px } | { value, unit }`. Authored to be trivially type-strippable (single-line `type` aliases + the `as const`/`satisfies` suffixes · no imports).
 2. **`packages/spec/pipeline/parsers/dimension-css.js`** (new · the emitter) — `loadDimensions` (type-strip + `data:`-URL import · node 20 can't import a `.ts` · the descriptor-twin / L3.1 technique), `primitiveDimMap`/`semanticDimMap`/`leafRhs` (SoT → `{ cssVar → RHS }`), `rewriteDimensionDecls` (the in-place surgical rewrite + the **two-way drift guard** — the SoT and the CSS must own exactly the same leaves in each family), `flipDimensionCss` (read → rewrite → write both files).
 3. **`packages/spec/pipeline/tokens-parser.js`** (wired) — **Slice 0** runs `flipDimensionCss` BEFORE every downstream slice reads the CSS. The build now writes `styles/` (the S1 trade · commented).
 4. **`packages/spec/pipeline/dimension-cascade.test.js`** (new · the parity harness · folds into `npm test` · 8 guards):
