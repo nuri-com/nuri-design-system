@@ -67,4 +67,6 @@ The remaining token-SoT flip is re-sequenced into **two vertical slices by subje
 - **The colour vertical** — author the colour primitives + the `(accent × theme)` matrix in TS; generate the token-cascade CSS (the `#4b/#6b` self-scope · decision 63 preserved · the genuinely-templated emit · gated on `resolver-model.md` §10 M2/M5). The harder slice (the cascade); the dimension slice de-risked the mechanism.
 - **L3b / L3.1b / L3c** — the namespace/axis flip (palette + interactive bespoke · typography's table form · retire the recipe layer · close the Guard-D gap), per the L3.1 handoff.
 
-See [`docs/cascade.md`](../docs/cascade.md) · [`decisionlog.md` §70 / §2 / §63](../decisionlog.md) · [`roadmap/N+30-L3.1.md`](./N+30-L3.1.md) · [`roadmap/index.md`](./index.md).
+The dec-2 state transition is recorded in the ledger at **[`decisionlog.md` §71](../decisionlog.md)** (mirroring decision 69 for the descriptor layer — L3.1 opened no decision because it was a shadow; this flip actually reverses decision 2, so the ledger records it).
+
+See [`docs/cascade.md`](../docs/cascade.md) · [`decisionlog.md` §71 / §70 / §2 / §63](../decisionlog.md) · [`roadmap/N+30-L3.1.md`](./N+30-L3.1.md) · [`roadmap/index.md`](./index.md).
