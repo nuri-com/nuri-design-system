@@ -59,8 +59,9 @@ export function pathFor(cssVar) {
 }
 
 // Read every primitive declaration (cssVar, value) pair from the
-// CSS file. Skips aliases (var(...) on the RHS) — those are the
-// active-neutral switcher, not raw primitives.
+// CSS file. Skips aliases (var(...) on the RHS) — those are the neutral
+// resolution (--nuri-color-neutral-* → the active scale · N+32 C1), not
+// raw primitives.
 //
 // Walks descendant rules so future @layer-wrapped primitives still
 // parse — today the file is unlayered, but the walker is cheap.

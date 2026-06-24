@@ -70,12 +70,18 @@
  * Exception · the black/white alpha scales have no -light/-dark
  * suffix because they are theme-invariant by nature, not by design.
  *
- * ── Active-neutral aliases ────────────────────────────────────
- * --nuri-color-neutral-N-{light|dark} point at the active scale
- * based on [data-neutral] on <html>. Default = gray. Both light
- * and dark variants are exposed in parallel — same as the per-scale
- * primitives. This is exploratory: it lets us A/B the candidate
- * neutrals before locking one. Will be removed once the choice is made.
+ * ── Neutral resolution · build-time (N+32 C1) ─────────────────
+ * --nuri-color-neutral-N-{light|dark} resolve to ONE active scale,
+ * GENERATED from the TS colour SoT (pipeline/colours.ts) at the build's
+ * --neutral (DEFAULT_NEUTRAL = cream · decision 31). The runtime
+ * [data-neutral] switcher (8 per-scale blocks) is RETIRED — build-time
+ * selection only; the other six scales stay raw primitives, reserved as
+ * --neutral= options. See the NEUTRAL RESOLUTION block below.
+ *
+ * ── Generated regions (decision 70 · dec-2 reversed for these layers) ─
+ * The --nuri-color-* values + the --nuri-px-* scale are WRITTEN by
+ * `npm run build` from their TS SoTs (pipeline/colours.ts · dimensions.ts)
+ * via the Slice-0 in-place passthrough. Edit the SoT, not these values.
  * ────────────────────────────────────────────────────────────── */
 
 
@@ -83,6 +89,12 @@
  * COLOUR · RAW VALUES
  * Candidate neutrals × 12 steps × 2 themes + lilac brand + alpha scales.
  * Pure leaves — never overridden by [data-theme].
+ *
+ * N+32 C1 · GENERATED from the TS SoT (pipeline/colours.ts · decision 70 ·
+ * dec-2 reversed for the colour-primitive layer). Edit the SoT, not here —
+ * `npm run build` regenerates these values in place (Slice 0 · the
+ * dimension-css.js twin). The semantic accent×theme cascade
+ * (tokens-semantic.css) stays hand-authored (the cascade is C2).
  * ══════════════════════════════════════════════════════════════ */
 
 :root {
@@ -331,185 +343,28 @@
 
 
 /* ══════════════════════════════════════════════════════════════
- * ACTIVE NEUTRAL ALIASES · exploratory
- * --nuri-color-neutral-N-{light|dark} point at the active scale
- * based on [data-neutral] on <html> OR any nested <nuri-scope>.
- * Default = gray. Attribute-only form (NOT :root-scoped) so a scope
- * can re-resolve the neutral ramp for its subtree alone — this is what
- * lets the playground device picker / neutral control re-theme only the
- * framed screen. Both light and dark variants are exposed so the semantic
- * layer can compose theme × neutral via simple references.
+ * NEUTRAL RESOLUTION · GENERATED (N+32 C1 · decision 70 · decision 31)
+ * --nuri-color-neutral-N-{light|dark} resolve to the ACTIVE neutral scale.
+ * The active scale is the build's --neutral (DEFAULT_NEUTRAL = cream ·
+ * pipeline/parsers/semantic.js); these 24 aliases are GENERATED from the
+ * TS colour SoT (pipeline/colours.ts) by the Slice-0 in-place passthrough
+ * (pipeline/parsers/colour-css.js · the dimension-css.js twin · dec-2
+ * reversed for the colour-primitive layer). Edit the SoT / pass --neutral=
+ * <scale>, not here — `npm run build` regenerates them (sage rebuilds the
+ * whole web system on sage).
  *
- * This switcher exists to A/B the candidate neutrals against the lilac
- * brand. Once the decision is locked, these aliases will be
- * removed and the semantic layer will reference the chosen scale
- * (e.g. --nuri-color-gray-*) directly.
+ * The runtime [data-neutral] SWITCHER is RETIRED here (N+32 C1 · the brief):
+ * the candidate neutrals A/B'd through 8 per-scale [data-neutral="…"] blocks
+ * (a nested <nuri-scope> could re-theme its subtree); cream is now locked as
+ * the brand's warm default, so selection is BUILD-TIME only and one :root
+ * block carries the resolution. The other six scales stay raw primitives
+ * above (reserved · build-time --neutral= options). The semantic layer keeps
+ * referencing --nuri-color-neutral-* (now → cream), untouched (the cascade is
+ * C2). cream ≠ gray is a deliberate WEB-CSS value change (the RN/tokens.ts
+ * path already resolved cream since decision 31 · build/* byte-identical).
  * ══════════════════════════════════════════════════════════════ */
 
-:root,
-[data-neutral="gray"] {
-  --nuri-color-neutral-1-light:   var(--nuri-color-gray-1-light);
-  --nuri-color-neutral-1-dark:    var(--nuri-color-gray-1-dark);
-  --nuri-color-neutral-2-light:   var(--nuri-color-gray-2-light);
-  --nuri-color-neutral-2-dark:    var(--nuri-color-gray-2-dark);
-  --nuri-color-neutral-3-light:   var(--nuri-color-gray-3-light);
-  --nuri-color-neutral-3-dark:    var(--nuri-color-gray-3-dark);
-  --nuri-color-neutral-4-light:   var(--nuri-color-gray-4-light);
-  --nuri-color-neutral-4-dark:    var(--nuri-color-gray-4-dark);
-  --nuri-color-neutral-5-light:   var(--nuri-color-gray-5-light);
-  --nuri-color-neutral-5-dark:    var(--nuri-color-gray-5-dark);
-  --nuri-color-neutral-6-light:   var(--nuri-color-gray-6-light);
-  --nuri-color-neutral-6-dark:    var(--nuri-color-gray-6-dark);
-  --nuri-color-neutral-7-light:   var(--nuri-color-gray-7-light);
-  --nuri-color-neutral-7-dark:    var(--nuri-color-gray-7-dark);
-  --nuri-color-neutral-8-light:   var(--nuri-color-gray-8-light);
-  --nuri-color-neutral-8-dark:    var(--nuri-color-gray-8-dark);
-  --nuri-color-neutral-9-light:   var(--nuri-color-gray-9-light);
-  --nuri-color-neutral-9-dark:    var(--nuri-color-gray-9-dark);
-  --nuri-color-neutral-10-light:  var(--nuri-color-gray-10-light);
-  --nuri-color-neutral-10-dark:   var(--nuri-color-gray-10-dark);
-  --nuri-color-neutral-11-light:  var(--nuri-color-gray-11-light);
-  --nuri-color-neutral-11-dark:   var(--nuri-color-gray-11-dark);
-  --nuri-color-neutral-12-light:  var(--nuri-color-gray-12-light);
-  --nuri-color-neutral-12-dark:   var(--nuri-color-gray-12-dark);
-}
-
-[data-neutral="mauve"] {
-  --nuri-color-neutral-1-light:   var(--nuri-color-mauve-1-light);
-  --nuri-color-neutral-1-dark:    var(--nuri-color-mauve-1-dark);
-  --nuri-color-neutral-2-light:   var(--nuri-color-mauve-2-light);
-  --nuri-color-neutral-2-dark:    var(--nuri-color-mauve-2-dark);
-  --nuri-color-neutral-3-light:   var(--nuri-color-mauve-3-light);
-  --nuri-color-neutral-3-dark:    var(--nuri-color-mauve-3-dark);
-  --nuri-color-neutral-4-light:   var(--nuri-color-mauve-4-light);
-  --nuri-color-neutral-4-dark:    var(--nuri-color-mauve-4-dark);
-  --nuri-color-neutral-5-light:   var(--nuri-color-mauve-5-light);
-  --nuri-color-neutral-5-dark:    var(--nuri-color-mauve-5-dark);
-  --nuri-color-neutral-6-light:   var(--nuri-color-mauve-6-light);
-  --nuri-color-neutral-6-dark:    var(--nuri-color-mauve-6-dark);
-  --nuri-color-neutral-7-light:   var(--nuri-color-mauve-7-light);
-  --nuri-color-neutral-7-dark:    var(--nuri-color-mauve-7-dark);
-  --nuri-color-neutral-8-light:   var(--nuri-color-mauve-8-light);
-  --nuri-color-neutral-8-dark:    var(--nuri-color-mauve-8-dark);
-  --nuri-color-neutral-9-light:   var(--nuri-color-mauve-9-light);
-  --nuri-color-neutral-9-dark:    var(--nuri-color-mauve-9-dark);
-  --nuri-color-neutral-10-light:  var(--nuri-color-mauve-10-light);
-  --nuri-color-neutral-10-dark:   var(--nuri-color-mauve-10-dark);
-  --nuri-color-neutral-11-light:  var(--nuri-color-mauve-11-light);
-  --nuri-color-neutral-11-dark:   var(--nuri-color-mauve-11-dark);
-  --nuri-color-neutral-12-light:  var(--nuri-color-mauve-12-light);
-  --nuri-color-neutral-12-dark:   var(--nuri-color-mauve-12-dark);
-}
-
-[data-neutral="slate"] {
-  --nuri-color-neutral-1-light:   var(--nuri-color-slate-1-light);
-  --nuri-color-neutral-1-dark:    var(--nuri-color-slate-1-dark);
-  --nuri-color-neutral-2-light:   var(--nuri-color-slate-2-light);
-  --nuri-color-neutral-2-dark:    var(--nuri-color-slate-2-dark);
-  --nuri-color-neutral-3-light:   var(--nuri-color-slate-3-light);
-  --nuri-color-neutral-3-dark:    var(--nuri-color-slate-3-dark);
-  --nuri-color-neutral-4-light:   var(--nuri-color-slate-4-light);
-  --nuri-color-neutral-4-dark:    var(--nuri-color-slate-4-dark);
-  --nuri-color-neutral-5-light:   var(--nuri-color-slate-5-light);
-  --nuri-color-neutral-5-dark:    var(--nuri-color-slate-5-dark);
-  --nuri-color-neutral-6-light:   var(--nuri-color-slate-6-light);
-  --nuri-color-neutral-6-dark:    var(--nuri-color-slate-6-dark);
-  --nuri-color-neutral-7-light:   var(--nuri-color-slate-7-light);
-  --nuri-color-neutral-7-dark:    var(--nuri-color-slate-7-dark);
-  --nuri-color-neutral-8-light:   var(--nuri-color-slate-8-light);
-  --nuri-color-neutral-8-dark:    var(--nuri-color-slate-8-dark);
-  --nuri-color-neutral-9-light:   var(--nuri-color-slate-9-light);
-  --nuri-color-neutral-9-dark:    var(--nuri-color-slate-9-dark);
-  --nuri-color-neutral-10-light:  var(--nuri-color-slate-10-light);
-  --nuri-color-neutral-10-dark:   var(--nuri-color-slate-10-dark);
-  --nuri-color-neutral-11-light:  var(--nuri-color-slate-11-light);
-  --nuri-color-neutral-11-dark:   var(--nuri-color-slate-11-dark);
-  --nuri-color-neutral-12-light:  var(--nuri-color-slate-12-light);
-  --nuri-color-neutral-12-dark:   var(--nuri-color-slate-12-dark);
-}
-
-[data-neutral="sage"] {
-  --nuri-color-neutral-1-light:   var(--nuri-color-sage-1-light);
-  --nuri-color-neutral-1-dark:    var(--nuri-color-sage-1-dark);
-  --nuri-color-neutral-2-light:   var(--nuri-color-sage-2-light);
-  --nuri-color-neutral-2-dark:    var(--nuri-color-sage-2-dark);
-  --nuri-color-neutral-3-light:   var(--nuri-color-sage-3-light);
-  --nuri-color-neutral-3-dark:    var(--nuri-color-sage-3-dark);
-  --nuri-color-neutral-4-light:   var(--nuri-color-sage-4-light);
-  --nuri-color-neutral-4-dark:    var(--nuri-color-sage-4-dark);
-  --nuri-color-neutral-5-light:   var(--nuri-color-sage-5-light);
-  --nuri-color-neutral-5-dark:    var(--nuri-color-sage-5-dark);
-  --nuri-color-neutral-6-light:   var(--nuri-color-sage-6-light);
-  --nuri-color-neutral-6-dark:    var(--nuri-color-sage-6-dark);
-  --nuri-color-neutral-7-light:   var(--nuri-color-sage-7-light);
-  --nuri-color-neutral-7-dark:    var(--nuri-color-sage-7-dark);
-  --nuri-color-neutral-8-light:   var(--nuri-color-sage-8-light);
-  --nuri-color-neutral-8-dark:    var(--nuri-color-sage-8-dark);
-  --nuri-color-neutral-9-light:   var(--nuri-color-sage-9-light);
-  --nuri-color-neutral-9-dark:    var(--nuri-color-sage-9-dark);
-  --nuri-color-neutral-10-light:  var(--nuri-color-sage-10-light);
-  --nuri-color-neutral-10-dark:   var(--nuri-color-sage-10-dark);
-  --nuri-color-neutral-11-light:  var(--nuri-color-sage-11-light);
-  --nuri-color-neutral-11-dark:   var(--nuri-color-sage-11-dark);
-  --nuri-color-neutral-12-light:  var(--nuri-color-sage-12-light);
-  --nuri-color-neutral-12-dark:   var(--nuri-color-sage-12-dark);
-}
-
-[data-neutral="olive"] {
-  --nuri-color-neutral-1-light:   var(--nuri-color-olive-1-light);
-  --nuri-color-neutral-1-dark:    var(--nuri-color-olive-1-dark);
-  --nuri-color-neutral-2-light:   var(--nuri-color-olive-2-light);
-  --nuri-color-neutral-2-dark:    var(--nuri-color-olive-2-dark);
-  --nuri-color-neutral-3-light:   var(--nuri-color-olive-3-light);
-  --nuri-color-neutral-3-dark:    var(--nuri-color-olive-3-dark);
-  --nuri-color-neutral-4-light:   var(--nuri-color-olive-4-light);
-  --nuri-color-neutral-4-dark:    var(--nuri-color-olive-4-dark);
-  --nuri-color-neutral-5-light:   var(--nuri-color-olive-5-light);
-  --nuri-color-neutral-5-dark:    var(--nuri-color-olive-5-dark);
-  --nuri-color-neutral-6-light:   var(--nuri-color-olive-6-light);
-  --nuri-color-neutral-6-dark:    var(--nuri-color-olive-6-dark);
-  --nuri-color-neutral-7-light:   var(--nuri-color-olive-7-light);
-  --nuri-color-neutral-7-dark:    var(--nuri-color-olive-7-dark);
-  --nuri-color-neutral-8-light:   var(--nuri-color-olive-8-light);
-  --nuri-color-neutral-8-dark:    var(--nuri-color-olive-8-dark);
-  --nuri-color-neutral-9-light:   var(--nuri-color-olive-9-light);
-  --nuri-color-neutral-9-dark:    var(--nuri-color-olive-9-dark);
-  --nuri-color-neutral-10-light:  var(--nuri-color-olive-10-light);
-  --nuri-color-neutral-10-dark:   var(--nuri-color-olive-10-dark);
-  --nuri-color-neutral-11-light:  var(--nuri-color-olive-11-light);
-  --nuri-color-neutral-11-dark:   var(--nuri-color-olive-11-dark);
-  --nuri-color-neutral-12-light:  var(--nuri-color-olive-12-light);
-  --nuri-color-neutral-12-dark:   var(--nuri-color-olive-12-dark);
-}
-
-[data-neutral="sand"] {
-  --nuri-color-neutral-1-light:   var(--nuri-color-sand-1-light);
-  --nuri-color-neutral-1-dark:    var(--nuri-color-sand-1-dark);
-  --nuri-color-neutral-2-light:   var(--nuri-color-sand-2-light);
-  --nuri-color-neutral-2-dark:    var(--nuri-color-sand-2-dark);
-  --nuri-color-neutral-3-light:   var(--nuri-color-sand-3-light);
-  --nuri-color-neutral-3-dark:    var(--nuri-color-sand-3-dark);
-  --nuri-color-neutral-4-light:   var(--nuri-color-sand-4-light);
-  --nuri-color-neutral-4-dark:    var(--nuri-color-sand-4-dark);
-  --nuri-color-neutral-5-light:   var(--nuri-color-sand-5-light);
-  --nuri-color-neutral-5-dark:    var(--nuri-color-sand-5-dark);
-  --nuri-color-neutral-6-light:   var(--nuri-color-sand-6-light);
-  --nuri-color-neutral-6-dark:    var(--nuri-color-sand-6-dark);
-  --nuri-color-neutral-7-light:   var(--nuri-color-sand-7-light);
-  --nuri-color-neutral-7-dark:    var(--nuri-color-sand-7-dark);
-  --nuri-color-neutral-8-light:   var(--nuri-color-sand-8-light);
-  --nuri-color-neutral-8-dark:    var(--nuri-color-sand-8-dark);
-  --nuri-color-neutral-9-light:   var(--nuri-color-sand-9-light);
-  --nuri-color-neutral-9-dark:    var(--nuri-color-sand-9-dark);
-  --nuri-color-neutral-10-light:  var(--nuri-color-sand-10-light);
-  --nuri-color-neutral-10-dark:   var(--nuri-color-sand-10-dark);
-  --nuri-color-neutral-11-light:  var(--nuri-color-sand-11-light);
-  --nuri-color-neutral-11-dark:   var(--nuri-color-sand-11-dark);
-  --nuri-color-neutral-12-light:  var(--nuri-color-sand-12-light);
-  --nuri-color-neutral-12-dark:   var(--nuri-color-sand-12-dark);
-}
-
-[data-neutral="cream"] {
+:root {
   --nuri-color-neutral-1-light:   var(--nuri-color-cream-1-light);
   --nuri-color-neutral-1-dark:    var(--nuri-color-cream-1-dark);
   --nuri-color-neutral-2-light:   var(--nuri-color-cream-2-light);

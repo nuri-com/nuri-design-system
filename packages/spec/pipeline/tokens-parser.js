@@ -96,6 +96,8 @@ import { emitDocPage, buildDocTokenInputs } from './parsers/docs.js';
 
 import { loadDimensions, flipDimensionCss } from './parsers/dimension-css.js';
 
+import { loadColours, flipColourCss } from './parsers/colour-css.js';
+
 import { ICONS } from '../lib/components/icon/icons.js';
 
 // Re-export so existing imports (and the primitive round-trip tests)
@@ -160,6 +162,7 @@ const REPO_ROOT = resolve(__dirname, '..');
 const PRIMITIVE_CSS    = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
 const SEMANTIC_CSS     = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
 const DIMENSIONS_SRC   = resolve(REPO_ROOT, 'pipeline/dimensions.ts');
+const COLOURS_SRC      = resolve(REPO_ROOT, 'pipeline/colours.ts');
 const COMPONENTS_DIR   = resolve(REPO_ROOT, 'lib/components');
 const JSON_OUT         = resolve(REPO_ROOT, 'build/tokens.json');
 const TS_OUT           = resolve(REPO_ROOT, 'build/tokens.ts');
@@ -238,6 +241,26 @@ async function main() {
     `[tokens-parser] flipped the dimension cascade from the TS SoT ` +
     `(${Object.keys(dims.px).length} px · ${Object.keys(dims.space).length} space · ` +
     `${Object.keys(dims.size).length} size · ${Object.keys(dims.radius).length} radius) → styles/tokens-*.css`,
+  );
+
+  // ── Slice 0 · the colour primitives · TS SoT → tokens-primitive.css (N+32 C1 · decision 70 · the second flip) ──
+  // decision 2 reverses for the colour-PRIMITIVE layer (after the dimension layer
+  // at N+31): the 7 neutral scales + lilac + the alpha scales are authored in
+  // pipeline/colours.ts and WRITTEN INTO styles/tokens-primitive.css here, before
+  // every downstream slice reads it. Same in-place PASSTHROUGH as the dimension
+  // flip — only the --nuri-color-* declarations are regenerated; the accent×theme
+  // cascade (tokens-semantic.css · decision 63) is NOT touched (that is C2). The
+  // neutral resolution (--nuri-color-neutral-* → the active scale) is baked from
+  // `neutral` (the --neutral flag · default cream) into ONE :root block — the
+  // retired runtime [data-neutral] switcher, build-time selection only. At cream
+  // the values are unchanged (tokens.ts already resolved cream since decision 31),
+  // so build/* stays byte-identical; cream ≠ gray is a web-CSS-only change.
+  const colours = await loadColours(COLOURS_SRC);
+  await flipColourCss({ primitivePath: PRIMITIVE_CSS, colours, neutral });
+  console.log(
+    `[tokens-parser] flipped the colour primitives from the TS SoT ` +
+    `(${Object.keys(colours.neutralScales).length} neutral scales · lilac · black/white alpha · ` +
+    `neutral resolution → ${neutral}) → styles/tokens-primitive.css`,
   );
 
   const primitiveCSS = await readFile(PRIMITIVE_CSS, 'utf8');

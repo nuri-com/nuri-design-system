@@ -1019,20 +1019,22 @@ test('every primitive token is consumed or explicitly reserved', async () => {
   // Color scales held on the primitive layer with only partial direct
   // var() consumption today. Each entry needs a one-line justification.
   const RESERVED_COLOR_SCALES = new Set([
-    // The --nuri-color-neutral-* alias family · the data-neutral
-    // switcher mechanism. Ships as a complete 24-step alias scale
-    // (12 steps × 2 themes) per data-neutral block, regardless of
-    // which steps the semantic layer pulls in today. Marking
-    // 'neutral' as reserved also unlocks the alias closure for the
-    // underlying scales (gray-5/9/10, etc.) — see step 3 below.
+    // The --nuri-color-neutral-* alias family · the build-time neutral
+    // resolution (N+32 C1 · decision 31). One :root block resolves
+    // neutral-N → the ACTIVE scale (DEFAULT_NEUTRAL = cream). Marking
+    // 'neutral' as reserved unlocks the alias closure for the active
+    // scale (cream-N reached through the neutral alias edges) — see
+    // step 3 below.
     'neutral',
-    // Alternative-neutral Radix scales kept for the exploration page's
-    // data-neutral switcher. Transitively reachable via the
-    // --nuri-color-neutral-* alias chain (since 'neutral' is reserved
-    // and reservations seed the alias closure) — listed here as a
-    // safety net so a future refactor of the alias block doesn't
-    // quietly orphan them.
-    'mauve', 'slate', 'sage', 'olive', 'sand', 'cream',
+    // The 7 candidate neutral Radix scales. cream is the active default;
+    // the other six are build-time --neutral=<scale> options. The runtime
+    // [data-neutral] switcher was RETIRED at N+32 C1 (the 8 per-scale alias
+    // blocks collapsed to one :root resolution), so only the ACTIVE scale
+    // is reachable via the neutral alias closure — the rest are
+    // unconsumed-but-reserved (a full Radix scale ships even when a step
+    // has no var() consumer · P11). 'gray' joined here when the switcher
+    // retired (it was reachable only through the old gray alias block).
+    'gray', 'mauve', 'slate', 'sage', 'olive', 'sand', 'cream',
     // Brand scale · ships in full per Radix; semantic layer consumes
     // a subset directly (3, 4, 8, 9, 10, 12), the remaining steps
     // cover future accent expansion.

@@ -23,9 +23,11 @@
  * list to drift; no per-shape branch in the emitter.
  *
  * Default neutral is cream (decision 31) — selectable at build time
- * via the orchestrator's --neutral=<scale> CLI flag. The web-side
- * data-neutral switcher continues to A/B at preview without
- * rebuilding; this parameter controls what tokens.ts emits for RN.
+ * via the orchestrator's --neutral=<scale> CLI flag. At N+32 C1 the
+ * runtime data-neutral switcher RETIRED: the chosen neutral is now baked
+ * into ONE :root resolution block in tokens-primitive.css (build-time only ·
+ * pipeline/parsers/colour-css.js), driving BOTH the web CSS and what
+ * tokens.ts emits for RN.
  * ────────────────────────────────────────────────────────────── */
 
 import postcss from 'postcss';
@@ -249,10 +251,10 @@ export function resolveSetPolicy(setKey, cascadeVarying, policy = SET_POLICY) {
 }
 
 // Build a flat Map<cssVar, value> from the primitive CSS at the
-// build's selected scope (no data-theme on the chrome side, chosen
-// data-neutral · decision 31). Includes raw literals AND the
-// --nuri-color-neutral-N-* aliases that resolve to the chosen scale
-// (e.g. for neutral=cream:
+// build's selected scope (no data-theme on the chrome side · decision 31).
+// Includes raw literals AND the --nuri-color-neutral-N-* aliases, which
+// (since N+32 C1) resolve to the active scale through ONE :root block the
+// build bakes (e.g. neutral=cream:
 //   --nuri-color-neutral-1-light → var(--nuri-color-cream-1-light)).
 // Source-order cascade at :root: later declarations win — matches
 // the browser behaviour for primitive aliases.
@@ -272,10 +274,12 @@ export function buildPrimitiveMap(css, neutral = DEFAULT_NEUTRAL) {
 
 function primitiveSelectorMatches(selector, neutral) {
   if (selector === ':root') return true;
-  // The neutral-scale overrides use the attribute-only form ([data-neutral="…"],
-  // not :root-scoped) so a nested <nuri-scope> can re-resolve the ramp for its
-  // subtree. The build still picks ONE neutral scope (decision 31); match that
-  // scale's block in either form.
+  // The runtime [data-neutral="…"] switcher RETIRED at N+32 C1 — the build now
+  // bakes the chosen neutral into the single :root block (matched above). These
+  // two attribute-form matches are now INERT (no [data-neutral] block ships) but
+  // kept harmless: they match nothing in the current CSS, and a re-introduced
+  // switcher would still resolve. (cleanup candidate · with the vestigial
+  // `neutral` param · deferred to when semantic.js is in scope · see N+32.)
   if (selector === `:root[data-neutral="${neutral}"]`) return true;
   if (selector === `[data-neutral="${neutral}"]`) return true;
   return false;
