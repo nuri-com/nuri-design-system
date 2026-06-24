@@ -1,7 +1,7 @@
-# Session N+32 · the colour vertical → TS SoT · C1 (the colour primitives + the cream lock)
+# Session N+32 · the colour vertical → TS SoT · C1 + C2 (primitives + the accent×theme cascade)
 
-**Status**: C1 shipped on `feat/n32-colour-cascade` ([decision 70](../decisionlog.md) · [`docs/cascade.md`](../docs/cascade.md) · the token-layer flip · the colour vertical). The colour PRIMITIVE catalog — the 7 candidate neutral scales + lilac + the alpha scales — is now sourced **from TS**: authored once in [`pipeline/colours.ts`](../packages/spec/pipeline/colours.ts) and the build *writes the `--nuri-color-*` values into* `styles/tokens-primitive.css`, instead of reading them out. **Awaiting the operator's on-branch review + the C2 brief** (the semantic accent×theme matrix).
-**Type**: the **second real flip** ([decision 2](../decisionlog.md) reversed for the **colour-primitive layer**, after the dimension layer at [N+31](./N+31-dimension-cascade.md)). C1 is the **flat catalog** half — like the dimension layer it is a pure `:root` value emit with **no accent×theme cascade**, so the [decision 63](../decisionlog.md) `#4b/#6b` / §10 M2/M5 concern does not apply here. The cascade is **C2** (the genuinely-templated emit · the one novel transform). **REVERSIBLE until the gate was green** (the hand CSS was the oracle); now committed as generated.
+**Status**: **C1 + C2 shipped** — C1 on `feat/n32-colour-cascade`, **C2 stacked on `feat/n33-colour-cascade-c2`** ([decision 70](../decisionlog.md) / [§72](../decisionlog.md) · [`docs/cascade.md`](../docs/cascade.md) · the token-layer flip · the colour vertical). **[decision 2](../decisionlog.md) is now fully reversed for the colour layer**: the PRIMITIVE catalog (C1) and the accent×theme CASCADE (C2) are both sourced from TS ([`pipeline/colours.ts`](../packages/spec/pipeline/colours.ts)); the build *writes* `styles/tokens-{primitive,semantic}.css`, instead of reading them. The C2 section is below the C1 record.
+**Type**: the **second real flip** ([decision 2](../decisionlog.md) reversed for the colour layer, after the dimension layer at [N+31](./N+31-dimension-cascade.md)). C1 is the **flat catalog** half (a pure `:root` value emit · no cascade · the [decision 63](../decisionlog.md) `#4b/#6b` concern doesn't apply). C2 is the **genuinely-templated emit** — the one novel transform in the whole plan (it generates the `#4b/#6b` self-scope no stock tool does). **REVERSIBLE until the gate was green** (the hand cascade was the oracle · verified generated≡hand before the in-place flip); now committed as generated.
 
 ---
 
@@ -61,8 +61,53 @@ The **structural** part (collapsing the 8 switcher blocks → one `:root` block)
 - **The dec-2-for-colour ledger entry is pending you.** N+31 recorded the dec-2 state transition for the dimension layer at [decisionlog §71](../decisionlog.md); C1 partially reverses dec-2 for the colour-PRIMITIVE layer (the semantic cascade stays CSS-SoT until C2). I did **not** unilaterally write a decisionlog entry — per the precedent that the dec-2 transition is the operator's to record (and C2 completes the colour flip). Recommend the ledger entry land with C2, or now if you prefer.
 - **`website/assets/nuri/styles/` is stale** (still the 8-block switcher · gray default). It is a separately-staged copy (`website/stage.mjs` · not gated by C1); restage when the docs site is next published.
 
-## Next — C2 (the semantic accent×theme matrix · the novel emit)
+---
 
-Author the chrome (theme-only) + accent (accent×theme) matrix in TS, referencing the neutral/lilac primitives via the `{ ref }` arm; generate the cascade CSS — blocks 1→6 + the `#4b/#6b` self-scope descendant blocks (the genuinely-templated emit · no stock tool does it · [decision 63](../decisionlog.md) preserved exactly, including the known nearest-vs-any-ancestor limitation). Gated on the computed-style dec-63 anchor (a self-scoped `[data-accent=neutral]` under a `[data-theme=dark]` ancestor resolves the DARK value · the cream cells match the hand cascade · `tokens.ts` stays the flat `{accent}{mode}` matrix — RN single-context · decisions 27/62/63). The C1 harness grows the cascade guards; the dimension + colour-primitive slices de-risked the mechanism.
+# C2 — the semantic accent×theme cascade (the novel emit · as built)
 
-See [`docs/cascade.md`](../docs/cascade.md) · [`decisionlog.md` §70 / §63 / §31 / §2](../decisionlog.md) · [`roadmap/N+31-dimension-cascade.md`](./N+31-dimension-cascade.md) · [`roadmap/token-standards-eval.md` §7](./token-standards-eval.md) · [`roadmap/index.md`](./index.md).
+**Status**: shipped on `feat/n33-colour-cascade-c2` (stacked on C1 · [§72](../decisionlog.md)). decision 2 is now **fully reversed for colour**. This is the **last genuinely-templated transform** in decision 70's plan — no stock token tool emits the [decision 63](../decisionlog.md) `#4b/#6b` self-scope; the emitter is the inverse of the cascade parser's `findWinningDecl`.
+
+## What flipped (C2 · the chain, end to end)
+
+| layer | before (CSS-SoT) | after (TS-SoT) |
+|---|---|---|
+| L2 chrome · theme-only | 13 `--nuri-{bg,text,border,focus}-*` tokens hand-declared in blocks 1/2, with Format-B matrix comments | the `chrome` object in [`colours.ts`](../packages/spec/pipeline/colours.ts) (13 × {light,dark} · each cell a `{ ref: 'scale.step.theme' }`) |
+| L2 accent · accent×theme | 6 `--nuri-accent-*` tokens hand-declared across blocks 1/2/3/4/4b/5/6/6b (the INVERSE + FROZEN-P4 patterns by hand) | the `accent` object (6 × {neutral,lilac} × {light,dark}) — the INVERSE/FROZEN patterns are the cell data |
+| the cascade CSS | hand-authored blocks 1·2·3·4·4b·5·6·6b in `tokens-semantic.css` | **GENERATED** into the marked region by [`parsers/semantic-css.js`](../packages/spec/pipeline/parsers/semantic-css.js) (Slice 0) |
+
+The emit is **NOT byte-identical** to the prior hand cascade (it is regenerated · terser · the Format-B matrix moved to the SoT). But it resolves to the **same (accent × theme) cross-product**, so `build/tokens.ts` (the RN flat `tokens[accent][mode]` contract · decisions 27/62/63 · no cascade, no #4b/#6b) is **byte-identical** — the load-bearing gate.
+
+## The mechanism — the cascade as the inverse of the parser
+
+`parsers/semantic.js#findWinningDecl` RESOLVES the cascade (cross-product → winning value); `semantic-css.js` SPELLS it. Given the matrix it emits the 8 blocks; a **DARK block redeclares a token only where its dark ref ≠ its light ref**. For neutral every token swaps → all 6 redeclared; for lilac the 3 P4-FROZEN brand tokens have light===dark → omitted, so **blocks 6/6b are the PARTIAL redeclares** automatically. P4 is not special-cased — it falls out of the data. The `#4b/#6b` descendant-combinator self-scope (specificity 0,2,0) is emitted verbatim from the model, mirroring its #4/#6 twin. The generated region is spliced into a **marker-delimited span** of `tokens-semantic.css`; the file header + the dimension blocks pass through verbatim (the in-place trade · the dimension S1 posture).
+
+## What shipped (C2 ship list · as built)
+
+1. **[`pipeline/colours.ts`](../packages/spec/pipeline/colours.ts)** (extended) — `ColorLeaf` widened to `{ value } | { ref }` (the DTCG reference arm · as `dimensions.ts` does for px); the `chrome` + `accent` matrices added (the resolution matrix · the INVERSE/FROZEN-P4 patterns documented as the cell data · `neutral` stays the abstract pointer → cream).
+2. **[`pipeline/parsers/semantic-css.js`](../packages/spec/pipeline/parsers/semantic-css.js)** (new · the emitter) — `loadSemanticColours` (reuses `stripTypes`), `refToVar`, `buildSemanticCascade` (the 8-block model · the minimal-dark-override rule), `emitCascadeRegion` + the `CASCADE_MARKER_*`, `spliceCascade` (in-place · idempotent), `flipSemanticCss`.
+3. **[`pipeline/tokens-parser.js`](../packages/spec/pipeline/tokens-parser.js)** (wired) — Slice 0 runs `flipSemanticCss` right after the colour-primitive flip, before the semantic slice reads the CSS.
+4. **[`styles/tokens-semantic.css`](../packages/spec/styles/tokens-semantic.css)** — the hand cascade (blocks 1–6b · with the Format-B comments) replaced by the generated marked region; the file header updated (the matrix relocated to the SoT · decision 33's intent preserved, its location follows the source).
+5. **[`pipeline/colour-semantic.test.js`](../packages/spec/pipeline/colour-semantic.test.js)** (new · 7 guards) — A structural ≡ + the cascade-shape pin (P4 omission), B re-splice freshness, C the independent cream/lilac matrix oracle resolved two ways (SoT + live CSS · incl. the dec-63 dark cell), D the #4b/#6b self-scope + the descendant-combinator known-limitation form. Proven non-tautological by mutation (a dropped INVERSE bites 5 guards).
+6. **[`pipeline/colour-semantic-computed-check.html`](../packages/spec/pipeline/colour-semantic-computed-check.html)** (new · the real-engine anchor) — 6 cells incl. THE dec-63 anchor (self-scoped neutral under a dark ANCESTOR → cream-1-light, not dark-on-dark), the lilac frozen/adapting cells, and the documented known-limitation. Run via the preview tooling.
+7. **[`pipeline/parsers/semantic.js`](../packages/spec/pipeline/parsers/semantic.js)** (cleaned · the C1 carry-forward) — the inert `[data-neutral]` branches + the vestigial `neutral` param retired from `buildPrimitiveMap` (now `:root`-only · build-time neutral selection); call site updated.
+8. **decisionlog [§72](../decisionlog.md)** + this roadmap record.
+
+## Verification — gates green
+
+- **spec** `npm test -w @nuri/spec` → **55/55** (48 prior + the 7 new colour-semantic guards); `npm run build -w @nuri/spec` + `git diff --exit-code packages/spec/build/` → **byte-identical** (the load-bearing gate · the resolved matrix is unchanged · the cascade flip is invisible to the RN contract). `styles/tokens-semantic.css` diff = the hand cascade → the generated region (−315 net · the Format-B comments moved to the SoT); idempotent (re-emit byte-identical).
+- **rn** `npm test -w @nuri/rn` + `npm run typecheck` — the contract is byte-identical (re-run at the on-branch checkpoint).
+- **the dec-63 computed-style anchor** (`colour-semantic-computed-check.html` · served from the live spec CSS): **6/6 cells PASS** — the self-scoped `[data-accent=neutral]` under a `[data-theme=dark]` ancestor resolves `--nuri-accent-solid` to **cream-1-light `rgb(255,253,242)`** (the IconButton dark-on-dark fix · matches the #4 combined-attr control); the lilac frozen solid stays `#beaaff`, the adapting fg goes dark; the known-limitation (light nested in dark → resolves dark) reproduced exactly.
+- **spike-before-delete** (decision 70 discipline): the generated cascade was proven `≡` the hand cascade (resolved · all 38 semantic vars × accent × theme) BEFORE the in-place flip — the flip only landed once green.
+
+## Judgment calls (C2)
+
+- **In-place, marker-delimited, irreversible (the §71 posture · not the B1/L3.1 reversible spike).** The brief is explicit (decision 2 fully reversed · in-place), so the hand cascade is replaced, not retained as an oracle. The "generated ≡ hand" proof is operational: the byte-identical `tokens.ts` (the resolved matrix unchanged) + the independent restated oracle (Guard C) + the real-engine anchor together stand in for a retained hand oracle.
+- **§72 covers C1 + C2.** C1 deferred the dec-2 ledger entry to C2 (its roadmap recommended it); §72 records the full colour-layer transition.
+- **The Format-B matrix moved to the SoT** (not duplicated in the generated CSS). decision 33's intent (the matrix is documented) stands; its location now follows the source of truth (`colours.ts`). The generated blocks carry terse role comments.
+- **`website/assets/nuri/styles/` is still stale** (a separately-staged copy · `website/stage.mjs` · not gated · already stale since N+31 / C1); restage when the docs site is next published. Out of scope, per precedent.
+
+## Next
+
+The L3 namespace flip (the agnostic stack/box/typography axes → generated namespace CSS + retire the recipe layer · decision 70's remaining bottom-up step · L3b/L3.1b/L3c). The **templated token-cascade transforms — dimensions (N+31) + colour (N+32) — are now DONE**.
+
+See [`docs/cascade.md`](../docs/cascade.md) · [`decisionlog.md` §72 / §71 / §70 / §63 / §31 / §2](../decisionlog.md) · [`roadmap/N+31-dimension-cascade.md`](./N+31-dimension-cascade.md) · [`roadmap/token-standards-eval.md` §7](./token-standards-eval.md) · [`roadmap/index.md`](./index.md).

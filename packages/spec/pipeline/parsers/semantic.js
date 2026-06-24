@@ -250,39 +250,26 @@ export function resolveSetPolicy(setKey, cascadeVarying, policy = SET_POLICY) {
   return { cascadeVarying: false, runtime, pipelineInline };
 }
 
-// Build a flat Map<cssVar, value> from the primitive CSS at the
-// build's selected scope (no data-theme on the chrome side · decision 31).
-// Includes raw literals AND the --nuri-color-neutral-N-* aliases, which
-// (since N+32 C1) resolve to the active scale through ONE :root block the
-// build bakes (e.g. neutral=cream:
+// Build a flat Map<cssVar, value> from the primitive CSS. Every primitive (raw
+// literal or alias) lives in a :root block — including the
+// --nuri-color-neutral-N-* aliases, which (since N+32 C1) resolve to the active
+// scale through ONE :root block the build bakes from --neutral (e.g. cream:
 //   --nuri-color-neutral-1-light → var(--nuri-color-cream-1-light)).
-// Source-order cascade at :root: later declarations win — matches
-// the browser behaviour for primitive aliases.
-export function buildPrimitiveMap(css, neutral = DEFAULT_NEUTRAL) {
+// Source-order cascade at :root: later declarations win — matches the browser
+// behaviour for primitive aliases. The runtime [data-neutral] switcher RETIRED at
+// C1 (build-time selection only · one :root block), so there is no per-scope
+// argument any more — matching :root captures everything (N+32 C2 cleanup).
+export function buildPrimitiveMap(css) {
   const root = postcss.parse(css);
   const map = new Map();
   root.walkRules((rule) => {
-    const selectors = rule.selectors.map((s) => s.trim());
-    if (!selectors.some((s) => primitiveSelectorMatches(s, neutral))) return;
+    if (!rule.selectors.some((s) => s.trim() === ':root')) return;
     rule.walkDecls((decl) => {
       if (!decl.prop.startsWith('--nuri-')) return;
       map.set(decl.prop, decl.value.trim());
     });
   });
   return map;
-}
-
-function primitiveSelectorMatches(selector, neutral) {
-  if (selector === ':root') return true;
-  // The runtime [data-neutral="…"] switcher RETIRED at N+32 C1 — the build now
-  // bakes the chosen neutral into the single :root block (matched above). These
-  // two attribute-form matches are now INERT (no [data-neutral] block ships) but
-  // kept harmless: they match nothing in the current CSS, and a re-introduced
-  // switcher would still resolve. (cleanup candidate · with the vestigial
-  // `neutral` param · deferred to when semantic.js is in scope · see N+32.)
-  if (selector === `:root[data-neutral="${neutral}"]`) return true;
-  if (selector === `[data-neutral="${neutral}"]`) return true;
-  return false;
 }
 
 // Read each rule in tokens-semantic.css in source order. Returns

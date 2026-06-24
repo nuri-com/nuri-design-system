@@ -40,10 +40,14 @@
  * cascade model) · the token-standards eval (the DTCG shape).
  * ══════════════════════════════════════════════════════════════════ */
 
-// A colour leaf — DTCG terse. C1: every primitive is a literal `{ value }`.
-type ColorLeaf = { value: string };
+// A colour leaf — DTCG `value | reference` (the token-standards eval · the shape
+// dimensions.ts uses for `Leaf = { ref } | { value, unit }`). A PRIMITIVE is a
+// literal `{ value: '#fcfcfc' }`; a SEMANTIC leaf (C2 · chrome / accent below)
+// is a `{ ref: 'scale.step.theme' }` pointing at a primitive — the reference IS
+// the cascade (semantic names a primitive, it does not restate a value).
+type ColorLeaf = { value: string } | { ref: string };
 // A Radix 12-step scale: each step exposes its light + dark primitive in parallel
-// (the semantic layer composes mode × accent on top · tokens-semantic.css).
+// (the semantic layer composes mode × accent on top · the cascade below).
 type ThemedLeaf = { light: ColorLeaf; dark: ColorLeaf };
 type Scale = Record<string, ThemedLeaf>;
 
@@ -204,3 +208,87 @@ export const whiteAlpha = {
   11: { value: 'rgba(255, 255, 255, 0.90)' },
   12: { value: 'rgba(255, 255, 255, 0.95)' },
 } as const satisfies Record<string, ColorLeaf>;
+
+
+/* ══════════════════════════════════════════════════════════════════
+ * L2 · THE SEMANTIC ACCENT×THEME MATRIX (N+32 C2 · decision 70 · the cascade)
+ * ──────────────────────────────────────────────────────────────────
+ * The role-based tokens components actually consume, composed by referencing the
+ * L1 primitives above via the `{ ref }` arm. This IS the resolution matrix that
+ * the Format-B comments in styles/tokens-semantic.css used to carry (decision 33):
+ * the matrix now lives HERE, in the SoT, and the cascade CSS is GENERATED from it
+ * (pipeline/parsers/semantic-css.js · the genuinely-templated emit · the dec-63
+ * #4b/#6b self-scope). decision 2 reverses for the colour SEMANTIC layer (after
+ * the primitives at C1) — so it is now fully reversed for colour.
+ *
+ * Two attributes drive the cascade in the WEB projection (data-theme · data-accent);
+ * the RN projection (decisions 27/62/63) reads ONE {mode, accent} context and looks
+ * up the flat tokens[accent][mode] matrix — no cascade, no #4b/#6b. Both are
+ * projections of THIS data.
+ *
+ * `neutral` in a ref is the ABSTRACT pointer (--nuri-color-neutral-N-θ · resolved
+ * to cream by default in tokens-primitive.css · --neutral= switchable) — the
+ * semantic layer never names cream directly. `lilac` is the brand scale.
+ *
+ * ── The two asymmetries the matrix encodes (read the cells) ──────────
+ *   INVERSE (neutral · saturated)  · solid / solid-pressed / on-solid reference the
+ *     OPPOSITE theme's step (light→…-dark, dark→…-light): a near-black CTA in light,
+ *     a near-white CTA in dark. Visible as light.ref ≠ dark.ref pointing across.
+ *   FROZEN · P4 (lilac · bright)   · solid / solid-pressed / on-solid keep the brand
+ *     fill across themes (light.ref === dark.ref → e.g. both lilac.9.light). The
+ *     emitter reads light===dark as "frozen" and OMITS the dark override → that is
+ *     exactly why the generated blocks 6 / 6b are PARTIAL (only the 3 theme-adapting
+ *     lilac tokens · fg / bg-subtle / bg-subtle-pressed). No special-casing in the
+ *     emitter — P4 falls out of the data.
+ * ══════════════════════════════════════════════════════════════════ */
+
+// chrome · theme-only · accent-invariant (13 tokens × {light, dark}). The page's
+// neutral surface: backgrounds, text, borders, and the always-brand focus ring.
+export const chrome = {
+  'bg-canvas':        { light: { ref: 'neutral.1.light' },  dark: { ref: 'neutral.1.dark' } },
+  'bg-subtle':        { light: { ref: 'neutral.2.light' },  dark: { ref: 'neutral.2.dark' } },
+  'bg-strong':        { light: { ref: 'neutral.3.light' },  dark: { ref: 'neutral.3.dark' } },
+  'bg-pressed':       { light: { ref: 'neutral.4.light' },  dark: { ref: 'neutral.4.dark' } },
+  // bg-inverse · a slice of the OTHER theme (INVERSE by design)
+  'bg-inverse':       { light: { ref: 'neutral.1.dark' },   dark: { ref: 'neutral.1.light' } },
+  'bg-inverse-muted': { light: { ref: 'neutral.11.light' }, dark: { ref: 'neutral.11.dark' } },
+  'text-primary':     { light: { ref: 'neutral.12.light' }, dark: { ref: 'neutral.12.dark' } },
+  'text-muted':       { light: { ref: 'neutral.11.light' }, dark: { ref: 'neutral.11.dark' } },
+  // text-on-inverse · text drawn on bg-inverse (INVERSE by design)
+  'text-on-inverse':  { light: { ref: 'neutral.12.dark' },  dark: { ref: 'neutral.12.light' } },
+  'border-subtle':    { light: { ref: 'neutral.6.light' },  dark: { ref: 'neutral.6.dark' } },
+  'border-default':   { light: { ref: 'neutral.7.light' },  dark: { ref: 'neutral.7.dark' } },
+  'border-strong':    { light: { ref: 'neutral.8.light' },  dark: { ref: 'neutral.8.dark' } },
+  // focus-ring · always brand (lilac) regardless of accent (DS convention · pops vs any bg)
+  'focus-ring':       { light: { ref: 'lilac.8.light' },    dark: { ref: 'lilac.8.dark' } },
+} as const satisfies Record<string, ThemedLeaf>;
+
+// accent · accent×theme (6 tokens × {neutral, lilac} × {light, dark}). Where the
+// saturated-vs-bright asymmetry lives (INVERSE / FROZEN-P4 · see the header).
+type AccentLeaf = { neutral: ThemedLeaf; lilac: ThemedLeaf };
+export const accent = {
+  fg: {
+    neutral: { light: { ref: 'neutral.12.light' }, dark: { ref: 'neutral.12.dark' } },  // same-scale
+    lilac:   { light: { ref: 'lilac.12.light' },   dark: { ref: 'lilac.12.dark' } },    // theme-adapting
+  },
+  solid: {
+    neutral: { light: { ref: 'neutral.1.dark' },   dark: { ref: 'neutral.1.light' } },  // INVERSE
+    lilac:   { light: { ref: 'lilac.9.light' },    dark: { ref: 'lilac.9.light' } },     // FROZEN · P4
+  },
+  'solid-pressed': {
+    neutral: { light: { ref: 'neutral.3.dark' },   dark: { ref: 'neutral.3.light' } },  // INVERSE
+    lilac:   { light: { ref: 'lilac.10.light' },   dark: { ref: 'lilac.10.light' } },    // FROZEN · P4
+  },
+  'on-solid': {
+    neutral: { light: { ref: 'neutral.12.dark' },  dark: { ref: 'neutral.12.light' } }, // INVERSE
+    lilac:   { light: { ref: 'lilac.12.light' },   dark: { ref: 'lilac.12.light' } },    // FROZEN · P4
+  },
+  'bg-subtle': {
+    neutral: { light: { ref: 'neutral.3.light' },  dark: { ref: 'neutral.3.dark' } },   // same-scale
+    lilac:   { light: { ref: 'lilac.3.light' },    dark: { ref: 'lilac.3.dark' } },      // theme-adapting
+  },
+  'bg-subtle-pressed': {
+    neutral: { light: { ref: 'neutral.4.light' },  dark: { ref: 'neutral.4.dark' } },   // same-scale
+    lilac:   { light: { ref: 'lilac.4.light' },    dark: { ref: 'lilac.4.dark' } },      // theme-adapting
+  },
+} as const satisfies Record<string, AccentLeaf>;
