@@ -1,0 +1,36 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · NAMESPACE CSS · PALETTE · GENERATED · SHADOW · DO NOT EDIT / DO NOT REPOINT
+ *
+ * The L3b·1 reversible shadow (decision 70 · docs/cascade.md L3 · the first
+ * bespoke axis · decision 67). GENERATED from the SURFACE role table
+ * (pipeline/palette-surface.ts) by pipeline/css-preview.js — the inverse-
+ * spelling of resolvePalette (packages/rn/factory/resolve.ts). SHADOW OUTPUT —
+ * proven structurally + computed-style EQUIVALENT to the hand SoT
+ * lib/components/palette/palette.css (the parity oracle · pipeline/
+ * palette-css.test.js), but NOTHING points at this file: the live web factory
+ * + pages still load the hand CSS, and build/palette.ts is still derived from
+ * it (pipeline/parsers/palette.js). It exists to PROVE "one TS table → the web
+ * palette CSS" without flipping anything. The L3c flip (a later session) makes
+ * this the source and retires the hand CSS + the recipe layer.
+ * NEVER hand-edit — re-run pipeline/css-preview.js.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design (decision 37 · the Stack/Box pattern). Palette dispatches
+   * the semantic accent/chrome vocabulary directly in `@layer rules` via
+   * attribute selectors — component-token aliasing would be useless
+   * indirection. Mirrors the hand palette.css. */
+}
+
+@layer rules {
+  .nuri-palette[data-variant="solid"] { background: var(--nuri-accent-solid); color: var(--nuri-accent-on-solid); }
+  .nuri-palette[data-variant="soft"] { background: var(--nuri-bg-strong); color: var(--nuri-text-primary); }
+  .nuri-palette[data-variant="ghost"] { background: transparent; color: var(--nuri-text-primary); }
+  .nuri-palette[data-variant="subtle"] { color: var(--nuri-border-strong); }
+  .nuri-palette[data-chrome="canvas"] { background: var(--nuri-bg-canvas); color: var(--nuri-text-primary); }
+  .nuri-palette[data-chrome="subtle"] { background: var(--nuri-bg-subtle); color: var(--nuri-text-primary); }
+  .nuri-palette[data-chrome="strong"] { background: var(--nuri-bg-strong); color: var(--nuri-text-primary); }
+  .nuri-palette[data-variant="solid"][data-press-color]:active { background: var(--nuri-accent-solid-pressed); }
+  .nuri-palette[data-variant="soft"][data-press-color]:active { background: var(--nuri-bg-pressed); }
+  .nuri-palette[data-variant="ghost"][data-press-color]:active { background: var(--nuri-bg-subtle); }
+}
