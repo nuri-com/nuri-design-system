@@ -94,6 +94,8 @@ import {
 
 import { emitDocPage, buildDocTokenInputs } from './parsers/docs.js';
 
+import { loadDimensions, flipDimensionCss } from './parsers/dimension-css.js';
+
 import { ICONS } from '../lib/components/icon/icons.js';
 
 // Re-export so existing imports (and the primitive round-trip tests)
@@ -157,6 +159,7 @@ const REPO_ROOT = resolve(__dirname, '..');
 
 const PRIMITIVE_CSS    = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
 const SEMANTIC_CSS     = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
+const DIMENSIONS_SRC   = resolve(REPO_ROOT, 'pipeline/dimensions.ts');
 const COMPONENTS_DIR   = resolve(REPO_ROOT, 'lib/components');
 const JSON_OUT         = resolve(REPO_ROOT, 'build/tokens.json');
 const TS_OUT           = resolve(REPO_ROOT, 'build/tokens.ts');
@@ -216,6 +219,26 @@ export function parseArgs(argv) {
 async function main() {
   const neutral = parseArgs(process.argv);
   console.log(`[tokens-parser] data-neutral=${neutral}`);
+
+  // ── Slice 0 · the dimension cascade · TS SoT → tokens-*.css (N+31 · decision 70 · the first flip) ──
+  // decision 2 reverses for the dimension layer ONLY: the px scale + the
+  // space/size/radius semantics are authored in pipeline/dimensions.ts (the
+  // SoT) and WRITTEN INTO styles/tokens-{primitive,semantic}.css here, before
+  // every downstream slice reads them. The emit is an in-place PASSTHROUGH —
+  // only the dimension declarations' values are regenerated; all non-dimension
+  // content (colours · the accent×theme cascade · border · type · font · the
+  // reserved radius primitives) passes through verbatim (the S1 passthrough-
+  // hybrid · no page repointing). Values are unchanged this slice, so every
+  // slice below stays byte-identical → build/* byte-identical. Writing into
+  // styles/ (a source dir) is the hybrid trade — muddier provenance for zero
+  // repointing; the clean physical split is a later L3c-style cleanup.
+  const dims = await loadDimensions(DIMENSIONS_SRC);
+  await flipDimensionCss({ primitivePath: PRIMITIVE_CSS, semanticPath: SEMANTIC_CSS, dims });
+  console.log(
+    `[tokens-parser] flipped the dimension cascade from the TS SoT ` +
+    `(${Object.keys(dims.px).length} px · ${Object.keys(dims.space).length} space · ` +
+    `${Object.keys(dims.size).length} size · ${Object.keys(dims.radius).length} radius) → styles/tokens-*.css`,
+  );
 
   const primitiveCSS = await readFile(PRIMITIVE_CSS, 'utf8');
   const semanticCSS  = await readFile(SEMANTIC_CSS,  'utf8');
