@@ -23,9 +23,11 @@
  * list to drift; no per-shape branch in the emitter.
  *
  * Default neutral is cream (decision 31) — selectable at build time
- * via the orchestrator's --neutral=<scale> CLI flag. The web-side
- * data-neutral switcher continues to A/B at preview without
- * rebuilding; this parameter controls what tokens.ts emits for RN.
+ * via the orchestrator's --neutral=<scale> CLI flag. At N+32 C1 the
+ * runtime data-neutral switcher RETIRED: the chosen neutral is now baked
+ * into ONE :root resolution block in tokens-primitive.css (build-time only ·
+ * pipeline/parsers/colour-css.js), driving BOTH the web CSS and what
+ * tokens.ts emits for RN.
  * ────────────────────────────────────────────────────────────── */
 
 import postcss from 'postcss';
@@ -248,37 +250,26 @@ export function resolveSetPolicy(setKey, cascadeVarying, policy = SET_POLICY) {
   return { cascadeVarying: false, runtime, pipelineInline };
 }
 
-// Build a flat Map<cssVar, value> from the primitive CSS at the
-// build's selected scope (no data-theme on the chrome side, chosen
-// data-neutral · decision 31). Includes raw literals AND the
-// --nuri-color-neutral-N-* aliases that resolve to the chosen scale
-// (e.g. for neutral=cream:
+// Build a flat Map<cssVar, value> from the primitive CSS. Every primitive (raw
+// literal or alias) lives in a :root block — including the
+// --nuri-color-neutral-N-* aliases, which (since N+32 C1) resolve to the active
+// scale through ONE :root block the build bakes from --neutral (e.g. cream:
 //   --nuri-color-neutral-1-light → var(--nuri-color-cream-1-light)).
-// Source-order cascade at :root: later declarations win — matches
-// the browser behaviour for primitive aliases.
-export function buildPrimitiveMap(css, neutral = DEFAULT_NEUTRAL) {
+// Source-order cascade at :root: later declarations win — matches the browser
+// behaviour for primitive aliases. The runtime [data-neutral] switcher RETIRED at
+// C1 (build-time selection only · one :root block), so there is no per-scope
+// argument any more — matching :root captures everything (N+32 C2 cleanup).
+export function buildPrimitiveMap(css) {
   const root = postcss.parse(css);
   const map = new Map();
   root.walkRules((rule) => {
-    const selectors = rule.selectors.map((s) => s.trim());
-    if (!selectors.some((s) => primitiveSelectorMatches(s, neutral))) return;
+    if (!rule.selectors.some((s) => s.trim() === ':root')) return;
     rule.walkDecls((decl) => {
       if (!decl.prop.startsWith('--nuri-')) return;
       map.set(decl.prop, decl.value.trim());
     });
   });
   return map;
-}
-
-function primitiveSelectorMatches(selector, neutral) {
-  if (selector === ':root') return true;
-  // The neutral-scale overrides use the attribute-only form ([data-neutral="…"],
-  // not :root-scoped) so a nested <nuri-scope> can re-resolve the ramp for its
-  // subtree. The build still picks ONE neutral scope (decision 31); match that
-  // scale's block in either form.
-  if (selector === `:root[data-neutral="${neutral}"]`) return true;
-  if (selector === `[data-neutral="${neutral}"]`) return true;
-  return false;
 }
 
 // Read each rule in tokens-semantic.css in source order. Returns

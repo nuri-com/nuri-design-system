@@ -2,9 +2,19 @@
  * NURI · TOKENS · SEMANTIC
  * Role-based tokens. This is where mode (light/dark) and accent
  * (neutral/lilac) are composed by referencing the theme-agnostic
- * primitives in tokens-primitive.css.
+ * primitives in tokens-primitive.css. Components consume these
+ * tokens, not the primitives.
  *
- * Components consume these tokens, not the primitives.
+ * ── GENERATED · the accent×theme cascade (N+32 C2 · decision 70 / 72) ──
+ * The cascade BLOCKS below (the marked region · #1 … #6b) are GENERATED
+ * from the TS SoT (pipeline/colours.ts · the chrome + accent matrix) by
+ * Slice 0 of pipeline/tokens-parser.js (parsers/semantic-css.js · dec-2
+ * reversed for the colour SEMANTIC layer — colour is now fully flipped).
+ * Edit the SoT, not the marked region — `npm run build` regenerates it in
+ * place. The SPACING / SIZING / RADIUS blocks (below the marked region)
+ * are likewise generated, from the dimension SoT (pipeline/dimensions.ts ·
+ * decision 71). This header + the prose below are hand-maintained
+ * documentation of the generated structure.
  *
  * ── Composition model ─────────────────────────────────────────
  *   Two attributes drive everything:
@@ -90,364 +100,136 @@
  * regardless of the surrounding accent — it's the only way to
  * guarantee it pops against any background.
  *
- * ── Per-declaration documentation · Format B (decision 33) ────
- * Every context-dependent token below carries a Format B inline
- * comment at its CANONICAL block showing the full resolution
- * matrix; non-canonical blocks carry terse 1-line cross-refs back
- * to the canonical. Canonical assignment follows the cascade:
- *   - Chrome tokens (theme-only)          · canonical = block 1
- *   - Accent · neutral family             · canonical = block 1
- *   - Accent · lilac family               · canonical = block 5
- * Trigger is dependency-driven: a token gets Format B only if it
- * varies across {theme, scope, accent, …}. Mode/scope-invariant
- * tokens (future spacing / sizing semantic) get terse role
- * descriptions instead. See decision 33 in decisionlog.md.
+ * ── The resolution matrix · Format B → the SoT (decision 33 · 70) ────
+ * Format B (decision 33) put each context-dependent token's full
+ * resolution matrix in an inline comment at its CANONICAL block. With the
+ * C2 flip that matrix moved to its SOURCE — pipeline/colours.ts (the
+ * chrome + accent objects · each cell a { ref } · the INVERSE / FROZEN-P4
+ * patterns documented there). The generated blocks below carry only a
+ * terse per-block role comment; the matrix is one indirection away, in the
+ * SoT, where it is now authored. Decision 33's intent (the matrix is
+ * documented) stands; its LOCATION follows the source of truth.
  * ────────────────────────────────────────────────────────────── */
 
 
-/* ══════════════════════════════════════════════════════════════
- * 1 · :root, [data-theme="light"] — defaults (chrome light + neutral accent light)
- *
- * Canonical declaration block for chrome tokens (accent-invariant)
- * and neutral-family accent tokens. Each declaration below carries
- * a Format B inline comment showing the full resolution matrix
- * (per decision 33). Block 2 redeclares chrome + neutral-accent
- * for dark; blocks 3 / 4 redeclare neutral-accent for explicit-
- * scope wrappers; all three carry terse cross-refs back here.
- *
- * The [data-theme="light"] selector mirrors block 2's attribute-only
- * form: without it, a nested <nuri-scope mode="light"> could NOT
- * re-resolve the chrome/neutral-surface tokens for its subtree (they
- * would stay frozen at the value :root computed with the PAGE neutral),
- * so a scoped neutral change was a no-op in light — while it worked in
- * dark, where block 2 already re-declares at the scope. The pair makes
- * light and dark symmetric: either theme re-asserts at any wrapper.
- * ══════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════════
+ * GENERATED · the accent×theme cascade · from pipeline/colours.ts (chrome +
+ * accent) via pipeline/parsers/semantic-css.js · decision 70 / 72.
+ * DO NOT EDIT — `npm run build` regenerates this region IN PLACE (Slice 0,
+ * the colour-semantic flip). The resolution matrix IS the SoT (colours.ts);
+ * the cascade ORDERING + the #4b/#6b self-scope rationale (decision 63) are
+ * documented in the file header above.
+ * ════════════════════════════════════════════════════════════════════ */
 
+/* 1 · defaults · chrome light + neutral accent light (light re-asserts at any wrapper) */
 :root,
 [data-theme="light"] {
-  /* Backgrounds · single emphasis ladder
-   *   canvas  step 1  page bg (default surface)
-   *   subtle  step 2  sidebar, callout — slight separation from canvas
-   *   strong  step 3  chip, control, component default — clearly elevated
-   *   pressed step 4  interactive emphasis (component :active, chrome :hover)
-   *   inverse n/a    "a piece of the opposite theme" — see bg.inverse below
-   *
-   * Vocabulary is shared across families: subtle/strong/pressed appear
-   * in bg, border, and accent. Same word = same conceptual level. */
-
-  /* bg.canvas · ambient page background · chrome (accent-invariant)
-   *   light: neutral-1-light   dark: neutral-1-dark */
-  --nuri-bg-canvas:        var(--nuri-color-neutral-1-light);
-
-  /* bg.subtle · slight separation from canvas · chrome (accent-invariant)
-   *   light: neutral-2-light   dark: neutral-2-dark */
-  --nuri-bg-subtle:        var(--nuri-color-neutral-2-light);
-
-  /* bg.strong · clearly elevated control surface · chrome (accent-invariant)
-   *   light: neutral-3-light   dark: neutral-3-dark */
-  --nuri-bg-strong:        var(--nuri-color-neutral-3-light);
-
-  /* bg.pressed · interactive emphasis (active / chrome hover) · chrome (accent-invariant)
-   *   light: neutral-4-light   dark: neutral-4-dark */
-  --nuri-bg-pressed:       var(--nuri-color-neutral-4-light);
-
-  /* bg.inverse · a slice of the OTHER theme · chrome (accent-invariant)
-   *   light: neutral-1-DARK    dark: neutral-1-LIGHT   (INVERSE by design) */
-  --nuri-bg-inverse:       var(--nuri-color-neutral-1-dark);
-
-  /* bg.inverse-muted · muted same-theme fill for OFF / inactive control tracks · chrome (accent-invariant)
-   *   light: neutral-11-light   dark: neutral-11-dark
-   *   (shares the neutral-11 step with text.muted — a mid-contrast grey
-   *    that reads as "off" against canvas in either theme · Switch OFF track) */
-  --nuri-bg-inverse-muted: var(--nuri-color-neutral-11-light);
-
-  /* text.primary · default body text · chrome (accent-invariant)
-   *   light: neutral-12-light   dark: neutral-12-dark */
-  --nuri-text-primary:     var(--nuri-color-neutral-12-light);
-
-  /* text.muted · secondary / supporting text · chrome (accent-invariant)
-   *   light: neutral-11-light   dark: neutral-11-dark */
-  --nuri-text-muted:       var(--nuri-color-neutral-11-light);
-
-  /* text.on-inverse · text drawn on bg-inverse · chrome (accent-invariant)
-   *   light: neutral-12-DARK    dark: neutral-12-LIGHT   (INVERSE by design) */
-  --nuri-text-on-inverse:  var(--nuri-color-neutral-12-dark);
-
-  /* border.subtle · lowest-contrast separator · chrome (accent-invariant)
-   *   light: neutral-6-light   dark: neutral-6-dark */
-  --nuri-border-subtle:    var(--nuri-color-neutral-6-light);
-
-  /* border.default · standard control border · chrome (accent-invariant)
-   *   light: neutral-7-light   dark: neutral-7-dark */
-  --nuri-border-default:   var(--nuri-color-neutral-7-light);
-
-  /* border.strong · highest-contrast separator · chrome (accent-invariant)
-   *   light: neutral-8-light   dark: neutral-8-dark */
-  --nuri-border-strong:    var(--nuri-color-neutral-8-light);
-
-  /* focus.ring · always brand-coloured (DS convention · pops vs any bg)
-   *   light: lilac-8-light   dark: lilac-8-dark
-   *   (lilac in both accent families — accent-invariant despite the lilac-* refs) */
-  --nuri-focus-ring:       var(--nuri-color-lilac-8-light);
-
-  /* accent.fg · accent-tinted text on ambient bg
-   *   neutral (saturated) · light: neutral-12-light    dark: neutral-12-dark    (same-scale)
-   *   lilac   (bright)    · light: lilac-12-light      dark: lilac-12-dark      (theme-adapting · P4) */
-  --nuri-accent-fg:                    var(--nuri-color-neutral-12-light);
-
-  /* accent.solid · solid CTA bg
-   *   neutral (saturated) · light: neutral-1-DARK      dark: neutral-1-LIGHT    (INVERSE)
-   *   lilac   (bright)    · light: lilac-9-light       dark: lilac-9-light      (FROZEN · P4) */
-  --nuri-accent-solid:                 var(--nuri-color-neutral-1-dark);
-
-  /* accent.solid-pressed · pressed state of solid CTA (one step less stark than solid)
-   *   neutral (saturated) · light: neutral-3-DARK      dark: neutral-3-LIGHT    (INVERSE)
-   *   lilac   (bright)    · light: lilac-10-light      dark: lilac-10-light     (FROZEN · P4) */
-  --nuri-accent-solid-pressed:         var(--nuri-color-neutral-3-dark);
-
-  /* accent.on-solid · text / icon drawn on top of accent-solid
-   *   neutral (saturated) · light: neutral-12-DARK     dark: neutral-12-LIGHT   (INVERSE)
-   *   lilac   (bright)    · light: lilac-12-light      dark: lilac-12-light     (FROZEN · P4) */
-  --nuri-accent-on-solid:              var(--nuri-color-neutral-12-dark);
-
-  /* accent.bg-subtle · soft variant bg (tag / pill / chip)
-   *   neutral (saturated) · light: neutral-3-light     dark: neutral-3-dark     (same-scale)
-   *   lilac   (bright)    · light: lilac-3-light       dark: lilac-3-dark       (theme-adapting · P4) */
-  --nuri-accent-bg-subtle:             var(--nuri-color-neutral-3-light);
-
-  /* accent.bg-subtle-pressed · pressed state of soft variant (one step from bg-subtle)
-   *   neutral (saturated) · light: neutral-4-light     dark: neutral-4-dark     (same-scale)
-   *   lilac   (bright)    · light: lilac-4-light       dark: lilac-4-dark       (theme-adapting · P4) */
-  --nuri-accent-bg-subtle-pressed:     var(--nuri-color-neutral-4-light);
+  --nuri-bg-canvas:                var(--nuri-color-neutral-1-light);
+  --nuri-bg-subtle:                var(--nuri-color-neutral-2-light);
+  --nuri-bg-strong:                var(--nuri-color-neutral-3-light);
+  --nuri-bg-pressed:               var(--nuri-color-neutral-4-light);
+  --nuri-bg-inverse:               var(--nuri-color-neutral-1-dark);
+  --nuri-bg-inverse-muted:         var(--nuri-color-neutral-11-light);
+  --nuri-text-primary:             var(--nuri-color-neutral-12-light);
+  --nuri-text-muted:               var(--nuri-color-neutral-11-light);
+  --nuri-text-on-inverse:          var(--nuri-color-neutral-12-dark);
+  --nuri-border-subtle:            var(--nuri-color-neutral-6-light);
+  --nuri-border-default:           var(--nuri-color-neutral-7-light);
+  --nuri-border-strong:            var(--nuri-color-neutral-8-light);
+  --nuri-focus-ring:               var(--nuri-color-lilac-8-light);
+  --nuri-accent-fg:                var(--nuri-color-neutral-12-light);
+  --nuri-accent-solid:             var(--nuri-color-neutral-1-dark);
+  --nuri-accent-solid-pressed:     var(--nuri-color-neutral-3-dark);
+  --nuri-accent-on-solid:          var(--nuri-color-neutral-12-dark);
+  --nuri-accent-bg-subtle:         var(--nuri-color-neutral-3-light);
+  --nuri-accent-bg-subtle-pressed: var(--nuri-color-neutral-4-light);
 }
 
 
-/* ══════════════════════════════════════════════════════════════
- * 2 · [data-theme="dark"] — chrome dark + neutral accent dark
- *
- * Redeclares chrome tokens (dark mode) + neutral-family accent
- * tokens (dark mode) for any wrapper that marks itself dark. Each
- * declaration carries a TERSE cross-ref back to block 1, where the
- * full resolution matrix lives (per decision 33).
- * ══════════════════════════════════════════════════════════════ */
-
+/* 2 · chrome dark + neutral accent dark (anywhere) */
 [data-theme="dark"] {
-  /* bg.canvas · dark override (matrix in block 1) */
-  --nuri-bg-canvas:        var(--nuri-color-neutral-1-dark);
-  /* bg.subtle · dark override (matrix in block 1) */
-  --nuri-bg-subtle:        var(--nuri-color-neutral-2-dark);
-  /* bg.strong · dark override (matrix in block 1) */
-  --nuri-bg-strong:        var(--nuri-color-neutral-3-dark);
-  /* bg.pressed · dark override (matrix in block 1) */
-  --nuri-bg-pressed:       var(--nuri-color-neutral-4-dark);
-  /* bg.inverse · dark override · INVERSE (matrix in block 1) */
-  --nuri-bg-inverse:       var(--nuri-color-neutral-1-light);
-  /* bg.inverse-muted · dark override (matrix in block 1) */
-  --nuri-bg-inverse-muted: var(--nuri-color-neutral-11-dark);
-
-  /* text.primary · dark override (matrix in block 1) */
-  --nuri-text-primary:     var(--nuri-color-neutral-12-dark);
-  /* text.muted · dark override (matrix in block 1) */
-  --nuri-text-muted:       var(--nuri-color-neutral-11-dark);
-  /* text.on-inverse · dark override · INVERSE (matrix in block 1) */
-  --nuri-text-on-inverse:  var(--nuri-color-neutral-12-light);
-
-  /* border.subtle · dark override (matrix in block 1) */
-  --nuri-border-subtle:    var(--nuri-color-neutral-6-dark);
-  /* border.default · dark override (matrix in block 1) */
-  --nuri-border-default:   var(--nuri-color-neutral-7-dark);
-  /* border.strong · dark override (matrix in block 1) */
-  --nuri-border-strong:    var(--nuri-color-neutral-8-dark);
-
-  /* focus.ring · dark override · still brand (matrix in block 1) */
-  --nuri-focus-ring:       var(--nuri-color-lilac-8-dark);
-
-  /* accent.fg · neutral dark same-scale (matrix in block 1) */
-  --nuri-accent-fg:                    var(--nuri-color-neutral-12-dark);
-  /* accent.solid · neutral dark INVERSE (matrix in block 1) */
-  --nuri-accent-solid:                 var(--nuri-color-neutral-1-light);
-  /* accent.solid-pressed · neutral dark INVERSE (matrix in block 1) */
-  --nuri-accent-solid-pressed:         var(--nuri-color-neutral-3-light);
-  /* accent.on-solid · neutral dark INVERSE (matrix in block 1) */
-  --nuri-accent-on-solid:              var(--nuri-color-neutral-12-light);
-  /* accent.bg-subtle · neutral dark same-scale (matrix in block 1) */
-  --nuri-accent-bg-subtle:             var(--nuri-color-neutral-3-dark);
-  /* accent.bg-subtle-pressed · neutral dark same-scale (matrix in block 1) */
-  --nuri-accent-bg-subtle-pressed:     var(--nuri-color-neutral-4-dark);
+  --nuri-bg-canvas:                var(--nuri-color-neutral-1-dark);
+  --nuri-bg-subtle:                var(--nuri-color-neutral-2-dark);
+  --nuri-bg-strong:                var(--nuri-color-neutral-3-dark);
+  --nuri-bg-pressed:               var(--nuri-color-neutral-4-dark);
+  --nuri-bg-inverse:               var(--nuri-color-neutral-1-light);
+  --nuri-bg-inverse-muted:         var(--nuri-color-neutral-11-dark);
+  --nuri-text-primary:             var(--nuri-color-neutral-12-dark);
+  --nuri-text-muted:               var(--nuri-color-neutral-11-dark);
+  --nuri-text-on-inverse:          var(--nuri-color-neutral-12-light);
+  --nuri-border-subtle:            var(--nuri-color-neutral-6-dark);
+  --nuri-border-default:           var(--nuri-color-neutral-7-dark);
+  --nuri-border-strong:            var(--nuri-color-neutral-8-dark);
+  --nuri-focus-ring:               var(--nuri-color-lilac-8-dark);
+  --nuri-accent-fg:                var(--nuri-color-neutral-12-dark);
+  --nuri-accent-solid:             var(--nuri-color-neutral-1-light);
+  --nuri-accent-solid-pressed:     var(--nuri-color-neutral-3-light);
+  --nuri-accent-on-solid:          var(--nuri-color-neutral-12-light);
+  --nuri-accent-bg-subtle:         var(--nuri-color-neutral-3-dark);
+  --nuri-accent-bg-subtle-pressed: var(--nuri-color-neutral-4-dark);
 }
 
 
-/* ══════════════════════════════════════════════════════════════
- * 3 · [data-accent="neutral"] — explicit neutral accent · light
- *
- * Redeclares neutral-family accent tokens for nested wrappers that
- * mark themselves "neutral" inside a non-neutral ancestor (e.g.,
- * a lilac root). Mirrors block 1's neutral values; terse cross-refs
- * point to block 1 for the full matrix (per decision 33).
- * ══════════════════════════════════════════════════════════════ */
-
+/* 3 · explicit neutral accent · light (anywhere · nested override) */
 [data-accent="neutral"] {
-  /* accent.fg · explicit neutral nested · light · same-scale (matrix in block 1) */
-  --nuri-accent-fg:                    var(--nuri-color-neutral-12-light);
-  /* accent.solid · explicit neutral nested · light · INVERSE (matrix in block 1) */
-  --nuri-accent-solid:                 var(--nuri-color-neutral-1-dark);
-  /* accent.solid-pressed · explicit neutral nested · light · INVERSE (matrix in block 1) */
-  --nuri-accent-solid-pressed:         var(--nuri-color-neutral-3-dark);
-  /* accent.on-solid · explicit neutral nested · light · INVERSE (matrix in block 1) */
-  --nuri-accent-on-solid:              var(--nuri-color-neutral-12-dark);
-  /* accent.bg-subtle · explicit neutral nested · light · same-scale (matrix in block 1) */
-  --nuri-accent-bg-subtle:             var(--nuri-color-neutral-3-light);
-  /* accent.bg-subtle-pressed · explicit neutral nested · light · same-scale (matrix in block 1) */
-  --nuri-accent-bg-subtle-pressed:     var(--nuri-color-neutral-4-light);
+  --nuri-accent-fg:                var(--nuri-color-neutral-12-light);
+  --nuri-accent-solid:             var(--nuri-color-neutral-1-dark);
+  --nuri-accent-solid-pressed:     var(--nuri-color-neutral-3-dark);
+  --nuri-accent-on-solid:          var(--nuri-color-neutral-12-dark);
+  --nuri-accent-bg-subtle:         var(--nuri-color-neutral-3-light);
+  --nuri-accent-bg-subtle-pressed: var(--nuri-color-neutral-4-light);
 }
 
 
-/* ══════════════════════════════════════════════════════════════
- * 4 · [data-accent="neutral"][data-theme="dark"] — combined attrs
- *
- * Specificity (0,2,0) — wins over single-attr blocks above. Mirrors
- * block 2's neutral values for nested-explicit dark wrappers; terse
- * cross-refs point to block 1 for the full matrix (per decision 33).
- * ══════════════════════════════════════════════════════════════ */
-
+/* 4 · neutral accent dark · SAME element carries both attrs (specificity 0,2,0) */
 [data-accent="neutral"][data-theme="dark"] {
-  /* accent.fg · explicit neutral nested · dark · same-scale (matrix in block 1) */
-  --nuri-accent-fg:                    var(--nuri-color-neutral-12-dark);
-  /* accent.solid · explicit neutral nested · dark · INVERSE (matrix in block 1) */
-  --nuri-accent-solid:                 var(--nuri-color-neutral-1-light);
-  /* accent.solid-pressed · explicit neutral nested · dark · INVERSE (matrix in block 1) */
-  --nuri-accent-solid-pressed:         var(--nuri-color-neutral-3-light);
-  /* accent.on-solid · explicit neutral nested · dark · INVERSE (matrix in block 1) */
-  --nuri-accent-on-solid:              var(--nuri-color-neutral-12-light);
-  /* accent.bg-subtle · explicit neutral nested · dark · same-scale (matrix in block 1) */
-  --nuri-accent-bg-subtle:             var(--nuri-color-neutral-3-dark);
-  /* accent.bg-subtle-pressed · explicit neutral nested · dark · same-scale (matrix in block 1) */
-  --nuri-accent-bg-subtle-pressed:     var(--nuri-color-neutral-4-dark);
+  --nuri-accent-fg:                var(--nuri-color-neutral-12-dark);
+  --nuri-accent-solid:             var(--nuri-color-neutral-1-light);
+  --nuri-accent-solid-pressed:     var(--nuri-color-neutral-3-light);
+  --nuri-accent-on-solid:          var(--nuri-color-neutral-12-light);
+  --nuri-accent-bg-subtle:         var(--nuri-color-neutral-3-dark);
+  --nuri-accent-bg-subtle-pressed: var(--nuri-color-neutral-4-dark);
 }
 
 
-/* ══════════════════════════════════════════════════════════════
- * 4b · [data-theme="dark"] [data-accent="neutral"] — self-scoped neutral under a dark ancestor
- *
- * Specificity (0,2,0) — same as block 4, but the DESCENDANT form:
- * matches an element that self-scopes data-accent="neutral" (Tier 2)
- * while a dark theme lives on an ANCESTOR, not on the element itself.
- * Without this, block 3 re-declares the LIGHT neutral values at the
- * element and clobbers the dark values inherited from the ancestor
- * scope (block 4 can't match — the element has no data-theme). Values
- * mirror block 4 exactly (neutral dark); terse cross-refs point to
- * block 1 for the full matrix. See the "Why #4b / #6b exist" note at
- * the top of this file (decision 63 · N+15) — including the
- * nearest-vs-any-ancestor limitation.
- * ══════════════════════════════════════════════════════════════ */
-
+/* 4b · neutral accent dark · SELF-SCOPED under a dark ancestor (decision 63 · 0,2,0) */
 [data-theme="dark"] [data-accent="neutral"] {
-  /* accent.fg · self-scoped neutral · dark ancestor · same-scale (matrix in block 1) */
-  --nuri-accent-fg:                    var(--nuri-color-neutral-12-dark);
-  /* accent.solid · self-scoped neutral · dark ancestor · INVERSE (matrix in block 1) */
-  --nuri-accent-solid:                 var(--nuri-color-neutral-1-light);
-  /* accent.solid-pressed · self-scoped neutral · dark ancestor · INVERSE (matrix in block 1) */
-  --nuri-accent-solid-pressed:         var(--nuri-color-neutral-3-light);
-  /* accent.on-solid · self-scoped neutral · dark ancestor · INVERSE (matrix in block 1) */
-  --nuri-accent-on-solid:              var(--nuri-color-neutral-12-light);
-  /* accent.bg-subtle · self-scoped neutral · dark ancestor · same-scale (matrix in block 1) */
-  --nuri-accent-bg-subtle:             var(--nuri-color-neutral-3-dark);
-  /* accent.bg-subtle-pressed · self-scoped neutral · dark ancestor · same-scale (matrix in block 1) */
-  --nuri-accent-bg-subtle-pressed:     var(--nuri-color-neutral-4-dark);
+  --nuri-accent-fg:                var(--nuri-color-neutral-12-dark);
+  --nuri-accent-solid:             var(--nuri-color-neutral-1-light);
+  --nuri-accent-solid-pressed:     var(--nuri-color-neutral-3-light);
+  --nuri-accent-on-solid:          var(--nuri-color-neutral-12-light);
+  --nuri-accent-bg-subtle:         var(--nuri-color-neutral-3-dark);
+  --nuri-accent-bg-subtle-pressed: var(--nuri-color-neutral-4-dark);
 }
 
 
-/* ══════════════════════════════════════════════════════════════
- * 5 · [data-accent="lilac"] — lilac accent · light
- *
- * Canonical declaration block for lilac-family accent tokens. Each
- * declaration below carries a Format B inline comment showing the
- * full lilac resolution matrix (per decision 33). P4-frozen tokens
- * note that block 6 intentionally OMITS them; theme-adapting tokens
- * point at block 6 for their dark side.
- *
- * Chrome (bg / text / border) is unaffected by accent choice.
- * ══════════════════════════════════════════════════════════════ */
-
+/* 5 · lilac accent · light (anywhere) */
 [data-accent="lilac"] {
-  /* accent.fg · lilac · readable brand on neutral bg · adapts per theme
-   *   light: lilac-12-light    dark: lilac-12-dark   (block 6 redeclares) */
-  --nuri-accent-fg:                    var(--nuri-color-lilac-12-light);
-
-  /* accent.solid · lilac brand · FROZEN per P4
-   *   light: lilac-9-light     dark: lilac-9-light   (block 6 intentionally omits) */
-  --nuri-accent-solid:                 var(--nuri-color-lilac-9-light);
-
-  /* accent.solid-pressed · lilac brand pressed · FROZEN per P4
-   *   light: lilac-10-light    dark: lilac-10-light  (block 6 intentionally omits) */
-  --nuri-accent-solid-pressed:         var(--nuri-color-lilac-10-light);
-
-  /* accent.on-solid · dark text on brand bg · FROZEN per P4
-   *   light: lilac-12-light    dark: lilac-12-light  (block 6 intentionally omits) */
-  --nuri-accent-on-solid:              var(--nuri-color-lilac-12-light);
-
-  /* accent.bg-subtle · lilac tag / pill bg · adapts per theme
-   *   light: lilac-3-light     dark: lilac-3-dark    (block 6 redeclares) */
-  --nuri-accent-bg-subtle:             var(--nuri-color-lilac-3-light);
-
-  /* accent.bg-subtle-pressed · lilac soft variant press · adapts per theme
-   *   light: lilac-4-light     dark: lilac-4-dark    (block 6 redeclares) */
-  --nuri-accent-bg-subtle-pressed:     var(--nuri-color-lilac-4-light);
+  --nuri-accent-fg:                var(--nuri-color-lilac-12-light);
+  --nuri-accent-solid:             var(--nuri-color-lilac-9-light);
+  --nuri-accent-solid-pressed:     var(--nuri-color-lilac-10-light);
+  --nuri-accent-on-solid:          var(--nuri-color-lilac-12-light);
+  --nuri-accent-bg-subtle:         var(--nuri-color-lilac-3-light);
+  --nuri-accent-bg-subtle-pressed: var(--nuri-color-lilac-4-light);
 }
 
 
-/* ══════════════════════════════════════════════════════════════
- * 6 · [data-accent="lilac"][data-theme="dark"] — lilac dark overrides
- *
- * Partial redeclare per P4. Redeclares ONLY the lilac tokens that
- * swap per theme (fg, bg-subtle, bg-subtle-pressed). The frozen
- * tokens (solid, solid-pressed, on-solid) are INTENTIONALLY ABSENT
- * — they stay at block 5's light values to keep the brand
- * recognisable across themes. Each declaration carries a terse
- * cross-ref back to block 5 (per decision 33).
- * ══════════════════════════════════════════════════════════════ */
-
+/* 6 · lilac accent dark · PARTIAL per P4 (frozen brand omitted · SAME element · 0,2,0) */
 [data-accent="lilac"][data-theme="dark"] {
-  /* accent.fg · lilac dark partial-redeclare per P4 (matrix in block 5) */
-  --nuri-accent-fg:                    var(--nuri-color-lilac-12-dark);
-  /* accent.bg-subtle · lilac dark partial-redeclare per P4 (matrix in block 5) */
-  --nuri-accent-bg-subtle:             var(--nuri-color-lilac-3-dark);
-  /* accent.bg-subtle-pressed · lilac dark partial-redeclare per P4 (matrix in block 5) */
-  --nuri-accent-bg-subtle-pressed:     var(--nuri-color-lilac-4-dark);
-  /* --nuri-accent-solid          intentionally not redefined → stays at lilac-9-light  (FROZEN · P4) */
-  /* --nuri-accent-solid-pressed  intentionally not redefined → stays at lilac-10-light (FROZEN · P4) */
-  /* --nuri-accent-on-solid       intentionally not redefined → stays at lilac-12-light (FROZEN · P4) */
+  --nuri-accent-fg:                var(--nuri-color-lilac-12-dark);
+  --nuri-accent-bg-subtle:         var(--nuri-color-lilac-3-dark);
+  --nuri-accent-bg-subtle-pressed: var(--nuri-color-lilac-4-dark);
 }
 
 
-/* ══════════════════════════════════════════════════════════════
- * 6b · [data-theme="dark"] [data-accent="lilac"] — self-scoped lilac under a dark ancestor
- *
- * Specificity (0,2,0) — the DESCENDANT twin of block 6, for an element
- * that self-scopes data-accent="lilac" (Tier 2) while a dark theme
- * lives on an ANCESTOR. Like block 6 it is a PARTIAL redeclare per P4:
- * ONLY the theme-adapting lilac tokens (fg, bg-subtle, bg-subtle-pressed)
- * — the frozen brand tokens (solid, solid-pressed, on-solid) are
- * INTENTIONALLY ABSENT here too, so a self-scoped lilac stays on the
- * recognisable brand fill in dark (block 5's light values are the frozen
- * brand; no clobber to repair). Without this, block 5 re-declares the
- * LIGHT adapters at the element, clobbering the dark adapters inherited
- * from the ancestor scope. Mirrors block 6; terse cross-refs point to
- * block 5. See the "Why #4b / #6b exist" note up top (decision 63 · N+15).
- * ══════════════════════════════════════════════════════════════ */
-
+/* 6b · lilac accent dark · SELF-SCOPED under a dark ancestor (decision 63 · partial per P4) */
 [data-theme="dark"] [data-accent="lilac"] {
-  /* accent.fg · self-scoped lilac · dark ancestor · partial-redeclare per P4 (matrix in block 5) */
-  --nuri-accent-fg:                    var(--nuri-color-lilac-12-dark);
-  /* accent.bg-subtle · self-scoped lilac · dark ancestor · partial-redeclare per P4 (matrix in block 5) */
-  --nuri-accent-bg-subtle:             var(--nuri-color-lilac-3-dark);
-  /* accent.bg-subtle-pressed · self-scoped lilac · dark ancestor · partial-redeclare per P4 (matrix in block 5) */
-  --nuri-accent-bg-subtle-pressed:     var(--nuri-color-lilac-4-dark);
-  /* --nuri-accent-solid          intentionally not redefined → stays at lilac-9-light  (FROZEN · P4) */
-  /* --nuri-accent-solid-pressed  intentionally not redefined → stays at lilac-10-light (FROZEN · P4) */
-  /* --nuri-accent-on-solid       intentionally not redefined → stays at lilac-12-light (FROZEN · P4) */
+  --nuri-accent-fg:                var(--nuri-color-lilac-12-dark);
+  --nuri-accent-bg-subtle:         var(--nuri-color-lilac-3-dark);
+  --nuri-accent-bg-subtle-pressed: var(--nuri-color-lilac-4-dark);
 }
+
+/* ════════════════ END GENERATED · the accent×theme cascade ════════════════ */
 
 
 /* ══════════════════════════════════════════════════════════════

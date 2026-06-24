@@ -96,6 +96,10 @@ import { emitDocPage, buildDocTokenInputs } from './parsers/docs.js';
 
 import { loadDimensions, flipDimensionCss } from './parsers/dimension-css.js';
 
+import { loadColours, flipColourCss } from './parsers/colour-css.js';
+
+import { loadSemanticColours, flipSemanticCss } from './parsers/semantic-css.js';
+
 import { ICONS } from '../lib/components/icon/icons.js';
 
 // Re-export so existing imports (and the primitive round-trip tests)
@@ -160,6 +164,7 @@ const REPO_ROOT = resolve(__dirname, '..');
 const PRIMITIVE_CSS    = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
 const SEMANTIC_CSS     = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
 const DIMENSIONS_SRC   = resolve(REPO_ROOT, 'pipeline/dimensions.ts');
+const COLOURS_SRC      = resolve(REPO_ROOT, 'pipeline/colours.ts');
 const COMPONENTS_DIR   = resolve(REPO_ROOT, 'lib/components');
 const JSON_OUT         = resolve(REPO_ROOT, 'build/tokens.json');
 const TS_OUT           = resolve(REPO_ROOT, 'build/tokens.ts');
@@ -240,6 +245,48 @@ async function main() {
     `${Object.keys(dims.size).length} size · ${Object.keys(dims.radius).length} radius) → styles/tokens-*.css`,
   );
 
+  // ── Slice 0 · the colour primitives · TS SoT → tokens-primitive.css (N+32 C1 · decision 70 · the second flip) ──
+  // decision 2 reverses for the colour-PRIMITIVE layer (after the dimension layer
+  // at N+31): the 7 neutral scales + lilac + the alpha scales are authored in
+  // pipeline/colours.ts and WRITTEN INTO styles/tokens-primitive.css here, before
+  // every downstream slice reads it. Same in-place PASSTHROUGH as the dimension
+  // flip — only the --nuri-color-* declarations are regenerated; the accent×theme
+  // cascade (tokens-semantic.css · decision 63) is NOT touched (that is C2). The
+  // neutral resolution (--nuri-color-neutral-* → the active scale) is baked from
+  // `neutral` (the --neutral flag · default cream) into ONE :root block — the
+  // retired runtime [data-neutral] switcher, build-time selection only. At cream
+  // the values are unchanged (tokens.ts already resolved cream since decision 31),
+  // so build/* stays byte-identical; cream ≠ gray is a web-CSS-only change.
+  const colours = await loadColours(COLOURS_SRC);
+  await flipColourCss({ primitivePath: PRIMITIVE_CSS, colours, neutral });
+  console.log(
+    `[tokens-parser] flipped the colour primitives from the TS SoT ` +
+    `(${Object.keys(colours.neutralScales).length} neutral scales · lilac · black/white alpha · ` +
+    `neutral resolution → ${neutral}) → styles/tokens-primitive.css`,
+  );
+
+  // ── Slice 0 · the colour SEMANTIC cascade · TS SoT → tokens-semantic.css (N+32 C2 · decision 70 · the cascade) ──
+  // decision 2 reverses for the colour SEMANTIC layer (the second half of the colour
+  // vertical · after the primitives at C1) → it is now FULLY reversed for colour. The
+  // accent×theme matrix (chrome + accent) is authored in pipeline/colours.ts and the
+  // cascade is GENERATED into styles/tokens-semantic.css here (parsers/semantic-css.js):
+  // the 8 blocks 1·2·3·4·4b·5·6·6b, INCLUDING the decision-63 #4b/#6b descendant-
+  // combinator self-scope that no stock token tool emits. Unlike the dimension /
+  // colour-primitive flips this is NOT a byte-identical passthrough — the cascade is
+  // regenerated (terser · the resolution matrix moved to the SoT) — but it resolves to
+  // the SAME (accent × theme) cross-product, so build/tokens.ts (the RN single-context
+  // contract · decisions 27/62/63 · no cascade, no #4b/#6b) stays byte-identical. The
+  // generated region replaces a marked span; the file header + the dimension blocks
+  // (space/size/radius · Slice 0 above) pass through verbatim.
+  const semanticColours = await loadSemanticColours(COLOURS_SRC);
+  await flipSemanticCss({ semanticPath: SEMANTIC_CSS, semanticColours });
+  console.log(
+    `[tokens-parser] flipped the accent×theme cascade from the TS SoT ` +
+    `(${Object.keys(semanticColours.chrome).length} chrome × {light,dark} · ` +
+    `${Object.keys(semanticColours.accent).length} accent × {neutral,lilac} × {light,dark} · ` +
+    `the dec-63 #4b/#6b self-scope) → styles/tokens-semantic.css`,
+  );
+
   const primitiveCSS = await readFile(PRIMITIVE_CSS, 'utf8');
   const semanticCSS  = await readFile(SEMANTIC_CSS,  'utf8');
 
@@ -251,7 +298,7 @@ async function main() {
   const jsonCount = countLeaves(tree);
 
   // ── Slice 2 · semantic-cascade → tokens.ts literals (N+5) ─────
-  const primitiveMap = buildPrimitiveMap(primitiveCSS, neutral);
+  const primitiveMap = buildPrimitiveMap(primitiveCSS);
   const semanticRules = readSemanticRules(semanticCSS);
   const resolved = resolveSemanticCrossProduct(semanticRules, primitiveMap);
   // The `type` namespace joins tokens.ts as a directly-accessed,

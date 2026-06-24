@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Nuri · C2 · accent×theme cascade computed-style parity (the dec-63 #4b/#6b anchor)</title>
+<!--
+  THE COMPUTED-STYLE ANCHOR (N+32 C2 · decision 70 · the cascade · decision 63).
+
+  Companion to the node harness (pipeline/colour-semantic.test.js). That proves
+  STRUCTURAL ≡ + the resolved matrix via the cascade walker — but the node parser
+  models (accent × theme) as a single element; it CANNOT model DOM ancestry. The
+  decision-63 #4b/#6b self-scope is precisely about ancestry: an element that
+  self-scopes data-accent while a dark theme lives on an ANCESTOR (not on itself).
+  Only a real engine resolves that. This page is THE proof the generated #4b/#6b
+  emit is faithful.
+
+  It loads the live GENERATED token CSS (styles/tokens-{primitive,semantic}.css),
+  builds nested DOM scopes, and reads getComputedStyle of a probe whose
+  background-color is var(<the token under test>) — fully resolved to an rgb.
+
+  THE anchor (cell 1): a self-scoped accent="neutral" under a [data-theme="dark"]
+  ANCESTOR resolves --nuri-accent-solid to cream-1-light rgb(255,253,242) — the
+  swap IconButton renders as a CREAM circle on the dark canvas (NOT dark-on-dark).
+
+  Oracle rgb (cream + lilac · the independent design values):
+    cream-1-light #fffdf2 = rgb(255, 253, 242)   cream-1-dark #12110b = rgb(18, 17, 11)
+    lilac-9       #beaaff = rgb(190, 170, 255)    lilac-12-dark #e3ddfa = rgb(227, 221, 250)
+
+  Served by the repo-root http-server (the preview tooling); paths are relative to
+  this page. Run via the preview tooling, then read window.__parity. NOT a CI gate
+  (the node CI has no browser) — the node harness is the gate; this is the
+  session-time gold-standard confirmation.
+-->
+<style>
+  body { font: 13px/1.5 ui-monospace, Menlo, monospace; margin: 24px; color: #1a1a1a; }
+  h1 { font-size: 15px; } #summary { font-size: 14px; font-weight: 700; padding: 8px 0; }
+  .ok { color: #137333; } .bad { color: #c5221f; font-weight: 700; }
+  table { border-collapse: collapse; margin-top: 8px; } td, th { border: 1px solid #ccc; padding: 2px 8px; text-align: left; }
+  .sw { display: inline-block; width: 18px; height: 18px; border: 1px solid #888; vertical-align: middle; }
+</style>
+<style id="tokens"></style>
+</head>
+<body>
+<h1>Nuri · C2 · accent×theme cascade computed-style parity (the dec-63 #4b/#6b anchor)</h1>
+<div id="summary">running…</div>
+<div id="stage" aria-hidden="true" style="position:absolute; visibility:hidden;"></div>
+<div id="report"></div>
+
+<script>
+// Each cell: nested ancestor scopes (outer→inner) + the probe element's own attrs +
+// the token read (as background-color) + the expected resolved rgb.
+const CELLS = [
+  {
+    id: '#4b · neutral self-scope under a DARK ancestor (THE anchor)',
+    ancestors: [{ 'data-theme': 'dark' }], el: { 'data-accent': 'neutral' },
+    read: '--nuri-accent-solid', expect: 'rgb(255, 253, 242)', // cream-1-light · visible cream, NOT dark-on-dark
+  },
+  {
+    id: 'control · neutral self-scope in LIGHT (no dark ancestor)',
+    ancestors: [], el: { 'data-accent': 'neutral' },
+    read: '--nuri-accent-solid', expect: 'rgb(18, 17, 11)', // cream-1-dark (light INVERSE)
+  },
+  {
+    id: 'control · #4 same element carries both attrs',
+    ancestors: [], el: { 'data-accent': 'neutral', 'data-theme': 'dark' },
+    read: '--nuri-accent-solid', expect: 'rgb(255, 253, 242)', // must match the #4b anchor
+  },
+  {
+    id: '#6b · lilac self-scope under a DARK ancestor · FROZEN solid (P4)',
+    ancestors: [{ 'data-theme': 'dark' }], el: { 'data-accent': 'lilac' },
+    read: '--nuri-accent-solid', expect: 'rgb(190, 170, 255)', // lilac-9 · brand stays
+  },
+  {
+    id: '#6b · lilac self-scope under a DARK ancestor · ADAPTING fg',
+    ancestors: [{ 'data-theme': 'dark' }], el: { 'data-accent': 'lilac' },
+    read: '--nuri-accent-fg', expect: 'rgb(227, 221, 250)', // lilac-12-dark
+  },
+  {
+    id: 'KNOWN LIMITATION · neutral self-scope · LIGHT nested in DARK → resolves DARK (accepted · dec-63)',
+    ancestors: [{ 'data-theme': 'dark' }, { 'data-theme': 'light' }], el: { 'data-accent': 'neutral' },
+    read: '--nuri-accent-solid', expect: 'rgb(255, 253, 242)', // descendant combinator matches the DARK ancestor — documented wrong
+    limitation: true,
+  },
+];
+
+function buildNodes() {
+  const stage = document.getElementById('stage');
+  stage.textContent = '';
+  return CELLS.map((cell) => {
+    let mount = stage;
+    for (const attrs of cell.ancestors) {
+      const wrap = document.createElement('div');
+      for (const [k, v] of Object.entries(attrs)) wrap.setAttribute(k, v);
+      mount.appendChild(wrap);
+      mount = wrap;
+    }
+    const probe = document.createElement('div');
+    for (const [k, v] of Object.entries(cell.el)) probe.setAttribute(k, v);
+    probe.style.backgroundColor = `var(${cell.read})`;
+    mount.appendChild(probe);
+    return probe;
+  });
+}
+
+async function run() {
+  const [tokP, tokS] = await Promise.all([
+    fetch('../styles/tokens-primitive.css').then((r) => r.text()),
+    fetch('../styles/tokens-semantic.css').then((r) => r.text()),
+  ]);
+  document.getElementById('tokens').textContent = tokP + '\n' + tokS;
+
+  const nodes = buildNodes();
+  const got = nodes.map((n) => getComputedStyle(n).backgroundColor.trim());
+
+  const fails = [];
+  CELLS.forEach((cell, i) => {
+    if (got[i] !== cell.expect) fails.push({ cell: cell.id, got: got[i], expect: cell.expect });
+  });
+
+  const ok = fails.length === 0;
+  window.__parity = { ok, cells: CELLS.length, failCount: fails.length, fails };
+
+  const sum = document.getElementById('summary');
+  sum.textContent = ok
+    ? `PASS · ${CELLS.length} cells · generated cascade ≡ the oracle in the real engine (the dec-63 #4b/#6b self-scope is faithful)`
+    : `FAIL · ${fails.length}/${CELLS.length} cells`;
+  sum.className = ok ? 'ok' : 'bad';
+
+  const rows = [['cell', 'reads', 'computed', 'oracle', '✓'].map((h) => `<th>${h}</th>`).join('')];
+  CELLS.forEach((cell, i) => {
+    const good = got[i] === cell.expect;
+    rows.push(
+      `<tr><td>${cell.id}</td><td>${cell.read}</td>` +
+      `<td><span class="sw" style="background:${got[i]}"></span> ${got[i]}</td>` +
+      `<td>${cell.expect}</td>` +
+      `<td class="${good ? 'ok' : 'bad'}">${good ? '✓' : '✗'}</td></tr>`,
+    );
+  });
+  document.getElementById('report').innerHTML = `<table>${rows.join('')}</table>`;
+  return window.__parity;
+}
+
+window.__parityReady = run().catch((e) => {
+  window.__parity = { ok: false, error: String((e && e.stack) || e) };
+  const s = document.getElementById('summary');
+  s.textContent = 'ERROR · ' + window.__parity.error;
+  s.className = 'bad';
+  return window.__parity;
+});
+</script>
+</body>
+</html>
