@@ -236,8 +236,8 @@ async function main() {
   await flipDimensionCss({ primitivePath: PRIMITIVE_CSS, semanticPath: SEMANTIC_CSS, dims });
   console.log(
     `[tokens-parser] flipped the dimension cascade from the TS SoT ` +
-    `(${dims.PX_SCALE.length} px · ${Object.keys(dims.SPACE).length} space · ` +
-    `${Object.keys(dims.SIZE).length} size · ${Object.keys(dims.RADIUS).length} radius) → styles/tokens-*.css`,
+    `(${Object.keys(dims.px).length} px · ${Object.keys(dims.space).length} space · ` +
+    `${Object.keys(dims.size).length} size · ${Object.keys(dims.radius).length} radius) → styles/tokens-*.css`,
   );
 
   const primitiveCSS = await readFile(PRIMITIVE_CSS, 'utf8');

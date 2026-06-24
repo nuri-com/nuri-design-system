@@ -115,7 +115,8 @@ const SIZE_FINAL = { xs: '18px', sm: '28px', md: '36px', lg: '48px', xl: '60px',
 const RADIUS_FINAL = { sm: '6px', md: '12px', lg: '18px', full: '9999px' };
 
 test('Guard C · the px scale equals the restated design oracle', () => {
-  assert.deepEqual([...dims.PX_SCALE], PX_ORACLE);
+  // The KEYS of `px` are the scale (the DTCG shape · value == name · decision 32).
+  assert.deepEqual(Object.keys(dims.px).map(Number), PX_ORACLE);
 });
 
 test('Guard C · every semantic leaf resolves to the design value — through the SoT', () => {
@@ -125,10 +126,10 @@ test('Guard C · every semantic leaf resolves to the design value — through th
     const m = rhs.match(/^var\(--nuri-px-(\d+)\)$/);
     if (!m) return rhs; // a literal (0 · 9999px)
     const n = Number(m[1]);
-    assert.ok(dims.PX_SCALE.includes(n), `--nuri-px-${n} referenced but absent from PX_SCALE`);
+    assert.ok(Object.hasOwn(dims.px, n), `--nuri-px-${n} referenced but absent from px`);
     return `${n}px`; // decision 32 · value == name
   };
-  for (const [scale, table, final] of [['SPACE', dims.SPACE, SPACE_FINAL], ['SIZE', dims.SIZE, SIZE_FINAL], ['RADIUS', dims.RADIUS, RADIUS_FINAL]]) {
+  for (const [scale, table, final] of [['space', dims.space, SPACE_FINAL], ['size', dims.size, SIZE_FINAL], ['radius', dims.radius, RADIUS_FINAL]]) {
     for (const [leaf, def] of Object.entries(table)) {
       assert.equal(sotResolve(def), final[leaf], `${scale}.${leaf} resolved through the SoT`);
     }

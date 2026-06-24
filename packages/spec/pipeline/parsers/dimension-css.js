@@ -32,49 +32,52 @@ import { readFile, writeFile } from 'node:fs/promises';
 import postcss from 'postcss';
 
 // ── load the TS SoT ────────────────────────────────────────────────
-// Strip the (deliberately trivial) TS apparatus dimensions.ts uses — only
-// single-line `export type …;` and the `const X: T =` annotations — then import
-// the self-contained data module (no runtime imports) via a data: URL.
+// Strip the (deliberately trivial) TS apparatus dimensions.ts uses — the
+// single-line `type` aliases (`export type Px …` AND the non-exported
+// `type Leaf …`) and the trailing `as const` / `as const satisfies …` suffixes
+// — then import the self-contained data module (no runtime imports) via a
+// data: URL. The runtime value of every const is just its object literal.
 export function stripTypes(src) {
   return src
-    .replace(/^export type .*;\n/gm, '')
-    .replace(/^((?:export )?const \w+): [^=\n]+ = /gm, '$1 = ');
+    .replace(/^(?:export )?type .*;\n/gm, '')              // drop `export type` AND bare `type` aliases
+    .replace(/ as const(?: satisfies [^;\n]+)?;/g, ';');   // drop the const-assertion / `satisfies` suffixes
 }
 
 export async function loadDimensions(dimensionsTsPath) {
   const src = await readFile(dimensionsTsPath, 'utf8');
   const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypes(src)));
-  // A strip regression must fail LOUD here, not silently emit garbage.
-  if (!Array.isArray(mod.PX_SCALE) || mod.PX_SCALE.length === 0) {
-    throw new Error('[dimension-css] loadDimensions: PX_SCALE missing/empty (strip regression?)');
-  }
-  for (const name of ['SPACE', 'SIZE', 'RADIUS']) {
+  // A strip regression must fail LOUD here, not silently emit garbage: every
+  // SoT table must survive the strip as a non-empty object.
+  for (const name of ['px', 'space', 'size', 'radius']) {
     if (!mod[name] || typeof mod[name] !== 'object' || !Object.keys(mod[name]).length) {
       throw new Error(`[dimension-css] loadDimensions: ${name} missing/empty (strip regression?)`);
     }
   }
-  return { PX_SCALE: mod.PX_SCALE, SPACE: mod.SPACE, SIZE: mod.SIZE, RADIUS: mod.RADIUS };
+  return { px: mod.px, space: mod.space, size: mod.size, radius: mod.radius };
 }
 
 // ── SoT leaf → the CSS declaration RHS ──────────────────────────────
-// A px reference becomes `var(--nuri-px-N)` (the cascade); a literal is emitted
-// verbatim. The shape is exhaustive over DimLeaf — an unrecognised leaf throws.
+// A reference (`{ ref: N }`) becomes `var(--nuri-px-N)` (the cascade); a
+// structured literal (`{ value, unit }`) becomes its CSS spelling — 0 stays
+// unitless `0` by Nuri convention (decision 32), else `${value}px`. The shape
+// is exhaustive over Leaf — an unrecognised leaf throws.
 export function leafRhs(leaf) {
-  if (leaf && typeof leaf.px === 'number') return `var(--nuri-px-${leaf.px})`;
-  if (leaf && typeof leaf.literal === 'string') return leaf.literal;
-  throw new Error(`[dimension-css] leaf is neither { px } nor { literal }: ${JSON.stringify(leaf)}`);
+  if (leaf && 'ref' in leaf) return `var(--nuri-px-${leaf.ref})`;
+  if (leaf && typeof leaf.value === 'number') return leaf.value === 0 ? '0' : `${leaf.value}px`;
+  throw new Error(`[dimension-css] leaf is neither { ref } nor { value, unit }: ${JSON.stringify(leaf)}`);
 }
 
 // ── SoT → the { cssVar → RHS } maps the rewriter applies, one per file ──
-// Primitive file: the --nuri-px-N scale (value == name · decision 32).
-export function primitiveDimMap({ PX_SCALE }) {
-  return new Map(PX_SCALE.map((n) => [`--nuri-px-${n}`, `${n}px`]));
+// Primitive file: the --nuri-px-N scale (value == name · decision 32). The KEYS
+// of `px` ARE the scale (the DTCG shape · no array restated).
+export function primitiveDimMap({ px }) {
+  return new Map(Object.keys(px).map((n) => [`--nuri-px-${n}`, `${n}px`]));
 }
 
 // Semantic file: the space/size/radius leaves → var(--nuri-px-N) | literal.
-export function semanticDimMap({ SPACE, SIZE, RADIUS }) {
+export function semanticDimMap({ space, size, radius }) {
   const map = new Map();
-  for (const [scale, table] of [['space', SPACE], ['size', SIZE], ['radius', RADIUS]]) {
+  for (const [scale, table] of [['space', space], ['size', size], ['radius', radius]]) {
     for (const [leaf, def] of Object.entries(table)) {
       map.set(`--nuri-${scale}-${leaf}`, leafRhs(def));
     }
