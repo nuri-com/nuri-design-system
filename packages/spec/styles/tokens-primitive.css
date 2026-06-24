@@ -547,7 +547,12 @@
    * N pixels. No indexed scale; future additions arrive only when
    * a semantic or component consumer materialises (P11 parsimony,
    * decision 32). N+6.0 retires the prior --nuri-size-{0..12}
-   * indexed scale. */
+   * indexed scale.
+   *
+   * N+31 · these --nuri-px-* values are GENERATED from the TS SoT
+   * (pipeline/dimensions.ts · decision 70 · dec-2 reversed for the dimension
+   * layer). Edit the SoT, not here — `npm run build` regenerates them in place
+   * (Slice 0). The --nuri-radius-* primitives below stay hand-authored. */
   --nuri-px-2:    2px;
   --nuri-px-4:    4px;
   --nuri-px-6:    6px;

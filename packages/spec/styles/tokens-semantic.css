@@ -462,6 +462,9 @@
  * ══════════════════════════════════════════════════════════════ */
 
 :root {
+  /* N+31 · GENERATED from the TS SoT (pipeline/dimensions.ts · decision 70 ·
+   * dec-2 reversed for the dimension layer). Edit the SoT, not these values —
+   * `npm run build` regenerates them in place (Slice 0). */
   /* space.none · the zero leaf · a flush hairline (Separator y-space="none"),
    * a collapsed gutter · literal 0 (decision 32 retired --nuri-px-0; 0 needs no
    * primitive). Added N+8.1 alongside the Separator y-space prop. */
@@ -496,6 +499,9 @@
  * ══════════════════════════════════════════════════════════════ */
 
 :root {
+  /* N+31 · GENERATED from the TS SoT (pipeline/dimensions.ts · decision 70 ·
+   * dec-2 reversed for the dimension layer). Edit the SoT, not these values —
+   * `npm run build` regenerates them in place (Slice 0). */
   /* size.xs  · smallest element · inline tag / chip height */
   --nuri-size-xs:  var(--nuri-px-18);
   /* size.sm  · compact element · dense list-item height, indicator dot */
@@ -530,6 +536,10 @@
  * ══════════════════════════════════════════════════════════════ */
 
 :root {
+  /* N+31 · sm/md/lg GENERATED from the TS SoT (pipeline/dimensions.ts ·
+   * decision 70 · dec-2 reversed for the dimension layer · `full` is the 9999px
+   * literal sentinel). Edit the SoT, not these values — `npm run build`
+   * regenerates them in place (Slice 0). */
   /* radius.sm   · tight softening · dense controls, inline chips */
   --nuri-radius-sm:   var(--nuri-px-6);
   /* radius.md   · default softening · cards, inputs, mid-scale controls */
