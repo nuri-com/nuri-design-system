@@ -1,0 +1,33 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · NAMESPACE CSS · INTERACTIVE · GENERATED · SHADOW · DO NOT EDIT / DO NOT REPOINT
+ *
+ * The L3b·2 reversible shadow (decision 70 · docs/cascade.md L3 · the second
+ * bespoke axis · decision 67 / 73). GENERATED from the interactive EFFECT set
+ * (pipeline/interactive-effects.ts) by pipeline/css-preview.js — the inverse-
+ * spelling of flattenPart (packages/rn/factory/resolve.ts). SHADOW OUTPUT —
+ * proven structurally + computed-style EQUIVALENT to the hand SoT
+ * lib/components/interactive/interactive.css (the parity oracle · pipeline/
+ * interactive-css.test.js), but NOTHING points at this file: the live web factory
+ * + pages still load the hand CSS, and the RN factory realizes these effects as
+ * state patches (flattenPart). It exists to PROVE "one TS effect set → the web
+ * interactive CSS" without flipping anything. The rule order is LOAD-BEARING —
+ * pressScale before disabledGuard so a disabled control's transform resolves to
+ * none (the equal-specificity pair · the order guard proves it). The L3c flip (a
+ * later session) makes this the source and retires the hand CSS + the recipe layer.
+ * NEVER hand-edit — re-run pipeline/css-preview.js.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design (decision 37 · the Stack/Box/Palette pattern). interactive
+   * dispatches the shared --nuri-interaction-* / --nuri-focus-ring / --nuri-
+   * duration-fast vocabulary directly in `@layer rules`; a --nuri-interactive-*
+   * alias would be useless indirection. Mirrors the hand interactive.css. */
+}
+
+@layer rules {
+  .nuri-interactive { cursor: pointer; transition: background-color var(--nuri-duration-fast) ease, transform var(--nuri-duration-fast) ease; }
+  .nuri-interactive:focus-visible { outline: 2px solid var(--nuri-focus-ring); outline-offset: 2px; }
+  .nuri-interactive[data-press-scale]:active { transform: scale(var(--nuri-interaction-press-scale)); }
+  .nuri-interactive[aria-disabled="true"]:active { transform: none; }
+  .nuri-interactive:disabled, .nuri-interactive[aria-disabled="true"] { opacity: var(--nuri-interaction-disabled-opacity); }
+}
