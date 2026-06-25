@@ -64,8 +64,6 @@ const REPO_ROOT = resolve(__dirname, '..');
 const CSS_PATH = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
 const SEMANTIC_CSS_PATH = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
 const BUTTON_CSS_PATH = resolve(REPO_ROOT, 'lib/components/button/button.css');
-const ICON_BUTTON_CSS_PATH = resolve(REPO_ROOT, 'lib/components/icon-button/icon-button.css');
-const TAB_BAR_CSS_PATH = resolve(REPO_ROOT, 'lib/components/tab-bar/tab-bar.css');
 const JSON_PATH = resolve(REPO_ROOT, 'build/tokens.json');
 const TS_PATH = resolve(REPO_ROOT, 'build/tokens.ts');
 const INTERACTION_TS_PATH = resolve(REPO_ROOT, 'build/interaction.ts');
@@ -683,7 +681,7 @@ test('SET_POLICY mechanism · auto-rule + orphan + missing-entry checks throw', 
 // fresh parse. The TokenPath union at build/token-paths.ts derives from
 // every runtime-set leaf (the semantic cascade · independent of this walk).
 // ──────────────────────────────────────────────────────────────
-test('per-component resolve · resolveComponentValue dispatch (button · icon-button · tab-bar) + token-paths.ts covers runtime leaves', async () => {
+test('per-component resolve · resolveComponentValue dispatch (button) + token-paths.ts covers runtime leaves', async () => {
   // 1. token-paths.ts union covers every runtime-set leaf.
   const tokenPaths = await readFile(TOKEN_PATHS_PATH, 'utf8');
   const semanticCSS = await readFile(SEMANTIC_CSS_PATH, 'utf8');
@@ -777,57 +775,12 @@ test('per-component resolve · resolveComponentValue dispatch (button · icon-bu
     { kind: 'literal', expression: '0.97' },
   );
 
-  // ── 3. IconButton (decision 40) · fresh-parse dispatch ──────
-  // IconButton carries its own --nuri-icon-button-* namespace: a
-  // single-size box (decision 40) + the shared 3-variant matrix
-  // including ghost (decision 39). resolveComponentValue dispatches the
-  // box geometry to a size TokenPath and the ghost rest to a literal.
-  {
-  const iconButtonCss = await readFile(ICON_BUTTON_CSS_PATH, 'utf8');
-  const primitiveCss = await readFile(CSS_PATH, 'utf8');
-  const semanticCSS = await readFile(SEMANTIC_CSS_PATH, 'utf8');
-  const groups = classifyAll(readSemanticRules(semanticCSS));
-  const decls = readComponentTokens(iconButtonCss, '--nuri-icon-button-');
-  assert.ok(decls.length > 0, 'readComponentTokens dropped every icon-button declaration');
-  const ctx = {
-    primitives: buildPrimitiveMap(primitiveCss),
-    classifiedGroups: groups,
-  };
-  const size = decls.find((d) => d.cssVar === '--nuri-icon-button-size');
-  const ghostBg = decls.find((d) => d.cssVar === '--nuri-icon-button-ghost-bg');
-  assert.deepEqual(
-    resolveComponentValue(size.cssVar, size.value, ctx),
-    { kind: 'tokenPath', path: 'size.lg' },
-  );
-  assert.deepEqual(
-    resolveComponentValue(ghostBg.cssVar, ghostBg.value, ctx),
-    { kind: 'literal', expression: "'transparent'" },
-  );
-  }
-
-  // ── 4. TabBar (decision 56) · fresh-parse dispatch ──────
-  // The icon-only bottom destination switcher (N+9) bakes exactly ONE
-  // fixed decision — its bar height (--nuri-size-xl, shared with Topbar's
-  // chrome row) — and dispatches everything else from the semantic
-  // vocabulary directly in @layer rules (EMIT vs skip-emit · decision 52).
-  {
-  const tabBarCss = await readFile(TAB_BAR_CSS_PATH, 'utf8');
-  const primitiveCss = await readFile(CSS_PATH, 'utf8');
-  const semanticCSS = await readFile(SEMANTIC_CSS_PATH, 'utf8');
-  const groups = classifyAll(readSemanticRules(semanticCSS));
-  const decls = readComponentTokens(tabBarCss, '--nuri-tab-bar-');
-  assert.equal(decls.length, 1,
-    'tab-bar @layer tokens must declare exactly one component token (the baked height)');
-  const ctx = {
-    primitives: buildPrimitiveMap(primitiveCss),
-    classifiedGroups: groups,
-  };
-  const height = decls.find((d) => d.cssVar === '--nuri-tab-bar-height');
-  assert.deepEqual(
-    resolveComponentValue(height.cssVar, height.value, ctx),
-    { kind: 'tokenPath', path: 'size.xl' },
-  );
-  }
+  // (IconButton · TabBar fresh-parse dispatch sub-tests removed at N+36 —
+  // both components were quarantined to legacy. Button above already
+  // exercises every resolveComponentValue dispatch KIND: tokenPath via
+  // size / radius / accent / chrome, and literal via transparent / the
+  // interaction-baseline numeric. The archived recipes carry no active
+  // test coverage by design — see roadmap/N+36-legacy-archive.md.)
 });
 
 

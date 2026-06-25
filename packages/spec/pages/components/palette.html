@@ -33,9 +33,6 @@
   <!-- Button · the SoT witness for the pressed checkpoint — the merged
        interactive node must press pixel-identical to a live <nuri-button>. -->
   <link rel="stylesheet" href="../../lib/components/button/button.css" />
-  <!-- Tabs · the live impl consumer (its tablist surface is a merged
-       box ⊕ palette node composed by tabs.js · amendment 42.1). -->
-  <link rel="stylesheet" href="../../lib/components/tabs/tabs.css" />
   <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
 
   <script src="../../lib/docs/control/control.js" defer></script>
@@ -46,7 +43,6 @@
   <script src="../../lib/components/scope/scope.js" defer></script>
   <script src="../../lib/components/stack/stack.js" defer></script>
   <script src="../../lib/components/button/button.js" defer></script>
-  <script src="../../lib/components/tabs/tabs.js" defer></script>
   <script src="../../lib/docs/demo/demo.js" defer></script>
 </head>
 <body>
@@ -284,16 +280,6 @@
               <div class="nuri-box nuri-palette" data-variant="solid" data-radius="md" data-padding="lg">scoped neutral</div>
             </nuri-scope>
           </nuri-stack>
-        </template>
-      </nuri-demo>
-
-      <nuri-demo label="living consumer · Tabs" subtitle="tabs.js composes class=&quot;nuri-box nuri-palette&quot; data-chrome=&quot;strong&quot; data-radius=&quot;md&quot; data-padding=&quot;xs&quot;" controls="theme accent">
-        <template>
-          <nuri-tabs value="overview">
-            <nuri-tab value="overview">Overview</nuri-tab>
-            <nuri-tab value="activity">Activity</nuri-tab>
-            <nuri-tab value="settings">Settings</nuri-tab>
-          </nuri-tabs>
         </template>
       </nuri-demo>
     </div>

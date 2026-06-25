@@ -202,13 +202,18 @@ const BROWSER_DESCRIPTOR_COMPONENTS = ['composition-button', 'icon-avatar', 'top
 // TokenPath coverage for the build log and keeps the resolver
 // (readComponentTokens · resolveComponentValue) exercised end-to-end.
 //
-// 'tabs' (decision 43) matches the exact `--nuri-tabs-` prefix (the
-// `--nuri-tab-` option tokens stay web-CSS-only). Layout primitives
-// (decision 37) · visual atoms like Icon (decision 38) · 'palette'
-// (N+19 B2b · decision 65.3 §6) carry an empty `@layer tokens` and
-// contribute no paths; 'palette' emits its MAPPING through the dedicated
-// Slice 7 below (build/palette.ts · pipeline/parsers/palette.js).
-const COMPONENTS = ['button', 'stack', 'box', 'screen', 'scroll', 'spacer', 'icon', 'icon-button', 'icon-avatar', 'list', 'list-item', 'list-interactive-item', 'nav-item', 'separator', 'switch', 'tab-bar', 'tabs', 'topbar', 'typography', 'typography-stack', 'palette'];
+// N+36 · the pre-axes hand recipes (icon-button · list · list-item ·
+// list-interactive-item · nav-item · switch · tab-bar · tabs ·
+// typography-stack) were quarantined to legacy and dropped from this
+// walk — the active set is now {primitives + the 3 descriptor recipes}.
+// The walk feeds ONLY the build LOG (componentReports); it is independent
+// of every build/ artefact (the TokenPath union derives from
+// classifiedGroups · Slice 5), so the drop is build-output-neutral.
+// Layout primitives (decision 37) · visual atoms like Icon (decision 38) ·
+// 'palette' (N+19 B2b · decision 65.3 §6) carry an empty `@layer tokens`
+// and contribute no paths; 'palette' emits its MAPPING through the
+// dedicated Slice 7 below (build/palette.ts · pipeline/parsers/palette.js).
+const COMPONENTS = ['button', 'stack', 'box', 'screen', 'scroll', 'spacer', 'icon', 'icon-avatar', 'separator', 'topbar', 'typography', 'palette'];
 
 // Parse the orchestrator's CLI flag `--neutral=<scale>` from argv
 // (decision 31). Default = DEFAULT_NEUTRAL. validateNeutral throws on
