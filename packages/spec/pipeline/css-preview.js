@@ -2,15 +2,17 @@
  * NURI · CSS-PREVIEW RUNNER (the L3 reversible shadow · decision 70)
  * ──────────────────────────────────────────────────────────────────
  * Generates the SHADOW namespace CSS — build/css-preview/{box,stack,palette,
- * interactive}.css — from the TS SoTs:
+ * interactive,typography}.css — from the TS SoTs:
  *   · box + stack  ← the agnostic Field table (resolve-map.ts) via namespace-css.js
  *                    (L3.1 · "three platforms, one table" · the S1 promise).
  *   · palette      ← the bespoke SURFACE role table (palette-surface.ts) via
  *                    palette-css.js (L3b·1 · the first bespoke axis · decision 67).
  *   · interactive  ← the bespoke EFFECT set (interactive-effects.ts) via
  *                    interactive-css.js (L3b·2 · the second bespoke axis · dec 67/73).
- * palette + interactive are NOT NS_SPECs (not Field-table members · bespoke shapes) —
- * each is a separate call alongside the NS_SPECS loop.
+ *   · typography   ← the bespoke AXIS (typography-axis.ts · shell + muted/align) via
+ *                    typography-css.js (L3.1b · the third/last bespoke axis · dec 67/73).
+ * palette + interactive + typography are NOT NS_SPECs (not Field-table members · bespoke
+ * shapes) — each is a separate call alongside the NS_SPECS loop.
  *
  * STANDALONE · NOT wired into `npm run build` — nothing live changes (the shadow
  * anti-goal). Run on demand:  node pipeline/css-preview.js
@@ -35,6 +37,7 @@ import {
 } from './parsers/namespace-css.js';
 import { loadSurface, emitPaletteCss } from './parsers/palette-css.js';
 import { loadEffects, emitInteractiveCss } from './parsers/interactive-css.js';
+import { loadAxis, emitTypographyCss } from './parsers/typography-css.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..'); // packages/spec
@@ -47,6 +50,8 @@ const SEMANTIC_CSS = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
 const SURFACE_TS = resolve(REPO_ROOT, 'pipeline/palette-surface.ts');
 // The bespoke interactive SoT — likewise a local pipeline/ SoT.
 const EFFECTS_TS = resolve(REPO_ROOT, 'pipeline/interactive-effects.ts');
+// The bespoke typography SoT — likewise a local pipeline/ SoT (the shell + muted/align).
+const TYPOGRAPHY_TS = resolve(REPO_ROOT, 'pipeline/typography-axis.ts');
 const OUT_DIR = resolve(REPO_ROOT, 'build/css-preview');
 
 // Generate the shadow CSS for every NS_SPEC (the agnostic Field-table axes) —
@@ -82,15 +87,29 @@ export async function generateInteractive() {
   return { ns: 'interactive', css: emitInteractiveCss(effects) };
 }
 
+// Generate the SHADOW typography namespace CSS from the bespoke AXIS — exported (like
+// generatePalette/generateInteractive) so typography-css.test.js re-runs the SAME
+// generation in-memory. typography is bespoke (decision 67/73 · a real element wrapper
+// with a shell, unlike palette/interactive's merged node), hence a separate call.
+export async function generateTypography() {
+  const axis = await loadAxis(TYPOGRAPHY_TS);
+  return { ns: 'typography', css: emitTypographyCss(axis) };
+}
+
 async function main() {
-  const generated = [...(await generateAll()), await generatePalette(), await generateInteractive()];
+  const generated = [
+    ...(await generateAll()),
+    await generatePalette(),
+    await generateInteractive(),
+    await generateTypography(),
+  ];
   await mkdir(OUT_DIR, { recursive: true });
   for (const { ns, css } of generated) {
     const out = resolve(OUT_DIR, `${ns}.css`);
     await writeFile(out, css, 'utf8');
     console.log(`[css-preview] generated namespace CSS '${ns}' (shadow) → ${out}`);
   }
-  console.log(`[css-preview] ${generated.length} files · proven ≡ the hand CSS by pipeline/{css-preview,palette-css,interactive-css}.test.js`);
+  console.log(`[css-preview] ${generated.length} files · proven ≡ the hand CSS by pipeline/{css-preview,palette-css,interactive-css,typography-css}.test.js`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

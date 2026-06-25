@@ -1,0 +1,36 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · NAMESPACE CSS · TYPOGRAPHY · GENERATED · SHADOW · DO NOT EDIT / DO NOT REPOINT
+ *
+ * The L3.1b reversible shadow (decision 70 · docs/cascade.md L3 · the third and
+ * LAST bespoke axis · decision 67 / 73). GENERATED from the typography AXIS
+ * (pipeline/typography-axis.ts) by pipeline/css-preview.js. SHADOW OUTPUT — proven
+ * structurally + computed-style EQUIVALENT to the hand SoT
+ * lib/components/typography/typography.css (the parity oracle · pipeline/
+ * typography-css.test.js), but NOTHING points at this file: the live web factory +
+ * pages still load the hand CSS, and the RN factory realizes muted/align as Text
+ * style (typeStyle · resolve.ts). It exists to PROVE "one TS axis → the web
+ * typography wrapper CSS" without flipping anything. This is the WRAPPER ONLY — the
+ * type SCALE (styles/typography.css · the .nuri-type-{step} utilities → --nuri-type-*
+ * primitives · {size, emphasis}) is a separate TOKEN layer, still CSS-SoT, OUT of
+ * scope (a later token flip). The display order is LOAD-BEARING — the :not(:defined)
+ * shell before the [align] dispatch so a pre-upgrade aligned node resolves display to
+ * block (the equal-specificity pair · the order guard proves it). The L3c flip (a
+ * later session) makes this the source and retires the hand CSS + the recipe layer.
+ * NEVER hand-edit — re-run pipeline/css-preview.js.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design (decision 37 · the Stack/Box/Palette/Interactive pattern).
+   * typography reuses the foundation --nuri-type-* primitives via the .nuri-type-
+   * {step} utility classes (styles/typography.css) — no component-token aliasing.
+   * Mirrors the hand typography.css. */
+}
+
+@layer rules {
+  nuri-typography { display: inline; }
+  nuri-typography:not(:defined) { display: inline; }
+  nuri-typography[data-muted] { color: var(--nuri-text-muted); }
+  nuri-typography[align="start"] { display: block; text-align: start; }
+  nuri-typography[align="center"] { display: block; text-align: center; }
+  nuri-typography[align="end"] { display: block; text-align: end; }
+}
