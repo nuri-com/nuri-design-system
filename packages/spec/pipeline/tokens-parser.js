@@ -100,6 +100,8 @@ import { loadColours, flipColourCss } from './parsers/colour-css.js';
 
 import { loadSemanticColours, flipSemanticCss } from './parsers/semantic-css.js';
 
+import { flipNamespaceCss } from './css-preview.js';
+
 import { ICONS } from '../lib/components/icon/icons.js';
 
 // Re-export so existing imports (and the primitive round-trip tests)
@@ -205,7 +207,7 @@ const BROWSER_DESCRIPTOR_COMPONENTS = ['composition-button', 'icon-avatar', 'top
 // N+36 · the pre-axes hand recipes (icon-button · list · list-item ·
 // list-interactive-item · nav-item · switch · tab-bar · tabs ·
 // typography-stack) were quarantined to legacy and dropped from this
-// walk — the active set is now {primitives + the 3 descriptor recipes}.
+// walk (N+36). N+38 · the L3c flip refined this further — see the note above COMPONENTS.
 // The walk feeds ONLY the build LOG (componentReports); it is independent
 // of every build/ artefact (the TokenPath union derives from
 // classifiedGroups · Slice 5), so the drop is build-output-neutral.
@@ -213,7 +215,11 @@ const BROWSER_DESCRIPTOR_COMPONENTS = ['composition-button', 'icon-avatar', 'top
 // 'palette' (N+19 B2b · decision 65.3 §6) carry an empty `@layer tokens`
 // and contribute no paths; 'palette' emits its MAPPING through the
 // dedicated Slice 7 below (build/palette.ts · pipeline/parsers/palette.js).
-const COMPONENTS = ['button', 'stack', 'box', 'screen', 'scroll', 'spacer', 'icon', 'icon-avatar', 'separator', 'topbar', 'typography', 'palette'];
+// N+38 · the L3c flip (decision 74) dropped the 3 descriptor recipes (button ·
+// icon-avatar · topbar) — their recipe CSS retired (factory-backed), so they no longer
+// have a `<name>.css` to walk. Build-output-neutral (the walk feeds only the build LOG ·
+// the TokenPath union derives from classifiedGroups · Slice 5 · not this walk).
+const COMPONENTS = ['stack', 'box', 'screen', 'scroll', 'spacer', 'icon', 'separator', 'typography', 'palette'];
 
 // Parse the orchestrator's CLI flag `--neutral=<scale>` from argv
 // (decision 31). Default = DEFAULT_NEUTRAL. validateNeutral throws on
@@ -290,6 +296,26 @@ async function main() {
     `(${Object.keys(semanticColours.chrome).length} chrome × {light,dark} · ` +
     `${Object.keys(semanticColours.accent).length} accent × {neutral,lilac} × {light,dark} · ` +
     `the dec-63 #4b/#6b self-scope) → styles/tokens-semantic.css`,
+  );
+
+  // ── Slice 0 · the namespace CSS · TS SoTs → lib/components/<ns>/<ns>.css (N+38 · decision 74 · the L3c flip) ──
+  // decision 2 reverses for the NAMESPACE layer (executing decision 70 · after the
+  // dimension [§71] + colour [§72] token flips). The 5 namespace axes — the agnostic
+  // box/stack (the Field table · resolve-map.ts) + the bespoke palette/interactive/
+  // typography (their pipeline/ SoTs) — are GENERATED into lib/components/<ns>/<ns>.css
+  // IN PLACE (pipeline/css-preview.js · flipNamespaceCss), retiring the hand namespace
+  // CSS. Runs AFTER the Slice-0 token flips above (it reads the freshly-written
+  // styles/tokens-semantic.css for the size/space/radius scale vocab) and BEFORE
+  // Slice 8 (derivePalette reads the now-generated palette.css + typography.css). This
+  // is the L3c flip's core: the pages link these files and the web factory styles the
+  // nuri-* merged nodes with them; the recipe layer (button/icon-avatar/topbar CSS+JS)
+  // retires alongside (the factory is the sole web renderer for the 3 descriptors).
+  // Re-emit ≡ committed is gated by pipeline/{css-preview,palette-css,interactive-css,
+  // typography-css}.test.js.
+  const namespaceReports = await flipNamespaceCss();
+  console.log(
+    `[tokens-parser] flipped the namespace CSS from the TS SoTs ` +
+    `(${namespaceReports.map((r) => r.ns).join(' · ')}) → lib/components/<ns>/<ns>.css`,
   );
 
   const primitiveCSS = await readFile(PRIMITIVE_CSS, 'utf8');
@@ -410,12 +436,11 @@ async function main() {
   // ADDITIVE at build/palette.ts: the {variant | chrome} → {bg, fg,
   // fgMuted, pressedBg} table as TokenPath data, emitted ONCE in the
   // baseline (decision 65.2). derivePalette asserts every contract
-  // cell against the CSS SoT (palette.css + the recipe CSS) before
-  // emitting — a contradiction fails the build (decision 48).
+  // cell against the namespace CSS SoT (palette.css's variant+chrome rows +
+  // typography.css's muted) before emitting — a contradiction fails the build
+  // (decision 48). The recipe-CSS cross-checks (button/icon-avatar/topbar)
+  // retired with the recipe layer (decision 74 · the L3c flip).
   const paletteSources = {
-    button:     await readFile(resolve(COMPONENTS_DIR, 'button/button.css'), 'utf8'),
-    iconAvatar: await readFile(resolve(COMPONENTS_DIR, 'icon-avatar/icon-avatar.css'), 'utf8'),
-    topbar:     await readFile(resolve(COMPONENTS_DIR, 'topbar/topbar.css'), 'utf8'),
     typography: await readFile(resolve(COMPONENTS_DIR, 'typography/typography.css'), 'utf8'),
     palette:    await readFile(resolve(COMPONENTS_DIR, 'palette/palette.css'), 'utf8'),
   };

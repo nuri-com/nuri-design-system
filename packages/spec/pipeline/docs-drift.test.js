@@ -65,11 +65,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import {
   DESCRIPTOR_COMPONENTS,
-  deriveDescriptor,
-  emitDescriptorTs,
   emitDescriptorTsFromSource,
   emitDescriptorJsFromSource,
-  descriptorBody,
   docIrFromDescriptor,
   exportNameFor,
   emitSchemaTs,
@@ -221,7 +218,7 @@ function interactiveChannels(ir) {
   return it ? Object.keys(it).filter((k) => it[k]) : [];
 }
 
-test('D · build/descriptors/* re-emits from the authored SoT + the CSS oracle proves it faithful', () => {
+test('D · build/descriptors/* re-emits from the authored SoT + the composition-form pins hold', async () => {
   // Schema · the hand-maintained pipeline source emitted (import rewritten)
   // must equal the committed build (decision 35 · stale-build / hand-edit guard).
   assert.equal(
@@ -232,7 +229,6 @@ test('D · build/descriptors/* re-emits from the authored SoT + the CSS oracle p
 
   for (const spec of DESCRIPTOR_COMPONENTS) {
     const authored = read(`pipeline/descriptors/${spec.name}.ts`);
-    const css = read(`lib/components/${spec.source}/${spec.source}.css`);
     const html = read(`pages/components/${spec.source}.html`);
 
     // ── (1) STALE-BUILD / HAND-EDIT · build/ is the passthrough of the authored
@@ -249,24 +245,18 @@ test('D · build/descriptors/* re-emits from the authored SoT + the CSS oracle p
       `build/descriptors/${spec.name}.js is stale or hand-edited — run \`npm run build\`.`,
     );
 
-    // ── (2) THE PARITY ORACLE (the inversion's safety bridge · decision 69) ·
-    // deriveDescriptor re-reads the LIVE CSS+HTML and THROWS on drift: a surface
-    // bg/fg/pressedBg off the funnel (assertSurface), a geometry decl off its
-    // scale (scaleLeaf), a press-scale/disabled effect off the interaction
-    // baseline (assertInteraction), a routed part absent from the page anatomy
-    // (assertPart), or an unknown variant modifier (assertCovered). Its rendered
-    // body must then EQUAL the authored body: derive(CSS,HTML) ≡ the authored
-    // descriptor. NOT a tautology — the LHS reads the hand CSS, the RHS the TS SoT;
-    // they agree only while the CSS still renders this descriptor (the cross-check
-    // that keeps the inversion faithful + reversible until B2 generates the CSS).
-    const ir = deriveDescriptor(spec, { css, html });
-    assert.equal(
-      descriptorBody(emitDescriptorTs(ir)),
-      descriptorBody(authored),
-      `${spec.name}: the live CSS no longer derives the authored descriptor — the ` +
-        `parity oracle failed (decision 69 · §9 step 1). Either the CSS drifted from ` +
-        `pipeline/descriptors/${spec.name}.ts, or the authored data is wrong.`,
-    );
+    // ── (2) THE COMPOSITION-FORM IR · sourced from the AUTHORED descriptor (decision
+    // 69 · the SoT) via its browser-ESM twin (node cannot import the .ts) — the SAME ir
+    // Guard G feeds emitDocPage (mirrors Slice 9). The B1 PARITY ORACLE
+    // (deriveDescriptor(CSS,HTML) re-reads the hand CSS+HTML and asserts derive ==
+    // authored) RETIRED with the recipe CSS at the L3c flip (decision 74 · the
+    // "until B2 generates the CSS" boundary decision 69 named): the descriptor is now
+    // the SOLE SoT — there is no hand recipe CSS to cross-derive from. The descriptor
+    // stays honest via Guard F (the frozen schema shape) + leg (1) re-emit freshness +
+    // leg (3) the composition-form pins below (now pinning the authored IR directly).
+    const twin = pathToFileURL(resolve(REPO_ROOT, `build/descriptors/${spec.name}.js`)).href;
+    const descriptor = (await import(twin))[exportNameFor(spec.name)];
+    const ir = docIrFromDescriptor(spec, descriptor);
 
     // ── (3) THE COMPOSITION-FORM PINS · a renamed/removed axis value, a moved
     // anatomy part, or a changed `interactive` opt-in breaks here EVEN IF the
@@ -311,20 +301,20 @@ test('D · build/descriptors/* re-emits from the authored SoT + the CSS oracle p
 // The decision-48 discipline applied to the colour namespace: the
 // {variant | chrome} → {bg, fg, fgMuted, pressedBg} mapping at
 // build/palette.ts must always re-derive from the live CSS —
-// palette.css (the web dispatch · every bg/fg cell + the gated pressed
-// `:active` swap · B2c·1) cross-asserted against the recipe CSS
-// (button.css aliases · icon-avatar.css subtle · topbar.css's chrome
-// pair · typography.css's muted fg). derivePalette THROWS on any
+// palette.css (the web dispatch · every variant + chrome bg/fg cell + the gated
+// pressed `:active` swap · B2c·1) + typography.css (the muted fg). The recipe-CSS
+// cross-checks (button/icon-avatar/topbar) retired with the recipe layer (decision
+// 74 · the L3c flip). derivePalette THROWS on any
 // cell↔CSS contradiction (incl. a stray/absent `[data-press-color]`
 // pressed row), so this test fails on the same drift `npm run build`
 // fails on; the pinned table below additionally catches a coordinated
 // CSS+build change — the operator-settled contract may only move by
 // deliberately updating this pin.
 //
-// B2c·1 also pins the pressed-dispatch witness EXPLICITLY: the new
-// palette `:active` bg swap must paint the same value the live Button
-// presses with (button.css's `:active` rules — the SoT witness the
-// parser's alias check does NOT read), i.e. the `pressedBg` column.
+// (The B2c·1 pressed-dispatch witness — which cross-checked palette.css's `:active`
+// swap against the live Button's button.css `:active` rules — retired with the recipe
+// layer · decision 74; the pressedBg is still covered by derivePalette section E.2 +
+// the EXPECTED_PALETTE pin.)
 const EXPECTED_PALETTE = {
   variant: {
     solid:  { bg: 'accent.solid',    fg: 'accent.onSolid',     pressedBg: 'accent.solidPressed' },
@@ -348,9 +338,6 @@ test('E · build/palette.ts re-derives from the CSS SoT and matches the pinned c
   // itself is the cell↔CSS guard.
   const cells = derivePalette(
     {
-      button:     read('lib/components/button/button.css'),
-      iconAvatar: read('lib/components/icon-avatar/icon-avatar.css'),
-      topbar:     read('lib/components/topbar/topbar.css'),
       typography: read('lib/components/typography/typography.css'),
       palette:    read('lib/components/palette/palette.css'),
     },
@@ -368,41 +355,12 @@ test('E · build/palette.ts re-derives from the CSS SoT and matches the pinned c
   // through to ANY cell fails here even after a re-build.
   assert.deepEqual(cells, EXPECTED_PALETTE, 'palette cells drifted from the B2b contract table');
 
-  // ── Pressed-dispatch witness (N+19 B2c·1) ──────────────────────────
-  // The palette `:active` bg swap (gated `[data-press-color]`) must
-  // paint the SAME value the live Button presses with — i.e. the
-  // `pressedBg` column build/palette.ts emits. derivePalette already
-  // cross-asserts every cell (a contradiction throws above); this pins
-  // the button.css ↔ palette.css ↔ emit equality directly against the
-  // live Button's `:active` rules — which the parser's `@layer tokens`
-  // alias check (section A) does NOT read — so a divergence reads as
-  // the bug it is (decision 48 · the SoT witness).
-  const buttonCss  = read('lib/components/button/button.css');
-  const paletteCss = read('lib/components/palette/palette.css');
-  const cap = (re, src, label) => {
-    const m = src.match(re);
-    assert.ok(m, `[docs-drift] Guard E pressed witness: expected to match ${re} (${label})`);
-    return m[1];
-  };
-  // A semantic --nuri-* var → its runtime TokenPath (the same resolution
-  // derivePalette emits), so the witness ties straight to the cells.
-  const pathFor = (cssVar) => {
-    for (const [groupName, group] of classifiedGroups) {
-      const entry = group.entries.find((e) => e.cssVar === cssVar);
-      if (entry) return `${groupName}.${entry.leafName}`;
-    }
-    return null;
-  };
-  for (const v of ['solid', 'soft', 'ghost']) {
-    // button.css `:active` rule → the pressed alias → (one hop through
-    // `@layer tokens`) the semantic var the live Button presses with.
-    const alias  = cap(new RegExp(`\\.nuri-button--${v}:active\\s*\\{\\s*background:\\s*var\\((--nuri-button-${v}-bg-pressed)\\)`), buttonCss, `button ${v} :active`);
-    const btnVar = cap(new RegExp(`${alias}:\\s*var\\((--[\\w-]+)\\)`), buttonCss, `button ${v} pressed alias`);
-    // palette.css pressed row → the semantic var it paints on `:active`.
-    const palVar = cap(new RegExp(`\\.nuri-palette\\[data-variant="${v}"\\]\\[data-press-color\\]:active\\s*\\{\\s*background:\\s*var\\((--[\\w-]+)\\)`), paletteCss, `palette ${v} pressed`);
-    assert.equal(palVar, btnVar, `palette ${v} pressed :active bg must equal the live Button's :active bg (button.css SoT witness)`);
-    assert.equal(cells.variant[v].pressedBg, pathFor(btnVar), `build/palette.ts ${v}.pressedBg must equal the live Button's :active bg as a TokenPath (button.css SoT witness · decision 48)`);
-  }
+  // The pressed-dispatch witness (N+19 B2c·1) — which cross-checked palette.css's gated
+  // [data-press-color]:active bg swap against the live Button's button.css `:active`
+  // rules — RETIRED with the recipe layer (decision 74 · the L3c flip · there is no
+  // recipe button.css to witness anymore). The pressed bg is still fully covered:
+  // derivePalette section E.2 asserts each palette.css `:active` row against
+  // PALETTE_CONTRACT, and EXPECTED_PALETTE pins the pressedBg cells above.
 });
 
 // ── Guard F · the FROZEN schema shape (N+19 B3 · decision 65 step 5) ──
@@ -638,9 +596,6 @@ test('G · each build/docs/*.md re-emits identically from its descriptor', async
   // The same palette cells the page derefs (build/palette.ts · Guard E's SoT).
   const palette = derivePalette(
     {
-      button:     read('lib/components/button/button.css'),
-      iconAvatar: read('lib/components/icon-avatar/icon-avatar.css'),
-      topbar:     read('lib/components/topbar/topbar.css'),
       typography: read('lib/components/typography/typography.css'),
       palette:    read('lib/components/palette/palette.css'),
     },

@@ -1,110 +1,66 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · COMPONENT · ICON-AVATAR · CUSTOM ELEMENT
- * <nuri-icon-avatar> is the static, decorative twin of IconButton
- * (decision 50 · N+6.9): an icon centred on a coloured circle, with
- * NO interaction. It shares IconButton's variant→surface matrix
- * (solid/soft/ghost) plus an avatar-only `subtle` variant, and accent
- * self-scope, but strips press/disabled/focus/aria-label. It is the
- * second direct <nuri-icon> consumer, unblocked by the F-ICON-RN-1
- * closure (decision 48 · N+6.8).
+ * NURI · COMPONENT · ICON-AVATAR · CUSTOM ELEMENT (factory-backed · decision 74 · the L3c flip)
  *
- * The wrapper exists for API mapping in docs HTML — it does NOT port
- * to RN. The RN consumer is generated separately (same prop names,
- * different mechanism · RISKS R1).
+ * <nuri-icon-avatar> is now a THIN registration over the web factory (decision 67/74):
+ * connectedCallback reads its attributes, calls buildComponent with the FROZEN icon-avatar
+ * descriptor (build/descriptors/icon-avatar.js · the authored SoT · decision 69), and mounts
+ * the de-collapsed tree inside itself — <nuri-view> (the static circle · box ⊕ stack ⊕ palette
+ * styled by the generated namespace CSS) wrapping a <nuri-icon> glyph. The hand recipe (the
+ * inner <span class="nuri-icon-avatar--<variant>"> + the recipe icon-avatar.css) RETIRED here.
  *
- * Markup
- *   <nuri-icon-avatar name="gear"></nuri-icon-avatar>             · default: variant=soft
- *   <nuri-icon-avatar name="clock" variant="solid"></nuri-icon-avatar>
- *   <nuri-icon-avatar name="vault" variant="ghost"></nuri-icon-avatar>
- *   <nuri-icon-avatar name="clock" variant="subtle"></nuri-icon-avatar>                · muted glyph (avatar-only)
- *   <nuri-icon-avatar name="scan" variant="solid" accent="orange"></nuri-icon-avatar>  · self-scope
- *   <nuri-icon-avatar name="vault" variant="solid" fill></nuri-icon-avatar>            · filled glyph
+ * The page MUST also load the primitive element scripts the factory tree upgrades into —
+ * view.js (the static <nuri-view> host · IIFE · defer) + icon.js (the glyph · module) — and
+ * link the namespace CSS (box/stack/palette). factory.js + the descriptor twin arrive via this
+ * module's imports (this file is type="module").
  *
- * Defaults
- *   variant  → "soft"
- *   size     → lg circle / md glyph (LOCKED · decision 50 · no size attr ·
- *              mirrors IconButton's geometry exactly)
- *   accent   → inherited from CSS cascade
+ * DECORATIVE (decision 50): the host is aria-hidden, not focusable, carries no role. Public
+ * API: <nuri-icon-avatar name variant accent></nuri-icon-avatar> — variant solid (default per
+ * the recipe) | soft | ghost | subtle; size LOCKED (lg circle / md glyph). accent → Tier-2
+ * self-scope (threaded as a prop).
  *
- * Accessibility
- *   IconAvatar is DECORATIVE — it conveys no information the
- *   surrounding text doesn't already. The host is aria-hidden, not
- *   focusable, and carries no role. There is no aria-label burden
- *   (it is NOT an icon-only control · F-ARIA-LABEL-1 does not apply ·
- *   decision 50). Pair it with a visible text label in the row.
- *
- * Accent override · Tier 2 self-scope
- *   When `accent` is set, it is mirrored as data-accent on the inner
- *   <span> so accent tokens resolve for that avatar only.
+ * KNOWN GAP (the post-A3 icon arc · NOT fixed here · brief anti-goal): the recipe's `fill`
+ * attribute (the filled glyph weight) is NOT threaded — the factory's renderIcon emits only
+ * the routed glyph NAME (size/weight are the deferred icon arc's). No active page (demo.html)
+ * uses `fill`; it is a first-bump-backlog fidelity gap alongside topbar inset/title-type.
  * ────────────────────────────────────────────────────────────── */
 
-(() => {
-  const ATTRS = ['name', 'variant', 'accent', 'fill'];
+import { buildComponent } from '../../runtime/factory.js';
+import { iconAvatarDescriptor } from '../../../build/descriptors/icon-avatar.js';
+// Self-import the primitive element defs the factory tree upgrades into (idempotent).
+import '../view/view.js';
+import '../icon/icon.js';
 
-  class NuriIconAvatar extends HTMLElement {
-    static get observedAttributes() {
-      return ATTRS;
-    }
+const ATTRS = ['name', 'variant', 'accent'];
 
-    #surface = null;
-    #icon = null;
-
-    connectedCallback() {
-      if (this.#surface) return;
-
-      // Decorative · the whole element is hidden from AT (decision 50).
-      // No role, no tabindex, no accessible name.
-      this.setAttribute('aria-hidden', 'true');
-
-      // First-time mount: create the inner circle (a non-interactive
-      // <span>, unlike IconButton's <button>) and the single
-      // <nuri-icon> glyph it wraps.
-      const surface = document.createElement('span');
-      const icon = document.createElement('nuri-icon');
-      icon.setAttribute('size', 'md');
-      // Seed the glyph name BEFORE the subtree enters the document so
-      // <nuri-icon>'s connectedCallback resolves a real registry key on
-      // first render instead of warning `unknown name "null"`. #sync
-      // re-asserts it below.
-      icon.setAttribute('name', this.getAttribute('name') || '');
-      surface.appendChild(icon);
-      this.appendChild(surface);
-      this.#surface = surface;
-      this.#icon = icon;
-      this.#sync();
-    }
-
-    attributeChangedCallback() {
-      if (this.#surface) this.#sync();
-    }
-
-    #sync() {
-      const name = this.getAttribute('name') || '';
-      const variant = this.getAttribute('variant') || 'soft';
-      const accent = this.getAttribute('accent');
-
-      this.#icon.setAttribute('name', name);
-
-      // Glyph weight passthrough: `fill` on the host selects the
-      // filled icon weight. Empty-string value registers as present
-      // in <nuri-icon>'s hasAttribute('fill') check.
-      if (this.hasAttribute('fill')) {
-        this.#icon.setAttribute('fill', '');
-      } else {
-        this.#icon.removeAttribute('fill');
-      }
-
-      this.#surface.className = `nuri-icon-avatar nuri-icon-avatar--${variant}`;
-
-      // Tier 2 self-scope: mirror `accent` to data-accent on the inner
-      // span so accent tokens resolve with that override.
-      if (accent) {
-        this.#surface.dataset.accent = accent;
-      } else {
-        delete this.#surface.dataset.accent;
-      }
-    }
+class NuriIconAvatar extends HTMLElement {
+  static get observedAttributes() {
+    return ATTRS;
   }
 
-  customElements.define('nuri-icon-avatar', NuriIconAvatar);
-})();
+  #built = false;
+
+  connectedCallback() {
+    if (this.#built) return;
+    // Decorative · the whole element is hidden from AT (decision 50).
+    this.setAttribute('aria-hidden', 'true');
+    this.#render();
+    this.#built = true;
+  }
+
+  attributeChangedCallback() {
+    if (this.#built) this.#render();
+  }
+
+  #render() {
+    // Recipe default (variant=soft) passed EXPLICITLY — buildComponent otherwise falls
+    // back to the descriptor's FIRST value (variant→solid · R1.5).
+    const selection = { variant: this.getAttribute('variant') || 'soft' };
+    const props = { name: this.getAttribute('name') || '' };
+    const accent = this.getAttribute('accent');
+    if (accent) props.accent = accent; // Tier-2 self-scope (data-accent on the merged node)
+
+    this.replaceChildren(buildComponent(iconAvatarDescriptor, selection, props));
+  }
+}
+
+customElements.define('nuri-icon-avatar', NuriIconAvatar);

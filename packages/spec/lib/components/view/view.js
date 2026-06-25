@@ -39,5 +39,7 @@
   // @layer host rule's default box applies as a defined element).
   class NuriView extends HTMLElement {}
 
-  customElements.define('nuri-view', NuriView);
+  // Idempotent define (decision 74) — the factory-backed recipes self-import this
+  // primitive, so a page's classic <script> tag for it coexists with that import.
+  if (!customElements.get('nuri-view')) customElements.define('nuri-view', NuriView);
 })();

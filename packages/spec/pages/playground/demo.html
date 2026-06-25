@@ -46,18 +46,20 @@
   <link rel="stylesheet" href="../../lib/components/stack/stack.css" />
   <link rel="stylesheet" href="../../lib/components/box/box.css" />
   <link rel="stylesheet" href="../../lib/components/palette/palette.css" />
-  <link rel="stylesheet" href="../../lib/components/button/button.css" />
-  <link rel="stylesheet" href="../../lib/components/icon-avatar/icon-avatar.css" />
-  <link rel="stylesheet" href="../../lib/components/topbar/topbar.css" />
+  <link rel="stylesheet" href="../../lib/components/interactive/interactive.css" />
+  <link rel="stylesheet" href="../../lib/runtime/reset.css" />
 
   <!-- Custom element scripts MUST be deferred so connectedCallback fires
        AFTER body parsing (children present). See AGENTS.md. -->
+  <!-- The 3 recipe modules self-import the factory + their primitive element defs
+       (pressable/view/icon · idempotent · decision 74). The page loads only the
+       directly-authored primitives (typography/stack/icon · the bench header + card). -->
   <script src="../../lib/components/icon/icon.js" type="module"></script>
   <script src="../../lib/components/typography/typography.js" defer></script>
   <script src="../../lib/components/stack/stack.js" defer></script>
-  <script src="../../lib/components/button/button.js" defer></script>
-  <script src="../../lib/components/icon-avatar/icon-avatar.js" defer></script>
-  <script src="../../lib/components/topbar/topbar.js" defer></script>
+  <script src="../../lib/components/button/button.js" type="module"></script>
+  <script src="../../lib/components/icon-avatar/icon-avatar.js" type="module"></script>
+  <script src="../../lib/components/topbar/topbar.js" type="module"></script>
 
   <style>
     /* Bench chrome only — NOT a DS surface. Plain elements styled with

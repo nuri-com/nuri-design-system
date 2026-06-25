@@ -1,13 +1,15 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · CSS-PREVIEW PARITY HARNESS (the L3.1 reversible spike · decision 70)
+ * NURI · NAMESPACE CSS (BOX/STACK) FRESHNESS + VALUE HARNESS (the LIVE generated CSS · decision 74)
  *
- * Proves the GENERATED shadow namespace CSS (build/css-preview/<ns>.css · from
- * the Field table via pipeline/parsers/namespace-css.js) is EQUIVALENT to the
- * hand SoT lib/components/<ns>/<ns>.css (the parity oracle · decision 2 stands
- * until the L3 flip). This is the L3 analog of B1's Guard D — the generated
- * output has two agreeing sources until the hand CSS retires.
+ * The agnostic box + stack namespace CSS (lib/components/{box,stack}/<ns>.css) is now
+ * GENERATED in place from the Field table (resolve-map.ts via pipeline/parsers/
+ * namespace-css.js · run by `npm run build`) — decision 2 reversed for the namespace
+ * layer (the L3c flip · N+38). The hand parity oracle RETIRED; this harness keeps the
+ * GENERATED output honest: freshness (re-emit ≡ the committed file · Guards A/B), the
+ * value chain (Guard C · the non-tautological independent oracle), and order-soundness
+ * (Guards D + E).
  *
- * Four guards (node-only · the no-browser CI gate):
+ * Five guards (node-only · the no-browser CI gate):
  *   A · STRUCTURAL ≡ — generated and hand carry the SAME @layer rules: the same
  *       selector set, each with the same declaration set (comments excepted ·
  *       order-insensitive · rule order differs [table order vs the hand's
@@ -16,9 +18,9 @@
  *       Guard D). Identical (selector → declarations) ⇒ identical stylesheet ⇒
  *       identical computed style (CSS computed value is a pure function of the
  *       matched declarations) — so this is the core computed-style proof.
- *   B · RE-EMIT FRESHNESS — the committed build/css-preview/<ns>.css is exactly
- *       what the emitter produces now (the committed shadow cannot drift · the
- *       Guard-D/E posture · re-run pipeline/css-preview.js).
+ *   B · RE-EMIT ≡ COMMITTED — the committed lib/components/<ns>/<ns>.css is exactly
+ *       what the emitter produces now (the Guard-F freshness posture · re-run
+ *       `npm run build`).
  *   C · RESOLVED-VALUE SPOT-CHECK — a curated cell set resolves through the REAL
  *       token CSS (styles/tokens-{primitive,semantic}.css · var() → final px) or
  *       carries the expected literal; asserted against an INDEPENDENT oracle (the
@@ -26,9 +28,17 @@
  *       indirection bottoms out at the right values. The logical→physical
  *       COMPUTED mapping (inline-size→width …) is the browser harness's job
  *       (pipeline/css-preview-computed-check.html · run via the preview tooling).
- *   D · ORDER-IRRELEVANCE — no two generated rules set the SAME property to a
- *       DIFFERENT value via selectors that can co-match one element (so the
- *       table-order vs hand-order difference cannot change any computed value).
+ *   D · ORDER-IRRELEVANCE — no two generated rules set the SAME property STRING to a
+ *       DIFFERENT value via selectors that can co-match one element. Sound for stack +
+ *       most of box, but BLIND to the shorthand/logical-longhand family that overlaps
+ *       at the computed level (padding) — Guard E covers that.
+ *   E · PADDING PRECEDENCE — the box padding family (padding · padding-inline/block ·
+ *       the 4 edges) overlaps at the physical-longhand level; precedence (edge > axis >
+ *       uniform · box.css) is achieved by SOURCE ORDER at equal specificity. Assert the
+ *       generated rules touching each physical side are source-ordered uniform→axis→edge
+ *       (so the edge wins). CLOSES the N+30-L3.1 Guard-D soundness gap — latent while the
+ *       hand oracle stood (Guard A masked it), now the node gate's own guarantee since
+ *       the oracle retired.
  *
  * Run:  node --test pipeline/css-preview.test.js   (or via `npm test`)
  * ────────────────────────────────────────────────────────────── */
@@ -45,8 +55,9 @@ import { NS_SPECS } from './parsers/namespace-css.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..'); // packages/spec
-const handCssPath = (ns) => resolve(REPO_ROOT, `lib/components/${ns}/${ns}.css`);
-const shadowCssPath = (ns) => resolve(REPO_ROOT, `build/css-preview/${ns}.css`);
+// The committed LIVE namespace CSS — GENERATED in place by `npm run build` (decision 74 ·
+// the L3c flip). Was the hand parity oracle; now the flip's output (re-emit ≡ committed).
+const liveCssPath = (ns) => resolve(REPO_ROOT, `lib/components/${ns}/${ns}.css`);
 
 // ── parse a stylesheet's `@layer rules` → Map<selector, Map<prop,value>> ──
 // postcss skips comment nodes for walkDecls/walkRules, so comments are excepted
@@ -78,6 +89,23 @@ function layerRuleMap(css, layer = 'rules') {
 const declSig = (declMap) =>
   [...declMap.entries()].map(([p, v]) => `${p}: ${v}`).sort().join('; ');
 
+// ── source-ordered (selector, prop, value) triples from `@layer rules` ──
+// Unlike layerRuleMap (keyed · order-insensitive), this preserves SOURCE ORDER — the
+// input to Guard E's padding-family precedence check (the N+30 shorthand/longhand gap).
+function orderedDecls(css) {
+  const out = [];
+  postcss.parse(css).walkAtRules('layer', (at) => {
+    if (at.params !== 'rules') return;
+    at.walkRules((rule) => {
+      const sels = rule.selector.split(',').map((s) => s.trim());
+      rule.walkDecls((d) => {
+        for (const sel of sels) out.push({ sel, prop: d.prop, value: d.value.trim() });
+      });
+    });
+  });
+  return out;
+}
+
 // in-memory generation, once (one source, two readers · decision 48).
 const generated = await generateAll();
 const genByNs = new Map(generated.map((g) => [g.ns, g.css]));
@@ -86,8 +114,8 @@ const genByNs = new Map(generated.map((g) => [g.ns, g.css]));
 // Guard A · STRUCTURAL ≡ (generated vs the hand oracle)
 // ══════════════════════════════════════════════════════════════════
 for (const { ns } of NS_SPECS) {
-  test(`Guard A · ${ns}: generated namespace CSS ≡ hand ${ns}.css (structural)`, () => {
-    const hand = layerRuleMap(readFileSync(handCssPath(ns), 'utf8'));
+  test(`Guard A · ${ns}: re-emit ≡ committed ${ns}.css (structural)`, () => {
+    const hand = layerRuleMap(readFileSync(liveCssPath(ns), 'utf8'));
     const gen = layerRuleMap(genByNs.get(ns));
 
     const handSels = [...hand.keys()].sort();
@@ -107,7 +135,7 @@ for (const { ns } of NS_SPECS) {
 
     // The empty `@layer tokens` is empty in both (mirrored) — zero rules either side.
     assert.equal(layerRuleMap(genByNs.get(ns), 'tokens').size, 0, 'generated @layer tokens should be empty');
-    assert.equal(layerRuleMap(readFileSync(handCssPath(ns), 'utf8'), 'tokens').size, 0, 'hand @layer tokens should be empty');
+    assert.equal(layerRuleMap(readFileSync(liveCssPath(ns), 'utf8'), 'tokens').size, 0, 'hand @layer tokens should be empty');
   });
 }
 
@@ -115,11 +143,11 @@ for (const { ns } of NS_SPECS) {
 // Guard B · RE-EMIT FRESHNESS (committed shadow == the emitter's output)
 // ══════════════════════════════════════════════════════════════════
 for (const { ns } of NS_SPECS) {
-  test(`Guard B · ${ns}: committed build/css-preview/${ns}.css is fresh`, () => {
-    const committed = readFileSync(shadowCssPath(ns), 'utf8');
+  test(`Guard B · ${ns}: committed lib/components/${ns}/${ns}.css is fresh (re-emit ≡ committed)`, () => {
+    const committed = readFileSync(liveCssPath(ns), 'utf8');
     assert.equal(
       committed, genByNs.get(ns),
-      `build/css-preview/${ns}.css is stale — re-run \`node pipeline/css-preview.js\``,
+      `lib/components/${ns}/${ns}.css is stale — re-run \`npm run build\` (the namespace-CSS slice regenerates it)`,
     );
   });
 }
@@ -214,3 +242,50 @@ for (const { ns } of NS_SPECS) {
     }
   });
 }
+
+// ══════════════════════════════════════════════════════════════════
+// Guard E · PADDING PRECEDENCE (the shorthand/logical-longhand family · the N+30 gap closure)
+// ══════════════════════════════════════════════════════════════════
+// Guard D checks property STRINGS, blind to the box padding family that overlaps at the
+// computed physical-longhand level: `padding` (uniform), `padding-inline`/`padding-block`
+// (axis), and the 4 edges all cascade onto shared physical sides (padding + padding-inline-
+// start both set padding-left). box.css documents precedence edge > axis > uniform, achieved
+// by SOURCE ORDER at equal specificity (every dispatch rule is (0,2,0)). While the hand oracle
+// stood, Guard A masked any divergence; the oracle RETIRED at L3c, so prove it directly: for
+// each physical side, the generated rules touching it are source-ordered uniform→axis→edge
+// (so the more-specific edge rule, emitted LATER, wins). A future BOX_FIELDS reorder that broke
+// precedence keeps Guards A+D green but fails HERE (the N+30-L3.1 Guard-D gap, closed).
+const PADDING_PHYSICAL = {
+  'padding':              { tier: 0, sides: ['top', 'right', 'bottom', 'left'] }, // uniform
+  'padding-inline':       { tier: 1, sides: ['left', 'right'] },                  // axis
+  'padding-block':        { tier: 1, sides: ['top', 'bottom'] },                  // axis
+  'padding-inline-start': { tier: 2, sides: ['left'] },                           // edge (LTR)
+  'padding-inline-end':   { tier: 2, sides: ['right'] },                          // edge
+  'padding-block-start':  { tier: 2, sides: ['top'] },                            // edge
+  'padding-block-end':    { tier: 2, sides: ['bottom'] },                         // edge
+};
+test('Guard E · box: the padding family is source-ordered by precedence (uniform→axis→edge · the N+30 gap)', () => {
+  const ordered = orderedDecls(genByNs.get('box')); // source-ordered (sel, prop, value) triples
+  const bySide = { top: [], right: [], bottom: [], left: [] };
+  ordered.forEach(({ prop }, idx) => {
+    const fam = PADDING_PHYSICAL[prop];
+    if (!fam) return;
+    for (const side of fam.sides) bySide[side].push({ tier: fam.tier, idx, prop });
+  });
+  let sidesChecked = 0;
+  for (const [side, entries] of Object.entries(bySide)) {
+    if (entries.length < 2) continue; // a side touched by <2 padding props has no ordering hazard
+    sidesChecked++;
+    // entries are in source order (idx ascending) — assert precedence tiers non-decreasing.
+    for (let i = 1; i < entries.length; i++) {
+      assert.ok(
+        entries[i].tier >= entries[i - 1].tier,
+        `padding-${side}: '${entries[i].prop}' (precedence tier ${entries[i].tier}) is emitted AFTER ` +
+        `'${entries[i - 1].prop}' (tier ${entries[i - 1].tier}) but is LESS specific — the more-specific ` +
+        `padding rule must come LATER (source order at equal specificity decides the computed value). ` +
+        `Reorder BOX_FIELDS so the padding family emits uniform → axis → edge.`,
+      );
+    }
+  }
+  assert.equal(sidesChecked, 4, `expected all 4 physical sides exercised by the box padding family, saw ${sidesChecked}`);
+});

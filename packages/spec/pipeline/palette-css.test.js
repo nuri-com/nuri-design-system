@@ -1,45 +1,41 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · PALETTE NAMESPACE CSS PARITY HARNESS (the L3b·1 reversible shadow · decision 70 / 67)
+ * NURI · PALETTE NAMESPACE CSS FRESHNESS + VALUE HARNESS (the LIVE generated CSS · decision 74)
  *
- * Proves the GENERATED shadow palette CSS (build/css-preview/palette.css · from the
- * SURFACE table pipeline/palette-surface.ts via pipeline/parsers/palette-css.js) is
- * EQUIVALENT to the hand SoT lib/components/palette/palette.css (the parity oracle ·
- * decision 2 stands for the namespace layer until L3c). The bespoke-axis analogue
- * of pipeline/css-preview.test.js (the agnostic box/stack axes · L3.1).
+ * The palette namespace CSS (lib/components/palette/palette.css) is now GENERATED in
+ * place from the SURFACE table (pipeline/palette-surface.ts via pipeline/parsers/
+ * palette-css.js · run by `npm run build`) — decision 2 reversed for the namespace
+ * layer (the L3c flip · N+38). The hand parity oracle RETIRED; the structural ≡ proof
+ * that validated the shadow (generated ≡ hand) is now historical. This harness keeps
+ * the GENERATED output honest: freshness (re-emit ≡ the committed file), the value
+ * chain (the non-tautological independent oracle · Guard C), and order-soundness.
  *
- * The guard pattern transfers from css-preview.test.js, but TWO guards needed
- * adaptation for palette's bespoke dispatch (the brief §5):
- *   A · STRUCTURAL ≡ — generated and hand carry the SAME @layer rules (same
- *       selector set · same declaration set per selector · comments excepted ·
- *       order-insensitive). For palette this IS the COMPLETE computed-style proof:
- *       background/color are DIRECT properties — no logical→physical resolution, no
- *       shorthand/longhand family overlap (the box-padding gap that dogs L3.1's
- *       Guard D does not exist here) — so identical (selector → decls) ⇒ identical
- *       computed style, full stop. Also pins the MERGED-NODE model: every selector
- *       is the `.nuri-palette` class dispatch (no <nuri-palette> element, no
- *       :not(:defined) skeleton, no shell).
- *   B · RE-EMIT FRESHNESS — the committed shadow == the emitter's current output
- *       (transfers verbatim · the committed file cannot drift).
- *   C · RESOLVED-VALUE — ADAPTED. L3.1's buildVarMap keeps the LAST --nuri-* decl,
- *       which is WRONG for the accent×theme colour vars palette references (multiple
- *       cascade blocks → it would grab the dark/lilac value). Instead this reuses
- *       the colour-semantic.test.js live-cascade walk (resolveSemanticCrossProduct)
- *       and indexes the DEFAULT scope [neutral][light] explicitly: (1) every
- *       generated paint bottoms out at a real hex (no dangling role var) or is the
- *       transparent literal; (2) a curated subset matches a RESTATED design oracle
- *       (the colour-validated values · not read from the CSS under test). The
- *       SCOPE-dependent resolution (dark · lilac · the dec-63 self-scope) is the
- *       browser harness's job (pipeline/palette-css-computed-check.html).
- *   D · ORDER-SOUNDNESS — ADAPTED. L3.1's "one data-attr per property" check does
- *       NOT transfer: `background` is dispatched by data-variant AND data-chrome
+ * Four guards (node-only · the no-browser CI gate):
+ *   A · RE-EMIT ≡ COMMITTED (structural) — the in-memory re-emit and the committed
+ *       lib/components/palette/palette.css carry the SAME @layer rules (same selector
+ *       set · same decls · comments excepted · order-insensitive), AND every selector
+ *       is the `.nuri-palette` CLASS dispatch (merged-node · no <nuri-palette> element,
+ *       no :not(:defined) skeleton, no shell). For palette this structural identity IS
+ *       the complete computed-style statement: background/color are DIRECT properties —
+ *       no logical→physical resolution, no shorthand/longhand family overlap (the
+ *       box-padding gap that dogs box/stack does not exist here).
+ *   B · RE-EMIT ≡ COMMITTED (byte) — the committed file is exactly the emitter's output
+ *       (the Guard-F freshness posture · re-run `npm run build`).
+ *   C · RESOLVED-VALUE — the non-tautological proof. Resolve through the REAL colour
+ *       cascade (the colour-semantic walk · resolveSemanticCrossProduct · DEFAULT
+ *       [neutral][light] scope): (1) every generated paint bottoms out at a real hex
+ *       (no dangling role var) or is the transparent literal; (2) a curated subset
+ *       matches a RESTATED design oracle (the colour-validated values · not read from
+ *       the CSS under test). The SCOPE-dependent resolution (dark · lilac · the dec-63
+ *       self-scope) is the browser harness's job (pipeline/palette-css-computed-check.html).
+ *   D · ORDER-SOUNDNESS — `background` is dispatched by data-variant AND data-chrome
  *       (mutually-exclusive INPUTS · variant XOR chrome) AND by rest vs the pressed
  *       [data-press-color]:active rule (same element · resolved by SPECIFICITY, not
- *       order). So the real soundness argument is asserted directly: (a) every rest
- *       rule keys on exactly one [data-variant|chrome] attribute (so at most one
- *       paints a node · the XOR contract excludes the cross-axis co-match); (b) each
- *       pressed rule is a STRICT specificity superset of its rest rule (so it wins
- *       by specificity regardless of source order). Both ⇒ rule ORDER cannot change
- *       a computed value ⇒ Guard A's order-insensitive compare is sound.
+ *       order). The real soundness argument, asserted directly: (a) every rest rule
+ *       keys on exactly one [data-variant|chrome] attribute (so at most one paints a
+ *       node · the XOR contract excludes the cross-axis co-match); (b) each pressed
+ *       rule is a STRICT specificity superset of its rest rule (so it wins by
+ *       specificity regardless of source order). Both ⇒ rule ORDER cannot change a
+ *       computed value ⇒ Guard A's order-insensitive compare is sound.
  *
  * Run:  node --test pipeline/palette-css.test.js   (or via `npm test`)
  * ────────────────────────────────────────────────────────────── */
@@ -60,8 +56,10 @@ import {
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..'); // packages/spec
-const HAND_CSS = resolve(REPO_ROOT, 'lib/components/palette/palette.css');
-const SHADOW_CSS = resolve(REPO_ROOT, 'build/css-preview/palette.css');
+// The committed LIVE namespace CSS — GENERATED in place by `npm run build` (decision 74 ·
+// the L3c flip). Was the hand parity oracle; now the flip's output. The freshness +
+// structural guards compare the in-memory re-emit against it (re-emit ≡ committed).
+const LIVE_CSS = resolve(REPO_ROOT, 'lib/components/palette/palette.css');
 const PRIMITIVE_CSS = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
 const SEMANTIC_CSS = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
 
@@ -98,10 +96,10 @@ const declSig = (declMap) =>
 const { css: generated } = await generatePalette();
 
 // ══════════════════════════════════════════════════════════════════
-// Guard A · STRUCTURAL ≡ (generated vs the hand oracle · the merged-node model)
+// Guard A · RE-EMIT ≡ COMMITTED (structural · the merged-node model)
 // ══════════════════════════════════════════════════════════════════
-test('Guard A · generated palette CSS ≡ hand palette.css (structural · merged-node)', () => {
-  const hand = layerRuleMap(readFileSync(HAND_CSS, 'utf8'));
+test('Guard A · re-emit ≡ committed palette.css (structural · merged-node)', () => {
+  const hand = layerRuleMap(readFileSync(LIVE_CSS, 'utf8'));
   const gen = layerRuleMap(generated);
 
   const handSels = [...hand.keys()].sort();
@@ -132,16 +130,16 @@ test('Guard A · generated palette CSS ≡ hand palette.css (structural · merge
   // The empty `@layer tokens` is empty in both (mirrored · component-token aliasing
   // would be useless indirection · decision 37) — zero rules either side.
   assert.equal(layerRuleMap(generated, 'tokens').size, 0, 'generated @layer tokens should be empty');
-  assert.equal(layerRuleMap(readFileSync(HAND_CSS, 'utf8'), 'tokens').size, 0, 'hand @layer tokens should be empty');
+  assert.equal(layerRuleMap(readFileSync(LIVE_CSS, 'utf8'), 'tokens').size, 0, 'hand @layer tokens should be empty');
 });
 
 // ══════════════════════════════════════════════════════════════════
-// Guard B · RE-EMIT FRESHNESS (committed shadow == the emitter's output)
+// Guard B · RE-EMIT ≡ COMMITTED (byte · the committed live file is fresh)
 // ══════════════════════════════════════════════════════════════════
-test('Guard B · committed build/css-preview/palette.css is fresh', () => {
+test('Guard B · committed lib/components/palette/palette.css is fresh (re-emit ≡ committed)', () => {
   assert.equal(
-    readFileSync(SHADOW_CSS, 'utf8'), generated,
-    'build/css-preview/palette.css is stale — re-run `node pipeline/css-preview.js`',
+    readFileSync(LIVE_CSS, 'utf8'), generated,
+    'lib/components/palette/palette.css is stale — re-run `npm run build` (the namespace-CSS slice regenerates it)',
   );
 });
 

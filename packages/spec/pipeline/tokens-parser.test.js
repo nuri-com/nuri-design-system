@@ -43,7 +43,6 @@ import {
   SET_POLICY,
   resolveSetPolicy,
   primitiveSetFor,
-  readComponentTokens,
   resolveComponentValue,
   emitComponentTs,
   emitTokenPathsTs,
@@ -63,7 +62,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
 const CSS_PATH = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
 const SEMANTIC_CSS_PATH = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
-const BUTTON_CSS_PATH = resolve(REPO_ROOT, 'lib/components/button/button.css');
 const JSON_PATH = resolve(REPO_ROOT, 'build/tokens.json');
 const TS_PATH = resolve(REPO_ROOT, 'build/tokens.ts');
 const INTERACTION_TS_PATH = resolve(REPO_ROOT, 'build/interaction.ts');
@@ -704,76 +702,33 @@ test('per-component resolve · resolveComponentValue dispatch (button) + token-p
     `token-paths.ts should declare a non-empty discriminated union ` +
     `(found header but no union members)`);
 
-  // 2. resolveComponentValue dispatches correctly on a fresh parse of
-  // Button's @layer tokens — the CSS-resolution contract, unchanged by
-  // Smell-1's relocation of the EMIT. The interaction baseline alias
-  // (--nuri-button-press-scale → the decision-45 --nuri-interaction-
-  // press-scale) still resolves to its pure numeric literal here — the
-  // SAME resolution build/interaction.ts now reads transversally.
-  const buttonCss = await readFile(BUTTON_CSS_PATH, 'utf8');
+  // 2. resolveComponentValue dispatches correctly across its KINDS. Button's recipe
+  // @layer tokens (the rich exerciser) RETIRED with the recipe CSS at the L3c flip
+  // (decision 74), and no active component carries @layer tokens decls anymore (all
+  // empty · resolveComponentValue + emitComponentTs are now an unexercised tail · the
+  // dead-code cleanup deferred · the Smell-1.1 family). So pin the resolver's
+  // CSS-resolution contract on a SYNTHETIC decl set mirroring the retired button.css
+  // aliases — the values resolve against the LIVE token CSS (ctx · primitives + the
+  // classified semantic groups), not a recipe file. Covers every dispatch KIND:
+  // tokenPath via size / radius / accent / chrome, and literal via transparent / the
+  // interaction-baseline numeric (the SAME resolution build/interaction.ts reads
+  // transversally). Per-size metrics dereference the runtime dimension layer (size ·
+  // decision 36) + radius vocab (amendment 36.1); the asymmetric radius coupling
+  // (decision 41) — lg uses radius.md, md/sm use radius.sm.
   const primitiveCss = await readFile(CSS_PATH, 'utf8');
-  const decls = readComponentTokens(buttonCss, '--nuri-button-');
-  assert.ok(decls.length > 0, 'readComponentTokens dropped every declaration');
-  const ctx = {
-    primitives: buildPrimitiveMap(primitiveCss),
-    classifiedGroups: groups,
-  };
-  const lgMinHeight = decls.find((d) => d.cssVar === '--nuri-button-lg-min-height');
-  const mdMinHeight = decls.find((d) => d.cssVar === '--nuri-button-md-min-height');
-  const smMinHeight = decls.find((d) => d.cssVar === '--nuri-button-sm-min-height');
-  const lgRadius    = decls.find((d) => d.cssVar === '--nuri-button-lg-radius');
-  const mdRadius    = decls.find((d) => d.cssVar === '--nuri-button-md-radius');
-  const solidBg     = decls.find((d) => d.cssVar === '--nuri-button-solid-bg');
-  const softBg      = decls.find((d) => d.cssVar === '--nuri-button-soft-bg');
-  const ghostBg     = decls.find((d) => d.cssVar === '--nuri-button-ghost-bg');
-  const ghostBgPressed = decls.find((d) => d.cssVar === '--nuri-button-ghost-bg-pressed');
-  const pressScale  = decls.find((d) => d.cssVar === '--nuri-button-press-scale');
-  // Per-size box metrics dereference the runtime semantic dimension
-  // layer (size / space · decision 36 · N+6.1) and radius vocabulary
-  // (amendment 36.1) so they emit as TokenPath. The asymmetric radius
-  // coupling (decision 41) is visible here: lg → radius.md, md → radius.sm.
-  assert.deepEqual(
-    resolveComponentValue(lgMinHeight.cssVar, lgMinHeight.value, ctx),
-    { kind: 'tokenPath', path: 'size.xl' },
-  );
-  assert.deepEqual(
-    resolveComponentValue(mdMinHeight.cssVar, mdMinHeight.value, ctx),
-    { kind: 'tokenPath', path: 'size.lg' },
-  );
-  assert.deepEqual(
-    resolveComponentValue(smMinHeight.cssVar, smMinHeight.value, ctx),
-    { kind: 'tokenPath', path: 'size.md' },
-  );
-  assert.deepEqual(
-    resolveComponentValue(lgRadius.cssVar, lgRadius.value, ctx),
-    { kind: 'tokenPath', path: 'radius.md' },
-  );
-  assert.deepEqual(
-    resolveComponentValue(mdRadius.cssVar, mdRadius.value, ctx),
-    { kind: 'tokenPath', path: 'radius.sm' },
-  );
-  assert.deepEqual(
-    resolveComponentValue(solidBg.cssVar, solidBg.value, ctx),
-    { kind: 'tokenPath', path: 'accent.solid' },
-  );
-  assert.deepEqual(
-    resolveComponentValue(softBg.cssVar, softBg.value, ctx),
-    { kind: 'tokenPath', path: 'chrome.bgStrong' },
-  );
-  // Ghost (decision 39): transparent at rest emits as a pure literal;
-  // the pressed wash dereferences chrome.bgSubtle.
-  assert.deepEqual(
-    resolveComponentValue(ghostBg.cssVar, ghostBg.value, ctx),
-    { kind: 'literal', expression: "'transparent'" },
-  );
-  assert.deepEqual(
-    resolveComponentValue(ghostBgPressed.cssVar, ghostBgPressed.value, ctx),
-    { kind: 'tokenPath', path: 'chrome.bgSubtle' },
-  );
-  assert.deepEqual(
-    resolveComponentValue(pressScale.cssVar, pressScale.value, ctx),
-    { kind: 'literal', expression: '0.97' },
-  );
+  const ctx = { primitives: buildPrimitiveMap(primitiveCss), classifiedGroups: groups };
+  const rcv = (cssVar, value) => resolveComponentValue(cssVar, value, ctx);
+  assert.deepEqual(rcv('--nuri-button-lg-min-height', 'var(--nuri-size-xl)'), { kind: 'tokenPath', path: 'size.xl' });
+  assert.deepEqual(rcv('--nuri-button-md-min-height', 'var(--nuri-size-lg)'), { kind: 'tokenPath', path: 'size.lg' });
+  assert.deepEqual(rcv('--nuri-button-sm-min-height', 'var(--nuri-size-md)'), { kind: 'tokenPath', path: 'size.md' });
+  assert.deepEqual(rcv('--nuri-button-lg-radius', 'var(--nuri-radius-md)'), { kind: 'tokenPath', path: 'radius.md' });
+  assert.deepEqual(rcv('--nuri-button-md-radius', 'var(--nuri-radius-sm)'), { kind: 'tokenPath', path: 'radius.sm' });
+  assert.deepEqual(rcv('--nuri-button-solid-bg', 'var(--nuri-accent-solid)'), { kind: 'tokenPath', path: 'accent.solid' });
+  assert.deepEqual(rcv('--nuri-button-soft-bg', 'var(--nuri-bg-strong)'), { kind: 'tokenPath', path: 'chrome.bgStrong' });
+  // Ghost (decision 39): transparent at rest is a pure literal; the pressed wash → chrome.bgSubtle.
+  assert.deepEqual(rcv('--nuri-button-ghost-bg', 'transparent'), { kind: 'literal', expression: "'transparent'" });
+  assert.deepEqual(rcv('--nuri-button-ghost-bg-pressed', 'var(--nuri-bg-subtle)'), { kind: 'tokenPath', path: 'chrome.bgSubtle' });
+  assert.deepEqual(rcv('--nuri-button-press-scale', 'var(--nuri-interaction-press-scale)'), { kind: 'literal', expression: '0.97' });
 
   // (IconButton · TabBar fresh-parse dispatch sub-tests removed at N+36 —
   // both components were quarantined to legacy. Button above already

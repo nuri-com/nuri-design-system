@@ -91,7 +91,11 @@ function mergeNS(list) {
 
 // The merged NS for one part = base[part] ⊕ each selected variant's [part]
 // (resolve.ts mergedNSForPart). Axis order = descriptor.variants key order.
-function mergedNSForPart(descriptor, selection, part) {
+// EXPORTED (decision 74) so a recipe element that styles EXISTING host nodes
+// rather than mounting a fresh tree (nuri-topbar · the apply-NS-to-host path ·
+// it has positional children the open-view factory can't place) can read the
+// descriptor's per-part namespaces the same way buildComponent does.
+export function mergedNSForPart(descriptor, selection, part) {
   const maps = [];
   const baseNS = descriptor.structure.base && descriptor.structure.base[part];
   if (baseNS) maps.push(baseNS);
@@ -122,7 +126,9 @@ function resolveAnatomy(descriptor) {
 // The web emit of option A: each present agnostic namespace contributes its
 // class + its fields as data-* (the box/stack/palette CSS dispatches on them).
 // interactive + typography are handled by their own el-hosts, not here.
-function mergeAttrs(ns) {
+// EXPORTED (decision 74) for the apply-NS-to-host path (nuri-topbar) — the same
+// field → class + data-* spelling buildComponent applies to a merged node.
+export function mergeAttrs(ns) {
   const classes = [];
   const data = {};
   const dispatch = (nsObj) => {

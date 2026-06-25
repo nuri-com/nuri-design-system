@@ -58,5 +58,7 @@
     }
   }
 
-  customElements.define('nuri-typography', NuriTypography);
+  // Idempotent define (decision 74) — the factory-backed recipes self-import this
+  // primitive, so a page's classic <script> tag for it coexists with that import.
+  if (!customElements.get('nuri-typography')) customElements.define('nuri-typography', NuriTypography);
 })();

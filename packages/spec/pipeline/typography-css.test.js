@@ -1,11 +1,11 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · TYPOGRAPHY NAMESPACE CSS PARITY HARNESS (the L3.1b reversible shadow · decision 70 / 67 / 73)
+ * NURI · TYPOGRAPHY NAMESPACE CSS FRESHNESS + VALUE HARNESS (the LIVE generated CSS · decision 74)
  *
- * Proves the GENERATED shadow typography CSS (build/css-preview/typography.css · from
- * the AXIS pipeline/typography-axis.ts via pipeline/parsers/typography-css.js) is
- * EQUIVALENT to the hand SoT lib/components/typography/typography.css (the parity oracle
- * · decision 2 stands for the namespace layer until L3c). The THIRD/LAST bespoke-axis
- * analogue of pipeline/{palette,interactive}-css.test.js.
+ * The typography namespace (WRAPPER) CSS (lib/components/typography/typography.css) is
+ * now GENERATED in place from the AXIS (pipeline/typography-axis.ts via pipeline/parsers/
+ * typography-css.js · run by `npm run build`) — decision 2 reversed for the namespace
+ * layer (the L3c flip · N+38). The hand parity oracle RETIRED; this harness keeps the
+ * GENERATED output honest (freshness · value · order-soundness).
  *
  * typography is bespoke like palette/interactive, but diverges in TWO ways the guards
  * adapt for (the brief §6):
@@ -28,7 +28,7 @@
  *       every selector is the `nuri-typography` ELEMENT dispatch (the shell base +
  *       :not(:defined) + the [data-muted]/[align] gates · NOT a .nuri- class). NECESSARY
  *       here, NOT sufficient (display is set at equal specificity → Guard D covers order).
- *   B · RE-EMIT FRESHNESS — the committed shadow == the emitter's current output.
+ *   B · RE-EMIT ≡ COMMITTED (byte) — the committed file is the emitter's current output.
  *   C · RESOLVED-VALUE — the muted token `var(--nuri-text-muted)` is a THEME-cascaded
  *       chrome token (light/dark · re-resolves under [data-theme] · accent-INVARIANT), so
  *       it is scope-dependent like palette's colours. Reuse the colour-cascade walk
@@ -66,8 +66,9 @@ import {
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..'); // packages/spec
-const HAND_CSS = resolve(REPO_ROOT, 'lib/components/typography/typography.css');
-const SHADOW_CSS = resolve(REPO_ROOT, 'build/css-preview/typography.css');
+// The committed LIVE namespace CSS — GENERATED in place by `npm run build` (decision 74 ·
+// the L3c flip). Was the hand parity oracle; now the flip's output (re-emit ≡ committed).
+const LIVE_CSS = resolve(REPO_ROOT, 'lib/components/typography/typography.css');
 const PRIMITIVE_CSS = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
 const SEMANTIC_CSS = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
 
@@ -145,8 +146,8 @@ const { css: generated } = await generateTypography();
 // ══════════════════════════════════════════════════════════════════
 // Guard A · STRUCTURAL ≡ (generated vs the hand oracle · the element-wrapper model)
 // ══════════════════════════════════════════════════════════════════
-test('Guard A · generated typography CSS ≡ hand typography.css (structural · element wrapper + shell)', () => {
-  const hand = layerRuleMap(readFileSync(HAND_CSS, 'utf8'));
+test('Guard A · re-emit ≡ committed typography.css (structural · element wrapper + shell)', () => {
+  const hand = layerRuleMap(readFileSync(LIVE_CSS, 'utf8'));
   const gen = layerRuleMap(generated);
 
   const handSels = [...hand.keys()].sort();
@@ -184,16 +185,16 @@ test('Guard A · generated typography CSS ≡ hand typography.css (structural ·
   // The empty `@layer tokens` is empty in both (mirrored · the wrapper reuses the
   // foundation --nuri-type-* via the utility classes · decision 37) — zero rules either side.
   assert.equal(layerRuleMap(generated, 'tokens').size, 0, 'generated @layer tokens should be empty');
-  assert.equal(layerRuleMap(readFileSync(HAND_CSS, 'utf8'), 'tokens').size, 0, 'hand @layer tokens should be empty');
+  assert.equal(layerRuleMap(readFileSync(LIVE_CSS, 'utf8'), 'tokens').size, 0, 'hand @layer tokens should be empty');
 });
 
 // ══════════════════════════════════════════════════════════════════
 // Guard B · RE-EMIT FRESHNESS (committed shadow == the emitter's output)
 // ══════════════════════════════════════════════════════════════════
-test('Guard B · committed build/css-preview/typography.css is fresh', () => {
+test('Guard B · committed lib/components/typography/typography.css is fresh (re-emit ≡ committed)', () => {
   assert.equal(
-    readFileSync(SHADOW_CSS, 'utf8'), generated,
-    'build/css-preview/typography.css is stale — re-run `node pipeline/css-preview.js`',
+    readFileSync(LIVE_CSS, 'utf8'), generated,
+    'lib/components/typography/typography.css is stale — re-run `npm run build` (the namespace-CSS slice regenerates it)',
   );
 });
 
@@ -266,9 +267,9 @@ test('Guard C · the muted token resolves to the restated design oracle (default
 // ══════════════════════════════════════════════════════════════════
 // Guard D · ORDER-SOUNDNESS (the equal-specificity display pair · the centerpiece)
 // ══════════════════════════════════════════════════════════════════
-test('Guard D · order-soundness (per-property order ≡ hand + the display pair :not(:defined)-before-[align])', () => {
+test('Guard D · order-soundness (per-property order ≡ committed + the display pair :not(:defined)-before-[align])', () => {
   const genOrder = propSelectorOrder(orderedDecls(generated));
-  const handOrder = propSelectorOrder(orderedDecls(readFileSync(HAND_CSS, 'utf8')));
+  const handOrder = propSelectorOrder(orderedDecls(readFileSync(LIVE_CSS, 'utf8')));
 
   // (a) For EVERY property set by >1 selector, the generated SOURCE ORDER of those
   // selectors == the hand oracle's. `display` (5 setters: base · :not(:defined) · 3

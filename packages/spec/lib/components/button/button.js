@@ -1,90 +1,80 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · COMPONENT · BUTTON · CUSTOM ELEMENT
- * <nuri-button> mirrors the RN-side API shape (variant/size/accent
- * /disabled props) while delegating to a native <button> for
- * accessibility, focus, and event handling.
+ * NURI · COMPONENT · BUTTON · CUSTOM ELEMENT (factory-backed · decision 74 · the L3c flip)
  *
- * The wrapper exists for API mapping in docs HTML — it does NOT
- * port to RN (different runtime). The RN consumer code is generated
- * separately with the same prop names but a different mechanism.
+ * <nuri-button> is now a THIN registration over the web factory (the L3c flip · N+38 ·
+ * decision 67/74): connectedCallback reads its attributes, calls buildComponent with the
+ * FROZEN composition-button descriptor (build/descriptors/composition-button.js · the
+ * authored SoT · decision 69), and mounts the de-collapsed `nuri-*` tree inside itself —
+ * <nuri-pressable> → the inner native <button> styled ENTIRELY by the generated namespace
+ * CSS (box ⊕ stack ⊕ palette ⊕ interactive · lib/components/{box,stack,palette,interactive}
+ * /*.css) + the label <nuri-typography>. The hand recipe rendering (the inner <button> +
+ * .nuri-button--<variant>/<size> classes + the recipe button.css) RETIRED here. The factory
+ * is the sole web renderer for the three frozen descriptors; decision 2 is reversed for the
+ * namespace layer.
  *
- * Markup
- *   <nuri-button>Pay</nuri-button>                              · default: variant=soft, size=md
- *   <nuri-button variant="solid">Pay</nuri-button>              · CTA, filled with active accent
- *   <nuri-button variant="ghost">Skip</nuri-button>             · tertiary, transparent at rest (decision 39)
- *   <nuri-button size="lg" variant="solid">Pay</nuri-button>    · primary mobile CTA (60px)
- *   <nuri-button variant="soft" accent="neutral">Cancel</nuri-button>  · cream button (Tier 2 self-scope)
- *   <nuri-button variant="solid" accent="orange">Buy Bitcoin</nuri-button>
- *   <nuri-button disabled>Pay</nuri-button>
+ * The page MUST also load the primitive element scripts the factory tree upgrades into
+ * (pressable.js + typography.js · IIFE · defer) and link lib/runtime/reset.css (the native-
+ * <button> UA normalization · the §9 plumbing seed). factory.js + the descriptor twin arrive
+ * via this module's imports (no separate <script> · this file is type="module").
  *
- * Defaults
- *   variant  → "soft"    quieter alternative; "solid" for CTAs, "ghost" for tertiary
- *   size     → "md"      48px inline action (decision 41); "lg" (60px) / "sm" (36px) opt-in
- *   accent   → inherited from CSS cascade (no attribute set)
+ * Public API UNCHANGED — <nuri-button variant size accent disabled>Label</nuri-button>:
+ *   variant → "soft" (default) | "solid" | "ghost"     · size → "md" (default) | "sm" | "lg"
+ *   accent  → inherited from the cascade unless set (Tier-2 self-scope · threaded as a prop)
+ *   disabled → reflected to the factory's interactive host (interactive.css dims + de-presses)
  *
- * Accent override · Tier 2 self-scope
- *   When `accent` is set on <nuri-button>, the value is mirrored as
- *   data-accent on the inner <button>. Token cascade resolves accent
- *   tokens for that button only; the wrapper does NOT scope its
- *   children (Button doesn't typically have meaningful children).
- *   For subtree-wide override use <nuri-scope> (Tier 3 primitive).
+ * Defaults note (R1.5): the recipe defaults (variant=soft · size=md) are passed to
+ * buildComponent EXPLICITLY — an unset axis otherwise falls back to the descriptor's FIRST
+ * value (variant→solid · the createNuriComponent defaultByAxis mirror), which would change
+ * the public default. The descriptor-default gap stays a known finding (NOT fixed here).
  * ────────────────────────────────────────────────────────────── */
 
-(() => {
-  const ATTRS = ['variant', 'size', 'accent', 'disabled'];
+import { buildComponent } from '../../runtime/factory.js';
+import { compositionButtonDescriptor } from '../../../build/descriptors/composition-button.js';
+// Self-import the primitive element defs the factory tree upgrades into (idempotent ·
+// each primitive guards its own define · a page's classic <script> tag coexists). So a
+// page only needs to load THIS module + link the namespace CSS — no separate primitive
+// <script> tags.
+import '../pressable/pressable.js';
+import '../typography/typography.js';
 
-  class NuriButton extends HTMLElement {
-    static get observedAttributes() {
-      return ATTRS;
-    }
+const ATTRS = ['variant', 'size', 'accent', 'disabled'];
 
-    #btn = null;
-
-    connectedCallback() {
-      if (this.#btn) return;
-
-      // First-time mount: create inner native button, move authored
-      // children inside it, then sync attributes. Subsequent attribute
-      // changes only re-sync — we never tear down the inner button, so
-      // any listeners the consumer attached stay alive.
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      while (this.firstChild) btn.appendChild(this.firstChild);
-      this.appendChild(btn);
-      this.#btn = btn;
-      this.#sync();
-    }
-
-    attributeChangedCallback() {
-      if (this.#btn) this.#sync();
-    }
-
-    #sync() {
-      const variant = this.getAttribute('variant') || 'soft';
-      const size = this.getAttribute('size') || 'md';
-      const accent = this.getAttribute('accent');
-      const isDisabled = this.hasAttribute('disabled');
-
-      this.#btn.className =
-        `nuri-button nuri-button--${variant} nuri-button--${size}`;
-
-      // Tier 2 self-scope: when `accent` is explicit, mirror it to
-      // data-accent on the inner button so the CSS cascade resolves
-      // accent tokens with that override. When omitted, the button
-      // inherits from its ancestor's data-accent (page, scope wrapper).
-      if (accent) {
-        this.#btn.dataset.accent = accent;
-      } else {
-        delete this.#btn.dataset.accent;
-      }
-
-      if (isDisabled) {
-        this.#btn.setAttribute('disabled', '');
-      } else {
-        this.#btn.removeAttribute('disabled');
-      }
-    }
+class NuriButton extends HTMLElement {
+  static get observedAttributes() {
+    return ATTRS;
   }
 
-  customElements.define('nuri-button', NuriButton);
-})();
+  #label = null;
+  #built = false;
+
+  connectedCallback() {
+    if (this.#built) return;
+    // Capture the authored text label BEFORE the factory tree replaces the children
+    // (buildComponent routes `children` to the lone non-root part — the label).
+    this.#label = this.textContent.trim();
+    this.#render();
+    this.#built = true;
+  }
+
+  attributeChangedCallback() {
+    // Re-render on a live attribute change (variant/size/accent/disabled). The factory
+    // tree is rebuilt from the captured label — the prototype mirror does not preserve
+    // the inner button across changes (that is the RN factory's production concern).
+    if (this.#built) this.#render();
+  }
+
+  #render() {
+    // Recipe defaults (variant=soft · size=md) passed EXPLICITLY — see the header note.
+    const selection = {
+      variant: this.getAttribute('variant') || 'soft',
+      size: this.getAttribute('size') || 'md',
+    };
+    const props = { children: this.#label, disabled: this.hasAttribute('disabled') };
+    const accent = this.getAttribute('accent');
+    if (accent) props.accent = accent; // Tier-2 self-scope (threaded to the merged node)
+
+    this.replaceChildren(buildComponent(compositionButtonDescriptor, selection, props));
+  }
+}
+
+customElements.define('nuri-button', NuriButton);
