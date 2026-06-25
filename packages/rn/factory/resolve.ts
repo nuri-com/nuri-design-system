@@ -47,11 +47,15 @@ import type {
 import type { TypeKey } from '../theme';
 import type { NuriTheme } from './theme';
 import { buildNuriTheme } from './theme';
-// The agnostic namespace→style mapping is DATA (resolve-map.ts · the S1
-// extraction); this file holds the RN applier that consumes it + the per-target
-// resolver registry (RN column).
-import { STACK_FIELDS, BOX_FIELDS } from './resolve-map';
-import type { Field, ScaleName } from './resolve-map';
+// The agnostic namespace→style mapping is DATA, now homed in @nuri/spec
+// (resolve-map.ts · N+39 · the decision-68 rn→spec DAG · decision 73 cl.2 / 74);
+// this file holds the RN applier that consumes it + the per-target resolver
+// registry (RN column). The per-target property NAME comes from the property-
+// spelling registry (@nuri/spec/property-spelling · the `.rn` column).
+import { STACK_FIELDS, BOX_FIELDS } from '@nuri/spec/resolve-map';
+import type { Field, ScaleName } from '@nuri/spec/resolve-map';
+import { PROPERTY_SPELLING } from '@nuri/spec/property-spelling';
+import type { CanonicalId } from '@nuri/spec/property-spelling';
 
 // Exhaustiveness guard — a new schema namespace / element / fill value that
 // the factory does not handle becomes a COMPILE error here, and a runtime
@@ -81,22 +85,28 @@ function applyFields(fields: Record<string, Field>, ns: Record<string, unknown>)
   const set = (prop: keyof ViewStyle, value: unknown): void => {
     (out as Record<string, unknown>)[prop] = value;
   };
+  // The RN property NAME for a field's canonical id — the property-spelling
+  // registry's `.rn` column (single-sourced spelling · decision 73 cl.2). @nuri/spec
+  // is RN-free, so `.rn` is a plain string; THIS is the rn boundary that asserts it
+  // back to a ViewStyle key (the registry's rn values are real ViewStyle props by
+  // construction · the RN snapshots are the oracle that keeps them honest).
+  const rnProp = (id: CanonicalId): keyof ViewStyle => PROPERTY_SPELLING[id].rn as keyof ViewStyle;
   for (const key of Object.keys(fields)) {
     const value = ns[key];
     if (value === undefined) continue; // mirrors the old `if (ns.x !== undefined)`
     const f = fields[key];
     switch (f.via) {
       case 'scale':
-        set(f.prop, SCALES[f.scale][value as string]);
+        set(rnProp(f.prop), SCALES[f.scale][value as string]);
         break;
       case 'keyword':
-        set(f.prop, f.map[value as string]);
+        set(rnProp(f.prop), f.map[value as string]);
         break;
       case 'literal':
-        set(f.prop, value);
+        set(rnProp(f.prop), value);
         break;
       case 'flag':
-        set(f.prop, value ? f.on : f.off);
+        set(rnProp(f.prop), value ? f.on : f.off);
         break;
       case 'expand':
         Object.assign(out, f.cases[value as string]);

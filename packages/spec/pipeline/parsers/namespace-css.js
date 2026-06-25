@@ -7,7 +7,7 @@
  * the model got lost" (docs/cascade.md · L3 step 1).
  *
  * It consumes the SAME Field table the RN applier consumes
- * (packages/rn/factory/resolve-map.ts · STACK_FIELDS/BOX_FIELDS) and emits the
+ * (packages/spec/pipeline/resolve-map.ts · STACK_FIELDS/BOX_FIELDS) and emits the
  * flat `[data-*]` dispatch CSS — the inverse-spelling of `applyFields`
  * (resolve.ts): the RN emit writes `ViewStyle[prop] = value`; this writes
  * `.nuri-<ns>[data-<kebab key>="<v>"] { <web prop>: <web value>; }`.
@@ -20,33 +20,33 @@
  * ── THE WEB SPELLING LAYER (the per-target delta · cascade.md "+ its own
  *    spelling") ──────────────────────────────────────────────────────────
  * The shared table carries the field → { via, property-CONCEPT, value-SOURCE }
- * mapping; the per-target EMIT supplies the property SPELLING + the bits the
- * table (designed RN-first) does not yet carry. This spike SURFACES exactly
- * what those bits are — each is a known cascade.md item, flagged for the L3 flip:
+ * mapping (the concept is a CANONICAL id); the per-target EMIT supplies the
+ * property NAME + the vocab/value bits the table does not carry.
  *
- *   1. LOGICAL_OVERRIDES — the RN physical prop → web LOGICAL property remap.
- *      Broader than the doc's lone `paddingHorizontal→padding-inline` example:
- *      sizing (width→inline-size · height→block-size · minHeight→min-block-size)
- *      AND every padding edge go logical for writing-mode / RTL coherence (the
- *      hand box.css choice · box.tsx maps them back to physical for Yoga). The
- *      rest is mechanical camelCase→kebab (flexDirection→flex-direction, …).
- *   2. SCALE_VOCAB — the per-field accepted leaves. `size`/`radius` DERIVE from
+ *   · The property NAME is single-sourced in the property-spelling registry
+ *     (property-spelling.ts · loadRegistry · the `.css` column · decision 73
+ *     cl.2). It REPLACED the old LOGICAL_OVERRIDES + webProp re-spelling — the
+ *     canonical id IS the CSS-logical concept (paddingInline → padding-inline ·
+ *     inlineSize → inline-size), so the web emit just reads `.css`.
+ *
+ * What REMAINS per-target here (the bits the registry does NOT carry):
+ *   1. SCALE_VOCAB — the per-field accepted leaves. `size`/`radius` DERIVE from
  *      the token scale (the SizeLeaf model · Object-keys of the scale); `space`
  *      is the CURATED 5-leaf subset (SpaceLeaf ⊊ space — none/2xs/2xl have no
  *      prop surface). That curation is the cascade.md "SpaceLeaf hardcoded ·
  *      a double declaration to remove" — today it lives ONLY as an erased TS
- *      type (schema.ts), so the spike must restate it (SPACE_LEAF below).
- *   3. LITERAL_VOCAB — a `literal` field is value-passthrough; the table names
+ *      type (schema.ts), so this restates it (SPACE_LEAF below).
+ *   2. LITERAL_VOCAB — a `literal` field is value-passthrough; the table names
  *      no vocabulary (RN passes the runtime value straight through). The web
  *      must ENUMERATE the inputs → `direction: row|column` (also erased schema).
- *   4. EXPAND_WEB — the `expand` arm's web declarations. The RN cases are a
- *      ViewStyle object ({flexGrow:1,flexShrink:0}); the hand CSS writes the
- *      `flex` shorthand (`1 0 auto`) + a LOGICAL min-size (min-inline-size:0,
- *      not RN's physical minWidth). Not mechanically derivable → per-target.
+ *   3. EXPAND_WEB — the `expand` arm's web declarations. The RN cases are a
+ *      multi-prop fragment ({flexGrow:1,flexShrink:0}); the CSS writes the `flex`
+ *      shorthand (`1 0 auto`) + a LOGICAL min-size (min-inline-size:0, not RN's
+ *      physical minWidth). A mechanism difference, not a name → NOT a registry
+ *      entry (decision 73 cl.2), so its web spelling stays here.
  *
  * The vocabulary for the OTHER arms rides the table itself: `keyword`
- * (ALIGN/JUSTIFY map keys+values), `flag` (on/off). So the supplement is
- * minimal — and every gap is a cascade.md-named L3-flip TODO, not a surprise.
+ * (ALIGN/JUSTIFY map keys+values), `flag` (on/off). So the supplement is minimal.
  *
  * ── THE SHELL ──────────────────────────────────────────────────────────
  * Each namespace CSS also carries non-field STRUCTURAL boilerplate — the
@@ -57,46 +57,36 @@
  * shells below · mirrored from the hand <ns>.css); at the L3 flip the hand CSS
  * retires and the emitter is the sole source (the B1 discipline).
  *
- * ── THE TABLE IS MIS-HOMED (the spike shim) ────────────────────────────
- * resolve-map.ts lives in @nuri/rn; cascade.md: "the axis SoT belongs in
- * @nuri/spec" (the decision-68 rn→spec DAG · today backwards). This module
- * reads it cross-package + TYPE-STRIPS it (node 20 cannot import .ts · same
- * constraint that drives the descriptor browser-ESM twins). That read is the
- * spike's TEMPORARY shim — the L3 flip RELOCATES the table to @nuri/spec, and
- * this becomes a local import (the sub-decision: in-place now, relocate then).
+ * ── THE TABLE + REGISTRY ARE HOMED IN @nuri/spec (N+39 · the rn→spec DAG) ──
+ * resolve-map.ts + property-spelling.ts now live in @nuri/spec's pipeline/
+ * (decision 73 cl.2 / 74 · convergence `final`) — the axis SoT was mis-homed in
+ * @nuri/rn through the shadow phase (the decision-68 rn→spec DAG, finally right
+ * way round). This module reads both in place + TYPE-STRIPS them (node 20 cannot
+ * import .ts · same constraint as the descriptor browser-ESM twins); @nuri/rn
+ * imports them as plain typed modules via the exports map. The codegen-vs-data
+ * home re-org is convergence phase 4.
  * ══════════════════════════════════════════════════════════════════ */
 
 import { readFile } from 'node:fs/promises';
 
-// ── 1 · LOGICAL_OVERRIDES · RN physical prop → web logical property ──
-// Everything not listed falls back to mechanical camelCase→kebab (webProp).
-const LOGICAL_OVERRIDES = {
-  // box sizing → logical (the hand box.css · RTL/writing-mode coherent)
-  width: 'inline-size',
-  height: 'block-size',
-  minHeight: 'min-block-size',
-  // box padding → logical (paddingHorizontal→padding-inline is the doc example;
-  // the full edge set follows the same rule)
-  paddingHorizontal: 'padding-inline',
-  paddingVertical: 'padding-block',
-  paddingStart: 'padding-inline-start',
-  paddingEnd: 'padding-inline-end',
-  paddingTop: 'padding-block-start',
-  paddingBottom: 'padding-block-end',
-};
+// The shared type-strip (decision 48 · one strip impl) — used to load the
+// property-spelling registry (.ts SoT · authored in the strip-trivial
+// `as const satisfies` style · like palette-surface.ts). resolve-map.ts keeps
+// its own bespoke strip below (its tagged-union + typed-const style needs it).
+import { stripTypes as stripTypesShared } from './dimension-css.js';
 
-// ── 2 · the SpaceLeaf curation (cascade.md "double declaration to remove") ──
+// ── 1 · the SpaceLeaf curation (cascade.md "double declaration to remove") ──
 // The 5 of the space scale's 8 leaves the layout primitives expose (schema.ts
 // SpaceLeaf · none/2xs/2xl have no prop dispatch). `size`/`radius` need no such
 // list — their FULL scale IS the vocab (derived in readScaleVocab).
 const SPACE_LEAF = ['xs', 'sm', 'md', 'lg', 'xl'];
 
-// ── 3 · LITERAL_VOCAB · the enumerable inputs for a passthrough `literal` field ──
+// ── 2 · LITERAL_VOCAB · the enumerable inputs for a passthrough `literal` field ──
 const LITERAL_VOCAB = {
   direction: ['row', 'column'], // StackNS['direction'] (erased) · hand order
 };
 
-// ── 4 · EXPAND_WEB · the `expand` arm's per-target web declarations ──
+// ── 3 · EXPAND_WEB · the `expand` arm's per-target web declarations ──
 // Keyed by the field key, then by the TABLE's case key (the vocab still comes
 // from the table · a case without a web spelling throws). Decls as [prop, value].
 const EXPAND_WEB = {
@@ -106,13 +96,12 @@ const EXPAND_WEB = {
   },
 };
 
-// ── camelCase → kebab-case (the mechanical half of the spelling) ──
-// minHeight→min-height (data attr) · flexDirection→flex-direction (prop) ·
-// paddingX→padding-x. Matches the web factory's camelToKebab (factory.js).
+// ── camelCase → kebab-case · the data-ATTR spelling only ──
+// The merged-node dispatch keys on the namespace INPUT key (paddingX→data-padding-x ·
+// minHeight→data-min-height). The CSS PROPERTY name is NO LONGER derived here — it
+// comes from the property-spelling registry (property-spelling.ts · the `.css`
+// column · decision 73 cl.2), which replaced the old LOGICAL_OVERRIDES + webProp.
 const kebab = (s) => s.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
-
-// RN ViewStyle prop → web CSS property: a logical override, else kebab.
-const webProp = (prop) => LOGICAL_OVERRIDES[prop] ?? kebab(prop);
 
 // the merged-node dispatch selector for one (namespace, field, value) cell.
 const selectorFor = (ns, key, value) => `.nuri-${ns}[data-${kebab(key)}="${value}"]`;
@@ -153,9 +142,20 @@ const SHELLS = {
 // The inverse-spelling of applyFields (resolve.ts): each arm enumerates the
 // field's vocabulary and writes one rule per value. Exhaustive over the Field
 // union — an unhandled `via` throws (the assertNever analogue · resolve.ts).
-function rulesForField(ns, key, field, scaleVocab) {
+function rulesForField(ns, key, field, scaleVocab, registry) {
   const sel = (v) => selectorFor(ns, key, v);
-  const prop = field.prop !== undefined ? webProp(field.prop) : undefined;
+  // The CSS PROPERTY name is the registry's `.css` for the field's canonical id
+  // (single-sourced spelling · decision 73 cl.2). `expand` carries no `prop` (its
+  // web decls live in EXPAND_WEB). A canonical id absent from the registry is a
+  // strip/registry regression → throw (the spelling analogue of assertNever).
+  let prop;
+  if (field.prop !== undefined) {
+    const entry = registry[field.prop];
+    if (!entry || entry.css === undefined) {
+      throw new Error(`[namespace-css] ${ns}.${key}: canonical id '${field.prop}' has no property-spelling registry entry`);
+    }
+    prop = entry.css;
+  }
   switch (field.via) {
     case 'scale': {
       const vocab = scaleVocab[field.scale];
@@ -201,13 +201,13 @@ function serializeRule({ sel, decls }) {
 // spec = { ns, title, fields, scaleVocab }. Layout: provenance header +
 // empty `@layer tokens` (mirrors hand · layout primitives alias no token) +
 // `@layer rules` { pre-shell · field dispatch (table order) · post-shell }.
-export function emitNamespaceCss({ ns, title, fields, scaleVocab }) {
+export function emitNamespaceCss({ ns, title, fields, scaleVocab, registry }) {
   const shell = SHELLS[ns];
   if (!shell) throw new Error(`[namespace-css] no shell for namespace '${ns}'`);
 
   const fieldRules = [];
   for (const key of Object.keys(fields)) {
-    fieldRules.push(...rulesForField(ns, key, fields[key], scaleVocab));
+    fieldRules.push(...rulesForField(ns, key, fields[key], scaleVocab, registry));
   }
 
   const ruleLines = [
@@ -284,12 +284,12 @@ export async function readScaleVocab(semanticCssPath) {
 // ══════════════════════════════════════════════════════════════════
 // loadFieldTable · read + type-strip resolve-map.ts → { STACK_FIELDS, BOX_FIELDS }
 // ══════════════════════════════════════════════════════════════════
-// The spike shim (see header): node 20 cannot import the .ts SoT, so we read it
-// as text, strip the TS apparatus (the SAME technique as the descriptor browser-
-// ESM twins · emitDescriptorJsFromSource), and import the resulting self-
-// contained ESM via a data: URL (resolve-map.ts has only `import type` imports,
-// so the stripped module needs no module resolution). The L3 flip relocates the
-// table to @nuri/spec and this becomes a plain import.
+// node 20 cannot import the .ts SoT, so we read it as text, strip the TS apparatus
+// (the SAME technique as the descriptor browser-ESM twins · emitDescriptorJsFromSource),
+// and import the resulting self-contained ESM via a data: URL (resolve-map.ts has
+// only `import type` imports, so the stripped module needs no module resolution).
+// The table now lives in @nuri/spec's pipeline/ (N+39 · the rn→spec DAG); the RN
+// side became a plain import, but this web read stays type-stripped (node 20 · .ts).
 
 // Strip the four TS constructs resolve-map.ts uses (and ONLY those):
 //   · `import type …;`            (the 2 type-only imports → no runtime dep)
@@ -315,6 +315,27 @@ export async function loadFieldTable(resolveMapPath) {
     }
   }
   return { STACK_FIELDS: mod.STACK_FIELDS, BOX_FIELDS: mod.BOX_FIELDS };
+}
+
+// ══════════════════════════════════════════════════════════════════
+// loadRegistry · read + type-strip property-spelling.ts → PROPERTY_SPELLING
+// ══════════════════════════════════════════════════════════════════
+// The property-spelling registry (canonical id → { rn, css } · decision 73 cl.2)
+// supplies the per-target property NAME the field's canonical id resolves to. Like
+// the siblings (loadSurface/loadEffects/loadAxis), it is type-stripped + data:-URL
+// imported (node 20 · .ts) — but via the SHARED stripTypes (dimension-css.js · the
+// registry is authored in the `as const satisfies <named type>` style, NOT the
+// resolve-map tagged-union style the bespoke strip above targets). The web emit
+// reads `.css`; `.rn` is the RN applier's column (resolve.ts · unused here).
+export async function loadRegistry(registryTsPath) {
+  const src = await readFile(registryTsPath, 'utf8');
+  const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypesShared(src)));
+  const reg = mod.PROPERTY_SPELLING;
+  // Sanity — a strip regression must fail LOUD here (a known entry resolves to {css}).
+  if (!reg || typeof reg !== 'object' || !reg.padding || reg.padding.css === undefined) {
+    throw new Error('[namespace-css] loadRegistry: PROPERTY_SPELLING missing/empty or lacks {css} entries (strip regression?)');
+  }
+  return reg;
 }
 
 // The two namespace specs the spike generates — the "clearly-tabular agnostic

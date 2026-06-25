@@ -7,9 +7,9 @@
  * @layer CSS — option A (operator-chosen · decision 67): the web emit is
  * field → data-* / namespace-class on the merged node; the namespace CSS
  * (box.css / stack.css / palette.css / interactive.css) resolves it. NO inline
- * styles, NO build step, NO resolve-map.ts (that table stays RN-only · the S1
- * neutrality choice). Decision 2 (CSS is SoT) STANDS — this is NOT §9: the
- * factory is a descriptor CONSUMER, exactly like the RN factory.
+ * styles, NO build step, NO resolve-map.ts import (the factory styles via the
+ * namespace CSS, not the table — which now lives in @nuri/spec, RN-free · N+39).
+ * The factory is a descriptor CONSUMER, exactly like the RN factory.
  *
  * It MIRRORS the RN merge semantics (resolve.ts), it does NOT import them
  * (that file is RN-coupled · pulls ViewStyle). Hand-written here:
