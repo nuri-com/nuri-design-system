@@ -14,18 +14,16 @@
  * wiring, and derivePalette() asserts EVERY cell against the parsed
  * CSS SoT before anything emits:
  *
- *   · variant solid/soft/ghost — button.css `@layer tokens` aliases
- *     (--nuri-button-<v>-{bg,fg,bg-pressed}).
- *   · variant subtle (fg-only)  — icon-avatar.css `.nuri-icon-avatar--
- *     subtle` colour (the avatar-only role · decision 50).
- *   · chrome canvas             — topbar.css's direct background/color
- *     host pair (the one live chrome consumer); subtle/strong reuse
- *     the slot-uniform fg this pair establishes, their bg leaves tie
- *     through the classifier (--nuri-bg-<slot> · renamed leaf throws).
- *   · fgMuted (every cell)      — typography.css's data-muted dispatch
+ *   · EVERY variant + chrome bg/fg cell — palette.css's dispatch rows (the web
+ *     realization restates the full table: variant solid/soft/ghost/subtle + the 3
+ *     chrome slots, incl. the gated [data-press-color]:active pressed bg swap; an
+ *     extra/missing row throws).
+ *   · fgMuted (every cell)              — typography.css's data-muted dispatch
  *     (the single muted delivery · decision 53; no node-level muted).
- *   · EVERY bg/fg cell          — palette.css's own dispatch rows (the
- *     web realization restates the table; extra/missing rows throw).
+ *
+ * The recipe-CSS cross-checks (button.css `@layer tokens` aliases · icon-avatar.css
+ * subtle · topbar.css's chrome host) RETIRED with the recipe layer (decision 74 · the
+ * L3c flip) — they were redundant with palette.css's own rows above.
  *
  * A cell that contradicts the CSS throws here → `npm run build` fails;
  * docs-drift Guard E re-derives + pins the table → `npm test` fails.
@@ -120,51 +118,17 @@ function tokenPathFor(cssVar, classifiedGroups, where) {
   fail(where, `'${cssVar}' is not a classified semantic var — renamed/removed leaf?`);
 }
 
-// ── derive · assert the contract against every CSS source, resolve cells ──
-// cssSources = { button, iconAvatar, topbar, typography, palette } (file
-// contents); classifiedGroups = the classifyAll() pass over
+// ── derive · assert the contract against the surviving namespace CSS, resolve cells ──
+// cssSources = { typography, palette } (file contents · the recipe sources retired ·
+// decision 74 · the L3c flip); classifiedGroups = the classifyAll() pass over
 // tokens-semantic.css the orchestrator already holds.
 export function derivePalette(cssSources, { classifiedGroups }) {
-  // A · variant solid/soft/ghost ← button.css `@layer tokens` aliases.
-  const buttonAliases = new Map();
-  for (const { decls } of rulesInLayer(cssSources.button, 'tokens')) {
-    for (const [prop, value] of decls) {
-      if (prop.startsWith('--nuri-button-')) buttonAliases.set(prop, value);
-    }
-  }
-  const ALIAS_SUFFIX = { bg: 'bg', fg: 'fg', pressedBg: 'bg-pressed' };
-  for (const variant of ['solid', 'soft', 'ghost']) {
-    for (const [channel, suffix] of Object.entries(ALIAS_SUFFIX)) {
-      const cssVar = `--nuri-button-${variant}-${suffix}`;
-      const value = buttonAliases.get(cssVar);
-      if (value == null) fail(`button.css`, `expected alias ${cssVar} not found in @layer tokens`);
-      assertCell(varTarget(value), PALETTE_CONTRACT.variant[variant][channel], `button.css ${cssVar}`);
-    }
-  }
-
-  // B · variant subtle (fg-only) ← icon-avatar.css.
-  const avatarSubtle = ruleFor(rulesInLayer(cssSources.iconAvatar, 'rules'), '.nuri-icon-avatar--subtle');
-  if (!avatarSubtle || !avatarSubtle.decls.has('color')) {
-    fail('icon-avatar.css', `.nuri-icon-avatar--subtle colour rule not found`);
-  }
-  assertCell(varTarget(avatarSubtle.decls.get('color')), PALETTE_CONTRACT.variant.subtle.fg,
-    'icon-avatar.css .nuri-icon-avatar--subtle color');
-
-  // C · chrome canvas ← topbar.css's direct background/color host pair
-  // (the one live chrome consumer); the slot's fg channel is UNIFORM —
-  // subtle/strong reuse the fg this pair establishes.
-  const topbarHost = ruleFor(rulesInLayer(cssSources.topbar, 'rules'), 'nuri-topbar');
-  if (!topbarHost || !topbarHost.decls.has('background') || !topbarHost.decls.has('color')) {
-    fail('topbar.css', 'host background/color pair not found');
-  }
-  assertCell(varTarget(topbarHost.decls.get('background')), PALETTE_CONTRACT.chrome.canvas.bg,
-    'topbar.css host background');
-  assertCell(varTarget(topbarHost.decls.get('color')), PALETTE_CONTRACT.chrome.canvas.fg,
-    'topbar.css host color');
-  for (const slot of ['subtle', 'strong']) {
-    assertCell(PALETTE_CONTRACT.chrome[slot].fg, PALETTE_CONTRACT.chrome.canvas.fg,
-      `chrome slot fg uniformity (chrome.${slot})`);
-  }
+  // Sections A (button.css aliases) · B (icon-avatar.css subtle) · C (topbar.css
+  // chrome host) RETIRED with the recipe layer (decision 74 · the L3c flip) — they
+  // were REDUNDANT cross-checks with section E below (palette.css restates EVERY
+  // variant + chrome bg/fg cell, incl. subtle's fg-only role and all 3 chrome slots)
+  // and section D (typography.css muted). The contract is now witnessed in full by the
+  // two surviving namespace CSS files; build/palette.ts (the cells) is unchanged.
 
   // D · fgMuted (every cell) ← typography.css's data-muted dispatch.
   const mutedRule = ruleFor(rulesInLayer(cssSources.typography, 'rules'), 'nuri-typography[data-muted]');
@@ -284,11 +248,11 @@ export function emitPaletteTs(cells) {
     ` *`,
     ` * Source · the palette namespace's CSS SoT (asserted cell-for-cell`,
     ` * at emit time — a contradiction fails the build · decision 48):`,
-    ` *   lib/components/palette/palette.css          every bg/fg cell`,
-    ` *   lib/components/button/button.css            variant solid/soft/ghost`,
-    ` *   lib/components/icon-avatar/icon-avatar.css  variant subtle (fg-only)`,
-    ` *   lib/components/topbar/topbar.css            the chrome bg/fg pair`,
+    ` *   lib/components/palette/palette.css          every variant + chrome bg/fg cell`,
+    ` *                                               (+ the gated pressed :active swap)`,
     ` *   lib/components/typography/typography.css    the muted fg (fgMuted)`,
+    ` * (The recipe-CSS cross-checks — button/icon-avatar/topbar — retired with the`,
+    ` *  recipe layer · decision 74 · the L3c flip · they were redundant with palette.css.)`,
     ` * Emitter · pipeline/parsers/palette.js — run \`npm run build\``,
     ` *`,
     ` * The {variant | chrome} → {bg · fg · fgMuted · pressedBg} mapping`,

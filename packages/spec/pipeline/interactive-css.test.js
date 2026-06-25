@@ -1,11 +1,11 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · INTERACTIVE NAMESPACE CSS PARITY HARNESS (the L3b·2 reversible shadow · decision 70 / 67 / 73)
+ * NURI · INTERACTIVE NAMESPACE CSS FRESHNESS + VALUE HARNESS (the LIVE generated CSS · decision 74)
  *
- * Proves the GENERATED shadow interactive CSS (build/css-preview/interactive.css ·
- * from the EFFECT set pipeline/interactive-effects.ts via pipeline/parsers/
- * interactive-css.js) is EQUIVALENT to the hand SoT lib/components/interactive/
- * interactive.css (the parity oracle · decision 2 stands for the namespace layer
- * until L3c). The second bespoke-axis analogue of pipeline/palette-css.test.js.
+ * The interactive namespace CSS (lib/components/interactive/interactive.css) is now
+ * GENERATED in place from the EFFECT set (pipeline/interactive-effects.ts via
+ * pipeline/parsers/interactive-css.js · run by `npm run build`) — decision 2 reversed
+ * for the namespace layer (the L3c flip · N+38). The hand parity oracle RETIRED; this
+ * harness keeps the GENERATED output honest (freshness · value · order-soundness).
  *
  * The guard pattern transfers from palette-css.test.js, but interactive breaks
  * palette's "structural ≡ IS the complete proof" assumption (the brief §5): `transform`
@@ -20,7 +20,7 @@
  *       AND every selector is the `.nuri-interactive` CLASS dispatch (merged-node · no
  *       <nuri-interactive> element, no shell). NECESSARY here, NOT sufficient (transform
  *       is set twice at equal specificity → Guard D below covers order).
- *   B · RE-EMIT FRESHNESS — the committed shadow == the emitter's current output.
+ *   B · RE-EMIT ≡ COMMITTED (byte) — the committed file is the emitter's current output.
  *   C · RESOLVED-VALUE — SIMPLER than palette: the --nuri-interaction-* / --nuri-
  *       duration-fast refs are :root constants (no accent×theme cascade), so the L3.1
  *       buildVarMap (keep-the-last-decl) is FINE (no colour-cascade walk needed — that
@@ -57,8 +57,9 @@ import { generateInteractive } from './css-preview.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..'); // packages/spec
-const HAND_CSS = resolve(REPO_ROOT, 'lib/components/interactive/interactive.css');
-const SHADOW_CSS = resolve(REPO_ROOT, 'build/css-preview/interactive.css');
+// The committed LIVE namespace CSS — GENERATED in place by `npm run build` (decision 74 ·
+// the L3c flip). Was the hand parity oracle; now the flip's output (re-emit ≡ committed).
+const LIVE_CSS = resolve(REPO_ROOT, 'lib/components/interactive/interactive.css');
 const PRIMITIVE_CSS = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
 const SEMANTIC_CSS = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
 
@@ -139,8 +140,8 @@ const { css: generated } = await generateInteractive();
 // ══════════════════════════════════════════════════════════════════
 // Guard A · STRUCTURAL ≡ (generated vs the hand oracle · the merged-node model)
 // ══════════════════════════════════════════════════════════════════
-test('Guard A · generated interactive CSS ≡ hand interactive.css (structural · merged-node)', () => {
-  const hand = layerRuleMap(readFileSync(HAND_CSS, 'utf8'));
+test('Guard A · re-emit ≡ committed interactive.css (structural · merged-node)', () => {
+  const hand = layerRuleMap(readFileSync(LIVE_CSS, 'utf8'));
   const gen = layerRuleMap(generated);
 
   const handSels = [...hand.keys()].sort();
@@ -171,16 +172,16 @@ test('Guard A · generated interactive CSS ≡ hand interactive.css (structural 
 
   // The empty `@layer tokens` is empty in both (mirrored · decision 37) — zero rules either side.
   assert.equal(layerRuleMap(generated, 'tokens').size, 0, 'generated @layer tokens should be empty');
-  assert.equal(layerRuleMap(readFileSync(HAND_CSS, 'utf8'), 'tokens').size, 0, 'hand @layer tokens should be empty');
+  assert.equal(layerRuleMap(readFileSync(LIVE_CSS, 'utf8'), 'tokens').size, 0, 'hand @layer tokens should be empty');
 });
 
 // ══════════════════════════════════════════════════════════════════
 // Guard B · RE-EMIT FRESHNESS (committed shadow == the emitter's output)
 // ══════════════════════════════════════════════════════════════════
-test('Guard B · committed build/css-preview/interactive.css is fresh', () => {
+test('Guard B · committed lib/components/interactive/interactive.css is fresh (re-emit ≡ committed)', () => {
   assert.equal(
-    readFileSync(SHADOW_CSS, 'utf8'), generated,
-    'build/css-preview/interactive.css is stale — re-run `node pipeline/css-preview.js`',
+    readFileSync(LIVE_CSS, 'utf8'), generated,
+    'lib/components/interactive/interactive.css is stale — re-run `npm run build` (the namespace-CSS slice regenerates it)',
   );
 });
 
@@ -259,9 +260,9 @@ test('Guard C · the scope-invariant interaction constants resolve to the restat
 // ══════════════════════════════════════════════════════════════════
 // Guard D · ORDER-SOUNDNESS (the equal-specificity transform pair · the centerpiece)
 // ══════════════════════════════════════════════════════════════════
-test('Guard D · order-soundness (per-property order ≡ hand + the transform pair scale-before-none)', () => {
+test('Guard D · order-soundness (per-property order ≡ committed + the transform pair scale-before-none)', () => {
   const genOrder = propSelectorOrder(orderedDecls(generated));
-  const handOrder = propSelectorOrder(orderedDecls(readFileSync(HAND_CSS, 'utf8')));
+  const handOrder = propSelectorOrder(orderedDecls(readFileSync(LIVE_CSS, 'utf8')));
 
   // (a) For EVERY property set by >1 selector, the generated SOURCE ORDER of those
   // selectors == the hand oracle's. So the array-order emit reproduces the hand's

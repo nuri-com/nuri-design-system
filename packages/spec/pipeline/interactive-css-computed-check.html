@@ -122,7 +122,7 @@ async function run() {
   const [tokP, tokS, genCss, handCss] = await Promise.all([
     fetch('../styles/tokens-primitive.css').then((r) => r.text()),
     fetch('../styles/tokens-semantic.css').then((r) => r.text()),
-    fetch('../build/css-preview/interactive.css').then((r) => r.text()),
+    fetch('../lib/components/interactive/interactive.css').then((r) => r.text()), // LIVE (was build/css-preview · decision 74)
     fetch('../lib/components/interactive/interactive.css').then((r) => r.text()),
   ]);
   document.getElementById('tokens').textContent = tokP + '\n' + tokS;

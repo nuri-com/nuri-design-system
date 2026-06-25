@@ -115,5 +115,7 @@
     }
   }
 
-  customElements.define('nuri-pressable', NuriPressable);
+  // Idempotent define (decision 74) — the factory-backed recipes self-import this
+  // primitive, so a page's classic <script> tag for it coexists with that import.
+  if (!customElements.get('nuri-pressable')) customElements.define('nuri-pressable', NuriPressable);
 })();

@@ -127,7 +127,7 @@ async function run() {
   const files = await Promise.all([
     fetch('../styles/tokens-primitive.css').then((r) => r.text()),
     fetch('../styles/tokens-semantic.css').then((r) => r.text()),
-    fetch('../build/css-preview/palette.css').then((r) => r.text()),
+    fetch('../lib/components/palette/palette.css').then((r) => r.text()), // LIVE (was build/css-preview · decision 74)
     fetch('../lib/components/palette/palette.css').then((r) => r.text()),
   ]);
   const [tokP, tokS, genPalette, handPalette] = files;

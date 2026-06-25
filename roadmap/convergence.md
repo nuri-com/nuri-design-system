@@ -60,11 +60,14 @@ to `packages/spec/legacy/`; the active tree is exactly **{primitives + the 3 des
 - **A4 `@nuri/doc`** (SSG · `website/` + `spec/pages/` + `spec/lib/docs/`) · **A5 `@nuri/playground`** (the bench)
   · **A6 codegen surfaces** (the RN barrel + WC registrations · §9-independent).
 
-**Phase 3 — the dec-2 flip** (§9 · B2 · **the one irreversible step** · the only decision to open · gated on the
-[`resolver-model.md`](../docs/resolver-model.md) §10 M2/M5 cascade checks): generate the **namespace + token CSS
-into `prototype`** from the TS SoT · the per-component **recipe CSS retires** (redundant with the namespace
-projection — the factory renders via `data-*` + namespace CSS) · **delete the hand CSS** (the parity oracle) ·
-the factory becomes the sole web renderer. **decision 2 fully reverses.** See [`cascade.md`](../docs/cascade.md).
+**Phase 3 — the dec-2 flip ✓ LANDED ([N+38](./N+38-L3c-flip.md) · [decision 74](../decisionlog.md))** (§9 · **the one
+irreversible step**): the namespace CSS is now GENERATED from the TS SoT **in place over `lib/components/<ns>/<ns>.css`**
+(NOT into `prototype` — the A3 carve was HELD · the flip is cleaner in spec, where CSS + pipeline + factory all live ·
+the carve is post-flip), wired into `npm run build`. The 3 descriptor **recipe CSS retired** (redundant with the
+namespace projection — the factory renders via `data-*` + namespace CSS) + their JS is factory-backed; the hand CSS +
+the B1 descriptor parity oracle deleted; the factory is the sole web renderer. **decision 2 reversed for the namespace
+layer** (the token cascade — incl. the [decision 63](../decisionlog.md) self-scope — was preserved at [§72](../decisionlog.md);
+the namespace flip is computed-equivalent, verified by the per-axis browser checks · 132 checks · 0 fails). See [`cascade.md`](../docs/cascade.md).
 
 **Phase 4 — `spec` → pure data.** The CSS now generated (phase 3), `spec` keeps only data. Fold in the **icon
 simplification** (a vendored **SVG folder + one generic icon descriptor** · drops the `@phosphor-icons/core`

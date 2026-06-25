@@ -3,11 +3,11 @@
  *
  * Source · the palette namespace's CSS SoT (asserted cell-for-cell
  * at emit time — a contradiction fails the build · decision 48):
- *   lib/components/palette/palette.css          every bg/fg cell
- *   lib/components/button/button.css            variant solid/soft/ghost
- *   lib/components/icon-avatar/icon-avatar.css  variant subtle (fg-only)
- *   lib/components/topbar/topbar.css            the chrome bg/fg pair
+ *   lib/components/palette/palette.css          every variant + chrome bg/fg cell
+ *                                               (+ the gated pressed :active swap)
  *   lib/components/typography/typography.css    the muted fg (fgMuted)
+ * (The recipe-CSS cross-checks — button/icon-avatar/topbar — retired with the
+ *  recipe layer · decision 74 · the L3c flip · they were redundant with palette.css.)
  * Emitter · pipeline/parsers/palette.js — run `npm run build`
  *
  * The {variant | chrome} → {bg · fg · fgMuted · pressedBg} mapping

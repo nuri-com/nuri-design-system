@@ -1,8 +1,8 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · CSS-PREVIEW RUNNER (the L3 reversible shadow · decision 70)
+ * NURI · NAMESPACE-CSS GENERATOR (the L3 LIVE source · decision 74 · the L3c flip)
  * ──────────────────────────────────────────────────────────────────
- * Generates the SHADOW namespace CSS — build/css-preview/{box,stack,palette,
- * interactive,typography}.css — from the TS SoTs:
+ * Generates the LIVE namespace CSS — lib/components/{box,stack,palette,
+ * interactive,typography}/<ns>.css — from the TS SoTs:
  *   · box + stack  ← the agnostic Field table (resolve-map.ts) via namespace-css.js
  *                    (L3.1 · "three platforms, one table" · the S1 promise).
  *   · palette      ← the bespoke SURFACE role table (palette-surface.ts) via
@@ -11,21 +11,27 @@
  *                    interactive-css.js (L3b·2 · the second bespoke axis · dec 67/73).
  *   · typography   ← the bespoke AXIS (typography-axis.ts · shell + muted/align) via
  *                    typography-css.js (L3.1b · the third/last bespoke axis · dec 67/73).
- * palette + interactive + typography are NOT NS_SPECs (not Field-table members · bespoke
- * shapes) — each is a separate call alongside the NS_SPECS loop.
+ * palette + interactive + typography are NOT NS_SPECs (not Field-table members ·
+ * bespoke shapes) — each is a separate call alongside the NS_SPECS loop.
  *
- * STANDALONE · NOT wired into `npm run build` — nothing live changes (the shadow
- * anti-goal). Run on demand:  node pipeline/css-preview.js
- * The committed output is GUARDED (re-emit freshness) and PROVEN ≡ the hand CSS by
- * pipeline/css-preview.test.js (box/stack) + pipeline/palette-css.test.js (palette) +
- * pipeline/interactive-css.test.js (interactive).
+ * WIRED INTO `npm run build` (pipeline/tokens-parser.js · the namespace-CSS slice ·
+ * after the Slice-0 token flips, which write the tokens-*.css this reads for the
+ * scale vocab). flipNamespaceCss() regenerates the five files IN PLACE over the live
+ * lib/components/<ns>/<ns>.css. decision 2 reversed for the namespace layer (decision
+ * 74 · executing decision 70 · the L3c flip · N+38): the hand namespace CSS retired
+ * (git-recoverable) and the generator is the SOLE source — the pages <link> these
+ * files and the web factory (lib/runtime/factory.js) styles the `nuri-*` merged nodes
+ * with them. Freshness (re-emit ≡ committed) is gated by
+ * pipeline/{css-preview,palette-css,interactive-css,typography-css}.test.js.
  *
- * The hand lib/components/<ns>/<ns>.css is the parity ORACLE (untouched · still
- * the live SoT · decision 2 stands until the L3c flip). This writes ONLY under
- * build/css-preview/; it repoints nothing.
+ * Standalone regen (equivalent to the build slice):  node pipeline/css-preview.js
+ *
+ * The Field table is STILL mis-homed in @nuri/rn (the transitional shim · cascade.md:
+ * belongs in @nuri/spec · the package carve relocates it · decision 74 leaves it in
+ * place). Read cross-package + type-stripped (node 20 cannot import the .ts).
  * ══════════════════════════════════════════════════════════════════ */
 
-import { writeFile, mkdir } from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -42,8 +48,9 @@ import { loadAxis, emitTypographyCss } from './parsers/typography-css.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..'); // packages/spec
 
-// The Field table — mis-homed in @nuri/rn (the shadow shim · cascade.md: belongs
-// in @nuri/spec · the L3 flip relocates it). Read cross-package + type-stripped.
+// The Field table — STILL mis-homed in @nuri/rn (the transitional shim · cascade.md:
+// belongs in @nuri/spec · the package carve relocates it · decision 74 leaves it).
+// Read cross-package + type-stripped.
 const RESOLVE_MAP = resolve(REPO_ROOT, '../rn/factory/resolve-map.ts');
 const SEMANTIC_CSS = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
 // The bespoke palette SoT — a local pipeline/ SoT (like dimensions.ts/colours.ts).
@@ -52,9 +59,10 @@ const SURFACE_TS = resolve(REPO_ROOT, 'pipeline/palette-surface.ts');
 const EFFECTS_TS = resolve(REPO_ROOT, 'pipeline/interactive-effects.ts');
 // The bespoke typography SoT — likewise a local pipeline/ SoT (the shell + muted/align).
 const TYPOGRAPHY_TS = resolve(REPO_ROOT, 'pipeline/typography-axis.ts');
-const OUT_DIR = resolve(REPO_ROOT, 'build/css-preview');
+// The LIVE target — regenerated in place over the (retired) hand namespace CSS.
+const COMPONENTS_DIR = resolve(REPO_ROOT, 'lib/components');
 
-// Generate the shadow CSS for every NS_SPEC (the agnostic Field-table axes) —
+// Generate the namespace CSS for every NS_SPEC (the agnostic Field-table axes) —
 // exported so the test re-runs the SAME generation in-memory (one source, two
 // readers · decision 48).
 export async function generateAll() {
@@ -71,23 +79,23 @@ export async function generateAll() {
   }));
 }
 
-// Generate the SHADOW palette namespace CSS from the bespoke SURFACE table —
-// exported (like generateAll) so palette-css.test.js re-runs the SAME generation
-// in-memory. palette is bespoke (decision 67), hence a separate call.
+// Generate the palette namespace CSS from the bespoke SURFACE table — exported (like
+// generateAll) so palette-css.test.js re-runs the SAME generation in-memory. palette
+// is bespoke (decision 67), hence a separate call.
 export async function generatePalette() {
   const surface = await loadSurface(SURFACE_TS);
   return { ns: 'palette', css: emitPaletteCss(surface) };
 }
 
-// Generate the SHADOW interactive namespace CSS from the bespoke EFFECT set —
-// exported (like generatePalette) so interactive-css.test.js re-runs the SAME
-// generation in-memory. interactive is bespoke (decision 67/73), hence a separate call.
+// Generate the interactive namespace CSS from the bespoke EFFECT set — exported (like
+// generatePalette) so interactive-css.test.js re-runs the SAME generation in-memory.
+// interactive is bespoke (decision 67/73), hence a separate call.
 export async function generateInteractive() {
   const effects = await loadEffects(EFFECTS_TS);
   return { ns: 'interactive', css: emitInteractiveCss(effects) };
 }
 
-// Generate the SHADOW typography namespace CSS from the bespoke AXIS — exported (like
+// Generate the typography namespace CSS from the bespoke AXIS — exported (like
 // generatePalette/generateInteractive) so typography-css.test.js re-runs the SAME
 // generation in-memory. typography is bespoke (decision 67/73 · a real element wrapper
 // with a shell, unlike palette/interactive's merged node), hence a separate call.
@@ -96,20 +104,42 @@ export async function generateTypography() {
   return { ns: 'typography', css: emitTypographyCss(axis) };
 }
 
-async function main() {
-  const generated = [
+// Generate ALL five namespace CSS files (box · stack · palette · interactive ·
+// typography) in one pass — the single reader for both the build flip and the tests.
+export async function generateNamespaceCss() {
+  return [
     ...(await generateAll()),
     await generatePalette(),
     await generateInteractive(),
     await generateTypography(),
   ];
-  await mkdir(OUT_DIR, { recursive: true });
+}
+
+// flipNamespaceCss · generate the five files and write them IN PLACE over the live
+// lib/components/<ns>/<ns>.css. Called by pipeline/tokens-parser.js (the build) and by
+// main() (standalone regen). Mirrors the Slice-0 flip* idiom (flipDimensionCss /
+// flipColourCss / flipSemanticCss) — the namespace CSS is now a generated projection,
+// not a hand source. Returns [{ ns, out }] for the build log.
+export async function flipNamespaceCss() {
+  const generated = await generateNamespaceCss();
+  const reports = [];
   for (const { ns, css } of generated) {
-    const out = resolve(OUT_DIR, `${ns}.css`);
+    const out = resolve(COMPONENTS_DIR, ns, `${ns}.css`);
     await writeFile(out, css, 'utf8');
-    console.log(`[css-preview] generated namespace CSS '${ns}' (shadow) → ${out}`);
+    reports.push({ ns, out });
   }
-  console.log(`[css-preview] ${generated.length} files · proven ≡ the hand CSS by pipeline/{css-preview,palette-css,interactive-css,typography-css}.test.js`);
+  return reports;
+}
+
+async function main() {
+  const reports = await flipNamespaceCss();
+  for (const { ns, out } of reports) {
+    console.log(`[css-preview] generated namespace CSS '${ns}' (live · in place) → ${out}`);
+  }
+  console.log(
+    `[css-preview] ${reports.length} files regenerated in place · freshness gated by ` +
+    `pipeline/{css-preview,palette-css,interactive-css,typography-css}.test.js`,
+  );
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

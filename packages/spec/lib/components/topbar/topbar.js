@@ -1,104 +1,79 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · COMPONENT · TOPBAR · CUSTOM ELEMENTS  (content-pivot · decision 46 · 64 · amendment 46.4)
+ * NURI · COMPONENT · TOPBAR · CUSTOM ELEMENTS (factory-backed · apply-NS-to-host · decision 74)
  *
- * Two light-DOM elements, one IIFE:
- *   <nuri-topbar>          the shell · the flex chrome row (layout in CSS)
- *   <nuri-topbar-content>  the named layout PIVOT (flex:1 · styled in CSS)
+ * <nuri-topbar> is a LAYOUT SHELL holding POSITIONAL children (leading · the content pivot ·
+ * trailing). The factory's open-view model can't place leading/pivot/trailing (it appends own
+ * content then child parts — it can't put trailing AFTER the pivot), so topbar takes the
+ * APPLY-NS-TO-HOST path (operator-chosen at the L3c checkpoint), NOT buildComponent:
+ *   · <nuri-topbar>         — reads the descriptor's base.root namespaces (stack ⊕ box ⊕
+ *                             palette · the chrome row) and applies them as the namespace
+ *                             classes + data-* TO ITSELF. The authored positional children
+ *                             stay exactly where they are (no reparent) and flex as siblings.
+ *   · <nuri-topbar-content> — the parent applies base.content (stack{fill:grow-shrink}) +,
+ *                             when `center`, the center variant's patch (align/justify center).
+ * Both read the FROZEN topbar descriptor (build/descriptors/topbar.js · the authored SoT)
+ * via the factory's exported mergedNSForPart + mergeAttrs — the SAME field → class+data-*
+ * spelling buildComponent applies to a merged node, so the shell is styled by the generated
+ * namespace CSS (lib/components/{box,stack,palette}/*.css) exactly as a factory node would be.
+ * The hand recipe (the recipe topbar.css `nuri-topbar`/`nuri-topbar-content` rules + the
+ * inset/title-type JS) RETIRED here.
  *
- * CONTENT-PIVOT (decision 64 · amendment 46.4): only the content is
- * wrapped, in <nuri-topbar-content>; leading / trailing are plain
- * POSITIONAL siblings around it (anything before the pivot is leading,
- * anything after is trailing). The pivot's `flex:1` pushes trailing to the
- * row end by construction, so a positional empty side contributes nothing
- * and no phantom gap arises. This REPLACES — and DELETES — the old JS
- * region-reparenting (`querySelector` + `createElement` + `appendChild` of
- * __start/__center/__end), the `data-leading/-trailing` occupancy
- * detection, and the <nuri-topbar-start>/<nuri-topbar-end> element defs.
- * No Shadow DOM, no <slot>; the row stays in document order and CSS flexes
- * it (the validated List content-pivot shape · R1).
+ * KNOWN GAPS (first-bump backlog · NOT in the descriptor · accepted at the L3c checkpoint):
+ *   · `inset` / `inset-start` / `inset-end` — the recipe's edge-padding override is NOT a
+ *     descriptor axis, so it is dropped (pages using it — components/topbar.html — render with
+ *     the descriptor's default padding-start/end:lg · no crash · a doc-page degradation).
+ *   · the bare-text title lg-em auto-type — NOT in the descriptor; a bare <nuri-topbar-content>
+ *     text title renders at the inherited size. demo.html wraps its title in an explicit
+ *     <nuri-typography size=md emphasis>, so the render gate is unaffected.
  *
- * JS now does TWO things, both attribute dispatch (decision 42 · 46.1):
- *   1. <nuri-topbar>      reflects `center` → data-center and folds the
- *                         `inset` / `inset-start` / `inset-end` API →
- *                         data-inset-start / -end so the edge padding
- *                         flips from CSS, never JS.
- *   2. <nuri-topbar-content> applies the lg-em title type to BARE TEXT by
- *                         REUSING Typography's utility class (the single
- *                         text-style owner · decision 64 · 53) — never a
- *                         hand-applied --nuri-type-* block. A non-text
- *                         centre (a segmented control) passes through
- *                         untyped (mirrors the RN `typeof children ===
- *                         'string'` check · the R-EXPO-2c fix).
- *
- * The content pivot exists for API mapping in docs HTML — it does NOT port
- * to RN as an element; the RN consumer is generated separately (same pivot
- * shape, different mechanism · RISKS R1).
+ * The page links the namespace CSS (box/stack/palette); the positional buttons inside are
+ * factory-backed <nuri-button> (which bring pressable.js + reset.css). factory.js + the
+ * descriptor twin arrive via this module's imports (this file is type="module").
  * ────────────────────────────────────────────────────────────── */
 
-(() => {
-  /* ── Named content pivot · the layout flex:1 region ───────────── */
-  class NuriTopbarContent extends HTMLElement {
-    connectedCallback() {
-      // Bare title text → reuse the Typography lg-em utility (the single
-      // text-style owner · decision 64 · 53), so a bare title reads as a
-      // heading with no per-text wrapper. A non-text centre (a segmented
-      // control · any element child) passes through untyped — the analogue
-      // of the RN `typeof children === 'string'` check (R-EXPO-2c). Pure
-      // layout otherwise: no --nuri-type-* is ever hand-applied here.
-      if (this.children.length === 0 && this.textContent.trim().length > 0) {
-        this.classList.add('nuri-type-lg--em');
-      }
-    }
+import { mergedNSForPart, mergeAttrs } from '../../runtime/factory.js';
+import { topbarDescriptor } from '../../../build/descriptors/topbar.js';
+// Self-import the typography primitive (idempotent) — a topbar's bare/typography title
+// is a <nuri-typography>; the positional buttons self-import pressable themselves.
+import '../typography/typography.js';
+
+// Apply a merged namespace map (stack ⊕ box ⊕ palette) to an EXISTING element as the
+// namespace classes + data-* — the factory's merged-node spelling, but onto a host node
+// instead of a freshly-created one (mergeAttrs is the shared inverse-spelling).
+function applyNS(el, nsMap) {
+  const { classes, data } = mergeAttrs(nsMap);
+  if (classes.length) el.classList.add(...classes);
+  for (const [k, v] of Object.entries(data)) el.setAttribute(k, v);
+}
+
+class NuriTopbar extends HTMLElement {
+  // `center` is the only descriptor axis (inset is NOT · a known gap · see the header).
+  static get observedAttributes() {
+    return ['center'];
   }
 
-  /* ── <nuri-topbar> · the shell ───────────────────────────────── */
-  class NuriTopbar extends HTMLElement {
-    static get observedAttributes() {
-      return ['center', 'inset', 'inset-start', 'inset-end'];
-    }
-
-    connectedCallback() {
-      this.#sync();
-    }
-
-    attributeChangedCallback() {
-      if (this.isConnected) this.#sync();
-    }
-
-    #sync() {
-      this.#syncCenter();
-      this.#syncInset();
-    }
-
-    #syncCenter() {
-      if (this.hasAttribute('center')) {
-        this.dataset.center = '';
-      } else {
-        delete this.dataset.center;
-      }
-    }
-
-    // Reflect the inset API → data-inset-start / data-inset-end so the
-    // edge-padding dispatch in topbar.css can pick the value (decision
-    // 46.1 · never compute padding in JS). `inset` is the symmetric
-    // shorthand; a per-edge `inset-start` / `inset-end` overrides it on
-    // that side. Only xs|sm|lg are honoured; anything else clears the
-    // attr so the base lg default takes over.
-    #syncInset() {
-      const shorthand = this.getAttribute('inset');
-      const reflect = (attr, dataKey) => {
-        const raw = this.getAttribute(attr) ?? shorthand;
-        if (raw === 'xs' || raw === 'sm' || raw === 'lg') {
-          this.dataset[dataKey] = raw;
-        } else {
-          delete this.dataset[dataKey];
-        }
-      };
-      reflect('inset-start', 'insetStart');
-      reflect('inset-end', 'insetEnd');
-    }
+  connectedCallback() {
+    this.#sync();
   }
 
-  customElements.define('nuri-topbar-content', NuriTopbarContent);
-  customElements.define('nuri-topbar', NuriTopbar);
-})();
+  attributeChangedCallback() {
+    if (this.isConnected) this.#sync();
+  }
+
+  #sync() {
+    const selection = { center: this.hasAttribute('center') ? 'true' : 'false' };
+    // root NS → the shell (this element IS the chrome row · box ⊕ stack ⊕ palette).
+    applyNS(this, mergedNSForPart(topbarDescriptor, selection, 'root'));
+    // content NS → the pivot child (stack{fill} + the center variant's align/justify).
+    const pivot = this.querySelector('nuri-topbar-content');
+    if (pivot) applyNS(pivot, mergedNSForPart(topbarDescriptor, selection, 'content'));
+  }
+}
+
+// The named content pivot — a marker element the shell styles (no own logic; the bare-text
+// lg-em title-type the recipe applied here is a known gap · see the header). Defined so the
+// element is a recognized custom element rather than HTMLUnknownElement.
+class NuriTopbarContent extends HTMLElement {}
+
+customElements.define('nuri-topbar-content', NuriTopbarContent);
+customElements.define('nuri-topbar', NuriTopbar);
