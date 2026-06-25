@@ -78,10 +78,9 @@
         { id: 'components/scope',       label: 'Scope',      href: 'pages/components/scope.html', nested: true },
         { id: 'components/palette',     label: 'Palette',    href: 'pages/components/palette.html', nested: true },
 
-        // ── Actions · Button + IconButton (decisions 24/39/40/41) ──
+        // ── Actions · Button (decisions 24/39/40/41 · IconButton archived → legacy · N+36) ──
         { id: 'components/actions',     label: 'Actions',    header: true },
         { id: 'components/button',      label: 'Button',     href: 'pages/components/button.html',      nested: true },
-        { id: 'components/icon-button', label: 'IconButton', href: 'pages/components/icon-button.html', nested: true },
 
         // ── Layout · Stack + Box + Screen + Scroll (decision 37 layout
         //    primitives · decision 42 Box radius — bg removed, palette
@@ -94,18 +93,16 @@
         { id: 'components/scroll',      label: 'Scroll',     href: 'pages/components/scroll.html', nested: true },
         { id: 'components/spacer',      label: 'Spacer',     href: 'pages/components/spacer.html', nested: true },
 
-        // ── Inputs · Switch live · others deferred ──
+        // ── Inputs · all deferred (Switch archived → legacy · N+36) ──
         { id: 'components/inputs',         label: 'Inputs',      header: true },
         { id: 'components/input-field',    label: 'InputField',  placeholder: true, nested: true },
         { id: 'components/amount-input',   label: 'AmountInput', placeholder: true, nested: true },
         { id: 'components/dropdown',       label: 'Dropdown',    placeholder: true, nested: true },
-        { id: 'components/switch',         label: 'Switch',      href: 'pages/components/switch.html', nested: true },
         { id: 'components/chip',           label: 'Chip',        placeholder: true, nested: true },
 
         // ── Display · Typography live · others deferred ──
         { id: 'components/display',          label: 'Display',          header: true },
         { id: 'components/typography',       label: 'Typography',       href: 'pages/components/typography.html', nested: true },
-        { id: 'components/typography-stack', label: 'TypographyStack',  href: 'pages/components/typography-stack.html', nested: true },
         { id: 'components/icon-avatar',      label: 'IconAvatar',       href: 'pages/components/icon-avatar.html', nested: true },
         { id: 'components/separator',        label: 'Separator',        href: 'pages/components/separator.html', nested: true },
         { id: 'components/card',             label: 'Card',             placeholder: true, nested: true },
@@ -119,11 +116,9 @@
         { id: 'components/address-display',  label: 'AddressDisplay',   placeholder: true, nested: true },
         { id: 'components/qr-card',          label: 'QrCard',           placeholder: true, nested: true },
 
-        // ── Navigation · Tabs live · others deferred ──
+        // ── Navigation · Topbar live · others deferred (Tabs · TabBar archived → legacy · N+36) ──
         { id: 'components/navigation',    label: 'Navigation',   header: true },
-        { id: 'components/tabs',          label: 'Tabs',         href: 'pages/components/tabs.html', nested: true },
         { id: 'components/topbar',        label: 'Topbar',       href: 'pages/components/topbar.html', nested: true },
-        { id: 'components/tab-bar',       label: 'TabBar',       href: 'pages/components/tab-bar.html', nested: true },
         { id: 'components/icon-tab-row',  label: 'IconTabRow',   placeholder: true, nested: true },
         { id: 'components/screen-header', label: 'ScreenHeader', placeholder: true, nested: true },
         { id: 'components/modal-header',  label: 'ModalHeader',  placeholder: true, nested: true },
@@ -132,13 +127,8 @@
         { id: 'components/data',             label: 'Data',            header: true },
         { id: 'components/balance-header',   label: 'BalanceHeader',   placeholder: true, nested: true },
 
-        // ── List · promoted to its own section (decision 52 · docs
-        //    section-per-recipe micro-pattern). The presentational +
-        //    interactive primitives live on Base; the nav-item recipe
-        //    gets its own sub-page. Retires the single list.html. ──
-        { id: 'components/list',          label: 'List',             header: true },
-        { id: 'components/list-base',     label: 'Base',             href: 'pages/components/list-base.html',     nested: true },
-        { id: 'components/list-nav-item', label: 'Navigation Item',  href: 'pages/components/list-nav-item.html', nested: true },
+        // ── List · the List family (Base · NavItem) was archived → legacy
+        //    at N+36 (pre-axes hand recipes · rebuild-as-descriptor on demand). ──
 
         // ── Overlays · all deferred ──
         { id: 'components/overlays',        label: 'Overlays',       header: true },

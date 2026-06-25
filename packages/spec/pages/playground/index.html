@@ -32,7 +32,6 @@
   <link rel="stylesheet" href="../../styles/shell.css" />
   <!-- Components used by the playground topbar (DS <nuri-topbar center>). -->
   <link rel="stylesheet" href="../../lib/components/icon/icon.css" />
-  <link rel="stylesheet" href="../../lib/components/icon-button/icon-button.css" />
   <link rel="stylesheet" href="../../lib/components/button/button.css" />
   <link rel="stylesheet" href="../../styles/typography.css" />
   <link rel="stylesheet" href="../../lib/components/typography/typography.css" />
@@ -42,7 +41,6 @@
   <!-- Shell first (mirrors the DS order), then the topbar's components. -->
   <script src="../../lib/playground/shell.js" defer></script>
   <script src="../../lib/components/icon/icon.js" type="module"></script>
-  <script src="../../lib/components/icon-button/icon-button.js" defer></script>
   <script src="../../lib/components/button/button.js" defer></script>
   <script src="../../lib/components/typography/typography.js" defer></script>
   <script src="../../lib/components/topbar/topbar.js" defer></script>
@@ -60,14 +58,17 @@
   inside device frames, validating the design system on real layouts —
   the agent-first loop's "composes" step made visible (decision 21).
 
-  Ship list (N+10): ONE document (My vault). The grid is built to grow.
+  Ship list (N+36): the minimal demo bench (demo.html) — the active set
+  only ({primitives + the 3 descriptor recipes}). The pre-axes
+  compositions (my-vault · composition-prototype) were archived → legacy
+  at N+36. The grid is built to grow.
   ═══════════════════════════════════════════════════════════════
 -->
 
 <nuri-playground-shell>
-  <a class="nuri-pg__card" href="my-vault.html">
-    <span class="nuri-pg__card-name">My vault</span>
-    <span class="nuri-pg__card-meta">The wallet home screen — balances, activation rows, fund actions, and the bottom tab bar. Composed entirely from existing components.</span>
+  <a class="nuri-pg__card" href="demo.html">
+    <span class="nuri-pg__card-name">Demo bench</span>
+    <span class="nuri-pg__card-meta">The minimal bench — Button variants, IconAvatar, a Topbar, and a small card composed from primitives (Box · Stack · Typography · Icon). Exercises only the active axes-model set; becomes the factory-parity bench at the ·2 flip.</span>
   </a>
 </nuri-playground-shell>
 

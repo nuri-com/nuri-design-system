@@ -29,14 +29,13 @@
        (hard-rule 16). No hand-applied --nuri-type-* block on Topbar. -->
   <link rel="stylesheet" href="../../styles/typography.css" />
   <link rel="stylesheet" href="../../lib/components/icon/icon.css" />
-  <link rel="stylesheet" href="../../lib/components/icon-button/icon-button.css" />
   <link rel="stylesheet" href="../../lib/components/button/button.css" />
-  <!-- Box + Palette + Tabs ride along for the centred-tabs demo (the
-       Tabs controller composes one merged box ⊕ palette surface node ·
-       65.3 §6 · amendment 42.1). -->
+  <!-- Box + Palette ride along for the centred-surface demo (65.3 §6 ·
+       amendment 42.1). The IconButton + Tabs demos below went inert at N+36
+       when both were archived → legacy: the topbar shell still renders;
+       its slotted children are frozen (rebuild-as-descriptor on demand). -->
   <link rel="stylesheet" href="../../lib/components/box/box.css" />
   <link rel="stylesheet" href="../../lib/components/palette/palette.css" />
-  <link rel="stylesheet" href="../../lib/components/tabs/tabs.css" />
   <link rel="stylesheet" href="../../lib/components/topbar/topbar.css" />
   <link rel="stylesheet" href="../../lib/docs/demo/demo.css" />
 
@@ -47,11 +46,7 @@
        AFTER body parsing (children present). See AGENTS.md. -->
   <script src="../../lib/components/scope/scope.js" defer></script>
   <script src="../../lib/components/icon/icon.js" type="module"></script>
-  <script src="../../lib/components/icon-button/icon-button.js" defer></script>
   <script src="../../lib/components/button/button.js" defer></script>
-  <!-- No box.js — the Tabs surface is a plain div carrying the
-       box + palette class layers, not a <nuri-box> (N+19 U3). -->
-  <script src="../../lib/components/tabs/tabs.js" defer></script>
   <script src="../../lib/components/topbar/topbar.js" defer></script>
   <script src="../../lib/docs/demo/demo.js" defer></script>
 </head>

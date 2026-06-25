@@ -17,27 +17,18 @@ Spec pages (HTML · served via gh-pages):
   /packages/spec/pages/components/palette.html        colour namespace · class-layer dispatch (variant/chrome) · merged-node authoring · owns ALL colour (65.3 §6)
   Actions:
   /packages/spec/pages/components/button.html         anatomy · token-mapping · variants · states (canonical template)
-  /packages/spec/pages/components/icon-button.html    icon-only action · behavioural delta (F-ARIA-LABEL-1 · F-TOUCH-TARGET-1)
   Layout:
   /packages/spec/pages/components/stack.html          flex stack layout primitive
   /packages/spec/pages/components/box.html            box primitive · purely geometric (padding · radius · sizing · center)
   /packages/spec/pages/components/screen.html         screen scaffold primitive
   /packages/spec/pages/components/scroll.html         scroll container primitive
   /packages/spec/pages/components/spacer.html         flex spacer primitive
-  Inputs:
-  /packages/spec/pages/components/switch.html         toggle input
   Display:
   /packages/spec/pages/components/typography.html        text component
-  /packages/spec/pages/components/typography-stack.html  stacked text component
   /packages/spec/pages/components/icon-avatar.html       icon-in-circle avatar
   /packages/spec/pages/components/separator.html         divider
   Navigation:
-  /packages/spec/pages/components/tabs.html           tabs
   /packages/spec/pages/components/topbar.html         top app bar
-  /packages/spec/pages/components/tab-bar.html        bottom tab bar
-  List:
-  /packages/spec/pages/components/list-base.html      presentational + interactive list primitives
-  /packages/spec/pages/components/list-nav-item.html  nav-item list recipe
 
 Build assets (dist · fetchable · 6 kinds · all emitted by `npm run build`):
   /packages/spec/build/tokens.json                 DTCG primitives (W3C standard · 216 colour tokens)
