@@ -27,10 +27,10 @@ its namespace→resolver map; the type forces it **total** — a namespace witho
 
 **The data/mechanism line runs through the cells** (the §4 line, drawn inside the resolver):
 
-- **Agnostic namespaces — `box` · `stack` · `typography`.** The mapping (`box.padding → the padding
+- **Agnostic namespaces — `box` · `stack`.** (typography is BESPOKE, not agnostic · [decision 73](../decisionlog.md).) The mapping (`box.padding → the padding
   property, value from the space scale`) is **platform-agnostic DATA**. Today it is hand-transcribed as
   walls of `if (ns.x) s.y = scale[ns.x]` (`resolve.ts` `resolveBox`/`resolveStack` — literally a mapping
-  table written as code). At the target the three cells **delegate to ONE shared mapping table**; only
+  table written as code). At the target the two cells **delegate to ONE shared mapping table**; only
   the per-target *emit* differs (RN → a `ViewStyle` object · web → a CSS var / inline · CSS → a rule).
   **Do not hand-write the same mapping three times** (drift).
 - **Bespoke namespaces — `palette` · `interactive`.** The three cells are **genuinely distinct

@@ -55,7 +55,7 @@ translate to RN); production correctness lives in RN.
 
 ## The axes, precisely
 
-- **Three agnostic axes** (`stack` · `box` · `typography`) = **ONE generic structure** — a
+- **Two agnostic axes** (`stack` · `box`) = **ONE generic structure** — a
   `Field` table (`field → { via, property-concept, value-source }`).
   [`packages/rn/factory/resolve-map.ts`](../packages/rn/factory/resolve-map.ts) already
   encodes it for RN; its own header promises *"three platforms will style from this ONE table
@@ -64,11 +64,14 @@ translate to RN); production correctness lives in RN.
   the logical-pad remap `paddingHorizontal`→`padding-inline`). It was designed at S1, never
   executed for the web — S3 reused the hand CSS instead (Option A), which is where the model
   got lost.
-- **Two bespoke axes** (`palette` · `interactive`) = **bespoke-but-single-sourced**
-  ([decision 67](../decisionlog.md)). palette = the colour funnel (the `SURFACE` role table →
-  bg/fg/pressed); interactive = the gated state effects (`:active`/`:disabled`, opt-in).
-  **Single-sourcing is the rule, not uniformity** — forcing these into the generic `Field`
-  shape is a kitchen-sink; bespoke-but-declared-once already satisfies the invariant.
+- **Three bespoke axes** (`typography` · `palette` · `interactive`) = **bespoke-but-single-sourced**
+  ([decision 67](../decisionlog.md) · the grouping refined by [decision 73](../decisionlog.md):
+  typography is bespoke, NOT agnostic — `resolve.ts` handles it as a type-STEP ref, not a `Field`).
+  typography = the type STEP (`size → typeKey`, expanded via `typeStyle` at render · the L3.1b axis);
+  palette = the colour funnel (the `SURFACE` role table → bg/fg/pressed); interactive = the gated
+  state effects (`:active`/`:disabled`, opt-in). **Single-sourcing is the rule, not uniformity** —
+  forcing these into the generic `Field` shape is a kitchen-sink; bespoke-but-declared-once already
+  satisfies the invariant.
 - The axis SoT **belongs in `@nuri/spec`** (today `resolve-map.ts` is mis-homed in `@nuri/rn`
   — backwards vs the [decision 68](../decisionlog.md) `rn → spec` DAG).
 
@@ -98,7 +101,11 @@ artifact **generated or consumed**. The duplications this removes, that exist to
 
 - the axis mapping hand-written in **both** `resolve-map.ts` (RN) **and** the namespace CSS (web);
 - `SpaceLeaf`/`RadiusLeaf` hardcoded in the schema **vs** the token scales they should derive from;
-- the recipe CSS (`button.css` …) **restating** the namespace dispatch it could compose.
+- the recipe CSS (`button.css` …) **restating** the namespace dispatch it could compose;
+- the per-target property SPELLING (`background`/`backgroundColor` · the logical-prop remap)
+  scattered across each axis emit (`namespace-css.js` · `palette-css.js` · `resolvePalette`) — to be
+  single-sourced in a central **property-spelling registry** ([decision 73](../decisionlog.md) ·
+  realized at L3c / `final`).
 
 ## What retires
 

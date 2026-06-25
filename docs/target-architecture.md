@@ -292,8 +292,8 @@ resolver is a **compile error**, not a silent gap. Agnosticism does not cost the
 type system enforces one resolver per declared namespace.
 
 *(Refined — [`roadmap/factory-rewrite.md`](../roadmap/factory-rewrite.md): the registry is **per
-target** — `{ rn, web, css } × namespace`. The agnostic namespaces (box/stack/typography) delegate to
-ONE shared mapping table; only palette/interactive are bespoke per target. RN+web resolvers are
+target** — `{ rn, web, css } × namespace`. The agnostic namespaces (box/stack) delegate to
+ONE shared mapping table; typography/palette/interactive are bespoke per target ([decision 73](../decisionlog.md)). RN+web resolvers are
 runtime, the CSS resolver is build-time [§9].)*
 
 ### 6.2 The factory/projection boundary, stated exactly
