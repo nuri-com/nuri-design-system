@@ -4,15 +4,18 @@ name: gates
 # (and on pushes to main). Authoritative pre-merge check.
 #
 # Monorepo (decision 65.7/65.8/65.9/65.10): the repo is an npm-workspaces
-# monorepo. M3 reshapes the single `gates` job into THREE parallel
-# per-workspace jobs — `spec` · `rn` · `expo-demo` — so the gate becomes
-# INTRA-REPO: the `rn` render-smoke imports @nuri/spec's frozen
-# descriptors+tokens and RENDERS them, so a contract change that breaks the RN
-# render fails CI by construction (no cross-repo seam). This is the per-workspace
-# CI the monorepo was built to make possible — it CLOSES R7 (decision 65.10).
+# monorepo. M3 reshapes the single `gates` job into parallel per-workspace jobs —
+# `spec` · `rn` · `expo-demo` — so the gate becomes INTRA-REPO: the `rn`
+# render-smoke imports @nuri/spec's frozen descriptors+tokens and RENDERS them, so a
+# contract change that breaks the RN render fails CI by construction (no cross-repo
+# seam). This is the per-workspace CI the monorepo was built to make possible — it
+# CLOSES R7 (decision 65.10). N+41 (the A3 carve) added a FOURTH job — `prototype` —
+# the build-free web library: it regenerates the namespace CSS from @nuri/spec's SoTs
+# and gates re-emit ≡ committed (prototype → spec).
 #
-# Required checks (operator · decision B · reconfigured ONCE at M3):
-#   branch protection `gates` → `spec` + `rn` + `expo-demo` (the 3 job names).
+# Required checks (operator · decision B · reconfigured at M3 · extended at N+41):
+#   branch protection `gates` → `spec` + `prototype` + `rn` + `expo-demo` (the 4 job
+#   names · the operator adds `prototype` to required checks).
 #
 # Install scoping (verified M3): `npm ci -w @nuri/<job>` does NOT scope — `npm ci`
 # reconstructs the whole lockfile tree by design (`-w` only scopes the focus
@@ -51,6 +54,35 @@ jobs:
         # rebuilt, the fresh emit diverges from the committed files — fail
         # so the author runs `npm run build -w @nuri/spec` and commits it.
         run: git diff --exit-code packages/spec/build/
+
+  # The build-free web LIBRARY · @nuri/prototype (the A3 carve · N+41). Owns the web
+  # mechanism (factory · primitives · the 3 recipes · nuri-demo) AND the namespace-CSS
+  # GENERATION: it reads @nuri/spec's TS SoTs + the generated tokens-semantic.css across
+  # the package boundary (prototype → spec) and emits styles/<ns>.css. The build+diff is
+  # the re-emit ≡ committed guard (the freshness the 4 namespace tests also assert in
+  # memory). Self-sufficient against the committed tree — the `spec` job guards the token
+  # CSS freshness prototype reads.
+  prototype:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install (locked · workspace-aware)
+        run: npm ci
+
+      - name: Test (namespace-CSS freshness/value guards · @nuri/prototype)
+        run: npm test -w @nuri/prototype
+
+      - name: Build the namespace CSS (@nuri/prototype · reads @nuri/spec SoTs)
+        run: npm run build -w @nuri/prototype
+
+      - name: packages/prototype/styles/ must match source (re-emit ≡ committed)
+        run: git diff --exit-code packages/prototype/styles/
 
   # The bare certified RN engine. THIS JOB IS THE INTRA-REPO CONTRACT GATE (R7).
   # The render-smoke imports @nuri/spec's frozen descriptors+tokens through the

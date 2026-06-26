@@ -66,7 +66,7 @@ because `nuri-demo` lives in the shared library (`prototype`), not in a leaf (§
 | package | role · publishing | deps | contains (target) |
 |---|---|---|---|
 | **`@nuri/spec`** | SoT · TS source | — | the descriptor **registry** (recipes in TS) · the **token/vocabulary** (values · TS) · the frozen **schema** (Guard F) |
-| **`@nuri/prototype`** *(was `@nuri/web`)* | library · **build-free web** | spec | the **web factory** (`buildComponent`) · the **web primitives** (`nuri-box/stack/pressable/typography/view`) · the **CSS** (namespace + recipe + the hand-written `reset`/boilerplate) · **`nuri-demo`** (the showcase widget) |
+| **`@nuri/prototype`** *(was `@nuri/web`)* | library · **build-free web** | spec | the **web factory** (`buildComponent`) · the **web primitives** (`nuri-box/stack/pressable/typography/view/…`) · the 3 factory-backed **recipes** (button · icon-avatar · topbar) · the **GENERATED namespace CSS** (post-flip · the generator reads spec's TS SoTs) + the hand-written `reset` · **`nuri-demo`** (the showcase widget) |
 | **`@nuri/rn`** *(was `@nuri/factory`)* | library · **RN-native** | spec | the **engine** (`createNuriComponent` · `resolve` · `resolve-map` · theme) · the generated **ergonomic barrel** |
 | **`@nuri/doc`** | consumer · **SSG** | prototype | the **docs website** — the just-the-docs shell · the **generated** markdown pages · nav · principles |
 | **`@nuri/playground`** | consumer · **build-free** | prototype | the **composing bench** — `my-vault` · the playground shell · the compositions |
@@ -89,14 +89,19 @@ contract.
 ### 3.2 `@nuri/prototype` — the build-free web library
 
 ```
-@nuri/prototype/
-├── factory/          the web factory — buildComponent (the N+27 lib/runtime/factory.js)
-├── primitives/       the web primitives — nuri-{box,stack,pressable,typography,view} (.js · the mechanism)
-├── styles/           the CSS — namespace (box/stack/palette/interactive) + recipe (button…) + type utilities
-│   └── reset.css …   the hand-written host normalization + boilerplate (the §9 boundary · N+27)
-└── demo/             nuri-demo — the showcase widget (toolbar · live preview · code view · device frame)
+@nuri/prototype/          (as-built · N+41 · the A3 carve)
+├── factory/          the web factory — buildComponent + reset.css (was lib/runtime/ · the §9 boundary)
+├── primitives/       the web primitives — nuri-{box,stack,pressable,typography,view,icon,screen,…} (.js + per-element .css)
+├── recipes/          the 3 factory-backed recipes — nuri-{button,icon-avatar,topbar} (.js · thin over the factory)
+├── styles/           the 5 GENERATED namespace CSS — box · stack · palette · interactive · typography
+├── pipeline/         the namespace-CSS generator (reads spec's TS SoTs → styles/) + the 4 freshness tests
+├── demo/             nuri-demo — the showcase widget (toolbar · live preview · code view · device frame)
+└── legacy/           the frozen pre-axes mechanism (archived · rebuild-as-descriptor on demand)
 ```
-*Build-free.* Loaded directly in the browser — no build step, ever. Consumed by `doc` (embedded in the
+*Build-free* in the browser — the primitives/recipes/factory load with no build step. The ONLY build step is the
+namespace-CSS generation (`pipeline/` · reads spec's TS SoTs cross-package → `styles/<ns>.css` · committed · CI
+re-emit ≡ committed). The type SCALE utilities (`.nuri-type-*`) stay CSS-SoT in `@nuri/spec` (a phase-4 token
+flip · read cross-package). Consumed by `doc` (embedded in the
 SSG pages) and `playground` (composed live).
 
 ### 3.3 `@nuri/rn` — the production RN library

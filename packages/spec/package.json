@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "description": "Nuri spec · the radix workspace: lib/ (web CSS + custom-elements · CSS is SoT) + pipeline/ (emitter) + build/ (frozen emitted contract · Guard F)",
-  "//": "exports map LANDED + VALIDATED in M2 — @nuri/rn (contract.ts) is the spec's first importer (decision 65.8 deferred the validation to here). The 9 factory-face subpaths map to the frozen build/*.ts (RAW TS · no dist · resolved under TS bundler/nodenext moduleResolution + Metro package-exports). lib/ + styles/ + pages/ stay INTERNAL. The build/ + pipeline/ dir names are exports-hidden (decision 65.8 · the dist rename stays rejected). TRANSITIONAL (N+39 · decision 73 cl.2 / 74 · convergence `final`): ./resolve-map + ./property-spelling expose the box/stack axis SoT + the property-spelling registry from pipeline/ — the post-flip rn→spec DAG (the table was mis-homed in @nuri/rn). They are PURE DATA (only `import type`, no node/codegen deps · safe for the RN bundle). The codegen-vs-data home re-org is convergence phase 4; these dir-agnostic subpaths keep @nuri/rn's import path stable across that move.",
+  "//": "exports map LANDED + VALIDATED in M2 — @nuri/rn (contract.ts) is the spec's first importer (decision 65.8 deferred the validation to here). The 9 factory-face subpaths map to the frozen build/*.ts (RAW TS · no dist · resolved under TS bundler/nodenext moduleResolution + Metro package-exports). lib/ + styles/ + pages/ stay INTERNAL. The build/ + pipeline/ dir names are exports-hidden (decision 65.8 · the dist rename stays rejected). TRANSITIONAL (N+39 · decision 73 cl.2 / 74 · convergence `final`): ./resolve-map + ./property-spelling expose the box/stack axis SoT + the property-spelling registry from pipeline/ — the post-flip rn→spec DAG (the table was mis-homed in @nuri/rn). They are PURE DATA (only `import type`, no node/codegen deps · safe for the RN bundle). The codegen-vs-data home re-org is convergence phase 4; these dir-agnostic subpaths keep @nuri/rn's import path stable across that move. N+41 (the A3 carve) added ./palette-surface + ./interactive-effects + ./typography-axis (the 3 bespoke axis SoTs) so @nuri/prototype's namespace-CSS generator resolves them across the package boundary (import.meta.resolve · the prototype → spec DAG) — same TRANSITIONAL pure-data posture.",
   "exports": {
     "./tokens": "./build/tokens.ts",
     "./token-paths": "./build/token-paths.ts",
@@ -16,7 +16,10 @@
     "./descriptors/icon-avatar": "./build/descriptors/icon-avatar.ts",
     "./descriptors/topbar": "./build/descriptors/topbar.ts",
     "./resolve-map": "./pipeline/resolve-map.ts",
-    "./property-spelling": "./pipeline/property-spelling.ts"
+    "./property-spelling": "./pipeline/property-spelling.ts",
+    "./palette-surface": "./pipeline/palette-surface.ts",
+    "./interactive-effects": "./pipeline/interactive-effects.ts",
+    "./typography-axis": "./pipeline/typography-axis.ts"
   },
   "scripts": {
     "build": "node pipeline/tokens-parser.js",

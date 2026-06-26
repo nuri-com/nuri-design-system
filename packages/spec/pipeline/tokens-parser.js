@@ -100,7 +100,10 @@ import { loadColours, flipColourCss } from './parsers/colour-css.js';
 
 import { loadSemanticColours, flipSemanticCss } from './parsers/semantic-css.js';
 
-import { flipNamespaceCss } from './css-preview.js';
+// The namespace-CSS generation (flipNamespaceCss / pipeline/css-preview.js) MOVED to
+// @nuri/prototype at N+41 (the A3 carve · convergence §5 · "each library owns the emitter
+// for its own surface"). spec's build no longer generates it; prototype regenerates its
+// styles/<ns>.css from spec's TS SoTs via `npm run build -w @nuri/prototype`.
 
 import { ICONS } from '../lib/components/icon/icons.js';
 
@@ -169,7 +172,6 @@ const DIMENSIONS_SRC   = resolve(REPO_ROOT, 'pipeline/dimensions.ts');
 const COLOURS_SRC      = resolve(REPO_ROOT, 'pipeline/colours.ts');
 const PALETTE_SURFACE_SRC = resolve(REPO_ROOT, 'pipeline/palette-surface.ts');
 const TYPOGRAPHY_AXIS_SRC = resolve(REPO_ROOT, 'pipeline/typography-axis.ts');
-const COMPONENTS_DIR   = resolve(REPO_ROOT, 'lib/components');
 const JSON_OUT         = resolve(REPO_ROOT, 'build/tokens.json');
 const TS_OUT           = resolve(REPO_ROOT, 'build/tokens.ts');
 const INTERACTION_OUT  = resolve(REPO_ROOT, 'build/interaction.ts');
@@ -196,32 +198,15 @@ const DOC_COMPONENTS = ['composition-button', 'icon-avatar', 'topbar'];
 // has a live consumer (P11 · decision 30 · no speculative emit ahead of one).
 const BROWSER_DESCRIPTOR_COMPONENTS = ['composition-button', 'icon-avatar', 'topbar'];
 
-// Per-component `@layer tokens` WALK list (decision 34 · N+6.0.3 ·
-// extended at decisions 37 / 38 / 44). The per-component FILE emission
-// (build/components/<name>.ts) is RETIRED — Smell-1 · decision 66
-// arc #0: those files were consumed only by the now-retired
-// `button-matrix` mirror (M4), and the lone live value — the
-// decision-45 interaction baseline — moved to its own transversal emit
-// at build/interaction.ts. The walk STAYS: it computes the per-component
-// TokenPath coverage for the build log and keeps the resolver
-// (readComponentTokens · resolveComponentValue) exercised end-to-end.
-//
-// N+36 · the pre-axes hand recipes (icon-button · list · list-item ·
-// list-interactive-item · nav-item · switch · tab-bar · tabs ·
-// typography-stack) were quarantined to legacy and dropped from this
-// walk (N+36). N+38 · the L3c flip refined this further — see the note above COMPONENTS.
-// The walk feeds ONLY the build LOG (componentReports); it is independent
-// of every build/ artefact (the TokenPath union derives from
-// classifiedGroups · Slice 5), so the drop is build-output-neutral.
-// Layout primitives (decision 37) · visual atoms like Icon (decision 38) ·
-// 'palette' (N+19 B2b · decision 65.3 §6) carry an empty `@layer tokens`
-// and contribute no paths; 'palette' emits its MAPPING through the
-// dedicated Slice 7 below (build/palette.ts · pipeline/parsers/palette.js).
-// N+38 · the L3c flip (decision 74) dropped the 3 descriptor recipes (button ·
-// icon-avatar · topbar) — their recipe CSS retired (factory-backed), so they no longer
-// have a `<name>.css` to walk. Build-output-neutral (the walk feeds only the build LOG ·
-// the TokenPath union derives from classifiedGroups · Slice 5 · not this walk).
-const COMPONENTS = ['stack', 'box', 'screen', 'scroll', 'spacer', 'icon', 'separator', 'typography', 'palette'];
+// (Slice 4 · the per-component `@layer tokens` WALK · REMOVED at N+41 · the A3 carve.)
+// The walk read each component's lib/components/<name>/<name>.css to report its TokenPath
+// coverage in the build LOG. At A3 those CSS files MOVED to @nuri/prototype (the 5 namespace
+// CSS → prototype/styles/; the element CSS → prototype/primitives/), so the walk had no files
+// left to read. It was always build-output-neutral (the TokenPath union below derives from
+// classifiedGroups · Slice 5 · NOT this walk), so removing it leaves build/* byte-identical.
+// The resolver it exercised (resolveComponentValue) is covered by tokens-parser.test.js on
+// synthetic input (reframed at N+38); the re-export of readComponentTokens / emitComponentTs /
+// resolveComponentValue stays (the test API).
 
 // Parse the orchestrator's CLI flag `--neutral=<scale>` from argv
 // (decision 31). Default = DEFAULT_NEUTRAL. validateNeutral throws on
@@ -317,25 +302,14 @@ async function main() {
     `the dec-63 #4b/#6b self-scope) → styles/tokens-semantic.css`,
   );
 
-  // ── Slice 0 · the namespace CSS · TS SoTs → lib/components/<ns>/<ns>.css (N+38 · decision 74 · the L3c flip) ──
-  // decision 2 reverses for the NAMESPACE layer (executing decision 70 · after the
-  // dimension [§71] + colour [§72] token flips). The 5 namespace axes — the agnostic
-  // box/stack (the Field table · resolve-map.ts) + the bespoke palette/interactive/
-  // typography (their pipeline/ SoTs) — are GENERATED into lib/components/<ns>/<ns>.css
-  // IN PLACE (pipeline/css-preview.js · flipNamespaceCss), retiring the hand namespace
-  // CSS. Runs AFTER the Slice-0 token flips above (it reads the freshly-written
-  // styles/tokens-semantic.css for the size/space/radius scale vocab) and BEFORE
-  // Slice 8 (derivePalette reads the now-generated palette.css + typography.css). This
-  // is the L3c flip's core: the pages link these files and the web factory styles the
-  // nuri-* merged nodes with them; the recipe layer (button/icon-avatar/topbar CSS+JS)
-  // retires alongside (the factory is the sole web renderer for the 3 descriptors).
-  // Re-emit ≡ committed is gated by pipeline/{css-preview,palette-css,interactive-css,
-  // typography-css}.test.js.
-  const namespaceReports = await flipNamespaceCss();
-  console.log(
-    `[tokens-parser] flipped the namespace CSS from the TS SoTs ` +
-    `(${namespaceReports.map((r) => r.ns).join(' · ')}) → lib/components/<ns>/<ns>.css`,
-  );
+  // (The namespace-CSS slice MOVED to @nuri/prototype at N+41 · the A3 carve.) The 5
+  // namespace axes (box/stack/palette/interactive/typography) are still GENERATED from the TS
+  // SoTs — the dec-74 / dec-2-reversed flip STANDS — but the generator (pipeline/css-preview.js)
+  // now lives in @nuri/prototype and writes prototype/styles/<ns>.css via its OWN build
+  // (`npm run build -w @nuri/prototype` · convergence §5). It reads spec's SoTs + the generated
+  // styles/tokens-semantic.css cross-package (DAG: prototype → spec). spec's build no longer
+  // reads or writes the namespace CSS (Slice 8 · derivePalette · reads the TS SoTs directly
+  // since N+40), so nothing here depends on it.
 
   const primitiveCSS = await readFile(PRIMITIVE_CSS, 'utf8');
   const semanticCSS  = await readFile(SEMANTIC_CSS,  'utf8');
@@ -372,39 +346,10 @@ async function main() {
   const interaction = buildInteraction(primitiveMap);
   await writeFile(INTERACTION_OUT, emitInteractionTs(interaction), 'utf8');
 
-  // ── Slice 4 · per-component `@layer tokens` walk (decision 34 · N+6.0.3) ──
-  // Walk each component's CSS `@layer tokens` block and resolve each
-  // declaration per the SET_POLICY. The per-component FILE emission is
-  // RETIRED (Smell-1 · decision 66 arc #0 · build/components/ deleted): the
-  // files were read only by the now-retired `button-matrix` mirror (M4), and
-  // the lone live value moved to build/interaction.ts above. The walk STAYS so
-  // the TokenPath coverage is still reported and the resolver stays exercised;
-  // it is INDEPENDENT of the TokenPath union below, which derives from
-  // classifiedGroups (the semantic cascade · Slice 5), not from this walk.
-  const componentReports = [];
-  for (const componentName of COMPONENTS) {
-    const componentCssPath = resolve(
-      COMPONENTS_DIR, componentName, `${componentName}.css`,
-    );
-    const componentCSS = await readFile(componentCssPath, 'utf8');
-    const componentPrefix = `--nuri-${componentName}-`;
-    const declarations = readComponentTokens(componentCSS, componentPrefix);
-
-    // Empty `@layer tokens` case (decision 37 · N+6.2 layout primitives;
-    // decision 38 · N+6.3 visual atoms like Icon; 'palette' · N+19 B2b): the
-    // component dispatches semantic vocabulary by prop and aliases no
-    // component token, so it contributes no TokenPath.
-    if (declarations.length === 0) {
-      componentReports.push({ componentName, declCount: 0, referencedPaths: new Set() });
-      continue;
-    }
-
-    const { referencedPaths } = emitComponentTs(
-      componentName, declarations,
-      { primitives: primitiveMap, classifiedGroups },
-    );
-    componentReports.push({ componentName, declCount: declarations.length, referencedPaths });
-  }
+  // (Slice 4 · the per-component `@layer tokens` walk · REMOVED at N+41 · see the note
+  // by the former COMPONENTS list above. Its targets moved to @nuri/prototype; it was
+  // build-output-neutral. The resolver it exercised is covered by the synthetic
+  // tokens-parser.test.js.)
 
   // ── Slice 5 · TokenPath union emit (N+6.0.3 · decision 34) ────
   // Derived from every runtime-set leaf in classifiedGroups; same
@@ -517,12 +462,7 @@ async function main() {
     `[tokens-parser] wrote ${jsonCount} colour primitives → ${JSON_OUT}\n` +
     `[tokens-parser] wrote ${semanticCount} semantic tokens × ${ACCENTS.length} accents × ${THEMES.length} themes → ${TS_OUT}\n` +
     `[tokens-parser] wrote type scale (${TYPE_SIZES.length} steps × {regular, em}) → ${TS_OUT}\n` +
-    `[tokens-parser] wrote interaction baseline (${Object.keys(INTERACTION_PRIMITIVES).length} constants · transversal) → ${INTERACTION_OUT}\n` +
-    componentReports.map((r) =>
-      r.declCount === 0
-        ? `[tokens-parser] walked component '${r.componentName}' (0 decls · empty @layer tokens)`
-        : `[tokens-parser] walked component '${r.componentName}' (${r.declCount} decls, ${r.referencedPaths.size} TokenPath refs · no file · build/components retired)`,
-    ).join('\n') +
+    `[tokens-parser] wrote interaction baseline (${Object.keys(INTERACTION_PRIMITIVES).length} constants · transversal) → ${INTERACTION_OUT}` +
     `\n[tokens-parser] wrote TokenPath union → ${TOKEN_PATHS_OUT}` +
     `\n[tokens-parser] wrote icon registry (${iconNameCount} names × ${ICON_WEIGHTS.length} weights) → ${ICONS_OUT}` +
     `\n[tokens-parser] wrote descriptor schema → ${resolve(DESCRIPTORS_OUT, 'schema.ts')}` +

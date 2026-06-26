@@ -1,0 +1,36 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · NAMESPACE CSS · PALETTE · GENERATED — DO NOT EDIT BY HAND
+ *
+ * GENERATED from the SURFACE role table (packages/spec/pipeline/palette-surface.ts)
+ * by prototype/pipeline/css-preview.js — the inverse-spelling of resolvePalette
+ * (packages/rn/factory/resolve.ts) — wired into npm run build -w @nuri/prototype (its
+ * own build · regenerates IN PLACE over prototype/styles/palette.css). This is the LIVE
+ * palette namespace CSS: the pages link it and the web factory styles nuri-palette
+ * nodes with it. decision 2 reversed for the namespace layer (decision 74 · executing
+ * decision 70 · the L3c flip · N+38 · carved to @nuri/prototype at N+41) — the hand SoT
+ * retired (git-recoverable), the generator is the sole source, and packages/spec/build/
+ * palette.ts asserts its contract against the same SURFACE SoT (re-sourced at N+40 · the
+ * recipe-CSS cross-checks retired with the recipes · packages/spec/pipeline/parsers/
+ * palette.js). Re-run npm run build -w @nuri/prototype; freshness gated by
+ * prototype/pipeline/palette-css.test.js.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design (decision 37 · the Stack/Box pattern). Palette dispatches
+   * the semantic accent/chrome vocabulary directly in `@layer rules` via
+   * attribute selectors — component-token aliasing would be useless
+   * indirection. Mirrors the hand palette.css. */
+}
+
+@layer rules {
+  .nuri-palette[data-variant="solid"] { background: var(--nuri-accent-solid); color: var(--nuri-accent-on-solid); }
+  .nuri-palette[data-variant="soft"] { background: var(--nuri-bg-strong); color: var(--nuri-text-primary); }
+  .nuri-palette[data-variant="ghost"] { background: transparent; color: var(--nuri-text-primary); }
+  .nuri-palette[data-variant="subtle"] { color: var(--nuri-border-strong); }
+  .nuri-palette[data-chrome="canvas"] { background: var(--nuri-bg-canvas); color: var(--nuri-text-primary); }
+  .nuri-palette[data-chrome="subtle"] { background: var(--nuri-bg-subtle); color: var(--nuri-text-primary); }
+  .nuri-palette[data-chrome="strong"] { background: var(--nuri-bg-strong); color: var(--nuri-text-primary); }
+  .nuri-palette[data-variant="solid"][data-press-color]:active { background: var(--nuri-accent-solid-pressed); }
+  .nuri-palette[data-variant="soft"][data-press-color]:active { background: var(--nuri-bg-pressed); }
+  .nuri-palette[data-variant="ghost"][data-press-color]:active { background: var(--nuri-bg-subtle); }
+}

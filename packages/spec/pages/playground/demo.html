@@ -41,25 +41,25 @@
   <link rel="stylesheet" href="../../styles/typography.css" />
 
   <!-- Active components ONLY (primitives + the 3 descriptor recipes). -->
-  <link rel="stylesheet" href="../../lib/components/icon/icon.css" />
-  <link rel="stylesheet" href="../../lib/components/typography/typography.css" />
-  <link rel="stylesheet" href="../../lib/components/stack/stack.css" />
-  <link rel="stylesheet" href="../../lib/components/box/box.css" />
-  <link rel="stylesheet" href="../../lib/components/palette/palette.css" />
-  <link rel="stylesheet" href="../../lib/components/interactive/interactive.css" />
-  <link rel="stylesheet" href="../../lib/runtime/reset.css" />
+  <link rel="stylesheet" href="../../../prototype/primitives/icon.css" />
+  <link rel="stylesheet" href="../../../prototype/styles/typography.css" />
+  <link rel="stylesheet" href="../../../prototype/styles/stack.css" />
+  <link rel="stylesheet" href="../../../prototype/styles/box.css" />
+  <link rel="stylesheet" href="../../../prototype/styles/palette.css" />
+  <link rel="stylesheet" href="../../../prototype/styles/interactive.css" />
+  <link rel="stylesheet" href="../../../prototype/factory/reset.css" />
 
   <!-- Custom element scripts MUST be deferred so connectedCallback fires
        AFTER body parsing (children present). See AGENTS.md. -->
   <!-- The 3 recipe modules self-import the factory + their primitive element defs
        (pressable/view/icon · idempotent · decision 74). The page loads only the
        directly-authored primitives (typography/stack/icon · the bench header + card). -->
-  <script src="../../lib/components/icon/icon.js" type="module"></script>
-  <script src="../../lib/components/typography/typography.js" defer></script>
-  <script src="../../lib/components/stack/stack.js" defer></script>
-  <script src="../../lib/components/button/button.js" type="module"></script>
-  <script src="../../lib/components/icon-avatar/icon-avatar.js" type="module"></script>
-  <script src="../../lib/components/topbar/topbar.js" type="module"></script>
+  <script src="../../../prototype/primitives/icon.js" type="module"></script>
+  <script src="../../../prototype/primitives/typography.js" defer></script>
+  <script src="../../../prototype/primitives/stack.js" defer></script>
+  <script src="../../../prototype/recipes/button.js" type="module"></script>
+  <script src="../../../prototype/recipes/icon-avatar.js" type="module"></script>
+  <script src="../../../prototype/recipes/topbar.js" type="module"></script>
 
   <style>
     /* Bench chrome only — NOT a DS surface. Plain elements styled with
