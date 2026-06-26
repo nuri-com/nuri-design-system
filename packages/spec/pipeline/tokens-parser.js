@@ -94,7 +94,7 @@ import {
 
 import { emitDocPage, buildDocTokenInputs } from './parsers/docs.js';
 
-import { loadDimensions, flipDimensionCss } from './parsers/dimension-css.js';
+import { loadDimensions, flipDimensionCss, stripTypes } from './parsers/dimension-css.js';
 
 import { loadColours, flipColourCss } from './parsers/colour-css.js';
 
@@ -167,6 +167,8 @@ const PRIMITIVE_CSS    = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
 const SEMANTIC_CSS     = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
 const DIMENSIONS_SRC   = resolve(REPO_ROOT, 'pipeline/dimensions.ts');
 const COLOURS_SRC      = resolve(REPO_ROOT, 'pipeline/colours.ts');
+const PALETTE_SURFACE_SRC = resolve(REPO_ROOT, 'pipeline/palette-surface.ts');
+const TYPOGRAPHY_AXIS_SRC = resolve(REPO_ROOT, 'pipeline/typography-axis.ts');
 const COMPONENTS_DIR   = resolve(REPO_ROOT, 'lib/components');
 const JSON_OUT         = resolve(REPO_ROOT, 'build/tokens.json');
 const TS_OUT           = resolve(REPO_ROOT, 'build/tokens.ts');
@@ -230,6 +232,23 @@ export function parseArgs(argv) {
   const arg = argv.find((a) => a.startsWith('--neutral='));
   if (!arg) return DEFAULT_NEUTRAL;
   return validateNeutral(arg.slice('--neutral='.length));
+}
+
+// Load a namespace-axis TS SoT (palette-surface.ts / typography-axis.ts) the
+// SPEC-RESIDENT way — the shared one-strip impl (stripTypes · dimension-css.js) +
+// a data:-URL import (node 20 cannot import a .ts), exactly as loadDimensions does.
+// Deliberately NOT loadSurface/loadAxis from parsers/{palette,typography}-css.js:
+// those are the namespace-CSS EMITTERS that leave `spec` at the A3 carve, so reading
+// the SoT through them would re-invert the rn→spec DAG this re-source (Slice 8 · §74
+// 'Next: final') exists to decouple. A strip regression fails LOUD here.
+async function loadAxisSoT(tsPath, exportName) {
+  const src = await readFile(tsPath, 'utf8');
+  const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypes(src)));
+  const value = mod[exportName];
+  if (!value || typeof value !== 'object') {
+    throw new Error(`[tokens-parser] loadAxisSoT: ${tsPath} export '${exportName}' missing/empty (strip regression?)`);
+  }
+  return value;
 }
 
 async function main() {
@@ -432,19 +451,21 @@ async function main() {
     descriptorReports.push({ name: spec.name, out, browser });
   }
 
-  // ── Slice 8 · palette mapping emit (N+19 B2b · decision 65.3 §6) ──
+  // ── Slice 8 · palette mapping emit (N+19 B2b · decision 65.3 §6 · re-sourced N+40) ──
   // ADDITIVE at build/palette.ts: the {variant | chrome} → {bg, fg,
   // fgMuted, pressedBg} table as TokenPath data, emitted ONCE in the
-  // baseline (decision 65.2). derivePalette asserts every contract
-  // cell against the namespace CSS SoT (palette.css's variant+chrome rows +
-  // typography.css's muted) before emitting — a contradiction fails the build
-  // (decision 48). The recipe-CSS cross-checks (button/icon-avatar/topbar)
-  // retired with the recipe layer (decision 74 · the L3c flip).
-  const paletteSources = {
-    typography: await readFile(resolve(COMPONENTS_DIR, 'typography/typography.css'), 'utf8'),
-    palette:    await readFile(resolve(COMPONENTS_DIR, 'palette/palette.css'), 'utf8'),
-  };
-  const paletteCells = derivePalette(paletteSources, { classifiedGroups });
+  // baseline (decision 65.2). derivePalette asserts every contract cell
+  // against the namespace-axis TS SoTs — palette-surface.ts's `surface`
+  // (variant+chrome bg/fg/pressed pairs) + typography-axis.ts's `axis` (the muted
+  // dispatch) — before emitting; a contradiction fails the build (decision 48). The
+  // witness was RE-SOURCED at N+40 from the generated lib/components/{palette,
+  // typography}.css those SoTs emit (§74 'Next: final') so this slice stops reading
+  // the namespace CSS the A3 carve relocates — the cells are unchanged (the contract
+  // resolves identically; only its witness moved one step up the cascade). The
+  // recipe-CSS cross-checks (button/icon-avatar/topbar) retired earlier (decision 74).
+  const surface = await loadAxisSoT(PALETTE_SURFACE_SRC, 'surface');
+  const typographyAxis = await loadAxisSoT(TYPOGRAPHY_AXIS_SRC, 'axis');
+  const paletteCells = derivePalette({ surface, typographyAxis }, { classifiedGroups });
   await writeFile(PALETTE_OUT, emitPaletteTs(paletteCells), 'utf8');
   const paletteRowCount =
     Object.keys(paletteCells.variant).length + Object.keys(paletteCells.chrome).length;
@@ -508,7 +529,7 @@ async function main() {
     descriptorReports.map((r) =>
       `\n[tokens-parser] wrote descriptor '${r.name}' (authored SoT${r.browser ? ' + browser ESM' : ''}) → ${r.out}`,
     ).join('') +
-    `\n[tokens-parser] wrote palette mapping (${paletteRowCount} rows · CSS-asserted) → ${PALETTE_OUT}` +
+    `\n[tokens-parser] wrote palette mapping (${paletteRowCount} rows · SoT-asserted) → ${PALETTE_OUT}` +
     docReports.map((r) =>
       `\n[tokens-parser] wrote doc page '${r.source}' (${r.axes} ${r.axes === 1 ? 'axis' : 'axes'} · generated) → ${r.out}`,
     ).join(''),

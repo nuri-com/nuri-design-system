@@ -30,10 +30,10 @@
  *       validated shapes are pinned: a renamed/removed part, variant, or
  *       namespace value (incl. the collapsed `interactive` opt-in) breaks
  *       the test (the TokenPath discipline applied to the descriptor).
- *   E · build/palette.ts re-emits identically from the palette CSS SoT
- *       (palette.css + the recipe CSS the cells are asserted against),
- *       and the operator-settled contract table is pinned — a cell that
- *       contradicts the CSS fails here (and the build · decision 48).
+ *   E · build/palette.ts re-emits identically from the namespace-axis TS SoTs
+ *       (palette-surface.ts + typography-axis.ts · re-sourced N+40 · §74), and
+ *       the operator-settled contract table is pinned — a cell that contradicts
+ *       the SoT fails here (and the build · decision 48).
  *   F · the FROZEN schema SHAPE — the cross-repo contract TYPE is locked
  *       (decision 65 step 5 · "an enforced freeze, not honorary"). The
  *       five namespace field vocabularies, the leaf/structural unions, and
@@ -81,6 +81,7 @@ import {
   resolveSemanticCrossProduct,
 } from './parsers/semantic.js';
 import { buildTypeScale } from './parsers/type.js';
+import { stripTypes } from './parsers/dimension-css.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // The pipeline lives in the @nuri/spec workspace (decision 65.7), so REPO_ROOT
@@ -94,6 +95,14 @@ const read = (rel) => readFileSync(resolve(REPO_ROOT, rel), 'utf8');
 const readRoot = (rel) => readFileSync(resolve(MONOREPO_ROOT, rel), 'utf8');
 const listFiles = (relDir, ext) =>
   readdirSync(resolve(REPO_ROOT, relDir)).filter((f) => f.endsWith(ext));
+
+// Load a namespace-axis TS SoT (palette-surface.ts / typography-axis.ts) the
+// SPEC-RESIDENT way — stripTypes (the shared one-strip impl) + a data:-URL import —
+// exactly as Slice 8 does (NOT loadSurface/loadAxis · those emitters leave spec at the
+// A3 carve). The two derivePalette guards (E + G) re-derive build/palette.ts from the
+// SAME SoTs the build reads (N+40 re-source · decision 74 'Next: final').
+const loadAxisSoT = async (rel, exportName) =>
+  (await import('data:text/javascript,' + encodeURIComponent(stripTypes(read(rel)))))[exportName];
 
 // Pull the first capture group of `re` out of `text`, or fail with
 // `label` so a removed/renamed canonical phrase reads as drift, not
@@ -297,23 +306,22 @@ test('D · build/descriptors/* re-emits from the authored SoT + the composition-
   }
 });
 
-// ── Guard E · the palette mapping ⊂ its CSS SoT (N+19 B2b · decision 65.3 §6) ──
+// ── Guard E · the palette mapping ⊂ its TS SoT (N+19 B2b · decision 65.3 §6 · re-sourced N+40) ──
 // The decision-48 discipline applied to the colour namespace: the
 // {variant | chrome} → {bg, fg, fgMuted, pressedBg} mapping at
-// build/palette.ts must always re-derive from the live CSS —
-// palette.css (the web dispatch · every variant + chrome bg/fg cell + the gated
-// pressed `:active` swap · B2c·1) + typography.css (the muted fg). The recipe-CSS
-// cross-checks (button/icon-avatar/topbar) retired with the recipe layer (decision
-// 74 · the L3c flip). derivePalette THROWS on any
-// cell↔CSS contradiction (incl. a stray/absent `[data-press-color]`
-// pressed row), so this test fails on the same drift `npm run build`
-// fails on; the pinned table below additionally catches a coordinated
-// CSS+build change — the operator-settled contract may only move by
-// deliberately updating this pin.
+// build/palette.ts must always re-derive from the namespace-axis TS SoTs —
+// palette-surface.ts (the SURFACE pairs · every variant + chrome bg/fg + the pressed
+// swap) + typography-axis.ts (the muted fg). RE-SOURCED at N+40 from the generated
+// lib/components/{palette,typography}.css (§74 'Next: final') — one step up the cascade
+// so the guard (like the build) stops reading the namespace CSS the A3 carve relocates.
+// derivePalette THROWS on any cell↔SoT contradiction (a wrong leaf, a missing/absent
+// channel, a stray surface role), so this test fails on the same drift `npm run build`
+// fails on; the pinned table below additionally catches a coordinated SoT+build change —
+// the operator-settled contract may only move by deliberately updating this pin.
 //
 // (The B2c·1 pressed-dispatch witness — which cross-checked palette.css's `:active`
 // swap against the live Button's button.css `:active` rules — retired with the recipe
-// layer · decision 74; the pressedBg is still covered by derivePalette section E.2 +
+// layer · decision 74; the pressedBg is still covered by derivePalette section E +
 // the EXPECTED_PALETTE pin.)
 const EXPECTED_PALETTE = {
   variant: {
@@ -329,17 +337,17 @@ const EXPECTED_PALETTE = {
   },
 };
 
-test('E · build/palette.ts re-derives from the CSS SoT and matches the pinned contract table', () => {
+test('E · build/palette.ts re-derives from the TS SoT and matches the pinned contract table', async () => {
   const classifiedGroups = classifyAll(readSemanticRules(read('styles/tokens-semantic.css')));
 
-  // derivePalette re-reads every source and THROWS on drift (a cell
-  // pointing at the wrong leaf, a missing complete-pair channel, a
-  // stray .nuri-palette rule, a renamed semantic var) — the call
-  // itself is the cell↔CSS guard.
+  // derivePalette re-reads every SoT and THROWS on drift (a cell pointing
+  // at the wrong leaf, a missing channel, a stray surface role, a renamed
+  // semantic var) — the call itself is the cell↔SoT guard. The SoTs are
+  // loaded the spec-resident way (NOT via the carve-bound loadSurface/loadAxis).
   const cells = derivePalette(
     {
-      typography: read('lib/components/typography/typography.css'),
-      palette:    read('lib/components/palette/palette.css'),
+      surface:        await loadAxisSoT('pipeline/palette-surface.ts', 'surface'),
+      typographyAxis: await loadAxisSoT('pipeline/typography-axis.ts', 'axis'),
     },
     { classifiedGroups },
   );
@@ -351,7 +359,7 @@ test('E · build/palette.ts re-derives from the CSS SoT and matches the pinned c
     'build/palette.ts is stale or hand-edited — run `npm run build`.',
   );
 
-  // The operator-settled contract pin (B2b): a CSS change that flows
+  // The operator-settled contract pin (B2b): a SoT change that flows
   // through to ANY cell fails here even after a re-build.
   assert.deepEqual(cells, EXPECTED_PALETTE, 'palette cells drifted from the B2b contract table');
 
@@ -359,7 +367,7 @@ test('E · build/palette.ts re-derives from the CSS SoT and matches the pinned c
   // [data-press-color]:active bg swap against the live Button's button.css `:active`
   // rules — RETIRED with the recipe layer (decision 74 · the L3c flip · there is no
   // recipe button.css to witness anymore). The pressed bg is still fully covered:
-  // derivePalette section E.2 asserts each palette.css `:active` row against
+  // derivePalette section E asserts each surface role's `pressed` against
   // PALETTE_CONTRACT, and EXPECTED_PALETTE pins the pressedBg cells above.
 });
 
@@ -593,11 +601,12 @@ test('G · each build/docs/*.md re-emits identically from its descriptor', async
   const resolved = resolveSemanticCrossProduct(semanticRules, primitiveMap);
   const typeScale = buildTypeScale(primitiveMap);
   const { tokens, colors } = buildDocTokenInputs(classifiedGroups, resolved, typeScale);
-  // The same palette cells the page derefs (build/palette.ts · Guard E's SoT).
+  // The same palette cells the page derefs (build/palette.ts · Guard E's SoT) —
+  // re-derived from the same namespace-axis TS SoTs Slice 8 reads (N+40 re-source).
   const palette = derivePalette(
     {
-      typography: read('lib/components/typography/typography.css'),
-      palette:    read('lib/components/palette/palette.css'),
+      surface:        await loadAxisSoT('pipeline/palette-surface.ts', 'surface'),
+      typographyAxis: await loadAxisSoT('pipeline/typography-axis.ts', 'axis'),
     },
     { classifiedGroups },
   );

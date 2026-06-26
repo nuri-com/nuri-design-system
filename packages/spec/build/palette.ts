@@ -1,13 +1,14 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · PALETTE MAPPING · GENERATED · DO NOT EDIT BY HAND
  *
- * Source · the palette namespace's CSS SoT (asserted cell-for-cell
- * at emit time — a contradiction fails the build · decision 48):
- *   lib/components/palette/palette.css          every variant + chrome bg/fg cell
- *                                               (+ the gated pressed :active swap)
- *   lib/components/typography/typography.css    the muted fg (fgMuted)
- * (The recipe-CSS cross-checks — button/icon-avatar/topbar — retired with the
- *  recipe layer · decision 74 · the L3c flip · they were redundant with palette.css.)
+ * Source · the namespace axis TS SoTs (asserted cell-for-cell at
+ * emit time — a contradiction fails the build · decision 48):
+ *   pipeline/palette-surface.ts   every variant + chrome bg/fg pair
+ *                                 (+ the pressed swap → pressedBg)
+ *   pipeline/typography-axis.ts   the muted dispatch → the muted fg (fgMuted)
+ * (Re-sourced at N+40 from the generated lib/components/{palette,typography}.css
+ *  these SoTs emit · §74 'Next: final' — the spec build stops reading the namespace
+ *  CSS the A3 carve relocates · build/palette.ts cells unchanged.)
  * Emitter · pipeline/parsers/palette.js — run `npm run build`
  *
  * The {variant | chrome} → {bg · fg · fgMuted · pressedBg} mapping
