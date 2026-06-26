@@ -24,14 +24,14 @@
        demos render <nuri-icon> natively · no nesting in nuri-button
        etc.). Per the N+6.2 import lesson, every demo consumer needs
        its own CSS + JS — Icon is the only one here. -->
-  <link rel="stylesheet" href="../../lib/components/icon/icon.css" />
+  <link rel="stylesheet" href="../../../prototype/primitives/icon.css" />
 
   <script src="../../lib/docs/control/control.js" defer></script>
   <script src="../../lib/docs/shell.js" defer></script>
   <!-- icon.js is an ES module (imports the registry) · module scripts
        are deferred by default, so connectedCallback fires after
        children parse (AGENTS.md custom-element rule). -->
-  <script src="../../lib/components/icon/icon.js" type="module"></script>
+  <script src="../../../prototype/primitives/icon.js" type="module"></script>
 
   <style>
     /* Page-local · single-use catalog + demo widgets. Kept page-local

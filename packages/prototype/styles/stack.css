@@ -1,0 +1,48 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · NAMESPACE CSS · STACK · GENERATED — DO NOT EDIT BY HAND
+ *
+ * GENERATED from the Field table (packages/spec/pipeline/resolve-map.ts ·
+ * STACK_FIELDS) + the web spelling layer
+ * (prototype/pipeline/parsers/namespace-css.js) by prototype/pipeline/css-preview.js,
+ * wired into npm run build -w @nuri/prototype (its own build · regenerates IN PLACE
+ * over this file · prototype/styles/stack.css). This is the LIVE namespace CSS — the
+ * pages link it and the web factory (prototype/factory/factory.js) styles the nuri-*
+ * merged nodes with it. decision 2 reversed for the namespace layer (decision 74 ·
+ * executing decision 70 · the L3c flip · N+38 · carved to @nuri/prototype at N+41):
+ * the hand SoT retired (git-recoverable) and the generator is the sole source. Re-run
+ * npm run build -w @nuri/prototype to regenerate; freshness gated by
+ * prototype/pipeline/css-preview.test.js.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design (decision 37 · layout primitives parametrize semantic
+   * vocabulary via prop, not via component-token aliasing). Mirrors the hand
+   * stack.css. */
+}
+
+@layer rules {
+  nuri-stack { display: contents; }
+  nuri-stack:not(:defined) { display: flex; flex-direction: column; }
+  nuri-stack:not(:defined)[direction="row"] { flex-direction: row; }
+  .nuri-stack { display: flex; flex-direction: column; min-width: 0; }
+  .nuri-stack[data-direction="row"] { flex-direction: row; }
+  .nuri-stack[data-direction="column"] { flex-direction: column; }
+  .nuri-stack[data-align="start"] { align-items: flex-start; }
+  .nuri-stack[data-align="center"] { align-items: center; }
+  .nuri-stack[data-align="end"] { align-items: flex-end; }
+  .nuri-stack[data-align="stretch"] { align-items: stretch; }
+  .nuri-stack[data-align="baseline"] { align-items: baseline; }
+  .nuri-stack[data-justify="start"] { justify-content: flex-start; }
+  .nuri-stack[data-justify="center"] { justify-content: center; }
+  .nuri-stack[data-justify="end"] { justify-content: flex-end; }
+  .nuri-stack[data-justify="between"] { justify-content: space-between; }
+  .nuri-stack[data-justify="around"] { justify-content: space-around; }
+  .nuri-stack[data-gap="xs"] { gap: var(--nuri-space-xs); }
+  .nuri-stack[data-gap="sm"] { gap: var(--nuri-space-sm); }
+  .nuri-stack[data-gap="md"] { gap: var(--nuri-space-md); }
+  .nuri-stack[data-gap="lg"] { gap: var(--nuri-space-lg); }
+  .nuri-stack[data-gap="xl"] { gap: var(--nuri-space-xl); }
+  .nuri-stack[data-wrap="true"] { flex-wrap: wrap; }
+  .nuri-stack[data-fill="grow"] { flex: 1 0 auto; }
+  .nuri-stack[data-fill="grow-shrink"] { flex: 1 1 auto; min-inline-size: 0; }
+}

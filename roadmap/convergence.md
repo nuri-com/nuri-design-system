@@ -51,10 +51,13 @@ to `packages/spec/legacy/`; the active tree is exactly **{primitives + the 3 des
 (button · icon-avatar · topbar). Reversible · dec-2 untouched. `my-vault` = the rebuild spec.
 
 **Phase 2 — the package carve** (§9-independent · reversible under dec-2 · [`package-migration.md`](./package-migration.md) A3–A6):
-- **A3 · carve `@nuri/prototype`** — move the **JS mechanism only** (factory + primitives' `.js` + `nuri-demo`
-  + `reset.css`) out of `spec/lib`. **The namespace/recipe CSS STAYS in `spec`** until the flip (it is the
-  dec-2 SoT the pipeline reads · moving it would invert the DAG · option iii). → the factory now lives where a
-  DOM-emulator dev-dep is legitimate.
+- **A3 ✓ ([N+41](./N+41-prototype-carve.md)) · carve `@nuri/prototype`** — moved the web mechanism (factory +
+  primitives + the 3 factory-backed recipes + `nuri-demo` + `reset.css`) out of `spec/lib`. **Post-flip re-cut**:
+  because phase 3 already made the namespace CSS GENERATED, it MOVED to `prototype/styles/` **and the generation
+  moved with it** (`prototype` owns its emitter · reads `spec`'s TS SoTs cross-package via the exports map · §5) —
+  superseding the pre-flip "namespace CSS STAYS in `spec` · option iii" plan (that held only until the flip). The
+  carved CSS regenerates byte-identical; the factory now lives where a DOM-emulator dev-dep is legitimate. The
+  factory **harness** (the no-harness gap) stays open → A6 / a follow.
 - **factory harness** — close the no-harness gap (a committed test of `buildComponent` · in `prototype`) **before**
   the factory becomes the sole renderer.
 - **A4 `@nuri/doc`** (SSG · `website/` + `spec/pages/` + `spec/lib/docs/`) · **A5 `@nuri/playground`** (the bench)
@@ -87,10 +90,20 @@ for what the wallet needs, with `my-vault` (frozen in `legacy/`) as the spec. Ea
 
 **No `@nuri/codegen` package.** Generation splits by **output**: each library owns the emitter for its own
 surface and reads `spec`'s data; `spec` owns the shared mapping **tables** (as data) so nothing duplicates.
-A data change in `spec` propagates via one root `npm run build --workspaces` (topological): `prototype` regenerates
+A data change in `spec` propagates via one root `npm run build --workspaces`: `prototype` regenerates
 its CSS, `rn` its barrel, `doc` its markdown — **artifacts committed**, runtimes build-free/native, CI guards
 `re-emit ≡ committed`. (Finalized at the flip, when `spec` becomes the data source; recorded here as the working
 decision · supersedes `package-architecture.md §7`'s open codegen-home.)
+
+> **Build-order invariant (N+41 · the A3 carve).** npm runs `--workspaces` scripts in **discovery order**
+> (`prototype` before `spec` · alphabetical), NOT topologically as the line above implies. **Benign today**:
+> `prototype`'s namespace CSS depends only on `spec`'s scale **KEYS** (the `--nuri-{space,size,radius}-<leaf>`
+> leaf NAMES · structurally stable · `readScaleVocab`), not the values — so reading the committed
+> `tokens-semantic.css` before `spec` re-flips it yields byte-identical output, and CI is per-job (`spec`'s job
+> guards the token CSS freshness `prototype` reads). **The latent footgun**: a token-vocab change (phase 4 ·
+> adding/removing a scale leaf) requires `spec` built **first**, or a second `prototype` pass. Fix when it bites
+> — make the root `build` run `@nuri/spec` before `@nuri/prototype` explicitly (deferred · not worth the
+> double-build while the dependency is keys-only).
 
 ## 6. What this supersedes
 
