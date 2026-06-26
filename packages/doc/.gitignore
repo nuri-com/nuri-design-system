@@ -1,0 +1,18 @@
+# Staged RUNTIME assets — copied by stage.mjs from @nuri/prototype + @nuri/spec
+# (the SoT) before `jekyll build`; never committed (the generation thesis · no
+# drift). Regenerate with `node stage.mjs`. (The generated Markdown under
+# generated/ is COMMITTED source — the doc-gen output · gated by Guard G — NOT here.)
+/assets/nuri/
+
+# Jekyll build artefacts + local bundler state.
+/_site/
+/.jekyll-cache/
+/.jekyll-metadata
+/.bundle/
+/vendor/
+
+# Resolved in CI (Ruby 3), not locally (system Ruby 2.6 < Jekyll 4 floor).
+Gemfile.lock
+
+# Local hydration-proof page (mirrors _includes/head_custom.html · not Jekyll).
+/__preview__.html

@@ -30,8 +30,9 @@
  * collapse to the `interactive` opt-in on the root (Button); IconAvatar /
  * Topbar are static. NO `compoundVariants` — the press transition is no
  * longer data (decision 65 · behaviour ≠ data). The RN/web factory + the docs
- * consume the AUTHORED descriptor; this module emits it (passthrough), proves it
- * (the oracle), and builds the doc IR from it (docIrFromDescriptor · Slice 9).
+ * consume the AUTHORED descriptor; this module emits it (passthrough) + proves it
+ * (the oracle). Building the doc IR (docIrFromDescriptor) MOVED to @nuri/doc at
+ * N+42 · the A4 carve (convergence §5); this module keeps the DATA emit.
  * Additive — build/palette.ts / tokens.ts / components/* stay byte-identical;
  * only build/descriptors/* re-emits (data byte-identical · provenance header only).
  * ────────────────────────────────────────────────────────────── */
@@ -739,29 +740,14 @@ export function emitDescriptorJsFromSource(spec, source) {
 }
 
 // ════════════════════════════════════════════════════════════════════
-// DOC IR · the AUTHORED descriptor DATA → the IR parsers/docs.js consumes
+// DOC IR · MOVED to @nuri/doc at N+42 · the A4 carve
 // ════════════════════════════════════════════════════════════════════
-// Slice 9 + Guard G read the SoT, not CSS (decision 69): the build imports the
-// browser-ESM twin (the JS-accessible form of the .ts SoT · node 20 cannot import
-// a .ts) and converts it here. axes derive from the variants keys in authored (=
-// canonical) order; anatomy/base/variants flow straight through. Equivalent to
-// deriveDescriptor's IR for the fields emitDocPage reads (Guard D proves derive ≡
-// authored), so the doc pages re-emit byte-identical.
-export function docIrFromDescriptor(spec, descriptor) {
-  const variants = descriptor.variants || {};
-  const axes = {};
-  for (const axis of Object.keys(variants)) axes[axis] = Object.keys(variants[axis]);
-  return {
-    name: spec.name,
-    source: spec.source,
-    exportName: exportNameFor(spec.name),
-    typeName: typeNameFor(spec.name),
-    axes,
-    anatomy: descriptor.structure.anatomy,
-    base: descriptor.structure.base,
-    variants,
-  };
-}
+// docIrFromDescriptor (the AUTHORED descriptor DATA → the IR the doc-gen renders)
+// left @nuri/spec with the doc emitter at the A4 carve — building the doc IR is
+// @nuri/doc's concern (convergence §5 · "spec emits data, doc transforms it"). It
+// now lives at packages/doc/pipeline/descriptor-ir.js, sourced from the descriptor
+// twins Slice 7 still emits. Guard D inlines the equivalent structural reshape
+// (axes / anatomy / base / variants · pipeline/docs-drift.test.js).
 
 // ════════════════════════════════════════════════════════════════════
 // SCHEMA emit · copy the hand-maintained pipeline source verbatim,

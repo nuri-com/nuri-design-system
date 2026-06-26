@@ -2,11 +2,12 @@ name: pages
 
 # Deploy the GENERATED docs site to GitHub Pages (N+22 · decision 66 arc #1 ·
 # north-star move 3). SEPARATE from gates.yml — it does NOT gate merges; the
-# three per-workspace gates (spec · rn · expo-demo) stay the merge bar.
+# per-workspace gates (spec · prototype · rn · expo-demo · doc) stay the merge bar.
 #
-# Pipeline: regenerate the docs (npm run build -w @nuri/spec emits
-# build/docs/*.md) → stage them + the nuri runtime assets into website/
-# (stage.mjs) → jekyll build (just-the-docs remote theme) → upload + deploy.
+# Pipeline: generate the docs (npm run build -w @nuri/doc emits
+# packages/doc/generated/components/*.md · re-sourced onto @nuri/spec's DATA) →
+# stage the nuri runtime assets into packages/doc/ (stage.mjs · @nuri/prototype +
+# @nuri/spec token CSS) → jekyll build (just-the-docs remote theme) → upload + deploy.
 #
 # OPERATOR PREREQ: Settings → Pages → Source = "GitHub Actions" (this repo
 # currently serves the legacy .nojekyll site from the root; flipping to Actions
@@ -41,24 +42,24 @@ jobs:
       - name: Install (locked · workspace-aware)
         run: npm ci
 
-      - name: Regenerate the docs (emits packages/spec/build/docs/*.md)
-        run: npm run build -w @nuri/spec
+      - name: Generate the docs (emits packages/doc/generated/components/*.md)
+        run: npm run build -w @nuri/doc
 
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3'
           bundler-cache: true
-          working-directory: website
+          working-directory: packages/doc
 
-      - name: Stage generated pages + nuri runtime assets into the site
-        run: node website/stage.mjs
+      - name: Stage the nuri runtime assets into the site
+        run: node packages/doc/stage.mjs
 
       - name: Configure Pages (resolves the project baseurl)
         id: pages
         uses: actions/configure-pages@v5
 
       - name: Jekyll build (just-the-docs · correct baseurl)
-        working-directory: website
+        working-directory: packages/doc
         env:
           JEKYLL_ENV: production
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
@@ -66,7 +67,7 @@ jobs:
       - name: Upload the built site artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: website/_site
+          path: packages/doc/_site
 
   deploy:
     needs: build

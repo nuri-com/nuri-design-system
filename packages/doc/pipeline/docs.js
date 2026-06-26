@@ -1,5 +1,5 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · PARSER · DOCS (N+22 · decision 66 arc #1 · the website doc-gen)
+ * NURI · @nuri/doc · DOC-GEN (N+22 · decision 66 arc #1 · re-homed N+42 · A4)
  *
  * Renders the per-component DESCRIPTOR IR (the frozen machine-spec ·
  * decision 65 · 65.3) as a just-the-docs Markdown page. READ-ONLY on
@@ -7,34 +7,39 @@
  * page is BUILD OUTPUT, regenerated every build, so it cannot drift
  * from the spec the way the old hand-written pages did.
  *
- *   NOT §9 (decision 2 STANDS · the brief's hard line). We READ the
- *   descriptor to EMIT docs; we do NOT generate CSS from it. The
- *   descriptor is already the machine-spec (even while CSS-derived ·
- *   the 65.1 bootstrap), so doc-gen does not wait for the source
- *   inversion (north-star move 3 · the decoupling).
+ *   THE BOUNDARY (N+42 · A4 · convergence §5 · decision 75): @nuri/spec
+ *   emits pure DATA; transforming data → Markdown is @nuri/doc's job. This
+ *   emitter moved OUT of @nuri/spec's pipeline (was parsers/docs.js · re-
+ *   sourced onto @nuri/spec's DATA exports, NOT its classifier internals) —
+ *   the A3 pattern (each library owns its emitter, reads spec's data) applied
+ *   to documentation. The descriptor is the machine-spec (decision 69 · the
+ *   SoT); doc-gen reads it + the token data, never re-deriving from CSS.
  *
- * Sources (decision 48 · "emit FROM, never re-author"):
- *   · ir       — the composition descriptor (build/descriptors/<name>.ts ·
- *                axes · anatomy · structure.base · variants), produced
- *                live by deriveDescriptor during the build.
+ * Sources — all @nuri/spec DATA exports (decision 48 · "emit FROM, never re-author"):
+ *   · ir       — the composition descriptor (@nuri/spec/descriptors/<name> ·
+ *                the browser-ESM twin · axes · anatomy · structure.base ·
+ *                variants), reshaped by descriptor-ir.js#docIrFromDescriptor.
  *   · palette  — the {variant|chrome} → {bg·fg·fgMuted·pressedBg} mapping
- *                (build/palette.ts · pipeline/parsers/palette.js). The
- *                token-map table dereferences each `palette:{variant}`
- *                node through it to the resolved TokenPaths.
- *   · tokens   — the size · space · radius · type VALUE maps. TWO uses
- *                (N+23 · one map): the leaf-VALIDATION sets (a box/typography
- *                leaf the descriptor references but absent from its scale
- *                throws · faithfulness · decision 48) AND the value SOURCE —
- *                the resolved px / the type composite the Resolves-to column
- *                renders.
- *   · colors   — the default-scope (neutral + light · cream) colour resolver
- *                (makeColorResolver · N+23): a palette TokenPath → { var, hex }.
- *                The swatch reads `var` LIVE (re-themes with scope); `hex` is
- *                the literal it coincides with at the page :root.
+ *                (@nuri/spec/palette · build/palette.ts). The token-map table
+ *                dereferences each `palette:{variant}` node through it to the
+ *                resolved TokenPaths.
+ *   · tokens   — the size · space · radius · type VALUE maps, derived from
+ *                @nuri/spec/tokens (build/tokens.ts · the px scales + the type
+ *                composite) by buildDocTokenInputs. TWO uses (N+23 · one map):
+ *                the leaf-VALIDATION sets (a box/typography leaf the descriptor
+ *                references but absent from its scale throws · faithfulness ·
+ *                decision 48) AND the value SOURCE — the px / type composite
+ *                the Resolves-to column renders.
+ *   · colors   — the default-scope colour resolver (makeColorResolver · N+23):
+ *                a palette TokenPath → { var, hex }. The `var` (the live CSS
+ *                custom property) comes from @nuri/spec/token-vars (the colour
+ *                var registry · N+42); the `hex` from @nuri/spec/tokens at the
+ *                default scope. The swatch reads `var` LIVE (re-themes with
+ *                scope); `hex` is the literal it coincides with at the page :root.
  *
  *   Output is a pure function of (ir · palette · tokens · colors) — all
- *   SoT-derived through buildDocTokenInputs (the one builder Slice 9 AND
- *   Guard G call), so the page re-emits byte-identical.
+ *   @nuri/spec-data-derived through buildDocTokenInputs (the one builder the
+ *   doc build AND Guard G call), so the page re-emits byte-identical.
  *
  * SPEC ONLY — no prose (DRY · P11). The page carries the derivable
  * data (axes/API · anatomy · the per-part composition [the Token column] +
@@ -43,15 +48,22 @@
  * ONE structural slot — an
  * `## Example` that `{% include %}`s an AUTHORED <nuri-demo> story
  * (a consumer story · decision 57.2 · NOT generated · authored in
- * website/_includes/demo/<source>.html). The "+" in north-star move 3
+ * _includes/demo/<source>.html). The "+" in north-star move 3
  * ("generated data + stories via <nuri-demo>") is two sources; this
- * emitter owns the data half + the slot, the website owns the story.
+ * emitter owns the data half + the slot, the doc package owns the story.
  *
- * Byte-stable (decision 35 · `git diff --exit-code build/`): canonical
+ * Byte-stable (decision 35 · `git diff --exit-code generated/`): canonical
  * part/namespace/prop order, no timestamps, deterministic throughout.
  * ────────────────────────────────────────────────────────────── */
 
-import { ACCENTS, THEMES } from './semantic.js';
+// The default scope every generated swatch + value resolves at: the canonical
+// build scope (decision 31 · neutral accent · cream neutral · light theme — the
+// scope @nuri/doc's head_custom.html pins, so each live var() swatch coincides
+// with its printed hex). In the pre-A4 pipeline these were ACCENTS[0] / THEMES[0]
+// (parsers/semantic.js); @nuri/doc reads spec DATA, not the classifier, so the
+// canonical default is a local constant (convergence §5 · the post-flip boundary).
+const DEFAULT_ACCENT = 'neutral';
+const DEFAULT_THEME = 'light';
 
 // ── Canonical orderings · mirror pipeline/parsers/descriptors.js so the
 // page's row order matches the descriptor's emit order (byte-stable). ──
@@ -100,66 +112,69 @@ const NO_VALUE = '—';
 // re-themes with the page/scope rather than baking a literal. `background` is
 // either `var(--nuri-…)` (a resolved palette channel) or the literal
 // `transparent` (the ghost bg · a bordered empty square). The `.nuri-doc-swatch`
-// rule is inlined in website/_includes/head_custom.html — stable platform glue,
+// rule is inlined in _includes/head_custom.html — stable platform glue,
 // alongside the nuri-scope/nuri-demo base rules.
 const swatch = (background) => `<span class="nuri-doc-swatch" style="background:${background}"></span>`;
 
-// ── Value resolution · the SoT-derived inputs the emitter renders (N+23) ──
-// increment 2: every "Resolves to" cell now carries the RESOLVED value beside
-// the token path — a px for geometry, the type composite for typography, a live
-// swatch + default-scope hex for colour. The values derive from the SAME
-// in-memory build data tokens.ts/palette.ts emit (decision 48 · one source, two
-// readers): the classified semantic groups (leaf→cssVar · VERIFIED against
-// tokens-semantic.css, never hand-kebabed) and the resolved (accent × theme)
-// cross-product. buildDocTokenInputs is the SINGLE builder the orchestrator
-// (Slice 9) AND Guard G call, so the page re-emits byte-identical.
+// ── Value resolution · the @nuri/spec-DATA inputs the emitter renders (N+23 · re-sourced N+42) ──
+// Every "Resolves to" cell carries the RESOLVED value beside the token path —
+// a px for geometry, the type composite for typography, a live swatch + default-
+// scope hex for colour. Re-sourced at N+42 (A4) onto @nuri/spec's DATA exports
+// instead of the classifier internals (the boundary · convergence §5):
+//   · @nuri/spec/tokens     — { chrome, accent, size, space, radius, type } (the
+//                             resolved cross-product + the px scales + the type
+//                             composite · build/tokens.ts).
+//   · @nuri/spec/token-vars — { chrome, accent } leaf → CSS var name (the colour
+//                             var registry the swatch reads live · build/token-vars.ts).
+// buildDocTokenInputs is the SINGLE builder the doc build AND Guard G call, so the
+// page re-emits byte-identical (the re-source is behaviour-preserving · decision 48).
 
 // A palette TokenPath ('accent.solid' · 'chrome.bgStrong') → { var, hex }.
-//   var — the semantic custom property the live swatch reads, looked up from the
-//         classified groups (the leaf→cssVar map the cascade itself emits · the
-//         CSS SoT · NOT hand-kebabed: accent.solid→--nuri-accent-solid keeps its
-//         group prefix, chrome.bgStrong→--nuri-bg-strong drops it).
-//   hex — the default-scope (neutral + light · the page :root) resolved literal
-//         the live swatch coincides with at :root (it re-themes away from there).
+//   var — the CSS custom property the live swatch reads, from @nuri/spec/token-vars
+//         (the leaf→cssVar registry the cascade emits · NOT hand-kebabed:
+//         accent.solid→--nuri-accent-solid keeps its group prefix,
+//         chrome.bgStrong→--nuri-bg-strong drops it).
+//   hex — the default-scope (neutral + light · the page :root) resolved literal,
+//         read from @nuri/spec/tokens at the canonical scope (chrome is theme-only;
+//         accent is accent × theme — the classify-by-cascade shape). The live swatch
+//         coincides with it at :root (it re-themes away from there).
 // Throws on an unresolvable path (faithfulness · decision 48).
-export function makeColorResolver(classifiedGroups, resolved) {
+export function makeColorResolver(specTokens, tokenVars) {
   return (path) => {
     const [group, leaf] = path.split('.');
-    const g = classifiedGroups.get(group);
-    const entry = g && g.entries.find((e) => e.leafName === leaf);
-    if (!entry) {
-      throw new Error(`[docs] colour path '${path}' has no semantic var (classify/palette drift)`);
+    const cssVar = tokenVars[group] && tokenVars[group][leaf];
+    if (!cssVar) {
+      throw new Error(`[docs] colour path '${path}' has no semantic var (token-vars drift)`);
     }
-    const r = resolved[entry.cssVar];
-    const hex = r && r[ACCENTS[0]] && r[ACCENTS[0]][THEMES[0]];
+    const slice = group === 'accent'
+      ? specTokens.accent[DEFAULT_ACCENT] && specTokens.accent[DEFAULT_ACCENT][DEFAULT_THEME]
+      : specTokens[group] && specTokens[group][DEFAULT_THEME];
+    const hex = slice && slice[leaf];
     if (hex == null) {
-      throw new Error(`[docs] colour path '${path}' (${entry.cssVar}) dangled at the default scope`);
+      throw new Error(`[docs] colour path '${path}' (${cssVar}) dangled at the default scope`);
     }
-    return { var: entry.cssVar, hex };
+    return { var: cssVar, hex };
   };
 }
 
-// Build the value-bearing emitter inputs from the live build data. The scale
-// maps ({ leaf: 'NNpx' }) double as the leaf-VALIDATION sets (assertLeaf reads
-// them by Object.hasOwn) AND the value source (the px each cell renders) — one
-// map, two uses. `type` is the full typeScale (the step → its composite fields).
-export function buildDocTokenInputs(classifiedGroups, resolved, typeScale) {
-  const scaleValues = (name) => {
-    const group = classifiedGroups.get(name);
-    const out = {};
-    for (const { cssVar, leafName } of (group ? group.entries : [])) {
-      out[leafName] = resolved[cssVar][ACCENTS[0]][THEMES[0]];
-    }
-    return out;
-  };
+// Build the value-bearing emitter inputs from @nuri/spec's token DATA. The px
+// scale maps ({ leaf: 'NNpx' }) double as the leaf-VALIDATION sets (assertLeaf
+// reads them by Object.hasOwn) AND the value source (the px each cell renders) —
+// one map, two uses. The size/space/radius values are bare px integers in
+// @nuri/spec/tokens; the docs render them with the unit (the inverse of the
+// pipeline's px-strip · the byte-identical gate witnesses it). `type` is the full
+// type scale (the step → its composite fields · directly from the data).
+export function buildDocTokenInputs(specTokens, tokenVars) {
+  const px = (scale) =>
+    Object.fromEntries(Object.entries(scale).map(([leaf, v]) => [leaf, `${v}px`]));
   return {
     tokens: {
-      size: scaleValues('size'),
-      space: scaleValues('space'),
-      radius: scaleValues('radius'),
-      type: typeScale,
+      size: px(specTokens.size),
+      space: px(specTokens.space),
+      radius: px(specTokens.radius),
+      type: specTokens.type,
     },
-    colors: makeColorResolver(classifiedGroups, resolved),
+    colors: makeColorResolver(specTokens, tokenVars),
   };
 }
 
