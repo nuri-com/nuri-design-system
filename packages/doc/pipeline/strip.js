@@ -55,10 +55,12 @@ function removeTypeDecls(src) {
   return out + src.slice(last);
 }
 
-// Drop the inline annotation in `export const NAME: TYPE = …` → `export const
-// NAME = …`. TYPE may span lines / hold braces, so scan `:` → the depth-0 `=`.
+// Drop the inline annotation in `const NAME: TYPE = …` → `const NAME = …`
+// (the `export` is optional — resolve-map.ts annotates its private ALIGN/JUSTIFY/
+// FILL consts the same way, not just the exported tables). TYPE may span lines /
+// hold braces, so scan `:` → the depth-0 `=`.
 function stripConstAnnotations(src) {
-  const re = /\bexport[ \t]+const[ \t]+\w+[ \t]*:/g;
+  const re = /\b(?:export[ \t]+)?const[ \t]+\w+[ \t]*:/g;
   let m, out = '', last = 0;
   while ((m = re.exec(src))) {
     const colon = m.index + m[0].length - 1;

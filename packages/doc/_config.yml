@@ -10,10 +10,10 @@
 # partials under _includes/demo/ (a consumer story · decision 57.2 · NOT generated).
 #
 # Nav = 3 sections matching the cascade (Foundations · Axes · Components). The
-# generated component pages are nested under "Components" via the front-matter
-# DEFAULT below (parent: Components) — injected at Jekyll time so the generated
-# .md stay BYTE-IDENTICAL (doc-gen ⊥ Jekyll nav). Foundations / Axes are
-# placeholders, populated at A4c / A4b.
+# generated component + axis pages are nested under "Components" / "Axes" via the
+# front-matter DEFAULTS below (parent: Components / Axes) — injected at Jekyll time so
+# the generated .md stay BYTE-IDENTICAL (doc-gen ⊥ Jekyll nav). Foundations is a
+# placeholder, populated at A4c.
 # ──────────────────────────────────────────────────────────────
 
 title: Nuri
@@ -35,16 +35,20 @@ aux_links:
   Nuri on GitHub:
     - https://github.com/nuri-com/nuri-design-system
 
-# Nest the GENERATED component pages under the "Components" nav section WITHOUT
-# editing them (the doc-gen emits them byte-identical · the nav is a Jekyll-time
-# concern). just-the-docs matches a child's `parent` to a page's `title`
-# (components.md · title: Components). The token + axis families land under the
-# same mechanism at A4c / A4b (scope: generated/foundations · generated/axes).
+# Nest the GENERATED pages under their nav section WITHOUT editing them (the doc-gen
+# emits them byte-identical · the nav is a Jekyll-time concern). just-the-docs matches
+# a child's `parent` to a page's `title` (components.md · title: Components · axes.md ·
+# title: Axes). The token family lands under the same mechanism at A4c (scope:
+# generated/foundations).
 defaults:
   - scope:
       path: "generated/components"
     values:
       parent: Components
+  - scope:
+      path: "generated/axes"
+    values:
+      parent: Axes
 
 # Keep Jekyll from emitting non-page files + the frozen / source / staged-source
 # trees as pages. (assets/nuri/** is the STAGED runtime static output — SERVED,

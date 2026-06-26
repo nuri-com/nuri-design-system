@@ -52,9 +52,10 @@ export function docIrFromDescriptor(spec, descriptor) {
 
 // The component manifest — { descriptor NAME → doc SOURCE slug }. A copy of the
 // {name, source} pairs from @nuri/spec's DESCRIPTOR_COMPONENTS (the 3 frozen
-// descriptors · 65.3): @nuri/doc owns WHICH descriptors it documents (today the
-// full descriptor set; the token + axis families land at A4b/A4c under their own
-// manifests). The browser-ESM twin for each is imported from @nuri/spec.
+// descriptors · 65.3): @nuri/doc owns WHICH descriptors it documents (the full
+// descriptor set; the axis family landed at A4b · axis-ir.js#AXIS_DOCS, the token
+// family lands at A4c · each under its own manifest). The browser-ESM twin for each
+// is imported from @nuri/spec.
 export const DOC_COMPONENTS = [
   { name: 'composition-button', source: 'button' },
   { name: 'icon-avatar', source: 'icon-avatar' },
