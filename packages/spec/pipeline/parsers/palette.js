@@ -9,31 +9,31 @@
  * existing build/ emit is byte-identical.
  *
  * ONE SOURCE, TWO READERS (decision 48), realized as author-in-emitter
- * + build-time CSS assertion (the descriptors.js SURFACE discipline):
+ * + build-time SoT assertion (the descriptors.js SURFACE discipline):
  * the operator-settled contract table lives below as semantic-var
- * wiring, and derivePalette() asserts EVERY cell against the parsed
- * CSS SoT before anything emits:
+ * wiring, and derivePalette() asserts EVERY cell against the namespace
+ * axis TS SoTs before anything emits:
  *
- *   · EVERY variant + chrome bg/fg cell — palette.css's dispatch rows (the web
- *     realization restates the full table: variant solid/soft/ghost/subtle + the 3
- *     chrome slots, incl. the gated [data-press-color]:active pressed bg swap; an
- *     extra/missing row throws).
- *   · fgMuted (every cell)              — typography.css's data-muted dispatch
+ *   · EVERY variant + chrome bg/fg/pressed cell — palette-surface.ts's SURFACE role
+ *     table (the complete pair + the optional pressed swap: variant solid/soft/ghost/
+ *     subtle + the 3 chrome slots; an extra/missing role or channel throws).
+ *   · fgMuted (every cell)                       — typography-axis.ts's muted dispatch
  *     (the single muted delivery · decision 53; no node-level muted).
  *
- * The recipe-CSS cross-checks (button.css `@layer tokens` aliases · icon-avatar.css
- * subtle · topbar.css's chrome host) RETIRED with the recipe layer (decision 74 · the
- * L3c flip) — they were redundant with palette.css's own rows above.
+ * RE-SOURCED at N+40 (decision 74 'Next: final'): the witness was the GENERATED
+ * lib/components/{palette,typography}.css (§74) — now the TS SoTs those CSS files are
+ * emitted FROM, so spec's build stops reaching into the namespace CSS that the A3
+ * carve moves to @nuri/prototype (one step further up the cascade · no decision
+ * opened · the cells are unchanged). The recipe-CSS cross-checks (button/icon-avatar/
+ * topbar) had already retired at the flip (decision 74).
  *
- * A cell that contradicts the CSS throws here → `npm run build` fails;
+ * A cell that contradicts the SoT throws here → `npm run build` fails;
  * docs-drift Guard E re-derives + pins the table → `npm test` fails.
  *
  * RESERVED — mapped, not built (decision 30): variant `outline` · the
  * `border` channel · solid.fgMuted (the onSolid.muted token). Present
  * in this comment as the reservation; NO values emit.
  * ────────────────────────────────────────────────────────────── */
-
-import postcss from 'postcss';
 
 // ── The operator-settled contract wiring (B2b) ────────────────────────
 // input → channel → the semantic var (or the `transparent` literal —
@@ -56,48 +56,42 @@ export const PALETTE_CONTRACT = {
   },
 };
 
-// Canonical orderings — the emit is deterministic regardless of CSS
-// declaration order (the descriptors.js convention).
+// Canonical orderings — the emit is deterministic regardless of the SoT's
+// source declaration order (the descriptors.js convention).
 const AXIS_ORDER    = ['variant', 'chrome'];
 const ROW_ORDER     = { variant: ['solid', 'soft', 'ghost', 'subtle'], chrome: ['canvas', 'subtle', 'strong'] };
 const CHANNEL_ORDER = ['bg', 'fg', 'fgMuted', 'pressedBg'];
 
-// ── CSS reading helpers (postcss · mirrors descriptors.js) ────────────
+// ── SoT reading helpers ───────────────────────────────────────────────
 
-function rulesInLayer(css, layerParam) {
-  const root = postcss.parse(css);
-  const out = [];
-  root.walkAtRules('layer', (at) => {
-    if (at.params !== layerParam) return;
-    at.walkRules((rule) => {
-      const decls = new Map();
-      rule.walkDecls((d) => decls.set(d.prop, d.value.trim()));
-      out.push({ selector: rule.selector, decls });
-    });
-  });
-  return out;
-}
-
-// A decl value → the referenced semantic var, or the bare literal.
+// A decl value → the referenced semantic var, or the bare literal. The muted
+// dispatch decl is `var(--nuri-text-muted)` (typography-axis.ts · the value verbatim).
 function varTarget(value) {
   const m = value.match(/var\(\s*(--[\w-]+)/);
   return m ? m[1] : value.trim();
 }
 
-// The rule whose comma-separated selector list contains `selector` exactly.
-function ruleFor(rules, selector) {
-  return rules.find((r) => r.selector.split(',').map((s) => s.trim()).includes(selector));
+// A surface Paint (palette-surface.ts) → the contract's semantic-var spelling, or
+// `undefined` when the channel is absent (the fg-only / no-pressed shape). Mirrors
+// palette-css.js#paintToCss (the assertNever analogue, inverted to the contract's
+// `--nuri-` form): a bare string is an L2 role NAME (prefix `--nuri-`); a `{ literal }`
+// is the verbatim CSS value (the `transparent` exception · no var). Anything else throws.
+function paintToVar(paint, where) {
+  if (paint === undefined) return undefined;
+  if (typeof paint === 'string') return `--nuri-${paint}`;
+  if (paint && typeof paint.literal === 'string') return paint.literal;
+  fail(where, `unrecognised paint ${JSON.stringify(paint)} — expected a role name, { literal }, or absent`);
 }
 
 function fail(where, msg) {
   throw new Error(`[palette] ${where}: ${msg}`);
 }
 
-// Assert a parsed CSS value resolves to the contract cell.
+// Assert a resolved SoT value matches the contract cell.
 function assertCell(actualVar, cell, where) {
   if (actualVar !== cell) {
-    fail(where, `CSS SoT disagrees with the contract table — resolves to '${actualVar}', ` +
-      `the contract says '${cell}'. Fix the CSS or (deliberately) update PALETTE_CONTRACT + the Guard E pin.`);
+    fail(where, `the TS SoT disagrees with the contract table — resolves to '${actualVar}', ` +
+      `the contract says '${cell}'. Fix the SoT or (deliberately) update PALETTE_CONTRACT + the Guard E pin.`);
   }
 }
 
@@ -118,95 +112,74 @@ function tokenPathFor(cssVar, classifiedGroups, where) {
   fail(where, `'${cssVar}' is not a classified semantic var — renamed/removed leaf?`);
 }
 
-// ── derive · assert the contract against the surviving namespace CSS, resolve cells ──
-// cssSources = { typography, palette } (file contents · the recipe sources retired ·
-// decision 74 · the L3c flip); classifiedGroups = the classifyAll() pass over
+// ── derive · assert the contract against the namespace-axis TS SoTs, resolve cells ──
+// { surface, typographyAxis } = the loaded TS SoTs — palette-surface.ts's `surface`
+// (the SURFACE role table · bg/fg/pressed pairs) + typography-axis.ts's `axis` (the
+// muted dispatch). Re-sourced at N+40 from the generated lib/components/{palette,
+// typography}.css those SoTs emit (§74 'Next: final') so spec's build stops reading the
+// namespace CSS the A3 carve moves out. classifiedGroups = the classifyAll() pass over
 // tokens-semantic.css the orchestrator already holds.
-export function derivePalette(cssSources, { classifiedGroups }) {
+export function derivePalette({ surface, typographyAxis }, { classifiedGroups }) {
   // Sections A (button.css aliases) · B (icon-avatar.css subtle) · C (topbar.css
   // chrome host) RETIRED with the recipe layer (decision 74 · the L3c flip) — they
-  // were REDUNDANT cross-checks with section E below (palette.css restates EVERY
-  // variant + chrome bg/fg cell, incl. subtle's fg-only role and all 3 chrome slots)
-  // and section D (typography.css muted). The contract is now witnessed in full by the
-  // two surviving namespace CSS files; build/palette.ts (the cells) is unchanged.
+  // were REDUNDANT cross-checks with sections D + E below. The contract is now
+  // witnessed in full by the two namespace-axis TS SoTs (the source the generated
+  // namespace CSS is itself derived from); build/palette.ts (the cells) is unchanged.
 
-  // D · fgMuted (every cell) ← typography.css's data-muted dispatch.
-  const mutedRule = ruleFor(rulesInLayer(cssSources.typography, 'rules'), 'nuri-typography[data-muted]');
-  if (!mutedRule || !mutedRule.decls.has('color')) {
-    fail('typography.css', 'nuri-typography[data-muted] colour rule not found');
-  }
-  const mutedVar = varTarget(mutedRule.decls.get('color'));
+  // D · fgMuted (every cell) ← typography-axis.ts's `muted` dispatch rule. The single
+  // muted delivery (decision 53): the rule's `color` decl is `var(--nuri-text-muted)`
+  // verbatim (the value the emitter writes into typography.css unchanged).
+  const mutedRule = typographyAxis.dispatch.find((r) => r.name === 'muted');
+  if (!mutedRule) fail('typography-axis.ts', "the 'muted' dispatch rule not found");
+  const mutedColor = mutedRule.decls.find(([prop]) => prop === 'color');
+  if (!mutedColor) fail('typography-axis.ts', "the 'muted' dispatch rule declares no color");
+  const mutedVar = varTarget(mutedColor[1]);
   for (const axis of AXIS_ORDER) {
     for (const row of ROW_ORDER[axis]) {
       const cell = PALETTE_CONTRACT[axis][row].fgMuted;
-      if (cell !== undefined) assertCell(mutedVar, cell, `typography.css muted vs ${axis}=${row}.fgMuted`);
+      if (cell !== undefined) assertCell(mutedVar, cell, `typography-axis.ts muted vs ${axis}=${row}.fgMuted`);
     }
   }
 
-  // E · palette.css's own dispatch (the web reader restates the table):
-  //   E.1 · the rest-state bg/fg rows (every cell · the complete pair).
-  //   E.2 · the pressed `:active` bg swap (N+19 B2c·1 · gated
-  //         `[data-press-color]`) — interactive's one palette-realized
-  //         effect (65.3 §6: pressed-COLOUR → palette).
-  // Nothing else: muted is typography's, scale/opacity are interactive's —
-  // a surprise row throws (the stray-rule rejection below).
-  const paletteRules = rulesInLayer(cssSources.palette, 'rules')
-    .filter((r) => r.selector.includes('.nuri-palette'));
-  const expectedSelectors = [];
-
-  // E.1 · rest-state rows.
+  // E · bg/fg/pressedBg (every cell) ← palette-surface.ts's SURFACE role table. The
+  // contract's {bg, fg, pressedBg} restates the SoT's {bg, fg, pressed} pair, modulo
+  // the role-name → `--nuri-<role>` prefix (paintToVar) and the `transparent` literal.
+  // The SoT's shape is honored, not special-cased: subtle is fg-only (no bg/pressed),
+  // the chrome slot has no pressed. fgMuted is typography's (section D), NOT a surface
+  // channel. Both directions are checked — a contract cell with no SoT channel, an SoT
+  // channel with no contract cell, a stray role/channel, all throw.
+  const SURFACE_CHANNELS = [['bg', 'bg'], ['fg', 'fg'], ['pressedBg', 'pressed']];
   for (const axis of AXIS_ORDER) {
     for (const row of ROW_ORDER[axis]) {
-      const selector = `.nuri-palette[data-${axis}="${row}"]`;
-      expectedSelectors.push(selector);
-      const rule = ruleFor(paletteRules, selector);
-      if (!rule) fail('palette.css', `dispatch rule ${selector} not found`);
+      const role = surface[axis] && surface[axis][row];
+      if (!role) fail('palette-surface.ts', `surface role ${axis}.${row} not found`);
       const contract = PALETTE_CONTRACT[axis][row];
-      const channels = { bg: 'background', fg: 'color' };
-      for (const [channel, prop] of Object.entries(channels)) {
-        const declared = rule.decls.get(prop);
-        if (contract[channel] === undefined) {
-          if (declared !== undefined) {
-            fail(`palette.css ${selector}`, `declares '${prop}' but the contract row has no ${channel} channel (fg-only role)`);
+      for (const [contractKey, surfaceKey] of SURFACE_CHANNELS) {
+        const cell = contract[contractKey];
+        const actual = paintToVar(role[surfaceKey], `palette-surface.ts ${axis}.${row}.${surfaceKey}`);
+        if (cell === undefined) {
+          if (actual !== undefined) {
+            fail(`palette-surface.ts ${axis}.${row}`, `declares ${surfaceKey} '${actual}' but the contract row has no ${contractKey} channel`);
           }
           continue;
         }
-        if (declared === undefined) fail(`palette.css ${selector}`, `missing '${prop}' (the complete-pair rule)`);
-        assertCell(varTarget(declared), contract[channel], `palette.css ${selector} ${prop}`);
+        if (actual === undefined) fail(`palette-surface.ts ${axis}.${row}`, `missing ${surfaceKey} (the contract expects ${contractKey} '${cell}')`);
+        assertCell(actual, cell, `palette-surface.ts ${axis}=${row} ${surfaceKey}`);
       }
-      const extra = [...rule.decls.keys()].filter((p) => p !== 'background' && p !== 'color');
+      // The surface role carries ONLY bg/fg/pressed (muted is typography's · decision 53).
+      const extra = Object.keys(role).filter((k) => k !== 'bg' && k !== 'fg' && k !== 'pressed');
       if (extra.length) {
-        fail(`palette.css ${selector}`, `unexpected declaration(s) ${extra.join(', ')} — rest-state dispatch is bg/fg only (pressed = the gated :active rows · muted = typography)`);
+        fail(`palette-surface.ts ${axis}.${row}`, `unexpected channel(s) ${extra.join(', ')} — surface owns bg/fg/pressed only`);
       }
     }
   }
 
-  // E.2 · pressed `:active` rows. variant solid/soft/ghost only — subtle
-  // is fg-only and the chrome slot has no pressed channel by contract.
-  // Each row's background ≡ the `pressedBg` cell, the value the live
-  // Button presses with (button.css the SoT witness; section A pins the
-  // matching `--nuri-button-<v>-bg-pressed` alias). background-only —
-  // the scale/opacity transients are interactive's, not palette's.
-  for (const row of ROW_ORDER.variant) {
-    const pressedBg = PALETTE_CONTRACT.variant[row].pressedBg;
-    if (pressedBg === undefined) continue; // subtle · no pressed channel
-    const selector = `.nuri-palette[data-variant="${row}"][data-press-color]:active`;
-    expectedSelectors.push(selector);
-    const rule = ruleFor(paletteRules, selector);
-    if (!rule) fail('palette.css', `pressed dispatch rule ${selector} not found`);
-    const declared = rule.decls.get('background');
-    if (declared === undefined) fail(`palette.css ${selector}`, `missing 'background' (the pressed bg swap)`);
-    assertCell(varTarget(declared), pressedBg, `palette.css ${selector} background`);
-    const extra = [...rule.decls.keys()].filter((p) => p !== 'background');
-    if (extra.length) {
-      fail(`palette.css ${selector}`, `unexpected declaration(s) ${extra.join(', ')} — pressed dispatch is background only (scale/opacity are interactive's)`);
-    }
-  }
-
-  for (const { selector } of paletteRules) {
-    for (const single of selector.split(',').map((s) => s.trim())) {
-      if (!expectedSelectors.includes(single)) {
-        fail('palette.css', `unexpected .nuri-palette rule '${single}' — not a contract row (rest-state bg/fg or the gated [data-press-color]:active pressed swap; muted is typography's, scale/opacity are interactive's)`);
+  // The surface table carries ONLY the contract rows — a surprise role throws (the
+  // SoT analogue of the old stray-`.nuri-palette`-rule rejection).
+  for (const axis of AXIS_ORDER) {
+    for (const row of Object.keys(surface[axis] || {})) {
+      if (!ROW_ORDER[axis].includes(row)) {
+        fail('palette-surface.ts', `unexpected ${axis} role '${row}' — not a contract row`);
       }
     }
   }
@@ -246,13 +219,14 @@ export function emitPaletteTs(cells) {
     `/* ──────────────────────────────────────────────────────────────`,
     ` * NURI · PALETTE MAPPING · GENERATED · DO NOT EDIT BY HAND`,
     ` *`,
-    ` * Source · the palette namespace's CSS SoT (asserted cell-for-cell`,
-    ` * at emit time — a contradiction fails the build · decision 48):`,
-    ` *   lib/components/palette/palette.css          every variant + chrome bg/fg cell`,
-    ` *                                               (+ the gated pressed :active swap)`,
-    ` *   lib/components/typography/typography.css    the muted fg (fgMuted)`,
-    ` * (The recipe-CSS cross-checks — button/icon-avatar/topbar — retired with the`,
-    ` *  recipe layer · decision 74 · the L3c flip · they were redundant with palette.css.)`,
+    ` * Source · the namespace axis TS SoTs (asserted cell-for-cell at`,
+    ` * emit time — a contradiction fails the build · decision 48):`,
+    ` *   pipeline/palette-surface.ts   every variant + chrome bg/fg pair`,
+    ` *                                 (+ the pressed swap → pressedBg)`,
+    ` *   pipeline/typography-axis.ts   the muted dispatch → the muted fg (fgMuted)`,
+    ` * (Re-sourced at N+40 from the generated lib/components/{palette,typography}.css`,
+    ` *  these SoTs emit · §74 'Next: final' — the spec build stops reading the namespace`,
+    ` *  CSS the A3 carve relocates · build/palette.ts cells unchanged.)`,
     ` * Emitter · pipeline/parsers/palette.js — run \`npm run build\``,
     ` *`,
     ` * The {variant | chrome} → {bg · fg · fgMuted · pressedBg} mapping`,
