@@ -26,9 +26,10 @@
  *
  * Standalone regen (equivalent to the build slice):  node pipeline/css-preview.js
  *
- * The Field table is STILL mis-homed in @nuri/rn (the transitional shim · cascade.md:
- * belongs in @nuri/spec · the package carve relocates it · decision 74 leaves it in
- * place). Read cross-package + type-stripped (node 20 cannot import the .ts).
+ * The Field table + the property-spelling registry (the per-target property NAME ·
+ * decision 73 cl.2) are HOMED in @nuri/spec's pipeline/ (N+39 · the rn→spec DAG ·
+ * was mis-homed in @nuri/rn through the shadow phase). Read in place + type-stripped
+ * (node 20 cannot import the .ts); @nuri/rn imports them via the exports map.
  * ══════════════════════════════════════════════════════════════════ */
 
 import { writeFile } from 'node:fs/promises';
@@ -37,6 +38,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   loadFieldTable,
+  loadRegistry,
   readScaleVocab,
   emitNamespaceCss,
   NS_SPECS,
@@ -48,10 +50,13 @@ import { loadAxis, emitTypographyCss } from './parsers/typography-css.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..'); // packages/spec
 
-// The Field table — STILL mis-homed in @nuri/rn (the transitional shim · cascade.md:
-// belongs in @nuri/spec · the package carve relocates it · decision 74 leaves it).
-// Read cross-package + type-stripped.
-const RESOLVE_MAP = resolve(REPO_ROOT, '../rn/factory/resolve-map.ts');
+// The Field table — homed in @nuri/spec's pipeline/ (N+39 · decision 73 cl.2 / 74 ·
+// the rn→spec DAG · was mis-homed in @nuri/rn through the shadow phase). Read in
+// place + type-stripped (node 20 cannot import the .ts).
+const RESOLVE_MAP = resolve(REPO_ROOT, 'pipeline/resolve-map.ts');
+// The property-spelling registry — the per-target property NAME (canonical id →
+// { rn, css } · decision 73 cl.2); the web emit reads `.css`. A local pipeline/ SoT.
+const REGISTRY_TS = resolve(REPO_ROOT, 'pipeline/property-spelling.ts');
 const SEMANTIC_CSS = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
 // The bespoke palette SoT — a local pipeline/ SoT (like dimensions.ts/colours.ts).
 const SURFACE_TS = resolve(REPO_ROOT, 'pipeline/palette-surface.ts');
@@ -67,6 +72,7 @@ const COMPONENTS_DIR = resolve(REPO_ROOT, 'lib/components');
 // readers · decision 48).
 export async function generateAll() {
   const table = await loadFieldTable(RESOLVE_MAP);
+  const registry = await loadRegistry(REGISTRY_TS);
   const scaleVocab = await readScaleVocab(SEMANTIC_CSS);
   return NS_SPECS.map((spec) => ({
     ns: spec.ns,
@@ -75,6 +81,7 @@ export async function generateAll() {
       title: spec.title,
       fields: table[spec.fieldsKey],
       scaleVocab,
+      registry,
     }),
   }));
 }
