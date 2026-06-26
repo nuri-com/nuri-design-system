@@ -70,9 +70,10 @@ session fixes both: a single shared spelling registry, and `resolve-map.ts` de-c
 
 Every `canonical → rn` reproduces the old `prop` exactly; every `canonical → css` reproduces the
 old `webProp(prop)` exactly (verified entry-by-entry across all 16). So:
-- **`npm run build -w @nuri/spec`** → `git diff packages/spec/build/` + `lib/components/{box,stack}/<ns>.css`
-  **byte-identical** (empty diff). The namespace CSS regenerating unchanged IS the proof the
-  spelling did not diverge on the web side.
+- **`npm run build -w @nuri/spec`** → `git diff packages/spec/build/` **byte-identical** + every CSS
+  RULE in `lib/components/{box,stack}/<ns>.css` byte-identical (the ONLY diff is one provenance-header
+  line, re-pathed to the relocated SoT · the coordinator follow below). The namespace rules
+  regenerating unchanged IS the proof the spelling did not diverge on the web side.
 - **RN snapshots** (`resolve.test.ts` · 7 snapshots) **do not move** — the proof for the RN side
   (the emitted `ViewStyle` key order + values unchanged · `applyFields` iterates the table order,
   `rnProp` is an identity-preserving rename).
@@ -83,8 +84,9 @@ both are gated.
 
 ## Gates (green LOCALLY)
 
-- **spec 71/71** · `npm run build -w @nuri/spec` → `git diff packages/spec/build/` **+ box.css/stack.css
-  byte-identical**. Guard C (the resolved-value spot-check) exercises the registry's `.css` values
+- **spec 71/71** · `npm run build -w @nuri/spec` → `git diff packages/spec/build/` byte-identical · box.css/
+  stack.css **rules byte-identical** (only the provenance header re-pathed · 1 line each). Guard C (the
+  resolved-value spot-check) exercises the registry's `.css` values
   (`inline-size`/`padding-inline`/`flex-direction`/…) end-to-end.
 - **rn 27/27 + 7 snapshots** byte-identical · **tsc 0** (the cross-package `rn → @nuri/spec` resolve-map
   + property-spelling imports type-check under `moduleResolution: bundler`; the `rnProp` cast at the
@@ -93,13 +95,18 @@ both are gated.
 - **DAG fixed**: `css-preview.js` reads `pipeline/resolve-map.ts` (intra-spec) · `resolve.ts` imports
   `@nuri/spec/resolve-map` (`rn → spec`).
 
+## Resolved in review (#67)
+
+- **The emitted box/stack provenance header** — FIXED on this branch (the coordinator follow). It
+  cited the deleted `packages/rn/factory/resolve-map.ts`; the emitter's header string was re-pathed
+  to `packages/spec/pipeline/resolve-map.ts` + the namespace CSS regenerated. The
+  behaviour-preservation gate is **RESTATED not weakened** — the only box.css/stack.css diff is that
+  one header line; every CSS RULE byte-identical, `build/` byte-identical, spec 71/71, RN snapshots
+  unmoved. (Initially deferred to keep the gate a strictly empty diff; the coordinator correctly
+  called it a wart on the very session that did the move.)
+
 ## Deferred / known (LOG-only · accepted)
 
-- **The emitted box/stack provenance header** (inside `lib/components/{box,stack}/<ns>.css`) still
-  cites `packages/rn/factory/resolve-map.ts` — left UNCHANGED **deliberately**, to keep the
-  behaviour-preservation gate strictly byte-identical (a generated comment, the lowest-stakes
-  staleness). It self-corrects at the next physical regeneration (the package carve · convergence
-  phase 2/4), where byte-identical is not a goal.
 - **The other 3 axis SoTs do NOT adopt the registry this session** (`palette-surface.ts` /
   `interactive-effects.ts` / `typography-axis.ts`) — they are already in `spec` (not RN-coupled),
   so they reference the registry in a FOLLOW (the dec-73-cl.2 "single-source the spelling" applied

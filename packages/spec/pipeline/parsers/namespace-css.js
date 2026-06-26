@@ -220,7 +220,7 @@ export function emitNamespaceCss({ ns, title, fields, scaleVocab, registry }) {
     `/* ──────────────────────────────────────────────────────────────`,
     ` * NURI · NAMESPACE CSS · ${title} · GENERATED — DO NOT EDIT BY HAND`,
     ` *`,
-    ` * GENERATED from the Field table (packages/rn/factory/resolve-map.ts ·`,
+    ` * GENERATED from the Field table (packages/spec/pipeline/resolve-map.ts ·`,
     ` * ${ns === 'box' ? 'BOX_FIELDS' : 'STACK_FIELDS'}) + the web spelling layer (pipeline/parsers/namespace-css.js)`,
     ` * by pipeline/css-preview.js, wired into npm run build (pipeline/tokens-parser.js`,
     ` * · the namespace-CSS slice · regenerates IN PLACE over this file). This is the`,
