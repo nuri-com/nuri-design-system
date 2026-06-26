@@ -157,6 +157,32 @@ export function makeColorResolver(specTokens, tokenVars) {
   };
 }
 
+// A palette-surface L2 role NAME ('bg-strong' · 'accent-solid') → { var, hex } (N+43 ·
+// the axis-doc palette swatches). palette-surface.ts paints a node with the FINAL role
+// name — the emit prefixes `--nuri-` → var(--nuri-<role>) — so `var` = `--nuri-<role>`,
+// and the hex is the default-scope literal that var resolves to. REUSES the N+22 TokenPath
+// resolver (makeColorResolver) via a var-keyed reverse map over the SAME token-vars
+// registry, NOT a hand re-derivation of spec's group/camel convention in doc (the N+42
+// boundary · the var spelling is spec's data · convergence §5). Throws on a role with no
+// matching var (faithfulness · decision 48).
+export function makeRoleResolver(specTokens, tokenVars) {
+  const fromPath = makeColorResolver(specTokens, tokenVars);
+  const hexByVar = {};
+  for (const group of Object.keys(tokenVars)) {
+    for (const leaf of Object.keys(tokenVars[group])) {
+      const { var: cssVar, hex } = fromPath(`${group}.${leaf}`);
+      hexByVar[cssVar] = hex;
+    }
+  }
+  return (role) => {
+    const cssVar = `--nuri-${role}`;
+    if (!(cssVar in hexByVar)) {
+      throw new Error(`[docs] palette role '${role}' has no semantic var (${cssVar}) — palette-surface/token-vars drift`);
+    }
+    return { var: cssVar, hex: hexByVar[cssVar] };
+  };
+}
+
 // Build the value-bearing emitter inputs from @nuri/spec's token DATA. The px
 // scale maps ({ leaf: 'NNpx' }) double as the leaf-VALIDATION sets (assertLeaf
 // reads them by Object.hasOwn) AND the value source (the px each cell renders) —
@@ -306,6 +332,23 @@ function renderAnatomyLines(ir) {
   return out;
 }
 
+// ── just-the-docs front-matter + the GENERATED provenance header · SHARED by the
+// component (emitDocPage) + axis (emitAxisPage) emitters. RE-PATHED at N+43 (A4b) to
+// the @nuri/doc home: the emitter moved OUT of @nuri/spec at A4 (decision 75), so the
+// header now cites packages/doc/pipeline/docs.js · `npm run build -w @nuri/doc` (was
+// the stale pre-move pipeline/parsers/docs.js · `npm run build -w @nuri/spec`, kept
+// verbatim through A4 to preserve that session's byte-identical proof · the N+42
+// Known/deferred carry). `source` is the SoT the page is generated FROM. ──
+function frontMatter(title, navOrder) {
+  return ['---', `title: ${title}`, 'layout: default', `nav_order: ${navOrder}`, '---', ''];
+}
+function genHeader(source) {
+  return [
+    `<!-- GENERATED · DO NOT EDIT BY HAND · source: ${source}`,
+    '     emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->',
+  ];
+}
+
 // ════════════════════════════════════════════════════════════════════
 // EMIT · the descriptor IR → the just-the-docs Markdown page string
 // ════════════════════════════════════════════════════════════════════
@@ -317,15 +360,9 @@ export function emitDocPage(ir, opts = {}) {
   const title = titleFor(ir.source);
   const lines = [];
 
-  // ── just-the-docs front-matter ──
-  lines.push('---');
-  lines.push(`title: ${title}`);
-  lines.push('layout: default');
-  lines.push(`nav_order: ${NAV_ORDER[ir.source] ?? 1}`);
-  lines.push('---');
-  lines.push('');
-  lines.push(`<!-- GENERATED · DO NOT EDIT BY HAND · source: build/descriptors/${ir.name}.ts`);
-  lines.push('     emitter: pipeline/parsers/docs.js · re-emit: `npm run build -w @nuri/spec` -->');
+  // ── just-the-docs front-matter + the GENERATED provenance header (shared · re-pathed) ──
+  lines.push(...frontMatter(title, NAV_ORDER[ir.source] ?? 1));
+  lines.push(...genHeader(`packages/spec/build/descriptors/${ir.name}.ts`));
   lines.push('');
   lines.push(`# ${title}`);
   lines.push('');
@@ -387,4 +424,152 @@ export function emitDocPage(ir, opts = {}) {
   lines.push('');
 
   return lines.join('\n');
+}
+
+// ════════════════════════════════════════════════════════════════════
+// EMIT · the AXIS IR → the just-the-docs Markdown page string (N+43 · A4b)
+// ════════════════════════════════════════════════════════════════════
+// The axis-family sibling of emitDocPage. The 5 namespace axes are BESPOKE
+// (decision 73), so each IR kind renders its own natural shape (axis-ir.js builds
+// them): `fields` (box/stack · the spelling table) · `palette` (the role table with
+// resolving swatches) · `interactive` (the effect set + the order note) ·
+// `typography` (the wrapper dispatch). Pure function of (ir · the manifest's
+// nav/src/lead) → byte-stable (decision 35 · the doc CI gate).
+export function emitAxisPage(ir, { nav, src, lead } = {}) {
+  const title = titleFor(ir.source);
+  const lines = [];
+  lines.push(...frontMatter(title, nav));
+  lines.push(...genHeader(src));
+  lines.push('');
+  lines.push(`# ${title}`);
+  lines.push('');
+  if (lead) {
+    lines.push(lead);
+    lines.push('');
+  }
+  if (ir.kind === 'fields') renderFields(ir, lines);
+  else if (ir.kind === 'palette') renderPaletteAxis(ir, lines);
+  else if (ir.kind === 'interactive') renderInteractive(ir, lines);
+  else if (ir.kind === 'typography') renderTypography(ir, lines);
+  else throw new Error(`[docs] emitAxisPage: unknown axis kind '${ir.kind}'`);
+  return lines.join('\n');
+}
+
+// A list of [property, value] decls → one `prop: value` per line (the interactive /
+// typography Declarations cell · dt/dd style · the <br> the component cells use).
+function renderDecls(decls) {
+  return decls.map(([prop, value]) => `\`${prop}: ${value}\``).join(ATTR_SEP);
+}
+
+// ── box / stack · the agnostic Field table: each input → its CSS + RN property
+// name + the value-SOURCE (the `via`). The mechanism-divergent `fill`/expand arm
+// (no registry entry · rn=null) renders `—` for RN + a caption (decision 73 cl.2). ──
+function renderFields(ir, lines) {
+  lines.push('## Fields');
+  lines.push('');
+  lines.push('| Input | CSS | RN | Value |');
+  lines.push('| --- | --- | --- | --- |');
+  for (const r of ir.rows) {
+    const rn = r.rn ? `\`${r.rn}\`` : NO_VALUE;
+    lines.push(`| \`${r.input}\` | \`${r.css}\` | ${rn} | ${renderFieldValue(r.via, r.detail)} |`);
+  }
+  lines.push('');
+  if (ir.hasExpand) {
+    lines.push('> **`fill`** is the mechanism-divergent `expand` arm (decision 73 cl.2) — not a');
+    lines.push('> property-spelling entry: web is the `flex` shorthand, RN a multi-prop `ViewStyle`');
+    lines.push('> set (the per-value expansion in the Value column).');
+    lines.push('');
+  }
+}
+
+// the Value cell per `via`: a scale NAME (resolved at A4c · not here) · a keyword
+// map · a literal passthrough · a flag's on/off · the expand cases (RN-spelled).
+function renderFieldValue(via, detail) {
+  switch (via) {
+    case 'scale':
+      return `\`${detail.scale}\` scale`;
+    case 'literal':
+      return 'passthrough';
+    case 'keyword':
+      return Object.entries(detail.map).map(([k, v]) => `\`${k}\` → \`${v}\``).join(ATTR_SEP);
+    case 'flag':
+      return `\`${detail.on}\` / \`${detail.off}\``;
+    case 'expand':
+      return Object.entries(detail.cases)
+        .map(([name, props]) => `\`${name}\` → ${Object.entries(props).map(([k, v]) => `\`${k}: ${v}\``).join(' · ')}`)
+        .join(ATTR_SEP);
+    default:
+      throw new Error(`[docs] renderFieldValue: unknown via '${via}'`);
+  }
+}
+
+// ── palette · the SURFACE role table, split by the two mutually-exclusive dispatch
+// axes (variant XOR chrome). Each channel cell = a live var() swatch + the role NAME
+// + the default-scope hex (the complete pair · the component-page swatch style). ──
+function renderPaletteAxis(ir, lines) {
+  for (const [heading, rows] of [['Variant', ir.variant], ['Chrome', ir.chrome]]) {
+    lines.push(`## ${heading}`);
+    lines.push('');
+    lines.push(`| ${heading} | Background | Foreground | Pressed |`);
+    lines.push('| --- | --- | --- | --- |');
+    for (const row of rows) {
+      lines.push(`| \`${row.input}\` | ${channelCell(row.bg)} | ${channelCell(row.fg)} | ${channelCell(row.pressed)} |`);
+    }
+    lines.push('');
+  }
+}
+
+// one palette channel → its cell. null (absent · fg-only / no-pressed) → the em
+// dash; a { literal } (ghost's transparent) → a bordered empty swatch + the literal
+// (no hex); a resolved role → the live var() swatch + the role NAME + the hex.
+function channelCell(ch) {
+  if (ch === null) return NO_VALUE;
+  if (ch.literal !== undefined) return `${swatch(ch.literal)} \`${ch.literal}\``;
+  return `${swatch(`var(${ch.var})`)} \`${ch.role}\` \`${ch.hex}\``;
+}
+
+// ── interactive · the EFFECT set: each effect's name · its assembled selector ·
+// its declarations · its gate (automatic vs the data-* opt-in). The load-bearing
+// order (pressScale before disabledGuard · equal-specificity `transform`) is
+// surfaced as a note when the data exhibits the collision (ir.order ≥ 2). ──
+function renderInteractive(ir, lines) {
+  lines.push('## Effects');
+  lines.push('');
+  lines.push('| Effect | Selector | Declarations | Gate |');
+  lines.push('| --- | --- | --- | --- |');
+  for (const r of ir.rows) {
+    lines.push(`| \`${r.name}\` | \`${r.selector}\` | ${renderDecls(r.decls)} | ${renderGate(r.gate)} |`);
+  }
+  lines.push('');
+  if (ir.order.length >= 2) {
+    const [first, second] = ir.order;
+    lines.push(`> ⚠ **Order is load-bearing.** \`${first}\` and \`${second}\` both set \`transform\` at`);
+    lines.push('> equal specificity, so the cascade resolves it by **source order** — the row order');
+    lines.push(`> above is that order: \`${first}\` is emitted first, so \`${second}\`’s \`transform: none\``);
+    lines.push('> wins and a disabled control reverts the press-scale (never scales).');
+    lines.push('');
+  }
+}
+
+// the Gate cell: automatic, or an author opt-in via a data-* attribute.
+function renderGate(gate) {
+  return gate.kind === 'opt-in' ? `opt-in · \`${gate.attr}\`` : 'automatic';
+}
+
+// ── typography · the nuri-typography WRAPPER dispatch (muted + align · a REAL
+// element, unlike palette/interactive's merged-node class). The type SCALE
+// (size/emphasis · the --nuri-type-* utilities) is a Foundations doc (A4c). ──
+function renderTypography(ir, lines) {
+  lines.push('## Wrapper');
+  lines.push('');
+  lines.push('| Channel | Selector | Declarations |');
+  lines.push('| --- | --- | --- |');
+  for (const r of ir.rows) {
+    lines.push(`| \`${r.name}\` | \`${r.selector}\` | ${renderDecls(r.decls)} |`);
+  }
+  lines.push('');
+  lines.push(`> The \`${ir.element}\` element is the prose **wrapper** — declarative muted-tone +`);
+  lines.push('> block alignment. The type **scale** (`size` · `emphasis` · the `--nuri-type-*`');
+  lines.push('> utilities) is a Foundations doc, not this axis.');
+  lines.push('');
 }

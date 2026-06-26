@@ -4,8 +4,8 @@ layout: default
 nav_order: 2
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: build/descriptors/icon-avatar.ts
-     emitter: pipeline/parsers/docs.js · re-emit: `npm run build -w @nuri/spec` -->
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/build/descriptors/icon-avatar.ts
+     emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
 # Icon Avatar
 
