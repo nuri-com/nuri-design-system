@@ -60,8 +60,12 @@ to `packages/spec/legacy/`; the active tree is exactly **{primitives + the 3 des
   factory **harness** (the no-harness gap) stays open → A6 / a follow.
 - **factory harness** — close the no-harness gap (a committed test of `buildComponent` · in `prototype`) **before**
   the factory becomes the sole renderer.
-- **A4 `@nuri/doc`** (SSG · `website/` + `spec/pages/` + `spec/lib/docs/`) · **A5 `@nuri/playground`** (the bench)
-  · **A6 codegen surfaces** (the RN barrel + WC registrations · §9-independent).
+- **A4 ✓ slice 1 ([N+42](./N+42.md) · [decision 75](../decisionlog.md)) · carve `@nuri/doc`** (SSG · consolidated
+  `website/` + `spec/pages/` + `spec/lib/docs/`). The descriptor doc-gen MOVED out of `spec` + re-sourced onto
+  `spec`'s DATA exports (byte-identical Markdown gate · §5); the 3 generated component docs live in a just-the-docs
+  shell (3-section nav · Foundations · Axes · Components); the ~23 hand pages ARCHIVED (frozen regen spec). The
+  **token (A4c)** + **axis (A4b)** doc families follow — same shell + nav + emitter helpers. **A5 `@nuri/playground`**
+  (the bench) · **A6 codegen surfaces** (the RN barrel + WC registrations + the factory harness · §9-independent).
 
 **Phase 3 — the dec-2 flip ✓ LANDED ([N+38](./N+38-L3c-flip.md) · [decision 74](../decisionlog.md))** (§9 · **the one
 irreversible step**): the namespace CSS is now GENERATED from the TS SoT **in place over `lib/components/<ns>/<ns>.css`**
@@ -94,6 +98,17 @@ A data change in `spec` propagates via one root `npm run build --workspaces`: `p
 its CSS, `rn` its barrel, `doc` its markdown — **artifacts committed**, runtimes build-free/native, CI guards
 `re-emit ≡ committed`. (Finalized at the flip, when `spec` becomes the data source; recorded here as the working
 decision · supersedes `package-architecture.md §7`'s open codegen-home.)
+
+**The boundary, sharpened ([decision 75](../decisionlog.md) · N+42 · the A4 carve · the doc surface).** The
+generic rule lands concretely for docs: **`spec` = pure DATA + schema; transforming data → Markdown is `doc`'s
+job.** `doc` owns the descriptor doc-gen (moved out of `spec`'s pipeline) and **re-sources onto `spec`'s DATA
+exports** (`@nuri/spec/{tokens, token-vars, palette, descriptors/*}`), NOT the classifier internals — proven by a
+**byte-identical Markdown gate** (the [N+40](./N+40.md) re-source discipline: same bytes, different reader). The
+one shared datum a non-bundler (node) consumer needs that the existing exports didn't carry — the semantic colour
+var registry — was added as a minimal new `spec` data export (`build/token-vars.ts`), not re-derived in `doc` (the
+CSS-var naming is `spec`'s, single-sourced as data). `doc` reads `spec`'s raw-TS data exports via a brace-aware
+TS-strip + `data:`-URL loader (node 20 cannot import a `.ts` · the descriptor-twin technique). The same template
+applies to A4b (axes) / A4c (tokens): new emitters, same shell + nav + `buildDocTokenInputs` helpers.
 
 > **Build-order invariant (N+41 · the A3 carve).** npm runs `--workspaces` scripts in **discovery order**
 > (`prototype` before `spec` · alphabetical), NOT topologically as the line above implies. **Benign today**:

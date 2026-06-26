@@ -24,7 +24,7 @@
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 import {
   readPrimitives,
@@ -46,6 +46,7 @@ import {
   collectSemanticVars,
   classifySemantic,
   classifyAll,
+  emitTokenVarsTs,
   GROUP_NAMES,
   AXIS_REGISTRY,
   ACCENTS,
@@ -81,7 +82,6 @@ import {
   emitDescriptorTs,
   emitDescriptorTsFromSource,
   emitDescriptorJsFromSource,
-  docIrFromDescriptor,
   exportNameFor,
   emitSchemaTs,
 } from './parsers/descriptors.js';
@@ -92,7 +92,8 @@ import {
   emitPaletteTs,
 } from './parsers/palette.js';
 
-import { emitDocPage, buildDocTokenInputs } from './parsers/docs.js';
+// (parsers/docs.js · emitDocPage / buildDocTokenInputs · MOVED to @nuri/doc at
+// N+42 · the A4 carve · convergence §5. @nuri/spec no longer transforms data → docs.)
 
 import { loadDimensions, flipDimensionCss, stripTypes } from './parsers/dimension-css.js';
 
@@ -126,6 +127,7 @@ export {
   collectSemanticVars,
   classifySemantic,
   classifyAll,
+  emitTokenVarsTs,
   GROUP_NAMES,
   AXIS_REGISTRY,
   ACCENTS,
@@ -153,14 +155,11 @@ export {
   emitDescriptorTs,
   emitDescriptorTsFromSource,
   emitDescriptorJsFromSource,
-  docIrFromDescriptor,
   exportNameFor,
   emitSchemaTs,
   PALETTE_CONTRACT,
   derivePalette,
   emitPaletteTs,
-  emitDocPage,
-  buildDocTokenInputs,
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -176,19 +175,14 @@ const JSON_OUT         = resolve(REPO_ROOT, 'build/tokens.json');
 const TS_OUT           = resolve(REPO_ROOT, 'build/tokens.ts');
 const INTERACTION_OUT  = resolve(REPO_ROOT, 'build/interaction.ts');
 const TOKEN_PATHS_OUT  = resolve(REPO_ROOT, 'build/token-paths.ts');
+const TOKEN_VARS_OUT   = resolve(REPO_ROOT, 'build/token-vars.ts');
 const ICONS_OUT        = resolve(REPO_ROOT, 'build/icons.ts');
 const DESCRIPTORS_OUT  = resolve(REPO_ROOT, 'build/descriptors');
 const DESCRIPTORS_SRC  = resolve(REPO_ROOT, 'pipeline/descriptors');
 const SCHEMA_SRC       = resolve(REPO_ROOT, 'pipeline/descriptors/schema.ts');
 const PALETTE_OUT      = resolve(REPO_ROOT, 'build/palette.ts');
-const DOCS_OUT         = resolve(REPO_ROOT, 'build/docs');
-
-// Component sources whose doc page is GENERATED (N+22 · decision 66 arc #1 ·
-// the website vertical slice). Generalized at N+23 (increment 2) from Button to
-// the FULL DESCRIPTOR_COMPONENTS set — the descriptor-backed nav now covers all
-// three ergonomic components (P11 · the old hand-written pages/components/*.html
-// die incrementally as the generated pages cover them).
-const DOC_COMPONENTS = ['composition-button', 'icon-avatar', 'topbar'];
+// (build/docs · DOC_COMPONENTS · MOVED to @nuri/doc at N+42 · the A4 carve. The
+// doc-gen left @nuri/spec — @nuri/doc owns the generated Markdown · convergence §5.)
 
 // Component descriptors that ALSO emit a browser-ESM twin (decision 67 · the
 // runtime web factory). The .js form lets a browser `import` the descriptor and
@@ -358,6 +352,16 @@ async function main() {
   const tokenPathsSource = emitTokenPathsTs(classifiedGroups);
   await writeFile(TOKEN_PATHS_OUT, tokenPathsSource, 'utf8');
 
+  // ── Slice 5b · semantic colour var registry emit (N+42 · A4 · the @nuri/doc data export) ──
+  // build/token-vars.ts: each cascade-varying colour group's leaf → its CSS custom-
+  // property name (chrome.bgStrong → --nuri-bg-strong · accent.solid → --nuri-accent-solid),
+  // walked from the SAME classifiedGroups Slice 5 reads. @nuri/doc's Token-map / Base
+  // swatch reads it to render the LIVE var() chip — the doc-gen left @nuri/spec at A4
+  // (convergence §5 · decision 75), so the spec emits this as DATA rather than the doc
+  // reaching into the classifier. Additive committed build output (decision 35).
+  const tokenVarsSource = emitTokenVarsTs(classifiedGroups);
+  await writeFile(TOKEN_VARS_OUT, tokenVarsSource, 'utf8');
+
   // ── Slice 6 · typed icon registry emit (N+6.8 · decision 48) ──
   // Emit build/icons.ts from lib/components/icon/icons.js — the SSOT
   // the web inlines directly. ONE registry, TWO readers: web inline +
@@ -415,48 +419,15 @@ async function main() {
   const paletteRowCount =
     Object.keys(paletteCells.variant).length + Object.keys(paletteCells.chrome).length;
 
-  // ── Slice 9 · component doc page emit (N+22 · decision 66 arc #1 · decision 69) ──
-  // Render the descriptor as a just-the-docs Markdown page — the generation thesis
-  // applied to docs (north-star move 3). The doc IR is sourced from the AUTHORED
-  // descriptor (the SoT · decision 69 · §9 step 1), NOT re-derived from CSS: we
-  // import the browser-ESM twin emitted in Slice 7 (node 20 cannot import the .ts
-  // SoT directly) and build the IR via docIrFromDescriptor. Still READ-ONLY (we
-  // EMIT docs, we generate NO CSS — CSS generation is B2). Additive committed build
-  // output (decision 35 · build/docs/<source>.md · re-emits byte-identical).
-  // The <nuri-demo> STORY is authored in website/_includes (decision 57.2),
-  // the page only carries an `## Example` include slot. The value-bearing inputs
-  // (the scale maps that DOUBLE as the leaf-validation sets · the type composite ·
-  // the default-scope colour resolver) are built from the same live build data
-  // tokens.ts/palette.ts emit (decision 48 · one source, two readers) — the
-  // SINGLE builder Guard G also calls, so the page re-emits byte-identical (N+23).
-  const { tokens: docTokens, colors: docColors } = buildDocTokenInputs(
-    classifiedGroups, resolved, typeScale,
-  );
-  await mkdir(DOCS_OUT, { recursive: true });
-  // Slice 9 sources each doc IR from the component's browser-ESM twin (decision 69),
-  // so every DOC_COMPONENTS entry MUST also emit one. Assert the subset explicitly —
-  // fail loud here rather than on a cryptic import ENOENT below.
-  const missingTwin = DOC_COMPONENTS.filter((n) => !BROWSER_DESCRIPTOR_COMPONENTS.includes(n));
-  if (missingTwin.length) {
-    throw new Error(
-      `[tokens-parser] Slice 9 reads the descriptor SoT via its browser-ESM twin, but ` +
-      `DOC_COMPONENTS has no twin for: ${missingTwin.join(', ')}. Add them to ` +
-      `BROWSER_DESCRIPTOR_COMPONENTS (DOC_COMPONENTS ⊆ BROWSER_DESCRIPTOR_COMPONENTS).`,
-    );
-  }
-  const docReports = [];
-  for (const spec of DESCRIPTOR_COMPONENTS) {
-    if (!DOC_COMPONENTS.includes(spec.name)) continue;
-    // DOC_COMPONENTS ⊆ BROWSER_DESCRIPTOR_COMPONENTS (asserted above), so the twin exists.
-    const twin = pathToFileURL(resolve(DESCRIPTORS_OUT, `${spec.name}.js`)).href;
-    const descriptor = (await import(twin))[exportNameFor(spec.name)];
-    const ir = docIrFromDescriptor(spec, descriptor);
-    const out = resolve(DOCS_OUT, `${spec.source}.md`);
-    await writeFile(
-      out, emitDocPage(ir, { palette: paletteCells, tokens: docTokens, colors: docColors }), 'utf8',
-    );
-    docReports.push({ source: spec.source, axes: Object.keys(ir.axes).length, out });
-  }
+  // (Slice 9 · the component doc page emit · MOVED to @nuri/doc at N+42 · the A4
+  // carve. The doc-gen [emitDocPage / buildDocTokenInputs / docIrFromDescriptor]
+  // left @nuri/spec — transforming the descriptor + token DATA → Markdown is now
+  // @nuri/doc's job (convergence §5 · decision 75 · "spec emits data, doc
+  // transforms it"). @nuri/doc re-sources onto @nuri/spec's DATA exports
+  // [tokens · token-vars · palette · descriptors/* · the browser-ESM twins Slice 7
+  // still emits], NOT this orchestrator's in-memory classifier results, and emits
+  // generated/components/<source>.md byte-identical via `npm run build -w @nuri/doc`.
+  // build/docs/ is gone; the moved Guard G gates the re-emit in @nuri/doc.)
 
   console.log(
     `[tokens-parser] wrote ${jsonCount} colour primitives → ${JSON_OUT}\n` +
@@ -464,15 +435,13 @@ async function main() {
     `[tokens-parser] wrote type scale (${TYPE_SIZES.length} steps × {regular, em}) → ${TS_OUT}\n` +
     `[tokens-parser] wrote interaction baseline (${Object.keys(INTERACTION_PRIMITIVES).length} constants · transversal) → ${INTERACTION_OUT}` +
     `\n[tokens-parser] wrote TokenPath union → ${TOKEN_PATHS_OUT}` +
+    `\n[tokens-parser] wrote semantic colour var registry → ${TOKEN_VARS_OUT}` +
     `\n[tokens-parser] wrote icon registry (${iconNameCount} names × ${ICON_WEIGHTS.length} weights) → ${ICONS_OUT}` +
     `\n[tokens-parser] wrote descriptor schema → ${resolve(DESCRIPTORS_OUT, 'schema.ts')}` +
     descriptorReports.map((r) =>
       `\n[tokens-parser] wrote descriptor '${r.name}' (authored SoT${r.browser ? ' + browser ESM' : ''}) → ${r.out}`,
     ).join('') +
-    `\n[tokens-parser] wrote palette mapping (${paletteRowCount} rows · SoT-asserted) → ${PALETTE_OUT}` +
-    docReports.map((r) =>
-      `\n[tokens-parser] wrote doc page '${r.source}' (${r.axes} ${r.axes === 1 ? 'axis' : 'axes'} · generated) → ${r.out}`,
-    ).join(''),
+    `\n[tokens-parser] wrote palette mapping (${paletteRowCount} rows · SoT-asserted) → ${PALETTE_OUT}`,
   );
 }
 

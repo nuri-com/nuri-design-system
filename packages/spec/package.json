@@ -8,6 +8,7 @@
   "exports": {
     "./tokens": "./build/tokens.ts",
     "./token-paths": "./build/token-paths.ts",
+    "./token-vars": "./build/token-vars.ts",
     "./interaction": "./build/interaction.ts",
     "./icons": "./build/icons.ts",
     "./palette": "./build/palette.ts",

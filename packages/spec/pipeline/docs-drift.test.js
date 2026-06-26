@@ -1,27 +1,28 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · DOCS-DRIFT GUARDS · CI-ENFORCED FRESHNESS
  *
- * Agent-facing entry-point docs (llms.txt · README.md ·
- * implementation-guide.html) are derived, hand-maintained mirrors
- * of two live truths: the page tree under pages/components/ and the
- * emitted artefacts under build/. They rot silently — a new page or
- * a re-emitted count lands, the prose doesn't, and the next agent
- * trusts a stale map. These guards fail the build the moment a doc
- * falls behind the live tree, so the drift is caught at PR time, not
- * by a confused reader three sessions later.
+ * Agent-facing entry-point docs (llms.txt · README.md) are derived,
+ * hand-maintained mirrors of the emitted artefacts under build/. They
+ * rot silently — a re-emitted count lands, the prose doesn't, and the
+ * next agent trusts a stale map. These guards fail the build the moment
+ * a doc falls behind the live artefacts, so the drift is caught at PR
+ * time, not by a confused reader three sessions later.
  *
  * Sibling to tokens-parser.test.js (kept separate so its assertion
  * count stays stable · N+12a). Run with:
  *   node --test pipeline/docs-drift.test.js
  * or via the glob in `npm test`.
  *
- * Six guards (A · C · N+12a · D · N+19 · the composition model 65.3 ·
- * E · N+19 B2b · decision 65.3 §6 · F · N+19 B3 · decision 65 step 5 ·
- * G · N+22 · decision 66 arc #1 · the website doc-gen).
+ * Four guards (C · N+12a · D · N+19 · the composition model 65.3 ·
+ * E · N+19 B2b · decision 65.3 §6 · F · N+19 B3 · decision 65 step 5).
  * (Guard B — every build/components/*.ts named in README + impl-guide —
  * was RETIRED at Smell-1 · decision 66 arc #0 when build/components/ was
- * deleted and the interaction baseline relocated to build/interaction.ts.)
- *   A · every pages/components/*.html is listed in llms.txt
+ * deleted and the interaction baseline relocated to build/interaction.ts.
+ * Guard A — pages/components/*.html ⊂ llms.txt — RETIRED at N+42 · the A4
+ * carve when the hand pages ARCHIVED to @nuri/doc/archive/ (the active doc
+ * surface is now the GENERATED pages · @nuri/doc's Guard G). Guard G — the
+ * doc-page re-emit pin — MOVED to @nuri/doc at N+42 with the doc-gen it pins ·
+ * convergence §5 · "spec emits data, doc transforms it".)
  *   C · doc-stated emitted counts match the live build artefacts
  *   D · each build/descriptors/*.ts re-emits identically — in the
  *       COMPOSITION form (65.3 §7 · structure { anatomy, base } +
@@ -59,7 +60,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -67,21 +68,18 @@ import {
   DESCRIPTOR_COMPONENTS,
   emitDescriptorTsFromSource,
   emitDescriptorJsFromSource,
-  docIrFromDescriptor,
   exportNameFor,
   emitSchemaTs,
-  pageParts,
 } from './parsers/descriptors.js';
 import { derivePalette, emitPaletteTs } from './parsers/palette.js';
-import { emitDocPage, buildDocTokenInputs } from './parsers/docs.js';
-import {
-  readSemanticRules,
-  classifyAll,
-  buildPrimitiveMap,
-  resolveSemanticCrossProduct,
-} from './parsers/semantic.js';
-import { buildTypeScale } from './parsers/type.js';
+import { readSemanticRules, classifyAll } from './parsers/semantic.js';
 import { stripTypes } from './parsers/dimension-css.js';
+
+// (Guard G · the doc-page re-emit pin · MOVED to @nuri/doc at N+42 · the A4 carve.
+// The doc-gen [emitDocPage / buildDocTokenInputs / docIrFromDescriptor · + the
+// buildPrimitiveMap / resolveSemanticCrossProduct / buildTypeScale value inputs it
+// fed] left @nuri/spec with the emitter · convergence §5. Guards A/C/D/E/F STAY —
+// they pin the descriptor / palette / schema / count surfaces @nuri/spec owns.)
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // The pipeline lives in the @nuri/spec workspace (decision 65.7), so REPO_ROOT
@@ -93,8 +91,6 @@ const MONOREPO_ROOT = resolve(REPO_ROOT, '..', '..');
 
 const read = (rel) => readFileSync(resolve(REPO_ROOT, rel), 'utf8');
 const readRoot = (rel) => readFileSync(resolve(MONOREPO_ROOT, rel), 'utf8');
-const listFiles = (relDir, ext) =>
-  readdirSync(resolve(REPO_ROOT, relDir)).filter((f) => f.endsWith(ext));
 
 // Load a namespace-axis TS SoT (palette-surface.ts / typography-axis.ts) the
 // SPEC-RESIDENT way — stripTypes (the shared one-strip impl) + a data:-URL import —
@@ -117,20 +113,12 @@ const extractCount = (text, re, label) => {
   return Number(m[1]);
 };
 
-// ── Guard A · page-tree ⊂ llms.txt ───────────────────────────────
-test('A · every pages/components/*.html appears in llms.txt', () => {
-  const llms = readRoot('llms.txt');
-  const pages = listFiles('pages/components', '.html');
-  assert.ok(pages.length > 0, 'expected at least one component page');
-
-  const missing = pages.filter((p) => !llms.includes(`components/${p}`));
-  assert.deepEqual(
-    missing,
-    [],
-    `llms.txt is missing component page(s): ${missing.join(', ')}. ` +
-      `Add each under its NAV section in llms.txt.`,
-  );
-});
+// (Guard A · pages/components/*.html ⊂ llms.txt · RETIRED at N+42 · the A4 carve.
+// The hand component pages ARCHIVED to @nuri/doc/archive/ — frozen regen specs, not
+// the active doc surface (the GENERATED pages are · gated by @nuri/doc's Guard G).
+// The llms.txt consumer manifest still path-lists the archived tree — a holistic
+// post-migration rewrite is deferred doc-hygiene · roadmap/index.md, NOT a slice-1
+// gate. The count phrases llms.txt/README state stay pinned by Guard C below.)
 
 // ── Guard C · doc-stated counts == live build ────────────────────
 test('C · doc-stated emitted counts match the live build', () => {
@@ -140,7 +128,6 @@ test('C · doc-stated emitted counts match the live build', () => {
 
   const llms = readRoot('llms.txt');
   const readme = readRoot('README.md');
-  const guide = read('pages/implementation-guide.html');
 
   // runtime-set leaf count (== TokenPath members).
   assert.equal(
@@ -159,16 +146,13 @@ test('C · doc-stated emitted counts match the live build', () => {
     'README member count drifted from build/token-paths.ts',
   );
 
-  // glyph registry count.
+  // glyph registry count. (The implementation-guide.html cross-check RETIRED at
+  // N+42 · the A4 carve — impl-guide ARCHIVED to @nuri/doc/archive/; the glyph
+  // count stays pinned here against llms.txt + build/icons.ts.)
   assert.equal(
     extractCount(llms, /\((\d+) glyphs × 3 weights\)/, 'llms.txt glyph count'),
     iconCount,
     'llms.txt glyph count drifted from build/icons.ts',
-  );
-  assert.equal(
-    extractCount(guide, /(\d+) glyphs/, 'impl-guide glyph count'),
-    iconCount,
-    'implementation-guide.html glyph count drifted from build/icons.ts',
   );
 });
 
@@ -238,7 +222,6 @@ test('D · build/descriptors/* re-emits from the authored SoT + the composition-
 
   for (const spec of DESCRIPTOR_COMPONENTS) {
     const authored = read(`pipeline/descriptors/${spec.name}.ts`);
-    const html = read(`pages/components/${spec.source}.html`);
 
     // ── (1) STALE-BUILD / HAND-EDIT · build/ is the passthrough of the authored
     // SoT (decision 69 · §9 step 1 · the inversion): the .ts is the source with
@@ -255,17 +238,22 @@ test('D · build/descriptors/* re-emits from the authored SoT + the composition-
     );
 
     // ── (2) THE COMPOSITION-FORM IR · sourced from the AUTHORED descriptor (decision
-    // 69 · the SoT) via its browser-ESM twin (node cannot import the .ts) — the SAME ir
-    // Guard G feeds emitDocPage (mirrors Slice 9). The B1 PARITY ORACLE
-    // (deriveDescriptor(CSS,HTML) re-reads the hand CSS+HTML and asserts derive ==
+    // 69 · the SoT) via its browser-ESM twin (node cannot import the .ts). The B1 PARITY
+    // ORACLE (deriveDescriptor(CSS,HTML) re-reads the hand CSS+HTML and asserts derive ==
     // authored) RETIRED with the recipe CSS at the L3c flip (decision 74 · the
     // "until B2 generates the CSS" boundary decision 69 named): the descriptor is now
     // the SOLE SoT — there is no hand recipe CSS to cross-derive from. The descriptor
     // stays honest via Guard F (the frozen schema shape) + leg (1) re-emit freshness +
     // leg (3) the composition-form pins below (now pinning the authored IR directly).
+    // The IR reshape is INLINED here (was docIrFromDescriptor · MOVED to @nuri/doc at
+    // N+42 · the A4 carve · convergence §5) — Guard D needs only the structural fields
+    // (axes / anatomy / base / variants), not the doc emitter's exportName/typeName.
     const twin = pathToFileURL(resolve(REPO_ROOT, `build/descriptors/${spec.name}.js`)).href;
     const descriptor = (await import(twin))[exportNameFor(spec.name)];
-    const ir = docIrFromDescriptor(spec, descriptor);
+    const variants = descriptor.variants || {};
+    const axes = {};
+    for (const a of Object.keys(variants)) axes[a] = Object.keys(variants[a]);
+    const ir = { axes, anatomy: descriptor.structure.anatomy, base: descriptor.structure.base, variants };
 
     // ── (3) THE COMPOSITION-FORM PINS · a renamed/removed axis value, a moved
     // anatomy part, or a changed `interactive` opt-in breaks here EVEN IF the
@@ -284,16 +272,12 @@ test('D · build/descriptors/* re-emits from the authored SoT + the composition-
       `${spec.name}: the root \`interactive\` opt-in drifted from the 65.3 shape`,
     );
 
-    // Every addressed/anatomy part is a page-declared part (decision 24.1 ·
-    // the structure source); `root` is the implicit host. Positional slots
-    // (leading/trailing) are not styled parts → not addressed.
-    const declared = new Set(['root', ...pageParts(html)]);
-    for (const p of [...anatomyParts(ir), ...addressedParts(ir)]) {
-      assert.ok(
-        declared.has(p),
-        `${spec.name}: part '${p}' absent from the page anatomy (${[...declared].join(', ')})`,
-      );
-    }
+    // (The "every addressed/anatomy part is a PAGE-declared part" cross-check
+    // [decision 24.1 · the hand page was the structure source] RETIRED at N+42 ·
+    // the A4 carve — pages/components/ ARCHIVED to @nuri/doc/archive/, and post-flip
+    // [N+38 · decision 74] the descriptor is the SOLE SoT [the B1 page/CSS oracle
+    // already retired], so the anatomy is pinned by EXPECTED_DESCRIPTORS.parts above,
+    // not the hand page. The descriptor-INTERNAL invariant below stays.)
     // A part a composition addresses must be in the anatomy (you cannot patch
     // an undeclared part).
     const inAnatomy = new Set(['root', ...anatomyParts(ir)]);
@@ -528,138 +512,5 @@ test('F · the descriptor schema shape is frozen (B3 · decision 65 step 5)', ()
   // The remaining structural alias forms (PartMap · Axes · Variants).
   for (const [name, pinned] of Object.entries(FROZEN_SCHEMA.aliasForms)) {
     assert.equal(normType(typeRhs(src, name)), normType(pinned), drift(`alias ${name}`));
-  }
-});
-
-// ── Guard G · the generated doc pages ⊂ their descriptor (N+22 · decision 66
-// arc #1 · generalized to all three at N+23 · increment 2) ──
-// The §35 discipline (committed build re-emits identically) applied to the
-// website doc-gen: build/docs/<source>.md is RENDERED from the descriptor IR
-// (read-only · NOT §9 · decision 2 STANDS) by pipeline/parsers/docs.js. The
-// re-emit identity is the stale-build / hand-edit guard (Guard D/E posture);
-// the per-page pins lock the contract — a future emitter change that drops the
-// front-matter, the authored-story include slot, a data section, or the N+23
-// VALUE enrichment breaks HERE, not only at `git diff --exit-code build/`. The
-// page OUTPUT is now a pure function of (ir · palette · tokens · colors) — all
-// SoT-derived via the SAME builder the orchestrator feeds (buildDocTokenInputs ·
-// the scale maps that double as the leaf-validation sets · the type composite ·
-// the default-scope colour resolver), so the re-emit matches byte-for-byte.
-const DOC_COMPONENTS = ['composition-button', 'icon-avatar', 'topbar'];
-
-// Per-page contract (N+23): front-matter title/nav · the authored `## Example`
-// include · the data sections · the 2-column split (the resolved value in its
-// OWN "Resolves to" column beside the "Token" composition · operator request) ·
-// and ≥1 ENRICHED value cell exercising each format (geometry px · the type
-// composite · the live var() swatch + hex · the em-dash for a literal/flag). The
-// enriched cells are the FAITHFUL R1.5 surface — icon-avatar's `subtle` fg-only
-// variant + radius.full (the 9999px sentinel) · topbar's MIXED stack (literals →
-// em-dash, gap → px) + its LONE `center true` token-map row (center=false is an
-// empty partmap · no rows). A deliberate emitter change must update these pins.
-const PAGE_CONTRACT = {
-  'composition-button': {
-    source: 'button', title: 'Button', nav: 1,
-    cells: [
-      // colour · the live var() swatch + the default-scope hex in the VALUE column
-      '| `variant` | `solid` | `root` | `palette` | **bg** `accent.solid`<br>**fg** `accent.onSolid`<br>**pressed** `accent.solidPressed` | <span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid)"></span> `#12110b`<br><span class="nuri-doc-swatch" style="background:var(--nuri-accent-on-solid)"></span> `#f0eee3`<br><span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid-pressed)"></span> `#242319` |',
-      // geometry · the resolved px in the value column
-      '| `size` | `lg` | `root` | `box` | **minHeight** `size.xl`<br>**paddingX** `space.xl`<br>**radius** `radius.md` | `60px`<br>`24px`<br>`12px` |',
-      // typography · the expanded composite in the value column
-      '| `size` | `md` | `label` | `typography` | **size** `mdEm` | **fontSize** `17`<br>**lineHeight** `1.29`<br>**weight** `600`<br>**letterSpacing** `-0.02` |',
-    ],
-  },
-  'icon-avatar': {
-    source: 'icon-avatar', title: 'Icon Avatar', nav: 2,
-    cells: [
-      // geometry · the radius.full sentinel (9999px) in the value column
-      '| `root` | `box` | **width** `size.lg`<br>**height** `size.lg`<br>**radius** `radius.full` | `48px`<br>`48px`<br>`9999px` |',
-      // the `subtle` fg-only variant · a single swatch in the value column
-      '| `variant` | `subtle` | `root` | `palette` | **fg** `chrome.borderStrong` | <span class="nuri-doc-swatch" style="background:var(--nuri-border-strong)"></span> `#bfbcac` |',
-    ],
-  },
-  topbar: {
-    source: 'topbar', title: 'Topbar', nav: 3,
-    cells: [
-      // chrome surface · the canvas swatch + hex in the value column
-      '| `root` | `palette` | **bg** `chrome.bgCanvas`<br>**fg** `chrome.textPrimary`<br>**muted** `chrome.textMuted` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-canvas)"></span> `#fffdf2`<br><span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `#222013`<br><span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `#666455` |',
-      // the MIXED stack cell · literals → the em-dash, gap → the resolved px (the
-      // value column aligns line-for-line with the Token column)
-      '| `root` | `stack` | **direction** `row`<br>**align** `center`<br>**gap** `space.sm` | —<br>—<br>`6px` |',
-      // the LONE token-map row · center=false is an empty partmap (faithful R1.5)
-      '| `center` | `true` | `content` | `stack` | **align** `center`<br>**justify** `center` | —<br>— |',
-    ],
-  },
-};
-
-test('G · each build/docs/*.md re-emits identically from its descriptor', async () => {
-  const semanticRules = readSemanticRules(read('styles/tokens-semantic.css'));
-  const classifiedGroups = classifyAll(semanticRules);
-  // The default-scope (neutral + light · cream) resolved cross-product + type
-  // scale — the SAME data the orchestrator's Slice 9 feeds buildDocTokenInputs,
-  // so the value-bearing inputs (px · composite · swatch var + hex) reconstruct
-  // identically and the page re-emits byte-for-byte.
-  const primitiveMap = buildPrimitiveMap(read('styles/tokens-primitive.css'));
-  const resolved = resolveSemanticCrossProduct(semanticRules, primitiveMap);
-  const typeScale = buildTypeScale(primitiveMap);
-  const { tokens, colors } = buildDocTokenInputs(classifiedGroups, resolved, typeScale);
-  // The same palette cells the page derefs (build/palette.ts · Guard E's SoT) —
-  // re-derived from the same namespace-axis TS SoTs Slice 8 reads (N+40 re-source).
-  const palette = derivePalette(
-    {
-      surface:        await loadAxisSoT('pipeline/palette-surface.ts', 'surface'),
-      typographyAxis: await loadAxisSoT('pipeline/typography-axis.ts', 'axis'),
-    },
-    { classifiedGroups },
-  );
-
-  // Re-emit must equal the committed build (stale-build / hand-edit guard). The
-  // doc IR is sourced from the AUTHORED descriptor (decision 69 · the SoT), via
-  // the browser-ESM twin (node cannot import the .ts SoT) — NOT re-derived from
-  // CSS. Mirrors Slice 9; Guard D separately proves derive(CSS) ≡ the authored data.
-  for (const spec of DESCRIPTOR_COMPONENTS) {
-    if (!DOC_COMPONENTS.includes(spec.name)) continue;
-    const twin = pathToFileURL(resolve(REPO_ROOT, `build/descriptors/${spec.name}.js`)).href;
-    const descriptor = (await import(twin))[exportNameFor(spec.name)];
-    const ir = docIrFromDescriptor(spec, descriptor);
-    assert.equal(
-      read(`build/docs/${spec.source}.md`),
-      emitDocPage(ir, { palette, tokens, colors }),
-      `build/docs/${spec.source}.md is stale or hand-edited — run \`npm run build\`.`,
-    );
-  }
-
-  // The per-page contract pins (a deliberate emitter change must update these).
-  for (const spec of DESCRIPTOR_COMPONENTS) {
-    const contract = PAGE_CONTRACT[spec.name];
-    if (!contract) continue;
-    const md = read(`build/docs/${contract.source}.md`);
-    assert.match(
-      md,
-      new RegExp(`^---\\ntitle: ${contract.title}\\nlayout: default\\nnav_order: ${contract.nav}\\n---`),
-      `${contract.source}.md: the just-the-docs front-matter drifted`,
-    );
-    assert.ok(
-      md.includes(`\n{% include demo/${contract.source}.html %}\n`),
-      `${contract.source}.md: the authored <nuri-demo> story include slot is missing (decision 57.2)`,
-    );
-    for (const h of ['## Example', '## API', '## Anatomy', '## Base', '## Token map']) {
-      assert.ok(md.includes(`\n${h}\n`), `${contract.source}.md: missing the '${h}' section`);
-    }
-    // The N+23 two-column split — the composition (Token) and its concrete value
-    // (Resolves to) in separate columns, in BOTH tables.
-    assert.ok(
-      md.includes('| Part | Namespace | Token | Resolves to |'),
-      `${contract.source}.md: the Base table lost the 2-column Token / Resolves-to split`,
-    );
-    assert.ok(
-      md.includes('| Axis | Value | Part | Namespace | Token | Resolves to |'),
-      `${contract.source}.md: the Token map lost the 2-column Token / Resolves-to split`,
-    );
-    // ≥1 enriched cell per page — the N+23 value/swatch/composite RENDERING.
-    for (const cell of contract.cells) {
-      assert.ok(
-        md.includes(cell),
-        `${contract.source}.md: an enriched cell rendering drifted —\n  expected substring: ${cell}`,
-      );
-    }
   }
 });

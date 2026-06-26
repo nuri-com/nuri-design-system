@@ -11,11 +11,13 @@ name: gates
 # seam). This is the per-workspace CI the monorepo was built to make possible — it
 # CLOSES R7 (decision 65.10). N+41 (the A3 carve) added a FOURTH job — `prototype` —
 # the build-free web library: it regenerates the namespace CSS from @nuri/spec's SoTs
-# and gates re-emit ≡ committed (prototype → spec).
+# and gates re-emit ≡ committed (prototype → spec). N+42 (the A4 carve) added a FIFTH
+# job — `doc` — the SSG site: it transforms @nuri/spec's DATA exports → the generated
+# component Markdown and gates re-emit ≡ committed (the moved Guard G · doc → prototype → spec).
 #
-# Required checks (operator · decision B · reconfigured at M3 · extended at N+41):
-#   branch protection `gates` → `spec` + `prototype` + `rn` + `expo-demo` (the 4 job
-#   names · the operator adds `prototype` to required checks).
+# Required checks (operator · decision B · reconfigured at M3 · extended at N+41/N+42):
+#   branch protection `gates` → `spec` + `prototype` + `rn` + `expo-demo` + `doc` (the 5
+#   job names · the operator adds `prototype` + `doc` to required checks).
 #
 # Install scoping (verified M3): `npm ci -w @nuri/<job>` does NOT scope — `npm ci`
 # reconstructs the whole lockfile tree by design (`-w` only scopes the focus
@@ -83,6 +85,33 @@ jobs:
 
       - name: packages/prototype/styles/ must match source (re-emit ≡ committed)
         run: git diff --exit-code packages/prototype/styles/
+
+  # The SSG documentation site · @nuri/doc (the A4 carve · N+42). Owns the doc-gen:
+  # it transforms @nuri/spec's DATA exports (tokens · token-vars · palette · the
+  # descriptor twins) → the generated component Markdown. The build+diff is the
+  # re-emit ≡ committed guard (the byte-identity the moved Guard G also asserts in
+  # memory · "spec emits data, doc transforms it" · convergence §5). doc → prototype → spec.
+  doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install (locked · workspace-aware)
+        run: npm ci
+
+      - name: Test (doc-gen drift guard · Guard G · @nuri/doc)
+        run: npm test -w @nuri/doc
+
+      - name: Build the docs (emits the generated Markdown · @nuri/doc)
+        run: npm run build -w @nuri/doc
+
+      - name: packages/doc/generated/ must match source (re-emit ≡ committed)
+        run: git diff --exit-code packages/doc/generated/
 
   # The bare certified RN engine. THIS JOB IS THE INTRA-REPO CONTRACT GATE (R7).
   # The render-smoke imports @nuri/spec's frozen descriptors+tokens through the

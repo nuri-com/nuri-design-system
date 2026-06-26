@@ -824,3 +824,65 @@ export function emitTokensTs(resolved, rules) {
 
   return parts.join('\n');
 }
+
+// ── token-vars · the semantic COLOUR var registry (N+42 · the @nuri/doc data export) ──
+// Emit build/token-vars.ts: each cascade-VARYING semantic group's leaf → its CSS
+// custom-property NAME — the leaf→cssVar map classifyAll derives from the token CSS
+// (NOT hand-kebabed: chrome.bgStrong → --nuri-bg-strong DROPS the group prefix,
+// accent.solid → --nuri-accent-solid KEEPS it · the cssPrefix lives in GROUP_NAMES).
+// @nuri/doc reads this to render the Token-map / Base colour swatch's LIVE `var()`
+// chip (so it re-themes with scope · N+23). The doc consumes spec DATA, never the
+// classifier — the post-flip boundary (decision 75 · convergence §5). One source,
+// two readers (decision 48): the SAME classifiedGroups the tokens.ts cascade emit walks.
+//
+// COLOUR groups only (chrome · accent — cascade-varying). The cascade-INVARIANT
+// dimension groups (space/size/radius) are EXCLUDED: the docs render them as literal
+// px (no live swatch · no scope re-theming), so they need no var. The exclusion is
+// principled, not a doc carve-out — a swatch exists precisely BECAUSE the value varies
+// by scope; a px does not. Byte-stable (decision 35): canonical group/leaf order, no
+// timestamps. Emitted as `as const` so the @nuri/doc loader's TS-strip imports it raw
+// (node 20 cannot import a .ts · the descriptor-twin technique · decision 69).
+export function emitTokenVarsTs(classifiedGroups) {
+  const header = [
+    `/* ──────────────────────────────────────────────────────────────`,
+    ` * NURI · TOKEN VARS · GENERATED · DO NOT EDIT BY HAND`,
+    ` *`,
+    ` * Source · styles/tokens-semantic.css (the leaf→cssVar map · classifyAll)`,
+    ` * Emitter · pipeline/tokens-parser.js — run \`npm run build\``,
+    ` *`,
+    ` * The CSS custom-property NAME for every cascade-varying semantic colour`,
+    ` * leaf (chrome · accent). @nuri/doc reads this to render the Token-map`,
+    ` * swatch's LIVE \`var()\` chip — the spec emits the data, @nuri/doc transforms`,
+    ` * it → Markdown (convergence §5). The dimension scales (space/size/radius)`,
+    ` * are excluded: the docs render them as literal px, not live swatches.`,
+    ` * ────────────────────────────────────────────────────────────── */`,
+    ``,
+  ].join('\n');
+
+  // Cascade-VARYING groups only (dims non-empty → chrome · accent), in the
+  // tokens.ts emit order (colour first); a future varying group falls in
+  // alphabetically. The dimension singletons (dims === []) are skipped.
+  const EMIT_ORDER = ['chrome', 'accent'];
+  const names = [...classifiedGroups.keys()]
+    .filter((n) => classifiedGroups.get(n).dims.length > 0)
+    .sort((a, b) => {
+      const ai = EMIT_ORDER.indexOf(a), bi = EMIT_ORDER.indexOf(b);
+      if (ai !== -1 && bi !== -1) return ai - bi;
+      if (ai !== -1) return -1;
+      if (bi !== -1) return 1;
+      return a.localeCompare(b);
+    });
+
+  const isIdent = (k) => /^[A-Za-z_$][\w$]*$/.test(k);
+  const body = names
+    .map((n) => {
+      const leaves = classifiedGroups
+        .get(n)
+        .entries.map(({ leafName, cssVar }) => `    ${isIdent(leafName) ? leafName : `'${leafName}'`}: '${cssVar}',`)
+        .join('\n');
+      return `  ${n}: {\n${leaves}\n  },`;
+    })
+    .join('\n');
+
+  return header + `export const tokenVars = {\n${body}\n} as const;\n`;
+}
