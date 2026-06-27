@@ -76,7 +76,7 @@ async function buildAxisDocs() {
   const { STACK_FIELDS, BOX_FIELDS } = await loadSpecData('resolve-map');
   const { PROPERTY_SPELLING } = await loadSpecData('property-spelling');
   const { surface } = await loadSpecData('palette-surface');
-  const { effects } = await loadSpecData('interactive-effects');
+  const { opts, webChrome, webOrder } = await loadSpecData('interactive-effects');
   const { axis } = await loadSpecData('typography-axis');
   const specTokens = await loadSpecData('tokens');
   const { tokenVars } = await loadSpecData('token-vars');
@@ -85,7 +85,9 @@ async function buildAxisDocs() {
     boxFields: BOX_FIELDS,
     registry: PROPERTY_SPELLING,
     surface,
-    effects,
+    opts,
+    webChrome,
+    webOrder,
     axis,
     typeSizes: Object.keys(specTokens.type), // the 6 type-step sizes (the `size` axis rows · decision 77)
     roleColor: makeRoleResolver(specTokens, tokenVars),

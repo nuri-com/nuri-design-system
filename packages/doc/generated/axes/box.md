@@ -13,7 +13,7 @@ The agnostic **box** namespace — geometry (sizing · padding · radii) as a Fi
 
 ## Fields
 
-| Input | CSS | RN | Value |
+| Input | Web | RN | Value |
 | --- | --- | --- | --- |
 | `width` | `inline-size` | `width` | `size` scale |
 | `height` | `block-size` | `height` | `size` scale |

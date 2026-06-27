@@ -439,8 +439,8 @@ export function emitDocPage(ir, opts = {}) {
 // The axis-family sibling of emitDocPage. The 5 namespace axes are BESPOKE
 // (decision 73), so each IR kind renders its own natural shape (axis-ir.js builds
 // them): `fields` (box/stack · the spelling table) · `palette` (the role table with
-// resolving swatches) · `interactive` (the effect set + the order note) ·
-// `typography` (the wrapper dispatch). Pure function of (ir · the manifest's
+// resolving swatches) · `interactive` (the agnostic opt-in set + the demoted web-only
+// chrome) · `typography` (size + emphasis + the wrapper). Pure function of (ir · the manifest's
 // nav/src/lead) → byte-stable (decision 35 · the doc CI gate).
 export function emitAxisPage(ir, { nav, src, lead } = {}) {
   const title = titleFor(ir.source);
@@ -474,7 +474,7 @@ function renderDecls(decls) {
 function renderFields(ir, lines) {
   lines.push('## Fields');
   lines.push('');
-  lines.push('| Input | CSS | RN | Value |');
+  lines.push('| Input | Web | RN | Value |');
   lines.push('| --- | --- | --- | --- |');
   for (const r of ir.rows) {
     const rn = r.rn ? `\`${r.rn}\`` : NO_VALUE;
@@ -535,27 +535,52 @@ function channelCell(ch) {
   return `${swatch(`var(${ch.var})`)} \`${ch.role}\` \`${ch.hex}\``;
 }
 
-// ── interactive · the EFFECT set: each effect's name · its assembled selector ·
-// its declarations · its gate (automatic vs the data-* opt-in). The load-bearing
-// order (pressScale before disabledGuard · equal-specificity `transform`) is
-// surfaced as a note when the data exhibits the collision (ir.order ≥ 2). ──
+// ── interactive (§76 · the fan-out · re-sourced off the deleted `effects` bridge onto
+// `opts`/`webChrome`/`webOrder`) · TWO sections, mirroring typography's de-fusion shape:
+//   · Effects — the AGNOSTIC axis (the 3 opt-ins) on the locked `| Input | Web | RN |
+//               Value |` grammar: the web realization (assembled selector → decls, or a
+//               palette cross-ref where the rule lives in palette) · the RN realization
+//               (the documented `prop ← source` convention) · the gate (Value column).
+//   · Chrome  — the demoted web-only realization support (affordance · focus · the
+//               disabled guard · no agnostic input · no RN analog), reusing the
+//               `## Wrapper` shape. The load-bearing order note demotes into it as a
+//               one-line caption (the N+46 precedent: a web-cascade mechanic has no
+//               place on the agnostic table). ──
 function renderInteractive(ir, lines) {
   lines.push('## Effects');
   lines.push('');
-  lines.push('| Effect | Selector | Declarations | Gate |');
+  lines.push('| Input | Web | RN | Value |');
   lines.push('| --- | --- | --- | --- |');
-  for (const r of ir.rows) {
-    lines.push(`| \`${r.name}\` | \`${r.selector}\` | ${renderDecls(r.decls)} | ${renderGate(r.gate)} |`);
+  for (const r of ir.opts) {
+    lines.push(`| \`${r.input}\` | ${renderOptWeb(r.web)} | \`${r.rn}\` | ${renderGate(r.gate)} |`);
   }
+  lines.push('');
+  lines.push('## Chrome');
+  lines.push('');
+  lines.push('| Channel | Selector | Declarations |');
+  lines.push('| --- | --- | --- |');
+  for (const r of ir.chrome) {
+    lines.push(`| \`${r.name}\` | \`${r.selector}\` | ${renderDecls(r.decls)} |`);
+  }
+  lines.push('');
+  lines.push('> The `nuri-interactive` chrome is **web-only** realization support (cursor + transition');
+  lines.push('> affordance · the focus ring · the disabled-state guard) — no agnostic input, no RN');
+  lines.push('> analog, so it is not part of the `Effects` axis above.');
   lines.push('');
   if (ir.order.length >= 2) {
     const [first, second] = ir.order;
-    lines.push(`> ⚠ **Order is load-bearing.** \`${first}\` and \`${second}\` both set \`transform\` at`);
-    lines.push('> equal specificity, so the cascade resolves it by **source order** — the row order');
-    lines.push(`> above is that order: \`${first}\` is emitted first, so \`${second}\`’s \`transform: none\``);
-    lines.push('> wins and a disabled control reverts the press-scale (never scales).');
+    lines.push(`> \`${first}\` and \`${second}\` both set \`transform\` at equal specificity, so source order`);
+    lines.push(`> decides: \`${second}\` is emitted last, so a disabled control reverts the press-scale`);
+    lines.push('> (never scales).');
     lines.push('');
   }
+}
+
+// the agnostic Web cell for an interactive opt: the assembled selector → its decls, or
+// a palette cross-ref where the web rule lives in palette (pressColor's :active bg swap).
+function renderOptWeb(web) {
+  if (web.palette) return '→ palette (`:active` bg swap)';
+  return `\`${web.selector}\` → ${renderDecls(web.decls)}`;
 }
 
 // the Gate cell: automatic, or an author opt-in via a data-* attribute.
