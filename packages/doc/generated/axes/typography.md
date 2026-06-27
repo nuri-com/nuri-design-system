@@ -4,12 +4,29 @@ layout: default
 nav_order: 5
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/pipeline/typography-axis.ts
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/build/tokens.ts · packages/spec/styles/typography.css · packages/rn/theme.tsx · packages/spec/pipeline/typography-axis.ts
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
 # Typography
 
-The bespoke **typography** axis — the `nuri-typography` wrapper: declarative muted-tone + block alignment over the foundation type scale.
+The bespoke **typography** axis — two orthogonal inputs (decision 77): **`size`**, a foundation type-step, and **`emphasis`**, a boolean weight override. Both realize on either target (web a `data-*` attribute · RN `typeStyle`); each step’s resolved composite (font-size · line-height · weight · tracking) lives in the type **scale** (Foundations). The `nuri-typography` **wrapper** below is a separate **web-only** prose helper — muted tone + block alignment for authored content, with no RN analog.
+
+## Size
+
+| Input | Web | RN | Value |
+| --- | --- | --- | --- |
+| `xs` | `[data-type-style="xs"]` | `typeStyle('xs')` | `type` scale |
+| `sm` | `[data-type-style="sm"]` | `typeStyle('sm')` | `type` scale |
+| `md` | `[data-type-style="md"]` | `typeStyle('md')` | `type` scale |
+| `lg` | `[data-type-style="lg"]` | `typeStyle('lg')` | `type` scale |
+| `xl` | `[data-type-style="xl"]` | `typeStyle('xl')` | `type` scale |
+| `3xl` | `[data-type-style="3xl"]` | `typeStyle('3xl')` | `type` scale |
+
+## Emphasis
+
+| Input | Web | RN | Value |
+| --- | --- | --- | --- |
+| `emphasis` | `[data-type-emphasis]` | `typeStyle(size, true)` | semibold |
 
 ## Wrapper
 
@@ -20,6 +37,5 @@ The bespoke **typography** axis — the `nuri-typography` wrapper: declarative m
 | `alignCenter` | `nuri-typography[align="center"]` | `display: block`<br>`text-align: center` |
 | `alignEnd` | `nuri-typography[align="end"]` | `display: block`<br>`text-align: end` |
 
-> The `nuri-typography` element is the prose **wrapper** — declarative muted-tone +
-> block alignment. The type **scale** (`size` · `emphasis` · the `--nuri-type-*`
-> utilities) is a Foundations doc, not this axis.
+> The `nuri-typography` element is a **web-only** prose wrapper (muted tone + block
+> alignment · no RN analog). It is not part of the `size`/`emphasis` axis above.

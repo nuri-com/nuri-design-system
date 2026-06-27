@@ -12,9 +12,13 @@
  *                    the N+42 colour resolver · the ONLY axis that resolves tokens).
  *   · interactive  ← interactive-effects.ts (effects) → the effect set (assembled
  *                    selector · decls · gate) + the load-bearing order note.
- *   · typography   ← typography-axis.ts (axis) → the nuri-typography WRAPPER
- *                    dispatch (muted + align). The type SCALE (size/emphasis) is a
- *                    Foundations doc (A4c), NOT this axis.
+ *   · typography   ← tokens.type (the 6 type-sizes) + typography-axis.ts → THREE
+ *                    surfaces (decision 77 · the de-fusion): the agnostic `size` axis
+ *                    (the type-step → web [data-type-style] / RN typeStyle · the
+ *                    Input|Web|RN grammar this spike LOCKS), the orthogonal `emphasis`
+ *                    boolean ([data-type-emphasis] / typeStyle's 2nd arg), and the
+ *                    web-only nuri-typography WRAPPER (muted + align · no RN analog).
+ *                    The type SCALE composite is a Foundations doc (A4c · referenced).
  *
  * Each builder is a PURE function of its SoT data (read by build.js / Guard G via
  * the strip.js loader · NEVER spec's pipeline functions · convergence §5 ·
@@ -112,17 +116,42 @@ function gateOf(effect) {
   return optIn ? { kind: 'opt-in', attr: optIn.attr } : { kind: 'automatic' };
 }
 
-// ── typography ← the WRAPPER axis (typography-axis.ts · the muted/align dispatch
-// ONLY · the type SCALE is a Foundations doc · A4c). Per dispatch rule: the channel
-// name, the assembled selector (the `nuri-typography` element + the attr gate · a
-// REAL element, unlike palette/interactive's merged-node class), and the decls. ──
-export function typographyAxisIr(axis) {
-  const rows = axis.dispatch.map((r) => ({
+// ── typography ← THREE surfaces (decision 77 · the de-fusion · §76 the §73 taxonomy
+// refined: single-source ≠ shape). The axis the components compose is TWO orthogonal
+// inputs (the button label is `typography: { size: 'md', emphasis: true }` · decision
+// 55/77), realized on BOTH targets — the agnostic `| Input | Web | RN | Value |` grammar
+// this spike LOCKS for the fan-out:
+//   (a) `size`     — the 6 type-scale steps (xs · sm · md · lg · xl · 3xl), one row each
+//                    (the per-value realization differs, so enumerate · unlike a fixed-
+//                    property keyword field). Web a `[data-type-style="{size}"]` attr,
+//                    RN `typeStyle(size)`. The Value REFERENCES the type SCALE composite
+//                    (font-size/line-height/weight/tracking · Foundations · A4c · NOT
+//                    restated here · the operator's no-overlap bar).
+//   (b) `emphasis` — the orthogonal boolean (the de-fusion's WHOLE POINT · contrast the
+//                    old fused `mdEm`): ONE row. Web a single presence rule
+//                    [data-type-emphasis] → semibold, RN typeStyle's 2nd boolean arg.
+// The realization SPELLING ([data-type-style] / [data-type-emphasis] / typeStyle) is the
+// documented convention (mirrors styles/typography.css + theme.tsx#typeStyle · §77), not
+// a re-derived mapping — the key IS the step IS the attr value (decision 55).
+//   (c) wrapper    — the web-only `nuri-typography` element (muted + align · a REAL
+//                    element, unlike palette/interactive's merged-node class). NO RN
+//                    analog (RN inherits colour by scope, aligns on the Text node · §76).
+export function typographyAxisIr(axis, typeSizes) {
+  // (a) the agnostic size axis — the spike of the `| Input | Web | RN | Value |` grammar.
+  const size = typeSizes.map((s) => ({
+    input: s,
+    web: `[data-type-style="${s}"]`,
+    rn: `typeStyle('${s}')`,
+  }));
+  // (b) the orthogonal emphasis boolean — one row, the data-attr + the weight override.
+  const emphasis = { input: 'emphasis', web: '[data-type-emphasis]', rn: 'typeStyle(size, true)', value: 'semibold' };
+  // (c) the web-only wrapper dispatch (muted + align · unchanged · the real element).
+  const wrapper = axis.dispatch.map((r) => ({
     name: r.name,
     selector: axis.element + r.attr,
     decls: r.decls.map(([prop, value]) => [prop, value]),
   }));
-  return { source: 'typography', kind: 'typography', element: axis.element, rows };
+  return { source: 'typography', kind: 'typography', size, emphasis, element: axis.element, wrapper };
 }
 
 // ── The axis manifest — { source slug · nav_order · the SoT header path · the
@@ -161,8 +190,8 @@ export const AXIS_DOCS = [
   {
     source: 'typography',
     nav: 5,
-    src: 'packages/spec/pipeline/typography-axis.ts',
-    lead: 'The bespoke **typography** axis — the `nuri-typography` wrapper: declarative muted-tone + block alignment over the foundation type scale.',
-    build: (d) => typographyAxisIr(d.axis),
+    src: 'packages/spec/build/tokens.ts · packages/spec/styles/typography.css · packages/rn/theme.tsx · packages/spec/pipeline/typography-axis.ts',
+    lead: 'The bespoke **typography** axis — two orthogonal inputs (decision 77): **`size`**, a foundation type-step, and **`emphasis`**, a boolean weight override. Both realize on either target (web a `data-*` attribute · RN `typeStyle`); each step’s resolved composite (font-size · line-height · weight · tracking) lives in the type **scale** (Foundations). The `nuri-typography` **wrapper** below is a separate **web-only** prose helper — muted tone + block alignment for authored content, with no RN analog.',
+    build: (d) => typographyAxisIr(d.axis, d.typeSizes),
   },
 ];
