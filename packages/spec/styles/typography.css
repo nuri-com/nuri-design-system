@@ -1,37 +1,43 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · TYPOGRAPHY · UTILITY CLASSES
- * Composes the atomic --nuri-type-* step tokens into ready-to-
- * use classes. Components consume these, not the atomics.
+ * NURI · TYPOGRAPHY · TYPE-SCALE REALIZATION (data-attr)
+ * Composes the atomic --nuri-type-* step tokens into the type scale
+ * the <nuri-typography> element (and the web factory) dispatch via
+ * data-attrs. Two ORTHOGONAL inputs (decision 77 · the N+45 de-fusion):
  *
- * Two states per step:
- *   .nuri-type-{step}        Default — regular weight
- *   .nuri-type-{step}--em    Emphasized — always semibold (operator-locked · all leaves)
+ *   [data-type-style="{size}"]   one of xs · sm · md · lg · xl · 3xl
+ *                                → font-size · line-height · letter-spacing
+ *                                  · regular weight (400)
+ *   [data-type-emphasis]         the regular→semibold weight override
+ *                                → font-weight: semibold (600), uniform
+ *                                  across every size (operator-locked)
  *
- * Steps: xs · sm · md · lg · xl · 3xl  (2xl reserved)
+ * This SUPERSEDES the fused `.nuri-type-{step}` / `.nuri-type-{step}--em`
+ * utility classes (12 selectors → 6 + 1): emphasis was baked into the key
+ * (`mdEm`); it is now an orthogonal boolean, so one rule serves all sizes.
+ * The rendered output is UNCHANGED (computed-equivalence · the values are
+ * frozen · only the selector shape de-fuses) — proven by
+ * pipeline/typography-cascade.test.js + the real-browser companion.
  *
- * Rule: never set font-family here — inherits from the active
- * platform stack (see --nuri-font-family-sans).
+ * ⚠ SOURCE ORDER IS LOAD-BEARING. `[data-type-style="{size}"]` and
+ * `[data-type-emphasis]` are EQUAL specificity (0,1,0) and both declare
+ * `font-weight`. The emphasis rule is emitted AFTER all six size rules, so
+ * the cascade's source-order tiebreak lets the semibold override win for an
+ * emphasized node (and a regular node keeps the size rule's 400). The
+ * interactive order-guard pattern (decision 74) recurs here.
  *
- * Specificity note: each selector is chained to itself
- * (.nuri-type-xs.nuri-type-xs) so it ties .nuri-shell__main p
- * at (0,0,2). With typography.css loaded AFTER shell.css per the
- * page link order, source order breaks the tie in favour of the
- * utility class — so the type ramp samples render at their proper
- * step size rather than the shell default.
+ * Rule: never set font-family here — inherits from the active platform
+ * stack (see --nuri-font-family-sans).
  * ────────────────────────────────────────────────────────────── */
 
-/* ── Default ─────────────────────────────────────────────────── */
-.nuri-type-xs.nuri-type-xs   { font-size: var(--nuri-type-xs-size);  line-height: var(--nuri-type-xs-line-height);  letter-spacing: var(--nuri-type-xs-tracking);  font-weight: var(--nuri-type-xs-weight); }
-.nuri-type-sm.nuri-type-sm   { font-size: var(--nuri-type-sm-size);  line-height: var(--nuri-type-sm-line-height);  letter-spacing: var(--nuri-type-sm-tracking);  font-weight: var(--nuri-type-sm-weight); }
-.nuri-type-md.nuri-type-md   { font-size: var(--nuri-type-md-size);  line-height: var(--nuri-type-md-line-height);  letter-spacing: var(--nuri-type-md-tracking);  font-weight: var(--nuri-type-md-weight); }
-.nuri-type-lg.nuri-type-lg   { font-size: var(--nuri-type-lg-size);  line-height: var(--nuri-type-lg-line-height);  letter-spacing: var(--nuri-type-lg-tracking);  font-weight: var(--nuri-type-lg-weight); }
-.nuri-type-xl.nuri-type-xl   { font-size: var(--nuri-type-xl-size);  line-height: var(--nuri-type-xl-line-height);  letter-spacing: var(--nuri-type-xl-tracking);  font-weight: var(--nuri-type-xl-weight); }
-.nuri-type-3xl.nuri-type-3xl { font-size: var(--nuri-type-3xl-size); line-height: var(--nuri-type-3xl-line-height); letter-spacing: var(--nuri-type-3xl-tracking); font-weight: var(--nuri-type-3xl-weight); }
+/* ── The type scale · per-size (regular weight) ──────────────── */
+[data-type-style="xs"]  { font-size: var(--nuri-type-xs-size);  line-height: var(--nuri-type-xs-line-height);  letter-spacing: var(--nuri-type-xs-tracking);  font-weight: var(--nuri-type-xs-weight); }
+[data-type-style="sm"]  { font-size: var(--nuri-type-sm-size);  line-height: var(--nuri-type-sm-line-height);  letter-spacing: var(--nuri-type-sm-tracking);  font-weight: var(--nuri-type-sm-weight); }
+[data-type-style="md"]  { font-size: var(--nuri-type-md-size);  line-height: var(--nuri-type-md-line-height);  letter-spacing: var(--nuri-type-md-tracking);  font-weight: var(--nuri-type-md-weight); }
+[data-type-style="lg"]  { font-size: var(--nuri-type-lg-size);  line-height: var(--nuri-type-lg-line-height);  letter-spacing: var(--nuri-type-lg-tracking);  font-weight: var(--nuri-type-lg-weight); }
+[data-type-style="xl"]  { font-size: var(--nuri-type-xl-size);  line-height: var(--nuri-type-xl-line-height);  letter-spacing: var(--nuri-type-xl-tracking);  font-weight: var(--nuri-type-xl-weight); }
+[data-type-style="3xl"] { font-size: var(--nuri-type-3xl-size); line-height: var(--nuri-type-3xl-line-height); letter-spacing: var(--nuri-type-3xl-tracking); font-weight: var(--nuri-type-3xl-weight); }
 
-/* ── Emphasized ──────────────────────────────────────────────── */
-.nuri-type-xs--em.nuri-type-xs--em   { font-size: var(--nuri-type-xs-size);  line-height: var(--nuri-type-xs-line-height);  letter-spacing: var(--nuri-type-xs-tracking);  font-weight: var(--nuri-type-xs-em-weight); }
-.nuri-type-sm--em.nuri-type-sm--em   { font-size: var(--nuri-type-sm-size);  line-height: var(--nuri-type-sm-line-height);  letter-spacing: var(--nuri-type-sm-tracking);  font-weight: var(--nuri-type-sm-em-weight); }
-.nuri-type-md--em.nuri-type-md--em   { font-size: var(--nuri-type-md-size);  line-height: var(--nuri-type-md-line-height);  letter-spacing: var(--nuri-type-md-tracking);  font-weight: var(--nuri-type-md-em-weight); }
-.nuri-type-lg--em.nuri-type-lg--em   { font-size: var(--nuri-type-lg-size);  line-height: var(--nuri-type-lg-line-height);  letter-spacing: var(--nuri-type-lg-tracking);  font-weight: var(--nuri-type-lg-em-weight); }
-.nuri-type-xl--em.nuri-type-xl--em   { font-size: var(--nuri-type-xl-size);  line-height: var(--nuri-type-xl-line-height);  letter-spacing: var(--nuri-type-xl-tracking);  font-weight: var(--nuri-type-xl-em-weight); }
-.nuri-type-3xl--em.nuri-type-3xl--em { font-size: var(--nuri-type-3xl-size); line-height: var(--nuri-type-3xl-line-height); letter-spacing: var(--nuri-type-3xl-tracking); font-weight: var(--nuri-type-3xl-em-weight); }
+/* ── Emphasis · regular→semibold weight override · SOURCE-ORDER-LAST ── */
+/* Equal specificity (0,1,0) to the size rules above; emitted last so it wins
+ * the font-weight tiebreak for an emphasized node (decision 77). */
+[data-type-emphasis] { font-weight: var(--nuri-font-weight-semibold); }

@@ -39,6 +39,7 @@ import {
   size,
   radius,
   typeScale,
+  emphasisWeight,
 } from './contract';
 import type { Accent, Theme, TokenPath, TypeSize } from './contract';
 
@@ -58,8 +59,10 @@ export type RuntimeTokens = {
 // expose (Stack gap, Box padding*, Spacer size · decision 36/37). ──
 export type SpaceLeaf = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
-// ── TypeKey · a step in the type scale, regular or em (decision 54). ──
-export type TypeKey = TypeSize | `${TypeSize}Em`;
+// ── TypeKey · a step in the type scale (decision 54 · de-fused 77). The fused
+// `${TypeSize}Em` arm is GONE — emphasis is an orthogonal boolean (typeStyle's
+// 2nd arg), not part of the key (P11). Kept as an alias for the 6 sizes. ──
+export type TypeKey = TypeSize;
 
 // ══════════════════════════════════════════════════════════════════
 // The single orthogonal theming context.
@@ -153,19 +156,22 @@ export function useToken(path: TokenPath): string | number {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// TYPE SCALE · relative→absolute conversion (decision 54)
+// TYPE SCALE · relative→absolute conversion (decision 54 · de-fused 77)
 // ──────────────────────────────────────────────────────────────────
-// The emit keeps lineHeight (unitless ratio) and letterSpacing (em number)
-// RELATIVE; RN's lineHeight / letterSpacing are absolute dp. The
+// Two ORTHOGONAL inputs (decision 77 · the N+45 de-fusion): `size` is the
+// type-scale step; `emphasis` swaps the regular weight to the single semibold
+// override (emphasisWeight · uniform across every size · P11). Was one fused
+// `key` arg (`mdEm`). The emit keeps lineHeight (unitless ratio) and
+// letterSpacing (em number) RELATIVE; RN's are absolute dp, so the
 // relative→absolute multiply lives in ONE place — here. Never raw-spread
-// type[key] (lineHeight 1.29 would read as ~1px). This is also where a
+// type[size] (lineHeight 1.29 would read as ~1px). This is also where a
 // `* fontScale` lands when Dynamic Type ships (P11).
-export function typeStyle(key: TypeKey) {
-  const t = typeScale[key];
+export function typeStyle(size: TypeSize, emphasis?: boolean) {
+  const t = typeScale[size];
   return {
     fontSize: t.fontSize,
     lineHeight: t.fontSize * t.lineHeight,
     letterSpacing: t.fontSize * t.letterSpacing,
-    fontWeight: t.fontWeight,
+    fontWeight: emphasis ? emphasisWeight : t.fontWeight,
   } as const;
 }

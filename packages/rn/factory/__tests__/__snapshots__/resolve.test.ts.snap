@@ -9,9 +9,18 @@ exports[`genericity + the resolved style tree (snapshots committed) resolved Uni
     "typeStep": {
       "variants": {
         "size": {
-          "lg": "mdEm",
-          "md": "mdEm",
-          "sm": "smEm",
+          "lg": {
+            "emphasis": true,
+            "size": "md",
+          },
+          "md": {
+            "emphasis": true,
+            "size": "md",
+          },
+          "sm": {
+            "emphasis": true,
+            "size": "sm",
+          },
         },
       },
     },
@@ -115,9 +124,18 @@ exports[`genericity + the resolved style tree (snapshots committed) resolved Uni
     "typeStep": {
       "variants": {
         "size": {
-          "lg": "mdEm",
-          "md": "mdEm",
-          "sm": "smEm",
+          "lg": {
+            "emphasis": true,
+            "size": "md",
+          },
+          "md": {
+            "emphasis": true,
+            "size": "md",
+          },
+          "sm": {
+            "emphasis": true,
+            "size": "sm",
+          },
         },
       },
     },

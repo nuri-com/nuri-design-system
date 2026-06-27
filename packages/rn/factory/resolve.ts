@@ -43,8 +43,8 @@ import type {
   Axes,
   Accent,
   Theme,
+  TypeSize,
 } from '../contract';
-import type { TypeKey } from '../theme';
 import type { NuriTheme } from './theme';
 import { buildNuriTheme } from './theme';
 // The agnostic namespace→style mapping is DATA, now homed in @nuri/spec
@@ -156,13 +156,18 @@ function resolvePalette(ns: PaletteNS, theme: NuriTheme, mode: Theme): ResolvedP
   return {}; // palette present but neither variant nor chrome → no colour
 }
 
+// ── the resolved typography ref · two ORTHOGONAL inputs (decision 77 · the N+45
+// de-fusion): the `size` step + the `emphasis` boolean. Was a single fused TypeKey
+// (`mdEm`); createNuriComponent expands it via typeStyle(size, emphasis) at render. ──
+export type TypeRef = { size: TypeSize; emphasis?: boolean };
+
 // ── the core · resolve a merged NS into the structured node ──────
 export type ResolvedNode = {
   view: ViewStyle; // stack + box + palette.bg (NO fg — fg flows by scope)
   fg?: string;
   fgMuted?: string;
   pressedBg?: string;
-  typeKey?: TypeKey;
+  type?: TypeRef;
   interactive?: InteractiveNS;
 };
 
@@ -190,10 +195,11 @@ const RN_RESOLVERS: TargetResolvers = {
     Object.assign(node.view, applyFields(BOX_FIELDS, v));
   },
   // typography → the one agnostic identity that is NOT a ViewStyle prop: a type
-  // STEP ref (size → typeKey · decision 55); the factory expands it via typeStyle
-  // at render (mapping = data · expansion = behaviour · 65.2).
+  // ref ({size, emphasis} · decision 55/77 · the two orthogonal inputs); the
+  // factory expands it via typeStyle at render (mapping = data · expansion =
+  // behaviour · 65.2).
   typography: (v, { node }) => {
-    if (v.size !== undefined) node.typeKey = v.size;
+    if (v.size !== undefined) node.type = v.emphasis ? { size: v.size, emphasis: true } : { size: v.size };
   },
   // palette → BESPOKE (decision 65 · the platform-divergence point: web
   // currentColor / RN threads fg / CSS cascade vars). Logic VERBATIM from the old
@@ -387,9 +393,10 @@ export type PartRecipe = {
   // here as a parallel channel for the snapshot / report, never merged
   // into `variants`.
   foreground?: { base?: string; variants?: Record<string, Record<string, string>> };
-  // the label/icon type STEP (a named ref · decision 55) the factory expands
-  // via typeStyle at render — mapping = data, expansion = behaviour (65.2).
-  typeStep?: { base?: TypeKey; variants?: Record<string, Record<string, TypeKey>> };
+  // the label/icon type ref ({size, emphasis} · decision 55/77 · the two
+  // orthogonal inputs) the factory expands via typeStyle at render — mapping =
+  // data, expansion = behaviour (65.2).
+  typeStep?: { base?: TypeRef; variants?: Record<string, Record<string, TypeRef>> };
 };
 
 export type ComponentRecipe = Record<string, PartRecipe>;
@@ -417,7 +424,7 @@ function buildPartRecipe<A extends Axes>(
   };
 
   const fgVariants: Record<string, Record<string, string>> = {};
-  const typeVariants: Record<string, Record<string, TypeKey>> = {};
+  const typeVariants: Record<string, Record<string, TypeRef>> = {};
   const paletteAxes: string[] = [];
 
   if (descriptor.variants) {
@@ -435,9 +442,9 @@ function buildPartRecipe<A extends Axes>(
           if (!fgVariants[axis]) fgVariants[axis] = {};
           fgVariants[axis][value] = vNode.fg;
         }
-        if (vNode.typeKey !== undefined) {
+        if (vNode.type !== undefined) {
           if (!typeVariants[axis]) typeVariants[axis] = {};
-          typeVariants[axis][value] = vNode.typeKey;
+          typeVariants[axis][value] = vNode.type;
         }
         if (partNS.palette?.variant !== undefined || partNS.palette?.chrome !== undefined) {
           axisHasPalette = true;
@@ -455,9 +462,9 @@ function buildPartRecipe<A extends Axes>(
       ...(Object.keys(fgVariants).length ? { variants: fgVariants } : {}),
     };
   }
-  if (baseNode.typeKey !== undefined || Object.keys(typeVariants).length) {
+  if (baseNode.type !== undefined || Object.keys(typeVariants).length) {
     recipe.typeStep = {
-      ...(baseNode.typeKey !== undefined ? { base: baseNode.typeKey } : {}),
+      ...(baseNode.type !== undefined ? { base: baseNode.type } : {}),
       ...(Object.keys(typeVariants).length ? { variants: typeVariants } : {}),
     };
   }

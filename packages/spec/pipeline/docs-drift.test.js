@@ -399,7 +399,9 @@ const FROZEN_SCHEMA = {
       'paddingStart?': 'SpaceLeaf', 'paddingEnd?': 'SpaceLeaf',
       'paddingTop?': 'SpaceLeaf', 'paddingBottom?': 'SpaceLeaf', 'radius?': 'RadiusLeaf',
     },
-    TypographyNS: { 'size?': 'TypeKey' },
+    // DE-FUSED at N+45 (decision 77 · the versioned post-freeze change): two
+    // ORTHOGONAL inputs (the fused `${TypeSize}Em` arm of TypeKey is gone · P11).
+    TypographyNS: { 'size?': 'TypeSize', 'emphasis?': 'boolean' },
     PaletteNS: { 'variant?': 'PaletteVariant', 'accent?': 'Accent', 'muted?': 'boolean', 'chrome?': 'PaletteChrome' },
     InteractiveNS: { 'pressColor?': 'boolean', 'pressScale?': 'boolean', 'disabledOpacity?': 'boolean' },
   },
@@ -415,7 +417,7 @@ const FROZEN_SCHEMA = {
   },
   leafForms: {
     SizeLeaf: "keyof typeof import('../../build/tokens').size",
-    TypeKey: 'TypeSize | `${TypeSize}Em`',
+    TypeKey: 'TypeSize', // de-fused at N+45 (decision 77) · the `${TypeSize}Em` arm retired
   },
   // The parts + composition + envelope (65.3 §7 · decision 24.1).
   Part: ['root', 'label', 'icon', 'content'],

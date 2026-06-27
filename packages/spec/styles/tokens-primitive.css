@@ -505,12 +505,18 @@
  *
  *   xs → sm → md → lg → xl → (2xl) → 3xl
  *
- * Each step exposes five atomic tokens:
+ * Each step exposes four atomic tokens:
  *   -size            font-size
  *   -line-height     line-height (unitless ratio)
  *   -tracking        letter-spacing (em — resolves against -size)
- *   -weight          default weight (always regular)
- *   -em-weight       emphasized weight (semibold across all leaves · operator-locked)
+ *   -weight          weight (always regular · 400)
+ *
+ * EMPHASIS is ORTHOGONAL, not per-step (decision 77 · the N+45 de-fusion): the
+ * regular→semibold override is UNIFORM across every size, so it has NO per-step
+ * token — the realization references --nuri-font-weight-semibold directly (web
+ * [data-type-emphasis] · RN emphasisWeight). The retired per-step -em-weight
+ * tokens were all var(--nuri-font-weight-semibold), so this changes nothing but
+ * the shape (P11 · no speculative per-size split).
  *
  * Semantic roles (screen title, body, button label, …) come later
  * as aliases on top of this layer.
@@ -535,35 +541,30 @@
   --nuri-type-xs-line-height: 1.38;
   --nuri-type-xs-tracking:    0;
   --nuri-type-xs-weight:      var(--nuri-font-weight-regular);
-  --nuri-type-xs-em-weight:   var(--nuri-font-weight-semibold);
 
   /* ── sm · 15 / 20  (1.33) ─────────────────────────────────── */
   --nuri-type-sm-size:        var(--nuri-font-size-15);
   --nuri-type-sm-line-height: 1.33;
   --nuri-type-sm-tracking:    -0.01em;
   --nuri-type-sm-weight:      var(--nuri-font-weight-regular);
-  --nuri-type-sm-em-weight:   var(--nuri-font-weight-semibold);
 
   /* ── md · 17 / 22  (1.29) ─────────────────────────────────── */
   --nuri-type-md-size:        var(--nuri-font-size-17);
   --nuri-type-md-line-height: 1.29;
   --nuri-type-md-tracking:    -0.02em;
   --nuri-type-md-weight:      var(--nuri-font-weight-regular);
-  --nuri-type-md-em-weight:   var(--nuri-font-weight-semibold);
 
   /* ── lg · 22 / 28  (1.27) ─────────────────────────────────── */
   --nuri-type-lg-size:        var(--nuri-font-size-22);
   --nuri-type-lg-line-height: 1.27;
   --nuri-type-lg-tracking:    -0.015em;
   --nuri-type-lg-weight:      var(--nuri-font-weight-regular);
-  --nuri-type-lg-em-weight:   var(--nuri-font-weight-semibold);
 
   /* ── xl · 30 / 36  (1.20) ─────────────────────────────────── */
   --nuri-type-xl-size:        var(--nuri-font-size-30);
   --nuri-type-xl-line-height: 1.20;
   --nuri-type-xl-tracking:    -0.015em;
   --nuri-type-xl-weight:      var(--nuri-font-weight-regular);
-  --nuri-type-xl-em-weight:   var(--nuri-font-weight-semibold);
 
   /* ── 2xl · reserved ───────────────────────────────────────── */
   /* Intentional gap between xl (30) and 3xl (57). Define when a
@@ -574,7 +575,6 @@
   --nuri-type-3xl-line-height: 1.19;
   --nuri-type-3xl-tracking:    -0.02em;
   --nuri-type-3xl-weight:      var(--nuri-font-weight-regular);
-  --nuri-type-3xl-em-weight:   var(--nuri-font-weight-semibold);
 }
 
 

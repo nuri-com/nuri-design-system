@@ -963,7 +963,7 @@ nuri-demo:not(:defined) {
   height: var(--nuri-px-48);
   padding: var(--nuri-px-6) var(--nuri-px-48);
   font-size: var(--nuri-font-size-15);
-  font-weight: var(--nuri-type-xs-em-weight, var(--nuri-font-weight-semibold));
+  font-weight: var(--nuri-font-weight-semibold);
   color: var(--nuri-text-primary);
   background: transparent;
   border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);

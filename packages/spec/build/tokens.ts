@@ -179,20 +179,23 @@ export const radius: {
   full:  9999,
 };
 
-/* ── type · 6 steps × {regular, em} · directly-accessed namespace (decision 54) ──
+/* ── type · 6 size composites + emphasisWeight · directly-accessed namespace (decision 54 · de-fused 77) ──
  *
  * Source · styles/tokens-primitive.css --nuri-type-* (the SAME
- * primitives the web reads through the .nuri-type-* utility classes
- * in styles/typography.css · zero-build). One source, two readers
- * (the icon model · decision 48). NOT a runtime/TokenPath set.
+ * primitives the web reads through styles/typography.css · zero-build).
+ * One source, two readers (the icon model · decision 48). NOT a runtime/
+ * TokenPath set.
  *
  * fontSize px (rem×16) · lineHeight UNITLESS ratio (verbatim) ·
- * letterSpacing em number (verbatim) · fontWeight the resolved weight
- * literal. lineHeight + letterSpacing stay RELATIVE so they scale with
- * fontSize / OS fontScale; the consumer's typeStyle(key) helper does
- * the × fontSize relative→absolute conversion (do NOT raw-spread
- * type[key] — lineHeight 1.29 would read as ~1px). Every value is
- * verbatim from the source primitives — enforced by the sync test. */
+ * letterSpacing em number (verbatim) · fontWeight the resolved REGULAR
+ * weight literal. lineHeight + letterSpacing stay RELATIVE so they scale
+ * with fontSize / OS fontScale; the consumer's typeStyle(size, emphasis)
+ * helper does the × fontSize relative→absolute conversion (do NOT raw-spread
+ * type[size] — lineHeight 1.29 would read as ~1px). EMPHASIS is ORTHOGONAL
+ * (decision 77 · the N+45 de-fusion · uniform 400→600): the single
+ * emphasisWeight override below, applied by typeStyle's 2nd arg (RN) / the
+ * source-order-last [data-type-emphasis] rule (web). Every value is verbatim
+ * from the source primitives — enforced by the sync test. */
 export type TypeSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '3xl';
 export type TypeWeight = '400' | '600';
 export type TypeStep = {
@@ -202,17 +205,16 @@ export type TypeStep = {
   letterSpacing: number;
 };
 
-export const type: Record<TypeSize | `${TypeSize}Em`, TypeStep> = {
+export const type: Record<TypeSize, TypeStep> = {
   xs: { fontSize: 13, lineHeight: 1.38, fontWeight: '400', letterSpacing: 0 },
-  xsEm: { fontSize: 13, lineHeight: 1.38, fontWeight: '600', letterSpacing: 0 },
   sm: { fontSize: 15, lineHeight: 1.33, fontWeight: '400', letterSpacing: -0.01 },
-  smEm: { fontSize: 15, lineHeight: 1.33, fontWeight: '600', letterSpacing: -0.01 },
   md: { fontSize: 17, lineHeight: 1.29, fontWeight: '400', letterSpacing: -0.02 },
-  mdEm: { fontSize: 17, lineHeight: 1.29, fontWeight: '600', letterSpacing: -0.02 },
   lg: { fontSize: 22, lineHeight: 1.27, fontWeight: '400', letterSpacing: -0.015 },
-  lgEm: { fontSize: 22, lineHeight: 1.27, fontWeight: '600', letterSpacing: -0.015 },
   xl: { fontSize: 30, lineHeight: 1.2, fontWeight: '400', letterSpacing: -0.015 },
-  xlEm: { fontSize: 30, lineHeight: 1.2, fontWeight: '600', letterSpacing: -0.015 },
   '3xl': { fontSize: 57, lineHeight: 1.19, fontWeight: '400', letterSpacing: -0.02 },
-  '3xlEm': { fontSize: 57, lineHeight: 1.19, fontWeight: '600', letterSpacing: -0.02 },
 };
+
+// emphasis · the orthogonal regular→semibold weight override (decision 77 ·
+// uniform across every size · P11). typeStyle(size, true) swaps fontWeight to
+// this; web realizes it as the source-order-last [data-type-emphasis] rule.
+export const emphasisWeight: TypeWeight = '600';

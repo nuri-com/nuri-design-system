@@ -1,10 +1,12 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · TYPOGRAPHY · CUSTOM ELEMENT
  *
- * <nuri-typography size emphasis muted> applies the `.nuri-type-{step}` /
- * `.nuri-type-{step}--em` utility class (styles/typography.css) to
- * the host element on every attribute change. No inner span, no
- * @layer tokens — just declarative prop-to-utility-class dispatch.
+ * <nuri-typography size emphasis muted> reflects its two ORTHOGONAL type
+ * inputs (decision 77 · the N+45 de-fusion) onto the host as data-attrs that
+ * the type-scale CSS (styles/typography.css) dispatches on:
+ *   size      → data-type-style="{size}"   (font-size · line-height · tracking · regular weight)
+ *   emphasis  → data-type-emphasis          (the semibold weight override · source-order-last)
+ * No inner span, no @layer tokens — just declarative prop-to-data-attr dispatch.
  *
  * Markup
  *   <nuri-typography>Hello</nuri-typography>                  · md default
@@ -14,15 +16,14 @@
  *
  * Defaults
  *   size      → "md"     (any of xs · sm · md · lg · xl · 3xl)
- *   emphasis  → absent   (regular weight; presence flips to em-weight)
+ *   emphasis  → absent   (regular weight; presence flips to semibold via the override)
  *   muted     → absent   (currentColor; presence → --nuri-text-muted)
  *
- * `muted` is attribute-dispatch (decision 42 / 53): JS reflects the
- * boolean as `data-muted`, CSS owns the colour. It is a BOOLEAN, not a
- * tone enum — there is no `tone="primary|muted|accent"` (P11). Because
- * #sync() rewrites `className` wholesale for the size/emphasis utility,
- * the muted state rides a separate `data-muted` attribute rather than a
- * class (which would be clobbered).
+ * size/emphasis/muted are ALL attribute-dispatch (decision 42 / 53): JS
+ * reflects the props as `data-*`, the CSS owns the values/colour. Because the
+ * inputs are orthogonal, each reflects independently — size → data-type-style,
+ * emphasis → data-type-emphasis, muted → data-muted — with no class to clobber.
+ * `muted` is a BOOLEAN, not a tone enum (there is no tone="primary|muted|accent" · P11).
  *
  * Unknown size values warn `[NuriTypography] unknown size "<value>"`
  * and fall back to md (same warn pattern as <nuri-icon>).
@@ -51,9 +52,13 @@
         console.warn(`[NuriTypography] unknown size "${size}" — falling back to md`);
         size = 'md';
       }
-      const emphasis = this.hasAttribute('emphasis');
-      this.className = emphasis ? `nuri-type-${size}--em` : `nuri-type-${size}`;
-      // muted reflects state; typography.css owns the colour (decision 42 / 53).
+      // Orthogonal type-scale dispatch (decision 77): the size rule sets the
+      // metrics + regular weight; the emphasis override (source-order-last in
+      // typography.css) wins font-weight when present. data-* aren't observed,
+      // so reflecting them here does not re-enter attributeChangedCallback.
+      this.setAttribute('data-type-style', size);
+      this.toggleAttribute('data-type-emphasis', this.hasAttribute('emphasis'));
+      // muted reflects state; the wrapper CSS owns the colour (decision 42 / 53).
       this.toggleAttribute('data-muted', this.hasAttribute('muted'));
     }
   }

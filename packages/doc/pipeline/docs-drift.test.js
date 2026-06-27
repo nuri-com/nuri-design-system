@@ -65,8 +65,10 @@ const PAGE_CONTRACT = {
       '| `variant` | `solid` | `root` | `palette` | **bg** `accent.solid`<br>**fg** `accent.onSolid`<br>**pressed** `accent.solidPressed` | <span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid)"></span> `#12110b`<br><span class="nuri-doc-swatch" style="background:var(--nuri-accent-on-solid)"></span> `#f0eee3`<br><span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid-pressed)"></span> `#242319` |',
       // geometry · the resolved px in the value column
       '| `size` | `lg` | `root` | `box` | **minHeight** `size.xl`<br>**paddingX** `space.xl`<br>**radius** `radius.md` | `60px`<br>`24px`<br>`12px` |',
-      // typography · the expanded composite in the value column
-      '| `size` | `md` | `label` | `typography` | **size** `mdEm` | **fontSize** `17`<br>**lineHeight** `1.29`<br>**weight** `600`<br>**letterSpacing** `-0.02` |',
+      // typography · the two orthogonal inputs (size + emphasis · decision 77) in the
+      // Token column, the resolved composite in the Value column (weight 600 = the
+      // emphasisWeight override · computed-equivalent with the old fused `mdEm`)
+      '| `size` | `md` | `label` | `typography` | **size** `md`<br>**emphasis** `true` | **fontSize** `17`<br>**lineHeight** `1.29`<br>**weight** `600`<br>**letterSpacing** `-0.02` |',
     ],
   },
   'icon-avatar': {

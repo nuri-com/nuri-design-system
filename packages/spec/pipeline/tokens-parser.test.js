@@ -843,35 +843,35 @@ test('build/icons.ts exposes 17 names × 3 weights, each path equal to icons.js 
 });
 
 // ──────────────────────────────────────────────────────────────
-// N+8.3 · emitted type scale (decision 54)
-// The `type` namespace in build/tokens.ts is a typed, directly-
-// accessed composite emitted from the --nuri-type-* primitives — the
-// SAME source the web reads through the .nuri-type-* utility classes.
-// One source, two readers (the icon model · decision 48). This is the
-// single-source guard: every emitted value must re-derive from the
-// source primitives via the documented conversions, and the on-disk
-// emit must re-emit identically. A hand-edit to tokens.ts or a stale
-// build fails here.
+// N+8.3 · emitted type scale (decision 54 · DE-FUSED N+45 · decision 77)
+// The `type` namespace in build/tokens.ts is a typed, directly-accessed
+// composite emitted from the --nuri-type-* primitives — the SAME source the
+// web reads through styles/typography.css. One source, two readers (the icon
+// model · decision 48). DE-FUSED at N+45: `type` is the 6 SIZE composites
+// (regular weight); `emphasis` is an ORTHOGONAL single weight override
+// (emphasisWeight · uniform 400→600 · P11), NOT a per-size `${step}Em` twin.
+// This is the single-source guard: every emitted value re-derives from the
+// source primitives, and the on-disk emit re-emits identically. A hand-edit to
+// tokens.ts or a stale build fails here.
 // ──────────────────────────────────────────────────────────────
-test('type scale covers every size × {regular, em} and each value re-derives from the --nuri-type-* source (single-source guard)', async () => {
+test('type scale covers every size + the orthogonal emphasisWeight, each re-deriving from the --nuri-type-* source (single-source guard · decision 77)', async () => {
   const css = await readFile(CSS_PATH, 'utf8');
   const map = buildPrimitiveMap(css);
   const scale = buildTypeScale(map);
 
-  // 1. Coverage: every step in the scale × {regular, em}.
-  const expectedKeys = TYPE_SIZES.flatMap((s) => [s, `${s}Em`]).sort();
+  // 1. Coverage: the 6 size composites + the single emphasis override (decision 77).
   assert.deepEqual(
-    Object.keys(scale).sort(), expectedKeys,
-    `type scale must cover every size × {regular, em}: ${expectedKeys.join(', ')}`,
+    Object.keys(scale.sizes).sort(), [...TYPE_SIZES].sort(),
+    `type scale must cover every size composite: ${TYPE_SIZES.join(', ')}`,
   );
+  assert.ok(scale.emphasisWeight != null, 'type scale must carry the orthogonal emphasisWeight override');
 
-  // 2. Single-source guard · INDEPENDENT re-derivation. The test owns
-  //    its own conversion (NOT the emitter's helpers) so a bug in
-  //    buildTypeScale can't hide. fontSize = rem×16; lineHeight and
-  //    letterSpacing stay RELATIVE (the unitless ratio · the em number,
-  //    verbatim — the × fontSize relative→absolute conversion lives in
-  //    the consumer's typeStyle helper · decision 54); fontWeight = the
-  //    resolved weight literal.
+  // 2. Single-source guard · INDEPENDENT re-derivation. The test owns its own
+  //    conversion (NOT the emitter's helpers) so a bug in buildTypeScale can't
+  //    hide. fontSize = rem×16; lineHeight and letterSpacing stay RELATIVE (the
+  //    unitless ratio · the em number, verbatim — the × fontSize relative→absolute
+  //    conversion lives in typeStyle · decision 54); fontWeight = the resolved
+  //    REGULAR weight literal. EMPHASIS is orthogonal — re-derived once below.
   const round3 = (n) => Math.round(n * 1000) / 1000;
   const toPx = (raw) =>
     raw.endsWith('rem') ? round3(Number(raw.slice(0, -3)) * 16)
@@ -885,33 +885,38 @@ test('type scale covers every size × {regular, em} and each value re-derives fr
     const lineHeight = round3(Number(resolveValue(map.get(`--nuri-type-${step}-line-height`), map)));
     const letterSpacing = toEm(resolveValue(map.get(`--nuri-type-${step}-tracking`), map));
     const weight = resolveValue(map.get(`--nuri-type-${step}-weight`), map);
-    const emWeight = resolveValue(map.get(`--nuri-type-${step}-em-weight`), map);
 
-    assert.deepEqual(scale[step],
+    assert.deepEqual(scale.sizes[step],
       { fontSize, lineHeight, fontWeight: weight, letterSpacing },
       `type.${step} drifted from the --nuri-type-${step}-* primitives`);
-    assert.deepEqual(scale[`${step}Em`],
-      { fontSize, lineHeight, fontWeight: emWeight, letterSpacing },
-      `type.${step}Em drifted from the --nuri-type-${step}-* primitives`);
   }
+  // The emphasis override is the semibold weight, uniform across every size
+  // (decision 77 · operator-locked) — re-derived from --nuri-font-weight-semibold.
+  assert.equal(
+    scale.emphasisWeight, resolveValue(map.get('--nuri-font-weight-semibold'), map),
+    'emphasisWeight drifted from --nuri-font-weight-semibold',
+  );
 
-  // 3. The on-disk emit re-emits identically from the source — the
-  //    drift guard. A manual edit to build/tokens.ts (forbidden ·
-  //    decision 35) or a stale build both fail here.
+  // 3. The on-disk emit re-emits identically from the source — the drift guard.
+  //    A manual edit to build/tokens.ts (forbidden · decision 35) or a stale build
+  //    both fail here.
   const onDisk = await readFile(TS_PATH, 'utf8');
   assert.ok(
     onDisk.includes(emitTypeTs(scale)),
     'build/tokens.ts type block is out of sync with the --nuri-type-* primitives — run `npm run build`',
   );
 
-  // 4. The typed surface is present: the TypeSize / TypeWeight / TypeStep
-  //    aliases and the `type` const with its directly-accessed shape.
+  // 4. The typed surface is present: the TypeSize / TypeWeight / TypeStep aliases,
+  //    the 6-size `type` namespace, and the orthogonal `emphasisWeight` override.
   assert.match(onDisk, /export type TypeSize =/, 'tokens.ts missing TypeSize union');
   assert.match(onDisk, /export type TypeWeight =/, 'tokens.ts missing TypeWeight alias');
   assert.match(onDisk, /export type TypeStep = \{/, 'tokens.ts missing TypeStep shape');
   assert.match(onDisk,
-    /export const type: Record<TypeSize \| `\$\{TypeSize\}Em`, TypeStep> = \{/,
-    'tokens.ts missing the directly-accessed type namespace');
+    /export const type: Record<TypeSize, TypeStep> = \{/,
+    'tokens.ts missing the de-fused 6-size type namespace (decision 77)');
+  assert.match(onDisk,
+    /export const emphasisWeight: TypeWeight = '\d+';/,
+    'tokens.ts missing the orthogonal emphasisWeight override (decision 77)');
 });
 
 // ──────────────────────────────────────────────────────────────

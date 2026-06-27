@@ -432,7 +432,7 @@ async function main() {
   console.log(
     `[tokens-parser] wrote ${jsonCount} colour primitives → ${JSON_OUT}\n` +
     `[tokens-parser] wrote ${semanticCount} semantic tokens × ${ACCENTS.length} accents × ${THEMES.length} themes → ${TS_OUT}\n` +
-    `[tokens-parser] wrote type scale (${TYPE_SIZES.length} steps × {regular, em}) → ${TS_OUT}\n` +
+    `[tokens-parser] wrote type scale (${TYPE_SIZES.length} sizes + emphasisWeight · de-fused) → ${TS_OUT}\n` +
     `[tokens-parser] wrote interaction baseline (${Object.keys(INTERACTION_PRIMITIVES).length} constants · transversal) → ${INTERACTION_OUT}` +
     `\n[tokens-parser] wrote TokenPath union → ${TOKEN_PATHS_OUT}` +
     `\n[tokens-parser] wrote semantic colour var registry → ${TOKEN_VARS_OUT}` +
