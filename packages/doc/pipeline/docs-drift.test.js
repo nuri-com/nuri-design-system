@@ -208,13 +208,26 @@ const AXIS_CONTRACT = {
     includes: ['⚠ **Order is load-bearing.**', '`pressScale` is emitted first'],
   },
   typography: {
-    nav: 5, title: 'Typography', section: '## Wrapper',
+    // RE-POINTED (decision 77 · the de-fusion) — the PRIMARY section is now the agnostic
+    // `size` type-step axis (the Input|Web|RN grammar this spike LOCKS for the fan-out);
+    // the wrapper is demoted to a web-only prose section.
+    nav: 5, title: 'Typography', section: '## Size',
     cells: [
-      // the reflected-boolean muted dispatch (the theme-cascaded chrome token)
+      // the size axis (the spike): the type step → web [data-type-style] / RN typeStyle,
+      // the Value a REFERENCE to the type scale (Foundations · A4c · not restated).
+      "| `md` | `[data-type-style=\"md\"]` | `typeStyle('md')` | `type` scale |",
+      "| `3xl` | `[data-type-style=\"3xl\"]` | `typeStyle('3xl')` | `type` scale |",
+      // the orthogonal emphasis boolean — ONE row (the de-fusion's whole point ·
+      // contrast the old fused `mdEm`): the data-attr presence rule / typeStyle's 2nd arg.
+      "| `emphasis` | `[data-type-emphasis]` | `typeStyle(size, true)` | semibold |",
+      // the web-only wrapper dispatch (secondary · unchanged): the reflected-boolean
+      // muted (theme-cascaded chrome token) + a plain prop-driven align.
       '| `muted` | `nuri-typography[data-muted]` | `color: var(--nuri-text-muted)` |',
-      // a plain prop-driven align (display:block + the logical text-align)
       '| `alignCenter` | `nuri-typography[align="center"]` | `display: block`<br>`text-align: center` |',
     ],
+    // the locked agnostic grammar header (the spike · the fan-out adopts it) + the
+    // orthogonal emphasis section + the demoted web-only wrapper section.
+    includes: ['| Input | Web | RN | Value |', '## Emphasis', '## Wrapper'],
   },
 };
 
@@ -236,6 +249,7 @@ test('G · each generated/axes/*.md re-emits identically from its axis SoT', asy
     surface,
     effects,
     axis,
+    typeSizes: Object.keys(specTokens.type), // the 6 type-step sizes (the `size` axis · decision 77)
     roleColor: makeRoleResolver(specTokens, tokenVars),
   };
 

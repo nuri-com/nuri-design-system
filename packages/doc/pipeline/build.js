@@ -87,6 +87,7 @@ async function buildAxisDocs() {
     surface,
     effects,
     axis,
+    typeSizes: Object.keys(specTokens.type), // the 6 type-step sizes (the `size` axis rows · decision 77)
     roleColor: makeRoleResolver(specTokens, tokenVars),
   };
 

@@ -563,20 +563,41 @@ function renderGate(gate) {
   return gate.kind === 'opt-in' ? `opt-in · \`${gate.attr}\`` : 'automatic';
 }
 
-// ── typography · the nuri-typography WRAPPER dispatch (muted + align · a REAL
-// element, unlike palette/interactive's merged-node class). The type SCALE
-// (size/emphasis · the --nuri-type-* utilities) is a Foundations doc (A4c). ──
+// ── typography (decision 77 · the de-fusion · the SPIKE of the agnostic axis-doc
+// grammar) · THREE sections. The PRIMARY axis is two orthogonal inputs, each on the
+// `| Input | Web | RN | Value |` grammar the other 4 axes adopt next (the fan-out):
+//   · Size     — the 6 type-steps → web `[data-type-style]` / RN typeStyle · the Value
+//                a REFERENCE to the type SCALE (Foundations · A4c · not restated).
+//   · Emphasis — the orthogonal boolean → web `[data-type-emphasis]` / RN typeStyle's
+//                2nd arg · the de-fusion made visible (1 boolean × 6 sizes, not 12 keys).
+// SECONDARY — the web-only `nuri-typography` WRAPPER dispatch (muted + align · a REAL
+// element, no RN analog). The wrapper note is the ONE honest framing the table shape
+// can't carry on its own (no RN column ≠ "web-only" to a skimming reader). ──
 function renderTypography(ir, lines) {
+  lines.push('## Size');
+  lines.push('');
+  lines.push('| Input | Web | RN | Value |');
+  lines.push('| --- | --- | --- | --- |');
+  for (const r of ir.size) {
+    lines.push(`| \`${r.input}\` | \`${r.web}\` | \`${r.rn}\` | \`type\` scale |`);
+  }
+  lines.push('');
+  lines.push('## Emphasis');
+  lines.push('');
+  lines.push('| Input | Web | RN | Value |');
+  lines.push('| --- | --- | --- | --- |');
+  const e = ir.emphasis;
+  lines.push(`| \`${e.input}\` | \`${e.web}\` | \`${e.rn}\` | ${e.value} |`);
+  lines.push('');
   lines.push('## Wrapper');
   lines.push('');
   lines.push('| Channel | Selector | Declarations |');
   lines.push('| --- | --- | --- |');
-  for (const r of ir.rows) {
+  for (const r of ir.wrapper) {
     lines.push(`| \`${r.name}\` | \`${r.selector}\` | ${renderDecls(r.decls)} |`);
   }
   lines.push('');
-  lines.push(`> The \`${ir.element}\` element is the prose **wrapper** — declarative muted-tone +`);
-  lines.push('> block alignment. The type **scale** (`size` · `emphasis` · the `--nuri-type-*`');
-  lines.push('> utilities) is a Foundations doc, not this axis.');
+  lines.push(`> The \`${ir.element}\` element is a **web-only** prose wrapper (muted tone + block`);
+  lines.push('> alignment · no RN analog). It is not part of the `size`/`emphasis` axis above.');
   lines.push('');
 }
