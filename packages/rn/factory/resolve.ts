@@ -56,6 +56,12 @@ import { STACK_FIELDS, BOX_FIELDS } from '@nuri/spec/resolve-map';
 import type { Field, ScaleName } from '@nuri/spec/resolve-map';
 import { PROPERTY_SPELLING } from '@nuri/spec/property-spelling';
 import type { CanonicalId } from '@nuri/spec/property-spelling';
+// The interactive opt-in mapping is DATA, single-sourced in @nuri/spec (N+44 · the
+// one-SoT-two-projections invariant · decision 70/73): the SAME `opts` table the web
+// CSS emit + the web factory gate project from. This RN applier projects it into the
+// transient state patches (flattenPart) + the §11 compoundVariants (buildPartRecipe) —
+// no hand-written third copy of which opt → which prop / trigger / value.
+import { opts as INTERACTIVE_OPTS } from '@nuri/spec/interactive-effects';
 
 // Exhaustiveness guard — a new schema namespace / element / fill value that
 // the factory does not handle becomes a COMPILE error here, and a runtime
@@ -293,6 +299,39 @@ export function resolveAnatomy<A extends Axes>(descriptor: Descriptor<A>): Anato
   return walk('root', descriptor.structure.anatomy);
 }
 
+// ══════════════════════════════════════════════════════════════════
+// THE INTERACTIVE OPT-IN APPLIER (the RN projection of the `opts` SoT · N+44)
+// ══════════════════════════════════════════════════════════════════
+// Walk `opts` (@nuri/spec/interactive-effects) in key order — pressColor → pressScale
+// → disabledOpacity, byte-identical to the old hardcoded sequence. Each opt's `rn`
+// realization is pure data the appliers interpret (no closures in the SoT):
+//   · { prop, from }          → node-derived (pressColor → node.pressedBg · per-variant)
+//   · { prop, token, shape? } → the theme constant (decision 45 · scale-wrapped if asked)
+// flattenPart applies it as a (selection × state) cell patch; buildPartRecipe lifts it
+// into the §11 compoundVariants (pressColor's per-palette-variant loop preserved).
+type OptKey = keyof typeof INTERACTIVE_OPTS;
+type InteractiveOpt = (typeof INTERACTIVE_OPTS)[OptKey];
+
+// OptKey must align with the schema's InteractiveNS — an opt without a schema flag (or
+// a schema flag with no opt) is a COMPILE error here (the NS_ORDER-completeness pattern):
+// the appliers index node.interactive by an OptKey, so the two must be the same key set.
+type _OptKeysMatchSchema =
+  [OptKey] extends [keyof InteractiveNS] ? ([keyof InteractiveNS] extends [OptKey] ? true : never) : never;
+const _optKeysMatchSchema: _OptKeysMatchSchema = true;
+void _optKeysMatchSchema;
+
+// Read a dotted theme path (the opt's `token` · e.g. 'interaction.pressScale').
+const readThemePath = (theme: NuriTheme, path: string): unknown =>
+  path.split('.').reduce<unknown>((o, k) => (o as Record<string, unknown>)[k], theme);
+
+// Realize a token-arm rn → its RN value: the theme constant, scale-wrapped if asked
+// (pressScale → RN's [{ scale: v }] transform · decision 45). The from-arm (pressColor)
+// is node-derived → resolved at the call sites (it needs the resolved node / per-variant).
+function realizeToken(rn: { token: string; shape?: 'scale' }, theme: NuriTheme): unknown {
+  const raw = readThemePath(theme, rn.token);
+  return rn.shape === 'scale' ? [{ scale: raw as number }] : raw;
+}
+
 // ── flattenPart · the concrete RN style for a (selection × state) cell ──
 export type PartFlat = { style: ViewStyle; node: ResolvedNode };
 
@@ -307,18 +346,20 @@ export function flattenPart<A extends Axes>(
   const ns = mergedNSForPart(descriptor, selection, part);
   const node = resolveNS(ns, theme, mode);
   const style: ViewStyle = { ...node.view };
-  // Interactive transients — the factory's, gated by the opt-in (65.4):
-  //   pressColor → swap to the node's own variant pressedBg
-  //   pressScale → transform scale (the interaction baseline)
-  //   disabledOpacity → opacity (the interaction baseline)
-  if (state.pressed && node.interactive?.pressColor && node.pressedBg !== undefined) {
-    style.backgroundColor = node.pressedBg;
-  }
-  if (state.pressed && node.interactive?.pressScale) {
-    style.transform = [{ scale: theme.interaction.pressScale }];
-  }
-  if (state.disabled && node.interactive?.disabledOpacity) {
-    style.opacity = theme.interaction.disabledOpacity;
+  // Interactive transients — the factory's, gated by the opt-in (65.4), projected from
+  // the single `opts` SoT (N+44). For each opted-in effect whose trigger fires, realize
+  // its rn onto the merged style: `from` reads the resolved node (pressColor →
+  // node.pressedBg · skipped when absent, the old `pressedBg !== undefined` guard),
+  // `token` reads the theme baseline. opts key order (pressColor → pressScale →
+  // disabledOpacity) reproduces the old if-sequence → byte-identical style key order.
+  for (const key of Object.keys(INTERACTIVE_OPTS) as OptKey[]) {
+    const opt = INTERACTIVE_OPTS[key];
+    if (!state[opt.trigger]) continue;
+    if (!node.interactive?.[key]) continue;
+    const value =
+      'from' in opt.rn ? (node as Record<string, unknown>)[opt.rn.from] : realizeToken(opt.rn, theme);
+    if (value === undefined) continue;
+    (style as Record<string, unknown>)[opt.rn.prop] = value;
   }
   return { style, node };
 }
@@ -421,30 +462,44 @@ function buildPartRecipe<A extends Axes>(
     };
   }
 
-  // compoundVariants — the `interactive` opt-in (on this part's base) realised
-  // as state patches (65.4 · the values engine-derived). pressColor's pressedBg
-  // is variant-dependent → one compound per palette-axis value (the §11 array).
+  // compoundVariants — the `interactive` opt-in (on this part's base) realised as state
+  // patches (65.4 · values engine-derived), projected from the single `opts` SoT (N+44)
+  // in key order (pressColor → pressScale → disabledOpacity · byte-identical push order).
+  // A `from` opt (pressColor) is node-derived: its pressedBg is variant-dependent → one
+  // compound per palette-axis value (the §11 array · the per-variant flattenPart loop,
+  // PRESERVED), or a single base compound when no palette axis carries it. A `token` opt
+  // (pressScale · disabledOpacity) is one global compound. The trigger ('pressed' /
+  // 'disabled') is the compound's condition key.
   const inter = baseNode.interactive;
-  if (inter?.pressColor) {
-    if (paletteAxes.length && descriptor.variants) {
-      const axes = descriptor.variants as Record<string, Record<string, PartMap>>;
-      for (const axis of paletteAxes) {
-        for (const value of Object.keys(axes[axis])) {
-          const pressedBg = flattenPart(descriptor, theme, mode, part, { [axis]: value }, {}).node.pressedBg;
-          if (pressedBg !== undefined) {
-            recipe.compoundVariants.push({ [axis]: value, pressed: true, styles: { backgroundColor: pressedBg } });
+  for (const key of Object.keys(INTERACTIVE_OPTS) as OptKey[]) {
+    const opt = INTERACTIVE_OPTS[key];
+    if (!inter?.[key]) continue;
+    const cond = opt.trigger;
+    if ('from' in opt.rn) {
+      const { prop, from } = opt.rn;
+      const pushCompound = (derived: unknown, axisCond?: { axis: string; value: string }): void => {
+        if (derived === undefined) return;
+        const styles: ViewStyle = {};
+        (styles as Record<string, unknown>)[prop] = derived;
+        const compound = (axisCond ? { [axisCond.axis]: axisCond.value, [cond]: true, styles } : { [cond]: true, styles }) as CompoundVariant;
+        recipe.compoundVariants.push(compound);
+      };
+      if (paletteAxes.length && descriptor.variants) {
+        const axes = descriptor.variants as Record<string, Record<string, PartMap>>;
+        for (const axis of paletteAxes) {
+          for (const value of Object.keys(axes[axis])) {
+            const derived = (flattenPart(descriptor, theme, mode, part, { [axis]: value }, {}).node as Record<string, unknown>)[from];
+            pushCompound(derived, { axis, value });
           }
         }
+      } else {
+        pushCompound((baseNode as Record<string, unknown>)[from]);
       }
-    } else if (baseNode.pressedBg !== undefined) {
-      recipe.compoundVariants.push({ pressed: true, styles: { backgroundColor: baseNode.pressedBg } });
+    } else {
+      const styles: ViewStyle = {};
+      (styles as Record<string, unknown>)[opt.rn.prop] = realizeToken(opt.rn, theme);
+      recipe.compoundVariants.push({ [cond]: true, styles } as CompoundVariant);
     }
-  }
-  if (inter?.pressScale) {
-    recipe.compoundVariants.push({ pressed: true, styles: { transform: [{ scale: theme.interaction.pressScale }] } });
-  }
-  if (inter?.disabledOpacity) {
-    recipe.compoundVariants.push({ disabled: true, styles: { opacity: theme.interaction.disabledOpacity } });
   }
 
   return recipe;

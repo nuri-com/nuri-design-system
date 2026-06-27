@@ -44,10 +44,11 @@
  * the <nuri-view> ELEMENT ITSELF — no inner element, so the classes + data-*
  * land directly and synchronously, no MutationObserver.
  *
- * INTERACTIVE (decision 65.4 · a structured per-part opt-in, not a boolean):
+ * INTERACTIVE (decision 65.4 · a structured per-part opt-in, not a boolean · the gate
+ * attr is SoT-derived · N+44 · the host attr = opts[key].gate via camelToKebab):
  *   pressScale → the host's `press-scale` attr  (→ data-press-scale gate)
  *   pressColor → the host's `press-color` attr  (→ data-press-color gate · palette swaps bg on :active)
- *   disabledOpacity → AUTOMATIC (interactive.css dims a disabled .nuri-interactive)
+ *   disabledOpacity → AUTOMATIC (gate 'auto' · interactive.css dims a disabled .nuri-interactive)
  *
  * FOREGROUND flows by SCOPE (§12 · F-BOX-FG-1) — palette sets BOTH bg AND fg
  * (`color`) on the merged node; the `<nuri-typography>` label INHERITS that
@@ -75,6 +76,17 @@ const NS_ORDER = ['stack', 'box', 'typography', 'palette', 'interactive'];
 // camelCase descriptor field → kebab-case data-* attr (the box/stack vocab:
 // minHeight → data-min-height · paddingX → data-padding-x · direction stays).
 const camelToKebab = (s) => s.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
+
+// The GATED interactive opt-ins (decision 65.4 · 74 · the N+44 single-source) — the
+// opts whose SoT `gate` is an author attribute (gate !== 'auto'). The factory sets the
+// host attr derived from the opt key via camelToKebab (pressScale → press-scale ·
+// pressColor → press-color); the attr STRING is NOT hardcoded here — it equals the
+// SoT's opts[key].gate (@nuri/spec/interactive-effects), pinned by the interactive-gate
+// guard (pipeline/interactive-css.test.js · the factory is browser-runtime · cannot
+// import the .ts SoT). disabledOpacity is AUTOMATIC (gate 'auto' · the native `disabled`
+// dims via interactive.css) → not gated. A new gated opt fails the guard until listed
+// here — the single-source seam, no second copy of the opt→attr mapping.
+export const INTERACTIVE_GATES = ['pressScale', 'pressColor'];
 
 // ── merge: base ⊕ each selected axis patch, per namespace (resolve.ts mergeNS) ──
 // later wins; each present namespace is shallow-merged in NS_ORDER.
@@ -204,10 +216,13 @@ function renderPart(node, ctx) {
 function renderInteractiveView(node, ns, ctx) {
   const host = document.createElement('nuri-pressable');
 
-  // interactive opt-in → the pressable's gate attrs (decision 65.4 · N+26).
-  if (ns.interactive.pressScale) host.setAttribute('press-scale', '');
-  if (ns.interactive.pressColor) host.setAttribute('press-color', '');
+  // interactive opt-in → the pressable's gate attrs (decision 65.4 · N+26): for each
+  // GATED opt that is on, set the host attr derived from the opt key (= opts[key].gate ·
+  // single-sourced via INTERACTIVE_GATES + the guard · no hardcoded attr string here).
   // disabledOpacity is automatic (interactive.css dims a disabled host).
+  for (const key of INTERACTIVE_GATES) {
+    if (ns.interactive[key]) host.setAttribute(camelToKebab(key), '');
+  }
 
   // instance / base props (the createNuriComponent NuriBaseProps mirror).
   if (ctx.base.disabled) host.setAttribute('disabled', '');
