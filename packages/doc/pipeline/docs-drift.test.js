@@ -30,7 +30,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { loadSpecData } from './strip.js';
 import { docIrFromDescriptor, exportNameFor, DOC_COMPONENTS } from './descriptor-ir.js';
 import { AXIS_DOCS } from './axis-ir.js';
-import { emitDocPage, emitAxisPage, buildDocTokenInputs, makeRoleResolver } from './docs.js';
+import { FOUNDATION_DOCS } from './foundations-ir.js';
+import { emitDocPage, emitAxisPage, emitFoundationPage, buildDocTokenInputs, makeRoleResolver } from './docs.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DOC_ROOT = resolve(__dirname, '..');
@@ -41,6 +42,8 @@ const readGenerated = (source) =>
   readFileSync(resolve(DOC_ROOT, 'generated/components', `${source}.md`), 'utf8');
 const readAxis = (source) =>
   readFileSync(resolve(DOC_ROOT, 'generated/axes', `${source}.md`), 'utf8');
+const readFoundation = (source) =>
+  readFileSync(resolve(DOC_ROOT, 'generated/foundations', `${source}.md`), 'utf8');
 
 // The re-pathed provenance header (the N+42 → A4b carry · decision 75): the emitter
 // moved OUT of @nuri/spec at A4, so every generated page now cites the @nuri/doc home.
@@ -309,6 +312,125 @@ test('G · each generated/axes/*.md re-emits identically from its axis SoT', asy
       assert.ok(
         md.includes(inc),
         `axes/${entry.source}.md: missing expected content —\n  expected substring: ${inc}`,
+      );
+    }
+  }
+});
+
+// ════════════════════════════════════════════════════════════════════
+// The FOUNDATIONS family (N+48 · A4c) — the token-vocabulary pages re-emit ≡
+// committed. CLOSES decision 75's 3-family set (Components ✓ · Axes ✓ · Foundations).
+// ════════════════════════════════════════════════════════════════════
+// Per-page contract (the load-bearing surface a deliberate emitter change must update):
+// front-matter title/nav · the re-pathed header · each subject's natural shape —
+// the dimension cascade (leaf → the `px-N` primitive → the resolved px · the literal
+// sentinel for the off-scale 0 / 9999) · the colour PRIMITIVE literal swatches (theme-
+// fixed · light/dark · incl. lilac's frozen step + an alpha overlay) · the colour
+// SEMANTIC role matrix (the `{ref}` cascade pointer + a live var() swatch + the default-
+// scope hex · incl. the INVERSE accent-solid) · the typography composite (the de-fused
+// shape · decision 77 · 6 sizes + the orthogonal emphasis weight · NOT the old `Em` twins).
+const FOUNDATION_CONTRACT = {
+  'colour-primitive': {
+    title: 'Colour Primitive', nav: 1, section: '## Neutral (cream)',
+    cells: [
+      // a themed literal swatch row (cream step 1 · light + dark · theme-FIXED literals)
+      '| `1` | <span class="nuri-doc-swatch" style="background:#fffdf2"></span> `#fffdf2` | <span class="nuri-doc-swatch" style="background:#12110b"></span> `#12110b` |',
+      // lilac's FROZEN step 9 (light === dark · the brand keeps identity · P4)
+      '| `9` | <span class="nuri-doc-swatch" style="background:#beaaff"></span> `#beaaff` | <span class="nuri-doc-swatch" style="background:#beaaff"></span> `#beaaff` |',
+      // an alpha overlay (theme-invariant · one column · the rgba spelled verbatim)
+      '| `5` | <span class="nuri-doc-swatch" style="background:rgba(0, 0, 0, 0.30)"></span> `rgba(0, 0, 0, 0.30)` |',
+    ],
+    includes: ['## Lilac', '## Black alpha', '## White alpha'],
+  },
+  'colour-semantic': {
+    title: 'Colour Semantic', nav: 2, section: '## Chrome',
+    cells: [
+      // a semantic role → the cascade ref + a LIVE var() swatch + the default-scope hex
+      '| `bg-canvas` | `neutral.1.light` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-canvas)"></span> `#fffdf2` |',
+      // the INVERSE accent-solid (light arm points across to neutral.1.dark · near-black CTA)
+      '| `accent-solid` | `neutral.1.dark` | <span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid)"></span> `#12110b` |',
+    ],
+    includes: ['## Accent', '| Role | Cascade | Resolves to |'],
+  },
+  dimension: {
+    title: 'Dimension', nav: 3, section: '## Primitives',
+    cells: [
+      // a px primitive (key == px · decision 32)
+      '| `px-12` | `12px` |',
+      // the cascade row: a leaf → the px-N primitive it references → the resolved px
+      '| `space.md` | `px-12` | `12px` |',
+      // the off-scale literal sentinel (radius.full · 9999 · no px backing by design)
+      '| `radius.full` | `literal` | `9999px` |',
+    ],
+    includes: ['## Space', '## Size', '## Radius', '| Token | Cascade | Value |'],
+  },
+  typography: {
+    title: 'Typography', nav: 4, section: '## Scale',
+    cells: [
+      // the type-step composite (the resolved DATA projection · units in the header)
+      '| `md` | `17` | `1.29` | `400` | `-0.02` |',
+    ],
+    // the de-fused emphasis shape (decision 77 · ONE orthogonal weight · NOT a per-size step)
+    includes: ['## Emphasis', "every step's weight to `600`", '| Step | Font size (px) | Line height | Weight | Letter spacing (em) |'],
+  },
+};
+
+test('G · each generated/foundations/*.md re-emits identically from its token SoT', async () => {
+  // The foundations-doc data bag — the SAME SoTs build.js feeds, read via strip.js (the
+  // additive ./dimensions + ./colours exports · NEVER spec's pipeline functions · the
+  // boundary · convergence §5 · decision 75). The resolved px scales + the role resolver
+  // come from the SAME buildDocTokenInputs / makeRoleResolver the component/axis pages use.
+  const dimensions = await loadSpecData('dimensions');
+  const colours = await loadSpecData('colours');
+  const specTokens = await loadSpecData('tokens');
+  const { tokenVars } = await loadSpecData('token-vars');
+  const { tokens } = buildDocTokenInputs(specTokens, tokenVars);
+  const d = {
+    dimensions,
+    colours,
+    tokens,
+    roleColor: makeRoleResolver(specTokens, tokenVars),
+  };
+
+  // Re-emit must equal the committed page (stale-build / hand-edit guard). The IR is a
+  // pure function of the AUTHORED token SoT (decision 70 · the cascade · TS source).
+  for (const entry of FOUNDATION_DOCS) {
+    const ir = entry.build(d);
+    assert.equal(
+      readFoundation(entry.source),
+      emitFoundationPage(ir, { nav: entry.nav, src: entry.src, lead: entry.lead }),
+      `generated/foundations/${entry.source}.md is stale or hand-edited — run \`npm run build -w @nuri/doc\`.`,
+    );
+  }
+
+  // The per-page contract pins (a deliberate emitter change must update these).
+  for (const entry of FOUNDATION_DOCS) {
+    const contract = FOUNDATION_CONTRACT[entry.source];
+    if (!contract) continue;
+    const md = readFoundation(entry.source);
+    assert.match(
+      md,
+      new RegExp(`^---\\ntitle: ${contract.title}\\nlayout: default\\nnav_order: ${contract.nav}\\n---`),
+      `foundations/${entry.source}.md: the just-the-docs front-matter drifted`,
+    );
+    assert.ok(
+      md.includes(REPATHED_HEADER),
+      `foundations/${entry.source}.md: the provenance header is not re-pathed to the @nuri/doc home (the A4 carry)`,
+    );
+    assert.ok(
+      md.includes(`\n${contract.section}\n`),
+      `foundations/${entry.source}.md: missing the '${contract.section}' section`,
+    );
+    for (const cell of contract.cells) {
+      assert.ok(
+        md.includes(cell),
+        `foundations/${entry.source}.md: a load-bearing cell rendering drifted —\n  expected substring: ${cell}`,
+      );
+    }
+    for (const inc of contract.includes || []) {
+      assert.ok(
+        md.includes(inc),
+        `foundations/${entry.source}.md: missing expected content —\n  expected substring: ${inc}`,
       );
     }
   }
