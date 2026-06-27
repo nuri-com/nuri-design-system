@@ -34,12 +34,14 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { loadSpecData } from './strip.js';
 import { docIrFromDescriptor, exportNameFor, DOC_COMPONENTS } from './descriptor-ir.js';
 import { AXIS_DOCS } from './axis-ir.js';
-import { emitDocPage, emitAxisPage, buildDocTokenInputs, makeRoleResolver } from './docs.js';
+import { FOUNDATION_DOCS } from './foundations-ir.js';
+import { emitDocPage, emitAxisPage, emitFoundationPage, buildDocTokenInputs, makeRoleResolver } from './docs.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DOC_ROOT = resolve(__dirname, '..');
 const COMPONENTS_OUT = resolve(DOC_ROOT, 'generated/components');
 const AXES_OUT = resolve(DOC_ROOT, 'generated/axes');
+const FOUNDATIONS_OUT = resolve(DOC_ROOT, 'generated/foundations');
 
 // The descriptor browser-ESM twins (.js · node-importable · still emitted by
 // @nuri/spec's Slice 7 · also consumed by @nuri/prototype's recipes). Read by a
@@ -104,8 +106,37 @@ async function buildAxisDocs() {
   return reports;
 }
 
+// ── FOUNDATIONS · each token SoT → its doc page (the A4c family · decision 75's 3rd
+// family). The token vocabulary is the cascade's BASE (L1 primitives → L2 the accent×
+// theme matrix) the axis pages reference by name. Reads the two TS SoTs (dimensions ·
+// colours · the additive exports) + the resolved tokens/role-resolver (the SAME reads
+// the component/axis pages use). The pages are AGNOSTIC resolving-value tables. ──
+async function buildFoundationDocs() {
+  const dimensions = await loadSpecData('dimensions');
+  const colours = await loadSpecData('colours');
+  const specTokens = await loadSpecData('tokens');
+  const { tokenVars } = await loadSpecData('token-vars');
+  const { tokens } = buildDocTokenInputs(specTokens, tokenVars);
+  const d = {
+    dimensions, // { px, space, size, radius } · the L1 + L2 dimension SoT
+    colours, // { neutralScales, lilac, blackAlpha, whiteAlpha, chrome, accent } · the colour SoT
+    tokens, // the resolved px scales (px-suffixed) + the type composite + emphasisWeight
+    roleColor: makeRoleResolver(specTokens, tokenVars), // a semantic role → { var, hex }
+  };
+
+  await mkdir(FOUNDATIONS_OUT, { recursive: true });
+  const reports = [];
+  for (const entry of FOUNDATION_DOCS) {
+    const ir = entry.build(d);
+    const out = resolve(FOUNDATIONS_OUT, `${entry.source}.md`);
+    await writeFile(out, emitFoundationPage(ir, { nav: entry.nav, src: entry.src, lead: entry.lead }), 'utf8');
+    reports.push({ family: 'foundation', source: entry.source, detail: ir.kind, out });
+  }
+  return reports;
+}
+
 export async function buildDocs() {
-  return [...(await buildComponentDocs()), ...(await buildAxisDocs())];
+  return [...(await buildComponentDocs()), ...(await buildAxisDocs()), ...(await buildFoundationDocs())];
 }
 
 async function main() {

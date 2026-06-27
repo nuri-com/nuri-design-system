@@ -626,3 +626,122 @@ function renderTypography(ir, lines) {
   lines.push('> alignment · no RN analog). It is not part of the `size`/`emphasis` axis above.');
   lines.push('');
 }
+
+// ════════════════════════════════════════════════════════════════════
+// EMIT · the FOUNDATIONS IR → the just-the-docs Markdown page string (N+48 · A4c)
+// ════════════════════════════════════════════════════════════════════
+// The foundations-family sibling of emitDocPage / emitAxisPage. The token vocabulary
+// is TARGET-NEUTRAL (a px, a hex — same on both targets), so each page is a RESOLVING-
+// VALUE table (the palette idiom: input → the `{ref}` cascade → the resolved value +
+// swatch), AGNOSTIC by nature — NO `Input | Web | RN | Value` grammar. Three subjects,
+// three shapes (foundations-ir.js builds them): `dimension` (the px primitives + the
+// scale cascades) · `colour` (the primitive ramps + the semantic role matrix) ·
+// `typography` (the type-step composites + the emphasis override). Pure function of
+// (ir · the manifest's nav/src/lead) → byte-stable (decision 35 · the doc CI gate).
+export function emitFoundationPage(ir, { nav, src, lead } = {}) {
+  const title = titleFor(ir.source);
+  const lines = [];
+  lines.push(...frontMatter(title, nav));
+  lines.push(...genHeader(src));
+  lines.push('');
+  lines.push(`# ${title}`);
+  lines.push('');
+  if (lead) {
+    lines.push(lead);
+    lines.push('');
+  }
+  if (ir.kind === 'dimension') renderDimension(ir, lines);
+  else if (ir.kind === 'colour-primitive') renderColourPrimitive(ir, lines);
+  else if (ir.kind === 'colour-semantic') renderColourSemantic(ir, lines);
+  else if (ir.kind === 'typography') renderTypographyScale(ir, lines);
+  else throw new Error(`[docs] emitFoundationPage: unknown foundation kind '${ir.kind}'`);
+  return lines.join('\n');
+}
+
+// ── dimension · the L1 px primitives (token → px) then the three L2 scales. Each
+// scale leaf renders its cascade SOURCE (the `px-N` primitive it references · or the
+// `literal` sentinel for the off-scale 0 / 9999) beside the RESOLVED px — the `{ref}`
+// made visible (the pointer + its resolution · mirrors palette's role → swatch). ──
+function renderDimension(ir, lines) {
+  lines.push('## Primitives');
+  lines.push('');
+  lines.push('| Token | Value |');
+  lines.push('| --- | --- |');
+  for (const p of ir.primitives) {
+    lines.push(`| \`${p.token}\` | \`${p.value}\` |`);
+  }
+  lines.push('');
+  for (const scale of ir.scales) {
+    lines.push(`## ${cap(scale.name)}`);
+    lines.push('');
+    lines.push('| Token | Cascade | Value |');
+    lines.push('| --- | --- | --- |');
+    for (const r of scale.rows) {
+      const cascade = r.cascade.literal ? '`literal`' : `\`${r.cascade.ref}\``;
+      lines.push(`| \`${r.token}\` | ${cascade} | \`${r.value}\` |`);
+    }
+    lines.push('');
+  }
+}
+
+// ── colour · primitives · theme-fixed LITERAL swatches (the raw catalog · one `##`
+// per ramp · cream + lilac as light/dark pairs, the alpha overlays as one column). ──
+function renderColourPrimitive(ir, lines) {
+  for (const ramp of ir.ramps) {
+    lines.push(`## ${ramp.name}`);
+    lines.push('');
+    if (ramp.mode === 'themed') {
+      lines.push('| Step | Light | Dark |');
+      lines.push('| --- | --- | --- |');
+      for (const r of ramp.rows) {
+        lines.push(`| \`${r.step}\` | ${swatch(r.light)} \`${r.light}\` | ${swatch(r.dark)} \`${r.dark}\` |`);
+      }
+    } else {
+      lines.push('| Step | Value |');
+      lines.push('| --- | --- |');
+      for (const r of ramp.rows) {
+        lines.push(`| \`${r.step}\` | ${swatch(r.value)} \`${r.value}\` |`);
+      }
+    }
+    lines.push('');
+  }
+}
+
+// ── colour · semantics · the role matrix with LIVE var() swatches (one `##` per
+// group · the `{ref}` cascade pointer + the resolved default-scope hex · the slice the
+// palette axis samples). ──
+function renderColourSemantic(ir, lines) {
+  for (const group of ir.semantics) {
+    lines.push(`## ${group.name}`);
+    lines.push('');
+    lines.push('| Role | Cascade | Resolves to |');
+    lines.push('| --- | --- | --- |');
+    for (const r of group.rows) {
+      lines.push(`| \`${r.role}\` | \`${r.cascade}\` | ${swatch(`var(${r.var})`)} \`${r.hex}\` |`);
+    }
+    lines.push('');
+  }
+}
+
+// ── typography · the type-scale composite (one row per step · the metrics carry their
+// unit in the column header · the values are the verbatim DATA projection) + the
+// orthogonal emphasis override as a note (decision 77 · NOT a per-size step · contrast
+// the old fused `${size}Em` twins). The scale itself stays CSS-SoT (the lead's note). ──
+function renderTypographyScale(ir, lines) {
+  lines.push('## Scale');
+  lines.push('');
+  lines.push('| Step | Font size (px) | Line height | Weight | Letter spacing (em) |');
+  lines.push('| --- | --- | --- | --- | --- |');
+  for (const s of ir.steps) {
+    lines.push(`| \`${s.step}\` | \`${s.fontSize}\` | \`${s.lineHeight}\` | \`${s.weight}\` | \`${s.letterSpacing}\` |`);
+  }
+  lines.push('');
+  lines.push('## Emphasis');
+  lines.push('');
+  lines.push(`> **\`emphasis\`** is an orthogonal boolean (decision 77 · the N+45 de-fusion): it swaps`);
+  lines.push(`> every step's weight to \`${ir.emphasisWeight}\` (\`emphasisWeight\`), uniform across all six`);
+  lines.push('> sizes — not a separate per-size step (contrast the old fused `${size}Em` twins). RN');
+  lines.push('> applies it via `typeStyle(size, true)`; web via the source-order-last');
+  lines.push('> `[data-type-emphasis]` rule.');
+  lines.push('');
+}

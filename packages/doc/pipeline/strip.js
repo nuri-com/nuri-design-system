@@ -72,11 +72,42 @@ function stripConstAnnotations(src) {
   return out + src.slice(last);
 }
 
+// Remove the const-assertion suffix `as const`, optionally followed by ` satisfies
+// <TYPE>`. The old form was a line-bounded `[^,;\n]+` — fine for the axis SoTs (whose
+// satisfies-types were comma-free), but it TRUNCATES at the first comma INSIDE the
+// type: `} as const satisfies Record<string, Leaf>;` matched only `…Record<string`,
+// leaving `}, Leaf>;` (a syntax error · the dimensions.ts / colours.ts table suffix ·
+// N+48 · A4c). So scan the type DEPTH-AWARE — past `<…>` / `(…)` / commas — to its
+// depth-0 terminator (`;` / `,` / newline), the same scanToDepth0 discipline the
+// type-decl + const-annotation strippers above use.
+function stripAsConst(src) {
+  const re = /\s+as\s+const/g;
+  let m, out = '', last = 0;
+  while ((m = re.exec(src))) {
+    out += src.slice(last, m.index);
+    let end = re.lastIndex;
+    const sat = src.slice(end).match(/^\s+satisfies\s+/);
+    if (sat) {
+      let depth = 0, i = end + sat[0].length;
+      for (; i < src.length; i++) {
+        const c = src[i];
+        if (OPEN.includes(c)) depth++;
+        else if (CLOSE.includes(c)) depth--;
+        else if (depth === 0 && (c === ';' || c === ',' || c === '\n')) break;
+      }
+      end = i;
+    }
+    last = end;
+    re.lastIndex = end;
+  }
+  return out + src.slice(last);
+}
+
 export function stripTsData(src) {
   let s = src.replace(/^[ \t]*import[ \t]+type[ \t][^\n]*\n/gm, '');
   s = removeTypeDecls(s);
   s = stripConstAnnotations(s);
-  s = s.replace(/\s+as\s+const(?:\s+satisfies\s+[^,;\n]+)?/g, '');
+  s = stripAsConst(s);
   return s;
 }
 
