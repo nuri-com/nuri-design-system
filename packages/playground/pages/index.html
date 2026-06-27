@@ -13,12 +13,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
 
-  <!-- Hydrate <html data-*> from localStorage BEFORE stylesheets so the cascade matches on first paint. See lib/docs/state.js. -->
-  <script src="../../lib/docs/state.js"></script>
   <!-- The playground is a FIXED light + cream surface (decision 57): it has no
-       theme/neutral toggle of its own. Pin the chrome here regardless of the
-       shared docs localStorage. Done WITHOUT NuriState.set so we don't clobber
-       the DS prefs the user picked over in the design-system area. -->
+       theme/neutral toggle of its own. Pin the chrome here on first paint so the
+       cascade matches before stylesheets (mirrors demo.html). A5 dropped the
+       shared-docs localStorage hydration: lib/docs/state.js moved to @nuri/doc
+       at A4, and a build-free standalone bench owns no doc-site dependency (the
+       DAG stays playground → prototype → spec · decision 68). -->
   <script>
     document.documentElement.dataset.theme = 'light';
     document.documentElement.dataset.neutral = 'cream';
@@ -27,26 +27,26 @@
   <!-- The playground is a SEPARATE area from the DS docs (decision 57). It
        reuses the token cake + the base body reset (styles/shell.css), but
        its chrome is the playground shell, NOT <nuri-shell>. -->
-  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
-  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
-  <link rel="stylesheet" href="../../styles/shell.css" />
+  <link rel="stylesheet" href="../../spec/styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../spec/styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../spec/styles/shell.css" />
   <!-- Components used by the playground topbar (DS <nuri-topbar center>). -->
-  <link rel="stylesheet" href="../../../prototype/primitives/icon.css" />
-  <link rel="stylesheet" href="../../styles/typography.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/typography.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/stack.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/box.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/palette.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/interactive.css" />
-  <link rel="stylesheet" href="../../../prototype/factory/reset.css" />
-  <link rel="stylesheet" href="../../lib/playground/shell.css" />
+  <link rel="stylesheet" href="../../prototype/primitives/icon.css" />
+  <link rel="stylesheet" href="../../spec/styles/typography.css" />
+  <link rel="stylesheet" href="../../prototype/styles/typography.css" />
+  <link rel="stylesheet" href="../../prototype/styles/stack.css" />
+  <link rel="stylesheet" href="../../prototype/styles/box.css" />
+  <link rel="stylesheet" href="../../prototype/styles/palette.css" />
+  <link rel="stylesheet" href="../../prototype/styles/interactive.css" />
+  <link rel="stylesheet" href="../../prototype/factory/reset.css" />
+  <link rel="stylesheet" href="../lib/shell.css" />
 
   <!-- Shell first (mirrors the DS order), then the topbar's components. -->
-  <script src="../../lib/playground/shell.js" defer></script>
-  <script src="../../../prototype/primitives/icon.js" type="module"></script>
-  <script src="../../../prototype/recipes/button.js" type="module"></script>
-  <script src="../../../prototype/primitives/typography.js" defer></script>
-  <script src="../../../prototype/recipes/topbar.js" type="module"></script>
+  <script src="../lib/shell.js" defer></script>
+  <script src="../../prototype/primitives/icon.js" type="module"></script>
+  <script src="../../prototype/recipes/button.js" type="module"></script>
+  <script src="../../prototype/primitives/typography.js" defer></script>
+  <script src="../../prototype/recipes/topbar.js" type="module"></script>
 </head>
 <body>
 

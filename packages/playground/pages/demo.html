@@ -35,31 +35,31 @@
   </script>
 
   <!-- Token cake + base reset + type scale (the foundation). -->
-  <link rel="stylesheet" href="../../styles/tokens-primitive.css" />
-  <link rel="stylesheet" href="../../styles/tokens-semantic.css" />
-  <link rel="stylesheet" href="../../styles/shell.css" />
-  <link rel="stylesheet" href="../../styles/typography.css" />
+  <link rel="stylesheet" href="../../spec/styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../spec/styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../spec/styles/shell.css" />
+  <link rel="stylesheet" href="../../spec/styles/typography.css" />
 
   <!-- Active components ONLY (primitives + the 3 descriptor recipes). -->
-  <link rel="stylesheet" href="../../../prototype/primitives/icon.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/typography.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/stack.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/box.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/palette.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/interactive.css" />
-  <link rel="stylesheet" href="../../../prototype/factory/reset.css" />
+  <link rel="stylesheet" href="../../prototype/primitives/icon.css" />
+  <link rel="stylesheet" href="../../prototype/styles/typography.css" />
+  <link rel="stylesheet" href="../../prototype/styles/stack.css" />
+  <link rel="stylesheet" href="../../prototype/styles/box.css" />
+  <link rel="stylesheet" href="../../prototype/styles/palette.css" />
+  <link rel="stylesheet" href="../../prototype/styles/interactive.css" />
+  <link rel="stylesheet" href="../../prototype/factory/reset.css" />
 
   <!-- Custom element scripts MUST be deferred so connectedCallback fires
        AFTER body parsing (children present). See AGENTS.md. -->
   <!-- The 3 recipe modules self-import the factory + their primitive element defs
        (pressable/view/icon · idempotent · decision 74). The page loads only the
        directly-authored primitives (typography/stack/icon · the bench header + card). -->
-  <script src="../../../prototype/primitives/icon.js" type="module"></script>
-  <script src="../../../prototype/primitives/typography.js" defer></script>
-  <script src="../../../prototype/primitives/stack.js" defer></script>
-  <script src="../../../prototype/recipes/button.js" type="module"></script>
-  <script src="../../../prototype/recipes/icon-avatar.js" type="module"></script>
-  <script src="../../../prototype/recipes/topbar.js" type="module"></script>
+  <script src="../../prototype/primitives/icon.js" type="module"></script>
+  <script src="../../prototype/primitives/typography.js" defer></script>
+  <script src="../../prototype/primitives/stack.js" defer></script>
+  <script src="../../prototype/recipes/button.js" type="module"></script>
+  <script src="../../prototype/recipes/icon-avatar.js" type="module"></script>
+  <script src="../../prototype/recipes/topbar.js" type="module"></script>
 
   <style>
     /* Bench chrome only — NOT a DS surface. Plain elements styled with

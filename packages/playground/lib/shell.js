@@ -25,14 +25,17 @@
 
 (() => {
   const SCRIPT = document.currentScript;
-  // Two levels up from lib/playground/shell.js → repo root (mirrors the
-  // <nuri-shell> ROOT convention · decision 26).
-  const ROOT = new URL('../../', SCRIPT.src).href;
+  // shell.js lives at packages/playground/lib/shell.js. One level up → the
+  // playground package root (its pages live under pages/); three levels up →
+  // the repo root (the DS entry · the A5 carve relocated this from spec).
+  const PKG = new URL('../', SCRIPT.src).href;
+  const REPO_ROOT = new URL('../../../', SCRIPT.src).href;
 
-  const INDEX_HREF = `${ROOT}pages/playground/index.html`;
+  const INDEX_HREF = `${PKG}pages/index.html`;
   // The design-system entry — the repo root redirects to the canonical
-  // foundation page (decision 23).
-  const DS_HREF = `${ROOT}index.html`;
+  // foundation page (decision 23). A cross-area navigation href, not a package
+  // dependency (the DAG stays playground → prototype → spec).
+  const DS_HREF = `${REPO_ROOT}index.html`;
 
   class NuriPlaygroundShell extends HTMLElement {
     #built = false;

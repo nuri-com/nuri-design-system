@@ -1,0 +1,12 @@
+{
+  "name": "@nuri/playground",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Nuri playground · the build-free bench. A SEPARATE area from the DS docs (decision 57): a fixed light+cream surface where real screen compositions render live to validate the design system on real layouts. Consumer of @nuri/prototype (the build-free components it embeds) and @nuri/spec (the token cake). decision 68 · convergence phase 2 (A5).",
+  "//": "build-free HTML — NO build/test script. Both pages render by opening the file (no dev server): pages/demo.html (the N+36 active bench · primitives + the 3 descriptor recipes) + pages/index.html (the §57 landing · lib/shell.{css,js}). Cross-package assets resolve via workspace-relative paths (the token cake → ../../spec/styles · the components → ../../prototype · the A3 build-free precedent). DAG: playground → prototype → spec (NEVER → doc — doc is a consumer). The phase-6 home for the rebuilt my-vault-style demos (frozen today in @nuri/prototype/legacy/playground).",
+  "dependencies": {
+    "@nuri/spec": "*",
+    "@nuri/prototype": "*"
+  }
+}

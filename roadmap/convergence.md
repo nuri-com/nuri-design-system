@@ -64,8 +64,14 @@ to `packages/spec/legacy/`; the active tree is exactly **{primitives + the 3 des
   `website/` + `spec/pages/` + `spec/lib/docs/`). The descriptor doc-gen MOVED out of `spec` + re-sourced onto
   `spec`'s DATA exports (byte-identical Markdown gate · §5); the 3 generated component docs live in a just-the-docs
   shell (3-section nav · Foundations · Axes · Components); the ~23 hand pages ARCHIVED (frozen regen spec). The
-  **token (A4c)** + **axis (A4b)** doc families follow — same shell + nav + emitter helpers. **A5 `@nuri/playground`**
-  (the bench) · **A6 codegen surfaces** (the RN barrel + WC registrations + the factory harness · §9-independent).
+  **token (A4c)** + **axis (A4b)** doc families follow — same shell + nav + emitter helpers.
+- **A5 ✓ ([N+49](./N+49.md)) · carve `@nuri/playground`** (the build-free bench) — moved `spec/{pages,lib}/playground`
+  → `packages/playground/` + rewired the cross-package paths (the DAG is now `playground → prototype → spec`) +
+  dropped the dangling A4 `state.js` ref (index.html self-pins the §57 fixed light+cream chrome inline). Pure
+  re-plumbing · `spec`/`prototype` byte-identical · both pages render build-free (console clean). **This closes
+  exit criterion 1 — the 6-package structure is REAL.** The rich `my-vault`-style demos stay frozen in
+  `prototype/legacy/playground/` (→ phase 6).
+- **A6 codegen surfaces** (the RN barrel + WC registrations + the factory harness · §9-independent) — REMAINS.
 
 **Phase 3 — the dec-2 flip ✓ LANDED ([N+38](./N+38-L3c-flip.md) · [decision 74](../decisionlog.md))** (§9 · **the one
 irreversible step**): the namespace CSS is now GENERATED from the TS SoT **in place over `lib/components/<ns>/<ns>.css`**

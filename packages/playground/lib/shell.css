@@ -1,7 +1,7 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · PLAYGROUND · SHELL · STYLES  (decision 57 · N+10)
  *
- * Chrome for <nuri-playground-shell> (lib/playground/shell.js) — a
+ * Chrome for <nuri-playground-shell> (lib/shell.js) — a
  * SEPARATE, simpler sibling of the DS <nuri-shell>. No sidebar, no nav
  * tree, no global token toggles: just a topbar + a body that is either a
  * horizontal-scroll row of device-framed views (document mode) or a grid
