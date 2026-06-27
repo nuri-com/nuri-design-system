@@ -30,6 +30,7 @@ import {
   size,
   radius,
   type as typeScale,
+  emphasisWeight,
 } from '@nuri/spec/tokens';
 import type { Accent, Theme, TypeSize, TypeWeight, TypeStep } from '@nuri/spec/tokens';
 import type { TokenPath } from '@nuri/spec/token-paths';
@@ -82,6 +83,7 @@ export {
   size,
   radius,
   typeScale,
+  emphasisWeight,
   icons,
   interaction,
   // descriptor contract

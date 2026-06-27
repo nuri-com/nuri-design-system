@@ -42,10 +42,12 @@ export type SpaceLeaf = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 // corner geometry (box radii · box.css data-radius · the Box BoxRadius).
 export type RadiusLeaf = 'sm' | 'md' | 'lg' | 'full';
 
-// TypeKey · the type-step namespace (decision 54 · 6 steps × {·,Em}).
-// A `typography.size` value references one named step; the factory
-// (B2c·3 · native) expands it via typeStyle (relative→absolute · 54 · 55).
-export type TypeKey = TypeSize | `${TypeSize}Em`;
+// TypeKey · a type-scale step (decision 54/55 · the 6 sizes). DE-FUSED at
+// N+45 (decision 77): the fused `${TypeSize}Em` arm is GONE — emphasis is an
+// orthogonal `boolean` sibling on TypographyNS now, not baked into the key
+// (P11). A `typography.size` value references one named step; the factory
+// expands it via typeStyle (relative→absolute · 54 · 55).
+export type TypeKey = TypeSize;
 
 // ══════════════════════════════════════════════════════════════════
 // THE FIVE NAMESPACES · disjoint by domain (65.3 §6 · no two emit the
@@ -87,10 +89,15 @@ export type BoxNS = {
 };
 
 // `typography` — font only, NO colour (decision 64 · the single text-style
-// owner; colour is palette's). `size` carries the emphasis in its key
-// (`mdEm`) — the one semantic step ref the factory expands via typeStyle.
+// owner; colour is palette's). TWO orthogonal inputs (decision 77 · the N+45
+// de-fusion · P11): `size` is the type-scale step; `emphasis` is the regular→
+// semibold weight override (a uniform 400→600 across every size · the box/stack
+// `flag` precedent). The factory expands the step via typeStyle (54/55); the
+// engine applies the weight override when `emphasis` (web `[data-type-emphasis]`
+// · RN typeStyle's 2nd arg). Was a single fused `TypeKey` (`mdEm`) — de-fused.
 export type TypographyNS = {
-  size?: TypeKey;
+  size?: TypeSize;
+  emphasis?: boolean;
 };
 
 // `palette` — ALL colour, from the semantic inputs (65.3 §6 · mirrors the

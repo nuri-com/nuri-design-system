@@ -28,12 +28,12 @@ import { DemoIcon } from './DemoIcon';
 // A propless title — inherits the Topbar surface foreground by SCOPE (§12).
 const TopbarTitle: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { foreground } = React.useContext(NuriSurfaceContext);
-  return <Text style={[typeStyle('lgEm'), { color: foreground }]}>{children}</Text>;
+  return <Text style={[typeStyle('lg', true), { color: foreground }]}>{children}</Text>;
 };
 
 const SectionLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const muted = useToken('chrome.textMuted') as string;
-  return <Text style={[typeStyle('smEm'), { color: muted }, styles.label]}>{children}</Text>;
+  return <Text style={[typeStyle('sm', true), { color: muted }, styles.label]}>{children}</Text>;
 };
 
 export const Demo: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme }) => {

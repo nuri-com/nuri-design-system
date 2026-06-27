@@ -13,6 +13,7 @@
  * ══════════════════════════════════════════════════════════════════ */
 
 import { buildNuriTheme, INTERACTION_BASELINE } from '../theme';
+import { typeStyle } from '../../theme';
 import { recipeFor, flattenPart, resolveAnatomy } from '../resolve';
 import {
   compositionButtonDescriptor,
@@ -23,6 +24,8 @@ import {
   size,
   space,
   radius,
+  typeScale,
+  emphasisWeight,
   interaction as interactionTokens,
 } from '../../contract';
 
@@ -112,9 +115,50 @@ describe('Button — the richest descriptor (every namespace + interactive)', ()
     expect(r.label.foreground).toBeUndefined();
   });
 
-  test('label type tracks size (sm→smEm, md/lg→mdEm · decision 55)', () => {
+  test('label type tracks size — orthogonal {size, emphasis} (decision 55 · de-fused 77)', () => {
     expect(r.label.el).toBe('text');
-    expect(r.label.typeStep?.variants?.size).toEqual({ sm: 'smEm', md: 'mdEm', lg: 'mdEm' });
+    // The fused `smEm`/`mdEm` is gone — each value is the two orthogonal inputs.
+    // Button is emphasis across all sizes; lg reuses md's step (decision 41/55).
+    expect(r.label.typeStep?.variants?.size).toEqual({
+      sm: { size: 'sm', emphasis: true },
+      md: { size: 'md', emphasis: true },
+      lg: { size: 'md', emphasis: true },
+    });
+  });
+});
+
+// ── typeStyle · the de-fusion is COMPUTED-EQUIVALENT (decision 77 · the N+45 gate) ──
+// Proves emphasis is a pure regular→semibold weight override: every (size, emphasis)
+// resolves to the SAME composite the old fused typeStyle(`${size}Em`) returned — the
+// values are frozen, only the API/shape de-fuses. Re-derived from the contract
+// (typeScale / emphasisWeight), never hardcoded.
+describe('typeStyle — size × emphasis is a pure weight override (computed-equivalence · decision 77)', () => {
+  const SIZES = ['xs', 'sm', 'md', 'lg', 'xl', '3xl'] as const;
+
+  test('emphasis swaps ONLY the weight (regular→emphasisWeight) · metrics frozen', () => {
+    for (const s of SIZES) {
+      const regular = typeStyle(s);
+      const emphasized = typeStyle(s, true);
+      // metrics identical — emphasis must not touch size / line-height / letter-spacing
+      expect(emphasized.fontSize).toBe(regular.fontSize);
+      expect(emphasized.lineHeight).toBe(regular.lineHeight);
+      expect(emphasized.letterSpacing).toBe(regular.letterSpacing);
+      // ONLY the weight changes: regular = the scale's weight; emphasis = the override
+      expect(regular.fontWeight).toBe(typeScale[s].fontWeight);
+      expect(emphasized.fontWeight).toBe(emphasisWeight);
+    }
+  });
+
+  test('typeStyle(size, true) reproduces the old fused `${size}Em` composite exactly', () => {
+    for (const s of SIZES) {
+      const t = typeScale[s];
+      expect(typeStyle(s, true)).toEqual({
+        fontSize: t.fontSize,
+        lineHeight: t.fontSize * t.lineHeight,
+        letterSpacing: t.fontSize * t.letterSpacing,
+        fontWeight: emphasisWeight,
+      });
+    }
   });
 });
 

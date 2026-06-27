@@ -72,7 +72,7 @@ const NS_ORDER = ['stack', 'box', 'typography', 'palette', 'interactive'];
 const NS_PROP_ORDER = {
   stack: ['direction', 'align', 'justify', 'gap', 'wrap', 'fill'],
   box: ['width', 'height', 'minHeight', 'padding', 'paddingX', 'paddingY', 'paddingStart', 'paddingEnd', 'paddingTop', 'paddingBottom', 'radius'],
-  typography: ['size'],
+  typography: ['size', 'emphasis'],
   palette: ['variant', 'accent', 'muted', 'chrome'],
   interactive: ['pressColor', 'pressScale', 'disabledOpacity'],
 };
@@ -199,6 +199,7 @@ export function buildDocTokenInputs(specTokens, tokenVars) {
       space: px(specTokens.space),
       radius: px(specTokens.radius),
       type: specTokens.type,
+      emphasisWeight: specTokens.emphasisWeight, // the orthogonal weight override (decision 77)
     },
     colors: makeColorResolver(specTokens, tokenVars),
   };
@@ -271,15 +272,21 @@ function renderNsDetail(nsName, ns, { palette, tokens, colors }, where) {
   }
   if (nsName === 'typography') {
     assertLeaf(tokens, 'type', ns.size, `${where}.typography.size`);
-    // The type-scale key is the token; the resolved composite (decision 54) is
-    // its value — every field on its own dt/dd line in the value column.
+    // Two ORTHOGONAL inputs (decision 77 · the N+45 de-fusion): the `size` token
+    // + the `emphasis` flag. The resolved composite (decision 54) is the size
+    // step's metrics with the weight swapped to emphasisWeight when emphasis —
+    // every field on its own dt/dd line in the value column. Computed-equivalent:
+    // the weight is the SAME value the old fused `${size}Em` step carried.
     const step = tokens.type[ns.size];
+    const weight = ns.emphasis ? tokens.emphasisWeight : step.fontWeight;
+    const toks = [attr('size', ns.size)];
+    if (ns.emphasis) toks.push(attr('emphasis', 'true'));
     return {
-      token: attr('size', ns.size),
+      token: toks.join(ATTR_SEP),
       value: [
         attr('fontSize', step.fontSize),
         attr('lineHeight', step.lineHeight),
-        attr('weight', step.fontWeight),
+        attr('weight', weight),
         attr('letterSpacing', step.letterSpacing),
       ].join(ATTR_SEP),
     };

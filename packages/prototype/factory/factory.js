@@ -165,15 +165,6 @@ export function mergeAttrs(ns) {
   return { classes, data };
 }
 
-// 'mdEm' → { size: 'md', emphasis: true } · 'sm' → { size: 'sm', emphasis: false }.
-// The descriptor's typeStep is `<sizeKey>` + optional `Em` suffix (descriptors.js
-// typeStepFrom); <nuri-typography size emphasis> realizes it.
-function expandTypeStep(step) {
-  return step.endsWith('Em')
-    ? { size: step.slice(0, -2), emphasis: true }
-    : { size: step, emphasis: false };
-}
-
 // Defer the box/stack/palette merge onto the inner <button> the pressable owns.
 // The button is created in the pressable's connectedCallback (on mount), so we
 // apply NOW if it already exists, else watch the host's childList for it (a
@@ -269,13 +260,16 @@ function renderStaticView(node, ns, ctx) {
   return host;
 }
 
-// text → <nuri-typography size emphasis> (the label · single-namespace).
+// text → <nuri-typography size emphasis> (the label · single-namespace). The
+// descriptor's typography carries two ORTHOGONAL inputs now (decision 77 · the
+// N+45 de-fusion): `size` + the `emphasis` boolean — passed straight to the
+// element (no fused `mdEm` round-trip · expandTypeStep retired).
 function renderText(node, ns, ctx) {
   const el = document.createElement('nuri-typography');
-  if (ns.typography && ns.typography.size !== undefined) {
-    const { size, emphasis } = expandTypeStep(ns.typography.size);
-    el.setAttribute('size', size);
-    if (emphasis) el.setAttribute('emphasis', '');
+  const t = ns.typography;
+  if (t) {
+    if (t.size !== undefined) el.setAttribute('size', t.size);
+    if (t.emphasis) el.setAttribute('emphasis', '');
   }
   const own = ctx.content[node.name];
   if (own != null) el.append(own); // the string label

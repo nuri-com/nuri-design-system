@@ -51,9 +51,9 @@ export const compositionButtonDescriptor: Descriptor<CompositionButtonAxes> = {
       ghost: { root: { palette: { variant: 'ghost' } } },
     },
     size: {
-      sm: { root: { box: { minHeight: 'md', paddingX: 'md', radius: 'sm' } }, label: { typography: { size: 'smEm' } } },
-      md: { root: { box: { minHeight: 'lg', paddingX: 'lg', radius: 'sm' } }, label: { typography: { size: 'mdEm' } } },
-      lg: { root: { box: { minHeight: 'xl', paddingX: 'xl', radius: 'md' } }, label: { typography: { size: 'mdEm' } } },
+      sm: { root: { box: { minHeight: 'md', paddingX: 'md', radius: 'sm' } }, label: { typography: { size: 'sm', emphasis: true } } },
+      md: { root: { box: { minHeight: 'lg', paddingX: 'lg', radius: 'sm' } }, label: { typography: { size: 'md', emphasis: true } } },
+      lg: { root: { box: { minHeight: 'xl', paddingX: 'xl', radius: 'md' } }, label: { typography: { size: 'md', emphasis: true } } },
     },
   },
 };

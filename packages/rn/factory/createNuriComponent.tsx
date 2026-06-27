@@ -129,12 +129,13 @@ function renderPart<A extends Axes>(
     }
 
     case 'text': {
-      // The descriptor names a type STEP; the factory expands it (54/55). The
-      // colour comes from scope (own palette > inherited surface fg · §12).
+      // The descriptor names two orthogonal type inputs (size + emphasis · 54/55
+      // · de-fused 77); the factory expands them via typeStyle(size, emphasis).
+      // The colour comes from scope (own palette > inherited surface fg · §12).
       return (
         <Text
           key={node.name}
-          style={[flat.node.typeKey ? typeStyle(flat.node.typeKey) : null, fg ? { color: fg } : null, flat.style]}
+          style={[flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis) : null, fg ? { color: fg } : null, flat.style]}
         >
           {ctx.content[node.name]}
         </Text>
