@@ -13,7 +13,7 @@ The agnostic **stack** namespace — flexbox layout (direction · alignment · g
 
 ## Fields
 
-| Input | CSS | RN | Value |
+| Input | Web | RN | Value |
 | --- | --- | --- | --- |
 | `direction` | `flex-direction` | `flexDirection` | passthrough |
 | `align` | `align-items` | `alignItems` | `start` → `flex-start`<br>`center` → `center`<br>`end` → `flex-end`<br>`stretch` → `stretch`<br>`baseline` → `baseline` |

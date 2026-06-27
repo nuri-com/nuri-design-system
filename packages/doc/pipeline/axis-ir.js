@@ -10,8 +10,9 @@
  *   · palette      ← palette-surface.ts (surface) → the role table (variant XOR
  *                    chrome → bg/fg/pressed, each resolved to a swatch + hex via
  *                    the N+42 colour resolver · the ONLY axis that resolves tokens).
- *   · interactive  ← interactive-effects.ts (effects) → the effect set (assembled
- *                    selector · decls · gate) + the load-bearing order note.
+ *   · interactive  ← interactive-effects.ts (opts · webChrome · webOrder · §76) → the
+ *                    agnostic opt-in set (web realization · RN realization · gate · the
+ *                    Input|Web|RN|Value grammar) + the demoted web-only chrome section.
  *   · typography   ← tokens.type (the 6 type-sizes) + typography-axis.ts → THREE
  *                    surfaces (decision 77 · the de-fusion): the agnostic `size` axis
  *                    (the type-step → web [data-type-style] / RN typeStyle · the
@@ -85,35 +86,60 @@ function channel(paint, roleColor) {
   return { role: paint, var: cssVar, hex };
 }
 
-// ── interactive ← the EFFECT set (interactive-effects.ts). Per effect: the name,
-// the ASSEMBLED selector (`.nuri-interactive` + the attr gate + the pseudo-state ·
-// the comma list · the inverse-spelling of flattenPart's gate logic), the
-// declarations, and the gate (automatic vs the `data-*` opt-in). The array order is
-// LOAD-BEARING (pressScale strictly before disabledGuard · equal-specificity
-// `transform` · source-order decides) — preserved here + surfaced as `order`. ──
+// ── interactive ← the SINGLE SOURCE (interactive-effects.ts · §76): `opts` (the 3
+// AGNOSTIC opt-ins) + `webChrome` (web-only realization support) + `webOrder` (the
+// load-bearing emit order). Re-sourced off the now-deleted `effects` bridge onto the
+// real SoT (§76 · this session) → the page splits into the agnostic axis (the opts, on
+// the locked `| Input | Web | RN | Value |` grammar) + the demoted web-only chrome:
+//   · opts   — per opt-in: the input key · the WEB realization (the assembled selector
+//              + decls · `{ palette: true }` where the rule lives in palette ·
+//              pressColor's :active bg-swap) · the RN realization spelled from the pure
+//              `rn` data (the documented convention · NOT re-derived) · the gate
+//              (`'auto'` ⇒ automatic · else the `[data-<gate>]` opt-in).
+//   · chrome — the webChrome rows (affordance · focus · disabledGuard): assembled
+//              selector + decls. No agnostic input · no RN analog → web-only (demoted).
+//   · order  — webOrder ∩ the transform-setters (pressScale before disabledGuard ·
+//              equal-specificity `transform` · source-order decides) → the demoted
+//              order caption in the chrome section (the N+46 demotion precedent). ──
 const INTERACTIVE_BASE = '.nuri-interactive';
 
-export function interactiveAxisIr(effects) {
-  const rows = effects.map((e) => ({
-    name: e.name,
-    selector: e.on.map((p) => INTERACTIVE_BASE + (p.attr ?? '') + (p.state ?? '')).join(', '),
-    decls: e.decls.map(([prop, value]) => [prop, value]),
-    gate: gateOf(e),
-  }));
-  // The order-sensitive collision (the centerpiece · the brief §5): the effects
-  // that BOTH set `transform` at equal specificity, in their emitted order. ≥2 ⇒
-  // source order is load-bearing; the note documents exactly that collision.
-  const order = effects.filter((e) => e.decls.some(([prop]) => prop === 'transform')).map((e) => e.name);
-  return { source: 'interactive', kind: 'interactive', rows, order };
+// a rule's selector PARTS → the assembled `.nuri-interactive`+attr+state comma list
+// (the inverse-spelling of flattenPart's gate logic · mirrors interactive-css.js).
+const assembleSelector = (on) => on.map((p) => INTERACTIVE_BASE + (p.attr ?? '') + (p.state ?? '')).join(', ');
+
+// the RN realization spelled from the pure `rn` data (the documented convention · §76 ·
+// NOT re-derived): `{ prop, from }` reads from the resolved node (pressColor → pressedBg);
+// `{ prop, token }` is the theme constant; `shape:'scale'` wraps it as RN's transform.
+function rnSpelling(rn) {
+  if (rn.shape === 'scale') return `${rn.prop}: [{ scale }] ← ${rn.token}`;
+  if (rn.token !== undefined) return `${rn.prop} ← ${rn.token}`;
+  return `${rn.prop} ← ${rn.from}`;
 }
 
-// The gate: opt-in iff the selector requires an author `data-*` attribute
-// (`[data-press-scale]` · pressScale) — a STRUCTURAL read of the opt-in mechanism
-// (the SoT comment confirms it). A runtime-STATE attr (`[aria-disabled="true"]`)
-// is not an opt-in → automatic. Returns { kind:'automatic' } | { kind:'opt-in', attr }.
-function gateOf(effect) {
-  const optIn = effect.on.find((p) => p.attr && p.attr.startsWith('[data-'));
-  return optIn ? { kind: 'opt-in', attr: optIn.attr } : { kind: 'automatic' };
+export function interactiveAxisIr(opts, webChrome, webOrder) {
+  const optRows = Object.entries(opts).map(([input, opt]) => ({
+    input,
+    web: opt.web
+      ? { selector: assembleSelector(opt.web.on), decls: opt.web.decls.map(([prop, value]) => [prop, value]) }
+      : { palette: true },
+    rn: rnSpelling(opt.rn),
+    gate: opt.gate === 'auto' ? { kind: 'automatic' } : { kind: 'opt-in', attr: `[data-${opt.gate}]` },
+  }));
+  const chrome = Object.entries(webChrome).map(([name, rule]) => ({
+    name,
+    selector: assembleSelector(rule.on),
+    decls: rule.decls.map(([prop, value]) => [prop, value]),
+  }));
+  // The order-sensitive collision (the centerpiece · demoted to a chrome caption): the
+  // webOrder entries that BOTH set `transform` at equal specificity, in emit order. ≥2 ⇒
+  // source order is load-bearing (pressScale before disabledGuard · a disabled control
+  // never scales). Resolved from webChrome (chrome rule) or opts[name].web (opt rule).
+  const ruleFor = (name) => webChrome[name] ?? (opts[name] && opts[name].web);
+  const order = webOrder.filter((name) => {
+    const rule = ruleFor(name);
+    return rule && rule.decls.some(([prop]) => prop === 'transform');
+  });
+  return { source: 'interactive', kind: 'interactive', opts: optRows, chrome, order };
 }
 
 // ── typography ← THREE surfaces (decision 77 · the de-fusion · §76 the §73 taxonomy
@@ -184,8 +210,8 @@ export const AXIS_DOCS = [
     source: 'interactive',
     nav: 4,
     src: 'packages/spec/pipeline/interactive-effects.ts',
-    lead: 'The bespoke **interactive** axis — interaction decomposed into independent effects (affordance · focus · press-scale · disabled), each its own gate.',
-    build: (d) => interactiveAxisIr(d.effects),
+    lead: 'The bespoke **interactive** axis — interaction decomposed into independent opt-ins (`pressColor` · `pressScale` · `disabledOpacity`), each one source realized on both targets: RN in production, web for prototyping and these docs. The `nuri-interactive` **chrome** below (affordance · focus · the disabled guard) is web-only realization support, not part of the axis.',
+    build: (d) => interactiveAxisIr(d.opts, d.webChrome, d.webOrder),
   },
   {
     source: 'typography',

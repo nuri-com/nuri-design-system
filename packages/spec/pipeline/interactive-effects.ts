@@ -47,17 +47,6 @@
  * `webOrder` IS that order (preserved by the emitter); the harness proves it
  * (prototype/pipeline/interactive-css.test.js · the order guard + the browser cell).
  *
- * ── THE DERIVED `effects` BRIDGE (transient · @nuri/doc ONLY · delete on doc redesign) ──
- * `effects` is the legacy CSS-rules-as-data array (`{ name, on, decls }`) the N+43
- * axis-doc emitter reads (packages/doc/pipeline/axis-ir.js#interactiveAxisIr). It is
- * now a DERIVED PROJECTION of `webOrder` + `webChrome` + `opts[].web` — NOT a second
- * source. `opts` is THE source; `effects` is its web projection in the legacy shape,
- * kept so @nuri/doc re-emits BYTE-IDENTICAL (the doc CI gate) with NO doc-gen change.
- * The web rules keep the STRUCTURED `on: [{ attr?, state? }]` parts (not flat selector
- * strings) precisely so this projection is faithful — the doc's gateOf reads `p.attr`.
- * When the doc redesign re-sources its interactive page onto `opts` (the next arc),
- * this export is DELETED.
- *
  * ── STRIP CONSTRAINTS (read before editing — two strippers load this file) ──
  * Consumed via type-strip + data:-URL import by BOTH @nuri/prototype's line-oriented
  * `stripTypes` (interactive-css.js / strip.js) AND @nuri/doc's brace-aware
@@ -78,8 +67,8 @@ type Decl = readonly [string, string];
 // pseudo-state (`:active` · `:focus-visible` · `:disabled`). Both absent ⇒ the bare class.
 type SelectorPart = { attr?: string; state?: string };
 // A web CSS rule = the selector PARTS it applies to (the comma list · usually one) +
-// its declarations. The structured `on` (not a flat selector string) keeps the derived
-// `effects` projection + the doc's gate read faithful.
+// its declarations. The structured `on` (not a flat selector string) keeps the web emit
+// + the doc's selector-assembly + gate read faithful.
 type WebRule = { on: readonly SelectorPart[]; decls: readonly Decl[] };
 // The runtime trigger an opt's effect fires on (the RN State key · the web pseudo-state).
 type Trigger = 'pressed' | 'disabled';
@@ -164,11 +153,3 @@ export const webChrome = {
 // (affordance · focus · disabledGuard) or opts[name].web (pressScale · disabledOpacity).
 // pressColor is absent — its web rule is palette's (opts.pressColor.web === null). ──
 export const webOrder = ['affordance', 'focus', 'pressScale', 'disabledGuard', 'disabledOpacity'] as const satisfies readonly string[];
-
-// ── effects · the DERIVED legacy projection (transient bridge · @nuri/doc ONLY) ──
-// `webOrder` in order, each as the legacy `{ name, on, decls }` effect. A faithful
-// projection of opts/webChrome (NOT a second source · see header). `webRules` lifts
-// the two opt web rules alongside webChrome so every webOrder name resolves (and the
-// derivation type-checks + strips to valid JS without a cast). DELETE on doc redesign.
-const webRules = { ...webChrome, pressScale: opts.pressScale.web, disabledOpacity: opts.disabledOpacity.web };
-export const effects = webOrder.map((name) => ({ name, ...webRules[name] }));

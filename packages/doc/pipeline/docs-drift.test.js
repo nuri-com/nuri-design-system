@@ -165,28 +165,30 @@ test('G · each generated/components/*.md re-emits identically from its descript
 // ════════════════════════════════════════════════════════════════════
 // Per-page contract (the load-bearing surface a deliberate emitter change must
 // update): front-matter title/nav · the re-pathed header · the axis's natural shape
-// — the box/stack spelling table (input → css/rn + value-source, incl. the
-// mechanism-divergent `fill`/expand `—`) · the palette role table with RESOLVING
-// swatches (the live var() + role + default-scope hex · the fg-only `subtle` em-dash) ·
-// the interactive effect set with the load-bearing ORDER note (pressScale before
-// disabledGuard) · the typography wrapper dispatch (muted + align).
+// — the box/stack spelling table (input → web/rn + value-source · the locked grammar
+// header · incl. the mechanism-divergent `fill`/expand `—`) · the palette role table
+// with RESOLVING swatches (the live var() + role + default-scope hex · the fg-only
+// `subtle` em-dash) · the interactive agnostic opt-in set + the demoted web-only chrome
+// (the order note a chrome caption · §76) · the typography wrapper dispatch (muted + align).
 const AXIS_CONTRACT = {
   stack: {
     nav: 1, title: 'Stack', section: '## Fields',
     cells: [
-      // the spelling table: input → css/rn + the keyword value-source map
+      // the spelling table: input → web/rn + the keyword value-source map
       '| `align` | `align-items` | `alignItems` | `start` → `flex-start`<br>`center` → `center`<br>`end` → `flex-end`<br>`stretch` → `stretch`<br>`baseline` → `baseline` |',
       // the mechanism-divergent expand arm (fill · no registry entry · rn → em-dash)
       '| `fill` | `flex` | — | `grow` → `flexGrow: 1` · `flexShrink: 0`<br>`grow-shrink` → `flexGrow: 1` · `flexShrink: 1` · `minWidth: 0` |',
     ],
+    includes: ['| Input | Web | RN | Value |'], // the locked grammar (CSS → Web · the N+47 rename)
   },
   box: {
     nav: 2, title: 'Box', section: '## Fields',
     cells: [
-      // the canonical-id → per-target spelling (logical CSS · de-logicalized RN)
+      // the canonical-id → per-target spelling (logical web · de-logicalized RN)
       '| `paddingX` | `padding-inline` | `paddingHorizontal` | `space` scale |',
       '| `radius` | `border-radius` | `borderRadius` | `radius` scale |',
     ],
+    includes: ['| Input | Web | RN | Value |'], // the locked grammar (CSS → Web · the N+47 rename)
   },
   palette: {
     nav: 3, title: 'Palette', section: '## Variant',
@@ -199,13 +201,26 @@ const AXIS_CONTRACT = {
     includes: ['## Chrome'], // the second dispatch table (variant XOR chrome)
   },
   interactive: {
+    // RE-SOURCED (§76 · the fan-out) off the deleted `effects` bridge onto opts/webChrome/
+    // webOrder — the agnostic `## Effects` opt-in table (the locked grammar) + the demoted
+    // web-only `## Chrome` section. The load-bearing order note demoted to a chrome caption.
     nav: 4, title: 'Interactive', section: '## Effects',
     cells: [
-      // the assembled selector + the data-* opt-in gate
-      '| `pressScale` | `.nuri-interactive[data-press-scale]:active` | `transform: scale(var(--nuri-interaction-press-scale))` | opt-in · `[data-press-scale]` |',
+      // the agnostic opt-in: assembled web selector → decl · the RN realization · the gate
+      '| `pressScale` | `.nuri-interactive[data-press-scale]:active` → `transform: scale(var(--nuri-interaction-press-scale))` | `transform: [{ scale }] ← interaction.pressScale` | opt-in · `[data-press-scale]` |',
+      // pressColor's Web is a palette cross-ref (its :active bg-swap is palette's rule)
+      '| `pressColor` | → palette (`:active` bg swap) | `backgroundColor ← pressedBg` | opt-in · `[data-press-color]` |',
+      // disabledOpacity · automatic gate · the multi-selector web rule
+      '| `disabledOpacity` | `.nuri-interactive:disabled, .nuri-interactive[aria-disabled="true"]` → `opacity: var(--nuri-interaction-disabled-opacity)` | `opacity ← interaction.disabledOpacity` | automatic |',
     ],
-    // the load-bearing order note (the centerpiece · pressScale before disabledGuard)
-    includes: ['⚠ **Order is load-bearing.**', '`pressScale` is emitted first'],
+    // the locked agnostic grammar header + the demoted web-only chrome section; the
+    // disabledGuard chrome row + the demoted order caption (NOT the old top-level note).
+    includes: [
+      '| Input | Web | RN | Value |',
+      '## Chrome',
+      '| `disabledGuard` | `.nuri-interactive[aria-disabled="true"]:active` | `transform: none` |',
+      'both set `transform` at equal specificity',
+    ],
   },
   typography: {
     // RE-POINTED (decision 77 · the de-fusion) — the PRIMARY section is now the agnostic
@@ -238,7 +253,7 @@ test('G · each generated/axes/*.md re-emits identically from its axis SoT', asy
   const { STACK_FIELDS, BOX_FIELDS } = await loadSpecData('resolve-map');
   const { PROPERTY_SPELLING } = await loadSpecData('property-spelling');
   const { surface } = await loadSpecData('palette-surface');
-  const { effects } = await loadSpecData('interactive-effects');
+  const { opts, webChrome, webOrder } = await loadSpecData('interactive-effects');
   const { axis } = await loadSpecData('typography-axis');
   const specTokens = await loadSpecData('tokens');
   const { tokenVars } = await loadSpecData('token-vars');
@@ -247,7 +262,9 @@ test('G · each generated/axes/*.md re-emits identically from its axis SoT', asy
     boxFields: BOX_FIELDS,
     registry: PROPERTY_SPELLING,
     surface,
-    effects,
+    opts,
+    webChrome,
+    webOrder,
     axis,
     typeSizes: Object.keys(specTokens.type), // the 6 type-step sizes (the `size` axis · decision 77)
     roleColor: makeRoleResolver(specTokens, tokenVars),
