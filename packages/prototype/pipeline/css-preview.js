@@ -45,7 +45,7 @@ import {
   NS_SPECS,
 } from './parsers/namespace-css.js';
 import { loadSurface, emitPaletteCss } from './parsers/palette-css.js';
-import { loadEffects, emitInteractiveCss } from './parsers/interactive-css.js';
+import { loadInteractive, emitInteractiveCss } from './parsers/interactive-css.js';
 import { loadAxis, emitTypographyCss } from './parsers/typography-css.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -104,8 +104,8 @@ export async function generatePalette() {
 // generatePalette) so interactive-css.test.js re-runs the SAME generation in-memory.
 // interactive is bespoke (decision 67/73), hence a separate call.
 export async function generateInteractive() {
-  const effects = await loadEffects(EFFECTS_TS);
-  return { ns: 'interactive', css: emitInteractiveCss(effects) };
+  const sot = await loadInteractive(EFFECTS_TS);
+  return { ns: 'interactive', css: emitInteractiveCss(sot) };
 }
 
 // Generate the typography namespace CSS from the bespoke AXIS — exported (like

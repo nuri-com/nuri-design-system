@@ -1,31 +1,28 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · PARSER · INTERACTIVE NAMESPACE CSS EMIT (the L3b·2 reversible shadow · decision 70 / 67 / 73)
+ * NURI · PARSER · INTERACTIVE NAMESPACE CSS EMIT (the LIVE generated CSS · decision 74 · N+44 single-source)
  * ──────────────────────────────────────────────────────────────────
- * The interactive EFFECT set (pipeline/interactive-effects.ts) → the web interactive
- * namespace CSS. interactive is the SECOND bespoke axis (decision 67 / 73): the
+ * The interactive AXIS SoT (packages/spec/pipeline/interactive-effects.ts) → the web
+ * interactive namespace CSS. interactive is a BESPOKE axis (decision 67 / 73): the
  * structured per-part interaction opt-in (decision 65.3 §6 / 65.4), single-sourced
- * but NOT a Field-table member (box/stack rode the generic resolve-map.ts table at
- * L3.1; interactive has its own bespoke shape · like palette). This is the
- * inverse-spelling of flattenPart (packages/rn/factory/resolve.ts): the RN path
- * realizes the opt-in as STATE PATCHES on a node (`state.pressed &&
- * interactive.pressScale → style.transform = scale`); this writes the
- * `.nuri-interactive[gate]:state` dispatch the CSS pseudo-class cascade resolves.
+ * but NOT a Field-table member. Post N+44 the SoT is ONE source — `opts` (the agnostic
+ * opt-ins) + `webChrome` (the web-only chrome) + `webOrder` (the emit order) — that
+ * the web CSS, the web factory gate, AND the RN applier (flattenPart · resolve.ts) all
+ * project from. This module is the WEB-CSS projection: it walks `webOrder` and writes
+ * the `.nuri-interactive[gate]:state` dispatch the CSS pseudo-class cascade resolves
+ * (the inverse-spelling of flattenPart's RN state patches).
  *
- * REVERSIBLE SHADOW (the L3.1 / palette discipline · roadmap/N+33-L3b-palette.md):
- * generates to build/css-preview/interactive.css, proven ≡ the hand
- * lib/components/interactive/interactive.css (the parity oracle · pipeline/
- * interactive-css.test.js). NOT wired into `npm run build`; the live web factory,
- * the pages, the recipe layer, and the RN factory (flattenPart) are untouched.
- * decision 2 STANDS for the namespace layer until L3c.
- *
- * ── The dispatch, precisely (the inverse of flattenPart's gate logic) ───────
+ * ── The walk (webOrder → @layer rules) ──────────────────────────────
+ * For each name in `webOrder` the rule comes from `webChrome[name]` (the literal
+ * chrome rule) or `opts[name].web` (the opt's web rule · null where the rule lives in
+ * another axis — pressColor's :active bg-swap is PALETTE's, so pressColor is NOT in
+ * webOrder). Each rule is `{ on: [{attr?,state?}], decls: [[prop,value]] }`:
  *   · affordance · `.nuri-interactive` — cursor + the press transition (automatic).
  *   · focus · `.nuri-interactive:focus-visible` — the brand outline ring (automatic).
  *   · pressScale · `.nuri-interactive[data-press-scale]:active` — the :active scale,
  *     gated so a static surface never matches :active.
  *   · disabledGuard · `.nuri-interactive[aria-disabled="true"]:active` — reverts the
- *     scale to none when disabled. EQUAL specificity to pressScale (0,3,0), so it
- *     wins ONLY by SOURCE ORDER (emitted later · LOAD-BEARING · the brief §5).
+ *     scale to none when disabled. EQUAL specificity to pressScale (0,3,0), so it wins
+ *     ONLY by SOURCE ORDER (emitted later · LOAD-BEARING · webOrder · the order guard).
  *   · disabledOpacity · `.nuri-interactive:disabled, .nuri-interactive[aria-disabled=
  *     "true"]` — the shared dim (a multi-selector / comma rule · automatic).
  *
@@ -35,7 +32,6 @@
  * class + the gate attrs land directly ON the painting node (`class="nuri-box
  * nuri-palette nuri-interactive" data-press-scale`). So the emit has no PRE/POST
  * shell, no :not(:defined): every selector is the `.nuri-interactive` class dispatch.
- * The namespaces are disjoint (65.3 §6) so the rule-sets co-exist with no collision.
  *
  * ── The SPELLING (the per-target delta · the SoT-vs-shell line) ─────────────
  * interactive is the THINNEST axis: the SoT carries each declaration VERBATIM (a
@@ -43,30 +39,34 @@
  * is NO value transform (unlike palette's role-NAME → `var(--nuri-<role>)`, or
  * dimensions' `{ ref }` → `var(--nuri-px-N)`) — the constants are consumed directly
  * (decision 45). The only derivation is the SELECTOR ASSEMBLY: `.nuri-interactive` +
- * the attr gate + the pseudo-state, comma-joined for the multi-selector rule. The
- * property spelling is the hand CSS's (cursor / transition / outline / transform /
- * opacity — no logical→physical remap; these are direct, mechanism-divergent props).
+ * the attr gate + the pseudo-state, comma-joined for the multi-selector rule.
  *
- * loadEffects type-strips + data:-URL imports the .ts SoT (node 20 cannot import a
- * .ts) — reusing dimension-css.js#stripTypes (one strip impl · decision 48): the
- * descriptor-twin / L3.1 / N+31 / C1 / C2 / palette technique. The L3c flip relocates
- * the SoT into @nuri/spec proper and retires the hand CSS.
+ * loadInteractive type-strips + data:-URL imports the .ts SoT (node 20 cannot import a
+ * .ts) — reusing strip.js#stripTypes (one strip impl · decision 48): the
+ * descriptor-twin / L3.1 / palette technique. The SoT lives in @nuri/spec; the L3c
+ * flip made this the LIVE source (the hand CSS retired · decision 74).
  * ══════════════════════════════════════════════════════════════════ */
 
 import { readFile } from 'node:fs/promises';
 
 import { stripTypes } from './strip.js';
 
-// ── load the TS SoT (the EFFECT set) ────────────────────────────────
-export async function loadEffects(effectsTsPath) {
+// ── load the TS SoT (the single source · opts + webChrome + webOrder) ──
+export async function loadInteractive(effectsTsPath) {
   const src = await readFile(effectsTsPath, 'utf8');
   const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypes(src)));
   // A strip regression must fail LOUD here, not silently emit garbage.
-  const e = mod.effects;
-  if (!Array.isArray(e) || e.length === 0) {
-    throw new Error('[interactive-css] loadEffects: effects missing/empty (strip regression?)');
+  const { opts, webChrome, webOrder } = mod;
+  if (!opts || typeof opts !== 'object' || !Object.keys(opts).length) {
+    throw new Error('[interactive-css] loadInteractive: opts missing/empty (strip regression?)');
   }
-  return e;
+  if (!webChrome || typeof webChrome !== 'object') {
+    throw new Error('[interactive-css] loadInteractive: webChrome missing (strip regression?)');
+  }
+  if (!Array.isArray(webOrder) || webOrder.length === 0) {
+    throw new Error('[interactive-css] loadInteractive: webOrder missing/empty (strip regression?)');
+  }
+  return { opts, webChrome, webOrder };
 }
 
 // ── a SelectorPart → its full selector (NO element wrapper · the class IS the node) ──
@@ -80,18 +80,18 @@ export function partToSelector(part) {
   return BASE + (part.attr ?? '') + (part.state ?? '');
 }
 
-// ── an Effect → its rule { sel, decls } ─────────────────────────────
+// ── a WebRule { on, decls } → its CSS rule { sel, decls } ────────────
 // `sel` is the comma-joined selector list (usually one part · disabledOpacity has
 // two). `decls` passes through verbatim (the [prop, value] pairs · no value transform).
-export function ruleForEffect(effect) {
-  if (!Array.isArray(effect.on) || effect.on.length === 0) {
-    throw new Error(`[interactive-css] effect '${effect.name}' has no selector parts`);
+export function ruleToCss(rule) {
+  if (!rule || !Array.isArray(rule.on) || rule.on.length === 0) {
+    throw new Error(`[interactive-css] web rule has no selector parts: ${JSON.stringify(rule)}`);
   }
-  if (!Array.isArray(effect.decls) || effect.decls.length === 0) {
-    throw new Error(`[interactive-css] effect '${effect.name}' has no declarations`);
+  if (!Array.isArray(rule.decls) || rule.decls.length === 0) {
+    throw new Error(`[interactive-css] web rule has no declarations: ${JSON.stringify(rule)}`);
   }
-  const sel = effect.on.map(partToSelector).join(', ');
-  return { sel, decls: effect.decls };
+  const sel = rule.on.map(partToSelector).join(', ');
+  return { sel, decls: rule.decls };
 }
 
 // ── serialize a rule → CSS text (indented inside @layer rules) ──────
@@ -101,16 +101,30 @@ function serializeRule({ sel, decls }) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// emitInteractiveCss · the EFFECT set → the full shadow CSS file
+// emitInteractiveCss · the SoT (opts/webChrome/webOrder) → the full namespace CSS file
 // ══════════════════════════════════════════════════════════════════
-// Layout: provenance header + empty `@layer tokens` (mirrors the hand interactive.css
-// · interactive dispatches the shared --nuri-interaction-* / --nuri-focus-ring
-// vocabulary directly · decision 37) + `@layer rules` { the effect rules in the
-// LOAD-BEARING array order · pressScale strictly before disabledGuard }.
-export function emitInteractiveCss(effects) {
-  const ruleLines = effects.map(ruleForEffect).map(serializeRule);
+// Walks webOrder, pulling each rule from webChrome (literal) or opts[name].web (built),
+// in the LOAD-BEARING array order (pressScale strictly before disabledGuard). Layout:
+// provenance header + empty `@layer tokens` (interactive dispatches the shared --nuri-
+// interaction-* / --nuri-focus-ring vocabulary directly · decision 37) + `@layer rules`.
+export function emitInteractiveCss({ opts, webChrome, webOrder }) {
+  const ruleLines = webOrder
+    .map((name) => {
+      const rule = webChrome[name] ?? opts[name]?.web;
+      if (!rule) {
+        throw new Error(`[interactive-css] webOrder entry '${name}' resolves to no rule (not in webChrome and opts['${name}'].web is null/absent)`);
+      }
+      return rule;
+    })
+    .map(ruleToCss)
+    .map(serializeRule);
 
   return [
+    // ⚠ This GENERATED header is held BYTE-IDENTICAL to the committed interactive.css
+    // (the decision-74 freshness gate · git diff --exit-code). N+44 reshaped the SoT
+    // (opts + webChrome + webOrder · documented in interactive-effects.ts + above), but
+    // the OUTPUT must not change — so the header wording stays as-is until the SoT-name
+    // refresh rides a future re-emit. "EFFECT set" ≡ the interactive-effects.ts SoT.
     `/* ──────────────────────────────────────────────────────────────`,
     ` * NURI · NAMESPACE CSS · INTERACTIVE · GENERATED — DO NOT EDIT BY HAND`,
     ` *`,
