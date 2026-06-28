@@ -87,7 +87,7 @@ export function foundationsColourSemanticIr(cols, roleColor) {
       return { role, cascade: lightRef(def), var: cssVar, hex };
     });
   const semantics = [
-    { name: 'Chrome', rows: semanticRows(cols.chrome, (k) => k, (def) => def.light.ref) },
+    { name: 'Chrome', rows: semanticRows(cols.chrome, (k) => k, (def) => def.light) },
     { name: 'Accent', rows: semanticRows(cols.accent.neutral, (k) => `accent-${k}`, (def) => typeof def === 'string' ? def : def.light) },
   ];
   return { source: 'colour-semantic', kind: 'colour-semantic', semantics };

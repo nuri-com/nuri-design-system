@@ -197,7 +197,7 @@ function sotRefFor(cssVar, accentName, theme) {
     const role = accent[accentName][cssVar.slice('--nuri-accent-'.length)];
     return typeof role === 'string' ? role : role[theme];
   }
-  return chrome[cssVar.slice('--nuri-'.length)][theme].ref; // chrome · accent-invariant
+  return chrome[cssVar.slice('--nuri-'.length)][theme]; // chrome · accent-invariant · bare ref (N+55)
 }
 
 test('Guard C · the matrix resolves to the restated oracle — through the SoT', () => {

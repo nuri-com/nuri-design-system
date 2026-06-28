@@ -75,9 +75,11 @@ export function refToVar(leaf) {
 }
 
 // ── the cascade model · the 8 blocks from the matrix ────────────────
-// chrome decls for a theme (full · chrome is theme-paired): [[--nuri-<key>, rhs], …]
+// chrome decls for a theme (full · chrome is theme-paired): [[--nuri-<key>, rhs], …].
+// chrome[k][theme] is a BARE ref string (accent-major unwrap · N+55) — wrap it `{ ref }`
+// so refToVar is unchanged (the same bare-string path accentDecls uses).
 function chromeDecls(chrome, theme) {
-  return Object.keys(chrome).map((k) => [`--nuri-${k}`, refToVar(chrome[k][theme])]);
+  return Object.keys(chrome).map((k) => [`--nuri-${k}`, refToVar({ ref: chrome[k][theme] })]);
 }
 
 // accent decls for (accentName, theme). The SoT is accent-MAJOR (accent[accentName] is

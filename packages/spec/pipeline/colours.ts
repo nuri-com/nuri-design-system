@@ -40,11 +40,12 @@
  * cascade model) · the token-standards eval (the DTCG shape).
  * ══════════════════════════════════════════════════════════════════ */
 
-// A colour leaf — DTCG `value | reference` (the token-standards eval · the shape
-// dimensions.ts uses for `Leaf = { ref } | { value, unit }`). A PRIMITIVE is a
-// literal `{ value: '#fcfcfc' }`; a SEMANTIC leaf (C2 · chrome / accent below)
-// is a `{ ref: 'scale.step.theme' }` pointing at a primitive — the reference IS
-// the cascade (semantic names a primitive, it does not restate a value).
+// A colour PRIMITIVE leaf — a literal `{ value: '#fcfcfc' }` (DTCG `value` · the
+// token-standards eval). The ramps (neutralScales / lilac / the alpha overlays) hold
+// these. The semantic roles (chrome / accent below) reference a primitive — but a ref
+// is now a BARE `'scale.step.theme'` string (a RefPair · N+55 · decision 80 · the
+// uniform rule: bare string = reference, `{ value }` = literal), NOT a `{ ref }` wrap.
+// The `{ ref }` arm is retained as the DTCG leaf model (currently unused by the data).
 type ColorLeaf = { value: string } | { ref: string };
 // A Radix 12-step scale: each step exposes its light + dark primitive in parallel
 // (the semantic layer composes mode × accent on top · the cascade below).
@@ -242,26 +243,33 @@ export const whiteAlpha = {
  *     emitter — P4 falls out of the data.
  * ══════════════════════════════════════════════════════════════════ */
 
+// A semantic ref PAIR — the light/dark primitive refs a theme-paired role points at.
+// A ref is a BARE `'scale.step.theme'` string (N+55 · decision 80 · the uniform rule:
+// a bare string IS a reference, `{ value }` is a literal). chrome is ALWAYS a pair
+// (theme-only · every role adapts light↔dark); an accent role is a pair when it adapts,
+// else a flat string (see AccentRole below).
+type RefPair = { light: string; dark: string };
+
 // chrome · theme-only · accent-invariant (13 tokens × {light, dark}). The page's
 // neutral surface: backgrounds, text, borders, and the always-brand focus ring.
 export const chrome = {
-  'bg-canvas':        { light: { ref: 'neutral.1.light' },  dark: { ref: 'neutral.1.dark' } },
-  'bg-subtle':        { light: { ref: 'neutral.2.light' },  dark: { ref: 'neutral.2.dark' } },
-  'bg-strong':        { light: { ref: 'neutral.3.light' },  dark: { ref: 'neutral.3.dark' } },
-  'bg-pressed':       { light: { ref: 'neutral.4.light' },  dark: { ref: 'neutral.4.dark' } },
+  'bg-canvas':        { light: 'neutral.1.light',  dark: 'neutral.1.dark' },
+  'bg-subtle':        { light: 'neutral.2.light',  dark: 'neutral.2.dark' },
+  'bg-strong':        { light: 'neutral.3.light',  dark: 'neutral.3.dark' },
+  'bg-pressed':       { light: 'neutral.4.light',  dark: 'neutral.4.dark' },
   // bg-inverse · a slice of the OTHER theme (INVERSE by design)
-  'bg-inverse':       { light: { ref: 'neutral.1.dark' },   dark: { ref: 'neutral.1.light' } },
-  'bg-inverse-muted': { light: { ref: 'neutral.11.light' }, dark: { ref: 'neutral.11.dark' } },
-  'text-primary':     { light: { ref: 'neutral.12.light' }, dark: { ref: 'neutral.12.dark' } },
-  'text-muted':       { light: { ref: 'neutral.11.light' }, dark: { ref: 'neutral.11.dark' } },
+  'bg-inverse':       { light: 'neutral.1.dark',   dark: 'neutral.1.light' },
+  'bg-inverse-muted': { light: 'neutral.11.light', dark: 'neutral.11.dark' },
+  'text-primary':     { light: 'neutral.12.light', dark: 'neutral.12.dark' },
+  'text-muted':       { light: 'neutral.11.light', dark: 'neutral.11.dark' },
   // text-on-inverse · text drawn on bg-inverse (INVERSE by design)
-  'text-on-inverse':  { light: { ref: 'neutral.12.dark' },  dark: { ref: 'neutral.12.light' } },
-  'border-subtle':    { light: { ref: 'neutral.6.light' },  dark: { ref: 'neutral.6.dark' } },
-  'border-default':   { light: { ref: 'neutral.7.light' },  dark: { ref: 'neutral.7.dark' } },
-  'border-strong':    { light: { ref: 'neutral.8.light' },  dark: { ref: 'neutral.8.dark' } },
+  'text-on-inverse':  { light: 'neutral.12.dark',  dark: 'neutral.12.light' },
+  'border-subtle':    { light: 'neutral.6.light',  dark: 'neutral.6.dark' },
+  'border-default':   { light: 'neutral.7.light',  dark: 'neutral.7.dark' },
+  'border-strong':    { light: 'neutral.8.light',  dark: 'neutral.8.dark' },
   // focus-ring · always brand (lilac) regardless of accent (DS convention · pops vs any bg)
-  'focus-ring':       { light: { ref: 'lilac.8.light' },    dark: { ref: 'lilac.8.dark' } },
-} as const satisfies Record<string, ThemedLeaf>;
+  'focus-ring':       { light: 'lilac.8.light',    dark: 'lilac.8.dark' },
+} as const satisfies Record<string, RefPair>;
 
 // accent · accent-MAJOR (each accent is ONE object · 6 roles × {light, dark}). Where
 // the saturated-vs-bright asymmetry lives (INVERSE / FROZEN-P4 · see the header). A
@@ -275,7 +283,7 @@ export const chrome = {
 // object," not "edit six role entries + widen the type." The role order is preserved
 // (fg · solid · solid-pressed · on-solid · bg-subtle · bg-subtle-pressed) so the emitted
 // cascade declarations stay byte-identical.
-type AccentRole = string | { light: string; dark: string };
+type AccentRole = string | RefPair;
 export const accent = {
   neutral: {
     fg:                  { light: 'neutral.12.light', dark: 'neutral.12.dark' },  // same-scale
