@@ -71,6 +71,8 @@ import { buildTypeScale, emitTypeTs, TYPE_SIZES } from './parsers/type.js';
 import {
   buildInteraction,
   emitInteractionTs,
+  loadInteraction,
+  flipInteractionCss,
   INTERACTION_PRIMITIVES,
 } from './parsers/interaction.js';
 
@@ -81,7 +83,6 @@ import {
   emitDescriptorTsFromSource,
   emitDescriptorJsFromSource,
   exportNameFor,
-  emitSchemaTs,
 } from './parsers/descriptors.js';
 
 import {
@@ -157,6 +158,8 @@ export {
   TYPE_SIZES,
   buildInteraction,
   emitInteractionTs,
+  loadInteraction,
+  flipInteractionCss,
   INTERACTION_PRIMITIVES,
   DESCRIPTOR_COMPONENTS,
   deriveDescriptor,
@@ -164,7 +167,6 @@ export {
   emitDescriptorTsFromSource,
   emitDescriptorJsFromSource,
   exportNameFor,
-  emitSchemaTs,
   PALETTE_CONTRACT,
   derivePalette,
   emitPaletteTs,
@@ -178,6 +180,7 @@ const SEMANTIC_CSS     = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
 const DIMENSIONS_SRC   = resolve(REPO_ROOT, 'pipeline/dimensions.ts');
 const COLOURS_SRC      = resolve(REPO_ROOT, 'pipeline/colours.ts');
 const TYPOGRAPHY_SRC   = resolve(REPO_ROOT, 'pipeline/typography.ts');
+const INTERACTION_SRC  = resolve(REPO_ROOT, 'pipeline/interaction.ts');
 const PALETTE_SURFACE_SRC = resolve(REPO_ROOT, 'pipeline/palette-surface.ts');
 const TYPOGRAPHY_AXIS_SRC = resolve(REPO_ROOT, 'pipeline/typography-axis.ts');
 const JSON_OUT         = resolve(REPO_ROOT, 'build/tokens.json');
@@ -190,7 +193,6 @@ const ICONS_JS_OUT     = resolve(REPO_ROOT, 'lib/components/icon/icons.js');
 const ICONS_OUT        = resolve(REPO_ROOT, 'build/icons.ts');
 const DESCRIPTORS_OUT  = resolve(REPO_ROOT, 'build/descriptors');
 const DESCRIPTORS_SRC  = resolve(REPO_ROOT, 'pipeline/descriptors');
-const SCHEMA_SRC       = resolve(REPO_ROOT, 'pipeline/descriptors/schema.ts');
 const PALETTE_OUT      = resolve(REPO_ROOT, 'build/palette.ts');
 // (build/docs · DOC_COMPONENTS · MOVED to @nuri/doc at N+42 · the A4 carve. The
 // doc-gen left @nuri/spec — @nuri/doc owns the generated Markdown · convergence §5.)
@@ -328,6 +330,22 @@ async function main() {
     `(${Object.keys(typeSoT).length} steps · de-referenced to inline) → styles/tokens-primitive.css`,
   );
 
+  // ── Slice 0 · the interaction baseline · TS SoT → tokens-primitive.css (N+61 · decision 45/80 · Slice 3b·2b·i) ──
+  // decision 2 reverses for the interaction family (the last CSS-only source): the
+  // { pressScale · disabledOpacity } cross-component design constants are authored in
+  // pipeline/interaction.ts (the SoT · pure data) and WRITTEN INTO the --nuri-interaction-*
+  // primitives in styles/tokens-primitive.css here. Same in-place rewrite as the type flip —
+  // only those two declarations' values are regenerated; everything else passes through
+  // verbatim. The values are unchanged (0.97 / 0.4), so styles/* stays byte-identical; the
+  // emit (build/interaction.ts · Slice 3) is now flattened from the SAME SoT, killing the
+  // family's last TS-absent → CSS → TS round-trip (projection model §4 · decision 80).
+  const interactionSoT = await loadInteraction(INTERACTION_SRC);
+  await flipInteractionCss({ primitivePath: PRIMITIVE_CSS, interaction: interactionSoT });
+  console.log(
+    `[tokens-parser] flipped the interaction baseline from the TS SoT ` +
+    `(${Object.keys(interactionSoT).length} constants) → styles/tokens-primitive.css`,
+  );
+
   // (The namespace-CSS slice MOVED to @nuri/prototype at N+41 · the A3 carve.) The 5
   // namespace axes (box/stack/palette/interactive/typography) are still GENERATED from the TS
   // SoTs — the dec-74 / dec-2-reversed flip STANDS — but the generator (pipeline/css-preview.js)
@@ -382,14 +400,15 @@ async function main() {
   const classifiedGroups = classifyAll(semanticRules);
   const semanticCount = Object.keys(resolved).length;
 
-  // ── Slice 3 · transversal interaction baseline (Smell-1 · decision 66 arc #0) ──
+  // ── Slice 3 · transversal interaction baseline (Smell-1 · decision 66 arc #0 · re-sourced N+61) ──
   // The decision-45 cross-component constants (pressScale · disabledOpacity),
-  // read from the --nuri-interaction-* primitive family and emitted to their
-  // OWN transversal artifact at build/interaction.ts. The RN factory's theme
+  // flattened STRAIGHT from the TS SoT (interactionSoT · pipeline/interaction.ts ·
+  // Slice 0 above) — NO CSS read (projection model §4 · decision 80). Emitted to
+  // their OWN transversal artifact at build/interaction.ts. The RN factory's theme
   // reads this directly — it no longer reaches into a per-component file for a
   // non-component value (resolves the R1 "no transversal interaction artifact"
   // finding). NOT a runtime/TokenPath set; the values are context-invariant.
-  const interaction = buildInteraction(primitiveMap);
+  const interaction = buildInteraction(interactionSoT);
   await writeFile(INTERACTION_OUT, emitInteractionTs(interaction), 'utf8');
 
   // (Slice 4 · the per-component `@layer tokens` walk · REMOVED at N+41 · see the note
@@ -437,13 +456,13 @@ async function main() {
   // directly via its `./descriptors/<name>` exports subpath — the data it sees is
   // byte-identical (only the dropped header differed). The browser-ESM .js twins
   // STAY emitted here (the web prototype recipes + doc staging consume them · they
-  // relocate to @nuri/prototype in 3c). The frozen schema (build/descriptors/
-  // schema.ts) likewise stays emitted verbatim (its tokens-import rewritten · it
-  // relocates with the tokens move in 3b). No CSS is read here; derivation is the
-  // parity oracle (Guard D), not the producer.
+  // relocate to @nuri/prototype in 3c). The frozen schema's verbatim .ts copy
+  // (build/descriptors/schema.ts) is GONE too (N+61 · Slice 3b·2b·i · the orphan
+  // since 3a · rn imports the source via the `./descriptors/schema` subpath) — and
+  // with the type-re-home (schema.ts derives its types from the SoTs) spec no longer
+  // imports from build/ at all, so there is nothing left to rewrite. No CSS is read
+  // here; derivation is the parity oracle (Guard D), not the producer.
   await mkdir(DESCRIPTORS_OUT, { recursive: true });
-  const schemaSource = await readFile(SCHEMA_SRC, 'utf8');
-  await writeFile(resolve(DESCRIPTORS_OUT, 'schema.ts'), emitSchemaTs(schemaSource), 'utf8');
   const descriptorReports = [];
   for (const spec of DESCRIPTOR_COMPONENTS) {
     const source = await readFile(resolve(DESCRIPTORS_SRC, `${spec.name}.ts`), 'utf8');
@@ -495,7 +514,6 @@ async function main() {
     `\n[tokens-parser] wrote TokenPath union → ${TOKEN_PATHS_OUT}` +
     `\n[tokens-parser] wrote semantic colour var registry → ${TOKEN_VARS_OUT}` +
     `\n[tokens-parser] wrote icon registry (${iconNameCount} glyphs · folder SoT · 2 readers) → ${ICONS_JS_OUT} + ${ICONS_OUT}` +
-    `\n[tokens-parser] wrote descriptor schema → ${resolve(DESCRIPTORS_OUT, 'schema.ts')}` +
     descriptorReports.map((r) =>
       `\n[tokens-parser] wrote descriptor '${r.name}' browser-ESM twin (.ts copy dropped · rn imports source) → ${r.out}`,
     ).join('') +

@@ -68,7 +68,6 @@ import {
   DESCRIPTOR_COMPONENTS,
   emitDescriptorJsFromSource,
   exportNameFor,
-  emitSchemaTs,
 } from './parsers/descriptors.js';
 import { derivePalette, emitPaletteTs } from './parsers/palette.js';
 import { readSemanticRules, classifyAll } from './parsers/semantic.js';
@@ -209,13 +208,10 @@ function interactiveChannels(ir) {
 }
 
 test('D · build/descriptors/* re-emits from the authored SoT + the composition-form pins hold', async () => {
-  // Schema · the hand-maintained pipeline source emitted (import rewritten)
-  // must equal the committed build (decision 35 · stale-build / hand-edit guard).
-  assert.equal(
-    read('build/descriptors/schema.ts'),
-    emitSchemaTs(read('pipeline/descriptors/schema.ts')),
-    'build/descriptors/schema.ts is stale or hand-edited — run `npm run build`.',
-  );
+  // Schema · the verbatim build/descriptors/schema.ts copy was DROPPED at N+61
+  // (Slice 3b·2b·i · orphan since 3a · rn imports the source via the
+  // `./descriptors/schema` subpath). The frozen SHAPE is still enforced over the
+  // SOURCE by Guard F below. Only the browser-ESM .js twins are emitted now.
 
   for (const spec of DESCRIPTOR_COMPONENTS) {
     const authored = read(`pipeline/descriptors/${spec.name}.ts`);
@@ -408,8 +404,15 @@ const FROZEN_SCHEMA = {
     PaletteVariant: ['solid', 'soft', 'ghost', 'subtle'],
     PaletteChrome: ['canvas', 'subtle', 'strong'],
   },
+  // The scale-derived leaves are pinned by DECLARATION FORM. Re-homed at N+61
+  // (Slice 3b·2b·i) off build/tokens onto the TS SoTs (../dimensions · ../colours
+  // · ../typography) via `keyof typeof import(...)` — same unions, no build/ dep.
+  // Their MEMBERS live in the SoTs (governed by the SoTs / tokens-parser, not the
+  // shape freeze); the form pin catches a re-home drift or a renamed SoT export.
   leafForms: {
-    SizeLeaf: "keyof typeof import('../../build/tokens').size",
+    SizeLeaf: "keyof typeof import('../dimensions').size",
+    Accent: "keyof typeof import('../colours').accent",
+    TypeSize: "keyof typeof import('../typography').type",
     TypeKey: 'TypeSize', // de-fused at N+45 (decision 77) · the `${TypeSize}Em` arm retired
   },
   // The parts + composition + envelope (65.3 §7 · decision 24.1).

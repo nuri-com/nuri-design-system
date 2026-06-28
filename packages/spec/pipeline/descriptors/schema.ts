@@ -2,12 +2,16 @@
  * NURI · DESCRIPTOR SCHEMA · CANONICAL SOURCE (hand-maintained)
  *
  * The FROZEN cross-repo contract type (decision 65 · the composition
- * model · amendments 65.3 · 65.4 · 65.5 · ratified). This is the pipeline
- * SOURCE; `pipeline/tokens-parser.js` emits it verbatim (rewriting the
- * two `../../build/tokens` references — the named import + the inline
- * `import(...)` scale query — to the build-local `./tokens`) to
- * build/descriptors/schema.ts on `npm run build`. Edit HERE, never the
- * emitted copy (decision 35 · build/ is generated).
+ * model · amendments 65.3 · 65.4 · 65.5 · ratified). This is the SoT;
+ * @nuri/rn imports it directly via the `./descriptors/schema` exports
+ * subpath (the verbatim build/descriptors/schema.ts copy was dropped at
+ * N+61 · Slice 3b·2b·i · projection-model §4 · decision 80). The three
+ * scale-derived leaf types (SizeLeaf · Accent · TypeSize) derive STRAIGHT
+ * from the TS SoTs (../dimensions · ../colours · ../typography) via
+ * `keyof typeof import(...)`, so this file imports NOTHING from build/ —
+ * spec has zero build/ dependency, the precondition for the RN contract's
+ * relocation out of spec (3b·2b·ii · @nuri/rn depends on @nuri/spec, so
+ * spec must never import from a build/ that relocates with it).
  *
  * FROZEN as of B3 (N+19 · decision 65 step 5 · "an enforced freeze, not
  * honorary"). The schema SHAPE — the five namespace field vocabularies
@@ -39,23 +43,32 @@
  * Authored as a real .ts (not a JS template string) so the editor
  * typechecks the contract directly.
  *
- * Reuses the emitted scale types from ./tokens verbatim (decision 48 ·
+ * Derives its scale leaf types straight from the TS SoTs (decision 48 ·
  * one source, two readers): box sizing = the `size` scale leaf,
  * typography = the type-step (size + emphasis · decision 77). The namespace value vocabularies mirror
  * the live primitives (stack.css · box.css · palette.tsx) — the shared
  * authoring language B2c·3's factory + mirrors consume.
  * ────────────────────────────────────────────────────────────── */
 
-import type { TypeSize, Accent } from '../../build/tokens';
-
 // ══════════════════════════════════════════════════════════════════
-// LEAF VOCABULARIES · reuse the emitted scales (decision 48)
+// LEAF VOCABULARIES · derived STRAIGHT from the TS SoTs (decision 48 ·
+// N+61 · re-homed off build/tokens so spec has no build/ dependency)
 // ══════════════════════════════════════════════════════════════════
 
 // box sizing (width · height · minHeight) takes the FULL 7-leaf `size`
-// scale — `keyof typeof size`, reused from the emit (box.css dispatches
-// xs…3xl). Distinct from SpaceLeaf's between-elements rhythm.
-export type SizeLeaf = keyof typeof import('../../build/tokens').size;
+// scale — `keyof typeof size`, derived from the dimensions SoT (box.css
+// dispatches xs…3xl). Distinct from SpaceLeaf's between-elements rhythm.
+export type SizeLeaf = keyof typeof import('../dimensions').size;
+
+// Accent — the accent set, derived from the colours SoT `accent` table
+// (neutral · lilac · orange). The PaletteNS `accent` value vocab. Was
+// imported from build/tokens (re-homed N+61 · identical union).
+export type Accent = keyof typeof import('../colours').accent;
+
+// TypeSize — the type-scale steps, derived from the typography SoT `type`
+// table (xs · sm · md · lg · xl · 3xl). The TypographyNS `size` value vocab
+// (+ TypeKey below). Was imported from build/tokens (re-homed N+61 · identical union).
+export type TypeSize = keyof typeof import('../typography').type;
 
 // padding + gap take the curated 5-leaf semantic space subset the layout
 // primitives dispatch (stack.css gap · box.css padding* · the Stack/Box
