@@ -1,62 +1,113 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · INTERACTION BASELINE EMITTER (Node)
+ * NURI · INTERACTION BASELINE PARSER (Node)
  *
- * Emits build/interaction.ts — the TRANSVERSAL interaction baseline
- * { pressScale · disabledOpacity } as a directly-accessed const, read
- * from the --nuri-interaction-* primitive family in
- * styles/tokens-primitive.css (the cross-component design constants ·
- * decision 45 · classified primitive.interaction in semantic.js).
+ * The TRANSVERSAL interaction baseline { pressScale · disabledOpacity }
+ * (the decision-45 cross-component design constants). Its SoT is now
+ * pipeline/interaction.ts (a tiny pure-data TS module · N+61 · Slice
+ * 3b·2b·i) — the values no longer live ONLY in the hand-authored CSS.
  *
- * Why its OWN emit (Smell-1 · decision 66 arc #0): these two numerics
- * are a decision-45 CROSS-COMPONENT constant, not button geometry. The
- * pipeline previously pipeline-inlined them into every consumer's
- * per-component file (build/components/{button,icon-button,…}.ts), and
- * the factory reached into `button` for them — a non-button value homed
- * in a per-component file (the R1 "no transversal interaction artifact"
- * finding). This emit gives the family a transversal home the factory
- * reads directly; the per-component files are retired.
+ * This module owns the family end to end from the SoT:
+ *   · loadInteraction    — strip-imports the TS SoT (node 20 cannot import a .ts)
+ *   · flipInteractionCss — writes the SoT values INTO the --nuri-interaction-*
+ *                          declarations in styles/tokens-primitive.css (decision 2
+ *                          reversed for the family · the dimension/type-css posture)
+ *   · buildInteraction   — the { leaf → literal } record the emit consumes, FROM
+ *                          the SoT (no CSS read · projection model §4 · decision 80)
+ *   · emitInteractionTs  — build/interaction.ts (the RN factory's reader · decision 48)
  *
- * Reads from the primitive map (never hardcodes the values) so the emit
- * can only ever say what the CSS SoT says. ONE source, two readers (the
- * icon model · decision 48): the web consumes --nuri-interaction-* via
- * the per-component `@layer tokens` aliases; this is the RN reader.
+ * ONE source (pipeline/interaction.ts), THREE faces: the web CSS primitives, the
+ * RN build/interaction.ts, and the factory that reads it (the icon model · decision
+ * 48). Was CSS-sourced (the emit read --nuri-interaction-* back out · a TS→CSS→TS
+ * round-trip); the SoT flip kills that last round-trip for the family (Smell-1 ·
+ * decision 66 arc #0 · classified primitive.interaction in semantic.js).
  * ────────────────────────────────────────────────────────────── */
 
-import { resolveValue } from './semantic.js';
+import { readFile, writeFile } from 'node:fs/promises';
+import postcss from 'postcss';
 
-// leaf identifier → the --nuri-interaction-* primitive it reads. The
-// order here is the emit order (byte-stable across builds · the drift
-// guard compares re-emit).
+import { stripTypes } from './dimension-css.js';
+
+// leaf identifier → the --nuri-interaction-* primitive it OWNS. Double duty:
+// the emit ORDER (byte-stable across builds · the drift guard compares re-emit)
+// AND the CSS declaration each leaf flips. pressScale → --nuri-interaction-press-
+// scale · disabledOpacity → --nuri-interaction-disabled-opacity.
 export const INTERACTION_PRIMITIVES = {
   pressScale:      '--nuri-interaction-press-scale',
   disabledOpacity: '--nuri-interaction-disabled-opacity',
 };
 
-// Resolve one --nuri-interaction-* primitive to its numeric literal.
-// These are bare unitless numbers (0.97 · 0.4) — no var() chain, no
-// unit. Throws loudly if a value goes missing or stops being numeric so
-// a renamed/retyped primitive surfaces at build, not in a silent emit.
-function readInteractionLiteral(primitiveMap, cssVar) {
-  const raw = resolveValue(primitiveMap.get(cssVar), primitiveMap);
-  if (raw == null || !/^-?\d+(?:\.\d+)?$/.test(raw)) {
-    throw new Error(
-      `interaction primitive ${cssVar} did not resolve to a numeric literal ` +
-      `(got ${raw}). The --nuri-interaction-* family is the cross-component ` +
-      `design-constant SoT (decision 45) — check tokens-primitive.css.`,
-    );
+// ── load the TS SoT ────────────────────────────────────────────────
+// Strip the (trivial) TS apparatus (the `as const` suffix) then import the self-
+// contained data module via a data: URL — exactly as loadTypography/loadDimensions
+// do. A strip regression fails LOUD here, not in a silent emit.
+export async function loadInteraction(interactionTsPath) {
+  const src = await readFile(interactionTsPath, 'utf8');
+  const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypes(src)));
+  if (!mod.interaction || typeof mod.interaction !== 'object') {
+    throw new Error('[interaction] loadInteraction: `interaction` missing/empty (strip regression?)');
   }
-  return raw;
+  return mod.interaction;
 }
 
-// Build the { pressScale, disabledOpacity } record from the primitive
-// map. Returns the validated raw literals as strings (emitted verbatim
-// so the JS numbers match the CSS exactly — 0.97 / 0.4).
-export function buildInteraction(primitiveMap) {
+// Validate + stringify the SoT into the { leaf → literal } record the emit
+// consumes. The values are bare unitless numbers (0.97 · 0.4) emitted verbatim
+// (String(0.97) === '0.97') so the JS literals match the CSS exactly. Throws
+// loudly if a leaf goes missing or stops being numeric so a renamed/retyped SoT
+// surfaces at build, not in a silent emit.
+export function buildInteraction(interaction) {
   const out = {};
-  for (const [leaf, cssVar] of Object.entries(INTERACTION_PRIMITIVES)) {
-    out[leaf] = readInteractionLiteral(primitiveMap, cssVar);
+  for (const leaf of Object.keys(INTERACTION_PRIMITIVES)) {
+    const v = interaction[leaf];
+    if (typeof v !== 'number' || !Number.isFinite(v)) {
+      throw new Error(
+        `interaction leaf '${leaf}' is not a finite number (got ${v}). ` +
+        `pipeline/interaction.ts is the cross-component design-constant SoT (decision 45).`,
+      );
+    }
+    out[leaf] = String(v);
   }
   return out;
+}
+
+// ── the in-place CSS flip · SoT → tokens-primitive.css ──────────────
+// Set every --nuri-interaction-* declaration to its SoT value (verbatim
+// everything else · postcss preserves raws), enforcing the drift guard in BOTH
+// directions: the SoT must own exactly the --nuri-interaction-* leaves the CSS
+// declares. Mirrors type-css.js#rewriteTypeDecls.
+export function rewriteInteractionDecls(cssText, interaction) {
+  const want = new Map(
+    Object.entries(INTERACTION_PRIMITIVES).map(([leaf, cssVar]) => [cssVar, String(interaction[leaf])]),
+  );
+  const root = postcss.parse(cssText);
+  const seen = new Set();
+  const cssOwned = new Set();
+  root.walkDecls((decl) => {
+    if (/^--nuri-interaction-/.test(decl.prop)) cssOwned.add(decl.prop);
+    if (!want.has(decl.prop)) return;
+    if (seen.has(decl.prop)) {
+      throw new Error(`[interaction] ${decl.prop} declared more than once — the SoT must own a single declaration per leaf`);
+    }
+    seen.add(decl.prop);
+    decl.value = want.get(decl.prop);
+  });
+  const missingInCss = [...want.keys()].filter((p) => !seen.has(p));
+  if (missingInCss.length) {
+    throw new Error(`[interaction] the SoT declares ${missingInCss.join(', ')} but the CSS has no such declaration — add it to the CSS or remove it from pipeline/interaction.ts`);
+  }
+  const orphanInCss = [...cssOwned].filter((p) => !want.has(p));
+  if (orphanInCss.length) {
+    throw new Error(`[interaction] the CSS declares ${orphanInCss.join(', ')} but pipeline/interaction.ts does not — the SoT must own every --nuri-interaction-* declaration`);
+  }
+  return root.toString();
+}
+
+// The flip · SoT → tokens-primitive.css, in place (Slice 0 of the build). Returns
+// the rewritten string so a caller can reuse it.
+export async function flipInteractionCss({ primitivePath, interaction }) {
+  const cssText = await readFile(primitivePath, 'utf8');
+  const css = rewriteInteractionDecls(cssText, interaction);
+  await writeFile(primitivePath, css, 'utf8');
+  return css;
 }
 
 // Emit the build/interaction.ts source (string). The caller owns the
@@ -68,16 +119,17 @@ export function emitInteractionTs(interaction) {
     `/* ──────────────────────────────────────────────────────────────`,
     ` * NURI · INTERACTION BASELINE · GENERATED · DO NOT EDIT BY HAND`,
     ` *`,
-    ` * Source · styles/tokens-primitive.css --nuri-interaction-*`,
+    ` * Source · pipeline/interaction.ts (the interaction baseline SoT)`,
     ` * Emitter · pipeline/tokens-parser.js — run \`npm run build\``,
     ` *`,
     ` * The TRANSVERSAL cross-component interaction baseline (decision 45):`,
-    ` * the { pressScale · disabledOpacity } design constants, read from the`,
-    ` * --nuri-interaction-* primitive family (classified primitive.interaction`,
-    ` * in pipeline/parsers/semantic.js). A single transversal emit — the RN`,
-    ` * factory's theme reads it directly, instead of reaching into a`,
-    ` * per-component file for a non-component value (Smell-1 · decision 66`,
-    ` * arc #0). NOT a runtime/TokenPath set; the values are context-invariant.`,
+    ` * the { pressScale · disabledOpacity } design constants, flattened from`,
+    ` * the pipeline/interaction.ts SoT (the SAME values the build flips into the`,
+    ` * --nuri-interaction-* CSS primitives · one source, two readers · decision`,
+    ` * 48). A single transversal emit — the RN factory's theme reads it directly,`,
+    ` * instead of reaching into a per-component file for a non-component value`,
+    ` * (Smell-1 · decision 66 arc #0). NOT a runtime/TokenPath set; the values`,
+    ` * are context-invariant.`,
     ` * ────────────────────────────────────────────────────────────── */`,
     ``,
     `export const interaction = {`,

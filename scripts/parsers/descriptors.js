@@ -750,47 +750,12 @@ export function emitDescriptorJsFromSource(spec, source) {
 // (axes / anatomy / base / variants · pipeline/docs-drift.test.js).
 
 // ════════════════════════════════════════════════════════════════════
-// SCHEMA emit · copy the hand-maintained pipeline source verbatim,
-// rewriting the build-relative tokens import (decision 35).
+// (SCHEMA emit · REMOVED at N+61 · Slice 3b·2b·i.) The verbatim build/
+// descriptors/schema.ts copy was an orphan since 3a — @nuri/rn imports the
+// authored SoT directly via the `./descriptors/schema` exports subpath. With
+// the type-re-home (schema.ts now derives SizeLeaf/Accent/TypeSize from the TS
+// SoTs · keyof typeof import(...)), the schema source imports NOTHING from
+// build/, so there is no tokens-import to rewrite and nothing to emit. The
+// frozen-shape contract is still enforced by Guard F over the SOURCE
+// (docs-drift.test.js · the FROZEN_SCHEMA pin · projection-model §4 · decision 80).
 // ════════════════════════════════════════════════════════════════════
-
-const SCHEMA_HEADER = [
-  `/* ──────────────────────────────────────────────────────────────`,
-  ` * NURI · DESCRIPTOR SCHEMA · GENERATED · DO NOT EDIT BY HAND`,
-  ` *`,
-  ` * Source · pipeline/descriptors/schema.ts (the canonical contract · hand-maintained)`,
-  ` * Emitter · pipeline/tokens-parser.js — run \`npm run build\``,
-  ` *`,
-  ` * The FROZEN cross-repo contract type (decision 65 · the composition`,
-  ` * model · amendments 65.3 · 65.4 · 65.5 · ratified): a descriptor is PURE`,
-  ` * DATA — \`{ structure: { anatomy, base }, variants? }\` — a composition of`,
-  ` * the five disjoint primitive namespaces (stack · box · typography ·`,
-  ` * palette · interactive · 65.3 §6) in SEMANTIC names, ZERO raw style. The`,
-  ` * platform-native engine resolves them (factory on RN · CSS on web · 65.1);`,
-  ` * behaviour is the factory's, never data. Reuses the emitted scale types`,
-  ` * from ./tokens verbatim (decision 48). Validated by the B1.5 playground`,
-  ` * prototype (roadmap/N+19-B1.5.md).`,
-  ` *`,
-  ` * FROZEN as of B3 (N+19 · decision 65 step 5 · "an enforced freeze, not`,
-  ` * honorary"): the schema SHAPE is locked — guarded by Guard F in`,
-  ` * pipeline/docs-drift.test.js (the FROZEN_SCHEMA pin). A post-freeze shape`,
-  ` * change is DELIBERATE + VERSIONED (update the pin + a 65 amendment · the`,
-  ` * version-negotiation machinery lands with the first real bump · P11). The`,
-  ` * RN factory relocates to the CI-wired Expo consumer (X-wired · 65.5); this`,
-  ` * repo emits + freezes the contract — engine + behaviour are the factory's.`,
-  ` * ────────────────────────────────────────────────────────────── */`,
-  ``,
-].join('\n');
-
-// Take the schema source content, drop its own header (everything before
-// the first import), rewrite the build-relative tokens import for the
-// emitted location (pipeline/descriptors → ../../build/tokens; the emitted
-// build/descriptors/schema.ts → ../tokens), prepend the GENERATED header.
-// Verbatim otherwise — no escaping of the TS template-literal type
-// `${TypeSize}Em` (a JS template string would mangle the backtick / ${…}).
-export function emitSchemaTs(schemaSource) {
-  const start = schemaSource.indexOf('import type');
-  if (start < 0) throw new Error('[descriptors] schema source has no import — cannot emit');
-  const body = schemaSource.slice(start).split("'../../build/tokens'").join("'../tokens'");
-  return SCHEMA_HEADER + body;
-}

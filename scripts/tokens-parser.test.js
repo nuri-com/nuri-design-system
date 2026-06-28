@@ -62,6 +62,8 @@ import { resolveSemanticCrossProduct } from './parsers/semantic.js';
 
 import { loadTypography, typeDeclMap, rewriteTypeDecls, readFontWeights } from './parsers/type-css.js';
 
+import { loadInteraction, rewriteInteractionDecls } from './parsers/interaction.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '../packages/spec');
 const CSS_PATH = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
@@ -72,6 +74,7 @@ const INTERACTION_TS_PATH = resolve(REPO_ROOT, 'build/interaction.ts');
 const TOKEN_PATHS_PATH = resolve(REPO_ROOT, 'build/token-paths.ts');
 const ICONS_TS_PATH = resolve(REPO_ROOT, 'build/icons.ts');
 const TYPOGRAPHY_SRC = resolve(REPO_ROOT, 'pipeline/typography.ts');
+const INTERACTION_SRC = resolve(REPO_ROOT, 'pipeline/interaction.ts');
 const ICONS_DIR = resolve(REPO_ROOT, 'icons');
 const ICONS_JS_PATH = resolve(REPO_ROOT, 'lib/components/icon/icons.js');
 
@@ -764,47 +767,53 @@ test('per-component resolve · resolveComponentValue dispatch (button) + token-p
 
 // ──────────────────────────────────────────────────────────────
 // Smell-1 · transversal interaction baseline (decision 66 arc #0 · decision 45)
-// The decision-45 cross-component constants (pressScale · disabledOpacity)
-// now ship as their OWN transversal emit at build/interaction.ts — read from
-// the --nuri-interaction-* primitive family — instead of being pipeline-
-// inlined into per-component files (build/components/*, retired). The factory's
-// INTERACTION_BASELINE reads this directly. Single-source guard: re-derive from
-// the primitives, and the on-disk emit must re-emit identically (a hand-edit or
-// a stale build both fail here · decision 35).
+// RE-SOURCED at N+61 (Slice 3b·2b·i): the decision-45 cross-component constants
+// (pressScale · disabledOpacity) now flatten STRAIGHT from the TS SoT
+// (pipeline/interaction.ts) — NO CSS read (projection model §4 · decision 80).
+// build/interaction.ts is the RN factory's reader; the SAME SoT is flipped into
+// the --nuri-interaction-* CSS primitives. The round-trip-dead guard: the on-disk
+// emit must re-emit identically from the SoT (non-tautological — the SoT is the
+// source, not the file), AND the CSS the flip produces must carry the SoT values
+// (one source, two readers · a hand-edit / stale build on either fails here).
 // ──────────────────────────────────────────────────────────────
-test('build/interaction.ts carries the relocated interaction baseline (0.97 / 0.4) and re-emits from the --nuri-interaction-* primitives', async () => {
-  const primitiveCss = await readFile(CSS_PATH, 'utf8');
-  const map = buildPrimitiveMap(primitiveCss);
-
-  // 1. The two constants re-derive from the primitive map (NOT hardcoded).
-  const interaction = buildInteraction(map);
+test('build/interaction.ts + the --nuri-interaction-* CSS both flatten from the TS SoT (pipeline/interaction.ts · 0.97 / 0.4)', async () => {
+  // 1. The two constants flatten from the SoT (NOT hardcoded, NOT CSS-read).
+  const sot = await loadInteraction(INTERACTION_SRC);
+  const interaction = buildInteraction(sot);
   assert.deepEqual(
     Object.keys(interaction).sort(),
     Object.keys(INTERACTION_PRIMITIVES).sort(),
     'buildInteraction must cover exactly the --nuri-interaction-* family',
   );
-  assert.equal(interaction.pressScale, '0.97',
-    'pressScale must re-derive from --nuri-interaction-press-scale');
-  assert.equal(interaction.disabledOpacity, '0.4',
-    'disabledOpacity must re-derive from --nuri-interaction-disabled-opacity');
+  assert.equal(sot.pressScale, 0.97, 'the SoT must carry pressScale: 0.97 (decision 45)');
+  assert.equal(sot.disabledOpacity, 0.4, 'the SoT must carry disabledOpacity: 0.4 (decision 45)');
 
-  // 2. The on-disk emit carries the relocated literals AND re-emits
-  //    identically (decision 35 · stale-build / hand-edit guard).
+  // 2. The on-disk emit re-emits identically FROM the SoT (round-trip-dead ·
+  //    non-tautological · the SoT is the producer · a hand-edit / stale build fails).
   const onDisk = await readFile(INTERACTION_TS_PATH, 'utf8');
   assert.match(onDisk, /export const interaction = \{/,
     'interaction.ts must export an `interaction` const');
   assert.match(onDisk, /\bpressScale:\s+0\.97\b/,
-    'interaction.ts must carry the relocated pressScale: 0.97 (decision 45)');
+    'interaction.ts must carry pressScale: 0.97 (decision 45)');
   assert.match(onDisk, /\bdisabledOpacity:\s+0\.4\b/,
-    'interaction.ts must carry the relocated disabledOpacity: 0.4 (decision 45)');
+    'interaction.ts must carry disabledOpacity: 0.4 (decision 45)');
   assert.match(onDisk, /\} as const;/,
     'interaction.ts must close `as const` (the directly-accessed shape)');
   assert.equal(
     onDisk, emitInteractionTs(interaction),
-    'build/interaction.ts is out of sync with the --nuri-interaction-* primitives — run `npm run build`',
+    'build/interaction.ts is out of sync with pipeline/interaction.ts — run `node scripts/tokens-parser.js`',
   );
 
-  // 3. The retired per-component file is gone (Smell-1 · decision 66 arc #0):
+  // 3. The CSS flip is idempotent at the SoT values — re-flipping the live CSS
+  //    from the SoT reproduces it byte-for-byte (the --nuri-interaction-* block
+  //    already carries the SoT values · the single-source proof for the web reader).
+  const primitiveCss = await readFile(CSS_PATH, 'utf8');
+  assert.equal(
+    rewriteInteractionDecls(primitiveCss, sot), primitiveCss,
+    'styles/tokens-primitive.css --nuri-interaction-* is out of sync with the SoT — run `node scripts/tokens-parser.js`',
+  );
+
+  // 4. The retired per-component file is gone (Smell-1 · decision 66 arc #0):
   //    build/components/button.ts no longer exists — its lone live value
   //    (the interaction baseline) lives here now.
   await assert.rejects(
