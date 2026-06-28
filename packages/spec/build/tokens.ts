@@ -1,7 +1,7 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · TOKENS · GENERATED · DO NOT EDIT BY HAND
  *
- * Source · styles/tokens-primitive.css + styles/tokens-semantic.css
+ * Source · pipeline/colours.ts (chrome · accent · ref→hex) + styles/tokens-semantic.css (space · size · radius)
  * Emitter · pipeline/tokens-parser.js — run `npm run build`
  *
  * Contains ONLY runtime sets (decision 34 · N+6.0.3): every set
@@ -15,17 +15,21 @@
  * export's nesting depth = the dimensions its source CSS var
  * spans across [data-<dim>=…] selectors. Groups in this build:
  *  · chrome (theme): bgCanvas, bgSubtle, bgStrong, bgPressed, bgInverse, bgInverseMuted, textPrimary, textMuted, textOnInverse, borderSubtle, borderDefault, borderStrong, focusRing
- *  · accent (accent × theme): fg, solid, solidPressed, onSolid, bgSubtle, bgSubtlePressed
+ *  · accent (accent-major · two-layer (flat | {light,dark})): fg, solid, solidPressed, onSolid, bgSubtle, bgSubtlePressed
  *  · space (singleton): none, 2xs, xs, sm, md, lg, xl, 2xl
  *  · size (singleton): xs, sm, md, lg, xl, 2xl, 3xl
  *  · radius (singleton): sm, md, lg, full
  *
- * The semantic-cascade walker resolves each token to a literal
- * per (accent × theme) by walking the cascade blocks of
- * tokens-semantic.css and chasing the var() chain through the
- * primitives at the build's selected --neutral scope (decision 31
- * · default cream; pass --neutral=<scale> to pipeline/tokens-parser.js
- * to switch).
+ * COLOUR is re-sourced from pipeline/colours.ts (N+59 · Slice 3b·1 ·
+ * projection model §3 · decision 80): chrome + accent are flattened
+ * ref→hex straight from the SoT (NO CSS round-trip). Colour is LAYERED
+ * SUBSTITUTION — accent is accent-MAJOR two-layer (a role is a flat hex
+ * or a {light,dark} pair · the runtime composes chrome[mode] ⊕
+ * accent[accent][mode]), NOT a materialized (accent × theme) cross-
+ * product. space/size/radius are still cascade-walked from
+ * tokens-semantic.css. Refs resolve through the build's selected
+ * --neutral scope (decision 31 · default cream; pass --neutral=<scale>
+ * to pipeline/tokens-parser.js to switch).
  * ────────────────────────────────────────────────────────────── */
 
 export type Accent = 'neutral' | 'lilac' | 'orange';
@@ -79,68 +83,38 @@ export const chrome: Record<Theme, {
   },
 };
 
-// ── accent · accent × theme ──
-export const accent: Record<Accent, Record<Theme, {
-  fg: string;
-  solid: string;
-  solidPressed: string;
-  onSolid: string;
-  bgSubtle: string;
-  bgSubtlePressed: string;
-}>> = {
+// ── accent · accent-major · two-layer (flat | {light,dark}) ──
+export const accent: Record<Accent, {
+  fg: string | { light: string; dark: string };
+  solid: string | { light: string; dark: string };
+  solidPressed: string | { light: string; dark: string };
+  onSolid: string | { light: string; dark: string };
+  bgSubtle: string | { light: string; dark: string };
+  bgSubtlePressed: string | { light: string; dark: string };
+}> = {
   neutral: {
-    light: {
-      fg:               '#222013',
-      solid:            '#12110b',
-      solidPressed:     '#242319',
-      onSolid:          '#f0eee3',
-      bgSubtle:         '#f3f1e2',
-      bgSubtlePressed:  '#ece9da',
-    },
-    dark: {
-      fg:               '#f0eee3',
-      solid:            '#fffdf2',
-      solidPressed:     '#f3f1e2',
-      onSolid:          '#222013',
-      bgSubtle:         '#242319',
-      bgSubtlePressed:  '#2c2a1e',
-    },
+    fg:               { light: '#222013', dark: '#f0eee3' },
+    solid:            { light: '#12110b', dark: '#fffdf2' },
+    solidPressed:     { light: '#242319', dark: '#f3f1e2' },
+    onSolid:          { light: '#f0eee3', dark: '#222013' },
+    bgSubtle:         { light: '#f3f1e2', dark: '#242319' },
+    bgSubtlePressed:  { light: '#ece9da', dark: '#2c2a1e' },
   },
   lilac: {
-    light: {
-      fg:               '#381b6a',
-      solid:            '#beaaff',
-      solidPressed:     '#b39ff3',
-      onSolid:          '#381b6a',
-      bgSubtle:         '#f3f0ff',
-      bgSubtlePressed:  '#ebe3ff',
-    },
-    dark: {
-      fg:               '#e3ddfa',
-      solid:            '#beaaff',
-      solidPressed:     '#b39ff3',
-      onSolid:          '#381b6a',
-      bgSubtle:         '#282040',
-      bgSubtlePressed:  '#342756',
-    },
+    fg:               { light: '#381b6a', dark: '#e3ddfa' },
+    solid:            '#beaaff',
+    solidPressed:     '#b39ff3',
+    onSolid:          '#381b6a',
+    bgSubtle:         { light: '#f3f0ff', dark: '#282040' },
+    bgSubtlePressed:  { light: '#ebe3ff', dark: '#342756' },
   },
   orange: {
-    light: {
-      fg:               '#5e280f',
-      solid:            '#ff8c5a',
-      solidPressed:     '#f3814f',
-      onSolid:          '#5e280f',
-      bgSubtle:         '#ffe9dd',
-      bgSubtlePressed:  '#ffd8c2',
-    },
-    dark: {
-      fg:               '#f9d6c8',
-      solid:            '#ff8c5a',
-      solidPressed:     '#f3814f',
-      onSolid:          '#5e280f',
-      bgSubtle:         '#361a0e',
-      bgSubtlePressed:  '#4b1b04',
-    },
+    fg:               { light: '#5e280f', dark: '#f9d6c8' },
+    solid:            '#ff8c5a',
+    solidPressed:     '#f3814f',
+    onSolid:          '#5e280f',
+    bgSubtle:         { light: '#ffe9dd', dark: '#361a0e' },
+    bgSubtlePressed:  { light: '#ffd8c2', dark: '#4b1b04' },
   },
 };
 

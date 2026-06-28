@@ -135,9 +135,12 @@ const swatch = (background) => `<span class="nuri-doc-swatch" style="background:
 //         accent.solid→--nuri-accent-solid keeps its group prefix,
 //         chrome.bgStrong→--nuri-bg-strong drops it).
 //   hex — the default-scope (neutral + light · the page :root) resolved literal,
-//         read from @nuri/spec/tokens at the canonical scope (chrome is theme-only;
-//         accent is accent × theme — the classify-by-cascade shape). The live swatch
-//         coincides with it at :root (it re-themes away from there).
+//         read from @nuri/spec/tokens at the canonical scope. chrome is theme-only
+//         (chrome[theme][leaf]); accent is accent-MAJOR two-layer (N+59 · Slice 3b·1 ·
+//         projection model §3): accent[accent][leaf] is a flat hex (theme-invariant)
+//         or a {light,dark} pair — collapsed to the default theme, the same composition
+//         the runtime does. The live swatch coincides with it at :root (it re-themes
+//         away from there).
 // Throws on an unresolvable path (faithfulness · decision 48).
 export function makeColorResolver(specTokens, tokenVars) {
   return (path) => {
@@ -146,10 +149,16 @@ export function makeColorResolver(specTokens, tokenVars) {
     if (!cssVar) {
       throw new Error(`[docs] colour path '${path}' has no semantic var (token-vars drift)`);
     }
-    const slice = group === 'accent'
-      ? specTokens.accent[DEFAULT_ACCENT] && specTokens.accent[DEFAULT_ACCENT][DEFAULT_THEME]
-      : specTokens[group] && specTokens[group][DEFAULT_THEME];
-    const hex = slice && slice[leaf];
+    let hex;
+    if (group === 'accent') {
+      const role = specTokens.accent[DEFAULT_ACCENT] && specTokens.accent[DEFAULT_ACCENT][leaf];
+      // two-layer: a flat string role is theme-invariant; a {light,dark} pair picks
+      // the default theme (the resolved hex is unchanged from the old cross-product cell).
+      hex = typeof role === 'string' ? role : role && role[DEFAULT_THEME];
+    } else {
+      const slice = specTokens[group] && specTokens[group][DEFAULT_THEME];
+      hex = slice && slice[leaf];
+    }
     if (hex == null) {
       throw new Error(`[docs] colour path '${path}' (${cssVar}) dangled at the default scope`);
     }

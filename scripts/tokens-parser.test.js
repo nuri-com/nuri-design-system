@@ -545,13 +545,16 @@ test('every semantic var classifies to a GROUP_NAMES signature and lands in toke
       // T-shirt scale leaves like '2xs' / '2xl' / '3xl' start with a
       // digit and emit as quoted keys (`'2xs': 2,`); alphabetic leaves
       // emit bare (`md: 12,`). Values can be quoted strings (colour
-      // groups) or unquoted numbers (space / size dimensions ·
-      // decision 36 · N+6.1). Accept either key + either value shape.
+      // groups), unquoted numbers (space / size dimensions · decision
+      // 36 · N+6.1), or — for the accent-major two-layer roles (N+59 ·
+      // Slice 3b·1) — a `{ light, dark }` pair object (theme-adapting
+      // roles; the P4-frozen brand roles stay flat hex strings). Accept
+      // any of the three value shapes.
       const escaped = leafName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const keyPattern = /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(leafName)
         ? `\\b${escaped}`
         : `'${escaped}'`;
-      if (!new RegExp(`${keyPattern}:\\s+('|-?\\d)`).test(ts)) {
+      if (!new RegExp(`${keyPattern}:\\s+('|-?\\d|\\{)`).test(ts)) {
         missingEmit.push(`group '${groupName}' leaf '${leafName}' (from ${cssVar}) not rendered`);
       }
     }

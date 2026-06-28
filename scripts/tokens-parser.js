@@ -99,6 +99,8 @@ import { loadDimensions, flipDimensionCss, stripTypes } from './parsers/dimensio
 
 import { loadColours, flipColourCss } from './parsers/colour-css.js';
 
+import { resolveColourTokens } from './parsers/colour-tokens.js';
+
 import { loadSemanticColours, flipSemanticCss } from './parsers/semantic-css.js';
 
 import { loadTypography, flipTypeCss } from './parsers/type-css.js';
@@ -349,6 +351,14 @@ async function main() {
   const primitiveMap = buildPrimitiveMap(primitiveCSS);
   const semanticRules = readSemanticRules(semanticCSS);
   const resolved = resolveSemanticCrossProduct(semanticRules, primitiveMap);
+  // ── N+59 · Slice 3b·1 · re-source the COLOUR arm from the TS SoT (decision 80) ──
+  // The colour groups (chrome · accent) are flattened STRAIGHT from pipeline/colours.ts
+  // (ref→hex · NO CSS round-trip · projection model §3). chrome's resolved hex pairs are
+  // MERGED over the CSS-walked cross-product so the generic emit stays byte-identical
+  // (theme-major); the accent group is handed to emitTokensTs as the two-layer
+  // accent-major table (flat | {light,dark}). space/size/radius stay CSS-walked above.
+  const colourTokens = resolveColourTokens(semanticColours, colours, neutral);
+  Object.assign(resolved, colourTokens.chrome);
   // The `type` namespace joins tokens.ts as a directly-accessed,
   // context-invariant composite. RE-SOURCED at N+52 onto the TS SoT
   // (typeSoT · pipeline/typography.ts · decision 78): fontSize/lineHeight/
@@ -358,7 +368,9 @@ async function main() {
   // icon model · decision 48). It is appended after the cascade-resolved
   // runtime groups; it is NOT a runtime/TokenPath set.
   const typeScale = buildTypeScale(typeSoT, primitiveMap);
-  const tsSource = emitTokensTs(resolved, semanticRules) + '\n' + emitTypeTs(typeScale);
+  const tsSource =
+    emitTokensTs(resolved, semanticRules, { accentTwoLayer: colourTokens.accent }) +
+    '\n' + emitTypeTs(typeScale);
   await writeFile(TS_OUT, tsSource, 'utf8');
   const classifiedGroups = classifyAll(semanticRules);
   const semanticCount = Object.keys(resolved).length;
