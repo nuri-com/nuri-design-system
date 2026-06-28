@@ -53,11 +53,14 @@ export function foundationsDimensionIr(dims, tokens) {
 //                  Only cream is live (decision 31 · build-time --neutral selection ·
 //                  NOT all 7 candidates).
 //   · colour-semantic ← chrome (theme-only · accent-invariant) + accent (accent ×
-//                  theme). Each role → its default-scope `{ref}` cascade pointer + a
-//                  LIVE var() swatch + the resolved hex (makeRoleResolver · the slice
-//                  the palette AXIS samples). The accent keys are bare (`solid`); the
-//                  role NAME the var registry keys is `accent-<key>` (palette-surface's
-//                  spelling). chrome keys are already the full role name (`bg-canvas`).
+//                  theme). Each role → its default-scope cascade ref + a LIVE var()
+//                  swatch + the resolved hex (makeRoleResolver · the slice the palette
+//                  AXIS samples). The SoT is accent-MAJOR (N+55 · decision 80), so the
+//                  default scope is the `neutral` accent's role table; a role is a flat
+//                  `string` ref or a `{light,dark}` pair (the light arm is the default
+//                  scope). The accent keys are bare (`solid`); the role NAME the var
+//                  registry keys is `accent-<key>` (palette-surface's spelling). chrome
+//                  keys are already the full role name (`bg-canvas`).
 const ALPHA_RAMPS = [['Black alpha', 'blackAlpha'], ['White alpha', 'whiteAlpha']];
 
 export function foundationsColourPrimitiveIr(cols) {
@@ -84,8 +87,8 @@ export function foundationsColourSemanticIr(cols, roleColor) {
       return { role, cascade: lightRef(def), var: cssVar, hex };
     });
   const semantics = [
-    { name: 'Chrome', rows: semanticRows(cols.chrome, (k) => k, (def) => def.light.ref) },
-    { name: 'Accent', rows: semanticRows(cols.accent, (k) => `accent-${k}`, (def) => def.neutral.light.ref) },
+    { name: 'Chrome', rows: semanticRows(cols.chrome, (k) => k, (def) => def.light) },
+    { name: 'Accent', rows: semanticRows(cols.accent.neutral, (k) => `accent-${k}`, (def) => typeof def === 'string' ? def : def.light) },
   ];
   return { source: 'colour-semantic', kind: 'colour-semantic', semantics };
 }

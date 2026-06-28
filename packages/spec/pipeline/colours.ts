@@ -12,10 +12,11 @@
  *
  * The shape is the DTCG model inherited from dimensions.ts — `name → value`
  * (the token-standards eval · roadmap/token-standards-eval.md §7): a colour leaf
- * is a terse literal `{ value: '#fcfcfc' }`. (The `{ ref }` arm — a reference to
- * another colour token — joins with the C2 semantic matrix · P11: no speculative
- * arm ahead of its consumer. cf. dimensions.ts `Leaf = { ref } | { value, unit }`,
- * which uses both because the dimension layer references the px scale.)
+ * is a terse literal `{ value: '#fcfcfc' }`. The semantic matrix (C2 · chrome /
+ * accent) references a primitive by a BARE `'scale.step.theme'` string (N+55 ·
+ * decision 80 · the uniform rule: a bare string IS a reference, `{ value }` is a
+ * literal) — so a leaf is only ever a literal and there is no `{ ref }` arm. (cf.
+ * dimensions.ts `Leaf = { ref } | { value, unit }`, whose px refs are still wrapped.)
  *
  * ── neutral = cream (the build param · decision 31 · N+5.8) ──────────
  * All 7 candidate neutral scales (gray/mauve/slate/sage/olive/sand/cream) live
@@ -40,12 +41,14 @@
  * cascade model) · the token-standards eval (the DTCG shape).
  * ══════════════════════════════════════════════════════════════════ */
 
-// A colour leaf — DTCG `value | reference` (the token-standards eval · the shape
-// dimensions.ts uses for `Leaf = { ref } | { value, unit }`). A PRIMITIVE is a
-// literal `{ value: '#fcfcfc' }`; a SEMANTIC leaf (C2 · chrome / accent below)
-// is a `{ ref: 'scale.step.theme' }` pointing at a primitive — the reference IS
-// the cascade (semantic names a primitive, it does not restate a value).
-type ColorLeaf = { value: string } | { ref: string };
+// A colour PRIMITIVE leaf — a literal `{ value: '#fcfcfc' }` (DTCG `value` · the
+// token-standards eval). The ramps (neutralScales / lilac / the alpha overlays) hold
+// these. The semantic roles (chrome / accent below) reference a primitive by a BARE
+// `'scale.step.theme'` string (a RefPair · N+55 · decision 80 · the uniform rule: a
+// bare string IS a reference, `{ value }` is a literal) — so a leaf is only ever a
+// literal, and `ColorLeaf` carries the single `{ value }` arm (the `{ ref }` wrapper
+// is gone end-to-end · the model fully landed).
+type ColorLeaf = { value: string };
 // A Radix 12-step scale: each step exposes its light + dark primitive in parallel
 // (the semantic layer composes mode × accent on top · the cascade below).
 type ThemedLeaf = { light: ColorLeaf; dark: ColorLeaf };
@@ -242,53 +245,62 @@ export const whiteAlpha = {
  *     emitter — P4 falls out of the data.
  * ══════════════════════════════════════════════════════════════════ */
 
+// A semantic ref PAIR — the light/dark primitive refs a theme-paired role points at.
+// A ref is a BARE `'scale.step.theme'` string (N+55 · decision 80 · the uniform rule:
+// a bare string IS a reference, `{ value }` is a literal). chrome is ALWAYS a pair
+// (theme-only · every role adapts light↔dark); an accent role is a pair when it adapts,
+// else a flat string (see AccentRole below).
+type RefPair = { light: string; dark: string };
+
 // chrome · theme-only · accent-invariant (13 tokens × {light, dark}). The page's
 // neutral surface: backgrounds, text, borders, and the always-brand focus ring.
 export const chrome = {
-  'bg-canvas':        { light: { ref: 'neutral.1.light' },  dark: { ref: 'neutral.1.dark' } },
-  'bg-subtle':        { light: { ref: 'neutral.2.light' },  dark: { ref: 'neutral.2.dark' } },
-  'bg-strong':        { light: { ref: 'neutral.3.light' },  dark: { ref: 'neutral.3.dark' } },
-  'bg-pressed':       { light: { ref: 'neutral.4.light' },  dark: { ref: 'neutral.4.dark' } },
+  'bg-canvas':        { light: 'neutral.1.light',  dark: 'neutral.1.dark' },
+  'bg-subtle':        { light: 'neutral.2.light',  dark: 'neutral.2.dark' },
+  'bg-strong':        { light: 'neutral.3.light',  dark: 'neutral.3.dark' },
+  'bg-pressed':       { light: 'neutral.4.light',  dark: 'neutral.4.dark' },
   // bg-inverse · a slice of the OTHER theme (INVERSE by design)
-  'bg-inverse':       { light: { ref: 'neutral.1.dark' },   dark: { ref: 'neutral.1.light' } },
-  'bg-inverse-muted': { light: { ref: 'neutral.11.light' }, dark: { ref: 'neutral.11.dark' } },
-  'text-primary':     { light: { ref: 'neutral.12.light' }, dark: { ref: 'neutral.12.dark' } },
-  'text-muted':       { light: { ref: 'neutral.11.light' }, dark: { ref: 'neutral.11.dark' } },
+  'bg-inverse':       { light: 'neutral.1.dark',   dark: 'neutral.1.light' },
+  'bg-inverse-muted': { light: 'neutral.11.light', dark: 'neutral.11.dark' },
+  'text-primary':     { light: 'neutral.12.light', dark: 'neutral.12.dark' },
+  'text-muted':       { light: 'neutral.11.light', dark: 'neutral.11.dark' },
   // text-on-inverse · text drawn on bg-inverse (INVERSE by design)
-  'text-on-inverse':  { light: { ref: 'neutral.12.dark' },  dark: { ref: 'neutral.12.light' } },
-  'border-subtle':    { light: { ref: 'neutral.6.light' },  dark: { ref: 'neutral.6.dark' } },
-  'border-default':   { light: { ref: 'neutral.7.light' },  dark: { ref: 'neutral.7.dark' } },
-  'border-strong':    { light: { ref: 'neutral.8.light' },  dark: { ref: 'neutral.8.dark' } },
+  'text-on-inverse':  { light: 'neutral.12.dark',  dark: 'neutral.12.light' },
+  'border-subtle':    { light: 'neutral.6.light',  dark: 'neutral.6.dark' },
+  'border-default':   { light: 'neutral.7.light',  dark: 'neutral.7.dark' },
+  'border-strong':    { light: 'neutral.8.light',  dark: 'neutral.8.dark' },
   // focus-ring · always brand (lilac) regardless of accent (DS convention · pops vs any bg)
-  'focus-ring':       { light: { ref: 'lilac.8.light' },    dark: { ref: 'lilac.8.dark' } },
-} as const satisfies Record<string, ThemedLeaf>;
+  'focus-ring':       { light: 'lilac.8.light',    dark: 'lilac.8.dark' },
+} as const satisfies Record<string, RefPair>;
 
-// accent · accent×theme (6 tokens × {neutral, lilac} × {light, dark}). Where the
-// saturated-vs-bright asymmetry lives (INVERSE / FROZEN-P4 · see the header).
-type AccentLeaf = { neutral: ThemedLeaf; lilac: ThemedLeaf };
+// accent · accent-MAJOR (each accent is ONE object · 6 roles × {light, dark}). Where
+// the saturated-vs-bright asymmetry lives (INVERSE / FROZEN-P4 · see the header). A
+// role is either a FLAT `string` ref — theme-INVARIANT, the one primitive serves both
+// modes (the P4-frozen brand fill) — or a `{ light, dark }` PAIR — theme-ADAPTING,
+// dark.ref ≠ light.ref (the INVERSE neutrals + the same-scale roles). The dark cascade
+// block redeclares ONLY the pair roles (the flat ones never differ · decision 63).
+//
+// Reshaped accent-major (N+55 · decision 80 · the projection model §8): the accent NAMES
+// are OUT of the type (`Record<string, …>`) so growing the family (slice 2) is "add one
+// object," not "edit six role entries + widen the type." The role order is preserved
+// (fg · solid · solid-pressed · on-solid · bg-subtle · bg-subtle-pressed) so the emitted
+// cascade declarations stay byte-identical.
+type AccentRole = string | RefPair;
 export const accent = {
-  fg: {
-    neutral: { light: { ref: 'neutral.12.light' }, dark: { ref: 'neutral.12.dark' } },  // same-scale
-    lilac:   { light: { ref: 'lilac.12.light' },   dark: { ref: 'lilac.12.dark' } },    // theme-adapting
+  neutral: {
+    fg:                  { light: 'neutral.12.light', dark: 'neutral.12.dark' },  // same-scale
+    solid:               { light: 'neutral.1.dark',   dark: 'neutral.1.light' },  // INVERSE
+    'solid-pressed':     { light: 'neutral.3.dark',   dark: 'neutral.3.light' },  // INVERSE
+    'on-solid':          { light: 'neutral.12.dark',  dark: 'neutral.12.light' }, // INVERSE
+    'bg-subtle':         { light: 'neutral.3.light',  dark: 'neutral.3.dark' },   // same-scale
+    'bg-subtle-pressed': { light: 'neutral.4.light',  dark: 'neutral.4.dark' },   // same-scale
   },
-  solid: {
-    neutral: { light: { ref: 'neutral.1.dark' },   dark: { ref: 'neutral.1.light' } },  // INVERSE
-    lilac:   { light: { ref: 'lilac.9.light' },    dark: { ref: 'lilac.9.light' } },     // FROZEN · P4
+  lilac: {
+    fg:                  { light: 'lilac.12.light', dark: 'lilac.12.dark' },      // theme-adapting
+    solid:               'lilac.9.light',                                          // FROZEN · P4
+    'solid-pressed':     'lilac.10.light',                                         // FROZEN · P4
+    'on-solid':          'lilac.12.light',                                         // FROZEN · P4
+    'bg-subtle':         { light: 'lilac.3.light', dark: 'lilac.3.dark' },         // theme-adapting
+    'bg-subtle-pressed': { light: 'lilac.4.light', dark: 'lilac.4.dark' },         // theme-adapting
   },
-  'solid-pressed': {
-    neutral: { light: { ref: 'neutral.3.dark' },   dark: { ref: 'neutral.3.light' } },  // INVERSE
-    lilac:   { light: { ref: 'lilac.10.light' },   dark: { ref: 'lilac.10.light' } },    // FROZEN · P4
-  },
-  'on-solid': {
-    neutral: { light: { ref: 'neutral.12.dark' },  dark: { ref: 'neutral.12.light' } }, // INVERSE
-    lilac:   { light: { ref: 'lilac.12.light' },   dark: { ref: 'lilac.12.light' } },    // FROZEN · P4
-  },
-  'bg-subtle': {
-    neutral: { light: { ref: 'neutral.3.light' },  dark: { ref: 'neutral.3.dark' } },   // same-scale
-    lilac:   { light: { ref: 'lilac.3.light' },    dark: { ref: 'lilac.3.dark' } },      // theme-adapting
-  },
-  'bg-subtle-pressed': {
-    neutral: { light: { ref: 'neutral.4.light' },  dark: { ref: 'neutral.4.dark' } },   // same-scale
-    lilac:   { light: { ref: 'lilac.4.light' },    dark: { ref: 'lilac.4.dark' } },      // theme-adapting
-  },
-} as const satisfies Record<string, AccentLeaf>;
+} as const satisfies Record<string, Record<string, AccentRole>>;

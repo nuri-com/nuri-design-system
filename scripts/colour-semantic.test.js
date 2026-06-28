@@ -192,9 +192,12 @@ function sotRefHex(ref) {
 }
 function sotRefFor(cssVar, accentName, theme) {
   if (cssVar.startsWith('--nuri-accent-')) {
-    return accent[cssVar.slice('--nuri-accent-'.length)][accentName][theme].ref;
+    // accent-major (N+55 · decision 80): accent[accentName] is the role table; a role
+    // is a flat `string` ref (theme-invariant) or a `{light,dark}` pair (theme-adapting).
+    const role = accent[accentName][cssVar.slice('--nuri-accent-'.length)];
+    return typeof role === 'string' ? role : role[theme];
   }
-  return chrome[cssVar.slice('--nuri-'.length)][theme].ref; // chrome · accent-invariant
+  return chrome[cssVar.slice('--nuri-'.length)][theme]; // chrome · accent-invariant · bare ref (N+55)
 }
 
 test('Guard C · the matrix resolves to the restated oracle — through the SoT', () => {

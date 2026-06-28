@@ -59,33 +59,43 @@ export async function loadSemanticColours(coloursTsPath) {
   return { chrome: mod.chrome, accent: mod.accent };
 }
 
-// ── a { ref } semantic leaf → its CSS var() ─────────────────────────
-// 'neutral.1.dark' → var(--nuri-color-neutral-1-dark). `neutral` is the abstract
-// pointer (→ cream · resolved in tokens-primitive.css); the dotted ref is the
-// cascade reference (the semantic names a primitive, it does not restate a value).
-export function refToVar(leaf) {
-  if (!leaf || typeof leaf.ref !== 'string') {
-    throw new Error(`[semantic-css] semantic leaf is not a { ref }: ${JSON.stringify(leaf)}`);
+// ── a bare semantic ref → its CSS var() ─────────────────────────────
+// 'neutral.1.dark' → var(--nuri-color-neutral-1-dark). A ref is a BARE
+// `'scale.step.theme'` string (N+55 · decision 80 · no `{ ref }` wrapper). `neutral` is
+// the abstract pointer (→ cream · resolved in tokens-primitive.css); the dotted ref is
+// the cascade reference (the semantic names a primitive, it does not restate a value).
+export function refToVar(ref) {
+  if (typeof ref !== 'string') {
+    throw new Error(`[semantic-css] semantic ref is not a string: ${JSON.stringify(ref)}`);
   }
-  const parts = leaf.ref.split('.');
+  const parts = ref.split('.');
   if (parts.length !== 3 || !THEMES.includes(parts[2])) {
-    throw new Error(`[semantic-css] bad colour ref '${leaf.ref}' — want 'scale.step.theme' (theme ∈ {${THEMES.join(',')}})`);
+    throw new Error(`[semantic-css] bad colour ref '${ref}' — want 'scale.step.theme' (theme ∈ {${THEMES.join(',')}})`);
   }
   return `var(--nuri-color-${parts.join('-')})`;
 }
 
 // ── the cascade model · the 8 blocks from the matrix ────────────────
-// chrome decls for a theme (full · chrome is theme-paired): [[--nuri-<key>, rhs], …]
+// chrome decls for a theme (full · chrome is theme-paired): [[--nuri-<key>, rhs], …].
+// chrome[k][theme] is a BARE ref string (the unwrap · N+55) → straight to refToVar.
 function chromeDecls(chrome, theme) {
   return Object.keys(chrome).map((k) => [`--nuri-${k}`, refToVar(chrome[k][theme])]);
 }
 
-// accent decls for (accentName, theme). `onlyChanged` keeps only tokens whose dark
-// ref differs from their light ref — the minimal dark override (P4-frozen omitted).
+// accent decls for (accentName, theme). The SoT is accent-MAJOR (accent[accentName] is
+// the role table · N+55 · decision 80): a role is a FLAT `string` ref (theme-invariant ·
+// the P4-frozen brand · emitted in both default blocks, NEVER a dark redeclaration) or a
+// `{ light, dark }` PAIR (theme-adapting · the minimal dark override). `onlyChanged` keeps
+// only the pair roles — `typeof role !== 'string'` replaces the old dark≠light ref filter.
 function accentDecls(accent, accentName, theme, onlyChanged = false) {
-  return Object.keys(accent)
-    .filter((k) => !onlyChanged || accent[k][accentName].dark.ref !== accent[k][accentName].light.ref)
-    .map((k) => [`--nuri-accent-${k}`, refToVar(accent[k][accentName][theme])]);
+  const roles = accent[accentName];
+  return Object.keys(roles)
+    .filter((k) => !onlyChanged || typeof roles[k] !== 'string')
+    .map((k) => {
+      const role = roles[k];
+      const ref = typeof role === 'string' ? role : role[theme];
+      return [`--nuri-accent-${k}`, refToVar(ref)];
+    });
 }
 
 // Build the ordered 8-block cascade from the matrix. Each block:
