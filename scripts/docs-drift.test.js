@@ -24,7 +24,7 @@
  * doc-page re-emit pin — MOVED to @nuri/doc at N+42 with the doc-gen it pins ·
  * convergence §5 · "spec emits data, doc transforms it".)
  *   C · doc-stated emitted counts match the live build artefacts
- *   D · each build/descriptors/*.ts re-emits identically — in the
+ *   D · build/descriptors/schema.ts + each *.js twin re-emits identically — in the
  *       COMPOSITION form (65.3 §7 · structure { anatomy, base } +
  *       variants · the five primitive namespaces) — from its live sources
  *       (the @layer CSS mapping + the page data-part structure), and the
@@ -66,7 +66,6 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import {
   DESCRIPTOR_COMPONENTS,
-  emitDescriptorTsFromSource,
   emitDescriptorJsFromSource,
   exportNameFor,
   emitSchemaTs,
@@ -221,14 +220,10 @@ test('D · build/descriptors/* re-emits from the authored SoT + the composition-
   for (const spec of DESCRIPTOR_COMPONENTS) {
     const authored = read(`pipeline/descriptors/${spec.name}.ts`);
 
-    // ── (1) STALE-BUILD / HAND-EDIT · build/ is the passthrough of the authored
-    // SoT (decision 69 · §9 step 1 · the inversion): the .ts is the source with
-    // the GENERATED header, the .js is it type-stripped — both DATA byte-identical.
-    assert.equal(
-      read(`build/descriptors/${spec.name}.ts`),
-      emitDescriptorTsFromSource(spec, authored),
-      `build/descriptors/${spec.name}.ts is stale or hand-edited — run \`npm run build\`.`,
-    );
+    // ── (1) STALE-BUILD / HAND-EDIT · the verbatim .ts COPY was dropped (Slice 3a ·
+    // projection-model §4 · decision 80): @nuri/rn imports the authored SoT directly,
+    // so build/ holds only the browser-ESM .js twin (the authored data type-stripped ·
+    // the web prototype recipes + doc staging consume it · relocates in 3c).
     assert.equal(
       read(`build/descriptors/${spec.name}.js`),
       emitDescriptorJsFromSource(spec, authored),
