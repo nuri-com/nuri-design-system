@@ -410,29 +410,30 @@ async function main() {
   // Under build/descriptors/ (a separate dir · independent of every other slice).
   // §9 step 1 INVERTED the source: each descriptor is HAND-AUTHORED at
   // pipeline/descriptors/<name>.ts (the SoT · decision 2 reversed for the layer ·
-  // decision 69) and emitted FROM there as a verbatim passthrough — the DATA is
-  // byte-identical, only the provenance header changes. No CSS is read here;
-  // derivation is now the parity oracle (Guard D), not the producer. The frozen
-  // schema (build/descriptors/schema.ts) is likewise the hand-maintained source
-  // emitted verbatim (its tokens-import rewritten · the descriptors' `./schema`
-  // import needs no rewrite — it resolves in both locations).
+  // decision 69). The verbatim .ts COPY is NO LONGER emitted (Slice 3a ·
+  // projection-model §4 · decision 80): @nuri/rn now imports the authored source
+  // directly via its `./descriptors/<name>` exports subpath — the data it sees is
+  // byte-identical (only the dropped header differed). The browser-ESM .js twins
+  // STAY emitted here (the web prototype recipes + doc staging consume them · they
+  // relocate to @nuri/prototype in 3c). The frozen schema (build/descriptors/
+  // schema.ts) likewise stays emitted verbatim (its tokens-import rewritten · it
+  // relocates with the tokens move in 3b). No CSS is read here; derivation is the
+  // parity oracle (Guard D), not the producer.
   await mkdir(DESCRIPTORS_OUT, { recursive: true });
   const schemaSource = await readFile(SCHEMA_SRC, 'utf8');
   await writeFile(resolve(DESCRIPTORS_OUT, 'schema.ts'), emitSchemaTs(schemaSource), 'utf8');
   const descriptorReports = [];
   for (const spec of DESCRIPTOR_COMPONENTS) {
     const source = await readFile(resolve(DESCRIPTORS_SRC, `${spec.name}.ts`), 'utf8');
-    const out = resolve(DESCRIPTORS_OUT, `${spec.name}.ts`);
-    await writeFile(out, emitDescriptorTsFromSource(spec, source), 'utf8');
     // Browser-ESM twin (decision 67) — the authored .ts type-stripped (the runtime
     // web factory imports it with no build step · zero-build). Gated to
     // BROWSER_DESCRIPTOR_COMPONENTS. Additive (decision 35).
-    let browser = false;
+    let twinOut = null;
     if (BROWSER_DESCRIPTOR_COMPONENTS.includes(spec.name)) {
-      await writeFile(resolve(DESCRIPTORS_OUT, `${spec.name}.js`), emitDescriptorJsFromSource(spec, source), 'utf8');
-      browser = true;
+      twinOut = resolve(DESCRIPTORS_OUT, `${spec.name}.js`);
+      await writeFile(twinOut, emitDescriptorJsFromSource(spec, source), 'utf8');
     }
-    descriptorReports.push({ name: spec.name, out, browser });
+    descriptorReports.push({ name: spec.name, out: twinOut, browser: twinOut !== null });
   }
 
   // ── Slice 8 · palette mapping emit (N+19 B2b · decision 65.3 §6 · re-sourced N+40) ──
@@ -474,7 +475,7 @@ async function main() {
     `\n[tokens-parser] wrote icon registry (${iconNameCount} glyphs · folder SoT · 2 readers) → ${ICONS_JS_OUT} + ${ICONS_OUT}` +
     `\n[tokens-parser] wrote descriptor schema → ${resolve(DESCRIPTORS_OUT, 'schema.ts')}` +
     descriptorReports.map((r) =>
-      `\n[tokens-parser] wrote descriptor '${r.name}' (authored SoT${r.browser ? ' + browser ESM' : ''}) → ${r.out}`,
+      `\n[tokens-parser] wrote descriptor '${r.name}' browser-ESM twin (.ts copy dropped · rn imports source) → ${r.out}`,
     ).join('') +
     `\n[tokens-parser] wrote palette mapping (${paletteRowCount} rows · SoT-asserted) → ${PALETTE_OUT}`,
   );
