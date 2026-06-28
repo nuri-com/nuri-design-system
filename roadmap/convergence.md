@@ -84,7 +84,12 @@ the namespace flip is computed-equivalent, verified by the per-axis browser chec
 
 **Phase 4 — `spec` → pure data.** The CSS now generated (phase 3), `spec` keeps only data. Fold in the **icon
 simplification** (a vendored **SVG folder + one generic icon descriptor** · drops the `@phosphor-icons/core`
-dep) and move the codegen out of `spec` (drops `postcss` + the scripts) → **`spec` reaches `no deps`**.
+dep · **✓ done** [N+51](./N+51.md)) and move the codegen out of `spec` (drops `postcss` + the scripts) →
+**`spec` reaches `no deps`** (**✓ DONE** [N+53](./N+53.md) · [decision 79](../decisionlog.md) — the codegen relocated
+to root `scripts/`; `@nuri/spec` is now no-deps/no-scripts · the codegen is root TOOLING, not a 7th package, so
+the [decision 68](../decisionlog.md) 6-package count is intact). The remaining **token-residue flips** (font-size/weight
+primitives · `--nuri-border-*` · font families · durations → TS · the `4·2` type-composite [§78](../decisionlog.md)
+precedent) are optional polish — orthogonal to dropping `postcss` (the hand-CSS primitives are already pure data).
 
 **Phase 5 — ledger purge.** With the structure coherent, archive the historical `decisionlog`/`roadmap` churn
 into a history record, consolidate `MEMORY.md` (it is stale + over-limit), and keep a lean current ledger that
@@ -116,15 +121,14 @@ CSS-var naming is `spec`'s, single-sourced as data). `doc` reads `spec`'s raw-TS
 TS-strip + `data:`-URL loader (node 20 cannot import a `.ts` · the descriptor-twin technique). The same template
 applies to A4b (axes) / A4c (tokens): new emitters, same shell + nav + `buildDocTokenInputs` helpers.
 
-> **Build-order invariant (N+41 · the A3 carve).** npm runs `--workspaces` scripts in **discovery order**
-> (`prototype` before `spec` · alphabetical), NOT topologically as the line above implies. **Benign today**:
-> `prototype`'s namespace CSS depends only on `spec`'s scale **KEYS** (the `--nuri-{space,size,radius}-<leaf>`
-> leaf NAMES · structurally stable · `readScaleVocab`), not the values — so reading the committed
-> `tokens-semantic.css` before `spec` re-flips it yields byte-identical output, and CI is per-job (`spec`'s job
-> guards the token CSS freshness `prototype` reads). **The latent footgun**: a token-vocab change (phase 4 ·
-> adding/removing a scale leaf) requires `spec` built **first**, or a second `prototype` pass. Fix when it bites
-> — make the root `build` run `@nuri/spec` before `@nuri/prototype` explicitly (deferred · not worth the
-> double-build while the dependency is keys-only).
+> **Build-order invariant (N+41 · the A3 carve · ✓ DISCHARGED at [N+53](./N+53.md)).** npm runs `--workspaces`
+> scripts in **discovery order** (`prototype` before `spec` · alphabetical), NOT topologically as the line above
+> implies. This was **benign** while `prototype`'s namespace CSS depended only on `spec`'s scale **KEYS** (the
+> `--nuri-{space,size,radius}-<leaf>` leaf NAMES · structurally stable · `readScaleVocab`), not the values, with the
+> **latent footgun** that a token-vocab change (adding/removing a scale leaf) needed `spec` built first. **N+53 fixed
+> it explicitly**: with the codegen relocated to root `scripts/`, the root `build` is `node scripts/tokens-parser.js
+> && npm run build --workspaces --if-present` — the codegen (which writes `spec`'s `tokens-semantic.css`) runs FIRST,
+> then the workspaces read the fresh CSS. (CI stays per-job; `spec`'s job still guards the token CSS freshness.)
 
 ## 6. What this supersedes
 

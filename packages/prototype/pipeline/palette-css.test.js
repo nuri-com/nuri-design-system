@@ -48,14 +48,15 @@ import { fileURLToPath } from 'node:url';
 import postcss from 'postcss';
 
 import { generatePalette } from './css-preview.js';
-// The colour cascade resolver stays in @nuri/spec (the token pipeline · convergence phase
-// 4) — read across the package boundary (the build-free relative pattern · icon.js
-// precedent · NOT a declared export · used only by Guard C's value oracle).
+// The colour cascade resolver lives in the root `scripts/` codegen (convergence phase
+// 4·3 — the token pipeline moved out of @nuri/spec; spec is now no-deps/no-scripts) —
+// read across the boundary (the build-free relative pattern · icon.js precedent · NOT a
+// declared export · used only by Guard C's value oracle).
 import {
   readSemanticRules,
   buildPrimitiveMap,
   resolveSemanticCrossProduct,
-} from '../../spec/pipeline/parsers/semantic.js';
+} from '../../../scripts/parsers/semantic.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PKG_ROOT = resolve(__dirname, '..'); // packages/prototype

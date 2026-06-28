@@ -82,11 +82,12 @@ import { stripTypes } from './parsers/dimension-css.js';
 // they pin the descriptor / palette / schema / count surfaces @nuri/spec owns.)
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-// The pipeline lives in the @nuri/spec workspace (decision 65.7), so REPO_ROOT
-// roots the spec package — `pages/`, `build/`, `lib/`, `styles/` all moved with
-// it and resolve unchanged. The agent-facing entry-point docs (llms.txt ·
-// README.md) are repo-level and stay at the monorepo root, two levels up.
-const REPO_ROOT = resolve(__dirname, '..');
+// The codegen lives in the root `scripts/` dir (convergence phase 4·3 · @nuri/spec
+// is now no-deps/no-scripts), so REPO_ROOT roots the spec package one level over —
+// `pages/`, `build/`, `lib/`, `styles/` resolve unchanged. The agent-facing
+// entry-point docs (llms.txt · README.md) are repo-level and stay at the monorepo
+// root, two levels up from spec.
+const REPO_ROOT = resolve(__dirname, '../packages/spec');
 const MONOREPO_ROOT = resolve(REPO_ROOT, '..', '..');
 
 const read = (rel) => readFileSync(resolve(REPO_ROOT, rel), 'utf8');

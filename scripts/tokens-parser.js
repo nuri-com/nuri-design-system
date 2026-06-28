@@ -169,7 +169,7 @@ export {
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(__dirname, '..');
+const REPO_ROOT = resolve(__dirname, '../packages/spec');
 
 const PRIMITIVE_CSS    = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
 const SEMANTIC_CSS     = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
