@@ -9,8 +9,9 @@
  * This is NOT the C1 passthrough — it is the genuinely-TEMPLATED emit. No stock
  * token tool emits the decision-63 #4b/#6b self-scope (the descendant-combinator
  * dark blocks that beat block 3/5 on specificity so a self-scoped accent inside a
- * dark ANCESTOR resolves dark). We reproduce the whole cascade — the 8 blocks
- * (1 · 2 · 3 · 4 · 4b · 5 · 6 · 6b) — from the matrix. The emit is NOT
+ * dark ANCESTOR resolves dark). We reproduce the whole cascade — 5 fixed neutral
+ * blocks (1 · 2 · 3 · 4 · 4b) + 3 blocks per non-neutral accent (lilac → 5/6/6b ·
+ * orange → 7/8/8b · N+56 · loop the accent data) — from the matrix. The emit is NOT
  * byte-identical to the prior hand cascade (it is regenerated · terser comments);
  * the gate is structural + computed-style equivalence + a byte-identical RN
  * tokens.ts (the resolved matrix is unchanged · pipeline/colour-semantic.test.js).
@@ -22,10 +23,11 @@
  *   · chrome (theme-only)  · block 1 (light) + block 2 (dark).
  *   · accent neutral       · 1/2 (the default scope) + 3 (explicit light) +
  *                            4 (combined dark) + 4b (self-scoped dark · dec-63).
- *   · accent lilac         · 5 (light) + 6 (combined dark) + 6b (self-scoped dark).
+ *   · each non-neutral     · light (anywhere) + combined-dark + self-scoped-dark
+ *     accent (lilac · …)     (the i-th occupies 5+2i / 6+2i / (6+2i)b).
  * A DARK block redeclares a token ONLY when its dark ref ≠ its light ref. For
- * neutral every token swaps (→ all 6); for lilac the P4-FROZEN brand tokens have
- * light===dark (→ omitted) so blocks 6 / 6b are PARTIAL (the 3 theme-adapting
+ * neutral every token swaps (→ all 6); for a bright brand the P4-FROZEN tokens have
+ * light===dark (→ omitted) so the dark blocks are PARTIAL (the 3 theme-adapting
  * tokens). P4 is not special-cased — it falls out of "redeclare only what changes".
  *
  * ── In-place · the provenance-marked region (the dimension S1 trade) ─
@@ -98,12 +100,23 @@ function accentDecls(accent, accentName, theme, onlyChanged = false) {
     });
 }
 
-// Build the ordered 8-block cascade from the matrix. Each block:
+// Build the ordered cascade from the matrix. Each block:
 //   { id, role, selector, decls: [[prop, rhs], …] }. Selectors + ordering are
 // the decision-63 cascade exactly; don't reorder (#4b/#6b sit after their #4/#6
 // twin so an equal-specificity tie resolves to the same value either way).
+//
+// `neutral` is the DEFAULT scope — blocks 1·2·3·4·4b (light re-asserts at any wrapper ·
+// the explicit-light override · the combined-dark + the dec-63 self-scoped-dark). Every
+// OTHER accent gets the SAME 3-block treatment — light (anywhere) + combined-dark +
+// self-scoped-dark — so adding an accent is DATA, not an emitter edit (N+56 · slice 2 ·
+// the last accent-hardcoded spot, generified). Block ids continue from 5: the i-th
+// non-neutral accent occupies (5+2i) / (6+2i) / (6+2i)b — lilac → 5/6/6b · orange →
+// 7/8/8b. Lilac's three blocks are byte-identical to the prior hand-written ones (the
+// gate); orange's follow. A DARK block redeclares a token ONLY when its dark ref ≠ light
+// ref (accentDecls `onlyChanged`), so the P4-frozen brand tokens fall out → 6/6b (and
+// 8/8b) are PARTIAL with no special-casing.
 export function buildSemanticCascade({ chrome, accent }) {
-  return [
+  const blocks = [
     {
       id: '1', role: 'defaults · chrome light + neutral accent light (light re-asserts at any wrapper)',
       selector: ':root,\n[data-theme="light"]',
@@ -129,22 +142,36 @@ export function buildSemanticCascade({ chrome, accent }) {
       selector: '[data-theme="dark"] [data-accent="neutral"]',
       decls: accentDecls(accent, 'neutral', 'dark', true),
     },
-    {
-      id: '5', role: 'lilac accent · light (anywhere)',
-      selector: '[data-accent="lilac"]',
-      decls: accentDecls(accent, 'lilac', 'light'),
-    },
-    {
-      id: '6', role: 'lilac accent dark · PARTIAL per P4 (frozen brand omitted · SAME element · 0,2,0)',
-      selector: '[data-accent="lilac"][data-theme="dark"]',
-      decls: accentDecls(accent, 'lilac', 'dark', true),
-    },
-    {
-      id: '6b', role: 'lilac accent dark · SELF-SCOPED under a dark ancestor (decision 63 · partial per P4)',
-      selector: '[data-theme="dark"] [data-accent="lilac"]',
-      decls: accentDecls(accent, 'lilac', 'dark', true),
-    },
   ];
+
+  // The non-neutral accents (lilac · orange · …) in matrix order — each emits its 3
+  // blocks. The role comments mirror the prior hand-written lilac wording verbatim
+  // (with the accent name interpolated) so lilac stays byte-identical.
+  Object.keys(accent)
+    .filter((name) => name !== 'neutral')
+    .forEach((name, i) => {
+      const light = 5 + 2 * i;
+      const dark = light + 1;
+      blocks.push(
+        {
+          id: String(light), role: `${name} accent · light (anywhere)`,
+          selector: `[data-accent="${name}"]`,
+          decls: accentDecls(accent, name, 'light'),
+        },
+        {
+          id: String(dark), role: `${name} accent dark · PARTIAL per P4 (frozen brand omitted · SAME element · 0,2,0)`,
+          selector: `[data-accent="${name}"][data-theme="dark"]`,
+          decls: accentDecls(accent, name, 'dark', true),
+        },
+        {
+          id: `${dark}b`, role: `${name} accent dark · SELF-SCOPED under a dark ancestor (decision 63 · partial per P4)`,
+          selector: `[data-theme="dark"] [data-accent="${name}"]`,
+          decls: accentDecls(accent, name, 'dark', true),
+        },
+      );
+    });
+
+  return blocks;
 }
 
 // ── render the cascade region (markers + blocks) ────────────────────

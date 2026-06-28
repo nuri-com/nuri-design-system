@@ -34,8 +34,11 @@ import postcss from 'postcss';
 
 import { inferType } from './primitive.js';
 
-// Build defaults · single source of truth for the cross-product axes.
-export const ACCENTS = ['neutral', 'lilac'];
+// Build defaults · single source of truth for the cross-product axes. This list
+// drives the `Accent` type + the (accent × theme) cross-product resolution; adding an
+// accent here (orange · N+56 · slice 2) + the ramp/role data in colours.ts is the whole
+// accent add (the cascade emitter + selectorMatches loop the accents · no per-accent edit).
+export const ACCENTS = ['neutral', 'lilac', 'orange'];
 export const THEMES = ['light', 'dark'];
 
 // Selectable neutral scales for the --neutral=<scale> CLI flag at
@@ -303,9 +306,14 @@ export function selectorMatches(selector, accent, theme) {
   const attrCount = (sel.match(/\[/g) || []).length;
   if (attrCount === 0) return { matches: false, spec: 0 };
   const themeOk = sel.includes('[data-theme="dark"]') ? theme === 'dark' : true;
-  const neutralOk = sel.includes('[data-accent="neutral"]') ? accent === 'neutral' : true;
-  const lilacOk = sel.includes('[data-accent="lilac"]') ? accent === 'lilac' : true;
-  return { matches: themeOk && neutralOk && lilacOk, spec: attrCount };
+  // Accent match · GENERIC over the accent named in the selector (N+56 · slice 2). A
+  // `[data-accent="X"]` block matches iff X === accent; a selector with no [data-accent]
+  // is accent-agnostic (chrome / the default scope). This must NOT be per-accent
+  // hardcoded — an `[data-accent="orange"]` block would otherwise (no neutral/lilac attr
+  // present) match EVERY accent and, being later in source order, clobber lilac.
+  const accentSel = sel.match(/\[data-accent="([^"]+)"\]/);
+  const accentOk = accentSel ? accent === accentSel[1] : true;
+  return { matches: themeOk && accentOk, spec: attrCount };
 }
 
 // Pick the cascade-winning declaration for `cssVar` at (accent, theme).

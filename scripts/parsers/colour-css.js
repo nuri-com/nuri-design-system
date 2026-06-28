@@ -19,8 +19,9 @@
  * WEB-CSS-ONLY value change (the old `:root` default was gray).
  *
  * Two `--nuri-color-*` sub-families, both owned here (one file · tokens-primitive):
- *   · the RAW scales        — 7 neutrals + lilac (12 × {light,dark}) + black/white
- *                             alpha (12 · theme-invariant). The literal catalog.
+ *   · the RAW scales        — 7 neutrals + the accent ramps (lilac · orange · … ·
+ *                             12 × {light,dark} · data-driven) + black/white alpha
+ *                             (12 · theme-invariant). The literal catalog.
  *   · the NEUTRAL RESOLUTION — --nuri-color-neutral-N-{light,dark} →
  *                             var(--nuri-color-<active>-N-{light,dark}). ONE :root
  *                             block, the active scale baked in from the build's
@@ -53,14 +54,31 @@ export async function loadColours(coloursTsPath) {
   const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypes(src)));
   // A strip regression must fail LOUD here, not silently emit garbage: every SoT
   // table must survive the strip as a non-empty object.
-  for (const name of ['neutralScales', 'lilac', 'blackAlpha', 'whiteAlpha']) {
+  for (const name of ['neutralScales', 'accent', 'blackAlpha', 'whiteAlpha']) {
     if (!mod[name] || typeof mod[name] !== 'object' || !Object.keys(mod[name]).length) {
       throw new Error(`[colour-css] loadColours: ${name} missing/empty (strip regression?)`);
     }
   }
+  // The accent RAMPS, data-driven (N+56 · slice 2): each non-neutral accent (the
+  // `accent` matrix keys minus `neutral`, which resolves through the neutralScales)
+  // owns a same-named 12-step ramp export — lilac, orange, …. Collecting them by the
+  // matrix keys means adding an accent = add the ramp + the accent entry + 'orange' in
+  // ACCENTS; this emitter never changes (the dimension/colour flip's data-driven rule).
+  const accentScales = {};
+  for (const name of Object.keys(mod.accent)) {
+    if (name === 'neutral') continue;
+    const ramp = mod[name];
+    if (!ramp || typeof ramp !== 'object' || !Object.keys(ramp).length) {
+      throw new Error(
+        `[colour-css] loadColours: accent '${name}' (in the accent matrix) has no same-named ` +
+        `ramp export in colours.ts — add 'export const ${name} = { … } satisfies Scale'.`,
+      );
+    }
+    accentScales[name] = ramp;
+  }
   return {
     neutralScales: mod.neutralScales,
-    lilac: mod.lilac,
+    accentScales,
     blackAlpha: mod.blackAlpha,
     whiteAlpha: mod.whiteAlpha,
   };
@@ -75,14 +93,16 @@ function setThemedScale(map, scaleName, steps) {
   }
 }
 
-// The RAW colour catalog (the literal leaves · no aliases). 7 neutrals + lilac +
-// the two theme-invariant alpha scales.
-export function primitiveColourMap({ neutralScales, lilac, blackAlpha, whiteAlpha }) {
+// The RAW colour catalog (the literal leaves · no aliases). 7 neutrals + the accent
+// ramps (lilac · orange · … · data-driven · N+56) + the two theme-invariant alpha scales.
+export function primitiveColourMap({ neutralScales, accentScales, blackAlpha, whiteAlpha }) {
   const map = new Map();
   for (const [scaleName, steps] of Object.entries(neutralScales)) {
     setThemedScale(map, scaleName, steps);
   }
-  setThemedScale(map, 'lilac', lilac);
+  for (const [scaleName, steps] of Object.entries(accentScales)) {
+    setThemedScale(map, scaleName, steps);
+  }
   for (const [base, steps] of [['black', blackAlpha], ['white', whiteAlpha]]) {
     for (const [step, leaf] of Object.entries(steps)) {
       map.set(`--nuri-color-${base}-alpha-${step}`, leaf.value);

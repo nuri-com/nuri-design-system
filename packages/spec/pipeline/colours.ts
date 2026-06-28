@@ -178,6 +178,27 @@ export const lilac = {
   12: { light: { value: '#381b6a' }, dark: { value: '#e3ddfa' } },
 } as const satisfies Scale;
 
+// L1 · orange · the second accent scale (Radix custom from #ff8c5a · N+56 · slice 2).
+// Same shape as lilac: steps 9 & 10 are identical light/dark — the brand fill keeps
+// its identity across themes (the bright scale · self-documenting duplication). Adding
+// this ramp + accent.orange below + 'orange' in ACCENTS (parsers/semantic.js) is the
+// WHOLE accent add — the emitters loop the accent data (no per-accent edit · the N+55
+// reshape + the N+56 generify).
+export const orange = {
+  1:  { light: { value: '#fffcfb' }, dark: { value: '#15100d' } },
+  2:  { light: { value: '#fff5f0' }, dark: { value: '#1e1512' } },
+  3:  { light: { value: '#ffe9dd' }, dark: { value: '#361a0e' } },
+  4:  { light: { value: '#ffd8c2' }, dark: { value: '#4b1b04' } },
+  5:  { light: { value: '#ffc9ae' }, dark: { value: '#5a2308' } },
+  6:  { light: { value: '#ffb996' }, dark: { value: '#693015' } },
+  7:  { light: { value: '#ffa37a' }, dark: { value: '#814024' } },
+  8:  { light: { value: '#fb8856' }, dark: { value: '#a6532f' } },
+  9:  { light: { value: '#ff8c5a' }, dark: { value: '#ff8c5a' } },  // brand · theme-invariant
+  10: { light: { value: '#f3814f' }, dark: { value: '#f3814f' } },  // brand · theme-invariant
+  11: { light: { value: '#c45621' }, dark: { value: '#ff9664' } },
+  12: { light: { value: '#5e280f' }, dark: { value: '#f9d6c8' } },
+} as const satisfies Scale;
+
 // L1 · alpha overlays · theme-invariant by nature (opacity over a base is
 // independent of theme · NO -light/-dark suffix). Emitted as
 // --nuri-color-{black,white}-alpha-N. rgba spelled EXACTLY as the CSS (spaces
@@ -302,5 +323,16 @@ export const accent = {
     'on-solid':          'lilac.12.light',                                         // FROZEN · P4
     'bg-subtle':         { light: 'lilac.3.light', dark: 'lilac.3.dark' },         // theme-adapting
     'bg-subtle-pressed': { light: 'lilac.4.light', dark: 'lilac.4.dark' },         // theme-adapting
+  },
+  // orange · the second accent (N+56 · slice 2) — same role shape as lilac (a bright
+  // brand: solid/solid-pressed/on-solid are P4-FROZEN flat strings, fg + the bg-subtle
+  // pair theme-adapt). Purely additive: the emitters loop the accent table.
+  orange: {
+    fg:                  { light: 'orange.12.light', dark: 'orange.12.dark' },    // theme-adapting
+    solid:               'orange.9.light',                                         // FROZEN · P4
+    'solid-pressed':     'orange.10.light',                                        // FROZEN · P4
+    'on-solid':          'orange.12.light',                                        // FROZEN · P4
+    'bg-subtle':         { light: 'orange.3.light', dark: 'orange.3.dark' },       // theme-adapting
+    'bg-subtle-pressed': { light: 'orange.4.light', dark: 'orange.4.dark' },       // theme-adapting
   },
 } as const satisfies Record<string, Record<string, AccentRole>>;
