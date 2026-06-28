@@ -91,10 +91,22 @@ the [decision 68](../decisionlog.md) 6-package count is intact). The remaining *
 primitives · `--nuri-border-*` · font families · durations → TS · the `4·2` type-composite [§78](../decisionlog.md)
 precedent) are optional polish — orthogonal to dropping `postcss` (the hand-CSS primitives are already pure data).
 
+**Phase 4·4 — `spec` data-only (the projection model · [decision 80](../decisionlog.md) · [`docs/projection-model.md`](../docs/projection-model.md)).**
+The concrete plan for the remaining "`spec` keeps only data" work, locked at [N+54](../decisionlog.md). `spec` is **pure
+data** (`tokens`/`axes`/`components`/`icons`); each of the **two projections** carries its own resolution — web (CSS →
+`@nuri/prototype` · browser resolves) and RN (resolved-semantic hex → `@nuri/rn` · flattened at build · selection-only at
+runtime). The slice plan ([projection-model.md §8](../docs/projection-model.md)): **accent reshape** (role-major →
+accent-major + the RN selection provider) → **add the new accents** → **`spec` data-only** (kill `build/` · the resolved
+contract leaves `spec` · drop the descriptor `.ts` copies · move the resolver to `rn` · delete the orphans). This
+**supersedes** [decision 35](../decisionlog.md)'s "`build/` committed in `spec`" — the resolved contract now lives in the
+projection packages.
+
 **Phase 5 — ledger purge.** With the structure coherent, archive the historical `decisionlog`/`roadmap` churn
 into a history record, consolidate `MEMORY.md` (it is stale + over-limit), and keep a lean current ledger that
 matches the architecture docs. Decisions stay immutable — superseded ones move to an archive, the live ledger
-describes the arrived state. Input = the convergence record (this doc) + the N+36 archived list.
+describes the arrived state. Input = the convergence record (this doc) + the N+36 archived list + the model docs
+the projection model supersedes ([`resolver-model.md`](../docs/resolver-model.md) · [`emit-model.md`](../docs/emit-model.md)
+· [`composition-model.md`](../docs/composition-model.md) collapse here).
 
 **← EXIT here.** Phases 1–5 = the refactor. Phase 6 is forward product work.
 
