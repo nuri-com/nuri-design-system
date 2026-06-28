@@ -12,10 +12,11 @@
  *
  * The shape is the DTCG model inherited from dimensions.ts — `name → value`
  * (the token-standards eval · roadmap/token-standards-eval.md §7): a colour leaf
- * is a terse literal `{ value: '#fcfcfc' }`. (The `{ ref }` arm — a reference to
- * another colour token — joins with the C2 semantic matrix · P11: no speculative
- * arm ahead of its consumer. cf. dimensions.ts `Leaf = { ref } | { value, unit }`,
- * which uses both because the dimension layer references the px scale.)
+ * is a terse literal `{ value: '#fcfcfc' }`. The semantic matrix (C2 · chrome /
+ * accent) references a primitive by a BARE `'scale.step.theme'` string (N+55 ·
+ * decision 80 · the uniform rule: a bare string IS a reference, `{ value }` is a
+ * literal) — so a leaf is only ever a literal and there is no `{ ref }` arm. (cf.
+ * dimensions.ts `Leaf = { ref } | { value, unit }`, whose px refs are still wrapped.)
  *
  * ── neutral = cream (the build param · decision 31 · N+5.8) ──────────
  * All 7 candidate neutral scales (gray/mauve/slate/sage/olive/sand/cream) live
@@ -42,11 +43,12 @@
 
 // A colour PRIMITIVE leaf — a literal `{ value: '#fcfcfc' }` (DTCG `value` · the
 // token-standards eval). The ramps (neutralScales / lilac / the alpha overlays) hold
-// these. The semantic roles (chrome / accent below) reference a primitive — but a ref
-// is now a BARE `'scale.step.theme'` string (a RefPair · N+55 · decision 80 · the
-// uniform rule: bare string = reference, `{ value }` = literal), NOT a `{ ref }` wrap.
-// The `{ ref }` arm is retained as the DTCG leaf model (currently unused by the data).
-type ColorLeaf = { value: string } | { ref: string };
+// these. The semantic roles (chrome / accent below) reference a primitive by a BARE
+// `'scale.step.theme'` string (a RefPair · N+55 · decision 80 · the uniform rule: a
+// bare string IS a reference, `{ value }` is a literal) — so a leaf is only ever a
+// literal, and `ColorLeaf` carries the single `{ value }` arm (the `{ ref }` wrapper
+// is gone end-to-end · the model fully landed).
+type ColorLeaf = { value: string };
 // A Radix 12-step scale: each step exposes its light + dark primitive in parallel
 // (the semantic layer composes mode × accent on top · the cascade below).
 type ThemedLeaf = { light: ColorLeaf; dark: ColorLeaf };
