@@ -46,7 +46,7 @@ The dimension foundation — the L1 direct-pixel primitives (`px-N` is N pixels 
 | Token | Cascade | Value |
 | --- | --- | --- |
 | `size.xs` | `px-18` | `18px` |
-| `size.sm` | `px-28` | `28px` |
+| `size.sm` | `px-24` | `24px` |
 | `size.md` | `px-36` | `36px` |
 | `size.lg` | `px-48` | `48px` |
 | `size.xl` | `px-60` | `60px` |

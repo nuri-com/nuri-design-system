@@ -199,7 +199,7 @@ function renderPart(node, ctx) {
     case 'text':
       return renderText(node, ns, ctx);
     case 'icon':
-      return renderIcon(node, ctx);
+      return renderIcon(node, ns, ctx);
     default:
       // The web analogue of the RN factory's assertNever (R7): an el outside the
       // frozen vocabulary is a hard error, never a silent mis-render.
@@ -280,17 +280,22 @@ function renderText(node, ns, ctx) {
   return el;
 }
 
-// icon → <nuri-icon name=X> · the glyph leaf (IconAvatar's icon part). MINIMAL
-// by design: the descriptor's icon part carries NO namespace ({el:'icon'}), so
-// we emit ONLY the routed glyph name. fg flows by SCOPE — the parent view's
-// palette sets `color`, and <nuri-icon>'s SVG (fill="currentColor") inherits it
-// (the same mechanism as the typography label; this is how `subtle`'s fg-only
-// variant tints the glyph). size/weight are NOT set — the post-A3 icon arc owns
-// the glyph vocabulary; <nuri-icon> defaults to size=md (the recipe's value).
-function renderIcon(node, ctx) {
+// icon → <nuri-icon name=X> · the glyph leaf (IconAvatar's icon part). fg flows
+// by SCOPE — the parent view's palette sets `color`, and <nuri-icon>'s SVG
+// (fill="currentColor") inherits it (the same mechanism as the typography label;
+// this is how `subtle`'s fg-only variant tints the glyph). SIZE rides the SHARED
+// box axis (N+51 · the icon-arc close): the descriptor's icon part carries a `box`
+// ({width,height} · size leaves), applied here as nuri-box + data-width/data-height
+// — box.css sizes the glyph (inline-size/block-size). The <nuri-icon> element
+// RESPECTS a host-pinned box (it only self-derives box from its own `size` prop),
+// so the descriptor value drives. Without a box the element falls to size=md.
+function renderIcon(node, ns, ctx) {
   const el = document.createElement('nuri-icon');
   const name = ctx.content[node.name];
   if (name != null) el.setAttribute('name', String(name));
+  const { classes, data } = mergeAttrs(ns);
+  if (classes.length) el.classList.add(...classes);
+  for (const [k, v] of Object.entries(data)) el.setAttribute(k, v);
   return el;
 }
 

@@ -60,10 +60,10 @@ export const Demo: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme })
 
         <SectionLabel>IconAvatar — the SAME factory, static · glyph by scope</SectionLabel>
         <View style={styles.row}>
-          <IconAvatar variant="solid"><DemoIcon name="vault" /></IconAvatar>
-          <IconAvatar variant="soft"><DemoIcon name="coin-vertical" /></IconAvatar>
-          <IconAvatar variant="ghost"><DemoIcon name="gear" /></IconAvatar>
-          <IconAvatar variant="subtle"><DemoIcon name="question" /></IconAvatar>
+          <IconAvatar variant="solid"><DemoIcon name="apple" /></IconAvatar>
+          <IconAvatar variant="soft"><DemoIcon name="card" /></IconAvatar>
+          <IconAvatar variant="ghost"><DemoIcon name="euro" /></IconAvatar>
+          <IconAvatar variant="subtle"><DemoIcon name="bitcoin" /></IconAvatar>
         </View>
 
         <SectionLabel>NuriScope — accent override (decision 63)</SectionLabel>
@@ -71,7 +71,7 @@ export const Demo: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme })
           <View style={styles.row}>
             <Button variant="solid" size="md" onPress={onToggleTheme}>neutral</Button>
             <Button variant="soft" size="md" onPress={onToggleTheme}>scope</Button>
-            <IconAvatar variant="solid"><DemoIcon name="arrows-down-up" /></IconAvatar>
+            <IconAvatar variant="solid"><DemoIcon name="bitcoin" /></IconAvatar>
           </View>
         </NuriScope>
 

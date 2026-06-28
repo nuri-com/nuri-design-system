@@ -66,7 +66,7 @@ import {
   emitTokenPathsTs,
 } from './parsers/components.js';
 
-import { emitIconsTs, ICON_WEIGHTS } from './parsers/icons.js';
+import { readIcons, emitIconsJs, emitIconsTs } from './parsers/icons.js';
 
 import { buildTypeScale, emitTypeTs, TYPE_SIZES } from './parsers/type.js';
 
@@ -101,12 +101,15 @@ import { loadColours, flipColourCss } from './parsers/colour-css.js';
 
 import { loadSemanticColours, flipSemanticCss } from './parsers/semantic-css.js';
 
+// The icon registry is GENERATED from the icons/*.svg folder (the SoT · decision 38 ·
+// N+51 · convergence phase 4·1). lib/components/icon/icons.js (the web reader) is now a
+// build OUTPUT, so the orchestrator no longer imports it — it READS the folder and emits
+// both readers (icons.js + build/icons.ts · one registry, two readers · decision 48).
+
 // The namespace-CSS generation (flipNamespaceCss / pipeline/css-preview.js) MOVED to
 // @nuri/prototype at N+41 (the A3 carve · convergence §5 · "each library owns the emitter
 // for its own surface"). spec's build no longer generates it; prototype regenerates its
 // styles/<ns>.css from spec's TS SoTs via `npm run build -w @nuri/prototype`.
-
-import { ICONS } from '../lib/components/icon/icons.js';
 
 // Re-export so existing imports (and the primitive round-trip tests)
 // keep working unchanged across the split.
@@ -142,8 +145,9 @@ export {
   resolveComponentValue,
   emitComponentTs,
   emitTokenPathsTs,
+  readIcons,
+  emitIconsJs,
   emitIconsTs,
-  ICON_WEIGHTS,
   buildTypeScale,
   emitTypeTs,
   TYPE_SIZES,
@@ -176,6 +180,8 @@ const TS_OUT           = resolve(REPO_ROOT, 'build/tokens.ts');
 const INTERACTION_OUT  = resolve(REPO_ROOT, 'build/interaction.ts');
 const TOKEN_PATHS_OUT  = resolve(REPO_ROOT, 'build/token-paths.ts');
 const TOKEN_VARS_OUT   = resolve(REPO_ROOT, 'build/token-vars.ts');
+const ICONS_DIR        = resolve(REPO_ROOT, 'icons');
+const ICONS_JS_OUT     = resolve(REPO_ROOT, 'lib/components/icon/icons.js');
 const ICONS_OUT        = resolve(REPO_ROOT, 'build/icons.ts');
 const DESCRIPTORS_OUT  = resolve(REPO_ROOT, 'build/descriptors');
 const DESCRIPTORS_SRC  = resolve(REPO_ROOT, 'pipeline/descriptors');
@@ -362,13 +368,15 @@ async function main() {
   const tokenVarsSource = emitTokenVarsTs(classifiedGroups);
   await writeFile(TOKEN_VARS_OUT, tokenVarsSource, 'utf8');
 
-  // ── Slice 6 · typed icon registry emit (N+6.8 · decision 48) ──
-  // Emit build/icons.ts from lib/components/icon/icons.js — the SSOT
-  // the web inlines directly. ONE registry, TWO readers: web inline +
-  // RN react-native-svg SvgXml. Not a token classifier — a verbatim
-  // typed mirror, sync-guarded by the test.
-  const iconsSource = emitIconsTs(ICONS);
-  await writeFile(ICONS_OUT, iconsSource, 'utf8');
+  // ── Slice 6 · icon registry emit · the SVG folder is the SoT (N+51 · decision 38/48) ──
+  // Read icons/*.svg (the SoT folder · filename = name · one drawing per glyph) → the
+  // ICONS registry, then emit BOTH readers from it: the web reader (lib/components/icon/
+  // icons.js · zero-build inline) + the typed RN reader (build/icons.ts · SvgXml). ONE
+  // registry, TWO readers (decision 48). Both are GENERATED + committed + byte-identical-
+  // guarded (decision 35) — adding an icon = dropping a .svg and re-running the build.
+  const ICONS = await readIcons(ICONS_DIR);
+  await writeFile(ICONS_JS_OUT, emitIconsJs(ICONS), 'utf8');
+  await writeFile(ICONS_OUT, emitIconsTs(ICONS), 'utf8');
   const iconNameCount = Object.keys(ICONS).length;
 
   // ── Slice 7 · per-component descriptor emit (N+19 · decision 65 · §9 step 1 · decision 69) ──
@@ -436,7 +444,7 @@ async function main() {
     `[tokens-parser] wrote interaction baseline (${Object.keys(INTERACTION_PRIMITIVES).length} constants · transversal) → ${INTERACTION_OUT}` +
     `\n[tokens-parser] wrote TokenPath union → ${TOKEN_PATHS_OUT}` +
     `\n[tokens-parser] wrote semantic colour var registry → ${TOKEN_VARS_OUT}` +
-    `\n[tokens-parser] wrote icon registry (${iconNameCount} names × ${ICON_WEIGHTS.length} weights) → ${ICONS_OUT}` +
+    `\n[tokens-parser] wrote icon registry (${iconNameCount} glyphs · folder SoT · 2 readers) → ${ICONS_JS_OUT} + ${ICONS_OUT}` +
     `\n[tokens-parser] wrote descriptor schema → ${resolve(DESCRIPTORS_OUT, 'schema.ts')}` +
     descriptorReports.map((r) =>
       `\n[tokens-parser] wrote descriptor '${r.name}' (authored SoT${r.browser ? ' + browser ESM' : ''}) → ${r.out}`,

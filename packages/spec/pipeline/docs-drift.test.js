@@ -124,7 +124,6 @@ const extractCount = (text, re, label) => {
 test('C · doc-stated emitted counts match the live build', () => {
   // Live truths derived from the emitted artefacts.
   const tokenPathMembers = (read('build/token-paths.ts').match(/^\s+\| '/gm) || []).length;
-  const iconCount = (read('build/icons.ts').match(/^\s+\| '/gm) || []).length;
 
   const llms = readRoot('llms.txt');
   const readme = readRoot('README.md');
@@ -146,14 +145,12 @@ test('C · doc-stated emitted counts match the live build', () => {
     'README member count drifted from build/token-paths.ts',
   );
 
-  // glyph registry count. (The implementation-guide.html cross-check RETIRED at
-  // N+42 · the A4 carve — impl-guide ARCHIVED to @nuri/doc/archive/; the glyph
-  // count stays pinned here against llms.txt + build/icons.ts.)
-  assert.equal(
-    extractCount(llms, /\((\d+) glyphs × 3 weights\)/, 'llms.txt glyph count'),
-    iconCount,
-    'llms.txt glyph count drifted from build/icons.ts',
-  );
+  // (The glyph-count cross-check RETIRED at N+51 · the icons-as-folder flip. The
+  // icon registry is now GENERATED from icons/*.svg and meant to GROW by dropping
+  // files — pinning a count would force a doc edit on every new glyph, breaking the
+  // "add an icon = add a file, nothing else" invariant · convergence phase 4·1.
+  // The drift guard that matters now is the folder → registry round-trip in
+  // tokens-parser.test.js, not a hand-stated count.)
 });
 
 // ── Guard D · descriptors ⊂ their live sources (the composition model 65.3 · R-EXPO-6) ──

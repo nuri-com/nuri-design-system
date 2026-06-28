@@ -63,7 +63,7 @@ export const space = {
 // decision 36). Anchors larger than space (touch targets, control heights).
 export const size = {
   xs:    { ref: 18 },
-  sm:    { ref: 28 },
+  sm:    { ref: 24 },
   md:    { ref: 36 },
   lg:    { ref: 48 },
   xl:    { ref: 60 },

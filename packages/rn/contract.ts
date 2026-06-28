@@ -20,7 +20,8 @@
  *   @nuri/spec/token-paths     the TokenPath discriminated union
  *   @nuri/spec/interaction     the transversal interaction baseline
  *                              ({ pressScale · disabledOpacity } · decision 45)
- *   @nuri/spec/icons           IconName × weight SVG registry
+ *   @nuri/spec/icons           IconName → SVG markup registry (one drawing
+ *                              per glyph · no weights · decision 38 · N+51)
  * ────────────────────────────────────────────────────────────── */
 
 import {
@@ -35,7 +36,7 @@ import {
 import type { Accent, Theme, TypeSize, TypeWeight, TypeStep } from '@nuri/spec/tokens';
 import type { TokenPath } from '@nuri/spec/token-paths';
 import { icons } from '@nuri/spec/icons';
-import type { IconName, IconWeight } from '@nuri/spec/icons';
+import type { IconName } from '@nuri/spec/icons';
 
 // The transversal interaction baseline consumed by the factory:
 // `interaction` carries the decision-45 cross-component constants
@@ -93,7 +94,7 @@ export {
   topbarDescriptor,
 };
 
-export type { Accent, Theme, TypeSize, TypeWeight, TypeStep, TokenPath, IconName, IconWeight };
+export type { Accent, Theme, TypeSize, TypeWeight, TypeStep, TokenPath, IconName };
 
 // The frozen descriptor schema types (decision 65.6 · Guard F). `SpaceLeaf`
 // and `TypeKey` are intentionally NOT re-exported here — `theme.tsx` already

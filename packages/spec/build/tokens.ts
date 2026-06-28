@@ -158,7 +158,7 @@ export const size: {
   '3xl': number;
 } = {
   xs:     18,
-  sm:     28,
+  sm:     24,
   md:     36,
   lg:     48,
   xl:     60,

@@ -144,11 +144,23 @@ function renderPart<A extends Axes>(
 
     case 'icon': {
       // A glyph leaf — the factory is glyph-AGNOSTIC: it renders the provided
-      // icon element and injects the scope foreground as `color` (the Icon
-      // `color`/currentColor channel). What renders the glyph is the consumer's.
+      // icon element and drives the consumer-glyph contract `{ color?, dimension? }`
+      // by SCOPE + the box axis. `color` = the scope foreground (the Icon
+      // `color`/currentColor channel · §12). `dimension` = the icon part's resolved
+      // box width (N+51 · the icon-arc size close · the SHARED box axis, not a
+      // bespoke icon size): the descriptor's icon `box.width` → size leaf → px,
+      // applied on BOTH targets (web sets data-width/height; here the consumer's
+      // glyph reads `dimension`). Absent a box, dimension is undefined → the
+      // consumer's own default applies. What renders the glyph is the consumer's.
       const el = ctx.content[node.name];
       if (React.isValidElement(el)) {
-        return React.cloneElement(el as React.ReactElement<{ color?: string }>, { key: node.name, color: fg });
+        const flatStyle = flat.style as { width?: unknown; height?: unknown };
+        const dim = flatStyle.width ?? flatStyle.height;
+        const dimension = typeof dim === 'number' ? dim : undefined;
+        return React.cloneElement(
+          el as React.ReactElement<{ color?: string; dimension?: number }>,
+          { key: node.name, color: fg, ...(dimension !== undefined ? { dimension } : null) },
+        );
       }
       return <React.Fragment key={node.name} />;
     }

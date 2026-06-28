@@ -46,8 +46,9 @@ import {
   resolveComponentValue,
   emitComponentTs,
   emitTokenPathsTs,
+  readIcons,
+  emitIconsJs,
   emitIconsTs,
-  ICON_WEIGHTS,
   buildTypeScale,
   emitTypeTs,
   TYPE_SIZES,
@@ -55,8 +56,6 @@ import {
   emitInteractionTs,
   INTERACTION_PRIMITIVES,
 } from './tokens-parser.js';
-
-import { ICONS } from '../lib/components/icon/icons.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
@@ -67,6 +66,8 @@ const TS_PATH = resolve(REPO_ROOT, 'build/tokens.ts');
 const INTERACTION_TS_PATH = resolve(REPO_ROOT, 'build/interaction.ts');
 const TOKEN_PATHS_PATH = resolve(REPO_ROOT, 'build/token-paths.ts');
 const ICONS_TS_PATH = resolve(REPO_ROOT, 'build/icons.ts');
+const ICONS_DIR = resolve(REPO_ROOT, 'icons');
+const ICONS_JS_PATH = resolve(REPO_ROOT, 'lib/components/icon/icons.js');
 
 // Regex-extracted "what the CSS actually says" — used as the
 // reference set. NOT the parser. If parser + regex agree, we trust
@@ -310,8 +311,8 @@ const SEMANTIC_EXPECTED = {
   // control heights). Decision 36 · N+6.1.
   '--nuri-size-xs':   { neutral: { light: '18px', dark: '18px' },
                         lilac:   { light: '18px', dark: '18px' } },
-  '--nuri-size-sm':   { neutral: { light: '28px', dark: '28px' },
-                        lilac:   { light: '28px', dark: '28px' } },
+  '--nuri-size-sm':   { neutral: { light: '24px', dark: '24px' },
+                        lilac:   { light: '24px', dark: '24px' } },
   '--nuri-size-md':   { neutral: { light: '36px', dark: '36px' },
                         lilac:   { light: '36px', dark: '36px' } },
   '--nuri-size-lg':   { neutral: { light: '48px', dark: '48px' },
@@ -792,54 +793,65 @@ test('build/interaction.ts carries the relocated interaction baseline (0.97 / 0.
 
 
 // ──────────────────────────────────────────────────────────────
-// N+6.8 · typed icon registry emit (decision 48)
-// build/icons.ts is a TYPED mirror of lib/components/icon/icons.js —
-// the SSOT the web inlines and the RN side reads via SvgXml. The
-// single-registry invariant (decision 38) means the emit must be a
-// verbatim copy: exactly 17 names × 3 weights, every [name][weight]
-// path string equal to ICONS[name][weight]. This is the drift /
-// single-source guard in its machine-checkable form.
+// N+51 · icon registry · the SVG folder is the SoT (decision 38/48)
+// The icon SoT is the folder icons/*.svg (one drawing per glyph · NO
+// weights · N+51). readIcons(folder) builds the ICONS registry; the
+// orchestrator emits BOTH readers from it — lib/components/icon/icons.js
+// (web · zero-build inline) + build/icons.ts (RN · SvgXml). This is the
+// folder → registry ROUND-TRIP guard: both committed readers must re-emit
+// identically from the folder, so a hand-edit to either reader (forbidden ·
+// decision 35), a stale build, or a malformed source SVG all fail here.
 // ──────────────────────────────────────────────────────────────
-test('build/icons.ts exposes 17 names × 3 weights, each path equal to icons.js (single-source guard)', async () => {
-  // 1. The SSOT registry itself is the expected 17 × 3 shape.
-  const names = Object.keys(ICONS);
-  assert.equal(names.length, 17, `expected 17 icon names in icons.js, got ${names.length}`);
+test('both icon readers re-emit identically from the icons/*.svg folder (folder → registry round-trip · single-source guard)', async () => {
+  // 1. Read the SoT folder → the ICONS registry. Each value is one glyph's
+  //    inner markup (no weight inner-map) with every fill normalized to
+  //    currentColor (decision 38 · the sole colour story).
+  const icons = await readIcons(ICONS_DIR);
+  const names = Object.keys(icons);
+  assert.ok(names.length > 0, 'the icons/ folder must hold at least one .svg');
   for (const name of names) {
-    assert.deepEqual(
-      Object.keys(ICONS[name]).sort(),
-      [...ICON_WEIGHTS].sort(),
-      `icon '${name}' must declare exactly the weights ${ICON_WEIGHTS.join(', ')}`,
-    );
+    const markup = icons[name];
+    assert.equal(typeof markup, 'string', `icon '${name}' must be a single markup string (no weight map)`);
+    assert.match(markup, /^<path\b/, `icon '${name}' markup must start with a <path> element`);
+    // Every fill is currentColor — no hardcoded source colour leaks through.
+    assert.ok(!/fill="(?!currentColor)[^"]*"/.test(markup),
+      `icon '${name}' has a non-currentColor fill — the normalizer must rewrite every fill`);
+    assert.ok(markup.includes('fill="currentColor"'),
+      `icon '${name}' must carry fill="currentColor"`);
   }
 
-  // 2. The on-disk emit re-emits identically from the SSOT — the drift
-  // guard. A manual edit to build/icons.ts (forbidden · decision 35) or
-  // a stale build both fail here.
-  const onDisk = await readFile(ICONS_TS_PATH, 'utf8');
+  // 2. The on-disk RN reader re-emits identically from the folder — the drift
+  //    guard. A manual edit to build/icons.ts or a stale build both fail.
+  const tsOnDisk = await readFile(ICONS_TS_PATH, 'utf8');
   assert.equal(
-    onDisk, emitIconsTs(ICONS),
-    'build/icons.ts is out of sync with icons.js — run `npm run build`',
+    tsOnDisk, emitIconsTs(icons),
+    'build/icons.ts is out of sync with icons/*.svg — run `npm run build`',
   );
 
-  // 3. Belt-and-suspenders: every path string from the SSOT appears in
-  // the emitted file (catches a hypothetical emitter that dropped or
-  // mangled a glyph without changing the byte count).
+  // 3. The on-disk WEB reader (the GENERATED lib/components/icon/icons.js) also
+  //    re-emits identically — it is a build output too, never hand-edited.
+  const jsOnDisk = await readFile(ICONS_JS_PATH, 'utf8');
+  assert.equal(
+    jsOnDisk, emitIconsJs(icons),
+    'lib/components/icon/icons.js is out of sync with icons/*.svg — run `npm run build`',
+  );
+
+  // 4. Belt-and-suspenders: every glyph's markup appears in both emitted
+  //    readers (catches an emitter that dropped a glyph without changing
+  //    the byte count enough to trip the equality above).
   for (const name of names) {
-    for (const weight of ICON_WEIGHTS) {
-      assert.ok(
-        onDisk.includes(JSON.stringify(ICONS[name][weight])),
-        `build/icons.ts missing path for ${name}.${weight}`,
-      );
-    }
+    assert.ok(tsOnDisk.includes(JSON.stringify(icons[name])), `build/icons.ts missing markup for ${name}`);
+    assert.ok(jsOnDisk.includes(JSON.stringify(icons[name])), `icons.js missing markup for ${name}`);
   }
 
-  // 4. The typed surface is present: the IconName union, the IconWeight
-  // alias, and the icons const with the Record type annotation.
-  assert.match(onDisk, /export type IconName =/, 'icons.ts missing IconName union');
-  assert.match(onDisk, /export type IconWeight = 'regular' \| 'bold' \| 'fill';/,
-    'icons.ts missing IconWeight alias');
-  assert.match(onDisk, /export const icons: Record<IconName, Record<IconWeight, string>> = \{/,
-    'icons.ts missing typed icons registry');
+  // 5. The typed surface is present: the IconName union + the reshaped
+  //    Record<IconName, string> (one markup per glyph · no weight inner-map).
+  assert.match(tsOnDisk, /export type IconName =/, 'icons.ts missing IconName union');
+  assert.match(tsOnDisk, /export const icons: Record<IconName, string> = \{/,
+    'icons.ts missing the reshaped Record<IconName, string> registry');
+  // The retired weight vocabulary must NOT come back (decision 38 · N+51).
+  assert.ok(!tsOnDisk.includes('IconWeight'),
+    'icons.ts re-introduced IconWeight — the regular/bold/fill weight triple was retired at N+51');
 });
 
 // ──────────────────────────────────────────────────────────────
