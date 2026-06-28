@@ -1,7 +1,7 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · TOKENS · GENERATED · DO NOT EDIT BY HAND
  *
- * Source · pipeline/colours.ts (chrome · accent · ref→hex) + styles/tokens-semantic.css (space · size · radius)
+ * Source · pipeline/colours.ts (chrome · accent · ref→hex) + pipeline/dimensions.ts (space · size · radius · ref→px)
  * Emitter · pipeline/tokens-parser.js — run `npm run build`
  *
  * Contains ONLY runtime sets (decision 34 · N+6.0.3): every set
@@ -26,10 +26,11 @@
  * SUBSTITUTION — accent is accent-MAJOR two-layer (a role is a flat hex
  * or a {light,dark} pair · the runtime composes chrome[mode] ⊕
  * accent[accent][mode]), NOT a materialized (accent × theme) cross-
- * product. space/size/radius are still cascade-walked from
- * tokens-semantic.css. Refs resolve through the build's selected
- * --neutral scope (decision 31 · default cream; pass --neutral=<scale>
- * to pipeline/tokens-parser.js to switch).
+ * product. space/size/radius are flattened ref→px straight from
+ * pipeline/dimensions.ts (N+60 · Slice 3b·2a) — the RN value arm reads
+ * no CSS now. Colour refs resolve through the build's selected --neutral
+ * scope (decision 31 · default cream; pass --neutral=<scale> to
+ * pipeline/tokens-parser.js to switch).
  * ────────────────────────────────────────────────────────────── */
 
 export type Accent = 'neutral' | 'lilac' | 'orange';

@@ -31,7 +31,6 @@ import {
   pathFor,
   buildPrimitiveMap,
   readSemanticRules,
-  resolveSemanticCrossProduct,
   collectSemanticVars,
   selectorMatches,
   resolveValue,
@@ -55,6 +54,11 @@ import {
   emitInteractionTs,
   INTERACTION_PRIMITIVES,
 } from './tokens-parser.js';
+
+// resolveSemanticCrossProduct is imported from its source (parsers/semantic.js), NOT the
+// tokens-parser.js barrel — the orchestrator stopped re-exporting it once the RN value arm
+// stopped calling it (N+60 · Slice 3b·2a · the cascade walk is no longer on the RN path).
+import { resolveSemanticCrossProduct } from './parsers/semantic.js';
 
 import { loadTypography, typeDeclMap, rewriteTypeDecls, readFontWeights } from './parsers/type-css.js';
 

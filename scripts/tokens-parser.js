@@ -37,9 +37,7 @@ import {
 
 import {
   buildPrimitiveMap,
-  readSemanticRules,
-  resolveSemanticCrossProduct,
-  emitTokensTs,
+  readSemanticRules,  emitTokensTs,
   selectorMatches,
   findWinningDecl,
   resolveValue,
@@ -101,6 +99,10 @@ import { loadColours, flipColourCss } from './parsers/colour-css.js';
 
 import { resolveColourTokens } from './parsers/colour-tokens.js';
 
+import { resolveDimensionTokens } from './parsers/dimension-tokens.js';
+
+import { emitTokenPathsTsFromSoT } from './parsers/token-paths.js';
+
 import { loadSemanticColours, flipSemanticCss } from './parsers/semantic-css.js';
 
 import { loadTypography, flipTypeCss } from './parsers/type-css.js';
@@ -125,9 +127,7 @@ export {
   countLeaves,
   TYPE_PREFIXES,
   buildPrimitiveMap,
-  readSemanticRules,
-  resolveSemanticCrossProduct,
-  emitTokensTs,
+  readSemanticRules,  emitTokensTs,
   selectorMatches,
   findWinningDecl,
   resolveValue,
@@ -347,18 +347,25 @@ async function main() {
   await writeFile(JSON_OUT, JSON.stringify(tree, null, 2) + '\n', 'utf8');
   const jsonCount = countLeaves(tree);
 
-  // ── Slice 2 · semantic-cascade → tokens.ts literals (N+5) ─────
+  // ── Slice 2 · the RN resolved-semantic literals → tokens.ts (N+5 · re-sourced from the TS SoTs) ─────
   const primitiveMap = buildPrimitiveMap(primitiveCSS);
   const semanticRules = readSemanticRules(semanticCSS);
-  const resolved = resolveSemanticCrossProduct(semanticRules, primitiveMap);
-  // ── N+59 · Slice 3b·1 · re-source the COLOUR arm from the TS SoT (decision 80) ──
-  // The colour groups (chrome · accent) are flattened STRAIGHT from pipeline/colours.ts
-  // (ref→hex · NO CSS round-trip · projection model §3). chrome's resolved hex pairs are
-  // MERGED over the CSS-walked cross-product so the generic emit stays byte-identical
-  // (theme-major); the accent group is handed to emitTokensTs as the two-layer
-  // accent-major table (flat | {light,dark}). space/size/radius stay CSS-walked above.
+  // build/tokens.ts's value arm is flattened STRAIGHT from the TS SoTs — NO TS→CSS→TS
+  // round-trip (projection model §4 · decision 80). The COLOUR arm (chrome · accent)
+  // came onto pipeline/colours.ts at N+59 (Slice 3b·1 · ref→hex); the DIMENSION arm
+  // (space · size · radius) comes onto pipeline/dimensions.ts HERE (N+60 · Slice 3b·2a ·
+  // ref→px literal). So `resolved` is now assembled from the two TS resolvers instead
+  // of the cascade walk (resolveSemanticCrossProduct · the last CSS read of the RN
+  // value arm) — chrome is a theme-major cross-product node map (byte-identical generic
+  // emit), the dimension singletons hold the identical literal in every (accent, theme)
+  // cell (collapsed by the singleton emit), and accent is handed to emitTokensTs as the
+  // two-layer accent-major table. classifyAll(semanticRules) below still derives the
+  // GROUP STRUCTURE + the web token-vars (it relocates with the web projection in 3c ·
+  // the brief scope line); the type composite still resolves its weight against the
+  // primitive map (its own SoT · out of this slice).
   const colourTokens = resolveColourTokens(semanticColours, colours, neutral);
-  Object.assign(resolved, colourTokens.chrome);
+  const dimensionTokens = resolveDimensionTokens(dims);
+  const resolved = { ...colourTokens.chrome, ...dimensionTokens };
   // The `type` namespace joins tokens.ts as a directly-accessed,
   // context-invariant composite. RE-SOURCED at N+52 onto the TS SoT
   // (typeSoT · pipeline/typography.ts · decision 78): fontSize/lineHeight/
@@ -390,11 +397,14 @@ async function main() {
   // build-output-neutral. The resolver it exercised is covered by the synthetic
   // tokens-parser.test.js.)
 
-  // ── Slice 5 · TokenPath union emit (N+6.0.3 · decision 34) ────
-  // Derived from every runtime-set leaf in classifiedGroups; same
-  // pass that emitted tokens.ts walks the same groups so the union
-  // and the runtime namespace stay in sync mechanically.
-  const tokenPathsSource = emitTokenPathsTs(classifiedGroups);
+  // ── Slice 5 · TokenPath union emit (N+6.0.3 · decision 34 · re-sourced N+60 · Slice 3b·2a) ────
+  // Enumerated STRAIGHT from the TS SoTs (pipeline/colours.ts chrome + accent roles ·
+  // pipeline/dimensions.ts space/size/radius keys) — no longer from classifyAll
+  // (semanticRules · the CSS). The SoT keys ARE the runtime-set leaf names, in the same
+  // emit order tokens.ts uses, so the union stays in lockstep with the runtime namespace
+  // without a CSS classify step (projection model §4 · decision 80). classifyAll stays
+  // for the web token-vars below (it relocates with the web projection · 3c).
+  const tokenPathsSource = emitTokenPathsTsFromSoT(semanticColours, dims);
   await writeFile(TOKEN_PATHS_OUT, tokenPathsSource, 'utf8');
 
   // ── Slice 5b · semantic colour var registry emit (N+42 · A4 · the @nuri/doc data export) ──
