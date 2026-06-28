@@ -31,7 +31,9 @@ on:
     branches: [main]
 
 jobs:
-  # The web/pipeline radix · = the pre-M3 `gates` job, workspace-scoped to @nuri/spec.
+  # The token-pipeline gate · runs the root scripts/ codegen + its 6 drift guards and
+  # diffs @nuri/spec's committed build/ + styles/ (the codegen moved out of spec at N+53 ·
+  # spec is now no-deps/no-scripts). KEEP the `spec` name — it is a required check.
   spec:
     runs-on: ubuntu-latest
     steps:
@@ -45,17 +47,21 @@ jobs:
       - name: Install (locked · workspace-aware)
         run: npm ci
 
-      - name: Test (pipeline drift guards · @nuri/spec)
-        run: npm test -w @nuri/spec
+      - name: Test (token-pipeline drift guards · root scripts/)
+        # The codegen + its 6 drift guards moved to the root scripts/ dir at N+53
+        # (convergence phase 4·3 · @nuri/spec is now no-deps/no-scripts). This job
+        # keeps the `spec` name (a required check) — only what it runs changed.
+        run: node --test scripts/*.test.js
 
-      - name: Build the RN emit (@nuri/spec)
-        run: npm run build -w @nuri/spec
+      - name: Build the token emit (root scripts/ → @nuri/spec build/ + styles/)
+        run: node scripts/tokens-parser.js
 
-      - name: packages/spec/build/ must match source (no stale committed emit)
-        # build/ is committed (decision 35). If a source change wasn't
-        # rebuilt, the fresh emit diverges from the committed files — fail
-        # so the author runs `npm run build -w @nuri/spec` and commits it.
-        run: git diff --exit-code packages/spec/build/
+      - name: packages/spec/{build,styles}/ must match source (no stale committed emit)
+        # build/ + styles/ are committed (decision 35); the codegen regenerates both
+        # IN PLACE. If a SoT change wasn't rebuilt, the fresh emit diverges from the
+        # committed files — fail so the author runs `node scripts/tokens-parser.js`
+        # and commits it.
+        run: git diff --exit-code packages/spec/build/ packages/spec/styles/
 
   # The build-free web LIBRARY · @nuri/prototype (the A3 carve · N+41). Owns the web
   # mechanism (factory · primitives · the 3 recipes · nuri-demo) AND the namespace-CSS

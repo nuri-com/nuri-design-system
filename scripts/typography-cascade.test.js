@@ -35,7 +35,7 @@ import { fileURLToPath } from 'node:url';
 import postcss from 'postcss';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(__dirname, '..');
+const REPO_ROOT = resolve(__dirname, '../packages/spec');
 const TYPOGRAPHY_CSS = resolve(REPO_ROOT, 'styles/typography.css');
 const PRIMITIVE_CSS = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
 

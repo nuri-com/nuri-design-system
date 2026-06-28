@@ -60,7 +60,7 @@ import {
 import { loadTypography, typeDeclMap, rewriteTypeDecls, readFontWeights } from './parsers/type-css.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(__dirname, '..');
+const REPO_ROOT = resolve(__dirname, '../packages/spec');
 const CSS_PATH = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
 const SEMANTIC_CSS_PATH = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
 const JSON_PATH = resolve(REPO_ROOT, 'build/tokens.json');

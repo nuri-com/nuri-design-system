@@ -2,12 +2,17 @@
   "name": "nuri",
   "version": "0.0.1",
   "private": true,
-  "description": "Nuri Design System · npm-workspaces monorepo · radix @nuri/spec (CSS SoT + pipeline + frozen build/) · decision 65.7",
+  "type": "module",
+  "description": "Nuri Design System · npm-workspaces monorepo · radix @nuri/spec (CSS SoT + .ts token SoTs + frozen build/) · the token codegen in root scripts/ · decision 65.7",
   "workspaces": [
     "packages/*"
   ],
+  "//": "The token codegen lives in root scripts/ (convergence phase 4·3 · N+53): it reads @nuri/spec's .ts SoTs + hand CSS and regenerates spec's build/* + styles/* IN PLACE. @nuri/spec is now no-deps/no-scripts (pure data + the frozen build/* contract). Build ORDER matters: the codegen runs FIRST (it writes spec's styles/tokens-semantic.css), then the workspaces (prototype's css-preview.js reads that generated CSS cross-package · DAG: prototype → spec). postcss is the codegen's only runtime dep (the emitters parse CSS).",
   "scripts": {
-    "test": "npm test --workspaces --if-present",
-    "build": "npm run build --workspaces --if-present"
+    "test": "node --test scripts/*.test.js && npm test --workspaces --if-present",
+    "build": "node scripts/tokens-parser.js && npm run build --workspaces --if-present"
+  },
+  "devDependencies": {
+    "postcss": "^8.4.49"
   }
 }
