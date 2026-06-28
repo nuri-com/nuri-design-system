@@ -223,7 +223,19 @@ export type Variants<A extends Axes> = {
 // layers (decision 64 · 65.3 §7); only OPENNESS differs — the open
 // `composition-` primitive exposes `base` for override, the recipe locks
 // it (the anatomy-vs-base load-bearing marker is deferred · B1.5 §4.1 · P11).
+//
+// `defaults` — the per-axis PUBLIC default (R1.5 · N+50). The value an
+// unset axis resolves to; BOTH factories read it (createNuriComponent's
+// defaultByAxis · the web buildComponent fallback), so neither binding
+// hand-knows a default. Absent a `defaults[axis]` the factory falls back to
+// the axis's FIRST value (the prior behaviour · the first-value heuristic).
+// Closes the web↔RN parity gap the recipes patched at the binding (Button
+// soft · not solid). `decorative` — the component is hidden from AT
+// (aria-hidden · decision 50 · IconAvatar): honest descriptor data the web
+// factory reads instead of a hand `aria-hidden` at the binding.
 export type Descriptor<A extends Axes> = {
   structure: { anatomy: PartAnatomy; base?: PartMap };
   variants?: Variants<A>;
+  defaults?: Partial<Record<string, string>>;
+  decorative?: boolean;
 };

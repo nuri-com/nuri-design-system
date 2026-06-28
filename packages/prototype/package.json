@@ -9,10 +9,11 @@
     "@nuri/spec": "*"
   },
   "devDependencies": {
+    "jsdom": "^20.0.3",
     "postcss": "^8.4.49"
   },
   "scripts": {
     "build": "node pipeline/css-preview.js",
-    "test": "node --test pipeline/*.test.js"
+    "test": "node --test pipeline/*.test.js factory/*.test.js"
   }
 }

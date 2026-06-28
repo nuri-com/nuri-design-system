@@ -61,10 +61,14 @@
  *     buildComponent(compositionButtonDescriptor, { variant: 'solid', size: 'md' }, { children: 'Pay' }),
  *   );
  *
- * Equivalence is compared at EXPLICIT axis values (the descriptor carries no
- * per-axis default · R1.5): an unset axis falls back to the descriptor's FIRST
- * value (variant→solid), whereas <nuri-button> defaults to soft. That gap is a
- * known finding, NOT fixed here.
+ * An unset axis resolves to descriptor.defaults[axis] (R1.5 · N+50 · now IN the
+ * contract — Button→soft), else the axis's FIRST value. The web factory + the
+ * RN createNuriComponent read the SAME `defaults`, so <nuri-button> and <Button>
+ * default identically (the parity gap the recipes patched at the binding CLOSED).
+ *
+ * defineNuriComponent (below) is the generic custom-element registration over
+ * buildComponent — the web twin of createNuriComponent (the recipes are now a
+ * single line · the hand HTMLElement wrappers retired · N+50 · decision 65).
  * ────────────────────────────────────────────────────────────── */
 
 // The canonical namespace merge order (resolve.ts NS_ORDER · load-bearing: the
@@ -307,13 +311,18 @@ function renderIcon(node, ctx) {
 export function buildComponent(descriptor, selection = {}, props = {}) {
   const anatomy = resolveAnatomy(descriptor);
 
-  // first-value fallback per axis (createNuriComponent · the frozen descriptor
-  // carries no per-axis default · R1.5).
+  // per-axis default = the descriptor's `defaults[axis]` (R1.5 · N+50 · now IN
+  // the contract — Button=soft), else the axis's FIRST value (the generic
+  // fallback). The SAME source createNuriComponent's defaultByAxis reads, so an
+  // unset axis resolves identically on both platforms (the parity close).
   const sel = {};
   if (descriptor.variants) {
     for (const axis of Object.keys(descriptor.variants)) {
       const provided = selection[axis];
-      sel[axis] = typeof provided === 'string' ? provided : Object.keys(descriptor.variants[axis])[0];
+      sel[axis] =
+        typeof provided === 'string'
+          ? provided
+          : (descriptor.defaults && descriptor.defaults[axis]) ?? Object.keys(descriptor.variants[axis])[0];
     }
   }
 
@@ -329,4 +338,95 @@ export function buildComponent(descriptor, selection = {}, props = {}) {
   }
 
   return renderPart(anatomy, { descriptor, selection: sel, content, base: props });
+}
+
+/**
+ * defineNuriComponent · descriptor + tag name → a registered custom element.
+ *
+ * The web TWIN of createNuriComponent (the generic RN factory · decision 65 ·
+ * 65.5 "X-wired" — ONE factory, schema-driven, zero per-component code). Where
+ * the RN factory returns a typed React component, this defines a custom element
+ * over `buildComponent`: the SAME API derivation (axes → attributes), the SAME
+ * defaults source (descriptor.defaults · R1.5 · N+50), the SAME children/name →
+ * primary-part routing. A recipe is now a single registration line — the hand
+ * `HTMLElement` wrapper (observedAttributes · connectedCallback · attr→selection
+ * · define) is gone (N+50 · the no-hand-data close).
+ *
+ * DERIVED, never hand-passed:
+ *   · observedAttributes = the axis names ∪ `accent` (Tier-2 self-scope) ∪
+ *     `disabled` (iff the root is interactive) ∪ `name` (iff the primary part
+ *     is an `icon` leaf). Nothing component-specific is enumerated here.
+ *   · the per-axis DEFAULT comes from descriptor.defaults (buildComponent reads
+ *     it) — the element passes ONLY the attributes the author set, never a default.
+ *   · the text label of a `text` primary part is captured from textContent
+ *     before the factory tree replaces it (Button → label routing).
+ *   · DECORATIVE (decision 50) → aria-hidden from descriptor.decorative, not a
+ *     hand attr (IconAvatar).
+ *
+ * @param descriptor a frozen component descriptor (build/descriptors/*.js)
+ * @param tagName    the custom-element tag (e.g. 'nuri-button')
+ */
+export function defineNuriComponent(descriptor, tagName) {
+  const axisNames = descriptor.variants ? Object.keys(descriptor.variants) : [];
+  const anatomy = resolveAnatomy(descriptor);
+  // The lone non-root part receives the routed content (createNuriComponent's
+  // primaryPart): a `text` el captures the label · an `icon` el routes `name`.
+  const primary = anatomy.children.length === 1 ? anatomy.children[0] : undefined;
+  const textPrimary = !!primary && primary.el === 'text';
+  const iconPrimary = !!primary && primary.el === 'icon';
+  // Interactive iff the root opts in (the `disabled` reflection is generic to any
+  // interactive component · button has it, icon-avatar does not).
+  const interactive = !!(descriptor.structure.base && descriptor.structure.base.root && descriptor.structure.base.root.interactive);
+
+  const observed = [...axisNames, 'accent'];
+  if (interactive) observed.push('disabled');
+  if (iconPrimary) observed.push('name');
+
+  class NuriElement extends HTMLElement {
+    static get observedAttributes() {
+      return observed;
+    }
+
+    #label = null;
+    #built = false;
+
+    connectedCallback() {
+      if (this.#built) return;
+      // Decorative · the whole element is hidden from AT (decision 50) — from DATA.
+      if (descriptor.decorative) this.setAttribute('aria-hidden', 'true');
+      // Capture the authored label BEFORE the factory tree replaces the children
+      // (buildComponent routes `children` to the lone non-root text part).
+      if (textPrimary) this.#label = this.textContent.trim();
+      this.#render();
+      this.#built = true;
+    }
+
+    attributeChangedCallback() {
+      // Re-render on a live attribute change. The factory tree is rebuilt from the
+      // captured label — the prototype mirror does not preserve the inner node
+      // across changes (that is the RN factory's production concern).
+      if (this.#built) this.#render();
+    }
+
+    #render() {
+      // Only the attributes the author SET reach the selection — buildComponent
+      // fills an unset axis from descriptor.defaults (R1.5 · no default here).
+      const selection = {};
+      for (const axis of axisNames) {
+        const v = this.getAttribute(axis);
+        if (v != null) selection[axis] = v;
+      }
+      const props = {};
+      if (textPrimary) props.children = this.#label;
+      if (iconPrimary) props.name = this.getAttribute('name') || '';
+      if (interactive) props.disabled = this.hasAttribute('disabled');
+      const accent = this.getAttribute('accent');
+      if (accent) props.accent = accent; // Tier-2 self-scope (threaded to the merged node)
+
+      this.replaceChildren(buildComponent(descriptor, selection, props));
+    }
+  }
+
+  customElements.define(tagName, NuriElement);
+  return NuriElement;
 }
