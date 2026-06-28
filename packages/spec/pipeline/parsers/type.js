@@ -2,18 +2,24 @@
  * NURI · TYPE SCALE EMITTER (Node)
  *
  * Emits the `type` namespace into build/tokens.ts — a TYPED, per-step
- * composite of the type scale — from the --nuri-type-* primitives in
- * styles/tokens-primitive.css (the single source · decision 34's type
- * primitives, reclassified at decision 54). The web side consumes the
- * SAME primitives through the .nuri-type-* utility classes
- * (styles/typography.css · zero-build); this emit is the RN runtime's
- * reader. ONE source, TWO readers (the icon model · decision 48).
+ * composite of the type scale. RE-SOURCED at N+52 (decision 78 · the
+ * type-composite flip): the scale comes from the TS SoT
+ * (pipeline/typography.ts · decision 2 reversed for the type composite),
+ * a self-contained INLINE table of text styles — fontSize px · lineHeight
+ * ratio · letterSpacing em are taken STRAIGHT from it; only the weight
+ * NAME ('regular') is resolved to its literal ('400') against the primitive
+ * map (--nuri-font-weight-* stays a hand-CSS primitive · the one value the
+ * scale still references). The same SoT also GENERATES the --nuri-type-*
+ * CSS in place, DE-REFERENCED to inline (parsers/type-css.js · size →
+ * 1.0625rem · weight → 400), which the web side consumes through
+ * styles/typography.css ([data-type-style] · zero-build); this emit is the
+ * RN runtime's reader. ONE source, TWO readers (the icon model · decision 48).
  *
  * Unlike the cascade-resolved groups in tokens.ts, `type` is NOT a
  * runtime/TokenPath set — it's a context-invariant, directly-accessed
  * nested namespace (like `icons`): the consumer spreads `type[size]`
  * straight into a Text style. A drift guard in tokens-parser.test.js
- * re-derives every value from the source primitives.
+ * re-derives every value from the SoT (the restated-scale oracle).
  *
  * lineHeight AND letterSpacing stay RELATIVE — verbatim from the
  * source (a unitless ratio · an em number). RN's lineHeight /
@@ -24,10 +30,10 @@
  * ONE place on the consumer side — the `typeStyle(key)` helper — which
  * is also where a `* fontScale` multiply goes when Dynamic Type lands
  * (not now · P11). Per-leaf:
- *   · fontSize       rem → px at the 16px root baseline (1.0625rem → 17)
+ *   · fontSize       px, straight from the SoT (17)
  *   · lineHeight     UNITLESS ratio, verbatim (1.29) — × fontSize in typeStyle
  *   · letterSpacing  em number, verbatim (-0.02; xs = 0) — × fontSize in typeStyle
- *   · fontWeight     the resolved REGULAR weight literal as a quoted string ('400').
+ *   · fontWeight     the regular weight NAME resolved to its literal string ('400').
  *
  * EMPHASIS is ORTHOGONAL (decision 77 · the N+45 de-fusion): the regular→semibold
  * override is UNIFORM across every size (all 6 leaves resolved --nuri-font-weight-
@@ -49,45 +55,35 @@ function round3(n) {
   return Math.round(n * 1000) / 1000;
 }
 
-// rem → px at the 16px root baseline (mirror components.js#remToPx ·
-// decision 34: --nuri-font-size-17 = 1.0625rem → 17). Also accepts a
-// bare px literal or a unitless number for robustness.
-function lengthToPx(raw) {
-  if (raw.endsWith('rem')) return round3(Number(raw.slice(0, -3)) * 16);
-  if (raw.endsWith('px')) return round3(Number(raw.slice(0, -2)));
-  return round3(Number(raw));
-}
-
-// tracking → the em number, verbatim. '-0.02em' → -0.02 · '0' → 0.
-// Kept relative (NOT × size) so it scales with fontSize / fontScale at
-// the consumer · typeStyle does the × fontSize conversion.
-function trackingToEm(raw) {
-  return round3(raw.endsWith('em') ? Number(raw.slice(0, -2)) : Number(raw));
-}
-
-// Resolve the type scale from the primitive map → { sizes, emphasisWeight }:
-// the 6 size composites (regular weight) keyed by step, plus the single
-// orthogonal emphasis weight override (decision 77 · uniform 400→600). Throws
-// loudly if any --nuri-type-* primitive (or the semibold weight) dangles, so a
-// renamed/dropped source surfaces at build rather than a silent partial scale.
-export function buildTypeScale(primitiveMap) {
+// Resolve the type scale from the TS SoT + the primitive map → { sizes,
+// emphasisWeight }: the 6 size composites (regular weight) keyed by step, plus
+// the single orthogonal emphasis weight override (decision 77 · uniform 400→600).
+// The SoT (pipeline/typography.ts · loaded by the orchestrator) is the readable
+// inline table — fontSize px · lineHeight ratio · letterSpacing em are taken
+// STRAIGHT from it (no CSS read); only the weight NAME is resolved to its literal
+// against `primitiveMap` (--nuri-font-weight-* stays a hand-CSS primitive · the
+// one value the type scale still references). Throws loudly if the weight (or the
+// semibold emphasis weight) dangles, so a renamed/dropped primitive surfaces at
+// build rather than a silent partial scale.
+export function buildTypeScale(typeSoT, primitiveMap) {
   const sizes = {};
   for (const step of TYPE_SIZES) {
-    const sizeRaw  = resolveValue(primitiveMap.get(`--nuri-type-${step}-size`), primitiveMap);
-    const lhRaw    = resolveValue(primitiveMap.get(`--nuri-type-${step}-line-height`), primitiveMap);
-    const trackRaw = resolveValue(primitiveMap.get(`--nuri-type-${step}-tracking`), primitiveMap);
-    const wRaw     = resolveValue(primitiveMap.get(`--nuri-type-${step}-weight`), primitiveMap);
-    if ([sizeRaw, lhRaw, trackRaw, wRaw].some((v) => v == null)) {
+    const def = typeSoT[step];
+    if (def == null) {
+      throw new Error(`type scale: step '${step}' is missing from the TS SoT (pipeline/typography.ts)`);
+    }
+    const wRaw = resolveValue(primitiveMap.get(`--nuri-font-weight-${def.weight}`), primitiveMap);
+    if (wRaw == null) {
       throw new Error(
-        `type scale step '${step}' has an unresolved --nuri-type-* primitive ` +
-        `(size=${sizeRaw} lh=${lhRaw} tracking=${trackRaw} weight=${wRaw})`,
+        `type scale step '${step}' weight '${def.weight}' is unresolved ` +
+        `(--nuri-font-weight-${def.weight} missing from the primitives)`,
       );
     }
     sizes[step] = {
-      fontSize: lengthToPx(sizeRaw),
-      lineHeight: round3(Number(lhRaw)),
+      fontSize: round3(def.fontSize),
+      lineHeight: round3(def.lineHeight),
       fontWeight: wRaw,
-      letterSpacing: trackingToEm(trackRaw),
+      letterSpacing: round3(def.letterSpacing),
     };
   }
   // The emphasis override · ONE value, the semibold weight (decision 77 · P11).

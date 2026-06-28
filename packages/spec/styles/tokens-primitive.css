@@ -460,17 +460,18 @@
   --nuri-font-weight-bold:     700;
 
   /* ── Typography · sizes (rem — scales with user pref) ──────────
-   * Only the scale steps consumed by --nuri-type-* semantic
-   * mappings exist as primitives. Adding a new step requires both
-   * a primitive declaration here AND a --nuri-type-*-size that
-   * consumes it. Orphan font-size primitives are caught by the
-   * "primitive used or reserved" guardrail test. */
-  --nuri-font-size-13: 0.8125rem; /* type xs */
-  --nuri-font-size-15: 0.9375rem; /* type sm */
-  --nuri-font-size-17: 1.0625rem; /* type md */
-  --nuri-font-size-22: 1.375rem;  /* type lg */
-  --nuri-font-size-30: 1.875rem;  /* type xl */
-  --nuri-font-size-57: 3.5625rem; /* type 3xl */
+   * Hand-CSS font-size primitives. Since N+52 (decision 78) the type
+   * scale INLINES its sizes (--nuri-type-*-size is the rem literal, no
+   * longer var(--nuri-font-size-N)), so these are consumed directly by
+   * shell.css (13/15/17/22). 30/57 have no consumer today — RESERVED in
+   * the "primitive used or reserved" guardrail pending the Phase 4·3
+   * font-primitive flip (which re-decides the ramp's membership). */
+  --nuri-font-size-13: 0.8125rem; /* shell */
+  --nuri-font-size-15: 0.9375rem; /* shell */
+  --nuri-font-size-17: 1.0625rem; /* shell */
+  --nuri-font-size-22: 1.375rem;  /* shell */
+  --nuri-font-size-30: 1.875rem;  /* reserved */
+  --nuri-font-size-57: 3.5625rem; /* reserved */
 
   /* ── Line-height · NO primitives by design ─────────────────────
    * The type scale below declares --nuri-type-*-line-height as
@@ -537,44 +538,44 @@
 
 :root {
   /* ── xs · 13 / 18  (1.38) ─────────────────────────────────── */
-  --nuri-type-xs-size:        var(--nuri-font-size-13);
+  --nuri-type-xs-size:        0.8125rem;
   --nuri-type-xs-line-height: 1.38;
   --nuri-type-xs-tracking:    0;
-  --nuri-type-xs-weight:      var(--nuri-font-weight-regular);
+  --nuri-type-xs-weight:      400;
 
   /* ── sm · 15 / 20  (1.33) ─────────────────────────────────── */
-  --nuri-type-sm-size:        var(--nuri-font-size-15);
+  --nuri-type-sm-size:        0.9375rem;
   --nuri-type-sm-line-height: 1.33;
   --nuri-type-sm-tracking:    -0.01em;
-  --nuri-type-sm-weight:      var(--nuri-font-weight-regular);
+  --nuri-type-sm-weight:      400;
 
   /* ── md · 17 / 22  (1.29) ─────────────────────────────────── */
-  --nuri-type-md-size:        var(--nuri-font-size-17);
+  --nuri-type-md-size:        1.0625rem;
   --nuri-type-md-line-height: 1.29;
   --nuri-type-md-tracking:    -0.02em;
-  --nuri-type-md-weight:      var(--nuri-font-weight-regular);
+  --nuri-type-md-weight:      400;
 
   /* ── lg · 22 / 28  (1.27) ─────────────────────────────────── */
-  --nuri-type-lg-size:        var(--nuri-font-size-22);
+  --nuri-type-lg-size:        1.375rem;
   --nuri-type-lg-line-height: 1.27;
   --nuri-type-lg-tracking:    -0.015em;
-  --nuri-type-lg-weight:      var(--nuri-font-weight-regular);
+  --nuri-type-lg-weight:      400;
 
   /* ── xl · 30 / 36  (1.20) ─────────────────────────────────── */
-  --nuri-type-xl-size:        var(--nuri-font-size-30);
-  --nuri-type-xl-line-height: 1.20;
+  --nuri-type-xl-size:        1.875rem;
+  --nuri-type-xl-line-height: 1.2;
   --nuri-type-xl-tracking:    -0.015em;
-  --nuri-type-xl-weight:      var(--nuri-font-weight-regular);
+  --nuri-type-xl-weight:      400;
 
   /* ── 2xl · reserved ───────────────────────────────────────── */
   /* Intentional gap between xl (30) and 3xl (57). Define when a
    * concrete need surfaces — likely ~40/48 with bold emphasis. */
 
   /* ── 3xl · 57 / 68  (1.19) ────────────────────────────────── */
-  --nuri-type-3xl-size:        var(--nuri-font-size-57);
+  --nuri-type-3xl-size:        3.5625rem;
   --nuri-type-3xl-line-height: 1.19;
   --nuri-type-3xl-tracking:    -0.02em;
-  --nuri-type-3xl-weight:      var(--nuri-font-weight-regular);
+  --nuri-type-3xl-weight:      400;
 }
 
 

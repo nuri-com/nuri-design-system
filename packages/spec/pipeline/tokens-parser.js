@@ -101,6 +101,8 @@ import { loadColours, flipColourCss } from './parsers/colour-css.js';
 
 import { loadSemanticColours, flipSemanticCss } from './parsers/semantic-css.js';
 
+import { loadTypography, flipTypeCss } from './parsers/type-css.js';
+
 // The icon registry is GENERATED from the icons/*.svg folder (the SoT · decision 38 ·
 // N+51 · convergence phase 4·1). lib/components/icon/icons.js (the web reader) is now a
 // build OUTPUT, so the orchestrator no longer imports it — it READS the folder and emits
@@ -173,6 +175,7 @@ const PRIMITIVE_CSS    = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
 const SEMANTIC_CSS     = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
 const DIMENSIONS_SRC   = resolve(REPO_ROOT, 'pipeline/dimensions.ts');
 const COLOURS_SRC      = resolve(REPO_ROOT, 'pipeline/colours.ts');
+const TYPOGRAPHY_SRC   = resolve(REPO_ROOT, 'pipeline/typography.ts');
 const PALETTE_SURFACE_SRC = resolve(REPO_ROOT, 'pipeline/palette-surface.ts');
 const TYPOGRAPHY_AXIS_SRC = resolve(REPO_ROOT, 'pipeline/typography-axis.ts');
 const JSON_OUT         = resolve(REPO_ROOT, 'build/tokens.json');
@@ -302,6 +305,25 @@ async function main() {
     `the dec-63 #4b/#6b self-scope) → styles/tokens-semantic.css`,
   );
 
+  // ── Slice 0 · the type composite · TS SoT → tokens-primitive.css (N+52 · decision 78 · the value flip §77 deferred) ──
+  // decision 2 reverses for the type COMPOSITE (the value flip §77 deferred to
+  // phase 4 · after dimensions N+31 + colour N+32): the six --nuri-type-* step
+  // composites are authored in pipeline/typography.ts (a self-contained inline
+  // table of text styles · NOT the dimension {ref} shape) and WRITTEN INTO
+  // styles/tokens-primitive.css here, before Slice 2 reads it. The --nuri-type-*
+  // declarations are regenerated DE-REFERENCED to inline (size → the rem literal ·
+  // weight → the resolved literal), so the --nuri-font-size-* / --nuri-font-weight-*
+  // PRIMITIVES go back to being a foundational hand-CSS layer (shell.css's concern ·
+  // a Phase 4·3 residue · NOT touched here). The resolved VALUES are unchanged, so
+  // build/tokens.ts (re-sourced onto this SoT) stays byte-identical; only the
+  // --nuri-type-* block's spelling changes (var→inline · computed-equivalent).
+  const typeSoT = await loadTypography(TYPOGRAPHY_SRC);
+  await flipTypeCss({ primitivePath: PRIMITIVE_CSS, type: typeSoT });
+  console.log(
+    `[tokens-parser] flipped the type composite from the TS SoT ` +
+    `(${Object.keys(typeSoT).length} steps · de-referenced to inline) → styles/tokens-primitive.css`,
+  );
+
   // (The namespace-CSS slice MOVED to @nuri/prototype at N+41 · the A3 carve.) The 5
   // namespace axes (box/stack/palette/interactive/typography) are still GENERATED from the TS
   // SoTs — the dec-74 / dec-2-reversed flip STANDS — but the generator (pipeline/css-preview.js)
@@ -326,11 +348,14 @@ async function main() {
   const semanticRules = readSemanticRules(semanticCSS);
   const resolved = resolveSemanticCrossProduct(semanticRules, primitiveMap);
   // The `type` namespace joins tokens.ts as a directly-accessed,
-  // context-invariant composite emitted from the --nuri-type-*
-  // primitives (decision 54 · the icon model · one source, two
-  // readers). It is appended after the cascade-resolved runtime
-  // groups; it is NOT a runtime/TokenPath set.
-  const typeScale = buildTypeScale(primitiveMap);
+  // context-invariant composite. RE-SOURCED at N+52 onto the TS SoT
+  // (typeSoT · pipeline/typography.ts · decision 78): fontSize/lineHeight/
+  // letterSpacing come straight from the inline table; only the weight
+  // name resolves against the font-weight primitive in primitiveMap (the
+  // one value the scale still references). One source, two readers (the
+  // icon model · decision 48). It is appended after the cascade-resolved
+  // runtime groups; it is NOT a runtime/TokenPath set.
+  const typeScale = buildTypeScale(typeSoT, primitiveMap);
   const tsSource = emitTokensTs(resolved, semanticRules) + '\n' + emitTypeTs(typeScale);
   await writeFile(TS_OUT, tsSource, 'utf8');
   const classifiedGroups = classifyAll(semanticRules);
