@@ -91,9 +91,9 @@ packages/                      npm-workspaces monorepo · workspaces: ["packages
       token-paths.ts             TokenPath discriminated union over every
                                  runtime-set leaf · 38 members (N+6.0.3)
       icons.ts                   shared glyph registry · IconName union +
-                                 icons: Record<IconName, Record<IconWeight,
-                                 string>> · 17 glyphs × 3 weights (decision
-                                 48 · N+6.8)
+                                 icons: Record<IconName, string> · GENERATED
+                                 from icons/*.svg · one drawing per glyph ·
+                                 currentColor (decision 48 · N+51)
       descriptors/               per-component DESCRIPTOR · the frozen R-EXPO-6
                                  cross-repo contract (theme thunk · variants /
                                  compoundVariants · part-addressable $parts ·
@@ -203,7 +203,7 @@ composition). Foundations are being built one at a time.
 - [x] Colour
 - [x] Typography
 - [x] Dimension (primitive + spacing + sizing + radius — N+6.1 / N+6.1.1)
-- [x] Iconography (`<nuri-icon>` · 17-glyph phosphor registry — N+6.3)
+- [x] Iconography (`<nuri-icon>` · glyph registry generated from `icons/*.svg` — N+6.3 / N+51)
 - [ ] Elevation
 - [ ] Motion
 
@@ -286,8 +286,8 @@ were **retired at Smell-1** · decision 66 arc #0; the lone live
 value — the decision-45 interaction baseline — relocated to its own
 transversal emit at
 [`packages/spec/build/interaction.ts`](./packages/spec/build/interaction.ts).) A typed icon
-registry ships at [`packages/spec/build/icons.ts`](./packages/spec/build/icons.ts) (17 glyphs
-× 3 weights · decision 48).
+registry ships at [`packages/spec/build/icons.ts`](./packages/spec/build/icons.ts), generated
+from the `packages/spec/icons/*.svg` folder (one drawing per glyph · currentColor · decision 48).
 `packages/spec/pipeline/tokens-parser.test.js` runs 20 assertions: 6 primitive
 round-trip, 4 semantic cross-product (hand-derived oracle, P4
 bright-vs-saturated asymmetry, `selectorMatches` port,

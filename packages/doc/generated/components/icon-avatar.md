@@ -30,6 +30,7 @@ nav_order: 2
 | --- | --- | --- | --- |
 | `root` | `stack` | **align** `center`<br>**justify** `center` | —<br>— |
 | `root` | `box` | **width** `size.lg`<br>**height** `size.lg`<br>**radius** `radius.full` | `48px`<br>`48px`<br>`9999px` |
+| `icon` | `box` | **width** `size.sm`<br>**height** `size.sm` | `24px`<br>`24px` |
 
 ## Token map
 

@@ -233,7 +233,10 @@ exports[`genericity + the resolved style tree (snapshots committed) resolved Uni
 exports[`genericity + the resolved style tree (snapshots committed) resolved Unistyles recipe — IconAvatar (lilac/light) 1`] = `
 {
   "icon": {
-    "base": {},
+    "base": {
+      "height": 24,
+      "width": 24,
+    },
     "compoundVariants": [],
     "el": "icon",
     "variants": {},

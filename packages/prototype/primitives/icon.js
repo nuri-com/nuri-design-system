@@ -1,37 +1,45 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · ICON · CUSTOM ELEMENT
- * <nuri-icon name size fill> renders an inline SVG from the
- * hand-curated phosphor registry (icons.js). The element is a thin
- * Nuri facade over the registry — the first registry-based JS
- * dispatch in Nuri (decision 38 · N+6.3), a complement to the
- * attribute-dispatch pattern Stack/Box use for the `size` prop
- * (decision 37 · N+6.2).
+ * <nuri-icon name size> renders an inline SVG glyph from the
+ * generated registry (icons.js · the SoT folder icons/*.svg ·
+ * decision 38 · N+51). The element is a thin Nuri facade over the
+ * registry — the first registry-based JS dispatch in Nuri
+ * (decision 38 · N+6.3), a complement to the attribute-dispatch
+ * pattern Stack/Box use for the `size` prop (decision 37 · N+6.2).
  *
  * Props (observed attributes)
  *   name   (required)  registry key · kebab-case · warns if unknown
- *   size   "md" | "sm"  default "md" — mirrored to data-size for CSS
- *   fill   boolean       presence forces the fill weight
+ *   size   "md" | "sm"  default "md"
  *
- * Weight coupling (decision 38) — NOT a per-call prop:
- *   md  + no fill  → regular
- *   sm  + no fill  → bold
- *   any + fill     → fill
+ * One drawing per glyph · NO weights (the regular/bold/fill coupling
+ * RETIRED at N+51). The model is now "one .svg = one glyph"; SIZE rides
+ * the SHARED box axis (N+51 · the icon-arc close · NOT a bespoke
+ * .nuri-icon[data-size] rule): the element maps its public `size` to a
+ * `size`-scale leaf and applies `nuri-box` + `data-width`/`data-height`,
+ * so box.css sizes it (inline-size/block-size). NAMING OFFSET — the
+ * icon's `md` ↔ the `sm` size leaf (24px) · `sm` ↔ the `xs` leaf (18px):
+ *   md → box width/height "sm" (--nuri-size-sm · 24)   default
+ *   sm → box width/height "xs" (--nuri-size-xs · 18)
+ * A HOST (the web factory · icon-avatar) may pin the box itself by
+ * pre-setting data-width/data-height from the descriptor; the element
+ * RESPECTS that and only self-derives when it carries its own `size`
+ * prop or no host box has been applied.
  *
- * Colour is currentColor only — the icon inherits its parent's
- * text colour. No tone/accent/color prop (decision 38).
+ * Colour is currentColor only — the icon inherits its parent's text
+ * colour. No tone/accent/color prop (decision 38).
  *
  * Loaded as an ES module (`<script type="module">`), so it imports
  * the registry and is deferred by default — connectedCallback fires
  * after children parse (AGENTS.md custom-element rule).
  * ────────────────────────────────────────────────────────────── */
 
-// icons.js (the glyph registry · the Slice-6 data) STAYS in @nuri/spec — the pipeline imports
-// it to emit build/icons.ts (one registry, two readers · decision 48). Read across the package
-// boundary (the build-free relative pattern · the prototype → spec DAG) until the icon
-// simplification (convergence phase 4) vendors an SVG folder + a generic icon descriptor here.
+// icons.js (the glyph registry · the Slice-6 data) STAYS in @nuri/spec — the pipeline
+// GENERATES it from the icons/*.svg folder and the same data feeds build/icons.ts (one
+// registry, two readers · decision 48). Read across the package boundary (the build-free
+// relative pattern · the prototype → spec DAG).
 import { ICONS } from '../../spec/lib/components/icon/icons.js';
 
-const ATTRS = ['name', 'size', 'fill'];
+const ATTRS = ['name', 'size'];
 
 class NuriIcon extends HTMLElement {
   static get observedAttributes() {
@@ -49,27 +57,33 @@ class NuriIcon extends HTMLElement {
   #render() {
     const name = this.getAttribute('name');
     const size = this.getAttribute('size') === 'sm' ? 'sm' : 'md';
-    const fill = this.hasAttribute('fill');
 
-    // Mirror size to data-size on the host so icon.css dispatches the
-    // box dimensions via attribute selector (decision 37 co-pattern).
-    this.dataset.size = size;
     this.classList.add('nuri-icon');
 
-    const entry = name && ICONS[name];
-    if (!entry) {
+    // Size via the SHARED box axis (N+51): map the public `size` to a size-scale
+    // leaf (offset · md→sm · sm→xs) and apply nuri-box + data-width/data-height so
+    // box.css sizes the glyph. RESPECT a host-pinned box (the factory's icon-avatar
+    // path sets data-width/data-height from the descriptor with NO `size` attr) —
+    // only self-derive when this element carries its own `size` prop or no box is
+    // present yet (the standalone path · the md default is stable so the no-attr
+    // re-render keeps the same leaf).
+    if (this.hasAttribute('size') || !this.dataset.width) {
+      const leaf = size === 'sm' ? 'xs' : 'sm';
+      this.classList.add('nuri-box');
+      this.dataset.width = leaf;
+      this.dataset.height = leaf;
+    }
+
+    const markup = name && ICONS[name];
+    if (!markup) {
       console.warn(`[NuriIcon] unknown name "${name}"`);
       this.innerHTML = '';
       return;
     }
 
-    // Weight coupling per decision 38.
-    const weight = fill ? 'fill' : size === 'sm' ? 'bold' : 'regular';
-    const path = entry[weight];
-
     this.innerHTML =
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" ` +
-      `fill="currentColor" aria-hidden="true" focusable="false">${path}</svg>`;
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" ` +
+      `fill="currentColor" aria-hidden="true" focusable="false">${markup}</svg>`;
   }
 }
 

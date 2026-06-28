@@ -54,7 +54,7 @@ const classesOf = (el) => [...el.classList].sort();
 test('A · buildComponent(IconAvatar) · static nuri-view · variant DEFAULTS to soft from descriptor.defaults', () => {
   // No selection passed — the unset `variant` must resolve to descriptor.defaults
   // (soft), NOT the variant-order first value (solid · the old first-value gap).
-  const el = buildComponent(iconAvatarDescriptor, {}, { name: 'vault' });
+  const el = buildComponent(iconAvatarDescriptor, {}, { name: 'apple' });
 
   assert.equal(el.tagName.toLowerCase(), 'nuri-view', 'static view → the element IS the merged node');
   assert.deepEqual(classesOf(el), ['nuri-box', 'nuri-palette', 'nuri-stack'], 'the three agnostic namespace classes merge onto the node');
@@ -66,11 +66,11 @@ test('A · buildComponent(IconAvatar) · static nuri-view · variant DEFAULTS to
   // the glyph leaf is routed by `name` (icon primary part).
   const icon = el.querySelector('nuri-icon');
   assert.ok(icon, 'the icon primary part renders a nuri-icon leaf');
-  assert.equal(icon.getAttribute('name'), 'vault', 'name routes to the glyph leaf');
+  assert.equal(icon.getAttribute('name'), 'apple', 'name routes to the glyph leaf');
 });
 
 test('A2 · buildComponent(IconAvatar) · an EXPLICIT variant wins over the default', () => {
-  const el = buildComponent(iconAvatarDescriptor, { variant: 'subtle' }, { name: 'gear' });
+  const el = buildComponent(iconAvatarDescriptor, { variant: 'subtle' }, { name: 'card' });
   assert.equal(el.getAttribute('data-variant'), 'subtle', 'an explicit axis value is passed straight through');
 });
 
@@ -136,7 +136,7 @@ test('C2 · <nuri-button disabled> · disabled reflects to the interactive host 
 
 test('C3 · <nuri-icon-avatar> · DECORATIVE aria-hidden comes from descriptor.decorative', () => {
   const a = dom.window.document.createElement('nuri-icon-avatar');
-  a.setAttribute('name', 'gear');
+  a.setAttribute('name', 'apple');
   mount(a);
   assert.equal(a.getAttribute('aria-hidden'), 'true', 'decorative:true in the descriptor → aria-hidden, not a hand attr');
   const view = a.querySelector('nuri-view');

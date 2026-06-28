@@ -287,7 +287,7 @@
   /* size.xs  · smallest element · inline tag / chip height */
   --nuri-size-xs:  var(--nuri-px-18);
   /* size.sm  · compact element · dense list-item height, indicator dot */
-  --nuri-size-sm:  var(--nuri-px-28);
+  --nuri-size-sm:  var(--nuri-px-24);
   /* size.md  · medium element · default icon-button, input field height */
   --nuri-size-md:  var(--nuri-px-36);
   /* size.lg  · standard touch target · iOS minimum + comfortable headroom */

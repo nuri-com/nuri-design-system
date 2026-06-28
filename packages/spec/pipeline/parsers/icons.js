@@ -1,60 +1,140 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · ICONS EMITTER (Node)
+ * NURI · ICONS PARSER (Node) · the SVG FOLDER is the SoT
  *
- * Emits build/icons.ts — a TYPED registry of phosphor SVG path
- * strings — from lib/components/icon/icons.js (the single source of
- * truth · decision 38). The web side inlines icons.js directly
- * (zero-build); the RN side consumes the typed emit through
- * react-native-svg's SvgXml. ONE registry, TWO readers (decision 48).
+ * The icon SoT is the folder icons/*.svg (decision 38 · N+51 ·
+ * convergence phase 4·1). Adding an icon = dropping a file: the
+ * filename is the icon name (kebab-case), the file is one drawing.
+ * Everything downstream is GENERATED, never hand-edited:
+ *   · lib/components/icon/icons.js — the web reader (zero-build import)
+ *   · build/icons.ts              — the RN reader (typed · SvgXml)
+ * ONE registry, TWO readers (decision 48), both emitted from here.
  *
- * This is NOT a token classifier — icons are a closed enum of named
- * SVG assets the CSS cascade can't express (decision 38). The emit is
- * a verbatim, machine-checkable copy of the SSOT: every path string in
- * build/icons.ts equals icons.js, asserted by the sync test. No SVGR,
- * no per-glyph <Path> codegen — that would fork the glyph source into
- * a second hand-maintained shape and break the single-registry
- * invariant decision 38 rests on.
+ * The model SIMPLIFIED at N+51: one drawing per glyph · NO weights
+ * (the old regular/bold/fill triple is RETIRED) · colour is always
+ * currentColor (decision 38). The element re-wraps the inner markup in
+ * an <svg viewBox="0 0 32 32" fill="currentColor">.
+ *
+ * This is NOT a token classifier and uses NO postcss — icons are a
+ * closed enum of named SVG assets the CSS cascade can't express
+ * (decision 38). The codegen stays SVG-text processing inside spec's
+ * pipeline (the codegen-move is Phase 4·3, not this session).
  * ────────────────────────────────────────────────────────────── */
 
-// Fixed weight order — mirrors the icon.js weight-coupling vocabulary
-// (decision 38): regular · bold · fill. Deterministic so the emit is
-// byte-stable across builds (the drift guard compares re-emit equality).
-export const ICON_WEIGHTS = ['regular', 'bold', 'fill'];
+import { readdir, readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 
-// Emit build/icons.ts as a string from the ICONS registry object.
-// Path strings are JSON.stringify-encoded so any quote/escape in the
-// phosphor `d` data round-trips safely regardless of content.
+// Every source SVG must share this viewBox — the element wraps the inner
+// markup in a constant <svg viewBox="0 0 32 32">. A glyph authored at a
+// different viewBox would silently mis-scale, so we ASSERT uniformity and
+// fail LOUD (the operator normalizes the source, not the generator).
+export const ICON_VIEWBOX = '0 0 32 32';
+
+// Pull the inner <path> markup out of one source SVG and normalize it into a
+// registry value. Preserves each path's `d`, `fill-rule`, `clip-rule` and
+// attribute order verbatim; only the hardcoded `fill` (white / #F0EEE3 / …)
+// is rewritten to `currentColor` so the glyph inherits its parent's text
+// colour (decision 38 · the sole colour story). A path with no `fill` is left
+// untouched — the wrapper's currentColor applies.
+export function extractIconMarkup(svgText, name) {
+  // Guard the viewBox (assert-uniform · robust over a growing folder).
+  const viewBoxMatch = svgText.match(/<svg\b[^>]*\bviewBox="([^"]*)"/i);
+  const viewBox = viewBoxMatch && viewBoxMatch[1].trim();
+  if (viewBox !== ICON_VIEWBOX) {
+    throw new Error(
+      `[icons] '${name}.svg' has viewBox="${viewBox ?? '(none)'}" — every icon must be ` +
+      `viewBox="${ICON_VIEWBOX}" (the element wraps a constant viewBox · re-author the source).`,
+    );
+  }
+
+  // Extract every <path …/> element (self-closing or not), in source order.
+  const paths = svgText.match(/<path\b[^>]*?\/?>/gi) || [];
+  if (paths.length === 0) {
+    throw new Error(`[icons] '${name}.svg' has no <path> — an icon must draw at least one path.`);
+  }
+
+  return paths
+    .map((path) => {
+      // Normalize the fill VALUE only. `fill="…"` is the colour attribute;
+      // `fill-rule="…"` / `clip-rule="…"` are NOT matched (the `=` must follow
+      // `fill` immediately) so the even-odd rules pass through untouched.
+      const recoloured = path.replace(/\bfill="[^"]*"/g, 'fill="currentColor"');
+      // Collapse any internal whitespace runs to single spaces and trim so the
+      // emitted string is byte-stable regardless of source formatting.
+      return recoloured.replace(/\s+/g, ' ').replace(/\s*\/>$/, '/>').trim();
+    })
+    .join('');
+}
+
+// Read the icons/ folder → the ICONS registry { name: '<path…/>…' }.
+// Names are the .svg filenames (kebab-case), sorted so the emit is
+// deterministic (the byte-identical re-emit gate · decision 35).
+export async function readIcons(dir) {
+  const files = (await readdir(dir))
+    .filter((f) => f.endsWith('.svg'))
+    .sort();
+  const icons = {};
+  for (const file of files) {
+    const name = file.slice(0, -'.svg'.length);
+    const svgText = await readFile(resolve(dir, file), 'utf8');
+    icons[name] = extractIconMarkup(svgText, name);
+  }
+  return icons;
+}
+
+// Emit lib/components/icon/icons.js — the web reader (zero-build ES module
+// import). GENERATED + committed + byte-identical-guarded (decision 35).
+export function emitIconsJs(icons) {
+  const names = Object.keys(icons);
+  const lines = [
+    `/* ──────────────────────────────────────────────────────────────`,
+    ` * NURI · COMPONENT · ICON · REGISTRY · GENERATED · DO NOT EDIT BY HAND`,
+    ` *`,
+    ` * Source · icons/*.svg (the SoT folder · one drawing per glyph)`,
+    ` * Emitter · pipeline/tokens-parser.js — run \`npm run build\``,
+    ` *`,
+    ` * ${names.length} glyphs · one markup each · NO weights (decision 38 · N+51).`,
+    ` * Colour is currentColor only; <nuri-icon> re-wraps the markup in an`,
+    ` * <svg viewBox="${ICON_VIEWBOX}" fill="currentColor">. The web inlines this`,
+    ` * file directly (zero-build); build/icons.ts is the typed RN twin (one`,
+    ` * registry, two readers · decision 48). To add a glyph, drop a .svg in`,
+    ` * icons/ and re-run the build — never hand-edit this file.`,
+    ` * ────────────────────────────────────────────────────────────── */`,
+    ``,
+    `export const ICONS = {`,
+    ...names.map((n) => `  '${n}': ${JSON.stringify(icons[n])},`),
+    `};`,
+    ``,
+  ];
+  return lines.join('\n');
+}
+
+// Emit build/icons.ts — the typed RN reader. IconName union +
+// Record<IconName, string> (one markup per glyph · no weight inner-map).
+// Path strings are JSON.stringify-encoded so any quote/escape round-trips.
 export function emitIconsTs(icons) {
   const names = Object.keys(icons);
   const lines = [
     `/* ──────────────────────────────────────────────────────────────`,
     ` * NURI · ICON REGISTRY · GENERATED · DO NOT EDIT BY HAND`,
     ` *`,
-    ` * Source · lib/components/icon/icons.js (the SSOT registry)`,
+    ` * Source · icons/*.svg (the SoT folder · one drawing per glyph)`,
     ` * Emitter · pipeline/tokens-parser.js — run \`npm run build\``,
     ` *`,
-    ` * Typed mirror of the hand-curated phosphor registry: ${names.length}`,
-    ` * glyphs × ${ICON_WEIGHTS.length} weights. The web inlines icons.js directly; this`,
-    ` * file is the RN runtime's reader (react-native-svg SvgXml over the`,
-    ` * same strings · decision 48). Every path string here equals`,
-    ` * icons.js — enforced by the sync test in tokens-parser.test.js.`,
+    ` * Typed RN reader for ${names.length} glyphs · one markup each · NO weights`,
+    ` * (decision 38 · N+51). The web inlines lib/components/icon/icons.js`,
+    ` * directly; this file is the RN runtime's reader (react-native-svg SvgXml`,
+    ` * over the same strings · decision 48). Every path string here equals the`,
+    ` * folder-generated registry — enforced by the sync test in`,
+    ` * tokens-parser.test.js.`,
     ` * ────────────────────────────────────────────────────────────── */`,
     ``,
     `export type IconName =`,
     ...names.map((n, i) => `  | '${n}'${i === names.length - 1 ? ';' : ''}`),
     ``,
-    `export type IconWeight = ${ICON_WEIGHTS.map((w) => `'${w}'`).join(' | ')};`,
+    `export const icons: Record<IconName, string> = {`,
+    ...names.map((n) => `  '${n}': ${JSON.stringify(icons[n])},`),
+    `};`,
     ``,
-    `export const icons: Record<IconName, Record<IconWeight, string>> = {`,
   ];
-  for (const name of names) {
-    lines.push(`  '${name}': {`);
-    for (const weight of ICON_WEIGHTS) {
-      lines.push(`    ${weight}: ${JSON.stringify(icons[name][weight])},`);
-    }
-    lines.push(`  },`);
-  }
-  lines.push(`};`);
-  lines.push('');
   return lines.join('\n');
 }

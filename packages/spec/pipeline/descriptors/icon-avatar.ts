@@ -39,6 +39,13 @@ export const iconAvatarDescriptor: Descriptor<IconAvatarAxes> = {
         stack: { align: 'center', justify: 'center' },
         box: { width: 'lg', height: 'lg', radius: 'full' },
       },
+      // The glyph sizes through the SHARED box axis (N+51 · the icon-arc size
+      // close): the icon part is a box of the `sm` size leaf (24px) — the icon's
+      // "md". The factory applies it on BOTH targets (web: nuri-box + data-width/
+      // data-height on the <nuri-icon>; RN: the resolved width → the glyph's
+      // dimension). NAMING OFFSET: the icon's public size `md` ↔ the `sm` size
+      // leaf (icon `sm` ↔ size `xs`) — anchors below element heights by design.
+      icon: { box: { width: 'sm', height: 'sm' } },
     },
   },
   variants: {
