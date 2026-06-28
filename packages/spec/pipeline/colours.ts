@@ -263,32 +263,34 @@ export const chrome = {
   'focus-ring':       { light: { ref: 'lilac.8.light' },    dark: { ref: 'lilac.8.dark' } },
 } as const satisfies Record<string, ThemedLeaf>;
 
-// accent · accent×theme (6 tokens × {neutral, lilac} × {light, dark}). Where the
-// saturated-vs-bright asymmetry lives (INVERSE / FROZEN-P4 · see the header).
-type AccentLeaf = { neutral: ThemedLeaf; lilac: ThemedLeaf };
+// accent · accent-MAJOR (each accent is ONE object · 6 roles × {light, dark}). Where
+// the saturated-vs-bright asymmetry lives (INVERSE / FROZEN-P4 · see the header). A
+// role is either a FLAT `string` ref — theme-INVARIANT, the one primitive serves both
+// modes (the P4-frozen brand fill) — or a `{ light, dark }` PAIR — theme-ADAPTING,
+// dark.ref ≠ light.ref (the INVERSE neutrals + the same-scale roles). The dark cascade
+// block redeclares ONLY the pair roles (the flat ones never differ · decision 63).
+//
+// Reshaped accent-major (N+55 · decision 80 · the projection model §8): the accent NAMES
+// are OUT of the type (`Record<string, …>`) so growing the family (slice 2) is "add one
+// object," not "edit six role entries + widen the type." The role order is preserved
+// (fg · solid · solid-pressed · on-solid · bg-subtle · bg-subtle-pressed) so the emitted
+// cascade declarations stay byte-identical.
+type AccentRole = string | { light: string; dark: string };
 export const accent = {
-  fg: {
-    neutral: { light: { ref: 'neutral.12.light' }, dark: { ref: 'neutral.12.dark' } },  // same-scale
-    lilac:   { light: { ref: 'lilac.12.light' },   dark: { ref: 'lilac.12.dark' } },    // theme-adapting
+  neutral: {
+    fg:                  { light: 'neutral.12.light', dark: 'neutral.12.dark' },  // same-scale
+    solid:               { light: 'neutral.1.dark',   dark: 'neutral.1.light' },  // INVERSE
+    'solid-pressed':     { light: 'neutral.3.dark',   dark: 'neutral.3.light' },  // INVERSE
+    'on-solid':          { light: 'neutral.12.dark',  dark: 'neutral.12.light' }, // INVERSE
+    'bg-subtle':         { light: 'neutral.3.light',  dark: 'neutral.3.dark' },   // same-scale
+    'bg-subtle-pressed': { light: 'neutral.4.light',  dark: 'neutral.4.dark' },   // same-scale
   },
-  solid: {
-    neutral: { light: { ref: 'neutral.1.dark' },   dark: { ref: 'neutral.1.light' } },  // INVERSE
-    lilac:   { light: { ref: 'lilac.9.light' },    dark: { ref: 'lilac.9.light' } },     // FROZEN · P4
+  lilac: {
+    fg:                  { light: 'lilac.12.light', dark: 'lilac.12.dark' },      // theme-adapting
+    solid:               'lilac.9.light',                                          // FROZEN · P4
+    'solid-pressed':     'lilac.10.light',                                         // FROZEN · P4
+    'on-solid':          'lilac.12.light',                                         // FROZEN · P4
+    'bg-subtle':         { light: 'lilac.3.light', dark: 'lilac.3.dark' },         // theme-adapting
+    'bg-subtle-pressed': { light: 'lilac.4.light', dark: 'lilac.4.dark' },         // theme-adapting
   },
-  'solid-pressed': {
-    neutral: { light: { ref: 'neutral.3.dark' },   dark: { ref: 'neutral.3.light' } },  // INVERSE
-    lilac:   { light: { ref: 'lilac.10.light' },   dark: { ref: 'lilac.10.light' } },    // FROZEN · P4
-  },
-  'on-solid': {
-    neutral: { light: { ref: 'neutral.12.dark' },  dark: { ref: 'neutral.12.light' } }, // INVERSE
-    lilac:   { light: { ref: 'lilac.12.light' },   dark: { ref: 'lilac.12.light' } },    // FROZEN · P4
-  },
-  'bg-subtle': {
-    neutral: { light: { ref: 'neutral.3.light' },  dark: { ref: 'neutral.3.dark' } },   // same-scale
-    lilac:   { light: { ref: 'lilac.3.light' },    dark: { ref: 'lilac.3.dark' } },      // theme-adapting
-  },
-  'bg-subtle-pressed': {
-    neutral: { light: { ref: 'neutral.4.light' },  dark: { ref: 'neutral.4.dark' } },   // same-scale
-    lilac:   { light: { ref: 'lilac.4.light' },    dark: { ref: 'lilac.4.dark' } },      // theme-adapting
-  },
-} as const satisfies Record<string, AccentLeaf>;
+} as const satisfies Record<string, Record<string, AccentRole>>;

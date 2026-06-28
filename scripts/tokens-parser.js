@@ -301,7 +301,8 @@ async function main() {
   console.log(
     `[tokens-parser] flipped the accent×theme cascade from the TS SoT ` +
     `(${Object.keys(semanticColours.chrome).length} chrome × {light,dark} · ` +
-    `${Object.keys(semanticColours.accent).length} accent × {neutral,lilac} × {light,dark} · ` +
+    `${Object.keys(semanticColours.accent).length} accents × ` +
+    `${Object.keys(semanticColours.accent.neutral).length} roles × {light,dark} · ` +
     `the dec-63 #4b/#6b self-scope) → styles/tokens-semantic.css`,
   );
 
