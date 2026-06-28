@@ -42,4 +42,11 @@ export const iconAvatarDescriptor: Descriptor<IconAvatarAxes> = {
       subtle: { root: { palette: { variant: 'subtle' } } },
     },
   },
+  // The PUBLIC default (R1.5 · N+50): an unset `variant` resolves to soft (NOT
+  // the variant-order first value `solid`) — the web factory reads it, no hand
+  // default at the binding. DECORATIVE (decision 50): the host is hidden from
+  // AT (aria-hidden) — honest descriptor data the web factory reads, not a hand
+  // `aria-hidden` in the registration.
+  defaults: { variant: 'soft' },
+  decorative: true,
 };

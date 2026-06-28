@@ -424,7 +424,10 @@ const FROZEN_SCHEMA = {
   El: ['view', 'text', 'icon'],
   NS: { 'stack?': 'StackNS', 'box?': 'BoxNS', 'typography?': 'TypographyNS', 'palette?': 'PaletteNS', 'interactive?': 'InteractiveNS' },
   PartAnatomy: { 'el': 'El', 'open?': 'boolean', 'parts?': "Partial<Record<Exclude<Part, 'root'>, PartAnatomy>>" },
-  Descriptor: { 'structure': '{ anatomy: PartAnatomy; base?: PartMap }', 'variants?': 'Variants<A>' },
+  // `defaults` (R1.5 per-axis public default) + `decorative` (decision 50 a11y
+  // flag) added at N+50 (the web-factory slice · a deliberate, versioned
+  // post-freeze envelope add · both DATA the two factories read).
+  Descriptor: { 'structure': '{ anatomy: PartAnatomy; base?: PartMap }', 'variants?': 'Variants<A>', 'defaults?': 'Partial<Record<string, string>>', 'decorative?': 'boolean' },
   aliasForms: {
     PartMap: 'Partial<Record<Part, NS>>',
     Axes: 'Record<string, string>',

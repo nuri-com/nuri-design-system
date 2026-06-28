@@ -168,14 +168,15 @@ export function createNuriComponent<A extends Axes>(
   const anatomy = resolveAnatomy(descriptor);
   const axisNames: string[] = descriptor.variants ? Object.keys(descriptor.variants) : [];
 
-  // Per-axis fallback = the descriptor's FIRST value for that axis. The frozen
-  // descriptor carries NO default (the web binding-level default — Button=soft
-  // — is not in the contract · surfaced as a finding), so the factory falls
-  // back generically rather than inventing per-component knowledge.
+  // Per-axis default = the descriptor's `defaults[axis]` (R1.5 · N+50 · now IN
+  // the contract — Button=soft), else the axis's FIRST value (the generic
+  // fallback). Reading it from DATA corrects the latent web↔RN parity bug
+  // (RN Button defaulted to the order-first `solid`/`sm`) without per-component
+  // knowledge here — the SAME default the web buildComponent fallback reads.
   const defaultByAxis: Record<string, string> = {};
   if (descriptor.variants) {
     const variants = descriptor.variants as Record<string, Record<string, unknown>>;
-    for (const axis of axisNames) defaultByAxis[axis] = Object.keys(variants[axis])[0];
+    for (const axis of axisNames) defaultByAxis[axis] = descriptor.defaults?.[axis] ?? Object.keys(variants[axis])[0];
   }
 
   // The lone non-root part receives `children`. Ambiguous (≠1 child) → the

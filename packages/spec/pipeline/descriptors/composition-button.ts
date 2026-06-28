@@ -56,4 +56,8 @@ export const compositionButtonDescriptor: Descriptor<CompositionButtonAxes> = {
       lg: { root: { box: { minHeight: 'xl', paddingX: 'xl', radius: 'md' } }, label: { typography: { size: 'md', emphasis: true } } },
     },
   },
+  // The PUBLIC defaults (R1.5 · N+50): an unset axis resolves to these — soft
+  // (NOT the variant-order first value `solid`), md (NOT `sm`). Both factories
+  // read this, so neither binding hand-passes a default (the web↔RN parity close).
+  defaults: { variant: 'soft', size: 'md' },
 };
