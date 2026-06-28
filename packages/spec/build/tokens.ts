@@ -28,7 +28,7 @@
  * to switch).
  * ────────────────────────────────────────────────────────────── */
 
-export type Accent = 'neutral' | 'lilac';
+export type Accent = 'neutral' | 'lilac' | 'orange';
 export type Theme = 'light' | 'dark';
 
 // ── chrome · theme ──
@@ -122,6 +122,24 @@ export const accent: Record<Accent, Record<Theme, {
       onSolid:          '#381b6a',
       bgSubtle:         '#282040',
       bgSubtlePressed:  '#342756',
+    },
+  },
+  orange: {
+    light: {
+      fg:               '#5e280f',
+      solid:            '#ff8c5a',
+      solidPressed:     '#f3814f',
+      onSolid:          '#5e280f',
+      bgSubtle:         '#ffe9dd',
+      bgSubtlePressed:  '#ffd8c2',
+    },
+    dark: {
+      fg:               '#f9d6c8',
+      solid:            '#ff8c5a',
+      solidPressed:     '#f3814f',
+      onSolid:          '#5e280f',
+      bgSubtle:         '#361a0e',
+      bgSubtlePressed:  '#4b1b04',
     },
   },
 };

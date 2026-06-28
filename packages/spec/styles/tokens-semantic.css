@@ -229,6 +229,33 @@
   --nuri-accent-bg-subtle-pressed: var(--nuri-color-lilac-4-dark);
 }
 
+
+/* 7 · orange accent · light (anywhere) */
+[data-accent="orange"] {
+  --nuri-accent-fg:                var(--nuri-color-orange-12-light);
+  --nuri-accent-solid:             var(--nuri-color-orange-9-light);
+  --nuri-accent-solid-pressed:     var(--nuri-color-orange-10-light);
+  --nuri-accent-on-solid:          var(--nuri-color-orange-12-light);
+  --nuri-accent-bg-subtle:         var(--nuri-color-orange-3-light);
+  --nuri-accent-bg-subtle-pressed: var(--nuri-color-orange-4-light);
+}
+
+
+/* 8 · orange accent dark · PARTIAL per P4 (frozen brand omitted · SAME element · 0,2,0) */
+[data-accent="orange"][data-theme="dark"] {
+  --nuri-accent-fg:                var(--nuri-color-orange-12-dark);
+  --nuri-accent-bg-subtle:         var(--nuri-color-orange-3-dark);
+  --nuri-accent-bg-subtle-pressed: var(--nuri-color-orange-4-dark);
+}
+
+
+/* 8b · orange accent dark · SELF-SCOPED under a dark ancestor (decision 63 · partial per P4) */
+[data-theme="dark"] [data-accent="orange"] {
+  --nuri-accent-fg:                var(--nuri-color-orange-12-dark);
+  --nuri-accent-bg-subtle:         var(--nuri-color-orange-3-dark);
+  --nuri-accent-bg-subtle-pressed: var(--nuri-color-orange-4-dark);
+}
+
 /* ════════════════ END GENERATED · the accent×theme cascade ════════════════ */
 
 

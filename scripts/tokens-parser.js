@@ -279,7 +279,8 @@ async function main() {
   await flipColourCss({ primitivePath: PRIMITIVE_CSS, colours, neutral });
   console.log(
     `[tokens-parser] flipped the colour primitives from the TS SoT ` +
-    `(${Object.keys(colours.neutralScales).length} neutral scales · lilac · black/white alpha · ` +
+    `(${Object.keys(colours.neutralScales).length} neutral scales · ` +
+    `${Object.keys(colours.accentScales).join('/')} accent ramps · black/white alpha · ` +
     `neutral resolution → ${neutral}) → styles/tokens-primitive.css`,
   );
 

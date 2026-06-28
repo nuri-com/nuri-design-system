@@ -38,7 +38,6 @@ import {
   classifySemantic,
   classifyAll,
   GROUP_NAMES,
-  ACCENTS,
   THEMES,
   SET_POLICY,
   resolveSetPolicy,
@@ -256,35 +255,43 @@ const SEMANTIC_EXPECTED = {
   // neutral uses neutral-12 same-scale (light mode → light scale step 12;
   // dark mode → dark scale step 12). Text contrast against ambient bg.
   // lilac uses lilac-12 (saturated against canvas · unchanged).
+  // orange (N+56) · the second accent · same shape as lilac (fg theme-adapts via
+  // orange-12; the accent-varying cells additionally pin orange so it is drift-checked).
   '--nuri-accent-fg': { neutral: { light: '#222013', dark: '#f0eee3' },
-                        lilac:   { light: '#381b6a', dark: '#e3ddfa' } },
+                        lilac:   { light: '#381b6a', dark: '#e3ddfa' },
+                        orange:  { light: '#5e280f', dark: '#f9d6c8' } },
 
-  // ── Accent solid · INVERSE pattern for neutral · P4 lilac frozen ──
+  // ── Accent solid · INVERSE pattern for neutral · P4 lilac/orange frozen ──
   // neutral · saturated family · uses OPPOSITE scale at step 1 (cream-1):
   //   light mode → cream-1-dark (#12110b)   — inverse surface
   //   dark mode  → cream-1-light (#fffdf2)  — inverse surface
-  // lilac · bright family · FROZEN across themes (block 6 omits this).
+  // lilac/orange · bright family · FROZEN across themes (the dark block omits this).
   '--nuri-accent-solid': { neutral: { light: '#12110b', dark: '#fffdf2' },
-                           lilac:   { light: '#beaaff', dark: '#beaaff' } },
+                           lilac:   { light: '#beaaff', dark: '#beaaff' },
+                           orange:  { light: '#ff8c5a', dark: '#ff8c5a' } },
 
-  // ── Accent solid pressed · same INVERSE step 3 for neutral · P4 frozen for lilac ──
+  // ── Accent solid pressed · same INVERSE step 3 for neutral · P4 frozen for lilac/orange ──
   '--nuri-accent-solid-pressed': { neutral: { light: '#242319', dark: '#f3f1e2' },
-                                   lilac:   { light: '#b39ff3', dark: '#b39ff3' } },
+                                   lilac:   { light: '#b39ff3', dark: '#b39ff3' },
+                                   orange:  { light: '#f3814f', dark: '#f3814f' } },
 
   // ── Accent on-solid · text on inverse solid · INVERSE step 12 for neutral ──
   // light mode → cream-12-dark (#f0eee3, light-coloured text on dark inverse bg)
   // dark mode  → cream-12-light (#222013, dark-coloured text on light inverse bg)
-  // lilac · P4 frozen across themes.
+  // lilac/orange · P4 frozen across themes (uses the brand's step-12 light).
   '--nuri-accent-on-solid': { neutral: { light: '#f0eee3', dark: '#222013' },
-                              lilac:   { light: '#381b6a', dark: '#381b6a' } },
+                              lilac:   { light: '#381b6a', dark: '#381b6a' },
+                              orange:  { light: '#5e280f', dark: '#5e280f' } },
 
   // ── Accent bg-subtle · tag/pill bg · mode-swap on BOTH accents ──
   // bg-subtle is NOT in the frozen set even on bright accents.
   '--nuri-accent-bg-subtle': { neutral: { light: '#f3f1e2', dark: '#242319' },
-                               lilac:   { light: '#f3f0ff', dark: '#282040' } },
+                               lilac:   { light: '#f3f0ff', dark: '#282040' },
+                               orange:  { light: '#ffe9dd', dark: '#361a0e' } },
 
   '--nuri-accent-bg-subtle-pressed': { neutral: { light: '#ece9da', dark: '#2c2a1e' },
-                                       lilac:   { light: '#ebe3ff', dark: '#342756' } },
+                                       lilac:   { light: '#ebe3ff', dark: '#342756' },
+                                       orange:  { light: '#ffd8c2', dark: '#4b1b04' } },
 
   // ── Semantic spacing · cascade-invariant · same value across (accent × theme) ──
   // Maps to the --nuri-px-N primitive layer (decision 32). T-shirt scale
@@ -356,7 +363,12 @@ test('resolveSemanticCrossProduct · every semantic token matches the hand-deriv
       drift.push({ cssVar, problem: 'parser produced no entry' });
       continue;
     }
-    for (const accent of ACCENTS) {
+    // Iterate the accents the oracle DECLARES for this cell, not ACCENTS wholesale:
+    // chrome + dimension cells are accent-invariant (neutral + lilac suffice · the
+    // build's own accent-invariance guard proves they don't vary across the full
+    // ACCENTS set); the accent-VARYING cells additionally pin orange (N+56). Adding an
+    // accent = add it to those cells, not to all 38 (the data-driven thesis).
+    for (const accent of Object.keys(expByAccent)) {
       for (const theme of THEMES) {
         const exp = expByAccent[accent][theme];
         const val = got[accent][theme];
@@ -1006,10 +1018,10 @@ test('every primitive token is consumed or explicitly reserved', async () => {
     // has no var() consumer · P11). 'gray' joined here when the switcher
     // retired (it was reachable only through the old gray alias block).
     'gray', 'mauve', 'slate', 'sage', 'olive', 'sand', 'cream',
-    // Brand scale · ships in full per Radix; semantic layer consumes
-    // a subset directly (3, 4, 8, 9, 10, 12), the remaining steps
-    // cover future accent expansion.
-    'lilac',
+    // Accent scales · ship in full per Radix; the semantic layer consumes
+    // a subset directly (lilac also via focus-ring step 8 · orange steps
+    // 3, 4, 9, 10, 12), the remaining steps cover future accent expansion.
+    'lilac', 'orange',
     // Alpha overlays · ship in full per Radix. shell.css consumes
     // alpha-2 (both) and alpha-5 (black); other steps are reserved
     // for future overlay / divider / glass surfaces.

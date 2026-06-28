@@ -71,16 +71,22 @@ const semCss = readFileSync(SEMANTIC_CSS, 'utf8');
 
 const region = emitCascadeRegion(buildSemanticCascade({ chrome, accent }));
 
-// The 8 cascade blocks, in order (the decision-63 cascade · don't reorder).
+// The cascade blocks, in order (the decision-63 cascade · don't reorder). The 5 fixed
+// NEUTRAL blocks (the default scope) + 3 blocks per non-neutral accent (lilac → 5/6/6b ·
+// orange → 7/8/8b · N+56). Derived from the accent matrix keys so the harness auto-covers
+// every accent — the structural twin of the generified emitter (buildSemanticCascade).
+const NON_NEUTRAL_ACCENTS = Object.keys(accent).filter((a) => a !== 'neutral');
 const CASCADE_SELECTORS = [
   ':root, [data-theme="light"]',                   // 1
   '[data-theme="dark"]',                           // 2
   '[data-accent="neutral"]',                       // 3
   '[data-accent="neutral"][data-theme="dark"]',    // 4
   '[data-theme="dark"] [data-accent="neutral"]',   // 4b · self-scope
-  '[data-accent="lilac"]',                         // 5
-  '[data-accent="lilac"][data-theme="dark"]',      // 6
-  '[data-theme="dark"] [data-accent="lilac"]',     // 6b · self-scope
+  ...NON_NEUTRAL_ACCENTS.flatMap((a) => [
+    `[data-accent="${a}"]`,                         // light (anywhere)
+    `[data-accent="${a}"][data-theme="dark"]`,     // combined dark
+    `[data-theme="dark"] [data-accent="${a}"]`,    // self-scope dark (dec-63)
+  ]),
 ];
 const normSel = (s) => s.replace(/\s+/g, ' ').trim();
 
@@ -126,13 +132,17 @@ test('Guard A · the cascade shape: full light blocks · minimal dark overrides 
   for (const sel of ['[data-accent="neutral"]', '[data-accent="neutral"][data-theme="dark"]', '[data-theme="dark"] [data-accent="neutral"]']) {
     assert.equal(gen.get(sel).size, 6, sel);
   }
-  // 5 · lilac · all 6 (light base)
-  assert.equal(gen.get('[data-accent="lilac"]').size, 6, 'block 5');
-  // 6 / 6b · lilac dark · ONLY the 3 theme-adapting (fg, bg-subtle, bg-subtle-pressed)
-  // — the P4-frozen brand tokens (solid, solid-pressed, on-solid) are omitted.
+  // each non-neutral accent (lilac · orange · …):
+  //   · light block · all 6 (light base)
+  //   · combined-dark + self-scope-dark · ONLY the 3 theme-adapting (fg, bg-subtle,
+  //     bg-subtle-pressed) — the P4-frozen brand tokens (solid, solid-pressed,
+  //     on-solid) are omitted (light===dark → no dark redeclaration).
   const adapting = ['--nuri-accent-bg-subtle', '--nuri-accent-bg-subtle-pressed', '--nuri-accent-fg'];
-  assert.deepEqual(props('[data-accent="lilac"][data-theme="dark"]'), adapting, 'block 6 · P4 partial');
-  assert.deepEqual(props('[data-theme="dark"] [data-accent="lilac"]'), adapting, 'block 6b · P4 partial');
+  for (const a of NON_NEUTRAL_ACCENTS) {
+    assert.equal(gen.get(`[data-accent="${a}"]`).size, 6, `${a} light block`);
+    assert.deepEqual(props(`[data-accent="${a}"][data-theme="dark"]`), adapting, `${a} combined-dark · P4 partial`);
+    assert.deepEqual(props(`[data-theme="dark"] [data-accent="${a}"]`), adapting, `${a} self-scope-dark · P4 partial`);
+  }
 });
 
 // ══════════════════════════════════════════════════════════════════
@@ -178,10 +188,18 @@ const CELLS = [
   ['--nuri-accent-fg',             'lilac',   'light', '#381b6a'], // lilac-12-light
   ['--nuri-accent-fg',             'lilac',   'dark',  '#e3ddfa'], // lilac-12-dark
   ['--nuri-accent-bg-subtle',      'lilac',   'dark',  '#282040'], // lilac-3-dark
+  // accent · orange · the second accent (N+56) · FROZEN-P4 solid (light===dark)
+  ['--nuri-accent-solid',          'orange',  'light', '#ff8c5a'], // orange-9-light
+  ['--nuri-accent-solid',          'orange',  'dark',  '#ff8c5a'], // FROZEN · stays orange-9-light
+  // accent · orange · theme-adapting fg (light≠dark · proves the dark block applies)
+  ['--nuri-accent-fg',             'orange',  'light', '#5e280f'], // orange-12-light
+  ['--nuri-accent-fg',             'orange',  'dark',  '#f9d6c8'], // orange-12-dark
 ];
 
-// SoT path · a { ref } leaf resolves through the active neutral (cream) + lilac.
-const sotScales = { neutral: colours.neutralScales.cream, lilac: colours.lilac };
+// SoT path · a ref resolves through the active neutral (cream) + the accent ramps
+// (lilac · orange · …). loadColours returns the accent ramps keyed by accent name
+// (N+56 · data-driven) — spread them so any accent's refs resolve.
+const sotScales = { neutral: colours.neutralScales.cream, ...colours.accentScales };
 function sotRefHex(ref) {
   const [scale, step, theme] = ref.split('.');
   const table = sotScales[scale];
@@ -235,18 +253,21 @@ test('Guard D · the dec-63 #4b/#6b self-scope emit is faithful', () => {
     '#4b must mirror #4 exactly (the dark neutral values)',
   );
 
-  // #6b · self-scoped lilac · PARTIAL per P4 — the 3 theme-adapting only; the frozen
-  // brand tokens are intentionally absent (no clobber to repair · block 5 IS the brand).
-  const b6b = gen.get('[data-theme="dark"] [data-accent="lilac"]');
-  assert.ok(b6b, 'the #6b self-scope block is missing');
-  for (const frozen of ['--nuri-accent-solid', '--nuri-accent-solid-pressed', '--nuri-accent-on-solid']) {
-    assert.equal(b6b.has(frozen), false, `${frozen} is P4-frozen — #6b must NOT redeclare it`);
+  // each non-neutral accent's self-scope dark block (#6b · #8b · …) · PARTIAL per P4 —
+  // the 3 theme-adapting only; the frozen brand tokens are intentionally absent (no
+  // clobber to repair · the light block IS the brand). Mirrors its combined-dark twin.
+  for (const a of NON_NEUTRAL_ACCENTS) {
+    const selfScope = gen.get(`[data-theme="dark"] [data-accent="${a}"]`);
+    assert.ok(selfScope, `the ${a} self-scope block is missing`);
+    for (const frozen of ['--nuri-accent-solid', '--nuri-accent-solid-pressed', '--nuri-accent-on-solid']) {
+      assert.equal(selfScope.has(frozen), false, `${frozen} is P4-frozen — the ${a} self-scope must NOT redeclare it`);
+    }
+    assert.deepEqual(
+      sortedEntries(selfScope),
+      sortedEntries(gen.get(`[data-accent="${a}"][data-theme="dark"]`)),
+      `the ${a} self-scope must mirror its combined-dark twin (the 3 theme-adapting tokens)`,
+    );
   }
-  assert.deepEqual(
-    sortedEntries(b6b),
-    sortedEntries(gen.get('[data-accent="lilac"][data-theme="dark"]')),
-    '#6b must mirror #6 (the 3 theme-adapting lilac tokens)',
-  );
 });
 
 test('Guard D · the #4b/#6b selectors are DESCENDANT combinators (the dec-63 known-limitation form)', () => {
@@ -256,5 +277,11 @@ test('Guard D · the #4b/#6b selectors are DESCENDANT combinators (the dec-63 kn
   // refactor to a combined/child form (which would change the matching semantics)
   // fails loudly.
   assert.match(semCss, /\[data-theme="dark"\] \[data-accent="neutral"\]\s*\{/, '#4b descendant combinator');
-  assert.match(semCss, /\[data-theme="dark"\] \[data-accent="lilac"\]\s*\{/, '#6b descendant combinator');
+  for (const a of NON_NEUTRAL_ACCENTS) {
+    assert.match(
+      semCss,
+      new RegExp(`\\[data-theme="dark"\\] \\[data-accent="${a}"\\]\\s*\\{`),
+      `the ${a} self-scope descendant combinator is missing`,
+    );
+  }
 });

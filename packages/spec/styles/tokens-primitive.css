@@ -309,6 +309,35 @@
   --nuri-color-lilac-12-light:  #381b6a;
   --nuri-color-lilac-12-dark:   #e3ddfa;
 
+  /* ── Orange (accent · Radix custom from #ff8c5a) ──────────── */
+  /* Second accent ramp (N+56 · slice 2). Bright scale: steps 9 & 10 are
+   * identical in light and dark — the brand fill keeps its identity
+   * across themes (same convention as lilac). */
+  --nuri-color-orange-1-light:   #fffcfb;
+  --nuri-color-orange-1-dark:    #15100d;
+  --nuri-color-orange-2-light:   #fff5f0;
+  --nuri-color-orange-2-dark:    #1e1512;
+  --nuri-color-orange-3-light:   #ffe9dd;
+  --nuri-color-orange-3-dark:    #361a0e;
+  --nuri-color-orange-4-light:   #ffd8c2;
+  --nuri-color-orange-4-dark:    #4b1b04;
+  --nuri-color-orange-5-light:   #ffc9ae;
+  --nuri-color-orange-5-dark:    #5a2308;
+  --nuri-color-orange-6-light:   #ffb996;
+  --nuri-color-orange-6-dark:    #693015;
+  --nuri-color-orange-7-light:   #ffa37a;
+  --nuri-color-orange-7-dark:    #814024;
+  --nuri-color-orange-8-light:   #fb8856;
+  --nuri-color-orange-8-dark:    #a6532f;
+  --nuri-color-orange-9-light:   #ff8c5a;
+  --nuri-color-orange-9-dark:    #ff8c5a;  /* identical to -light: brand is theme-invariant */
+  --nuri-color-orange-10-light:  #f3814f;
+  --nuri-color-orange-10-dark:   #f3814f;  /* identical to -light: brand is theme-invariant */
+  --nuri-color-orange-11-light:  #c45621;
+  --nuri-color-orange-11-dark:   #ff9664;
+  --nuri-color-orange-12-light:  #5e280f;
+  --nuri-color-orange-12-dark:   #f9d6c8;
+
   /* ── Black alpha · theme-invariant by nature ─────────────── */
   /* No -light/-dark suffix: opacity over a base is independent of
    * theme. Used for overlays, dividers on coloured surfaces, glass. */
