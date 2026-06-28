@@ -57,6 +57,8 @@ import {
   INTERACTION_PRIMITIVES,
 } from './tokens-parser.js';
 
+import { loadTypography, typeDeclMap, rewriteTypeDecls, readFontWeights } from './parsers/type-css.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
 const CSS_PATH = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
@@ -66,6 +68,7 @@ const TS_PATH = resolve(REPO_ROOT, 'build/tokens.ts');
 const INTERACTION_TS_PATH = resolve(REPO_ROOT, 'build/interaction.ts');
 const TOKEN_PATHS_PATH = resolve(REPO_ROOT, 'build/token-paths.ts');
 const ICONS_TS_PATH = resolve(REPO_ROOT, 'build/icons.ts');
+const TYPOGRAPHY_SRC = resolve(REPO_ROOT, 'pipeline/typography.ts');
 const ICONS_DIR = resolve(REPO_ROOT, 'icons');
 const ICONS_JS_PATH = resolve(REPO_ROOT, 'lib/components/icon/icons.js');
 
@@ -856,34 +859,73 @@ test('both icon readers re-emit identically from the icons/*.svg folder (folder 
 
 // ──────────────────────────────────────────────────────────────
 // N+8.3 · emitted type scale (decision 54 · DE-FUSED N+45 · decision 77)
-// The `type` namespace in build/tokens.ts is a typed, directly-accessed
-// composite emitted from the --nuri-type-* primitives — the SAME source the
-// web reads through styles/typography.css. One source, two readers (the icon
-// model · decision 48). DE-FUSED at N+45: `type` is the 6 SIZE composites
-// (regular weight); `emphasis` is an ORTHOGONAL single weight override
-// (emphasisWeight · uniform 400→600 · P11), NOT a per-size `${step}Em` twin.
-// This is the single-source guard: every emitted value re-derives from the
-// source primitives, and the on-disk emit re-emits identically. A hand-edit to
-// tokens.ts or a stale build fails here.
+// RE-SOURCED at N+52 (decision 78 · the type-composite flip): the type scale's
+// SOURCE is now the TS SoT (pipeline/typography.ts · a self-contained INLINE table
+// of text styles · decision 2 reversed for the type composite), which both
+// GENERATES the --nuri-type-* CSS in place DE-REFERENCED to inline (parsers/type-
+// css.js · size → rem · weight → the literal) and feeds build/tokens.ts's `type`
+// namespace (the RN reader · the web reads the generated vars through styles/
+// typography.css · one source, two readers · decision 48). DE-FUSED at N+45:
+// `type` is the 6 SIZE composites (regular weight); `emphasisWeight` is an
+// ORTHOGONAL single weight override (uniform 400→600 · P11), NOT a per-size
+// `${step}Em` twin.
+//
+// This is the type flip's drift guard, the N+31 dimension-cascade harness pattern
+// applied to type (the independent restated-scale oracle · non-tautological):
+//   · the type scale numbers are RESTATED here (not read from the SoT or the CSS),
+//     and both the SoT AND the live CSS var() chain must resolve to them — if both
+//     held a wrong value, the structural checks pass but the oracle fails;
+//   · the in-place de-referenced emit re-emits byte-identical (the CSS is the SoT's
+//     fresh output · `npm run build` was run · non-tautological — values come from
+//     the SoT, not the CSS); the on-disk tokens.ts re-emits from the SoT.
 // ──────────────────────────────────────────────────────────────
-test('type scale covers every size + the orthogonal emphasisWeight, each re-deriving from the --nuri-type-* source (single-source guard · decision 77)', async () => {
+test('type scale re-sources from the TS SoT — the restated oracle, byte-identical re-emit, the drift guard (decision 78 · the type-composite flip)', async () => {
   const css = await readFile(CSS_PATH, 'utf8');
   const map = buildPrimitiveMap(css);
-  const scale = buildTypeScale(map);
+  const typeSoT = await loadTypography(TYPOGRAPHY_SRC);
+  const scale = buildTypeScale(typeSoT, map);
 
   // 1. Coverage: the 6 size composites + the single emphasis override (decision 77).
   assert.deepEqual(
     Object.keys(scale.sizes).sort(), [...TYPE_SIZES].sort(),
     `type scale must cover every size composite: ${TYPE_SIZES.join(', ')}`,
   );
+  assert.deepEqual(
+    Object.keys(typeSoT).sort(), [...TYPE_SIZES].sort(),
+    'the TS SoT must own exactly the type steps',
+  );
   assert.ok(scale.emphasisWeight != null, 'type scale must carry the orthogonal emphasisWeight override');
 
-  // 2. Single-source guard · INDEPENDENT re-derivation. The test owns its own
-  //    conversion (NOT the emitter's helpers) so a bug in buildTypeScale can't
-  //    hide. fontSize = rem×16; lineHeight and letterSpacing stay RELATIVE (the
-  //    unitless ratio · the em number, verbatim — the × fontSize relative→absolute
-  //    conversion lives in typeStyle · decision 54); fontWeight = the resolved
-  //    REGULAR weight literal. EMPHASIS is orthogonal — re-derived once below.
+  // 2. INDEPENDENT restated-scale oracle. The type scale, RESTATED by hand — NOT
+  //    read from the SoT or the CSS. These are the FINAL resolved values: fontSize
+  //    px (rem×16) · lineHeight UNITLESS ratio · letterSpacing em number (both stay
+  //    RELATIVE · the × fontSize conversion lives in typeStyle · decision 54) ·
+  //    fontWeight the resolved REGULAR weight literal. xl's lineHeight is 1.2 (the
+  //    SoT authors it as the number 1.2 · the flip normalized the old CSS 1.20). If a value here disagrees with the SoT or
+  //    the CSS, one is wrong.
+  const TYPE_ORACLE = {
+    xs:    { fontSize: 13, lineHeight: 1.38, fontWeight: '400', letterSpacing: 0 },
+    sm:    { fontSize: 15, lineHeight: 1.33, fontWeight: '400', letterSpacing: -0.01 },
+    md:    { fontSize: 17, lineHeight: 1.29, fontWeight: '400', letterSpacing: -0.02 },
+    lg:    { fontSize: 22, lineHeight: 1.27, fontWeight: '400', letterSpacing: -0.015 },
+    xl:    { fontSize: 30, lineHeight: 1.2,  fontWeight: '400', letterSpacing: -0.015 },
+    '3xl': { fontSize: 57, lineHeight: 1.19, fontWeight: '400', letterSpacing: -0.02 },
+  };
+  const EMPHASIS_ORACLE = '600';
+
+  // 2a · through the SoT (buildTypeScale resolves the size/weight refs against the
+  //      font primitives + carries the literal lineHeight/tracking).
+  for (const step of TYPE_SIZES) {
+    assert.deepEqual(scale.sizes[step], TYPE_ORACLE[step],
+      `type.${step} (resolved through the TS SoT) drifted from the restated oracle`);
+  }
+  assert.equal(scale.emphasisWeight, EMPHASIS_ORACLE,
+    'emphasisWeight (through the SoT) drifted from the restated oracle');
+
+  // 2b · through the live CSS — the actual --nuri-type-${step}-* values the browser/
+  //      web reader sees (now DE-REFERENCED to inline · size the rem literal · weight
+  //      the literal · no var() chain). The test owns its own conversion (NOT the
+  //      emitter's helpers) so a shared bug can't hide.
   const round3 = (n) => Math.round(n * 1000) / 1000;
   const toPx = (raw) =>
     raw.endsWith('rem') ? round3(Number(raw.slice(0, -3)) * 16)
@@ -891,34 +933,38 @@ test('type scale covers every size + the orthogonal emphasisWeight, each re-deri
     : round3(Number(raw));
   const toEm = (raw) =>
     round3(raw.endsWith('em') ? Number(raw.slice(0, -2)) : Number(raw));
-
   for (const step of TYPE_SIZES) {
-    const fontSize = toPx(resolveValue(map.get(`--nuri-type-${step}-size`), map));
-    const lineHeight = round3(Number(resolveValue(map.get(`--nuri-type-${step}-line-height`), map)));
-    const letterSpacing = toEm(resolveValue(map.get(`--nuri-type-${step}-tracking`), map));
-    const weight = resolveValue(map.get(`--nuri-type-${step}-weight`), map);
-
-    assert.deepEqual(scale.sizes[step],
-      { fontSize, lineHeight, fontWeight: weight, letterSpacing },
-      `type.${step} drifted from the --nuri-type-${step}-* primitives`);
+    const viaCss = {
+      fontSize: toPx(resolveValue(map.get(`--nuri-type-${step}-size`), map)),
+      lineHeight: round3(Number(resolveValue(map.get(`--nuri-type-${step}-line-height`), map))),
+      fontWeight: resolveValue(map.get(`--nuri-type-${step}-weight`), map),
+      letterSpacing: toEm(resolveValue(map.get(`--nuri-type-${step}-tracking`), map)),
+    };
+    assert.deepEqual(viaCss, TYPE_ORACLE[step],
+      `--nuri-type-${step}-* (resolved through the live CSS) drifted from the restated oracle`);
   }
-  // The emphasis override is the semibold weight, uniform across every size
-  // (decision 77 · operator-locked) — re-derived from --nuri-font-weight-semibold.
+  assert.equal(resolveValue(map.get('--nuri-font-weight-semibold'), map), EMPHASIS_ORACLE,
+    '--nuri-font-weight-semibold (the emphasis override) drifted from the restated oracle');
+
+  // 3. RE-EMIT FRESHNESS · the in-place de-referenced emit is byte-identical (the
+  //    --nuri-type-* block is the SoT's fresh output · `npm run build -w @nuri/spec`
+  //    was run). Non-tautological: the emit takes its values from the SoT (size →
+  //    rem · weight → the resolved literal), not the CSS.
   assert.equal(
-    scale.emphasisWeight, resolveValue(map.get('--nuri-font-weight-semibold'), map),
-    'emphasisWeight drifted from --nuri-font-weight-semibold',
+    rewriteTypeDecls(css, typeDeclMap(typeSoT, readFontWeights(css))), css,
+    'styles/tokens-primitive.css --nuri-type-* decls are stale — run `npm run build -w @nuri/spec`',
   );
 
-  // 3. The on-disk emit re-emits identically from the source — the drift guard.
+  // 4. The on-disk tokens.ts re-emits identically from the SoT — the drift guard.
   //    A manual edit to build/tokens.ts (forbidden · decision 35) or a stale build
   //    both fail here.
   const onDisk = await readFile(TS_PATH, 'utf8');
   assert.ok(
     onDisk.includes(emitTypeTs(scale)),
-    'build/tokens.ts type block is out of sync with the --nuri-type-* primitives — run `npm run build`',
+    'build/tokens.ts type block is out of sync with the TS SoT — run `npm run build`',
   );
 
-  // 4. The typed surface is present: the TypeSize / TypeWeight / TypeStep aliases,
+  // 5. The typed surface is present: the TypeSize / TypeWeight / TypeStep aliases,
   //    the 6-size `type` namespace, and the orthogonal `emphasisWeight` override.
   assert.match(onDisk, /export type TypeSize =/, 'tokens.ts missing TypeSize union');
   assert.match(onDisk, /export type TypeWeight =/, 'tokens.ts missing TypeWeight alias');
@@ -989,6 +1035,14 @@ test('every primitive token is consumed or explicitly reserved', async () => {
     // Duration triplet (fast / med / slow). shell.css uses only fast;
     // med + slow are reserved for component transitions.
     '--nuri-duration-med', '--nuri-duration-slow',
+    // font-size 30 / 57 · the xl / 3xl steps. The type composite flip
+    // (N+52 · decision 78) DE-REFERENCED --nuri-type-*-size to inline rem,
+    // so these two ramp steps lost their only consumer (the type block);
+    // shell.css uses only 13/15/17/22. They ship as part of the complete
+    // font-size ramp (P11 · the RESERVED_COLOR_SCALES "full ramp" pattern)
+    // pending the font-primitive residue flip (Phase 4·3 · where the ramp's
+    // membership is re-decided · they may then be removed or TS-authored).
+    '--nuri-font-size-30', '--nuri-font-size-57',
   ]);
 
   // 1. Parse every primitive declaration AND alias edge in tokens-primitive.css.
