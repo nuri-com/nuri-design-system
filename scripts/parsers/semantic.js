@@ -744,7 +744,51 @@ function fmtGroup(group, resolved) {
   return `export const ${group.meta.name}: ${typeLit} = ${valueLit};`;
 }
 
-export function emitTokensTs(resolved, rules) {
+// Format the accent group in the TWO-LAYER accent-major shape (N+59 · Slice 3b·1 ·
+// projection model §3 · decision 80): `Record<Accent, { role: hex | {light,dark} }>`.
+// The colour model is LAYERED SUBSTITUTION (accent upstream of mode), NOT a
+// materialized (accent × theme) cross-product — so a FLAT role (the P4-frozen brand
+// fill · theme-invariant) emits a single hex string and a PAIR role (theme-adapting)
+// emits `{ light, dark }`, killing the cross-product's duplication. The leaf names +
+// order come from the SoT-resolved table (camelCase · token-paths.ts in lockstep);
+// the per-role type is the union the runtime resolves per (role, mode). Replaces the
+// generic fmtGroup emit for the accent group ONLY (chrome stays theme-major · scales
+// unchanged).
+function fmtAccentTwoLayer(accentTwoLayer) {
+  // Every accent owns the same role set (the SoT · the colour-semantic Guard A), so
+  // the leaf names (camelCase · authored order) come from the first accent.
+  const leafNames = Object.keys(accentTwoLayer[ACCENTS[0]]);
+  const width = Math.max(...leafNames.map((n) => fmtKey(n).length)) + 1;
+  const fmtLeaf = (v) =>
+    typeof v === 'string' ? `'${v}'` : `{ light: '${v.light}', dark: '${v.dark}' }`;
+
+  const typeLines = ['{'];
+  for (const name of leafNames) {
+    typeLines.push(`  ${fmtKey(name)}: string | { light: string; dark: string };`);
+  }
+  typeLines.push('}');
+
+  const valueLines = ['{'];
+  for (const accentName of ACCENTS) {
+    const roles = accentTwoLayer[accentName];
+    valueLines.push(`  ${fmtKey(accentName)}: {`);
+    for (const name of leafNames) {
+      const label = `${fmtKey(name)}:`.padEnd(width + 1);
+      valueLines.push(`    ${label} ${fmtLeaf(roles[name])},`);
+    }
+    valueLines.push('  },');
+  }
+  valueLines.push('}');
+
+  return `export const accent: Record<Accent, ${typeLines.join('\n')}> = ${valueLines.join('\n')};`;
+}
+
+// `opts.accentTwoLayer` (N+59) · when present, the COLOUR arm (chrome · accent) is
+// re-sourced from pipeline/colours.ts (ref→hex · resolveColourTokens), so chrome's
+// hex values arrive merged into `resolved` (byte-identical theme-major emit) and the
+// accent group emits the two-layer accent-major shape from this table instead of the
+// generic cross-product. Absent → the legacy all-CSS-walked emit (the test API).
+export function emitTokensTs(resolved, rules, opts = {}) {
   if (!rules) {
     throw new Error(
       `emitTokensTs requires the semantic rules array (post-N+5.5 ` +
@@ -752,6 +796,7 @@ export function emitTokensTs(resolved, rules) {
       `second argument.`,
     );
   }
+  const { accentTwoLayer } = opts;
   const groups = classifyAll(rules);
 
   // Sort groups by emit order: chrome first, then accent, then the
@@ -773,16 +818,29 @@ export function emitTokensTs(resolved, rules) {
   const headerSummary = sortedNames
     .map((n) => {
       const g = groups.get(n);
-      const dims = g.dims.length === 0 ? 'singleton' : g.dims.join(' × ');
-      return ` *  · ${n} (${dims}): ${g.entries.map((e) => e.leafName).join(', ')}`;
+      const dims =
+        n === 'accent' && accentTwoLayer
+          ? 'accent-major · two-layer (flat | {light,dark})'
+          : g.dims.length === 0
+            ? 'singleton'
+            : g.dims.join(' × ');
+      const leaves =
+        n === 'accent' && accentTwoLayer
+          ? Object.keys(accentTwoLayer[ACCENTS[0]]).join(', ')
+          : g.entries.map((e) => e.leafName).join(', ');
+      return ` *  · ${n} (${dims}): ${leaves}`;
     })
     .join('\n');
+
+  const sourceLine = accentTwoLayer
+    ? ` * Source · pipeline/colours.ts (chrome · accent · ref→hex) + styles/tokens-semantic.css (space · size · radius)`
+    : ` * Source · styles/tokens-primitive.css + styles/tokens-semantic.css`;
 
   const header = [
     `/* ──────────────────────────────────────────────────────────────`,
     ` * NURI · TOKENS · GENERATED · DO NOT EDIT BY HAND`,
     ` *`,
-    ` * Source · styles/tokens-primitive.css + styles/tokens-semantic.css`,
+    sourceLine,
     ` * Emitter · pipeline/tokens-parser.js — run \`npm run build\``,
     ` *`,
     ` * Contains ONLY runtime sets (decision 34 · N+6.0.3): every set`,
@@ -797,12 +855,27 @@ export function emitTokensTs(resolved, rules) {
     ` * spans across [data-<dim>=…] selectors. Groups in this build:`,
     headerSummary,
     ` *`,
-    ` * The semantic-cascade walker resolves each token to a literal`,
-    ` * per (accent × theme) by walking the cascade blocks of`,
-    ` * tokens-semantic.css and chasing the var() chain through the`,
-    ` * primitives at the build's selected --neutral scope (decision 31`,
-    ` * · default cream; pass --neutral=<scale> to pipeline/tokens-parser.js`,
-    ` * to switch).`,
+    ...(accentTwoLayer
+      ? [
+          ` * COLOUR is re-sourced from pipeline/colours.ts (N+59 · Slice 3b·1 ·`,
+          ` * projection model §3 · decision 80): chrome + accent are flattened`,
+          ` * ref→hex straight from the SoT (NO CSS round-trip). Colour is LAYERED`,
+          ` * SUBSTITUTION — accent is accent-MAJOR two-layer (a role is a flat hex`,
+          ` * or a {light,dark} pair · the runtime composes chrome[mode] ⊕`,
+          ` * accent[accent][mode]), NOT a materialized (accent × theme) cross-`,
+          ` * product. space/size/radius are still cascade-walked from`,
+          ` * tokens-semantic.css. Refs resolve through the build's selected`,
+          ` * --neutral scope (decision 31 · default cream; pass --neutral=<scale>`,
+          ` * to pipeline/tokens-parser.js to switch).`,
+        ]
+      : [
+          ` * The semantic-cascade walker resolves each token to a literal`,
+          ` * per (accent × theme) by walking the cascade blocks of`,
+          ` * tokens-semantic.css and chasing the var() chain through the`,
+          ` * primitives at the build's selected --neutral scope (decision 31`,
+          ` * · default cream; pass --neutral=<scale> to pipeline/tokens-parser.js`,
+          ` * to switch).`,
+        ]),
     ` * ────────────────────────────────────────────────────────────── */`,
   ].join('\n');
 
@@ -824,6 +897,12 @@ export function emitTokensTs(resolved, rules) {
   for (const name of sortedNames) {
     const group = groups.get(name);
     if (!group.policy.runtime) continue;
+    if (name === 'accent' && accentTwoLayer) {
+      parts.push(`// ── accent · accent-major · two-layer (flat | {light,dark}) ──`);
+      parts.push(fmtAccentTwoLayer(accentTwoLayer));
+      parts.push('');
+      continue;
+    }
     const dimsLabel = group.dims.length === 0 ? 'singleton' : group.dims.join(' × ');
     parts.push(`// ── ${name} · ${dimsLabel} ──`);
     parts.push(fmtGroup(group, resolved));

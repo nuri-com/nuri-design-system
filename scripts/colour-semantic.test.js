@@ -52,6 +52,7 @@ import {
   spliceCascade,
 } from './parsers/semantic-css.js';
 import { loadColours } from './parsers/colour-css.js';
+import { resolveColourTokens } from './parsers/colour-tokens.js';
 import {
   readSemanticRules,
   buildPrimitiveMap,
@@ -232,6 +233,52 @@ test('Guard C · the matrix resolves to the restated oracle — through the live
   for (const [cssVar, accentName, theme, hex] of CELLS) {
     const got = resolved[cssVar]?.[accentName]?.[theme];
     assert.equal(got, hex, `${cssVar} @ ${accentName}/${theme} (live CSS)`);
+  }
+});
+
+// ══════════════════════════════════════════════════════════════════
+// Guard E · build/tokens.ts COLOUR ARM ≡ the restated oracle (N+59 · Slice 3b·1)
+// ══════════════════════════════════════════════════════════════════
+// The colour arm of build/tokens.ts is now flattened STRAIGHT from colours.ts
+// (resolveColourTokens · ref→hex · NO CSS round-trip · projection model §3). Prove
+// the COMPOSED (accent, mode) slice — chrome[mode] ⊕ accent[accent][mode], exactly
+// what theme.tsx runtimeTokens does — equals the SAME independent hand-restated
+// oracle (CELLS) Guard C resolves through the SoT + the live CSS. Non-tautological:
+// the slice's own emitter is NOT the oracle; a wrong ramp index / theme pick / a
+// flat-vs-pair misread surfaces here. Spans chrome (same-scale + INVERSE + brand
+// ring) and accent (INVERSE neutral · FROZEN-P4 lilac/orange · theme-adapting).
+const colourTokens = resolveColourTokens({ chrome, accent }, colours, 'cream');
+const camel = (s) => s.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
+
+// Compose a cell the runtimeTokens way: accent → the two-layer role collapsed per
+// mode (flat hex as-is · pair picks the mode); chrome → the theme-major slice (the
+// resolver hands back an accent-invariant cross-product node, so any accent's cell
+// is the same).
+function composedHex(cssVar, accentName, theme) {
+  if (cssVar.startsWith('--nuri-accent-')) {
+    const v = colourTokens.accent[accentName][camel(cssVar.slice('--nuri-accent-'.length))];
+    return typeof v === 'string' ? v : v[theme];
+  }
+  return colourTokens.chrome[cssVar][accentName][theme]; // chrome · accent-invariant
+}
+
+test('Guard E · the build/tokens.ts colour arm composes to the restated oracle', () => {
+  for (const [cssVar, accentName, theme, hex] of CELLS) {
+    assert.equal(composedHex(cssVar, accentName, theme), hex, `${cssVar} @ ${accentName}/${theme} (tokens.ts compose)`);
+  }
+});
+
+test('Guard E · accent flat-vs-pair shape matches the SoT authored shape (no duplication)', () => {
+  // A role is a flat hex IFF the SoT authored a flat string ref (the P4-frozen brand
+  // fill · theme-invariant); a {light,dark} pair IFF the SoT authored a pair. This is
+  // the duplication-kill the reshape buys — assert the shape tracks the SoT, never the
+  // (now-dead) materialized cross-product.
+  for (const accentName of Object.keys(accent)) {
+    for (const role of Object.keys(accent[accentName])) {
+      const sotFlat = typeof accent[accentName][role] === 'string';
+      const emittedFlat = typeof colourTokens.accent[accentName][camel(role)] === 'string';
+      assert.equal(emittedFlat, sotFlat, `${accentName}.${role} flat-vs-pair must mirror the SoT`);
+    }
   }
 });
 

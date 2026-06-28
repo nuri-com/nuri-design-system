@@ -28,14 +28,26 @@ import {
   emphasisWeight,
   interaction as interactionTokens,
 } from '../../contract';
+import type { Accent, Theme } from '../../contract';
+
+// accentTokens is now accent-MAJOR two-layer (N+59 · Slice 3b·1 · projection model
+// §3): a role is a flat hex (theme-invariant · the P4-frozen brand) or a {light,dark}
+// pair (theme-adapting). Resolve a role for a mode — the SAME collapse runtimeTokens
+// does, RESTATED here so the spot-asserts read the contract (accentTokens) directly,
+// not the factory's own resolution. The resolved value is byte-identical to the old
+// accentTokens[accent][mode].role cross-product cell.
+const acc = (a: Accent, role: keyof (typeof accentTokens)[Accent], mode: Theme): string => {
+  const v = accentTokens[a][role] as string | { light: string; dark: string };
+  return typeof v === 'string' ? v : v[mode];
+};
 
 describe('baseline theme (resolver-model §11)', () => {
   const theme = buildNuriTheme('lilac', 'light');
 
   test('surface roles resolve from build/palette.ts against the live slice', () => {
-    expect(theme.surface.solid.bg).toBe(accentTokens.lilac.light.solid);
-    expect(theme.surface.solid.fg).toBe(accentTokens.lilac.light.onSolid);
-    expect(theme.surface.solid.pressedBg).toBe(accentTokens.lilac.light.solidPressed);
+    expect(theme.surface.solid.bg).toBe(acc('lilac', 'solid', 'light'));
+    expect(theme.surface.solid.fg).toBe(acc('lilac', 'onSolid', 'light'));
+    expect(theme.surface.solid.pressedBg).toBe(acc('lilac', 'solidPressed', 'light'));
 
     expect(theme.surface.soft.bg).toBe(chrome.light.bgStrong);
     expect(theme.surface.soft.fg).toBe(chrome.light.textPrimary);
@@ -57,8 +69,8 @@ describe('baseline theme (resolver-model §11)', () => {
   });
 
   test('neutral solid inverts with mode (the N+15 lesson)', () => {
-    expect(buildNuriTheme('neutral', 'light').surface.solid.bg).toBe(accentTokens.neutral.light.solid); // #12110b
-    expect(buildNuriTheme('neutral', 'dark').surface.solid.bg).toBe(accentTokens.neutral.dark.solid); // #fffdf2
+    expect(buildNuriTheme('neutral', 'light').surface.solid.bg).toBe(acc('neutral', 'solid', 'light')); // #12110b
+    expect(buildNuriTheme('neutral', 'dark').surface.solid.bg).toBe(acc('neutral', 'solid', 'dark')); // #fffdf2
   });
 
   test('interaction baseline is PINNED to the contract emit (no drift)', () => {
@@ -81,7 +93,7 @@ describe('Button — the richest descriptor (every namespace + interactive)', ()
   });
 
   test('variant axis → backgroundColor patches (palette · spot-assert)', () => {
-    expect(r.root.variants.variant.solid).toEqual({ backgroundColor: accentTokens.lilac.light.solid });
+    expect(r.root.variants.variant.solid).toEqual({ backgroundColor: acc('lilac', 'solid', 'light') });
     expect(r.root.variants.variant.soft).toEqual({ backgroundColor: chrome.light.bgStrong });
     expect(r.root.variants.variant.ghost).toEqual({ backgroundColor: 'transparent' });
   });
@@ -95,7 +107,7 @@ describe('Button — the richest descriptor (every namespace + interactive)', ()
   test('compoundVariants = the §11 array (pressed colour per variant + scale + opacity)', () => {
     expect(r.root.compoundVariants).toEqual(
       expect.arrayContaining([
-        { variant: 'solid', pressed: true, styles: { backgroundColor: accentTokens.lilac.light.solidPressed } },
+        { variant: 'solid', pressed: true, styles: { backgroundColor: acc('lilac', 'solidPressed', 'light') } },
         { variant: 'soft', pressed: true, styles: { backgroundColor: chrome.light.bgPressed } },
         { variant: 'ghost', pressed: true, styles: { backgroundColor: chrome.light.bgSubtle } },
         { pressed: true, styles: { transform: [{ scale: interactionTokens.pressScale }] } },
@@ -106,7 +118,7 @@ describe('Button — the richest descriptor (every namespace + interactive)', ()
 
   test('foreground flows by SCOPE — the variant fg is a channel, NOT in the label patch (§12 · F-BOX-FG-1)', () => {
     expect(r.root.foreground?.variants?.variant).toEqual({
-      solid: accentTokens.lilac.light.onSolid,
+      solid: acc('lilac', 'onSolid', 'light'),
       soft: chrome.light.textPrimary,
       ghost: chrome.light.textPrimary,
     });
@@ -176,7 +188,7 @@ describe('IconAvatar — same factory, static, the subtle role', () => {
   });
 
   test('variant fills (solid/soft/ghost) + the FG-ONLY subtle finding', () => {
-    expect(r.root.variants.variant.solid).toEqual({ backgroundColor: accentTokens.lilac.light.solid });
+    expect(r.root.variants.variant.solid).toEqual({ backgroundColor: acc('lilac', 'solid', 'light') });
     expect(r.root.variants.variant.soft).toEqual({ backgroundColor: chrome.light.bgStrong });
     expect(r.root.variants.variant.ghost).toEqual({ backgroundColor: 'transparent' });
     // subtle contributes NO background patch (fg-only) — the consumability finding.
@@ -255,7 +267,7 @@ describe('genericity + the resolved style tree (snapshots committed)', () => {
       minHeight: size.lg,
       paddingHorizontal: space.lg,
       borderRadius: radius.sm,
-      backgroundColor: accentTokens.lilac.light.solidPressed,
+      backgroundColor: acc('lilac', 'solidPressed', 'light'),
       transform: [{ scale: interactionTokens.pressScale }],
     });
   });

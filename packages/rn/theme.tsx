@@ -43,13 +43,36 @@ import {
 } from './contract';
 import type { Accent, Theme, TokenPath, TypeSize } from './contract';
 
+// ── AccentSlice · the accent roles resolved for ONE mode ──────────
+// The colour SoT is now accent-MAJOR two-layer (N+59 · Slice 3b·1 · projection
+// model §3): `accentTokens[accent]` is a role table whose every role is a flat hex
+// (theme-invariant · the P4-frozen brand fill) OR a `{light,dark}` pair
+// (theme-adapting). The live slice collapses each role to its mode-concrete hex —
+// so AccentSlice is the role set mapped to `string`, BYTE-IDENTICAL to the value the
+// old `accentTokens[accent][mode]` cross-product cell carried.
+type AccentTable = (typeof accentTokens)[Accent];
+export type AccentSlice = { [K in keyof AccentTable]: string };
+
+// Collapse the two-layer accent table to the single-mode slice: a flat role is used
+// as-is (theme-invariant); a pair picks `mode`. The layered-substitution composition
+// (chrome[mode] ⊕ accent[accent][mode]) the projection model §3 specifies.
+function resolveAccentSlice(table: AccentTable, mode: Theme): AccentSlice {
+  const out = {} as Record<string, string>;
+  for (const role in table) {
+    const v = table[role as keyof AccentTable] as string | { light: string; dark: string };
+    out[role] = typeof v === 'string' ? v : v[mode];
+  }
+  return out as AccentSlice;
+}
+
 // ── RuntimeTokens · the live (accent × theme) slice resolveToken reads ──
-// chrome is theme-keyed; accent is (accent × theme)-keyed; space/size/
-// radius are cascade-invariant singletons. resolveToken returns string for
-// colour leaves (chrome/accent) and number for dimension leaves.
+// chrome is theme-keyed; accent is the mode-resolved AccentSlice (composed from the
+// accent-major two-layer table · above); space/size/radius are cascade-invariant
+// singletons. resolveToken returns string for colour leaves (chrome/accent) and
+// number for dimension leaves.
 export type RuntimeTokens = {
   chrome: typeof chrome.light;
-  accent: typeof accentTokens.lilac.light;
+  accent: AccentSlice;
   space: typeof space;
   size: typeof size;
   radius: typeof radius;
@@ -128,7 +151,7 @@ export function useRuntimeTokens(): RuntimeTokens {
 export function runtimeTokens(accent: Accent, mode: Theme): RuntimeTokens {
   return {
     chrome: chrome[mode],
-    accent: accentTokens[accent][mode],
+    accent: resolveAccentSlice(accentTokens[accent], mode),
     space,
     size,
     radius,
