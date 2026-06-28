@@ -1,0 +1,69 @@
+/* ══════════════════════════════════════════════════════════════════
+ * NURI · PARSER · DIMENSION → build/tokens.ts (N+60 · Slice 3b·2a · decision 80)
+ * ──────────────────────────────────────────────────────────────────
+ * Re-sources the DIMENSION arm of build/tokens.ts (space · size · radius) STRAIGHT
+ * from pipeline/dimensions.ts — ref→px literal, no CSS round-trip. The N+59 colour
+ * twin (parsers/colour-tokens.js) did this for chrome + accent; this finishes the
+ * RN contract's value arm (projection model §4 · no TS→CSS→TS round-trip).
+ *
+ * The dimension scales are CONTEXT-INVARIANT (no accent / no theme · the singleton
+ * groups). So the resolver returns each leaf in resolveSemanticCrossProduct's shape
+ * ({ [cssVar]: { [accent]: { [theme]: literal } } }) with the IDENTICAL literal in
+ * every (accent, theme) cell — the orchestrator Object.assign-merges it over the
+ * resolved map and the generic emitTokensTs singleton path collapses the redundant
+ * cells back to one value per leaf, byte-identical to the old cascade walk.
+ *
+ * A leaf resolves to the final CSS literal the semantic var() chain bottoms out at
+ * (the value the browser / RN sees):
+ *   · { ref: N }        → `${px[N]}px` — the px primitive, value == name (decision 32).
+ *   · { value: 0, … }   → '0'          — the collapsed-gutter sentinel, unitless (dec 32).
+ *   · { value: V, … }   → `${V}px`     — the 9999 pill sentinel (amendment 36.1).
+ * The shape is exhaustive over dimensions.ts's Leaf union — an unrecognised leaf throws.
+ * ══════════════════════════════════════════════════════════════════ */
+
+import { ACCENTS, THEMES } from './semantic.js';
+
+// The scales build/tokens.ts exposes as singleton dimension namespaces (decision 36 ·
+// amendment 36.1). Their KEYS are the leaf names (the DTCG shape · no array restated).
+const DIMENSION_SCALES = ['space', 'size', 'radius'];
+
+// Resolve a dimensions.ts leaf to its final CSS literal — the same value the live
+// var() chain (--nuri-<scale>-leaf → var(--nuri-px-N) → Npx) bottoms out at. Mirrors
+// dimension-css.js's leafRhs, but a `{ ref }` is RESOLVED to its px value (leafRhs
+// stops at the var() reference; here we want the terminal literal tokens.ts emits).
+export function resolveDimLeaf(leaf, px) {
+  if (leaf && 'ref' in leaf) {
+    const v = px[leaf.ref];
+    if (typeof v !== 'number') {
+      throw new Error(`[dimension-tokens] ref ${leaf.ref} is not in the px scale (value == name · decision 32)`);
+    }
+    return `${v}px`;
+  }
+  if (leaf && typeof leaf.value === 'number') return leaf.value === 0 ? '0' : `${leaf.value}px`;
+  throw new Error(`[dimension-tokens] leaf is neither { ref } nor { value, unit }: ${JSON.stringify(leaf)}`);
+}
+
+// The dimension arm of build/tokens.ts, resolved from the TS SoT. Returns the
+// cross-product node map (the resolveSemanticCrossProduct shape) so the orchestrator
+// merges it into `resolved` exactly as it merges the colour chrome arm — every
+// (accent, theme) cell of a leaf holds the identical literal (dimensions don't vary
+// by context · the singleton emit asserts that invariance + collapses the cells).
+export function resolveDimensionTokens(dims) {
+  const out = {};
+  for (const scale of DIMENSION_SCALES) {
+    const table = dims[scale];
+    if (!table || typeof table !== 'object') {
+      throw new Error(`[dimension-tokens] pipeline/dimensions.ts has no '${scale}' table`);
+    }
+    for (const [leaf, def] of Object.entries(table)) {
+      const literal = resolveDimLeaf(def, dims.px);
+      const perAccent = {};
+      for (const a of ACCENTS) {
+        perAccent[a] = {};
+        for (const t of THEMES) perAccent[a][t] = literal;
+      }
+      out[`--nuri-${scale}-${leaf}`] = perAccent;
+    }
+  }
+  return out;
+}

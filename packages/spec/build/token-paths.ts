@@ -1,7 +1,7 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · TOKEN PATHS · GENERATED · DO NOT EDIT BY HAND
  *
- * Source · build/tokens.ts (every runtime-set leaf path)
+ * Source · pipeline/colours.ts (chrome · accent roles) + pipeline/dimensions.ts (space · size · radius)
  * Emitter · pipeline/tokens-parser.js — run `npm run build`
  *
  * Discriminated union of every runtime-set leaf path. Consumed
