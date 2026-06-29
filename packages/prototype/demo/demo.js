@@ -100,12 +100,12 @@
     'android':     { status: 'android', cutout: 'punch',  bottom: 'buttons' },
   };
 
-  // Icons + renderers come from NuriControl (lib/docs/control/control.js).
+  // Icons + renderers come from NuriControl (prototype/demo/control.js · its sibling).
   // Loaded before this file via the page's <script> tag order (both `defer`).
   // Fail loud if a page forgets the control.js link — silent destructure on
   // undefined would surface as a missing toolbar with no obvious cause.
   if (!window.NuriControl) {
-    throw new Error('[NuriDemo] lib/docs/control/control.js must load before demo.js');
+    throw new Error('[NuriDemo] prototype/demo/control.js must load before demo.js');
   }
   const { SUN_ICON, MOON_ICON } = window.NuriControl;
 

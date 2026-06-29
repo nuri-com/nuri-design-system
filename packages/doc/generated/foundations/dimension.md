@@ -24,7 +24,7 @@ The dimension foundation — the L1 direct-pixel primitives (`px-N` is N pixels 
 | `px-28` | `28px` |
 | `px-36` | `36px` |
 | `px-48` | `48px` |
-| `px-60` | `60px` |
+| `px-54` | `54px` |
 | `px-72` | `72px` |
 | `px-90` | `90px` |
 
@@ -49,7 +49,7 @@ The dimension foundation — the L1 direct-pixel primitives (`px-N` is N pixels 
 | `size.sm` | `px-24` | `24px` |
 | `size.md` | `px-36` | `36px` |
 | `size.lg` | `px-48` | `48px` |
-| `size.xl` | `px-60` | `60px` |
+| `size.xl` | `px-54` | `54px` |
 | `size.2xl` | `px-72` | `72px` |
 | `size.3xl` | `px-90` | `90px` |
 

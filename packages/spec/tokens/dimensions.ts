@@ -37,7 +37,7 @@
 // L1 · the px primitive scale. The KEYS are the scale (no array restated);
 // value == name (decision 32): --nuri-px-N is literally N pixels. `Px` derives
 // from the keys (no union restated). Ordered ascending = the CSS emit order.
-export const px = { 2: 2, 4: 4, 6: 6, 12: 12, 18: 18, 24: 24, 28: 28, 36: 36, 48: 48, 60: 60, 72: 72, 90: 90 } as const;
+export const px = { 2: 2, 4: 4, 6: 6, 12: 12, 18: 18, 24: 24, 28: 28, 36: 36, 48: 48, 54: 54, 72: 72, 90: 90 } as const;
 export type Px = keyof typeof px;
 
 // A semantic leaf is the universal token shape — `value | reference`: EITHER a
@@ -66,7 +66,7 @@ export const size = {
   sm:    { ref: 24 },
   md:    { ref: 36 },
   lg:    { ref: 48 },
-  xl:    { ref: 60 },
+  xl:    { ref: 54 },
   '2xl': { ref: 72 },
   '3xl': { ref: 90 },
 } as const satisfies Record<string, Leaf>;

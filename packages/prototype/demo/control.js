@@ -7,8 +7,11 @@
  *   · lib/docs/demo/demo.js · demo toolbar (Theme · Accent · Neutral · Font)
  *
  * Pre-N+3.5 both sites duplicated the markup + icons + class names.
- * This module is the single source of truth. CSS lives at
- * lib/docs/control/control.css. See roadmap/N+3.5.md.
+ * This module is the single source of truth. CSS lives alongside at
+ * prototype/demo/control.css. Relocated from the @nuri/doc harness into
+ * @nuri/prototype's shared demo layer so the standalone playground can
+ * load NuriControl without depending on @nuri/doc (the DAG stays
+ * playground → prototype → spec). See roadmap/N+3.5.md.
  *
  * Exposed as window.NuriControl. No module system.
  *

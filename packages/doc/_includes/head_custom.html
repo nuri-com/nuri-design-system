@@ -7,7 +7,7 @@
   twins + the icon registry), never committed (no drift). Post-flip model: the
   recipe CSS RETIRED (decision 74); the recipes are FACTORY-backed ES modules that
   self-import the factory + their primitives + their descriptor twin (mirrors
-  pages/playground/demo.html · the N+41 render gate). state.js FIRST + synchronous
+  pages/playground/button.html · the N+41 render gate). state.js FIRST + synchronous
   so the scope attrs are set before the token CSS parses (no FOUC); control.js
   (defines NuriControl) + scope.js precede demo.js (which depends on both).
 {%- endcomment -%}
@@ -34,8 +34,8 @@
 <link rel="stylesheet" href="{{ '/assets/nuri/prototype/generated/styles/tokens-primitive.css' | relative_url }}" />
 <link rel="stylesheet" href="{{ '/assets/nuri/prototype/generated/styles/tokens-semantic.css' | relative_url }}" />
 <link rel="stylesheet" href="{{ '/assets/nuri/prototype/generated/styles/typography.css' | relative_url }}" />
-<!-- @nuri/doc · the harness control toolbar styling. -->
-<link rel="stylesheet" href="{{ '/assets/nuri/docs/control/control.css' | relative_url }}" />
+<!-- @nuri/prototype · the control toolbar styling (relocated from the doc harness · the shared demo layer). -->
+<link rel="stylesheet" href="{{ '/assets/nuri/prototype/demo/control.css' | relative_url }}" />
 <!-- @nuri/prototype · the icon element CSS + the 5 GENERATED namespace CSS + reset. -->
 <link rel="stylesheet" href="{{ '/assets/nuri/prototype/primitives/icon.css' | relative_url }}" />
 <link rel="stylesheet" href="{{ '/assets/nuri/prototype/styles/typography.css' | relative_url }}" />
@@ -70,8 +70,8 @@
   .main-content td { vertical-align: top; }
 </style>
 
-<!-- @nuri/doc harness · NuriControl (the toolbar) precedes demo.js. -->
-<script src="{{ '/assets/nuri/docs/control/control.js' | relative_url }}" defer></script>
+<!-- @nuri/prototype · NuriControl (the toolbar · relocated to the demo layer) precedes demo.js. -->
+<script src="{{ '/assets/nuri/prototype/demo/control.js' | relative_url }}" defer></script>
 <!-- @nuri/prototype · <nuri-scope> (the per-demo local theming wrapper). -->
 <script src="{{ '/assets/nuri/prototype/primitives/scope.js' | relative_url }}" defer></script>
 <!-- The 3 factory-backed recipe MODULES — each self-imports the factory + its

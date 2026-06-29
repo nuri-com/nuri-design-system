@@ -5,7 +5,7 @@
  * N+3.5 (the two had duplicate rules; this is the single source).
  *
  * Markup comes from NuriControl.renderSelect / renderIconButton
- * (lib/docs/control/control.js).
+ * (prototype/demo/control.js · its sibling).
  * ────────────────────────────────────────────────────────────── */
 
 .nuri-control {

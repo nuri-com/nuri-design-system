@@ -23,7 +23,7 @@
  *     descriptor axis, so it is dropped (pages using it — components/topbar.html — render with
  *     the descriptor's default padding-start/end:lg · no crash · a doc-page degradation).
  *   · the bare-text title lg-em auto-type — NOT in the descriptor; a bare <nuri-topbar-content>
- *     text title renders at the inherited size. demo.html wraps its title in an explicit
+ *     text title renders at the inherited size. button.html wraps its title in an explicit
  *     <nuri-typography size=md emphasis>, so the render gate is unaffected.
  *
  * The page links the namespace CSS (box/stack/palette); the positional buttons inside are

@@ -340,8 +340,8 @@ const SEMANTIC_EXPECTED = {
                         lilac:   { light: '36px', dark: '36px' } },
   '--nuri-size-lg':   { neutral: { light: '48px', dark: '48px' },
                         lilac:   { light: '48px', dark: '48px' } },
-  '--nuri-size-xl':   { neutral: { light: '60px', dark: '60px' },
-                        lilac:   { light: '60px', dark: '60px' } },
+  '--nuri-size-xl':   { neutral: { light: '54px', dark: '54px' },
+                        lilac:   { light: '54px', dark: '54px' } },
   '--nuri-size-2xl':  { neutral: { light: '72px', dark: '72px' },
                         lilac:   { light: '72px', dark: '72px' } },
   '--nuri-size-3xl':  { neutral: { light: '90px', dark: '90px' },
@@ -939,7 +939,7 @@ test('type scale re-sources from the TS SoT — the restated oracle, byte-identi
   //    the CSS, one is wrong.
   const TYPE_ORACLE = {
     xs:    { fontSize: 13, lineHeight: 1.38, fontWeight: '400', letterSpacing: 0 },
-    sm:    { fontSize: 15, lineHeight: 1.33, fontWeight: '400', letterSpacing: -0.01 },
+    sm:    { fontSize: 14.5, lineHeight: 1.33, fontWeight: '400', letterSpacing: -0.01 },
     md:    { fontSize: 17, lineHeight: 1.29, fontWeight: '400', letterSpacing: -0.02 },
     lg:    { fontSize: 22, lineHeight: 1.27, fontWeight: '400', letterSpacing: -0.015 },
     xl:    { fontSize: 30, lineHeight: 1.2,  fontWeight: '400', letterSpacing: -0.015 },
