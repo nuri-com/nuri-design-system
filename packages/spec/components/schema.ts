@@ -58,17 +58,17 @@
 // box sizing (width · height · minHeight) takes the FULL 7-leaf `size`
 // scale — `keyof typeof size`, derived from the dimensions SoT (box.css
 // dispatches xs…3xl). Distinct from SpaceLeaf's between-elements rhythm.
-export type SizeLeaf = keyof typeof import('../dimensions').size;
+export type SizeLeaf = keyof typeof import('../tokens/dimensions').size;
 
 // Accent — the accent set, derived from the colours SoT `accent` table
 // (neutral · lilac · orange). The PaletteNS `accent` value vocab. Was
 // imported from build/tokens (re-homed N+61 · identical union).
-export type Accent = keyof typeof import('../colours').accent;
+export type Accent = keyof typeof import('../tokens/colours').accent;
 
 // TypeSize — the type-scale steps, derived from the typography SoT `type`
 // table (xs · sm · md · lg · xl · 3xl). The TypographyNS `size` value vocab
 // (+ TypeKey below). Was imported from build/tokens (re-homed N+61 · identical union).
-export type TypeSize = keyof typeof import('../typography').type;
+export type TypeSize = keyof typeof import('../tokens/typography').type;
 
 // padding + gap take the curated 5-leaf semantic space subset the layout
 // primitives dispatch (stack.css gap · box.css padding* · the Stack/Box

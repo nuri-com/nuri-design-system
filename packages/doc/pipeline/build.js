@@ -31,7 +31,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { loadSpecData } from './strip.js';
+import { loadSpecData, loadDataFromPath } from './strip.js';
 import { docIrFromDescriptor, exportNameFor, DOC_COMPONENTS } from './descriptor-ir.js';
 import { AXIS_DOCS } from './axis-ir.js';
 import { FOUNDATION_DOCS } from './foundations-ir.js';
@@ -43,17 +43,20 @@ const COMPONENTS_OUT = resolve(DOC_ROOT, 'generated/components');
 const AXES_OUT = resolve(DOC_ROOT, 'generated/axes');
 const FOUNDATIONS_OUT = resolve(DOC_ROOT, 'generated/foundations');
 
-// The descriptor browser-ESM twins (.js · node-importable · still emitted by
-// @nuri/spec's Slice 7 · also consumed by @nuri/prototype's recipes). Read by a
-// cross-package relative path — the build-free precedent (@nuri/prototype's
-// recipes import the same `../../spec/build/descriptors/<name>.js`).
-const SPEC_DESCRIPTORS = resolve(__dirname, '../../spec/build/descriptors');
+// The generated artifacts left @nuri/spec for the two PROJECTIONS at N+62 (the infra
+// exit · decision 80): the RN contract (tokens · palette → @nuri/rn/generated/) and the
+// web output (the descriptor twins · token-var registry → @nuri/prototype/generated/).
+// doc reads each from the projection that OWNS it, by cross-package relative path — the
+// build-free precedent (the recipes import the same prototype/generated descriptor twins).
+const RN_GENERATED = resolve(__dirname, '../../rn/generated');
+const PROTO_GENERATED = resolve(__dirname, '../../prototype/generated');
+const SPEC_DESCRIPTORS = resolve(PROTO_GENERATED, 'descriptors');
 
 // ── COMPONENTS · each frozen descriptor → its doc page (the A4 family) ──
 async function buildComponentDocs() {
-  const specTokens = await loadSpecData('tokens');
-  const { tokenVars } = await loadSpecData('token-vars');
-  const { palette } = await loadSpecData('palette');
+  const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'tokens.ts'));
+  const { tokenVars } = await loadDataFromPath(resolve(PROTO_GENERATED, 'token-vars.ts'));
+  const { palette } = await loadDataFromPath(resolve(RN_GENERATED, 'palette.ts'));
   const { tokens, colors } = buildDocTokenInputs(specTokens, tokenVars);
 
   await mkdir(COMPONENTS_OUT, { recursive: true });
@@ -80,8 +83,8 @@ async function buildAxisDocs() {
   const { surface } = await loadSpecData('palette-surface');
   const { opts, webChrome, webOrder } = await loadSpecData('interactive-effects');
   const { axis } = await loadSpecData('typography-axis');
-  const specTokens = await loadSpecData('tokens');
-  const { tokenVars } = await loadSpecData('token-vars');
+  const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'tokens.ts'));
+  const { tokenVars } = await loadDataFromPath(resolve(PROTO_GENERATED, 'token-vars.ts'));
   const d = {
     stackFields: STACK_FIELDS,
     boxFields: BOX_FIELDS,
@@ -114,8 +117,8 @@ async function buildAxisDocs() {
 async function buildFoundationDocs() {
   const dimensions = await loadSpecData('dimensions');
   const colours = await loadSpecData('colours');
-  const specTokens = await loadSpecData('tokens');
-  const { tokenVars } = await loadSpecData('token-vars');
+  const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'tokens.ts'));
+  const { tokenVars } = await loadDataFromPath(resolve(PROTO_GENERATED, 'token-vars.ts'));
   const { tokens } = buildDocTokenInputs(specTokens, tokenVars);
   const d = {
     dimensions, // { px, space, size, radius } · the L1 + L2 dimension SoT

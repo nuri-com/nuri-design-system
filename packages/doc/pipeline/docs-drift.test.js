@@ -27,7 +27,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { loadSpecData } from './strip.js';
+import { loadSpecData, loadDataFromPath } from './strip.js';
 import { docIrFromDescriptor, exportNameFor, DOC_COMPONENTS } from './descriptor-ir.js';
 import { AXIS_DOCS } from './axis-ir.js';
 import { FOUNDATION_DOCS } from './foundations-ir.js';
@@ -35,9 +35,12 @@ import { emitDocPage, emitAxisPage, emitFoundationPage, buildDocTokenInputs, mak
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DOC_ROOT = resolve(__dirname, '..');
-// The descriptor browser-ESM twins still live in @nuri/spec (Slice 7 · the build-
-// free cross-package read · the @nuri/prototype recipe precedent).
-const SPEC_DESCRIPTORS = resolve(__dirname, '../../spec/build/descriptors');
+// The generated artifacts left @nuri/spec for the two projections at N+62 (decision 80):
+// the RN contract (tokens · palette → @nuri/rn/generated/), the web output (descriptor
+// twins · token-vars → @nuri/prototype/generated/). Read from the owning projection.
+const RN_GENERATED = resolve(__dirname, '../../rn/generated');
+const PROTO_GENERATED = resolve(__dirname, '../../prototype/generated');
+const SPEC_DESCRIPTORS = resolve(PROTO_GENERATED, 'descriptors');
 const readGenerated = (source) =>
   readFileSync(resolve(DOC_ROOT, 'generated/components', `${source}.md`), 'utf8');
 const readAxis = (source) =>
@@ -103,9 +106,9 @@ test('G · each generated/components/*.md re-emits identically from its descript
   // @nuri/spec/token-vars (the colour var registry) → buildDocTokenInputs; the
   // palette cells from @nuri/spec/palette (build/palette.ts · the data export ·
   // NOT re-derived from the axis SoTs the way the pre-A4 spec-resident guard did).
-  const specTokens = await loadSpecData('tokens');
-  const { tokenVars } = await loadSpecData('token-vars');
-  const { palette } = await loadSpecData('palette');
+  const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'tokens.ts'));
+  const { tokenVars } = await loadDataFromPath(resolve(PROTO_GENERATED, 'token-vars.ts'));
+  const { palette } = await loadDataFromPath(resolve(RN_GENERATED, 'palette.ts'));
   const { tokens, colors } = buildDocTokenInputs(specTokens, tokenVars);
 
   // Re-emit must equal the committed page (stale-build / hand-edit guard). The doc
@@ -258,8 +261,8 @@ test('G · each generated/axes/*.md re-emits identically from its axis SoT', asy
   const { surface } = await loadSpecData('palette-surface');
   const { opts, webChrome, webOrder } = await loadSpecData('interactive-effects');
   const { axis } = await loadSpecData('typography-axis');
-  const specTokens = await loadSpecData('tokens');
-  const { tokenVars } = await loadSpecData('token-vars');
+  const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'tokens.ts'));
+  const { tokenVars } = await loadDataFromPath(resolve(PROTO_GENERATED, 'token-vars.ts'));
   const d = {
     stackFields: STACK_FIELDS,
     boxFields: BOX_FIELDS,
@@ -382,8 +385,8 @@ test('G · each generated/foundations/*.md re-emits identically from its token S
   // come from the SAME buildDocTokenInputs / makeRoleResolver the component/axis pages use.
   const dimensions = await loadSpecData('dimensions');
   const colours = await loadSpecData('colours');
-  const specTokens = await loadSpecData('tokens');
-  const { tokenVars } = await loadSpecData('token-vars');
+  const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'tokens.ts'));
+  const { tokenVars } = await loadDataFromPath(resolve(PROTO_GENERATED, 'token-vars.ts'));
   const { tokens } = buildDocTokenInputs(specTokens, tokenVars);
   const d = {
     dimensions,

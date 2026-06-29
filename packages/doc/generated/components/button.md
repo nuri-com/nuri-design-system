@@ -4,7 +4,7 @@ layout: default
 nav_order: 1
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/build/descriptors/composition-button.ts
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/components/composition-button.ts
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
 # Button

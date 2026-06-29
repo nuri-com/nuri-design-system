@@ -35,9 +35,11 @@ import { fileURLToPath } from 'node:url';
 import postcss from 'postcss';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(__dirname, '../packages/spec');
-const TYPOGRAPHY_CSS = resolve(REPO_ROOT, 'styles/typography.css');
-const PRIMITIVE_CSS = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
+// N+62 (decision 80): the token CSS is the web projection's output now
+// (@nuri/prototype/generated/styles/ · was @nuri/spec's styles/).
+const PROTO_GENERATED = resolve(__dirname, '../packages/prototype/generated');
+const TYPOGRAPHY_CSS = resolve(PROTO_GENERATED, 'styles/typography.css');
+const PRIMITIVE_CSS = resolve(PROTO_GENERATED, 'styles/tokens-primitive.css');
 
 const typoCss = readFileSync(TYPOGRAPHY_CSS, 'utf8');
 const primCss = readFileSync(PRIMITIVE_CSS, 'utf8');

@@ -32,7 +32,7 @@
  * ────────────────────────────────────────────────────────────── */
 
 import { mergedNSForPart, mergeAttrs } from '../factory/factory.js';
-import { topbarDescriptor } from '../../spec/build/descriptors/topbar.js';
+import { topbarDescriptor } from '../generated/descriptors/topbar.js';
 // Self-import the typography primitive (idempotent) — a topbar's bare/typography title
 // is a <nuri-typography>; the positional buttons self-import pressable themselves.
 import '../primitives/typography.js';

@@ -4,7 +4,7 @@ layout: default
 nav_order: 1
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/pipeline/resolve-map.ts · property-spelling.ts
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/axes/resolve-map.ts · property-spelling.ts
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
 # Stack

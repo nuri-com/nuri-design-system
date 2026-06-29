@@ -4,7 +4,7 @@ layout: default
 nav_order: 4
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/build/tokens.ts · packages/spec/styles/typography.css · packages/spec/styles/tokens-primitive.css
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/generated/tokens.ts · packages/prototype/generated/styles/typography.css · packages/prototype/generated/styles/tokens-primitive.css
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
 # Typography

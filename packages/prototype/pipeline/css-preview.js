@@ -63,11 +63,10 @@ const REGISTRY_TS = specPath('@nuri/spec/property-spelling');   // the per-targe
 const SURFACE_TS = specPath('@nuri/spec/palette-surface');      // the bespoke palette SURFACE role table
 const EFFECTS_TS = specPath('@nuri/spec/interactive-effects');  // the bespoke interactive EFFECT set
 const TYPOGRAPHY_TS = specPath('@nuri/spec/typography-axis');   // the bespoke typography AXIS (shell + muted/align)
-// The scale vocab is spec's GENERATED token CSS (--nuri-{space,size,radius}-* leaves · not a
-// declared export — lib/ + styles/ stay spec-internal). Read via the spec package root the
-// resolved SoTs anchor: …/packages/spec/pipeline/<sot>.ts → up one → …/packages/spec.
-const SPEC_ROOT = resolve(dirname(RESOLVE_MAP), '..');
-const SEMANTIC_CSS = resolve(SPEC_ROOT, 'styles/tokens-semantic.css');
+// The scale vocab is the GENERATED token CSS (--nuri-{space,size,radius}-* leaves). It is
+// this prototype projection's OWN output now (N+62 · decision 80 · was @nuri/spec's styles/);
+// the codegen (root scripts/) writes it into generated/styles/, this build reads it back.
+const SEMANTIC_CSS = resolve(PKG_ROOT, 'generated/styles/tokens-semantic.css');
 // The LIVE target — the 5 generated namespace CSS, written into prototype's own styles/
 // (post-flip prototype OWNS the namespace CSS · decision 74 · was lib/components/<ns>/<ns>.css
 // in spec before the A3 carve · the re-emit is byte-identical to those pre-carve files).

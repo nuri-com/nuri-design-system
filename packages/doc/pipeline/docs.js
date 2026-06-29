@@ -15,27 +15,29 @@
  *   to documentation. The descriptor is the machine-spec (decision 69 · the
  *   SoT); doc-gen reads it + the token data, never re-deriving from CSS.
  *
- * Sources — all @nuri/spec DATA exports (decision 48 · "emit FROM, never re-author"):
- *   · ir       — the composition descriptor (@nuri/spec/descriptors/<name> ·
- *                the browser-ESM twin · axes · anatomy · structure.base ·
- *                variants), reshaped by descriptor-ir.js#docIrFromDescriptor.
+ * Sources (decision 48 · "emit FROM, never re-author"). @nuri/spec is pure DATA now
+ * (N+62 · decision 80); the resolved artifacts live in the two PROJECTIONS, read by
+ * relative path via strip.js#loadDataFromPath:
+ *   · ir       — the composition descriptor (@nuri/spec/descriptors/<name> · DATA ·
+ *                the browser-ESM twin from @nuri/prototype/generated/descriptors/ ·
+ *                axes · anatomy · structure.base · variants), reshaped by
+ *                descriptor-ir.js#docIrFromDescriptor.
  *   · palette  — the {variant|chrome} → {bg·fg·fgMuted·pressedBg} mapping
- *                (@nuri/spec/palette · build/palette.ts). The token-map table
- *                dereferences each `palette:{variant}` node through it to the
+ *                (@nuri/rn/generated/palette.ts · the RN projection). The token-map
+ *                table dereferences each `palette:{variant}` node through it to the
  *                resolved TokenPaths.
  *   · tokens   — the size · space · radius · type VALUE maps, derived from
- *                @nuri/spec/tokens (build/tokens.ts · the px scales + the type
- *                composite) by buildDocTokenInputs. TWO uses (N+23 · one map):
- *                the leaf-VALIDATION sets (a box/typography leaf the descriptor
- *                references but absent from its scale throws · faithfulness ·
- *                decision 48) AND the value SOURCE — the px / type composite
- *                the Resolves-to column renders.
+ *                @nuri/rn/generated/tokens.ts (the px scales + the type composite)
+ *                by buildDocTokenInputs. TWO uses (N+23 · one map): the leaf-
+ *                VALIDATION sets (a box/typography leaf the descriptor references but
+ *                absent from its scale throws · faithfulness · decision 48) AND the
+ *                value SOURCE — the px / type composite the Resolves-to column renders.
  *   · colors   — the default-scope colour resolver (makeColorResolver · N+23):
- *                a palette TokenPath → { var, hex }. The `var` (the live CSS
- *                custom property) comes from @nuri/spec/token-vars (the colour
- *                var registry · N+42); the `hex` from @nuri/spec/tokens at the
- *                default scope. The swatch reads `var` LIVE (re-themes with
- *                scope); `hex` is the literal it coincides with at the page :root.
+ *                a palette TokenPath → { var, hex }. The `var` (the live CSS custom
+ *                property) comes from @nuri/prototype/generated/token-vars.ts (the
+ *                web projection's colour var registry · N+42); the `hex` from
+ *                @nuri/rn/generated/tokens.ts at the default scope. The swatch reads
+ *                `var` LIVE (re-themes with scope); `hex` is the literal at :root.
  *
  *   Output is a pure function of (ir · palette · tokens · colors) — all
  *   @nuri/spec-data-derived through buildDocTokenInputs (the one builder the
@@ -119,13 +121,13 @@ const swatch = (background) => `<span class="nuri-doc-swatch" style="background:
 // ── Value resolution · the @nuri/spec-DATA inputs the emitter renders (N+23 · re-sourced N+42) ──
 // Every "Resolves to" cell carries the RESOLVED value beside the token path —
 // a px for geometry, the type composite for typography, a live swatch + default-
-// scope hex for colour. Re-sourced at N+42 (A4) onto @nuri/spec's DATA exports
-// instead of the classifier internals (the boundary · convergence §5):
-//   · @nuri/spec/tokens     — { chrome, accent, size, space, radius, type } (the
-//                             resolved cross-product + the px scales + the type
-//                             composite · build/tokens.ts).
-//   · @nuri/spec/token-vars — { chrome, accent } leaf → CSS var name (the colour
-//                             var registry the swatch reads live · build/token-vars.ts).
+// scope hex for colour. Re-sourced at N+42 (A4) onto the resolved DATA artifacts
+// instead of the classifier internals; the artifacts moved to the two projections at
+// N+62 (decision 80):
+//   · @nuri/rn/generated/tokens.ts        — { chrome, accent, size, space, radius, type }
+//                             (the resolved cross-product + px scales + type composite).
+//   · @nuri/prototype/generated/token-vars.ts — { chrome, accent } leaf → CSS var name
+//                             (the web projection's colour var registry · swatch reads live).
 // buildDocTokenInputs is the SINGLE builder the doc build AND Guard G call, so the
 // page re-emits byte-identical (the re-source is behaviour-preserving · decision 48).
 
@@ -378,7 +380,7 @@ export function emitDocPage(ir, opts = {}) {
 
   // ── just-the-docs front-matter + the GENERATED provenance header (shared · re-pathed) ──
   lines.push(...frontMatter(title, NAV_ORDER[ir.source] ?? 1));
-  lines.push(...genHeader(`packages/spec/build/descriptors/${ir.name}.ts`));
+  lines.push(...genHeader(`packages/spec/components/${ir.name}.ts`));
   lines.push('');
   lines.push(`# ${title}`);
   lines.push('');

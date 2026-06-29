@@ -22,7 +22,7 @@
  * ────────────────────────────────────────────────────────────── */
 
 import { defineNuriComponent } from '../factory/factory.js';
-import { compositionButtonDescriptor } from '../../spec/build/descriptors/composition-button.js';
+import { compositionButtonDescriptor } from '../generated/descriptors/composition-button.js';
 // Self-import the primitive element defs the factory tree upgrades into (idempotent ·
 // each primitive guards its own define · a page's classic <script> tag coexists). So a
 // page only needs to load THIS module + link the namespace CSS — no separate primitive

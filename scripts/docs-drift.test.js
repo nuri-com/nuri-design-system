@@ -90,6 +90,12 @@ const MONOREPO_ROOT = resolve(REPO_ROOT, '..', '..');
 
 const read = (rel) => readFileSync(resolve(REPO_ROOT, rel), 'utf8');
 const readRoot = (rel) => readFileSync(resolve(MONOREPO_ROOT, rel), 'utf8');
+// N+62 (decision 80): the generated artifacts left @nuri/spec for the two projections —
+// the RN contract → @nuri/rn/generated/, the web output → @nuri/prototype/generated/.
+const RN_GENERATED = resolve(MONOREPO_ROOT, 'packages/rn/generated');
+const PROTO_GENERATED = resolve(MONOREPO_ROOT, 'packages/prototype/generated');
+const readRn = (rel) => readFileSync(resolve(RN_GENERATED, rel), 'utf8');
+const readProto = (rel) => readFileSync(resolve(PROTO_GENERATED, rel), 'utf8');
 
 // Load a namespace-axis TS SoT (palette-surface.ts / typography-axis.ts) the
 // SPEC-RESIDENT way — stripTypes (the shared one-strip impl) + a data:-URL import —
@@ -122,7 +128,7 @@ const extractCount = (text, re, label) => {
 // ── Guard C · doc-stated counts == live build ────────────────────
 test('C · doc-stated emitted counts match the live build', () => {
   // Live truths derived from the emitted artefacts.
-  const tokenPathMembers = (read('build/token-paths.ts').match(/^\s+\| '/gm) || []).length;
+  const tokenPathMembers = (readRn('token-paths.ts').match(/^\s+\| '/gm) || []).length;
 
   const llms = readRoot('llms.txt');
   const readme = readRoot('README.md');
@@ -214,16 +220,16 @@ test('D · build/descriptors/* re-emits from the authored SoT + the composition-
   // SOURCE by Guard F below. Only the browser-ESM .js twins are emitted now.
 
   for (const spec of DESCRIPTOR_COMPONENTS) {
-    const authored = read(`pipeline/descriptors/${spec.name}.ts`);
+    const authored = read(`components/${spec.name}.ts`);
 
     // ── (1) STALE-BUILD / HAND-EDIT · the verbatim .ts COPY was dropped (Slice 3a ·
-    // projection-model §4 · decision 80): @nuri/rn imports the authored SoT directly,
-    // so build/ holds only the browser-ESM .js twin (the authored data type-stripped ·
-    // the web prototype recipes + doc staging consume it · relocates in 3c).
+    // projection-model §4 · decision 80): @nuri/rn imports the authored SoT directly.
+    // The browser-ESM .js twin is the WEB projection's generated output now (N+62 ·
+    // @nuri/prototype/generated/descriptors/ · the recipes + doc staging consume it).
     assert.equal(
-      read(`build/descriptors/${spec.name}.js`),
+      readProto(`descriptors/${spec.name}.js`),
       emitDescriptorJsFromSource(spec, authored),
-      `build/descriptors/${spec.name}.js is stale or hand-edited — run \`npm run build\`.`,
+      `packages/prototype/generated/descriptors/${spec.name}.js is stale or hand-edited — run \`node scripts/tokens-parser.js\`.`,
     );
 
     // ── (2) THE COMPOSITION-FORM IR · sourced from the AUTHORED descriptor (decision
@@ -237,7 +243,7 @@ test('D · build/descriptors/* re-emits from the authored SoT + the composition-
     // The IR reshape is INLINED here (was docIrFromDescriptor · MOVED to @nuri/doc at
     // N+42 · the A4 carve · convergence §5) — Guard D needs only the structural fields
     // (axes / anatomy / base / variants), not the doc emitter's exportName/typeName.
-    const twin = pathToFileURL(resolve(REPO_ROOT, `build/descriptors/${spec.name}.js`)).href;
+    const twin = pathToFileURL(resolve(PROTO_GENERATED, `descriptors/${spec.name}.js`)).href;
     const descriptor = (await import(twin))[exportNameFor(spec.name)];
     const variants = descriptor.variants || {};
     const axes = {};
@@ -311,7 +317,7 @@ const EXPECTED_PALETTE = {
 };
 
 test('E · build/palette.ts re-derives from the TS SoT and matches the pinned contract table', async () => {
-  const classifiedGroups = classifyAll(readSemanticRules(read('styles/tokens-semantic.css')));
+  const classifiedGroups = classifyAll(readSemanticRules(readProto('styles/tokens-semantic.css')));
 
   // derivePalette re-reads every SoT and THROWS on drift (a cell pointing
   // at the wrong leaf, a missing channel, a stray surface role, a renamed
@@ -319,17 +325,17 @@ test('E · build/palette.ts re-derives from the TS SoT and matches the pinned co
   // loaded the spec-resident way (NOT via the carve-bound loadSurface/loadAxis).
   const cells = derivePalette(
     {
-      surface:        await loadAxisSoT('pipeline/palette-surface.ts', 'surface'),
-      typographyAxis: await loadAxisSoT('pipeline/typography-axis.ts', 'axis'),
+      surface:        await loadAxisSoT('axes/palette-surface.ts', 'surface'),
+      typographyAxis: await loadAxisSoT('axes/typography-axis.ts', 'axis'),
     },
     { classifiedGroups },
   );
 
   // Re-emit must equal the committed build (stale-build / hand-edit guard).
   assert.equal(
-    read('build/palette.ts'),
+    readRn('palette.ts'),
     emitPaletteTs(cells),
-    'build/palette.ts is stale or hand-edited — run `npm run build`.',
+    'packages/rn/generated/palette.ts is stale or hand-edited — run `node scripts/tokens-parser.js`.',
   );
 
   // The operator-settled contract pin (B2b): a SoT change that flows
@@ -410,9 +416,12 @@ const FROZEN_SCHEMA = {
   // Their MEMBERS live in the SoTs (governed by the SoTs / tokens-parser, not the
   // shape freeze); the form pin catches a re-home drift or a renamed SoT export.
   leafForms: {
-    SizeLeaf: "keyof typeof import('../dimensions').size",
-    Accent: "keyof typeof import('../colours').accent",
-    TypeSize: "keyof typeof import('../typography').type",
+    // N+62 (decision 80): schema.ts moved pipeline/descriptors/ → components/ and the
+    // token SoTs pipeline/ → tokens/; the import paths re-homed accordingly (the schema
+    // SHAPE — the derived vocab — is unchanged · this pin just tracks the moved path).
+    SizeLeaf: "keyof typeof import('../tokens/dimensions').size",
+    Accent: "keyof typeof import('../tokens/colours').accent",
+    TypeSize: "keyof typeof import('../tokens/typography').type",
     TypeKey: 'TypeSize', // de-fused at N+45 (decision 77) · the `${TypeSize}Em` arm retired
   },
   // The parts + composition + envelope (65.3 §7 · decision 24.1).
@@ -482,7 +491,7 @@ function typeFields(rhs) {
 const unionMembers = (rhs) => rhs.split('|').map((s) => s.trim().replace(/^'|'$/g, '')).sort();
 
 test('F · the descriptor schema shape is frozen (B3 · decision 65 step 5)', () => {
-  const src = read('pipeline/descriptors/schema.ts');
+  const src = read('components/schema.ts');
   const drift = (what) =>
     `${what} drifted from the FROZEN schema shape (B3). The cross-repo contract is locked — ` +
     `if this is deliberate, update the FROZEN_SCHEMA pin AND version the change (decision 65 · ` +
