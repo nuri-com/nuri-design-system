@@ -1,12 +1,13 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · DOCS-DRIFT GUARDS · CI-ENFORCED FRESHNESS
  *
- * Agent-facing entry-point docs (llms.txt · README.md) are derived,
- * hand-maintained mirrors of the emitted artefacts under build/. They
- * rot silently — a re-emitted count lands, the prose doesn't, and the
+ * The agent-facing entry-point manifest (llms.txt) is a derived,
+ * hand-maintained mirror of the emitted artefacts under build/. It
+ * rots silently — a re-emitted count lands, the prose doesn't, and the
  * next agent trusts a stale map. These guards fail the build the moment
  * a doc falls behind the live artefacts, so the drift is caught at PR
- * time, not by a confused reader three sessions later.
+ * time, not by a confused reader three sessions later. (The README pin
+ * RETIRED at N+63 · the concise front door carries no derived counts.)
  *
  * Sibling to tokens-parser.test.js (kept separate so its assertion
  * count stays stable · N+12a). Run with:
@@ -131,7 +132,6 @@ test('C · doc-stated emitted counts match the live build', () => {
   const tokenPathMembers = (readRn('token-paths.ts').match(/^\s+\| '/gm) || []).length;
 
   const llms = readRoot('llms.txt');
-  const readme = readRoot('README.md');
 
   // runtime-set leaf count (== TokenPath members).
   assert.equal(
@@ -144,11 +144,12 @@ test('C · doc-stated emitted counts match the live build', () => {
     tokenPathMembers,
     'llms.txt tokens.ts leaf count drifted from build/token-paths.ts',
   );
-  assert.equal(
-    extractCount(readme, /runtime-set leaf · (\d+) members/, 'README token-paths members'),
-    tokenPathMembers,
-    'README member count drifted from build/token-paths.ts',
-  );
+
+  // (The README token-count pin RETIRED at N+63 · Phase 5 · the concise front door.
+  // The 18KB structure-mirroring README was replaced wholesale by the concise project
+  // doc [docs/PROJECT.md → README.md], which carries NO token counts by design — the
+  // front door is prose, not a derived count mirror. llms.txt stays the count-pinned
+  // agent manifest [regenerated post-Phase-6]; README is no longer drift-gated.)
 
   // (The glyph-count cross-check RETIRED at N+51 · the icons-as-folder flip. The
   // icon registry is now GENERATED from icons/*.svg and meant to GROW by dropping
