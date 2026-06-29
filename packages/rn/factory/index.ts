@@ -37,6 +37,12 @@ export type {
 export { createNuriComponent, NuriSurfaceContext } from './createNuriComponent';
 export type { NuriComponentProps, NuriBaseProps, NuriSlot } from './createNuriComponent';
 
+// The DS-owned RN glyph renderer (the icon contract): resolves a typed `IconName`
+// → the register glyph → react-native-svg. The factory's icon part renders this;
+// it is also the standalone RN twin of web's `<nuri-icon name>`.
+export { NuriIcon } from './NuriIcon';
+export type { NuriIconProps } from './NuriIcon';
+
 import { createNuriComponent } from './createNuriComponent';
 import type { NuriSlot } from './createNuriComponent';
 import {

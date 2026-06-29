@@ -8,9 +8,11 @@
   "dependencies": {
     "@nuri/spec": "*"
   },
+  "//react-native-svg": "The icon contract (the DS owns RN glyph rendering): NuriIcon resolves a typed IconName → the register markup → react-native-svg's SvgXml. A PEER (the host app provides it · like react-native) pinned to the same 15.12.1 the expo-demo ships; mirrored in devDependencies so this package's own jest/tsc resolve it standalone.",
   "peerDependencies": {
     "react": ">=19.1.0",
-    "react-native": ">=0.81.0"
+    "react-native": ">=0.81.0",
+    "react-native-svg": ">=15.0.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
@@ -22,6 +24,7 @@
     "jest-expo": "~54.0.0",
     "react": "19.1.0",
     "react-native": "0.81.5",
+    "react-native-svg": "15.12.1",
     "react-test-renderer": "19.1.0",
     "typescript": "^6.0.3"
   },

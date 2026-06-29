@@ -30,12 +30,13 @@
 
 import * as React from 'react';
 import { Pressable, Text, View } from 'react-native';
-import type { Accent, Descriptor, Axes, Part } from '../contract';
+import type { Accent, Descriptor, Axes, Part, IconName } from '../contract';
 import { typeStyle, useNuriTheme } from '../theme';
 import { buildNuriTheme } from './theme';
 import type { NuriTheme } from './theme';
 import { resolveAnatomy, flattenPart, assertNever } from './resolve';
 import type { AnatomyNode, Selection } from './resolve';
+import { NuriIcon } from './NuriIcon';
 
 // §12 surface context — the resolved foreground a surface provides to propless
 // descendants (colour-from-scope · F-BOX-FG-1). A direct provided value, NOT a
@@ -54,12 +55,15 @@ export type NuriBaseProps = {
   content?: Partial<Record<Part, React.ReactNode>>;
   // ERGONOMIC per-part props for an anatomy with NO lone primary part (the
   // icon-anchored icon-button · P11): each routes to the same-named part. On RN
-  // `icon` is the glyph ELEMENT (the factory threads the scope fg into it); the
-  // `prefix`/`suffix` flanks are strings. An absent flank stays undefined → its
-  // leaf renders nothing (the bare-collapse · no empty text inflating the gap).
+  // `icon` is a TYPED register key (`IconName` · the build-error gate) — the DS
+  // resolves the name → the register glyph and renders it (the factory OWNS RN
+  // glyph rendering now · NuriIcon), threading the scope fg + the per-part box
+  // dimension in. The `prefix`/`suffix` flanks are strings. An absent flank stays
+  // undefined → its leaf renders nothing (the bare-collapse · no empty text
+  // inflating the gap). (Web stays loose — `<nuri-icon name>` is a runtime string.)
   prefix?: string;
   suffix?: string;
-  icon?: React.ReactNode;
+  icon?: IconName;
   // a11y accessible name for icon-only / interactive controls (F-ARIA-LABEL-1).
   accessibilityLabel?: string;
 };
@@ -168,23 +172,26 @@ function renderPart<A extends Axes>(
     }
 
     case 'icon': {
-      // A glyph leaf — the factory is glyph-AGNOSTIC: it renders the provided
-      // icon element and drives the consumer-glyph contract `{ color?, dimension? }`
-      // by SCOPE + the box axis. `color` = the scope foreground (the Icon
-      // `color`/currentColor channel · §12). `dimension` = the icon part's resolved
-      // box width (N+51 · the icon-arc size close · the SHARED box axis, not a
-      // bespoke icon size): the descriptor's icon `box.width` → size leaf → px,
-      // applied on BOTH targets (web sets data-width/height; here the consumer's
-      // glyph reads `dimension`). Absent a box, dimension is undefined → the
-      // consumer's own default applies. What renders the glyph is the consumer's.
-      const el = ctx.content[node.name];
-      if (React.isValidElement(el)) {
+      // A glyph leaf — the DS OWNS the rendering (the icon contract): the routed
+      // content is a TYPED `IconName`, and the factory resolves it → the register
+      // glyph → NuriIcon (no longer a consumer-passed element). `color` = the scope
+      // foreground (the currentColor channel · §12). `dimension` = the icon part's
+      // resolved box width (N+51 · the icon-arc size close · the SHARED box axis,
+      // not a bespoke icon size): the descriptor's icon `box.width` → size leaf → px,
+      // applied on BOTH targets (web sets data-width/height; here NuriIcon reads
+      // `dimension`). Absent a box, dimension is undefined → NuriIcon's own default.
+      const name = ctx.content[node.name];
+      if (typeof name === 'string') {
         const flatStyle = flat.style as { width?: unknown; height?: unknown };
         const dim = flatStyle.width ?? flatStyle.height;
         const dimension = typeof dim === 'number' ? dim : undefined;
-        return React.cloneElement(
-          el as React.ReactElement<{ color?: string; dimension?: number }>,
-          { key: node.name, color: fg, ...(dimension !== undefined ? { dimension } : null) },
+        return (
+          <NuriIcon
+            key={node.name}
+            name={name as IconName}
+            color={fg}
+            {...(dimension !== undefined ? { dimension } : null)}
+          />
         );
       }
       return <React.Fragment key={node.name} />;

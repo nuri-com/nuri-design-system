@@ -8,7 +8,8 @@
  *
  * Shows: the typed named-prop API (variant/size/accent/disabled), `children`
  * routed to each component's primary content part, the glyph-by-scope (§12)
- * via a consumer glyph (DemoIcon), light↔dark (the toggle), and a
+ * via the TYPED `icon="name"` prop (the DS owns RN glyph rendering now — no
+ * consumer glyph wrapper), light↔dark (the toggle), and a
  * <NuriScope accent="neutral"> subtree (the accent override · decision 63).
  * ══════════════════════════════════════════════════════════════════ */
 
@@ -19,10 +20,10 @@ import {
   IconAvatar,
   Topbar,
   NuriScope,
+  NuriIcon,
   typeStyle,
   useToken,
 } from '@nuri/rn';
-import { DemoIcon } from './DemoIcon';
 
 const SectionLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const muted = useToken('chrome.textMuted') as string;
@@ -39,10 +40,12 @@ export const Demo: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme })
           with asymmetric edges · the in-bar title is out of scope this slice). */}
       <Topbar>
         <Topbar.Leading>
-          <IconAvatar variant="ghost"><DemoIcon name="card" /></IconAvatar>
+          <IconAvatar variant="ghost" icon="card" />
         </Topbar.Leading>
         <Topbar.Center>
-          <DemoIcon name="bitcoin" />
+          {/* The centre region is an OPEN host slot (a `view`, not an icon part),
+              so it takes a standalone NuriIcon — the RN twin of `<nuri-icon name>`. */}
+          <NuriIcon name="bitcoin" />
         </Topbar.Center>
         <Topbar.Trailing>
           <Button variant="soft" size="sm" onPress={onToggleTheme}>Theme</Button>
@@ -64,10 +67,10 @@ export const Demo: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme })
 
         <SectionLabel>IconAvatar — the SAME factory, static · glyph by scope</SectionLabel>
         <View style={styles.row}>
-          <IconAvatar variant="solid"><DemoIcon name="apple" /></IconAvatar>
-          <IconAvatar variant="soft"><DemoIcon name="card" /></IconAvatar>
-          <IconAvatar variant="ghost"><DemoIcon name="euro" /></IconAvatar>
-          <IconAvatar variant="subtle"><DemoIcon name="bitcoin" /></IconAvatar>
+          <IconAvatar variant="solid" icon="apple" />
+          <IconAvatar variant="soft" icon="card" />
+          <IconAvatar variant="ghost" icon="euro" />
+          <IconAvatar variant="subtle" icon="bitcoin" />
         </View>
 
         <SectionLabel>NuriScope — accent override (decision 63)</SectionLabel>
@@ -75,7 +78,7 @@ export const Demo: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme })
           <View style={styles.row}>
             <Button variant="solid" size="md" onPress={onToggleTheme}>neutral</Button>
             <Button variant="soft" size="md" onPress={onToggleTheme}>scope</Button>
-            <IconAvatar variant="solid"><DemoIcon name="bitcoin" /></IconAvatar>
+            <IconAvatar variant="solid" icon="bitcoin" />
           </View>
         </NuriScope>
 
