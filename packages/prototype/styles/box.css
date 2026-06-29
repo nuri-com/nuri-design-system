@@ -45,6 +45,13 @@
   .nuri-box[data-min-height="xl"] { min-block-size: var(--nuri-size-xl); }
   .nuri-box[data-min-height="2xl"] { min-block-size: var(--nuri-size-2xl); }
   .nuri-box[data-min-height="3xl"] { min-block-size: var(--nuri-size-3xl); }
+  .nuri-box[data-min-width="xs"] { min-inline-size: var(--nuri-size-xs); }
+  .nuri-box[data-min-width="sm"] { min-inline-size: var(--nuri-size-sm); }
+  .nuri-box[data-min-width="md"] { min-inline-size: var(--nuri-size-md); }
+  .nuri-box[data-min-width="lg"] { min-inline-size: var(--nuri-size-lg); }
+  .nuri-box[data-min-width="xl"] { min-inline-size: var(--nuri-size-xl); }
+  .nuri-box[data-min-width="2xl"] { min-inline-size: var(--nuri-size-2xl); }
+  .nuri-box[data-min-width="3xl"] { min-inline-size: var(--nuri-size-3xl); }
   .nuri-box[data-padding="xs"] { padding: var(--nuri-space-xs); }
   .nuri-box[data-padding="sm"] { padding: var(--nuri-space-sm); }
   .nuri-box[data-padding="md"] { padding: var(--nuri-space-md); }

@@ -228,7 +228,11 @@ function renderInteractiveView(node, ns, ctx) {
   // pressable moves them INTO the inner <button> on connect).
   const own = ctx.content[node.name];
   if (own != null) host.append(own);
-  for (const child of node.children) host.appendChild(renderPart(child, ctx));
+  // A leaf child may render NOTHING (an absent optional flank · renderPart → null).
+  for (const child of node.children) {
+    const childEl = renderPart(child, ctx);
+    if (childEl) host.appendChild(childEl);
+  }
 
   // box ⊕ stack ⊕ palette → merged onto the inner <button> (deferred).
   applyToInteractiveHost(host, mergeAttrs(ns));
@@ -260,7 +264,11 @@ function renderStaticView(node, ns, ctx) {
   // the child parts — the RN renderPart order (own content keyed before kids).
   const own = ctx.content[node.name];
   if (own != null) host.append(own);
-  for (const child of node.children) host.appendChild(renderPart(child, ctx));
+  // A leaf child may render NOTHING (an absent optional flank · renderPart → null).
+  for (const child of node.children) {
+    const childEl = renderPart(child, ctx);
+    if (childEl) host.appendChild(childEl);
+  }
   return host;
 }
 
@@ -269,14 +277,22 @@ function renderStaticView(node, ns, ctx) {
 // N+45 de-fusion): `size` + the `emphasis` boolean — passed straight to the
 // element (no fused `mdEm` round-trip · expandTypeStep retired).
 function renderText(node, ns, ctx) {
+  const own = ctx.content[node.name];
+  if (own == null) return null; // optional flank with no text → render nothing (the bare-collapse)
   const el = document.createElement('nuri-typography');
   const t = ns.typography;
   if (t) {
     if (t.size !== undefined) el.setAttribute('size', t.size);
     if (t.emphasis) el.setAttribute('emphasis', '');
   }
-  const own = ctx.content[node.name];
-  if (own != null) el.append(own); // the string label
+  // A text part may ALSO carry box/stack/palette (e.g. an icon-button flank's edge
+  // padding · box{paddingStart}) — merge them as classes + data-* (the same
+  // merged-node treatment renderIcon uses · the RN text node gets these via
+  // flat.style). typography stays its own attrs above.
+  const { classes, data } = mergeAttrs(ns);
+  if (classes.length) el.classList.add(...classes);
+  for (const [k, v] of Object.entries(data)) el.setAttribute(k, v);
+  el.append(own); // the string label
   return el;
 }
 
@@ -290,9 +306,10 @@ function renderText(node, ns, ctx) {
 // RESPECTS a host-pinned box (it only self-derives box from its own `size` prop),
 // so the descriptor value drives. Without a box the element falls to size=md.
 function renderIcon(node, ns, ctx) {
-  const el = document.createElement('nuri-icon');
   const name = ctx.content[node.name];
-  if (name != null) el.setAttribute('name', String(name));
+  if (name == null) return null; // no glyph routed → render nothing (the bare-collapse)
+  const el = document.createElement('nuri-icon');
+  el.setAttribute('name', String(name));
   const { classes, data } = mergeAttrs(ns);
   if (classes.length) el.classList.add(...classes);
   for (const [k, v] of Object.entries(data)) el.setAttribute(k, v);
@@ -341,6 +358,16 @@ export function buildComponent(descriptor, selection = {}, props = {}) {
     if (props.children !== undefined) content[primary.name] = props.children;
     else if (props.name !== undefined && primary.el === 'icon') content[primary.name] = props.name;
   }
+  // Ergonomic per-part props (prefix/icon/suffix · the icon-button's three-part
+  // anatomy has no lone primary) → the content map BY PART NAME. On web each is a
+  // STRING (the text flank · or the glyph NAME for an `icon` leaf); an unset prop
+  // leaves the part absent → its leaf renders nothing (the bare-collapse · the RN
+  // createNuriComponent mirror). A single-primary component is unaffected.
+  for (const child of anatomy.children) {
+    if (content[child.name] === undefined && props[child.name] !== undefined) {
+      content[child.name] = props[child.name];
+    }
+  }
 
   return renderPart(anatomy, { descriptor, selection: sel, content, base: props });
 }
@@ -379,6 +406,11 @@ export function defineNuriComponent(descriptor, tagName) {
   const primary = anatomy.children.length === 1 ? anatomy.children[0] : undefined;
   const textPrimary = !!primary && primary.el === 'text';
   const iconPrimary = !!primary && primary.el === 'icon';
+  // ERGONOMIC per-part attributes — a non-root part that is NOT the lone primary
+  // gets an attribute named after it (prefix/icon/suffix · the icon-button's
+  // three-part anatomy · createNuriComponent's prefix/suffix/icon props). For a
+  // single-primary component this set is empty (the primary took children/name).
+  const nonPrimaryParts = anatomy.children.filter((c) => c !== primary).map((c) => c.name);
   // Interactive iff the root opts in (the `disabled` reflection is generic to any
   // interactive component · button has it, icon-avatar does not).
   const interactive = !!(descriptor.structure.base && descriptor.structure.base.root && descriptor.structure.base.root.interactive);
@@ -386,6 +418,12 @@ export function defineNuriComponent(descriptor, tagName) {
   const observed = [...axisNames, 'accent'];
   if (interactive) observed.push('disabled');
   if (iconPrimary) observed.push('name');
+  observed.push(...nonPrimaryParts);
+  // a11y name — an interactive control WITHOUT a text primary (the icon-anchored
+  // icon-button) needs an explicit accessible name when bare; flanked, the visible
+  // text IS the name (the factory honours both). A text-labelled control (Button)
+  // derives its name from the label, so it does NOT observe aria-label.
+  if (interactive && !textPrimary) observed.push('aria-label');
 
   class NuriElement extends HTMLElement {
     static get observedAttributes() {
@@ -427,6 +465,20 @@ export function defineNuriComponent(descriptor, tagName) {
       if (interactive) props.disabled = this.hasAttribute('disabled');
       const accent = this.getAttribute('accent');
       if (accent) props.accent = accent; // Tier-2 self-scope (threaded to the merged node)
+      // Ergonomic per-part attributes (prefix/icon/suffix) → props BY PART NAME;
+      // buildComponent routes them into the content map (a STRING flank / glyph
+      // name). An absent attr leaves the part out → its leaf renders nothing.
+      for (const p of nonPrimaryParts) {
+        const v = this.getAttribute(p);
+        if (v != null) props[p] = v;
+      }
+      // aria-label → the a11y accessible name (the factory sets it on the
+      // interactive host · nuri-pressable mirrors it to the inner button's
+      // aria-label · F-ARIA-LABEL-1). Only observed for an icon-anchored control.
+      if (interactive && !textPrimary) {
+        const ariaLabel = this.getAttribute('aria-label');
+        if (ariaLabel != null) props.accessibilityLabel = ariaLabel;
+      }
 
       this.replaceChildren(buildComponent(descriptor, selection, props));
     }

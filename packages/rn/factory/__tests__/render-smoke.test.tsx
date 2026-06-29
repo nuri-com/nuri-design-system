@@ -16,7 +16,7 @@ import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { Text, View } from 'react-native';
 import { NuriThemeProvider } from '../../theme';
-import { Button, IconAvatar, Topbar } from '../index';
+import { Button, IconAvatar, IconButton, Topbar } from '../index';
 
 const TestGlyph: React.FC<{ color?: string }> = ({ color }) => (
   <View accessibilityLabel={`glyph:${color ?? 'none'}`} />
@@ -66,6 +66,32 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       </NuriThemeProvider>,
     );
     expect(tr.toJSON()).toBeTruthy();
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('IconButton — BARE · the icon-anchored control · glyph routed via the `icon` prop · a11y name', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <IconButton variant="solid" size="md" icon={<TestGlyph />} accessibilityLabel="Buy Bitcoin" onPress={() => undefined} />
+      </NuriThemeProvider>,
+    );
+    expect(tr.toJSON()).toBeTruthy();
+    // bare → the glyph renders (scope fg threaded in) with NO flank Text nodes
+    // (the optional-flank collapse · so a stack gap never widens the round control).
+    expect(tr.root.findAllByType(Text)).toHaveLength(0);
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('IconButton — FLANKED · prefix/suffix text flank the icon (`Buy Bitcoin 🍎 Pay`)', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <IconButton variant="soft" prefix="Buy Bitcoin" icon={<TestGlyph />} suffix="Pay" onPress={() => undefined} />
+      </NuriThemeProvider>,
+    );
+    expect(tr.toJSON()).toBeTruthy();
+    // flanked → two Text flanks, in row order with the glyph between them.
+    const texts = tr.root.findAllByType(Text).map((t) => t.props.children);
+    expect(texts).toEqual(['Buy Bitcoin', 'Pay']);
     expect(tr.toJSON()).toMatchSnapshot();
   });
 

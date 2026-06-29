@@ -42,6 +42,7 @@ import {
   compositionButtonDescriptor,
   iconAvatarDescriptor,
   topbarDescriptor,
+  iconButtonDescriptor,
 } from '../contract';
 
 // The three frozen descriptors, each through the SAME factory — the ergonomic,
@@ -54,3 +55,7 @@ import {
 export const Button = createNuriComponent(compositionButtonDescriptor, 'Button');
 export const IconAvatar = createNuriComponent(iconAvatarDescriptor, 'IconAvatar');
 export const Topbar = createNuriComponent(topbarDescriptor, 'Topbar');
+// The icon-anchored control (P11 · the first contract bump): bare = the round
+// icon action; flanked = `<IconButton prefix="Buy Bitcoin" icon={<Glyph/>}
+// suffix="Pay" />` (the prefix/suffix text flanks · the new Part vocab).
+export const IconButton = createNuriComponent(iconButtonDescriptor, 'IconButton');

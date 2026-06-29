@@ -18,6 +18,7 @@ The agnostic **box** namespace — geometry (sizing · padding · radii) as a Fi
 | `width` | `inline-size` | `width` | `size` scale |
 | `height` | `block-size` | `height` | `size` scale |
 | `minHeight` | `min-block-size` | `minHeight` | `size` scale |
+| `minWidth` | `min-inline-size` | `minWidth` | `size` scale |
 | `padding` | `padding` | `padding` | `space` scale |
 | `paddingX` | `padding-inline` | `paddingHorizontal` | `space` scale |
 | `paddingY` | `padding-block` | `paddingVertical` | `space` scale |

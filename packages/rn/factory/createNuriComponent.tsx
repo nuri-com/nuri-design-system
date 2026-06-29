@@ -52,6 +52,14 @@ export type NuriBaseProps = {
   children?: React.ReactNode;
   // escape hatch — explicit per-part content (multi-part / open host slot).
   content?: Partial<Record<Part, React.ReactNode>>;
+  // ERGONOMIC per-part props for an anatomy with NO lone primary part (the
+  // icon-anchored icon-button · P11): each routes to the same-named part. On RN
+  // `icon` is the glyph ELEMENT (the factory threads the scope fg into it); the
+  // `prefix`/`suffix` flanks are strings. An absent flank stays undefined → its
+  // leaf renders nothing (the bare-collapse · no empty text inflating the gap).
+  prefix?: string;
+  suffix?: string;
+  icon?: React.ReactNode;
   // a11y accessible name for icon-only / interactive controls (F-ARIA-LABEL-1).
   accessibilityLabel?: string;
 };
@@ -74,7 +82,13 @@ function renderPart<A extends Axes>(
   node: AnatomyNode,
   ctx: RenderCtx<A>,
   inheritedFg: string | undefined,
-): React.ReactElement {
+): React.ReactElement | null {
+  // A leaf part (text / icon) with no routed content renders NOTHING — the
+  // optional-flank collapse (an icon-button with no prefix/suffix is just the
+  // icon · no empty text node taking a stack-gap slot). A `view` always renders
+  // (it may be an open host / pivot with no own content · Topbar).
+  if (node.el !== 'view' && ctx.content[node.name] == null) return null;
+
   const flat = flattenPart(ctx.descriptor, ctx.theme, ctx.mode, node.name, ctx.selection, {
     pressed: false,
     disabled: ctx.disabled,
@@ -215,6 +229,17 @@ export function createNuriComponent<A extends Axes>(
     const content: Partial<Record<Part, React.ReactNode>> = { ...base.content };
     if (base.children !== undefined && primaryPart && content[primaryPart] === undefined) {
       content[primaryPart] = base.children;
+    }
+    // Ergonomic per-part props (prefix/suffix/icon) → the content map BY PART
+    // NAME. Drives the multi-part anatomy where `primaryPart` is undefined (the
+    // icon-button · the `content` escape-hatch made ergonomic); a single-primary
+    // component is unaffected (its lone part took `children` above). An unset
+    // prop leaves the part absent → the leaf renders nothing (the bare-collapse).
+    for (const child of anatomy.children) {
+      const provided = (props as Record<string, unknown>)[child.name];
+      if (provided !== undefined && content[child.name] === undefined) {
+        content[child.name] = provided as React.ReactNode;
+      }
     }
 
     return renderPart(
