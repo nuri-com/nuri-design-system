@@ -6,21 +6,18 @@
  * committed snapshot of the rendered tree. The ongoing consumability guard
  * (decision 65.5 · X-wired) now that the hand-written mirrors are retired.
  *
- * The factory is glyph-AGNOSTIC: for the icon part it injects the scope
- * foreground as `color` into the provided element. We use a stand-in glyph
- * to test that injection in ISOLATION (the real glyph renderer is the
- * consumer's — see the demo screen) — keeping the smoke about the factory.
+ * The icon contract: the DS OWNS RN glyph rendering. The icon part takes a
+ * TYPED `icon: IconName` and the factory resolves it → the register glyph →
+ * NuriIcon (react-native-svg), threading the scope fg as `color`. We assert on
+ * the rendered NuriIcon's `color`/`name` to prove the colour-by-scope (§12) +
+ * the register resolution — no consumer-passed element anymore.
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { Text, View } from 'react-native';
 import { NuriThemeProvider } from '../../theme';
-import { Button, IconAvatar, IconButton, Topbar } from '../index';
-
-const TestGlyph: React.FC<{ color?: string }> = ({ color }) => (
-  <View accessibilityLabel={`glyph:${color ?? 'none'}`} />
-);
+import { Button, IconAvatar, IconButton, Topbar, NuriIcon } from '../index';
 
 function render(node: React.ReactElement): TestRenderer.ReactTestRenderer {
   let tr!: TestRenderer.ReactTestRenderer;
@@ -43,17 +40,17 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
-  test('IconAvatar — static (View) · glyph children inherit the scope fg', () => {
+  test('IconAvatar — static (View) · the register glyph inherits the scope fg', () => {
     const tr = render(
       <NuriThemeProvider>
-        <IconAvatar variant="soft">
-          <TestGlyph />
-        </IconAvatar>
+        <IconAvatar variant="soft" icon="apple" />
       </NuriThemeProvider>,
     );
     // soft → surface.soft.fg = chrome.light.textPrimary (#222013): colour-by-scope
-    // delivered the surface foreground into the glyph (§12 · F-BOX-FG-1).
-    expect(tr.root.findByProps({ accessibilityLabel: 'glyph:#222013' })).toBeTruthy();
+    // delivered the surface foreground into the DS-rendered glyph (§12 · F-BOX-FG-1).
+    const glyph = tr.root.findByType(NuriIcon);
+    expect(glyph.props.name).toBe('apple');
+    expect(glyph.props.color).toBe('#222013');
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
@@ -91,11 +88,11 @@ describe('render-smoke — the ergonomic components mount headless', () => {
   test('IconButton — BARE · the icon-anchored control · glyph routed via the `icon` prop · a11y name', () => {
     const tr = render(
       <NuriThemeProvider>
-        <IconButton variant="solid" size="md" icon={<TestGlyph />} accessibilityLabel="Buy Bitcoin" onPress={() => undefined} />
+        <IconButton variant="solid" size="md" icon="apple" accessibilityLabel="Buy Bitcoin" onPress={() => undefined} />
       </NuriThemeProvider>,
     );
     expect(tr.toJSON()).toBeTruthy();
-    // bare → the glyph renders (scope fg threaded in) with NO flank Text nodes
+    // bare → the register glyph renders (scope fg threaded in) with NO flank Text nodes
     // (the optional-flank collapse · so a stack gap never widens the round control).
     expect(tr.root.findAllByType(Text)).toHaveLength(0);
     expect(tr.toJSON()).toMatchSnapshot();
@@ -104,7 +101,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
   test('IconButton — FLANKED · prefix/suffix text flank the icon (`Buy Bitcoin 🍎 Pay`)', () => {
     const tr = render(
       <NuriThemeProvider>
-        <IconButton variant="soft" prefix="Buy Bitcoin" icon={<TestGlyph />} suffix="Pay" onPress={() => undefined} />
+        <IconButton variant="soft" prefix="Buy Bitcoin" icon="apple" suffix="Pay" onPress={() => undefined} />
       </NuriThemeProvider>,
     );
     expect(tr.toJSON()).toBeTruthy();
@@ -116,12 +113,12 @@ describe('render-smoke — the ergonomic components mount headless', () => {
 
   test('accent self-scope (Tier-2) overrides ambient (F-SCOPE-2)', () => {
     // solid under a neutral self-scope inside a lilac ambient → the black solid
-    // (#12110b) proves the prop won over the lilac context.
+    // bg (#12110b · the NEUTRAL accent's solid surface) proves the prop won over
+    // the lilac context. The glyph now renders through the DS (icon="apple"); the
+    // scope still drives the avatar's surface — assert the neutral bg landed.
     const tr = render(
       <NuriThemeProvider mode="light" accent="lilac">
-        <IconAvatar variant="solid" accent="neutral">
-          <TestGlyph />
-        </IconAvatar>
+        <IconAvatar variant="solid" accent="neutral" icon="apple" />
       </NuriThemeProvider>,
     );
     expect(JSON.stringify(tr.toJSON())).toContain('#12110b');
