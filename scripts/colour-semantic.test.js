@@ -61,9 +61,12 @@ import {
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '../packages/spec');
-const PRIMITIVE_CSS = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
-const SEMANTIC_CSS = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
-const COLOURS_SRC = resolve(REPO_ROOT, 'pipeline/colours.ts');
+// N+62 (decision 80): the token CSS is the web projection's output now (@nuri/prototype/
+// generated/styles/); the colour SoT is spec DATA under tokens/.
+const PROTO_GENERATED = resolve(__dirname, '../packages/prototype/generated');
+const PRIMITIVE_CSS = resolve(PROTO_GENERATED, 'styles/tokens-primitive.css');
+const SEMANTIC_CSS = resolve(PROTO_GENERATED, 'styles/tokens-semantic.css');
+const COLOURS_SRC = resolve(REPO_ROOT, 'tokens/colours.ts');
 
 const { chrome, accent } = await loadSemanticColours(COLOURS_SRC);
 const colours = await loadColours(COLOURS_SRC);

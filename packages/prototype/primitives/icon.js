@@ -35,9 +35,9 @@
 
 // icons.js (the glyph registry · the Slice-6 data) STAYS in @nuri/spec — the pipeline
 // GENERATES it from the icons/*.svg folder and the same data feeds build/icons.ts (one
-// registry, two readers · decision 48). Read across the package boundary (the build-free
-// relative pattern · the prototype → spec DAG).
-import { ICONS } from '../../spec/lib/components/icon/icons.js';
+// registry, two readers · decision 48). The web icon registry is this prototype
+// projection's OWN generated output now (N+62 · decision 80 · was @nuri/spec's).
+import { ICONS } from '../generated/icons.js';
 
 const ATTRS = ['name', 'size'];
 

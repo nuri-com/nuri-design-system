@@ -65,18 +65,24 @@ import { loadTypography, typeDeclMap, rewriteTypeDecls, readFontWeights } from '
 import { loadInteraction, rewriteInteractionDecls } from './parsers/interaction.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(__dirname, '../packages/spec');
-const CSS_PATH = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
-const SEMANTIC_CSS_PATH = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
-const JSON_PATH = resolve(REPO_ROOT, 'build/tokens.json');
-const TS_PATH = resolve(REPO_ROOT, 'build/tokens.ts');
-const INTERACTION_TS_PATH = resolve(REPO_ROOT, 'build/interaction.ts');
-const TOKEN_PATHS_PATH = resolve(REPO_ROOT, 'build/token-paths.ts');
-const ICONS_TS_PATH = resolve(REPO_ROOT, 'build/icons.ts');
-const TYPOGRAPHY_SRC = resolve(REPO_ROOT, 'pipeline/typography.ts');
-const INTERACTION_SRC = resolve(REPO_ROOT, 'pipeline/interaction.ts');
+// The projection model (decision 80 · N+62 · the infra exit): @nuri/spec is pure DATA
+// (the SoTs · tokens/ axes/ components/ icons/); the generated RN contract lives in
+// @nuri/rn/generated/ + the web output in @nuri/prototype/generated/. The drift harness
+// reads each from the home that now owns it.
+const REPO_ROOT       = resolve(__dirname, '../packages/spec');
+const RN_GENERATED    = resolve(__dirname, '../packages/rn/generated');
+const PROTO_GENERATED = resolve(__dirname, '../packages/prototype/generated');
+const CSS_PATH = resolve(PROTO_GENERATED, 'styles/tokens-primitive.css');
+const SEMANTIC_CSS_PATH = resolve(PROTO_GENERATED, 'styles/tokens-semantic.css');
+const JSON_PATH = resolve(PROTO_GENERATED, 'tokens.json');
+const TS_PATH = resolve(RN_GENERATED, 'tokens.ts');
+const INTERACTION_TS_PATH = resolve(RN_GENERATED, 'interaction.ts');
+const TOKEN_PATHS_PATH = resolve(RN_GENERATED, 'token-paths.ts');
+const ICONS_TS_PATH = resolve(RN_GENERATED, 'icons.ts');
+const TYPOGRAPHY_SRC = resolve(REPO_ROOT, 'tokens/typography.ts');
+const INTERACTION_SRC = resolve(REPO_ROOT, 'axes/interaction.ts');
 const ICONS_DIR = resolve(REPO_ROOT, 'icons');
-const ICONS_JS_PATH = resolve(REPO_ROOT, 'lib/components/icon/icons.js');
+const ICONS_JS_PATH = resolve(PROTO_GENERATED, 'icons.js');
 
 // Regex-extracted "what the CSS actually says" — used as the
 // reference set. NOT the parser. If parser + regex agree, we trust
@@ -1085,10 +1091,12 @@ test('every primitive token is consumed or explicitly reserved', async () => {
     if (m) aliasEdges.push({ from: decl.prop, to: m[1] });
   });
 
-  // 2. Walk the repo and collect every var(--nuri-*) reference outside
-  //    the primitive file. Tokens consumed via fallback syntax
-  //    `var(--name, default)` count too — the regex captures up to the
-  //    name only, not the closing `)`, so the comma form matches.
+  // 2. Walk the web projection's generated token CSS and collect every var(--nuri-*)
+  //    reference outside the primitive file (N+62 · decision 80: the token CSS — the
+  //    semantic cascade + shell + type scale that CONSUME the primitives — relocated
+  //    from @nuri/spec to @nuri/prototype/generated/styles/ alongside the definitions).
+  //    Tokens consumed via fallback syntax `var(--name, default)` count too — the regex
+  //    captures up to the name only, not the closing `)`, so the comma form matches.
   const IGNORE_DIRS = new Set([
     'node_modules', '.git', 'uploads', 'playground',
   ]);
@@ -1102,11 +1110,19 @@ test('every primitive token is consumed or explicitly reserved', async () => {
     }
   }
   const directlyConsumed = new Set();
-  for await (const file of walk(REPO_ROOT)) {
-    if (file === CSS_PATH) continue;
-    const text = await readFile(file, 'utf8');
-    for (const m of text.matchAll(/var\((--nuri-[a-z0-9-]+)/g)) {
-      directlyConsumed.add(m[1]);
+  // Two roots (N+62 · decision 80): the web projection's generated token CSS
+  // (@nuri/prototype/generated/styles/ · the semantic cascade consuming the colour
+  // primitives) AND the spec DATA tree (@nuri/spec · the axis SoTs that author the
+  // var() references — e.g. axes/interactive-effects.ts consumes the interaction
+  // primitives, exactly as it did when both lived under spec pre-exit). The union is
+  // the faithful equivalent of the pre-move single-spec walk.
+  for (const root of [PROTO_GENERATED, REPO_ROOT]) {
+    for await (const file of walk(root)) {
+      if (file === CSS_PATH) continue;
+      const text = await readFile(file, 'utf8');
+      for (const m of text.matchAll(/var\((--nuri-[a-z0-9-]+)/g)) {
+        directlyConsumed.add(m[1]);
+      }
     }
   }
 

@@ -4,7 +4,7 @@ layout: default
 nav_order: 5
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/build/tokens.ts · packages/spec/styles/typography.css · packages/rn/theme.tsx · packages/spec/pipeline/typography-axis.ts
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/generated/tokens.ts · packages/prototype/generated/styles/typography.css · packages/rn/theme.tsx · packages/spec/axes/typography-axis.ts
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
 # Typography

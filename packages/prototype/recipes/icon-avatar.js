@@ -26,7 +26,7 @@
  * ────────────────────────────────────────────────────────────── */
 
 import { defineNuriComponent } from '../factory/factory.js';
-import { iconAvatarDescriptor } from '../../spec/build/descriptors/icon-avatar.js';
+import { iconAvatarDescriptor } from '../generated/descriptors/icon-avatar.js';
 // Self-import the primitive element defs the factory tree upgrades into (idempotent).
 import '../primitives/view.js';
 import '../primitives/icon.js';

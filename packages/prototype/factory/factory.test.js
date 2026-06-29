@@ -35,8 +35,8 @@ await import('../recipes/icon-avatar.js');
 // The factory + the descriptor twins, for the buildComponent-direct assertions
 // (same cached module instances the recipes use).
 const { buildComponent, defineNuriComponent } = await import('../factory/factory.js');
-const { compositionButtonDescriptor } = await import('../../spec/build/descriptors/composition-button.js');
-const { iconAvatarDescriptor } = await import('../../spec/build/descriptors/icon-avatar.js');
+const { compositionButtonDescriptor } = await import('../generated/descriptors/composition-button.js');
+const { iconAvatarDescriptor } = await import('../generated/descriptors/icon-avatar.js');
 
 // The merge onto the interactive inner <button> is deferred by a MutationObserver
 // (factory.js applyToInteractiveHost · it lands once the pressable creates the

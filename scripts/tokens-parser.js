@@ -173,27 +173,37 @@ export {
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(__dirname, '../packages/spec');
+// The projection model (decision 80 · projection-model.md): @nuri/spec is pure DATA
+// (the SoTs); each projection generates + OWNS its resolved output. The codegen now
+// writes the RN contract into @nuri/rn/generated/ (A) + the web output into
+// @nuri/prototype/generated/ (B); spec only holds the SoTs it READS (C · tokens/ axes/
+// components/ · icons/). All three homes are committed (decision 35 · re-emit ≡ committed).
+const SPEC_ROOT       = resolve(__dirname, '../packages/spec');
+const RN_GENERATED    = resolve(__dirname, '../packages/rn/generated');
+const PROTO_GENERATED = resolve(__dirname, '../packages/prototype/generated');
 
-const PRIMITIVE_CSS    = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
-const SEMANTIC_CSS     = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
-const DIMENSIONS_SRC   = resolve(REPO_ROOT, 'pipeline/dimensions.ts');
-const COLOURS_SRC      = resolve(REPO_ROOT, 'pipeline/colours.ts');
-const TYPOGRAPHY_SRC   = resolve(REPO_ROOT, 'pipeline/typography.ts');
-const INTERACTION_SRC  = resolve(REPO_ROOT, 'pipeline/interaction.ts');
-const PALETTE_SURFACE_SRC = resolve(REPO_ROOT, 'pipeline/palette-surface.ts');
-const TYPOGRAPHY_AXIS_SRC = resolve(REPO_ROOT, 'pipeline/typography-axis.ts');
-const JSON_OUT         = resolve(REPO_ROOT, 'build/tokens.json');
-const TS_OUT           = resolve(REPO_ROOT, 'build/tokens.ts');
-const INTERACTION_OUT  = resolve(REPO_ROOT, 'build/interaction.ts');
-const TOKEN_PATHS_OUT  = resolve(REPO_ROOT, 'build/token-paths.ts');
-const TOKEN_VARS_OUT   = resolve(REPO_ROOT, 'build/token-vars.ts');
-const ICONS_DIR        = resolve(REPO_ROOT, 'icons');
-const ICONS_JS_OUT     = resolve(REPO_ROOT, 'lib/components/icon/icons.js');
-const ICONS_OUT        = resolve(REPO_ROOT, 'build/icons.ts');
-const DESCRIPTORS_OUT  = resolve(REPO_ROOT, 'build/descriptors');
-const DESCRIPTORS_SRC  = resolve(REPO_ROOT, 'pipeline/descriptors');
-const PALETTE_OUT      = resolve(REPO_ROOT, 'build/palette.ts');
+// ── inputs · spec DATA (the SoTs · renamed tokens/ axes/ components/ · Movement C) ──
+const PRIMITIVE_CSS    = resolve(PROTO_GENERATED, 'styles/tokens-primitive.css');
+const SEMANTIC_CSS     = resolve(PROTO_GENERATED, 'styles/tokens-semantic.css');
+const DIMENSIONS_SRC   = resolve(SPEC_ROOT, 'tokens/dimensions.ts');
+const COLOURS_SRC      = resolve(SPEC_ROOT, 'tokens/colours.ts');
+const TYPOGRAPHY_SRC   = resolve(SPEC_ROOT, 'tokens/typography.ts');
+const INTERACTION_SRC  = resolve(SPEC_ROOT, 'axes/interaction.ts');
+const PALETTE_SURFACE_SRC = resolve(SPEC_ROOT, 'axes/palette-surface.ts');
+const TYPOGRAPHY_AXIS_SRC = resolve(SPEC_ROOT, 'axes/typography-axis.ts');
+const DESCRIPTORS_SRC  = resolve(SPEC_ROOT, 'components');
+const ICONS_DIR        = resolve(SPEC_ROOT, 'icons');
+// ── outputs · the RN projection (committed · Movement A) ──
+const TS_OUT           = resolve(RN_GENERATED, 'tokens.ts');
+const INTERACTION_OUT  = resolve(RN_GENERATED, 'interaction.ts');
+const TOKEN_PATHS_OUT  = resolve(RN_GENERATED, 'token-paths.ts');
+const ICONS_OUT        = resolve(RN_GENERATED, 'icons.ts');
+const PALETTE_OUT      = resolve(RN_GENERATED, 'palette.ts');
+// ── outputs · the web projection (committed · Movement B) ──
+const JSON_OUT         = resolve(PROTO_GENERATED, 'tokens.json');
+const TOKEN_VARS_OUT   = resolve(PROTO_GENERATED, 'token-vars.ts');
+const DESCRIPTORS_OUT  = resolve(PROTO_GENERATED, 'descriptors');
+const ICONS_JS_OUT     = resolve(PROTO_GENERATED, 'icons.js');
 // (build/docs · DOC_COMPONENTS · MOVED to @nuri/doc at N+42 · the A4 carve. The
 // doc-gen left @nuri/spec — @nuri/doc owns the generated Markdown · convergence §5.)
 

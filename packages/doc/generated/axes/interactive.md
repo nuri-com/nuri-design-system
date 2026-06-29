@@ -4,7 +4,7 @@ layout: default
 nav_order: 4
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/pipeline/interactive-effects.ts
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/axes/interactive-effects.ts
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
 # Interactive

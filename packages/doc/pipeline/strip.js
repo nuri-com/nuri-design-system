@@ -119,3 +119,14 @@ export async function loadSpecData(subpath) {
   const src = await readFile(fileURLToPath(url), 'utf8');
   return import('data:text/javascript,' + encodeURIComponent(stripTsData(src)));
 }
+
+// Load a data module by ABSOLUTE PATH (same strip-then-data-URL pipeline) — for the
+// generated artifacts that left @nuri/spec for the two PROJECTIONS at N+62 (the infra
+// exit · decision 80): the RN contract (tokens · palette → @nuri/rn/generated/) and the
+// web token-var registry (token-vars → @nuri/prototype/generated/). @nuri/spec is pure
+// data now, so doc reads those resolved artifacts from the projection that owns them,
+// by relative path — the descriptor-twin precedent (build.js reads the twins the same way).
+export async function loadDataFromPath(absPath) {
+  const src = await readFile(absPath, 'utf8');
+  return import('data:text/javascript,' + encodeURIComponent(stripTsData(src)));
+}

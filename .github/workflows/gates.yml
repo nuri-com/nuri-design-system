@@ -31,9 +31,12 @@ on:
     branches: [main]
 
 jobs:
-  # The token-pipeline gate · runs the root scripts/ codegen + its 6 drift guards and
-  # diffs @nuri/spec's committed build/ + styles/ (the codegen moved out of spec at N+53 ·
-  # spec is now no-deps/no-scripts). KEEP the `spec` name — it is a required check.
+  # The token-pipeline gate · runs the root scripts/ codegen + its drift guards and diffs
+  # the GENERATED homes. The codegen moved out of spec at N+53; at N+62 (the infra exit ·
+  # decision 80) the generated OUTPUT moved out too — the RN contract into
+  # @nuri/rn/generated/, the web output into @nuri/prototype/generated/ — so @nuri/spec is
+  # now pure DATA (tokens/ axes/ components/ icons/ · nothing generated to diff). KEEP the
+  # `spec` name — it is a required check.
   spec:
     runs-on: ubuntu-latest
     steps:
@@ -53,15 +56,17 @@ jobs:
         # keeps the `spec` name (a required check) — only what it runs changed.
         run: node --test scripts/*.test.js
 
-      - name: Build the token emit (root scripts/ → @nuri/spec build/ + styles/)
+      - name: Build the token emit (root scripts/ → @nuri/rn/generated/ + @nuri/prototype/generated/)
         run: node scripts/tokens-parser.js
 
-      - name: packages/spec/{build,styles}/ must match source (no stale committed emit)
-        # build/ + styles/ are committed (decision 35); the codegen regenerates both
-        # IN PLACE. If a SoT change wasn't rebuilt, the fresh emit diverges from the
-        # committed files — fail so the author runs `node scripts/tokens-parser.js`
-        # and commits it.
-        run: git diff --exit-code packages/spec/build/ packages/spec/styles/
+      - name: the generated homes must match source (no stale committed emit)
+        # The RN contract (@nuri/rn/generated/) + the web output (@nuri/prototype/generated/)
+        # are committed (decision 35 · re-emit ≡ committed · now per-projection · N+62); the
+        # codegen regenerates both IN PLACE. If a SoT change wasn't rebuilt, the fresh emit
+        # diverges from the committed files — fail so the author runs
+        # `node scripts/tokens-parser.js` and commits it. (@nuri/spec is pure data — nothing
+        # generated lives there to diff; the prototype job diffs its own namespace styles/.)
+        run: git diff --exit-code packages/rn/generated packages/prototype/generated
 
   # The build-free web LIBRARY · @nuri/prototype (the A3 carve · N+41). Owns the web
   # mechanism (factory · primitives · the 3 recipes · nuri-demo) AND the namespace-CSS

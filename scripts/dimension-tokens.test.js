@@ -47,12 +47,17 @@ import {
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '../packages/spec');
-const DIMENSIONS_SRC = resolve(REPO_ROOT, 'pipeline/dimensions.ts');
-const COLOURS_SRC = resolve(REPO_ROOT, 'pipeline/colours.ts');
-const PRIMITIVE_CSS = resolve(REPO_ROOT, 'styles/tokens-primitive.css');
-const SEMANTIC_CSS = resolve(REPO_ROOT, 'styles/tokens-semantic.css');
-const TOKENS_TS = resolve(REPO_ROOT, 'build/tokens.ts');
-const TOKEN_PATHS_TS = resolve(REPO_ROOT, 'build/token-paths.ts');
+// N+62 (decision 80): spec is DATA (the SoTs under tokens/); the token CSS is the web
+// projection's output (@nuri/prototype/generated/) + tokens.ts/token-paths.ts the RN
+// projection's contract (@nuri/rn/generated/).
+const RN_GENERATED = resolve(__dirname, '../packages/rn/generated');
+const PROTO_GENERATED = resolve(__dirname, '../packages/prototype/generated');
+const DIMENSIONS_SRC = resolve(REPO_ROOT, 'tokens/dimensions.ts');
+const COLOURS_SRC = resolve(REPO_ROOT, 'tokens/colours.ts');
+const PRIMITIVE_CSS = resolve(PROTO_GENERATED, 'styles/tokens-primitive.css');
+const SEMANTIC_CSS = resolve(PROTO_GENERATED, 'styles/tokens-semantic.css');
+const TOKENS_TS = resolve(RN_GENERATED, 'tokens.ts');
+const TOKEN_PATHS_TS = resolve(RN_GENERATED, 'token-paths.ts');
 
 const dims = await loadDimensions(DIMENSIONS_SRC);
 const { chrome, accent } = await loadSemanticColours(COLOURS_SRC);

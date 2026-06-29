@@ -64,10 +64,10 @@ const PKG_ROOT = resolve(__dirname, '..'); // packages/prototype
 // prototype's styles/ (N+41 · the A3 carve · re-emit ≡ committed). The freshness +
 // structural guards compare the in-memory re-emit against it.
 const LIVE_CSS = resolve(PKG_ROOT, 'styles/palette.css');
-// The token CSS stays in @nuri/spec — read cross-package via the sibling workspace.
-const SPEC_ROOT = resolve(__dirname, '../../spec');
-const PRIMITIVE_CSS = resolve(SPEC_ROOT, 'styles/tokens-primitive.css');
-const SEMANTIC_CSS = resolve(SPEC_ROOT, 'styles/tokens-semantic.css');
+// The token CSS is this prototype projection's OWN generated output now (N+62 · decision 80).
+const TOKEN_STYLES = resolve(PKG_ROOT, 'generated/styles');
+const PRIMITIVE_CSS = resolve(TOKEN_STYLES, 'tokens-primitive.css');
+const SEMANTIC_CSS = resolve(TOKEN_STYLES, 'tokens-semantic.css');
 
 // ── parse a stylesheet's `@layer <layer>` → Map<selector, Map<prop,value>> ──
 // Borrowed from css-preview.test.js (the brief: reuse the helpers/pattern). postcss

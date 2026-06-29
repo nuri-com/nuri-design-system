@@ -4,7 +4,7 @@ layout: default
 nav_order: 3
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/pipeline/dimensions.ts
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/tokens/dimensions.ts
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
 # Dimension

@@ -59,9 +59,9 @@ const PKG_ROOT = resolve(__dirname, '..'); // packages/prototype
 // prototype's styles/ (N+41 · the A3 carve · was lib/components/<ns>/<ns>.css in spec before
 // the carve). The freshness/structural guards compare the in-memory re-emit against it.
 const liveCssPath = (ns) => resolve(PKG_ROOT, `styles/${ns}.css`);
-// The token CSS (the scale vocab for Guard C's resolved-value oracle) stays in @nuri/spec
-// (the token pipeline · convergence phase 4) — read cross-package via the sibling workspace.
-const SPEC_ROOT = resolve(__dirname, '../../spec');
+// The token CSS (the scale vocab for Guard C's resolved-value oracle) is this prototype
+// projection's OWN generated output now (N+62 · decision 80 · was @nuri/spec's styles/).
+const TOKEN_STYLES = resolve(PKG_ROOT, 'generated/styles');
 
 // ── parse a stylesheet's `@layer rules` → Map<selector, Map<prop,value>> ──
 // postcss skips comment nodes for walkDecls/walkRules, so comments are excepted
@@ -164,8 +164,8 @@ for (const { ns } of NS_SPECS) {
 // (the design scale numbers · NOT read from the hand CSS · so non-circular).
 function buildVarMap() {
   const map = new Map();
-  for (const f of ['styles/tokens-primitive.css', 'styles/tokens-semantic.css']) {
-    const root = postcss.parse(readFileSync(resolve(SPEC_ROOT, f), 'utf8'));
+  for (const f of ['tokens-primitive.css', 'tokens-semantic.css']) {
+    const root = postcss.parse(readFileSync(resolve(TOKEN_STYLES, f), 'utf8'));
     root.walkDecls((d) => {
       if (d.prop.startsWith('--nuri-')) map.set(d.prop, d.value.trim());
     });

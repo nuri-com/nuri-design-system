@@ -4,7 +4,7 @@ layout: default
 nav_order: 3
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/pipeline/palette-surface.ts
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/axes/palette-surface.ts
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
 # Palette

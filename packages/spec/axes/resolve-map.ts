@@ -33,7 +33,7 @@
  * a .ts). The codegen-vs-data home re-org is convergence phase 4.
  * ══════════════════════════════════════════════════════════════════ */
 
-import type { StackNS, BoxNS } from './descriptors/schema';
+import type { StackNS, BoxNS } from '../components/schema';
 import type { CanonicalId } from './property-spelling';
 
 // The token scales the agnostic mappings draw values from, named (neutral):

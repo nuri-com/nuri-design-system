@@ -4,7 +4,7 @@ layout: default
 nav_order: 1
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/pipeline/colours.ts
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/tokens/colours.ts
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
 # Colour Primitive
