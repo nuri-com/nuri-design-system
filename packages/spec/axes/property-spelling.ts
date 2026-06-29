@@ -80,6 +80,7 @@ export const PROPERTY_SPELLING = {
   inlineSize:         { rn: 'width',             css: 'inline-size' },
   blockSize:          { rn: 'height',            css: 'block-size' },
   minBlockSize:       { rn: 'minHeight',         css: 'min-block-size' },
+  minInlineSize:      { rn: 'minWidth',          css: 'min-inline-size' },
   padding:            { rn: 'padding',           css: 'padding' },
   paddingInline:      { rn: 'paddingHorizontal', css: 'padding-inline' },
   paddingBlock:       { rn: 'paddingVertical',   css: 'padding-block' },

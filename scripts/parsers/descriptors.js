@@ -52,6 +52,11 @@ export const DESCRIPTOR_COMPONENTS = [
   { name: 'composition-button', source: 'button',      kind: 'button',      fgPart: 'label' },
   { name: 'icon-avatar',        source: 'icon-avatar',  kind: 'iconAvatar',  fgPart: 'icon'  },
   { name: 'topbar',             source: 'topbar',       kind: 'topbar',      centerPart: 'content' },
+  // icon-button (P11 · the first contract bump) — NO `kind`/deriver: the CSS
+  // parity oracle retired at the L3c flip (decision 74), so a new descriptor is
+  // the SOLE SoT. The build emit + Guard D re-emit read `name` only; the twin
+  // gates it (BROWSER_DESCRIPTOR_COMPONENTS · EXPECTED_DESCRIPTORS · Guard F).
+  { name: 'icon-button',        source: 'icon-button' },
 ];
 
 // ── Surface funnel · resolver-model §11 · the variant×accent map as data ──
@@ -523,7 +528,11 @@ const NS_PROP_ORDER = {
   palette: ['variant', 'accent', 'muted', 'chrome'],
   interactive: ['pressColor', 'pressScale', 'disabledOpacity'],
 };
-const PART_ORDER = ['root', 'label', 'icon', 'content'];
+// Row order for the emitted/oracle-rendered anatomy. `prefix`/`suffix` flank the
+// content row (P11 · the icon-button slice · `prefix 🍎 suffix`) — the order here
+// fixes the PART_ORDER-sorted anatomy so the web twin's row order matches the RN
+// authored order (parity-load-bearing).
+const PART_ORDER = ['root', 'prefix', 'label', 'icon', 'suffix', 'content'];
 
 const renderVal = (v) => (typeof v === 'boolean' ? String(v) : `'${v}'`);
 

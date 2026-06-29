@@ -84,6 +84,151 @@ exports[`render-smoke — the ergonomic components mount headless IconAvatar —
 </View>
 `;
 
+exports[`render-smoke — the ergonomic components mount headless IconButton — BARE · the icon-anchored control · glyph routed via the \`icon\` prop · a11y name 1`] = `
+<View
+  accessibilityLabel="Buy Bitcoin"
+  accessibilityRole="button"
+  accessibilityState={
+    {
+      "busy": undefined,
+      "checked": undefined,
+      "disabled": false,
+      "expanded": undefined,
+      "selected": undefined,
+    }
+  }
+  accessibilityValue={
+    {
+      "max": undefined,
+      "min": undefined,
+      "now": undefined,
+      "text": undefined,
+    }
+  }
+  accessible={true}
+  collapsable={false}
+  focusable={true}
+  onBlur={[Function]}
+  onClick={[Function]}
+  onFocus={[Function]}
+  onResponderGrant={[Function]}
+  onResponderMove={[Function]}
+  onResponderRelease={[Function]}
+  onResponderTerminate={[Function]}
+  onResponderTerminationRequest={[Function]}
+  onStartShouldSetResponder={[Function]}
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#beaaff",
+      "borderRadius": 9999,
+      "flexDirection": "row",
+      "gap": 6,
+      "justifyContent": "center",
+      "minHeight": 48,
+      "minWidth": 48,
+      "paddingHorizontal": 12,
+    }
+  }
+>
+  <View
+    accessibilityLabel="glyph:#381b6a"
+  />
+</View>
+`;
+
+exports[`render-smoke — the ergonomic components mount headless IconButton — FLANKED · prefix/suffix text flank the icon (\`Buy Bitcoin 🍎 Pay\`) 1`] = `
+<View
+  accessibilityRole="button"
+  accessibilityState={
+    {
+      "busy": undefined,
+      "checked": undefined,
+      "disabled": false,
+      "expanded": undefined,
+      "selected": undefined,
+    }
+  }
+  accessibilityValue={
+    {
+      "max": undefined,
+      "min": undefined,
+      "now": undefined,
+      "text": undefined,
+    }
+  }
+  accessible={true}
+  collapsable={false}
+  focusable={true}
+  onBlur={[Function]}
+  onClick={[Function]}
+  onFocus={[Function]}
+  onResponderGrant={[Function]}
+  onResponderMove={[Function]}
+  onResponderRelease={[Function]}
+  onResponderTerminate={[Function]}
+  onResponderTerminationRequest={[Function]}
+  onStartShouldSetResponder={[Function]}
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#f3f1e2",
+      "borderRadius": 9999,
+      "flexDirection": "row",
+      "gap": 6,
+      "justifyContent": "center",
+      "minHeight": 48,
+      "minWidth": 48,
+      "paddingHorizontal": 12,
+    }
+  }
+>
+  <Text
+    style={
+      [
+        {
+          "fontSize": 17,
+          "fontWeight": "600",
+          "letterSpacing": -0.34,
+          "lineHeight": 21.93,
+        },
+        {
+          "color": "#222013",
+        },
+        {
+          "paddingStart": 12,
+        },
+      ]
+    }
+  >
+    Buy Bitcoin
+  </Text>
+  <View
+    accessibilityLabel="glyph:#222013"
+  />
+  <Text
+    style={
+      [
+        {
+          "fontSize": 17,
+          "fontWeight": "600",
+          "letterSpacing": -0.34,
+          "lineHeight": 21.93,
+        },
+        {
+          "color": "#222013",
+        },
+        {
+          "paddingEnd": 12,
+        },
+      ]
+    }
+  >
+    Pay
+  </Text>
+</View>
+`;
+
 exports[`render-smoke — the ergonomic components mount headless Topbar — OPEN primitive · title children → the content pivot · leading via content 1`] = `
 <View
   style={

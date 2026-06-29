@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nuri · Playground · Icon Button</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!--
+    ═══════════════════════════════════════════════════════════════
+    PLAYGROUND · DOCUMENT · ICON BUTTON (P11 · the first contract bump)
+    ═══════════════════════════════════════════════════════════════
+    The icon-ANCHORED control: the icon is the structural centre, with OPTIONAL
+    prefix / suffix text flanking it. Bare = the round icon action; flanked is the
+    brand-lockup / Apple-Pay pattern (`Buy Bitcoin 🍎 Pay`). Four boards settle the
+    bare-vs-flanked geometry: NUDO (icon-only) · LEADING (prefix 🍎) · TRAILING
+    (🍎 suffix) · MID-TEXT (prefix 🍎 suffix).
+
+    Composed from the ACTIVE set only — the icon-button recipe + the shared
+    @nuri/prototype demo layer. ZERO import from @nuri/doc (the DAG stays
+    playground → prototype → spec · decision 68). The size box MIRRORS Button, so
+    an icon-button and a Button at one size share a height/padding/corner.
+    ═══════════════════════════════════════════════════════════════
+  -->
+
+  <!-- The playground is a FIXED light + cream surface (decision 57): no page-level
+       toggle — each <nuri-demo> scopes its OWN theme/accent locally. -->
+  <script>
+    document.documentElement.dataset.theme = 'light';
+    document.documentElement.dataset.neutral = 'cream';
+    document.documentElement.dataset.accent = 'neutral';
+  </script>
+
+  <!-- Token cake + base reset + type scale (the foundation · the web projection's generated output). -->
+  <link rel="stylesheet" href="../../prototype/generated/styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../prototype/generated/styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../prototype/generated/styles/shell.css" />
+  <link rel="stylesheet" href="../../prototype/generated/styles/typography.css" />
+
+  <!-- Active components — the icon-button recipe's primitives + the shared demo layer. -->
+  <link rel="stylesheet" href="../../prototype/primitives/icon.css" />
+  <link rel="stylesheet" href="../../prototype/primitives/pressable.css" />
+  <link rel="stylesheet" href="../../prototype/styles/typography.css" />
+  <link rel="stylesheet" href="../../prototype/styles/stack.css" />
+  <link rel="stylesheet" href="../../prototype/styles/box.css" />
+  <link rel="stylesheet" href="../../prototype/styles/palette.css" />
+  <link rel="stylesheet" href="../../prototype/styles/interactive.css" />
+  <link rel="stylesheet" href="../../prototype/factory/reset.css" />
+  <link rel="stylesheet" href="../../prototype/demo/control.css" />
+  <link rel="stylesheet" href="../../prototype/demo/demo.css" />
+  <!-- The playground area shell (topbar + the board scroll container). -->
+  <link rel="stylesheet" href="../lib/shell.css" />
+
+  <!-- The standalone playground's NuriState seed (theme + spec-derived accent). -->
+  <script src="../../prototype/demo/available.js" type="module"></script>
+
+  <!-- Shell first (mirrors the DS order): it reparents the authored <nuri-demo>
+       panels into its built <main>, so it must run before the demos compose. -->
+  <script src="../lib/shell.js" defer></script>
+
+  <!-- Custom element scripts MUST be deferred so connectedCallback fires AFTER body
+       parsing. The icon-button recipe self-imports its primitives (pressable +
+       typography + icon · idempotent define-guards). -->
+  <script src="../../prototype/demo/control.js" defer></script>
+  <script src="../../prototype/primitives/scope.js" defer></script>
+  <script src="../../prototype/primitives/icon.js" type="module"></script>
+  <script src="../../prototype/primitives/typography.js" defer></script>
+  <script src="../../prototype/primitives/stack.js" defer></script>
+  <script src="../../prototype/recipes/icon-button.js" type="module"></script>
+  <script src="../../prototype/recipes/topbar.js" type="module"></script>
+  <script src="../../prototype/demo/demo.js" defer></script>
+
+  <style>
+    /* Page-local CHROME tweaks ONLY (the board row · the topbar). */
+    .nuri-pg__scroll { gap: 0; }
+    [data-pg-nav="ds"] { display: none; }
+    /* The playground shell's back affordance is a legacy <nuri-icon-button
+       name="caret-left" label="…"> (lib/shell.js) — the OLD name/label API. This
+       page LOADS the new factory-backed icon-button recipe, which registers
+       <nuri-icon-button> globally and (rightly) does NOT route the legacy attrs,
+       so the shell's back-button upgrades to an empty ghost box. Hide it here (it
+       renders 0×0 / invisible on button.html anyway · the back-nav listener is
+       unaffected). The shell adopting the new icon-button API + a caret glyph is a
+       deliberate FOLLOW-UP for the operator — flagged at the checkpoint. */
+    [data-pg-nav="index"] { display: none; }
+  </style>
+</head>
+<body>
+
+<nuri-playground-shell doc="Icon Button">
+
+  <!-- nudo · the icon-only round action across the variant surfaces (solid · soft ·
+       ghost) — the bare control's parity oracle vs the legacy icon-button. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="nudo">
+    <template>
+      <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
+        <nuri-stack direction="row" align="center" justify="center" gap="md">
+          <nuri-icon-button variant="solid" icon="apple" aria-label="Buy with Apple Pay"></nuri-icon-button>
+          <nuri-icon-button variant="soft" icon="card" aria-label="Cards"></nuri-icon-button>
+          <nuri-icon-button variant="ghost" icon="euro" aria-label="Euro"></nuri-icon-button>
+        </nuri-stack>
+        <nuri-stack direction="row" align="center" justify="center" gap="md">
+          <nuri-icon-button size="sm" icon="bitcoin" aria-label="Bitcoin small"></nuri-icon-button>
+          <nuri-icon-button size="md" icon="bitcoin" aria-label="Bitcoin medium"></nuri-icon-button>
+          <nuri-icon-button size="lg" icon="bitcoin" aria-label="Bitcoin large"></nuri-icon-button>
+        </nuri-stack>
+      </nuri-stack>
+    </template>
+  </nuri-demo>
+
+  <!-- leading · prefix text then the icon (`Buy Bitcoin 🍎`). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="leading">
+    <template>
+      <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
+        <nuri-icon-button variant="solid" prefix="Buy Bitcoin" icon="apple"></nuri-icon-button>
+        <nuri-icon-button variant="soft" prefix="Pay with" icon="card"></nuri-icon-button>
+      </nuri-stack>
+    </template>
+  </nuri-demo>
+
+  <!-- trailing · the icon then suffix text (`🍎 Pay`). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="trailing">
+    <template>
+      <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
+        <nuri-icon-button variant="solid" icon="apple" suffix="Pay"></nuri-icon-button>
+        <nuri-icon-button variant="ghost" icon="euro" suffix="Euro"></nuri-icon-button>
+      </nuri-stack>
+    </template>
+  </nuri-demo>
+
+  <!-- mid-text · the icon ANCHORED between two flanks (`Buy Bitcoin 🍎 Pay`) — the
+       brand-lockup pattern, across sizes. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="mid-text">
+    <template>
+      <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
+        <nuri-icon-button size="lg" variant="solid" prefix="Buy Bitcoin" icon="apple" suffix="Pay"></nuri-icon-button>
+        <nuri-icon-button size="md" variant="soft" prefix="Buy Bitcoin" icon="apple" suffix="Pay"></nuri-icon-button>
+        <nuri-icon-button size="sm" variant="ghost" prefix="Buy Bitcoin" icon="apple" suffix="Pay"></nuri-icon-button>
+      </nuri-stack>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+</body>
+</html>

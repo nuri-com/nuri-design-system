@@ -32,11 +32,13 @@ for (const key of ['window', 'document', 'customElements', 'HTMLElement', 'Mutat
 // the primitives the factory tree upgrades into (pressable/typography · view/icon).
 await import('../recipes/button.js');
 await import('../recipes/icon-avatar.js');
+await import('../recipes/icon-button.js');
 // The factory + the descriptor twins, for the buildComponent-direct assertions
 // (same cached module instances the recipes use).
 const { buildComponent, defineNuriComponent } = await import('../factory/factory.js');
 const { compositionButtonDescriptor } = await import('../generated/descriptors/composition-button.js');
 const { iconAvatarDescriptor } = await import('../generated/descriptors/icon-avatar.js');
+const { iconButtonDescriptor } = await import('../generated/descriptors/icon-button.js');
 
 // The merge onto the interactive inner <button> is deferred by a MutationObserver
 // (factory.js applyToInteractiveHost · it lands once the pressable creates the
@@ -141,6 +143,89 @@ test('C3 · <nuri-icon-avatar> · DECORATIVE aria-hidden comes from descriptor.d
   assert.equal(a.getAttribute('aria-hidden'), 'true', 'decorative:true in the descriptor → aria-hidden, not a hand attr');
   const view = a.querySelector('nuri-view');
   assert.equal(view.getAttribute('data-variant'), 'soft', 'the default variant resolves from data');
+});
+
+// ══════════════════════════════════════════════════════════════════
+// E · icon-button (P11 · the contract bump) — three-part anatomy · the
+// ergonomic prefix/icon/suffix routing · the bare-collapse · dual a11y
+// ══════════════════════════════════════════════════════════════════
+test('E · buildComponent(icon-button) · FLANKED · prefix/icon/suffix route in row order · box mirrors button', async () => {
+  const el = mount(buildComponent(iconButtonDescriptor, { variant: 'solid', size: 'md' }, { prefix: 'Buy Bitcoin', icon: 'apple', suffix: 'Pay' }));
+  assert.equal(el.tagName.toLowerCase(), 'nuri-pressable', 'interactive root → nuri-pressable host');
+  await tick();
+
+  const btn = el.querySelector('button.nuri-interactive');
+  assert.ok(btn, 'the pressable owns the inner interactive button');
+  // md box: minHeight lg (coherent w/ Button) + minWidth lg (the square floor) +
+  // a SMALL sm ring (paddingX) + radius full + the anchored row (gap sm) + solid.
+  assert.equal(btn.getAttribute('data-min-height'), 'lg', 'size md → minHeight lg (coherent w/ Button)');
+  assert.equal(btn.getAttribute('data-min-width'), 'lg', 'the square floor · minWidth = minHeight');
+  assert.equal(btn.getAttribute('data-padding-x'), 'md', 'the icon edge ring (md/lg → md · paddingX diverges from Button by design)');
+  assert.equal(btn.getAttribute('data-radius'), 'full');
+  assert.equal(btn.getAttribute('data-gap'), 'sm', 'the anchored-row gap');
+  assert.equal(btn.getAttribute('data-variant'), 'solid');
+
+  // The three flanks render in VISUAL row order: prefix (text) · icon (glyph) · suffix (text).
+  const kids = [...btn.children];
+  assert.deepEqual(kids.map((k) => k.tagName.toLowerCase()), ['nuri-typography', 'nuri-icon', 'nuri-typography'], 'prefix → icon → suffix row order');
+  assert.equal(kids[0].textContent, 'Buy Bitcoin', 'prefix string routes to the leading text');
+  assert.equal(kids[1].getAttribute('name'), 'apple', 'icon name routes to the glyph leaf');
+  assert.equal(kids[2].textContent, 'Pay', 'suffix string routes to the trailing text');
+  // the flank edge padding (md → padding-start/end md) gives the FLANKED text its
+  // breathing-room — only present when the flank renders (bare carries none).
+  assert.equal(kids[0].getAttribute('data-padding-start'), 'md', 'prefix gets the leading edge padding');
+  assert.equal(kids[2].getAttribute('data-padding-end'), 'md', 'suffix gets the trailing edge padding');
+  // the md type step rides the flanks (mirrors the button label).
+  assert.equal(kids[0].getAttribute('size'), 'md');
+  assert.equal(kids[0].hasAttribute('emphasis'), true);
+});
+
+test('E2 · buildComponent(icon-button) · BARE · the icon-only collapse — no empty flank nodes · aria-label', async () => {
+  const el = mount(buildComponent(iconButtonDescriptor, { size: 'sm' }, { icon: 'bitcoin', accessibilityLabel: 'Buy Bitcoin' }));
+  await tick();
+  const btn = el.querySelector('button.nuri-interactive');
+
+  // ONLY the icon renders — the absent prefix/suffix leaves NO empty typography
+  // node (the bare-collapse · so the stack gap never widens the round control).
+  const kids = [...btn.children];
+  assert.deepEqual(kids.map((k) => k.tagName.toLowerCase()), ['nuri-icon'], 'bare → just the glyph, no empty flanks');
+  assert.equal(btn.querySelectorAll('nuri-typography').length, 0, 'no flank text nodes at all');
+  // the square floor squares the BARE control: sm → minWidth md (= minHeight md),
+  // a small sm ring; the glyph centres (border-box absorbs the ring).
+  assert.equal(btn.getAttribute('data-min-height'), 'md', 'sm → minHeight md');
+  assert.equal(btn.getAttribute('data-min-width'), 'md', 'sm → minWidth md (the square floor · = minHeight)');
+  assert.equal(btn.getAttribute('data-padding-x'), 'sm', 'the small icon ring');
+  // sm icon glyph = the xs size leaf (18px · the icon-arc shared box axis).
+  assert.equal(kids[0].getAttribute('data-width'), 'xs');
+  // a11y: the icon-only control carries its accessible name on the inner button.
+  assert.equal(btn.getAttribute('aria-label'), 'Buy Bitcoin', 'bare → aria-label on the focusable button (F-ARIA-LABEL-1)');
+});
+
+test('E3 · defineNuriComponent(icon-button) · observedAttributes derive the ergonomic per-part + a11y surface', () => {
+  // axes (variant·size) ∪ accent ∪ disabled (interactive) ∪ the non-primary part
+  // attrs (prefix·icon·suffix) ∪ aria-label (interactive, no text primary). NO name
+  // (there is no lone icon primary).
+  assert.deepEqual(
+    [...customElements.get('nuri-icon-button').observedAttributes].sort(),
+    ['accent', 'aria-label', 'disabled', 'icon', 'prefix', 'size', 'suffix', 'variant'],
+    'the icon-anchored API: axes + accent + disabled + prefix/icon/suffix + aria-label',
+  );
+});
+
+test('E4 · <nuri-icon-button> · the registered element renders flanked + reflects disabled', async () => {
+  const ib = dom.window.document.createElement('nuri-icon-button');
+  ib.setAttribute('icon', 'apple');
+  ib.setAttribute('suffix', 'Pay');
+  ib.setAttribute('disabled', '');
+  mount(ib);
+  await tick();
+
+  const btn = ib.querySelector('button.nuri-interactive');
+  assert.ok(btn, 'the registered element mounts the factory tree');
+  assert.equal(btn.hasAttribute('disabled'), true, 'disabled reflects to the native button');
+  const kids = [...btn.children];
+  assert.deepEqual(kids.map((k) => k.tagName.toLowerCase()), ['nuri-icon', 'nuri-typography'], 'icon + trailing suffix, no leading prefix node');
+  assert.equal(btn.getAttribute('data-variant'), 'soft', 'the descriptor default (soft) with no variant attr');
 });
 
 // ══════════════════════════════════════════════════════════════════

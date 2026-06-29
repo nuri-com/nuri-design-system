@@ -10,6 +10,7 @@
     "./descriptors/composition-button": "./components/composition-button.ts",
     "./descriptors/icon-avatar": "./components/icon-avatar.ts",
     "./descriptors/topbar": "./components/topbar.ts",
+    "./descriptors/icon-button": "./components/icon-button.ts",
     "./resolve-map": "./axes/resolve-map.ts",
     "./property-spelling": "./axes/property-spelling.ts",
     "./palette-surface": "./axes/palette-surface.ts",

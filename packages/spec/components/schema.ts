@@ -111,10 +111,16 @@ export type StackNS = {
 // press-scale `transform` + disabled `opacity` are realized by the
 // `interactive` opt-in (the recipe decides WHEN · value from the
 // interaction baseline · 65.3 §6), not authored as box props here.
+// `minWidth` (P11 · the icon-button slice · the 2nd deliberate post-freeze BoxNS
+// add) is a min-inline-size FLOOR: the icon-anchored control sets minWidth =
+// minHeight so the BARE form floors to a square (the glyph centres, a small
+// paddingX absorbed by the border-box floor) while the FLANKED form grows past
+// it — the standard icon-button primitive (a real first consumer · decision 30).
 export type BoxNS = {
   width?: SizeLeaf;
   height?: SizeLeaf;
   minHeight?: SizeLeaf;
+  minWidth?: SizeLeaf;
   padding?: SpaceLeaf;
   paddingX?: SpaceLeaf;
   paddingY?: SpaceLeaf;
@@ -191,7 +197,15 @@ export type NS = {
 // variants compose them by name. `root` is the host. leading/trailing
 // are POSITIONAL slots of an `open` primitive (the author places them ·
 // decision 64) — not styled parts, so not enumerated here.
-export type Part = 'root' | 'label' | 'icon' | 'content';
+//
+// `prefix` / `suffix` (P11 · the FIRST real post-freeze contract bump ·
+// the icon-button slice) — the text flanks of an ICON-ANCHORED control
+// (`prefix 🍎 suffix` · brand lockups · Apple Pay). A DELIBERATE, VERSIONED
+// addition to the frozen vocab (decision 65 · "post-freeze changes are
+// versioned"): the Guard-F pin (FROZEN_SCHEMA.Part) moves with it, the
+// monorepo gates every projection together (no version-negotiation
+// machinery · one repo, no external consumer to negotiate with).
+export type Part = 'root' | 'prefix' | 'label' | 'icon' | 'suffix' | 'content';
 
 // The structural elements a part renders as — view-ish, text-ish, or the
 // glyph leaf. Drives the factory's JSX (and the web painting node);

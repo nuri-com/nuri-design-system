@@ -59,6 +59,7 @@ import { palette } from './generated/palette';
 import { compositionButtonDescriptor } from '@nuri/spec/descriptors/composition-button';
 import { iconAvatarDescriptor } from '@nuri/spec/descriptors/icon-avatar';
 import { topbarDescriptor } from '@nuri/spec/descriptors/topbar';
+import { iconButtonDescriptor } from '@nuri/spec/descriptors/icon-button';
 import type {
   SizeLeaf,
   RadiusLeaf,
@@ -94,6 +95,7 @@ export {
   compositionButtonDescriptor,
   iconAvatarDescriptor,
   topbarDescriptor,
+  iconButtonDescriptor,
 };
 
 export type { Accent, Theme, TypeSize, TypeWeight, TypeStep, TokenPath, IconName };

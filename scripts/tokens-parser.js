@@ -215,7 +215,7 @@ const ACCENTS_JS_OUT   = resolve(PROTO_GENERATED, 'accents.js');
 // the FULL DESCRIPTOR_COMPONENTS set — the web factory now de-collapses all
 // three frozen descriptors (Button at S3 · icon-avatar + topbar at S4), so each
 // has a live consumer (P11 · decision 30 · no speculative emit ahead of one).
-const BROWSER_DESCRIPTOR_COMPONENTS = ['composition-button', 'icon-avatar', 'topbar'];
+const BROWSER_DESCRIPTOR_COMPONENTS = ['composition-button', 'icon-avatar', 'topbar', 'icon-button'];
 
 // (Slice 4 · the per-component `@layer tokens` WALK · REMOVED at N+41 · the A3 carve.)
 // The walk read each component's lib/components/<name>/<name>.css to report its TokenPath

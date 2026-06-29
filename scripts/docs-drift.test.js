@@ -187,6 +187,14 @@ const EXPECTED_DESCRIPTORS = {
     parts: ['content'], // the pivot · center lands 100% on it
     interactive: [],
   },
+  // icon-button (P11 · the first contract bump) — the icon-anchored control: a
+  // three-part anatomy (the prefix/icon/suffix flanks · the new `prefix`/`suffix`
+  // Part vocab), interactive like Button (all three channels), variant × size.
+  'icon-button': {
+    axes: { variant: ['solid', 'soft', 'ghost'], size: ['sm', 'md', 'lg'] },
+    parts: ['prefix', 'icon', 'suffix'],
+    interactive: ['pressColor', 'pressScale', 'disabledOpacity'],
+  },
 };
 
 // The anatomy's non-root parts (the structural declaration).
@@ -283,6 +291,32 @@ test('D · build/descriptors/* re-emits from the authored SoT + the composition-
         `${spec.name}: composition addresses part '${p}' not in the anatomy (${[...inAnatomy].join(', ')})`,
       );
     }
+  }
+});
+
+// ── Size-coherence guard · icon-button's row-shape stays coherent with Button ──
+// P11 (the icon-button slice): the icon-anchored control shares Button's HEIGHT +
+// CORNER per size (minHeight · radius) so the two sit coherently in a row — but
+// paddingX INTENTIONALLY DIVERGES (Button pads for text; icon-button carries only
+// a small ring + a `minWidth` floor so the BARE form squares · minWidth =
+// minHeight). So the pin is: minHeight ≡ Button · radius ≡ Button · minWidth ==
+// the row's own minHeight (the square invariant). The shared-fragment extraction
+// (a `_button-family-sizing` slice) is a deliberate FOLLOW-UP; until then THIS
+// guard is the seam. Reads the browser-ESM twins (node cannot import the .ts).
+test('icon-button stays size-coherent with composition-button (height + corner + the square floor · P11)', async () => {
+  const loadTwin = async (name) =>
+    (await import(pathToFileURL(resolve(PROTO_GENERATED, `descriptors/${name}.js`)).href))[exportNameFor(name)];
+  const button = await loadTwin('composition-button');
+  const iconButton = await loadTwin('icon-button');
+
+  for (const sizeKey of ['sm', 'md', 'lg']) {
+    const buttonBox = button.variants.size[sizeKey].root.box;
+    const ibBox = iconButton.variants.size[sizeKey].root.box;
+    // height + corner coherent with Button (the row alignment invariant).
+    assert.equal(ibBox.minHeight, buttonBox.minHeight, `icon-button.size.${sizeKey}: minHeight diverged from Button (row-height coherence · P11)`);
+    assert.equal(ibBox.radius, buttonBox.radius, `icon-button.size.${sizeKey}: radius diverged from Button (corner coherence · P11)`);
+    // the square floor — minWidth must equal THIS row's minHeight (bare → square).
+    assert.equal(ibBox.minWidth, ibBox.minHeight, `icon-button.size.${sizeKey}: minWidth must equal minHeight so the bare control floors to a square (P11)`);
   }
 });
 
@@ -389,8 +423,11 @@ const FROZEN_SCHEMA = {
       'wrap?': 'boolean',
       'fill?': "'grow' | 'grow-shrink'",
     },
+    // `minWidth` ADDED at P11 (the icon-button slice · the 2nd deliberate
+    // post-freeze BoxNS add · decision 65 "post-freeze changes are versioned"):
+    // the min-inline-size floor the icon-anchored bare control squares against.
     BoxNS: {
-      'width?': 'SizeLeaf', 'height?': 'SizeLeaf', 'minHeight?': 'SizeLeaf',
+      'width?': 'SizeLeaf', 'height?': 'SizeLeaf', 'minHeight?': 'SizeLeaf', 'minWidth?': 'SizeLeaf',
       'padding?': 'SpaceLeaf', 'paddingX?': 'SpaceLeaf', 'paddingY?': 'SpaceLeaf',
       'paddingStart?': 'SpaceLeaf', 'paddingEnd?': 'SpaceLeaf',
       'paddingTop?': 'SpaceLeaf', 'paddingBottom?': 'SpaceLeaf', 'radius?': 'RadiusLeaf',
@@ -425,8 +462,12 @@ const FROZEN_SCHEMA = {
     TypeSize: "keyof typeof import('../tokens/typography').type",
     TypeKey: 'TypeSize', // de-fused at N+45 (decision 77) · the `${TypeSize}Em` arm retired
   },
-  // The parts + composition + envelope (65.3 §7 · decision 24.1).
-  Part: ['root', 'label', 'icon', 'content'],
+  // The parts + composition + envelope (65.3 §7 · decision 24.1). `prefix`/
+  // `suffix` ADDED at P11 (the icon-button slice · the first real post-freeze
+  // contract bump · decision 65 "post-freeze changes are versioned"): the text
+  // flanks of the icon-anchored control. The monorepo gates every projection
+  // together, so this pin move IS the version negotiation.
+  Part: ['root', 'prefix', 'label', 'icon', 'suffix', 'content'],
   El: ['view', 'text', 'icon'],
   NS: { 'stack?': 'StackNS', 'box?': 'BoxNS', 'typography?': 'TypographyNS', 'palette?': 'PaletteNS', 'interactive?': 'InteractiveNS' },
   PartAnatomy: { 'el': 'El', 'open?': 'boolean', 'parts?': "Partial<Record<Exclude<Part, 'root'>, PartAnatomy>>" },

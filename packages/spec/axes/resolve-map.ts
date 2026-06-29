@@ -104,15 +104,17 @@ export const STACK_FIELDS: Record<keyof StackNS, Field> = {
 // ── box → sizing · padding · radii (geometry only · 65.3 §6 · no colour) · the
 // mapping as DATA (was resolveBox's if-wall) ──
 // ⚠ ORDER IS LOAD-BEARING (see above). Order: width · height · minHeight ·
-// padding · paddingX · paddingY · paddingStart · paddingEnd · paddingTop ·
-// paddingBottom · radius. The `prop` is a CANONICAL id (the CSS-logical concept ·
-// property-spelling.ts), so the box INPUT keys (width/paddingX/radius) and the
-// canonical ids (inlineSize/paddingInline/borderRadius) differ — the registry's
-// `rn` column maps each back to RN's physical prop (width/paddingHorizontal/…).
+// minWidth · padding · paddingX · paddingY · paddingStart · paddingEnd ·
+// paddingTop · paddingBottom · radius. The `prop` is a CANONICAL id (the
+// CSS-logical concept · property-spelling.ts), so the box INPUT keys
+// (width/paddingX/radius) and the canonical ids (inlineSize/paddingInline/
+// borderRadius) differ — the registry's `rn` column maps each back to RN's
+// physical prop (width/paddingHorizontal/…).
 export const BOX_FIELDS: Record<keyof BoxNS, Field> = {
   width: { via: 'scale', prop: 'inlineSize', scale: 'size' },
   height: { via: 'scale', prop: 'blockSize', scale: 'size' },
   minHeight: { via: 'scale', prop: 'minBlockSize', scale: 'size' },
+  minWidth: { via: 'scale', prop: 'minInlineSize', scale: 'size' },
   padding: { via: 'scale', prop: 'padding', scale: 'space' },
   paddingX: { via: 'scale', prop: 'paddingInline', scale: 'space' },
   paddingY: { via: 'scale', prop: 'paddingBlock', scale: 'space' },
