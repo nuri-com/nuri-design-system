@@ -57,15 +57,34 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
-  test('Topbar — OPEN primitive · title children → the content pivot · leading via content', () => {
+  test('Topbar — COMPOUND slots · leading/center/trailing regions composed via sub-components', () => {
     const tr = render(
       <NuriThemeProvider>
-        <Topbar center="true" content={{ root: <View accessibilityLabel="leading" /> }}>
-          <Text>My Vault</Text>
+        <Topbar>
+          <Topbar.Leading><View accessibilityLabel="leading" /></Topbar.Leading>
+          <Topbar.Center><Text>Account</Text></Topbar.Center>
+          <Topbar.Trailing><View accessibilityLabel="trailing" /></Topbar.Trailing>
         </Topbar>
       </NuriThemeProvider>,
     );
     expect(tr.toJSON()).toBeTruthy();
+    // each region's content rendered (the centre text + the two edge views).
+    expect(tr.root.findByProps({ accessibilityLabel: 'leading' })).toBeTruthy();
+    expect(tr.root.findByProps({ accessibilityLabel: 'trailing' })).toBeTruthy();
+    expect(tr.root.findByType(Text).props.children).toBe('Account');
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('Topbar — BARE children default to the trailing region (the "just actions" slot)', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <Topbar>
+          <View accessibilityLabel="bare-action" />
+        </Topbar>
+      </NuriThemeProvider>,
+    );
+    expect(tr.toJSON()).toBeTruthy();
+    expect(tr.root.findByProps({ accessibilityLabel: 'bare-action' })).toBeTruthy();
     expect(tr.toJSON()).toMatchSnapshot();
   });
 

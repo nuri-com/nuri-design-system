@@ -79,39 +79,42 @@
 
     #buildTopbar(doc, isDocument) {
       const topbar = document.createElement('nuri-topbar');
-      topbar.setAttribute('center', '');
       topbar.className = 'nuri-pg__topbar';
       topbar.innerHTML = this.#topbarInner(doc, isDocument);
 
       // The DS button / icon-button are native <button>s (no href), so wire
-      // navigation by hand. Listeners sit on the HOST custom elements — clicks
-      // on the inner <button> bubble up, and the positional row stays in
-      // document order (no reparenting · decision 64), so this works
-      // regardless of upgrade timing.
-      const back = topbar.querySelector('[data-pg-nav="index"]');
-      if (back) back.addEventListener('click', () => { window.location.href = INDEX_HREF; });
-      const ds = topbar.querySelector('[data-pg-nav="ds"]');
-      if (ds) ds.addEventListener('click', () => { window.location.href = DS_HREF; });
+      // navigation by hand. The compound factory HARVESTS + CLONES the region
+      // sub-elements' children into the built tree, so a listener bound to an
+      // authored node would be lost — use EVENT DELEGATION on the host instead
+      // (clicks on the rendered clones bubble up to <nuri-topbar>, and the
+      // data-pg-nav attribute is preserved on the clone).
+      topbar.addEventListener('click', (e) => {
+        const nav = e.target.closest && e.target.closest('[data-pg-nav]');
+        if (!nav) return;
+        if (nav.getAttribute('data-pg-nav') === 'index') window.location.href = INDEX_HREF;
+        else if (nav.getAttribute('data-pg-nav') === 'ds') window.location.href = DS_HREF;
+      });
 
       return topbar;
     }
 
     #topbarInner(doc, isDocument) {
-      // Content-pivot positional layout (decision 64 · amendment 46.4):
-      // leading sibling (a back affordance · documents only) · the
-      // <nuri-topbar-content> pivot (title · small + em via a composed
-      // <nuri-typography>, the single text-style owner) · trailing sibling
-      // (the soft "Design system" button). No region wrappers.
+      // The compound slot layout (the topbar-slots slice · the factory's
+      // compound-component capability): the three typed region sub-elements —
+      // leading (a back affordance · documents only) · center (the title · small
+      // + em via a composed <nuri-typography>) · trailing (the soft "Design
+      // system" button). True centring is structural (the even-flex edges), so
+      // the title lands dead-centre — no `center` attribute.
       const leading = isDocument
-        ? `<nuri-icon-button name="caret-left" variant="ghost" label="Back to playground" data-pg-nav="index"></nuri-icon-button>`
+        ? `<nuri-topbar-leading><nuri-icon-button name="caret-left" variant="ghost" label="Back to playground" data-pg-nav="index"></nuri-icon-button></nuri-topbar-leading>`
         : '';
 
       const title = isDocument ? doc : 'Playground';
-      const content = `<nuri-topbar-content><nuri-typography size="sm" emphasis>${title}</nuri-typography></nuri-topbar-content>`;
+      const center = `<nuri-topbar-center><nuri-typography size="sm" emphasis>${title}</nuri-typography></nuri-topbar-center>`;
 
-      const trailing = `<nuri-button size="sm" variant="soft" data-pg-nav="ds">Design system</nuri-button>`;
+      const trailing = `<nuri-topbar-trailing><nuri-button size="sm" variant="soft" data-pg-nav="ds">Design system</nuri-button></nuri-topbar-trailing>`;
 
-      return `${leading}${content}${trailing}`;
+      return `${leading}${center}${trailing}`;
     }
   }
 

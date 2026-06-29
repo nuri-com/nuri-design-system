@@ -205,7 +205,7 @@ describe('IconAvatar — same factory, static, the subtle role', () => {
   });
 });
 
-describe('Topbar — same factory, OPEN primitive, the content-pivot', () => {
+describe('Topbar — same factory, the COMPOUND slot regions (true centring)', () => {
   const r = recipeFor(topbarDescriptor, 'lilac', 'light');
 
   test('open root base = row chrome surface (stack + box + palette.chrome)', () => {
@@ -223,14 +223,37 @@ describe('Topbar — same factory, OPEN primitive, the content-pivot', () => {
     expect(r.root.foreground?.base).toBe(chrome.light.textPrimary);
   });
 
-  test('content pivot = stack fill grow-shrink (flex:1 1 auto + min-inline-size:0)', () => {
-    expect(r.content.base).toEqual({ flexGrow: 1, flexShrink: 1, minWidth: 0 });
+  test('leading edge = stack fill even (flex 1 1 0 + min-width 0 · the equal-share edge)', () => {
+    expect(r.leading.base).toEqual({
+      flexDirection: 'row',
+      alignItems: 'center',
+      flexGrow: 1,
+      flexShrink: 1,
+      flexBasis: 0,
+      minWidth: 0,
+    });
   });
 
-  test('center axis repartitions onto the pivot (100% on content · zero on host)', () => {
-    expect(r.content.variants.center.true).toEqual({ alignItems: 'center', justifyContent: 'center' });
-    // center=false is the empty patch; the host gets nothing from the axis.
-    expect(r.root.variants.center).toBeUndefined();
+  test('trailing edge = the same even share, content end-justified', () => {
+    expect(r.trailing.base).toEqual({
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      flexGrow: 1,
+      flexShrink: 1,
+      flexBasis: 0,
+      minWidth: 0,
+    });
+  });
+
+  test('center is NATURAL (flex:none · no fill) so it lands dead-centre between the even edges', () => {
+    expect(r.center.base).toEqual({ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' });
+    expect((r.center.base as { flexGrow?: number }).flexGrow).toBeUndefined();
+  });
+
+  test('no variant axes — a static layout shell (the stringly `center` boolean is gone)', () => {
+    expect(r.root.variants).toEqual({});
+    expect(r.leading.variants).toEqual({});
   });
 });
 

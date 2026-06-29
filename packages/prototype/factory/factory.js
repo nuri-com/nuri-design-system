@@ -169,6 +169,44 @@ export function mergeAttrs(ns) {
   return { classes, data };
 }
 
+// Apply a merged namespace map (stack ⊕ box ⊕ palette) to an EXISTING element as
+// the namespace classes + data-* — the factory's merged-node spelling onto a HOST
+// node instead of a freshly-created one. The compound container (the topbar-slots
+// slice) IS its own root painting node (the chrome row · the apply-NS-to-host model
+// the old hand recipe used · full-width via the .nuri-stack block-flex), so the
+// region children flex inside it directly — no wrapper to collapse the bar width.
+function applyHostNS(host, nsMap, accent) {
+  const { classes, data } = mergeAttrs(nsMap);
+  if (classes.length) host.classList.add(...classes);
+  for (const [k, v] of Object.entries(data)) host.setAttribute(k, v);
+  if (accent) host.setAttribute('data-accent', accent); // Tier-2 self-scope
+}
+
+// Harvest a compound container's authored children into per-region holders (the
+// topbar-slots slice). A child that is a region sub-element (<nuri-topbar-leading>)
+// contributes its OWN children to that region; any BARE child (no slot wrapper)
+// collects into the default region (trailing). Nodes move into detached <template>s
+// so the container's replaceChildren can't reclaim them; #render clones from there,
+// so a re-render (an accent change) still has the content. Whitespace-only text
+// between elements is dropped (flex-layout-irrelevant).
+function harvestSlots(host, slotTagToPart, defaultSlot) {
+  const slots = {};
+  const holderFor = (part) => (slots[part] ??= document.createElement('template'));
+  for (const child of [...host.childNodes]) {
+    if (child.nodeType === 1) {
+      const part = slotTagToPart[child.tagName.toLowerCase()];
+      if (part) {
+        const tpl = holderFor(part);
+        while (child.firstChild) tpl.content.append(child.firstChild);
+        continue;
+      }
+    }
+    if (child.nodeType === 3 && !child.textContent.trim()) continue;
+    if (defaultSlot) holderFor(defaultSlot).content.append(child);
+  }
+  return slots;
+}
+
 // Defer the box/stack/palette merge onto the inner <button> the pressable owns.
 // The button is created in the pressable's connectedCallback (on mount), so we
 // apply NOW if it already exists, else watch the host's childList for it (a
@@ -406,11 +444,23 @@ export function defineNuriComponent(descriptor, tagName) {
   const primary = anatomy.children.length === 1 ? anatomy.children[0] : undefined;
   const textPrimary = !!primary && primary.el === 'text';
   const iconPrimary = !!primary && primary.el === 'icon';
-  // ERGONOMIC per-part attributes — a non-root part that is NOT the lone primary
-  // gets an attribute named after it (prefix/icon/suffix · the icon-button's
-  // three-part anatomy · createNuriComponent's prefix/suffix/icon props). For a
-  // single-primary component this set is empty (the primary took children/name).
-  const nonPrimaryParts = anatomy.children.filter((c) => c !== primary).map((c) => c.name);
+  // COMPOUND capability (the topbar-slots slice · descriptor-driven · the web twin
+  // of createNuriComponent's): a non-root `view` part is a fillable REGION (a slot)
+  // → the factory generates a sub-element (<nuri-topbar-leading/center/trailing>,
+  // generalizing the retired <nuri-topbar-content>) and the container harvests its
+  // children into that region. Bare children of the container default to the LAST
+  // region (trailing · "just actions"). A leaf-only anatomy is NOT compound.
+  const slotParts = anatomy.children.filter((c) => c.el === 'view').map((c) => c.name);
+  const isCompound = slotParts.length > 0;
+  const defaultSlot = slotParts[slotParts.length - 1];
+  const slotTagToPart = {};
+  for (const part of slotParts) slotTagToPart[`${tagName}-${part}`] = part;
+
+  // ERGONOMIC per-part STRING attributes — a non-root, non-view part that is NOT the
+  // lone primary gets an attribute named after it (prefix/icon/suffix · the icon-
+  // button's three-part anatomy). View REGIONS are slot-filled by sub-elements (not
+  // attrs), so they are excluded. For a single-primary component this set is empty.
+  const nonPrimaryParts = anatomy.children.filter((c) => c !== primary && c.el !== 'view').map((c) => c.name);
   // Interactive iff the root opts in (the `disabled` reflection is generic to any
   // interactive component · button has it, icon-avatar does not).
   const interactive = !!(descriptor.structure.base && descriptor.structure.base.root && descriptor.structure.base.root.interactive);
@@ -431,6 +481,7 @@ export function defineNuriComponent(descriptor, tagName) {
     }
 
     #label = null;
+    #slots = null;
     #built = false;
 
     connectedCallback() {
@@ -440,6 +491,9 @@ export function defineNuriComponent(descriptor, tagName) {
       // Capture the authored label BEFORE the factory tree replaces the children
       // (buildComponent routes `children` to the lone non-root text part).
       if (textPrimary) this.#label = this.textContent.trim();
+      // COMPOUND: harvest the region sub-elements + bare children BEFORE the render
+      // replaces them (cloned per render · the topbar-slots slice).
+      if (isCompound) this.#slots = harvestSlots(this, slotTagToPart, defaultSlot);
       this.#render();
       this.#built = true;
     }
@@ -480,10 +534,36 @@ export function defineNuriComponent(descriptor, tagName) {
         if (ariaLabel != null) props.accessibilityLabel = ariaLabel;
       }
 
+      // COMPOUND (the topbar-slots slice): the HOST is the root painting node (the
+      // chrome row · apply-NS-to-host, full-width via the .nuri-stack block-flex);
+      // its children are the typed REGION views (leading/center/trailing · in
+      // anatomy order), each filled by its harvested slot content (cloned). This is
+      // the factory's compound generation — descriptor-driven, not topbar-specific.
+      if (isCompound) {
+        applyHostNS(this, mergedNSForPart(descriptor, selection, 'root'), props.accent);
+        const content = {};
+        for (const [part, tpl] of Object.entries(this.#slots || {})) {
+          content[part] = tpl.content.cloneNode(true); // a fresh fragment of clones
+        }
+        const ctx = { descriptor, selection, content, base: props };
+        const regions = anatomy.children.map((child) => renderPart(child, ctx)).filter(Boolean);
+        this.replaceChildren(...regions);
+        return;
+      }
+
       this.replaceChildren(buildComponent(descriptor, selection, props));
     }
   }
 
   customElements.define(tagName, NuriElement);
+  // COMPOUND: register an INERT marker element per region (<nuri-topbar-leading> …).
+  // The container harvests their children; they never render themselves. Guarded so
+  // a recipe re-import (idempotent define) does not throw.
+  if (isCompound) {
+    for (const part of slotParts) {
+      const slotTag = `${tagName}-${part}`;
+      if (!customElements.get(slotTag)) customElements.define(slotTag, class extends HTMLElement {});
+    }
+  }
   return NuriElement;
 }

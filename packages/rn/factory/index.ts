@@ -35,9 +35,10 @@ export type {
 } from './resolve';
 
 export { createNuriComponent, NuriSurfaceContext } from './createNuriComponent';
-export type { NuriComponentProps, NuriBaseProps } from './createNuriComponent';
+export type { NuriComponentProps, NuriBaseProps, NuriSlot } from './createNuriComponent';
 
 import { createNuriComponent } from './createNuriComponent';
+import type { NuriSlot } from './createNuriComponent';
 import {
   compositionButtonDescriptor,
   iconAvatarDescriptor,
@@ -45,16 +46,24 @@ import {
   iconButtonDescriptor,
 } from '../contract';
 
-// The three frozen descriptors, each through the SAME factory — the ergonomic,
+// The frozen descriptors, each through the SAME factory — the ergonomic,
 // 1:1-with-web components the RN team consumes (typed named props derived from
 // each descriptor's axes; zero per-component code). These ARE the public Nuri
 // RN components now (the hand-written migration mirrors are retired · R1.5).
 //   <Button variant="solid" size="md" accent="lilac" onPress={…}>Buy</Button>
 //   <IconAvatar variant="soft"><Glyph/></IconAvatar>
-//   <Topbar center="true"><Title/></Topbar>
+//   <Topbar><Topbar.Leading>…</Topbar.Leading><Topbar.Center>…</Topbar.Center>…</Topbar>
 export const Button = createNuriComponent(compositionButtonDescriptor, 'Button');
 export const IconAvatar = createNuriComponent(iconAvatarDescriptor, 'IconAvatar');
-export const Topbar = createNuriComponent(topbarDescriptor, 'Topbar');
+
+// Topbar is the catalog's first COMPOUND component (the slot-based action bar):
+// the factory attaches one typed region sub-component (the runtime is generic ·
+// derived from the anatomy's `view` regions). The cast is the typed VIEW of that
+// generic attachment — `Topbar.Leading/Center/Trailing` ↔ the web sub-elements.
+// Bare children of <Topbar> default to the trailing region (the "just actions" case).
+type TopbarSlots = { Leading: NuriSlot; Center: NuriSlot; Trailing: NuriSlot };
+const TopbarBase = createNuriComponent(topbarDescriptor, 'Topbar');
+export const Topbar = TopbarBase as typeof TopbarBase & TopbarSlots;
 // The icon-anchored control (P11 · the first contract bump): bare = the round
 // icon action; flanked = `<IconButton prefix="Buy Bitcoin" icon={<Glyph/>}
 // suffix="Pay" />` (the prefix/suffix text flanks · the new Part vocab).

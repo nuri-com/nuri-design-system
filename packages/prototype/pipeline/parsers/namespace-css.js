@@ -93,6 +93,7 @@ const EXPAND_WEB = {
   fill: {
     grow: [['flex', '1 0 auto']], // RN {flexGrow:1,flexShrink:0} → the shorthand
     'grow-shrink': [['flex', '1 1 auto'], ['min-inline-size', '0']], // logical, not RN's minWidth
+    even: [['flex', '1 1 0'], ['min-inline-size', '0']], // basis-0 equal split (the topbar edges)
   },
 };
 

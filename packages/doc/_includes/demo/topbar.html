@@ -4,16 +4,17 @@
      demo, the build-free <template> → live preview + code from one source
      (decision 10); it HYDRATES via the runtime injected in _includes/head_custom.html.
      Raw block HTML so kramdown passes the <template> through verbatim. UPDATED at
-     N+42 · the A4 carve to the ACTIVE set (the leading/trailing <nuri-icon-button>
-     was ARCHIVED at N+36 · the convergence coherence line) — the canonical
-     content-pivot story now uses the active-set Button + `center` (mirrors
-     pages/playground/button.html · the N+41 render gate). Per-prop selects deferred. -->
-<nuri-demo controls="theme,accent" label="account" subtitle="content pivot · leading + trailing">
+     the topbar-slots slice to the COMPOUND slot API — the three typed region
+     sub-elements (<nuri-topbar-leading/center/trailing>, generalizing the retired
+     <nuri-topbar-content>). True centring is structural (the even-flex edges), so
+     the centre lands dead-centre between an asymmetric leading + trailing — no
+     `center` attribute. -->
+<nuri-demo controls="theme,accent" label="account" subtitle="compound slots · leading · center · trailing">
   <template>
-    <nuri-topbar center>
-      <nuri-button size="sm" variant="ghost">Back</nuri-button>
-      <nuri-topbar-content>Account</nuri-topbar-content>
-      <nuri-button size="sm" variant="soft">Settings</nuri-button>
+    <nuri-topbar>
+      <nuri-topbar-leading><nuri-button size="sm" variant="ghost">Back</nuri-button></nuri-topbar-leading>
+      <nuri-topbar-center>Account</nuri-topbar-center>
+      <nuri-topbar-trailing><nuri-button size="sm" variant="soft">Settings</nuri-button></nuri-topbar-trailing>
     </nuri-topbar>
   </template>
 </nuri-demo>

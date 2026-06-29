@@ -280,22 +280,28 @@ exports[`genericity + the resolved style tree (snapshots committed) resolved Uni
 
 exports[`genericity + the resolved style tree (snapshots committed) resolved Unistyles recipe — Topbar (lilac/light) 1`] = `
 {
-  "content": {
+  "center": {
     "base": {
+      "alignItems": "center",
+      "flexDirection": "row",
+      "justifyContent": "center",
+    },
+    "compoundVariants": [],
+    "el": "view",
+    "variants": {},
+  },
+  "leading": {
+    "base": {
+      "alignItems": "center",
+      "flexBasis": 0,
+      "flexDirection": "row",
       "flexGrow": 1,
       "flexShrink": 1,
       "minWidth": 0,
     },
     "compoundVariants": [],
     "el": "view",
-    "variants": {
-      "center": {
-        "true": {
-          "alignItems": "center",
-          "justifyContent": "center",
-        },
-      },
-    },
+    "variants": {},
   },
   "root": {
     "base": {
@@ -313,6 +319,20 @@ exports[`genericity + the resolved style tree (snapshots committed) resolved Uni
       "base": "#222013",
     },
     "open": true,
+    "variants": {},
+  },
+  "trailing": {
+    "base": {
+      "alignItems": "center",
+      "flexBasis": 0,
+      "flexDirection": "row",
+      "flexGrow": 1,
+      "flexShrink": 1,
+      "justifyContent": "flex-end",
+      "minWidth": 0,
+    },
+    "compoundVariants": [],
+    "el": "view",
     "variants": {},
   },
 }

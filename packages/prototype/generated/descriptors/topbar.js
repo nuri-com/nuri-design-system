@@ -17,22 +17,34 @@
 
 export const topbarDescriptor = {
   structure: {
-    anatomy: { el: 'view', open: true, parts: { content: { el: 'view' } } },
+    // OPEN root (accepts the region sub-components / bare children) with three
+    // region parts in row order. Authored in VISUAL row order (leading → center
+    // → trailing): both factories walk the anatomy in key order, so this IS the
+    // rendered order (the PART_ORDER re-sort matches it · parity-load-bearing).
+    anatomy: {
+      el: 'view',
+      open: true,
+      parts: {
+        leading: { el: 'view' },
+        center: { el: 'view' },
+        trailing: { el: 'view' },
+      },
+    },
     base: {
+      // The chrome row (height · edge padding · the canvas surface · today's values).
       root: {
         stack: { direction: 'row', align: 'center', gap: 'sm' },
         box: { height: 'lg', paddingStart: 'lg', paddingEnd: 'lg' },
         palette: { chrome: 'canvas' },
       },
-      content: {
-        stack: { fill: 'grow-shrink' },
-      },
-    },
-  },
-  variants: {
-    center: {
-      false: {},
-      true: { content: { stack: { align: 'center', justify: 'center' } } },
+      // The edges: equal-basis-0 flex (`even`) so they take an IDENTICAL share of
+      // the leftover row → the centre is dead-centre. direction:row + align:center
+      // lay the region's content horizontally, vertically centred; leading hugs the
+      // start (default justify), trailing the end.
+      leading: { stack: { direction: 'row', align: 'center', fill: 'even' } },
+      // The centre is NATURAL (flex:none · sized to its content), centred within itself.
+      center: { stack: { direction: 'row', align: 'center', justify: 'center' } },
+      trailing: { stack: { direction: 'row', align: 'center', justify: 'end', fill: 'even' } },
     },
   },
 };
