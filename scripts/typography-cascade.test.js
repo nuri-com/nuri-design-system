@@ -53,7 +53,7 @@ const TYPE_SIZES = ['xs', 'sm', 'md', 'lg', 'xl', '3xl'];
 // with the CSS chain, one is wrong. ──
 const ORACLE = {
   xs:    { fontSizePx: 13, lineHeight: 1.38, letterSpacingEm: 0,      weight: '400' },
-  sm:    { fontSizePx: 15, lineHeight: 1.33, letterSpacingEm: -0.01,  weight: '400' },
+  sm:    { fontSizePx: 14.5, lineHeight: 1.33, letterSpacingEm: -0.01,  weight: '400' },
   md:    { fontSizePx: 17, lineHeight: 1.29, letterSpacingEm: -0.02,  weight: '400' },
   lg:    { fontSizePx: 22, lineHeight: 1.27, letterSpacingEm: -0.015, weight: '400' },
   xl:    { fontSizePx: 30, lineHeight: 1.20, letterSpacingEm: -0.015, weight: '400' },

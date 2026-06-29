@@ -41,6 +41,32 @@ import { inferType } from './primitive.js';
 export const ACCENTS = ['neutral', 'lilac', 'orange'];
 export const THEMES = ['light', 'dark'];
 
+// Emit prototype/generated/accents.js — the WEB reader of the accent registry
+// (zero-build ES module · the browser twin of the ACCENTS list above). GENERATED +
+// committed + diff-gate-guarded (git diff --exit-code packages/prototype/generated).
+// The playground <nuri-demo> accent control reads this as NuriState.AVAILABLE.accent
+// (prototype/demo/available.js) so its toggle set is SPEC-DERIVED, never hand-listed —
+// adding an accent to ACCENTS flows through here with no playground edit. The typed RN
+// twin of the same list is build/palette.ts's `Accent` union.
+export function emitAccentsJs(accents) {
+  const lines = [
+    `/* ──────────────────────────────────────────────────────────────`,
+    ` * NURI · ACCENT REGISTRY · GENERATED · DO NOT EDIT BY HAND`,
+    ` *`,
+    ` * Source · the ACCENTS list (pipeline/parsers/semantic.js · the cross-product axis)`,
+    ` * Emitter · pipeline/tokens-parser.js — run \`npm run build\``,
+    ` *`,
+    ` * ${accents.length} accents · the web reader (zero-build ES module). Drives the`,
+    ` * playground <nuri-demo> accent control so the toggle set is spec-derived; never`,
+    ` * hand-edit this file — add to ACCENTS + the ramp/role data in colours.ts instead.`,
+    ` * ────────────────────────────────────────────────────────────── */`,
+    ``,
+    `export const ACCENTS = [${accents.map((a) => `'${a}'`).join(', ')}];`,
+    ``,
+  ];
+  return lines.join('\n');
+}
+
 // Selectable neutral scales for the --neutral=<scale> CLI flag at
 // pipeline/tokens-parser.js (decision 31). `gray` is kept as the
 // pre-N+5.8 default; `cream` is the new build default per the brand's

@@ -55,6 +55,7 @@ import {
   SET_POLICY,
   resolveSetPolicy,
   primitiveSetFor,
+  emitAccentsJs,
 } from './parsers/semantic.js';
 
 import {
@@ -204,6 +205,7 @@ const JSON_OUT         = resolve(PROTO_GENERATED, 'tokens.json');
 const TOKEN_VARS_OUT   = resolve(PROTO_GENERATED, 'token-vars.ts');
 const DESCRIPTORS_OUT  = resolve(PROTO_GENERATED, 'descriptors');
 const ICONS_JS_OUT     = resolve(PROTO_GENERATED, 'icons.js');
+const ACCENTS_JS_OUT   = resolve(PROTO_GENERATED, 'accents.js');
 // (build/docs · DOC_COMPONENTS · MOVED to @nuri/doc at N+42 · the A4 carve. The
 // doc-gen left @nuri/spec — @nuri/doc owns the generated Markdown · convergence §5.)
 
@@ -457,6 +459,12 @@ async function main() {
   await writeFile(ICONS_OUT, emitIconsTs(ICONS), 'utf8');
   const iconNameCount = Object.keys(ICONS).length;
 
+  // The accent registry · the WEB reader of the ACCENTS list (parsers/semantic.js).
+  // A zero-build ES module the standalone playground reads (NuriState.AVAILABLE.accent
+  // via prototype/demo/available.js) so its accent toggle set is spec-derived — never
+  // hand-listed. Committed + covered by the diff-gate (git diff packages/prototype/generated).
+  await writeFile(ACCENTS_JS_OUT, emitAccentsJs(ACCENTS), 'utf8');
+
   // ── Slice 7 · per-component descriptor emit (N+19 · decision 65 · §9 step 1 · decision 69) ──
   // Under build/descriptors/ (a separate dir · independent of every other slice).
   // §9 step 1 INVERTED the source: each descriptor is HAND-AUTHORED at
@@ -524,6 +532,7 @@ async function main() {
     `\n[tokens-parser] wrote TokenPath union → ${TOKEN_PATHS_OUT}` +
     `\n[tokens-parser] wrote semantic colour var registry → ${TOKEN_VARS_OUT}` +
     `\n[tokens-parser] wrote icon registry (${iconNameCount} glyphs · folder SoT · 2 readers) → ${ICONS_JS_OUT} + ${ICONS_OUT}` +
+    `\n[tokens-parser] wrote accent registry (${ACCENTS.length} accents · spec-derived web reader) → ${ACCENTS_JS_OUT}` +
     descriptorReports.map((r) =>
       `\n[tokens-parser] wrote descriptor '${r.name}' browser-ESM twin (.ts copy dropped · rn imports source) → ${r.out}`,
     ).join('') +

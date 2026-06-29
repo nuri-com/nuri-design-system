@@ -36,7 +36,7 @@ exports[`render-smoke — the ergonomic components mount headless Button — typ
     {
       "alignItems": "center",
       "backgroundColor": "#beaaff",
-      "borderRadius": 6,
+      "borderRadius": 9999,
       "flexDirection": "row",
       "justifyContent": "center",
       "minHeight": 48,

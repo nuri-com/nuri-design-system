@@ -446,7 +446,7 @@
   --nuri-px-28:  28px;
   --nuri-px-36:  36px;
   --nuri-px-48:  48px;
-  --nuri-px-60:  60px;
+  --nuri-px-54:  54px;
   --nuri-px-72:  72px;
   --nuri-px-90:  90px;
 
@@ -573,7 +573,7 @@
   --nuri-type-xs-weight:      400;
 
   /* ── sm · 15 / 20  (1.33) ─────────────────────────────────── */
-  --nuri-type-sm-size:        0.9375rem;
+  --nuri-type-sm-size:        0.90625rem;
   --nuri-type-sm-line-height: 1.33;
   --nuri-type-sm-tracking:    -0.01em;
   --nuri-type-sm-weight:      400;

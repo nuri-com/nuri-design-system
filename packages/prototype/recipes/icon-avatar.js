@@ -22,7 +22,7 @@
  *
  * KNOWN GAP (the post-A3 icon arc · NOT fixed here · first-bump backlog): the recipe's
  * `fill` attribute (the filled glyph weight) is NOT threaded — the factory's renderIcon
- * emits only the routed glyph NAME. No active page (demo.html) uses `fill`.
+ * emits only the routed glyph NAME. No active page (button.html) uses `fill`.
  * ────────────────────────────────────────────────────────────── */
 
 import { defineNuriComponent } from '../factory/factory.js';

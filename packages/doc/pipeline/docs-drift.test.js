@@ -70,7 +70,7 @@ const PAGE_CONTRACT = {
       // colour · the live var() swatch + the default-scope hex in the VALUE column
       '| `variant` | `solid` | `root` | `palette` | **bg** `accent.solid`<br>**fg** `accent.onSolid`<br>**pressed** `accent.solidPressed` | <span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid)"></span> `#12110b`<br><span class="nuri-doc-swatch" style="background:var(--nuri-accent-on-solid)"></span> `#f0eee3`<br><span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid-pressed)"></span> `#242319` |',
       // geometry · the resolved px in the value column
-      '| `size` | `lg` | `root` | `box` | **minHeight** `size.xl`<br>**paddingX** `space.xl`<br>**radius** `radius.md` | `60px`<br>`24px`<br>`12px` |',
+      '| `size` | `lg` | `root` | `box` | **minHeight** `size.xl`<br>**paddingX** `space.xl`<br>**radius** `radius.full` | `54px`<br>`24px`<br>`9999px` |',
       // typography · the two orthogonal inputs (size + emphasis · decision 77) in the
       // Token column, the resolved composite in the Value column (weight 600 = the
       // emphasisWeight override · computed-equivalent with the old fused `mdEm`)

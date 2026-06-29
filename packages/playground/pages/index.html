@@ -15,7 +15,7 @@
 
   <!-- The playground is a FIXED light + cream surface (decision 57): it has no
        theme/neutral toggle of its own. Pin the chrome here on first paint so the
-       cascade matches before stylesheets (mirrors demo.html). A5 dropped the
+       cascade matches before stylesheets (mirrors button.html). A5 dropped the
        shared-docs localStorage hydration: lib/docs/state.js moved to @nuri/doc
        at A4, and a build-free standalone bench owns no doc-site dependency (the
        DAG stays playground → prototype → spec · decision 68). -->
@@ -47,6 +47,12 @@
   <script src="../../prototype/recipes/button.js" type="module"></script>
   <script src="../../prototype/primitives/typography.js" defer></script>
   <script src="../../prototype/recipes/topbar.js" type="module"></script>
+
+  <style>
+    /* This bench is self-contained — hide the shell's DS cross-link (page-local ·
+       the shell stays untouched). */
+    [data-pg-nav="ds"] { display: none; }
+  </style>
 </head>
 <body>
 
@@ -61,17 +67,16 @@
   inside device frames, validating the design system on real layouts —
   the agent-first loop's "composes" step made visible (decision 21).
 
-  Ship list (N+36): the minimal demo bench (demo.html) — the active set
-  only ({primitives + the 3 descriptor recipes}). The pre-axes
+  Ship list: the Button document (button.html) — the descriptor recipe
+  on its variant × size surface, in device-framed board panels. The pre-axes
   compositions (my-vault · composition-prototype) were archived → legacy
   at N+36. The grid is built to grow.
   ═══════════════════════════════════════════════════════════════
 -->
 
 <nuri-playground-shell>
-  <a class="nuri-pg__card" href="demo.html">
-    <span class="nuri-pg__card-name">Demo bench</span>
-    <span class="nuri-pg__card-meta">The minimal bench — Button variants, IconAvatar, a Topbar, and a small card composed from primitives (Box · Stack · Typography · Icon). Exercises only the active axes-model set; becomes the factory-parity bench at the ·2 flip.</span>
+  <a class="nuri-pg__card" href="button.html">
+    <span class="nuri-pg__card-name">Button</span>
   </a>
 </nuri-playground-shell>
 

@@ -99,9 +99,9 @@ describe('Button — the richest descriptor (every namespace + interactive)', ()
   });
 
   test('size axis → box geometry patches (sm/md/lg · decision 41)', () => {
-    expect(r.root.variants.size.sm).toEqual({ minHeight: size.md, paddingHorizontal: space.md, borderRadius: radius.sm });
-    expect(r.root.variants.size.md).toEqual({ minHeight: size.lg, paddingHorizontal: space.lg, borderRadius: radius.sm });
-    expect(r.root.variants.size.lg).toEqual({ minHeight: size.xl, paddingHorizontal: space.xl, borderRadius: radius.md });
+    expect(r.root.variants.size.sm).toEqual({ minHeight: size.md, paddingHorizontal: space.md, borderRadius: radius.full });
+    expect(r.root.variants.size.md).toEqual({ minHeight: size.lg, paddingHorizontal: space.lg, borderRadius: radius.full });
+    expect(r.root.variants.size.lg).toEqual({ minHeight: size.xl, paddingHorizontal: space.xl, borderRadius: radius.full });
   });
 
   test('compoundVariants = the §11 array (pressed colour per variant + scale + opacity)', () => {
@@ -266,7 +266,7 @@ describe('genericity + the resolved style tree (snapshots committed)', () => {
       justifyContent: 'center',
       minHeight: size.lg,
       paddingHorizontal: space.lg,
-      borderRadius: radius.sm,
+      borderRadius: radius.full,
       backgroundColor: acc('lilac', 'solidPressed', 'light'),
       transform: [{ scale: interactionTokens.pressScale }],
     });

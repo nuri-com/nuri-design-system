@@ -154,7 +154,7 @@ export const size: {
   sm:     24,
   md:     36,
   lg:     48,
-  xl:     60,
+  xl:     54,
   '2xl':  72,
   '3xl':  90,
 };
@@ -200,7 +200,7 @@ export type TypeStep = {
 
 export const type: Record<TypeSize, TypeStep> = {
   xs: { fontSize: 13, lineHeight: 1.38, fontWeight: '400', letterSpacing: 0 },
-  sm: { fontSize: 15, lineHeight: 1.33, fontWeight: '400', letterSpacing: -0.01 },
+  sm: { fontSize: 14.5, lineHeight: 1.33, fontWeight: '400', letterSpacing: -0.01 },
   md: { fontSize: 17, lineHeight: 1.29, fontWeight: '400', letterSpacing: -0.02 },
   lg: { fontSize: 22, lineHeight: 1.27, fontWeight: '400', letterSpacing: -0.015 },
   xl: { fontSize: 30, lineHeight: 1.2, fontWeight: '400', letterSpacing: -0.015 },

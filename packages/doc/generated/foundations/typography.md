@@ -16,7 +16,7 @@ The typography foundation — the six type-scale steps (`xs`…`3xl`), each a co
 | Step | Font size (px) | Line height | Weight | Letter spacing (em) |
 | --- | --- | --- | --- | --- |
 | `xs` | `13` | `1.38` | `400` | `0` |
-| `sm` | `15` | `1.33` | `400` | `-0.01` |
+| `sm` | `14.5` | `1.33` | `400` | `-0.01` |
 | `md` | `17` | `1.29` | `400` | `-0.02` |
 | `lg` | `22` | `1.27` | `400` | `-0.015` |
 | `xl` | `30` | `1.2` | `400` | `-0.015` |

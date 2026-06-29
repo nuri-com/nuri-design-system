@@ -56,7 +56,7 @@ type TextStyle = { fontSize: number; lineHeight: number; letterSpacing: number; 
 // P11 · do NOT fill it). The KEYS are the scale; ordered = the CSS emit order.
 export const type = {
   xs:    { fontSize: 13, lineHeight: 1.38, letterSpacing: 0,      weight: 'regular' },
-  sm:    { fontSize: 15, lineHeight: 1.33, letterSpacing: -0.01,  weight: 'regular' },
+  sm:    { fontSize: 14.5, lineHeight: 1.33, letterSpacing: -0.01,  weight: 'regular' },
   md:    { fontSize: 17, lineHeight: 1.29, letterSpacing: -0.02,  weight: 'regular' },
   lg:    { fontSize: 22, lineHeight: 1.27, letterSpacing: -0.015, weight: 'regular' },
   xl:    { fontSize: 30, lineHeight: 1.2,  letterSpacing: -0.015, weight: 'regular' },
