@@ -73,16 +73,22 @@ const JUSTIFY: Record<NonNullable<StackNS['justify']>, string> = {
   between: 'space-between',
   around: 'space-around',
 };
-// fill → the flex tri-state · `grow` = grow to fill, do NOT shrink below content
+// fill → the flex four-state · `grow` = grow to fill, do NOT shrink below content
 // (web flex:1 0 auto · the hand Stack's boolean `fill`) · `grow-shrink` = the
 // Topbar content-pivot (web flex:1 1 auto + min-inline-size:0 · schema §6 / B1.5
-// §3) — grow AND shrink past content. The RN cases are RN-SPELLED multi-prop
-// (flexGrow/flexShrink/minWidth); the web spelling (the `flex` shorthand + the
-// logical min-size) is namespace-css.js's EXPAND_WEB. A mechanism difference, not
-// a name → NOT a registry entry (decision 73 cl.2). Was resolveFill's switch.
+// §3) — grow AND shrink past content (basis auto) · `even` = the equal-basis-0
+// edge (web flex:1 1 0 + min-inline-size:0 · the topbar-slots slice) — two `even`
+// regions take an IDENTICAL share of the leftover row (basis 0 ⇒ pure grow split),
+// so a flex:none centre lands dead-centre with asymmetric edges (the centring
+// forcing function · min-size 0 lets an over-wide edge truncate, not shove the
+// centre). The RN cases are RN-SPELLED multi-prop (flexGrow/flexShrink/flexBasis/
+// minWidth); the web spelling (the `flex` shorthand + the logical min-size) is
+// namespace-css.js's EXPAND_WEB. A mechanism difference, not a name → NOT a
+// registry entry (decision 73 cl.2). Was resolveFill's switch.
 const FILL: Record<NonNullable<StackNS['fill']>, Record<string, string | number>> = {
   grow: { flexGrow: 1, flexShrink: 0 },
   'grow-shrink': { flexGrow: 1, flexShrink: 1, minWidth: 0 },
+  even: { flexGrow: 1, flexShrink: 1, flexBasis: 0, minWidth: 0 },
 };
 
 // ── stack → flex · the mapping as DATA (was resolveStack's if-wall · mirrors

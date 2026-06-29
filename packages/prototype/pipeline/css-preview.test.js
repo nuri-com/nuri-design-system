@@ -200,6 +200,7 @@ const CELLS = [
   ['stack', '.nuri-stack[data-wrap="true"]', 'flex-wrap', 'wrap'],                 // flag
   ['stack', '.nuri-stack[data-fill="grow"]', 'flex', '1 0 auto'],                  // expand (shorthand)
   ['stack', '.nuri-stack[data-fill="grow-shrink"]', 'min-inline-size', '0'],       // expand (logical min)
+  ['stack', '.nuri-stack[data-fill="even"]', 'flex', '1 1 0'],                     // expand · the topbar edges (basis-0 equal split)
 ];
 
 test('Guard C · resolved-value spot-check (generated → final value)', () => {

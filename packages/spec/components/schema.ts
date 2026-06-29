@@ -94,14 +94,20 @@ export type TypeKey = TypeSize;
 // `stack` — flexbox (mirrors the Stack primitive · stack.css). `fill` is
 // stack-only (decision 60.1); its `grow | grow-shrink` enum is B2a (65.3
 // §6 names it · the Topbar pivot's flex:1 1 auto + min-inline-size:0 is
-// `grow-shrink` · B1.5 §3).
+// `grow-shrink` · B1.5 §3). `even` (the topbar-slots slice · the 2nd
+// deliberate post-freeze StackNS add · decision 65 "post-freeze changes
+// are versioned") = the EQUAL-flex-basis-0 edge (flex 1 1 0 + min-size 0):
+// two `even` regions take an identical share of the leftover row, so a
+// `flex:none` centre region lands at the bar's TRUE centre regardless of
+// edge-content asymmetry (the Topbar.Leading/Trailing edges · the centring
+// forcing function). Distinct from `grow-shrink` (basis auto · the old pivot).
 export type StackNS = {
   direction?: 'row' | 'column';
   align?: 'start' | 'center' | 'end' | 'stretch' | 'baseline';
   justify?: 'start' | 'center' | 'end' | 'between' | 'around';
   gap?: SpaceLeaf;
   wrap?: boolean;
-  fill?: 'grow' | 'grow-shrink';
+  fill?: 'grow' | 'grow-shrink' | 'even';
 };
 
 // `box` — the element's own visual box: GEOMETRY ONLY, no colour
@@ -194,9 +200,7 @@ export type NS = {
 
 // The named parts a composition addresses. The structure half (the
 // decision-24.1 page anatomy) declares which a component has; base +
-// variants compose them by name. `root` is the host. leading/trailing
-// are POSITIONAL slots of an `open` primitive (the author places them ·
-// decision 64) — not styled parts, so not enumerated here.
+// variants compose them by name. `root` is the host.
 //
 // `prefix` / `suffix` (P11 · the FIRST real post-freeze contract bump ·
 // the icon-button slice) — the text flanks of an ICON-ANCHORED control
@@ -205,7 +209,16 @@ export type NS = {
 // versioned"): the Guard-F pin (FROZEN_SCHEMA.Part) moves with it, the
 // monorepo gates every projection together (no version-negotiation
 // machinery · one repo, no external consumer to negotiate with).
-export type Part = 'root' | 'prefix' | 'label' | 'icon' | 'suffix' | 'content';
+//
+// `leading` / `center` / `trailing` (the topbar-slots slice · the SECOND
+// contract bump) — the three TYPED REGIONS of a slot-based action bar, the
+// catalog's first COMPOUND component: the factory generates a container +
+// one typed sub-component per region (RN `Topbar.Leading/Center/Trailing` ↔
+// web `<nuri-topbar-leading/center/trailing>`). leading/trailing carry the
+// `even` flex edge; the centre is `flex:none`, so it lands dead-centre with
+// asymmetric edges. They are NAMED, STYLED parts (not the old positional
+// `open`-primitive slots), hence enumerated — same versioned-bump mechanism.
+export type Part = 'root' | 'leading' | 'prefix' | 'label' | 'icon' | 'center' | 'suffix' | 'trailing' | 'content';
 
 // The structural elements a part renders as — view-ish, text-ish, or the
 // glyph leaf. Drives the factory's JSX (and the web painting node);

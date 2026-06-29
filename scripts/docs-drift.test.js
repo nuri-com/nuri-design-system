@@ -182,9 +182,14 @@ const EXPECTED_DESCRIPTORS = {
     parts: ['icon'],
     interactive: [], // static · no `interactive` (65.3 · the IconAvatar story)
   },
+  // topbar (the topbar-slots slice · the 2nd contract bump · the catalog's first
+  // COMPOUND component) — a slot-based action bar with NO variant axes (a static
+  // layout shell): three typed regions (leading/center/trailing · the new Part
+  // vocab), the edges carrying the `even` flex so the centre lands dead-centre.
+  // The stringly-boolean `center` axis is GONE (true centring is structural now).
   topbar: {
-    axes: { center: ['false', 'true'] },
-    parts: ['content'], // the pivot · center lands 100% on it
+    axes: {},
+    parts: ['leading', 'center', 'trailing'],
     interactive: [],
   },
   // icon-button (P11 · the first contract bump) — the icon-anchored control: a
@@ -421,7 +426,9 @@ const FROZEN_SCHEMA = {
       'justify?': "'start' | 'center' | 'end' | 'between' | 'around'",
       'gap?': 'SpaceLeaf',
       'wrap?': 'boolean',
-      'fill?': "'grow' | 'grow-shrink'",
+      // `even` ADDED at the topbar-slots slice (the 2nd post-freeze StackNS add ·
+      // the equal-basis-0 edge for true centring · decision 65 "versioned").
+      'fill?': "'grow' | 'grow-shrink' | 'even'",
     },
     // `minWidth` ADDED at P11 (the icon-button slice · the 2nd deliberate
     // post-freeze BoxNS add · decision 65 "post-freeze changes are versioned"):
@@ -465,9 +472,12 @@ const FROZEN_SCHEMA = {
   // The parts + composition + envelope (65.3 §7 · decision 24.1). `prefix`/
   // `suffix` ADDED at P11 (the icon-button slice · the first real post-freeze
   // contract bump · decision 65 "post-freeze changes are versioned"): the text
-  // flanks of the icon-anchored control. The monorepo gates every projection
-  // together, so this pin move IS the version negotiation.
-  Part: ['root', 'prefix', 'label', 'icon', 'suffix', 'content'],
+  // flanks of the icon-anchored control. `leading`/`center`/`trailing` ADDED at
+  // the topbar-slots slice (the 2nd contract bump): the three typed regions of
+  // the compound action-bar (the factory's compound-component capability). The
+  // monorepo gates every projection together, so this pin move IS the version
+  // negotiation.
+  Part: ['root', 'leading', 'prefix', 'label', 'icon', 'center', 'suffix', 'trailing', 'content'],
   El: ['view', 'text', 'icon'],
   NS: { 'stack?': 'StackNS', 'box?': 'BoxNS', 'typography?': 'TypographyNS', 'palette?': 'PaletteNS', 'interactive?': 'InteractiveNS' },
   PartAnatomy: { 'el': 'El', 'open?': 'boolean', 'parts?': "Partial<Record<Exclude<Part, 'root'>, PartAnatomy>>" },

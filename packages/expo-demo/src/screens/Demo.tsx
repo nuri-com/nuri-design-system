@@ -19,17 +19,10 @@ import {
   IconAvatar,
   Topbar,
   NuriScope,
-  NuriSurfaceContext,
   typeStyle,
   useToken,
 } from '@nuri/rn';
 import { DemoIcon } from './DemoIcon';
-
-// A propless title — inherits the Topbar surface foreground by SCOPE (§12).
-const TopbarTitle: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { foreground } = React.useContext(NuriSurfaceContext);
-  return <Text style={[typeStyle('lg', true), { color: foreground }]}>{children}</Text>;
-};
 
 const SectionLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const muted = useToken('chrome.textMuted') as string;
@@ -41,8 +34,19 @@ export const Demo: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme })
 
   return (
     <View style={[styles.root, { backgroundColor: canvas }]}>
-      <Topbar center="true">
-        <TopbarTitle>Nuri · factory demo</TopbarTitle>
+      {/* The compound slot Topbar — leading + centre + trailing regions composed
+          via the typed sub-components (the centre lands at the bar's TRUE centre
+          with asymmetric edges · the in-bar title is out of scope this slice). */}
+      <Topbar>
+        <Topbar.Leading>
+          <IconAvatar variant="ghost"><DemoIcon name="card" /></IconAvatar>
+        </Topbar.Leading>
+        <Topbar.Center>
+          <DemoIcon name="bitcoin" />
+        </Topbar.Center>
+        <Topbar.Trailing>
+          <Button variant="soft" size="sm" onPress={onToggleTheme}>Theme</Button>
+        </Topbar.Trailing>
       </Topbar>
 
       <ScrollView contentContainerStyle={styles.body}>

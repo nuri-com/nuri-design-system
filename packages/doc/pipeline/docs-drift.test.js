@@ -61,8 +61,8 @@ const REPATHED_HEADER = 'emitter: packages/doc/pipeline/docs.js · re-emit: `npm
 // composite · the live var() swatch + hex · the em-dash for a literal/flag). The
 // enriched cells are the FAITHFUL R1.5 surface — icon-avatar's `subtle` fg-only
 // variant + radius.full (the 9999px sentinel) · topbar's MIXED stack (literals →
-// em-dash, gap → px) + its LONE `center true` token-map row (center=false is an
-// empty partmap · no rows). A deliberate emitter change must update these pins.
+// em-dash, gap → px) + a region edge's all-literal `even`-flex stack (no axes now ·
+// the token map is empty). A deliberate emitter change must update these pins.
 const PAGE_CONTRACT = {
   'composition-button': {
     source: 'button', title: 'Button', nav: 1,
@@ -94,8 +94,9 @@ const PAGE_CONTRACT = {
       // the MIXED stack cell · literals → the em-dash, gap → the resolved px (the
       // value column aligns line-for-line with the Token column)
       '| `root` | `stack` | **direction** `row`<br>**align** `center`<br>**gap** `space.sm` | —<br>—<br>`6px` |',
-      // the LONE token-map row · center=false is an empty partmap (faithful R1.5)
-      '| `center` | `true` | `content` | `stack` | **align** `center`<br>**justify** `center` | —<br>— |',
+      // a region edge · the `even` flex (the topbar-slots slice · true centring) ·
+      // all-literal stack → every value-column cell the em-dash
+      '| `leading` | `stack` | **direction** `row`<br>**align** `center`<br>**fill** `even` | —<br>—<br>— |',
     ],
   },
 };
@@ -182,8 +183,9 @@ const AXIS_CONTRACT = {
     cells: [
       // the spelling table: input → web/rn + the keyword value-source map
       '| `align` | `align-items` | `alignItems` | `start` → `flex-start`<br>`center` → `center`<br>`end` → `flex-end`<br>`stretch` → `stretch`<br>`baseline` → `baseline` |',
-      // the mechanism-divergent expand arm (fill · no registry entry · rn → em-dash)
-      '| `fill` | `flex` | — | `grow` → `flexGrow: 1` · `flexShrink: 0`<br>`grow-shrink` → `flexGrow: 1` · `flexShrink: 1` · `minWidth: 0` |',
+      // the mechanism-divergent expand arm (fill · no registry entry · rn → em-dash) ·
+      // `even` (the topbar-slots slice · the equal-basis-0 edge for true centring)
+      '| `fill` | `flex` | — | `grow` → `flexGrow: 1` · `flexShrink: 0`<br>`grow-shrink` → `flexGrow: 1` · `flexShrink: 1` · `minWidth: 0`<br>`even` → `flexGrow: 1` · `flexShrink: 1` · `flexBasis: 0` · `minWidth: 0` |',
     ],
     includes: ['| Input | Web | RN | Value |'], // the locked grammar (CSS → Web · the N+47 rename)
   },
