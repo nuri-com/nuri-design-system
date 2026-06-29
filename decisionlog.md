@@ -1,5 +1,8 @@
 # Decision log
 
+> **HISTORICAL RECORD — the infra refactor is complete. Current state + how the project works:
+> [`README.md`](./README.md). This log is the immutable *why*; do not cite it operationally.**
+
 Immutable ledger. Decisions append, never renumber. An amendment to
 an existing decision appends as `### N.M amendment · <session>`
 beneath the original; the original body stays verbatim.
