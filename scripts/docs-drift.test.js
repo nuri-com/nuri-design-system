@@ -140,7 +140,7 @@ test('C · doc-stated emitted counts match the live build', () => {
     'llms.txt token-paths member count drifted from build/token-paths.ts',
   );
   assert.equal(
-    extractCount(llms, /\+ radius \((\d+) leaves\)/, 'llms.txt tokens.ts runtime-set leaves'),
+    extractCount(llms, /\+ ratio \((\d+) leaves\)/, 'llms.txt tokens.ts runtime-set leaves'),
     tokenPathMembers,
     'llms.txt tokens.ts leaf count drifted from build/token-paths.ts',
   );
@@ -452,11 +452,15 @@ const FROZEN_SCHEMA = {
     // `minWidth` ADDED at P11 (the icon-button slice · the 2nd deliberate
     // post-freeze BoxNS add · decision 65 "post-freeze changes are versioned"):
     // the min-inline-size floor the icon-anchored bare control squares against.
+    // `aspectRatio` ADDED at the box-aspect-ratio slice (a deliberate, versioned
+    // post-freeze BoxNS add · decision 65 "post-freeze changes are versioned"): the
+    // width:height ratio, the first box field backed by a non-px scale (`ratio`).
     BoxNS: {
       'width?': 'SizeLeaf', 'height?': 'SizeLeaf', 'minHeight?': 'SizeLeaf', 'minWidth?': 'SizeLeaf',
       'padding?': 'SpaceLeaf', 'paddingX?': 'SpaceLeaf', 'paddingY?': 'SpaceLeaf',
       'paddingStart?': 'SpaceLeaf', 'paddingEnd?': 'SpaceLeaf',
       'paddingTop?': 'SpaceLeaf', 'paddingBottom?': 'SpaceLeaf', 'radius?': 'RadiusLeaf',
+      'aspectRatio?': 'RatioLeaf',
     },
     // DE-FUSED at N+45 (decision 77 · the versioned post-freeze change): two
     // ORTHOGONAL inputs (the fused `${TypeSize}Em` arm of TypeKey is gone · P11).
@@ -484,6 +488,9 @@ const FROZEN_SCHEMA = {
     // token SoTs pipeline/ → tokens/; the import paths re-homed accordingly (the schema
     // SHAPE — the derived vocab — is unchanged · this pin just tracks the moved path).
     SizeLeaf: "keyof typeof import('../tokens/dimensions').size",
+    // RatioLeaf · the box-aspect-ratio slice · scale-derived like SizeLeaf (the FULL
+    // `ratio` table IS the vocab · square/card). Members live in the dimensions SoT.
+    RatioLeaf: "keyof typeof import('../tokens/dimensions').ratio",
     Accent: "keyof typeof import('../tokens/colours').accent",
     TypeSize: "keyof typeof import('../tokens/typography').type",
     TypeKey: 'TypeSize', // de-fused at N+45 (decision 77) · the `${TypeSize}Em` arm retired

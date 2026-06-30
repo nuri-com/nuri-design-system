@@ -27,3 +27,4 @@ The agnostic **box** namespace — geometry (sizing · padding · radii) as a Fi
 | `paddingTop` | `padding-block-start` | `paddingTop` | `space` scale |
 | `paddingBottom` | `padding-block-end` | `paddingBottom` | `space` scale |
 | `radius` | `border-radius` | `borderRadius` | `radius` scale |
+| `aspectRatio` | `aspect-ratio` | `aspectRatio` | `ratio` scale |

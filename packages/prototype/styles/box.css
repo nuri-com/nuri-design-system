@@ -91,5 +91,7 @@
   .nuri-box[data-radius="md"] { border-radius: var(--nuri-radius-md); }
   .nuri-box[data-radius="lg"] { border-radius: var(--nuri-radius-lg); }
   .nuri-box[data-radius="full"] { border-radius: var(--nuri-radius-full); }
+  .nuri-box[data-aspect-ratio="square"] { aspect-ratio: var(--nuri-ratio-square); }
+  .nuri-box[data-aspect-ratio="card"] { aspect-ratio: var(--nuri-ratio-card); }
   .nuri-box[data-center="true"] { margin-inline: auto; }
 }

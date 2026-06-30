@@ -89,6 +89,9 @@ export const PROPERTY_SPELLING = {
   paddingBlockStart:  { rn: 'paddingTop',        css: 'padding-block-start' },
   paddingBlockEnd:    { rn: 'paddingBottom',     css: 'padding-block-end' },
   borderRadius:       { rn: 'borderRadius',      css: 'border-radius' },
+  // aspect-ratio is the rare concept whose RN key, web property, and canonical id
+  // all coincide (no logical/physical divergence) — both targets spell it the same.
+  aspectRatio:        { rn: 'aspectRatio',       css: 'aspect-ratio' },
 } as const satisfies PropertySpelling;
 
 // The canonical ids — the registry's OWN keys (typed · typo-safe). resolve-map.ts's

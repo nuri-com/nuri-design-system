@@ -16,7 +16,7 @@
  * (the `./descriptors/<name>` subpaths · pure data · source only):
  *
  *   ./generated/tokens         runtime sets: chrome · accent · space
- *                              · size · radius · type (+ Accent/Theme)
+ *                              · size · radius · ratio · type (+ Accent/Theme)
  *   ./generated/token-paths    the TokenPath discriminated union
  *   ./generated/interaction    the transversal interaction baseline
  *                              ({ pressScale · disabledOpacity } · decision 45)
@@ -32,6 +32,7 @@ import {
   space,
   size,
   radius,
+  ratio,
   type as typeScale,
   emphasisWeight,
 } from './generated/tokens';
@@ -65,6 +66,7 @@ import { tabBarDescriptor } from '@nuri/spec/descriptors/tab-bar';
 import type {
   SizeLeaf,
   RadiusLeaf,
+  RatioLeaf,
   StackNS,
   BoxNS,
   TypographyNS,
@@ -88,6 +90,7 @@ export {
   space,
   size,
   radius,
+  ratio,
   typeScale,
   emphasisWeight,
   icons,
@@ -111,6 +114,7 @@ export type { Accent, Theme, TypeSize, TypeWeight, TypeStep, TokenPath, IconName
 export type {
   SizeLeaf,
   RadiusLeaf,
+  RatioLeaf,
   StackNS,
   BoxNS,
   TypographyNS,
