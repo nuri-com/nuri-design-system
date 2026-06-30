@@ -1,10 +1,11 @@
 {
   "//": "Extends expo/tsconfig.base → moduleResolution 'bundler' + customConditions ['react-native'], so `@nuri/spec/<subpath>` resolves through the spec's exports map to the raw build/*.ts (N+19 · M2 · validates the M1-deferred exports boundary · decision 65.8). noEmit is inherited (base) — `tsc` here is a pure type-check.",
   "//types": "Explicit @types globals. The monorepo hoists @nuri/spec's TYPE-ONLY @types/react-native@0.72 to the root node_modules/@types (stale vs the factory's RN 0.81 own-types) and splits @types/react across nested+root; tsc's automatic ancestor-@types inclusion then misses root's @types/jest while risking those stale/duplicate globals. Naming the set we want pins the test-runner + React JSX globals and excludes the rest (react-native types arrive via the `react-native` package import, not @types).",
+  "//types-node": "`node` is pinned for the primitives-parity gate alone — it reads the web primitives' ATTRS arrays off disk (fs/path/__dirname) to keep them a CHECKED projection of the schema, not a duplicated literal. node globals are orthogonal to the RN/React/jest set (no stale @types/react-native pull-in · the reason the set is named).",
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-    "types": ["jest", "react", "react-test-renderer"]
+    "types": ["jest", "react", "react-test-renderer", "node"]
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
