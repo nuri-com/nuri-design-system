@@ -131,6 +131,10 @@ export const GROUP_NAMES = {
     // Radius added at N+6.1.1 (amendment 36.1) · third sibling under
     // the semantic dimension family · same structural slot.
     { name: 'radius', cssPrefix: '--nuri-radius-', namingPrefix: '--nuri-radius-' },
+    // Ratio added at the box-aspect-ratio slice · fourth sibling · the aspect-ratio
+    // scale (square · card). UNITLESS (a bare number, not a px dimension) but the
+    // CLASSIFY shape is identical — a cascade-invariant singleton at signature ''.
+    { name: 'ratio', cssPrefix: '--nuri-ratio-', namingPrefix: '--nuri-ratio-' },
   ],
 };
 
@@ -212,6 +216,9 @@ export const SET_POLICY = {
   'semantic.space':     { runtime: true, pipelineInline: false },
   'semantic.size':      { runtime: true, pipelineInline: false },
   'semantic.radius':    { runtime: true, pipelineInline: false },
+  // Ratio · the aspect-ratio scale (box-aspect-ratio slice) · cascade-invariant ·
+  // runtime exposed for the box `aspectRatio` field. Unitless (bare number).
+  'semantic.ratio':     { runtime: true, pipelineInline: false },
 };
 
 // Primitive-prefix → set-name lookup. The order does not matter (the
@@ -831,7 +838,7 @@ export function emitTokensTs(resolved, rules, opts = {}) {
   // ordering keeps the diff small when adding a new group; the
   // explicit prefix matches the consumer mental model — colour
   // comes first, dimensions second.
-  const EMIT_ORDER = ['chrome', 'accent', 'space', 'size', 'radius'];
+  const EMIT_ORDER = ['chrome', 'accent', 'space', 'size', 'radius', 'ratio'];
   const sortedNames = [...groups.keys()].sort((a, b) => {
     const ai = EMIT_ORDER.indexOf(a);
     const bi = EMIT_ORDER.indexOf(b);

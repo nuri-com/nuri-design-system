@@ -41,10 +41,13 @@ export const px = { 2: 2, 4: 4, 6: 6, 12: 12, 18: 18, 24: 24, 28: 28, 36: 36, 48
 export type Px = keyof typeof px;
 
 // A semantic leaf is the universal token shape — `value | reference`: EITHER a
-// reference to a px primitive (the cascade) OR a structured literal (the 0 /
-// 9999 sentinels that have no px backing by design). The axis vocab derives via
-// `keyof typeof space` etc.
-type Leaf = { ref: Px } | { value: number; unit: 'px' };
+// reference to a px primitive (the cascade) OR a structured literal. The literal's
+// `unit` discriminates the emit: `px` is a pixel dimension (the 0 / 9999 sentinels
+// that have no px backing by design · emitted `Npx`, 0 unitless), `none` is a BARE
+// number (the `ratio` scale · an aspect-ratio is unit-FREE on both targets — CSS
+// `aspect-ratio: 1.586`, RN `aspectRatio: 1.586` · the emit must NOT append `px`).
+// The axis vocab derives via `keyof typeof space` etc.
+type Leaf = { ref: Px } | { value: number; unit: 'px' | 'none' };
 
 // L2 · space · the T-shirt gap/margin/padding scale between siblings
 // (decision 36). Anchors smaller than size by design.
@@ -78,4 +81,15 @@ export const radius = {
   md:   { ref: 12 },
   lg:   { ref: 18 },
   full: { value: 9999, unit: 'px' },
+} as const satisfies Record<string, Leaf>;
+
+// L2 · ratio · aspect-ratio for a box (width:height). UNITLESS by design — every
+// other scale chains to the px scale (a dimension); a ratio is a BARE number that
+// ports verbatim across targets (CSS `aspect-ratio: 1.586`, RN `aspectRatio: 1.586`
+// · the value is identical, no unit divergence). `square` = 1:1; `card` = 1.586:1
+// (ISO/IEC 7810 ID-1, the credit-card ratio · a payment-card surface). The `none`
+// unit makes the emit drop the `px` the px scales carry (the named risk).
+export const ratio = {
+  square: { value: 1, unit: 'none' },
+  card:   { value: 1.586, unit: 'none' },
 } as const satisfies Record<string, Leaf>;

@@ -15,9 +15,10 @@
  *
  * A leaf resolves to the final CSS literal the semantic var() chain bottoms out at
  * (the value the browser / RN sees):
- *   · { ref: N }        → `${px[N]}px` — the px primitive, value == name (decision 32).
- *   · { value: 0, … }   → '0'          — the collapsed-gutter sentinel, unitless (dec 32).
- *   · { value: V, … }   → `${V}px`     — the 9999 pill sentinel (amendment 36.1).
+ *   · { ref: N }            → `${px[N]}px` — the px primitive, value == name (decision 32).
+ *   · { value: 0, unit:px } → '0'          — the collapsed-gutter sentinel, unitless (dec 32).
+ *   · { value: V, unit:px } → `${V}px`     — the 9999 pill sentinel (amendment 36.1).
+ *   · { value: V, unit:none}→ `${V}`       — the BARE ratio (aspectRatio: 1.586 · NO px).
  * The shape is exhaustive over dimensions.ts's Leaf union — an unrecognised leaf throws.
  * ══════════════════════════════════════════════════════════════════ */
 
@@ -25,7 +26,7 @@ import { ACCENTS, THEMES } from './semantic.js';
 
 // The scales build/tokens.ts exposes as singleton dimension namespaces (decision 36 ·
 // amendment 36.1). Their KEYS are the leaf names (the DTCG shape · no array restated).
-const DIMENSION_SCALES = ['space', 'size', 'radius'];
+const DIMENSION_SCALES = ['space', 'size', 'radius', 'ratio'];
 
 // Resolve a dimensions.ts leaf to its final CSS literal — the same value the live
 // var() chain (--nuri-<scale>-leaf → var(--nuri-px-N) → Npx) bottoms out at. Mirrors
@@ -39,7 +40,12 @@ export function resolveDimLeaf(leaf, px) {
     }
     return `${v}px`;
   }
-  if (leaf && typeof leaf.value === 'number') return leaf.value === 0 ? '0' : `${leaf.value}px`;
+  if (leaf && typeof leaf.value === 'number') {
+    // `none` is a BARE number (the `ratio` scale · RN `aspectRatio: 1.586` — NO `px`,
+    // the named risk); `px` is the pixel dimension (0 collapses unitless · decision 32).
+    if (leaf.unit === 'none') return `${leaf.value}`;
+    return leaf.value === 0 ? '0' : `${leaf.value}px`;
+  }
   throw new Error(`[dimension-tokens] leaf is neither { ref } nor { value, unit }: ${JSON.stringify(leaf)}`);
 }
 

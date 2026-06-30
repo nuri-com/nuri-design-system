@@ -79,6 +79,11 @@ export type SpaceLeaf = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 // corner geometry (box radii · box.css data-radius · the Box BoxRadius).
 export type RadiusLeaf = 'sm' | 'md' | 'lg' | 'full';
 
+// aspect-ratio (box aspectRatio · box.css data-aspect-ratio). Derived STRAIGHT
+// from the dimensions SoT `ratio` table (square · card) — like SizeLeaf, the FULL
+// scale IS the vocab (no curated subset · adding a ratio token extends this union).
+export type RatioLeaf = keyof typeof import('../tokens/dimensions').ratio;
+
 // TypeKey · a type-scale step (decision 54/55 · the 6 sizes). DE-FUSED at
 // N+45 (decision 77): the fused `${TypeSize}Em` arm is GONE — emphasis is an
 // orthogonal `boolean` sibling on TypographyNS now, not baked into the key
@@ -122,6 +127,11 @@ export type StackNS = {
 // minHeight so the BARE form floors to a square (the glyph centres, a small
 // paddingX absorbed by the border-box floor) while the FLANKED form grows past
 // it — the standard icon-button primitive (a real first consumer · decision 30).
+// `aspectRatio` (the box-aspect-ratio slice · the 3rd deliberate post-freeze BoxNS
+// add) is the box's width:height ratio — a `ratio`-scale leaf (square · card), the
+// FIRST box field backed by a non-px scale. UNITLESS on both targets (web
+// `aspect-ratio: var(--nuri-ratio-card)` · RN `{ aspectRatio: 1.586 }`); the `card`
+// payment-card surface is its first consumer (decision 30).
 export type BoxNS = {
   width?: SizeLeaf;
   height?: SizeLeaf;
@@ -135,6 +145,7 @@ export type BoxNS = {
   paddingTop?: SpaceLeaf;
   paddingBottom?: SpaceLeaf;
   radius?: RadiusLeaf;
+  aspectRatio?: RatioLeaf;
 };
 
 // `typography` — font only, NO colour (decision 64 · the single text-style

@@ -49,4 +49,6 @@ export type TokenPath =
   | 'radius.sm'
   | 'radius.md'
   | 'radius.lg'
-  | 'radius.full';
+  | 'radius.full'
+  | 'ratio.square'
+  | 'ratio.card';

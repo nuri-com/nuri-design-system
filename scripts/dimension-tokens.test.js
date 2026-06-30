@@ -78,7 +78,10 @@ const litToNum = (lit) => Number(lit.replace('px', ''));
 const SPACE_FINAL = { none: 0, '2xs': 2, xs: 4, sm: 6, md: 12, lg: 18, xl: 24, '2xl': 36 };
 const SIZE_FINAL = { xs: 18, sm: 24, md: 36, lg: 48, xl: 54, '2xl': 72, '3xl': 90 };
 const RADIUS_FINAL = { sm: 6, md: 12, lg: 18, full: 9999 };
-const DIM_ORACLE = { space: SPACE_FINAL, size: SIZE_FINAL, radius: RADIUS_FINAL };
+// The ratio scale is UNITLESS — the RN values are BARE numbers (no `px` · the named
+// risk surfaces here: a px leak makes litToNum mis-read or the value carry a unit).
+const RATIO_FINAL = { square: 1, card: 1.586 };
+const DIM_ORACLE = { space: SPACE_FINAL, size: SIZE_FINAL, radius: RADIUS_FINAL, ratio: RATIO_FINAL };
 
 test('Guard A · resolveDimensionTokens(dims) ≡ the restated design oracle', () => {
   const tokens = resolveDimensionTokens(dims);
@@ -108,10 +111,12 @@ test('Guard A · the dimensions are context-invariant (identical in every accent
   }
 });
 
-test('Guard A · resolveDimLeaf is exhaustive over the Leaf union (ref · 0-sentinel · px-literal)', () => {
+test('Guard A · resolveDimLeaf is exhaustive over the Leaf union (ref · 0-sentinel · px-literal · unitless ratio)', () => {
   assert.equal(resolveDimLeaf({ ref: 12 }, dims.px), '12px');   // value == name (decision 32)
   assert.equal(resolveDimLeaf({ value: 0, unit: 'px' }, dims.px), '0');       // unitless collapse
   assert.equal(resolveDimLeaf({ value: 9999, unit: 'px' }, dims.px), '9999px'); // pill sentinel
+  assert.equal(resolveDimLeaf({ value: 1.586, unit: 'none' }, dims.px), '1.586'); // BARE ratio · NO px (named risk)
+  assert.equal(resolveDimLeaf({ value: 1, unit: 'none' }, dims.px), '1');          // square · still no px
   assert.throws(() => resolveDimLeaf({ ref: 7 }, dims.px), /not in the px scale/); // 7 ∉ px
   assert.throws(() => resolveDimLeaf({ junk: 1 }, dims.px), /neither/);
 });
@@ -127,7 +132,9 @@ function committedDimBlock(scale) {
   assert.ok(m, `no committed '${scale}' block in build/tokens.ts`);
   const obj = {};
   for (const line of m[1].split('\n')) {
-    const lm = line.match(/^\s*'?([\w-]+)'?:\s*(\d+),/);
+    // decimal-aware: the ratio scale emits bare fractionals (card: 1.586) alongside
+    // the integer px scales — match either (NO trailing `px`, the unitless invariant).
+    const lm = line.match(/^\s*'?([\w-]+)'?:\s*(\d+(?:\.\d+)?),/);
     if (lm) obj[lm[1]] = Number(lm[2]);
   }
   return obj;
@@ -135,7 +142,7 @@ function committedDimBlock(scale) {
 
 test('Guard B · the committed build/tokens.ts dimension values ≡ resolveDimensionTokens(dims)', () => {
   const tokens = resolveDimensionTokens(dims);
-  for (const scale of ['space', 'size', 'radius']) {
+  for (const scale of ['space', 'size', 'radius', 'ratio']) {
     const committed = committedDimBlock(scale);
     const fromSoT = Object.fromEntries(
       Object.entries(tokens)
@@ -161,6 +168,7 @@ const UNION_ORACLE = [
   'space.none', 'space.2xs', 'space.xs', 'space.sm', 'space.md', 'space.lg', 'space.xl', 'space.2xl',
   'size.xs', 'size.sm', 'size.md', 'size.lg', 'size.xl', 'size.2xl', 'size.3xl',
   'radius.sm', 'radius.md', 'radius.lg', 'radius.full',
+  'ratio.square', 'ratio.card',
 ];
 
 // Extract the `| 'x.y'` members from a token-paths.ts source string, in order.

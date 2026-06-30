@@ -19,6 +19,7 @@
  *  · space (singleton): none, 2xs, xs, sm, md, lg, xl, 2xl
  *  · size (singleton): xs, sm, md, lg, xl, 2xl, 3xl
  *  · radius (singleton): sm, md, lg, full
+ *  · ratio (singleton): square, card
  *
  * COLOUR is re-sourced from pipeline/colours.ts (N+59 · Slice 3b·1 ·
  * projection model §3 · decision 80): chrome + accent are flattened
@@ -170,6 +171,15 @@ export const radius: {
   md:    12,
   lg:    18,
   full:  9999,
+};
+
+// ── ratio · singleton ──
+export const ratio: {
+  square: number;
+  card: number;
+} = {
+  square:  1,
+  card:    1.586,
 };
 
 /* ── type · 6 size composites + emphasisWeight · directly-accessed namespace (decision 54 · de-fused 77) ──

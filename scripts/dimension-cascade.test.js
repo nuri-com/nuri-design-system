@@ -82,7 +82,7 @@ test('Guard A · px scale: SoT ≡ committed tokens-primitive.css', () => {
 test('Guard A · space/size/radius semantics: SoT ≡ committed tokens-semantic.css', () => {
   assert.deepEqual(
     sortedEntries(semanticDimMap(dims)),
-    sortedEntries(declMapFromCss(semCss, /^--nuri-(space|size|radius)-/)),
+    sortedEntries(declMapFromCss(semCss, /^--nuri-(space|size|radius|ratio)-/)),
   );
 });
 
@@ -99,7 +99,7 @@ test('Guard B · tokens-primitive.css is fresh (re-emit byte-identical)', () => 
 
 test('Guard B · tokens-semantic.css is fresh (re-emit byte-identical)', () => {
   assert.equal(
-    rewriteDimensionDecls(semCss, semanticDimMap(dims), /^--nuri-(space|size|radius)-/),
+    rewriteDimensionDecls(semCss, semanticDimMap(dims), /^--nuri-(space|size|radius|ratio)-/),
     semCss,
     'tokens-semantic.css dimension decls are stale — run `npm run build -w @nuri/spec`',
   );
@@ -116,6 +116,9 @@ const PX_ORACLE = [2, 4, 6, 12, 18, 24, 28, 36, 48, 54, 72, 90];
 const SPACE_FINAL = { none: '0', '2xs': '2px', xs: '4px', sm: '6px', md: '12px', lg: '18px', xl: '24px', '2xl': '36px' };
 const SIZE_FINAL = { xs: '18px', sm: '24px', md: '36px', lg: '48px', xl: '54px', '2xl': '72px', '3xl': '90px' };
 const RADIUS_FINAL = { sm: '6px', md: '12px', lg: '18px', full: '9999px' };
+// The ratio scale is UNITLESS — the final strings carry NO `px` (the named-risk
+// oracle: a px leak on the aspect-ratio emit fails HERE, in both resolution paths).
+const RATIO_FINAL = { square: '1', card: '1.586' };
 
 test('Guard C · the px scale equals the restated design oracle', () => {
   // The KEYS of `px` are the scale (the DTCG shape · value == name · decision 32).
@@ -132,7 +135,7 @@ test('Guard C · every semantic leaf resolves to the design value — through th
     assert.ok(Object.hasOwn(dims.px, n), `--nuri-px-${n} referenced but absent from px`);
     return `${n}px`; // decision 32 · value == name
   };
-  for (const [scale, table, final] of [['space', dims.space, SPACE_FINAL], ['size', dims.size, SIZE_FINAL], ['radius', dims.radius, RADIUS_FINAL]]) {
+  for (const [scale, table, final] of [['space', dims.space, SPACE_FINAL], ['size', dims.size, SIZE_FINAL], ['radius', dims.radius, RADIUS_FINAL], ['ratio', dims.ratio, RATIO_FINAL]]) {
     for (const [leaf, def] of Object.entries(table)) {
       assert.equal(sotResolve(def), final[leaf], `${scale}.${leaf} resolved through the SoT`);
     }
@@ -157,7 +160,7 @@ test('Guard C · every semantic leaf resolves to the design value — through th
     assert.ok(next !== undefined, `unresolved ${m[1]}`);
     return resolveRhs(next, depth + 1);
   };
-  for (const [scale, final] of [['space', SPACE_FINAL], ['size', SIZE_FINAL], ['radius', RADIUS_FINAL]]) {
+  for (const [scale, final] of [['space', SPACE_FINAL], ['size', SIZE_FINAL], ['radius', RADIUS_FINAL], ['ratio', RATIO_FINAL]]) {
     for (const [leaf, expected] of Object.entries(final)) {
       const rhs = varMap.get(`--nuri-${scale}-${leaf}`);
       assert.ok(rhs !== undefined, `--nuri-${scale}-${leaf} missing from the CSS`);

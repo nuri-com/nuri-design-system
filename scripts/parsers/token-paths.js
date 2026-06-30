@@ -3,7 +3,7 @@
  * ──────────────────────────────────────────────────────────────────
  * Enumerates the TokenPath discriminated union STRAIGHT from the TS SoTs
  * (pipeline/colours.ts chrome + accent role names · pipeline/dimensions.ts
- * space/size/radius keys) — no longer from classifyAll(semanticRules) (the CSS).
+ * space/size/radius/ratio keys) — no longer from classifyAll(semanticRules) (the CSS).
  * This finishes the RN contract's TS-sourcing (projection model §4): the runtime-set
  * leaf paths are exactly the colour roles (camelCased) + the dimension leaf keys, in
  * the same emit order tokens.ts uses (chrome · accent · space · size · radius).
@@ -33,7 +33,7 @@ export function emitTokenPathsTsFromSoT({ chrome, accent }, dims) {
   for (const role of Object.keys(chrome)) paths.push(`chrome.${camelCase(role)}`);
   const firstAccent = Object.keys(accent)[0];
   for (const role of Object.keys(accent[firstAccent])) paths.push(`accent.${camelCase(role)}`);
-  for (const scale of ['space', 'size', 'radius']) {
+  for (const scale of ['space', 'size', 'radius', 'ratio']) {
     for (const leaf of Object.keys(dims[scale])) paths.push(`${scale}.${leaf}`);
   }
 

@@ -258,14 +258,14 @@ export function emitNamespaceCss({ ns, title, fields, scaleVocab, registry }) {
 // the source, is the point. Returns { space, size, radius } as ordered arrays.
 export async function readScaleVocab(semanticCssPath) {
   const css = await readFile(semanticCssPath, 'utf8');
-  const found = { space: [], size: [], radius: [] };
-  const re = /--nuri-(space|size|radius)-([a-z0-9]+)\s*:/g;
+  const found = { space: [], size: [], radius: [], ratio: [] };
+  const re = /--nuri-(space|size|radius|ratio)-([a-z0-9]+)\s*:/g;
   let m;
   while ((m = re.exec(css)) !== null) {
     const [, scale, leaf] = m;
     if (!found[scale].includes(leaf)) found[scale].push(leaf);
   }
-  for (const scale of ['space', 'size', 'radius']) {
+  for (const scale of ['space', 'size', 'radius', 'ratio']) {
     if (found[scale].length === 0) {
       throw new Error(`[namespace-css] readScaleVocab: no --nuri-${scale}-* leaves in ${semanticCssPath}`);
     }
@@ -276,10 +276,13 @@ export async function readScaleVocab(semanticCssPath) {
   if (missing.length) {
     throw new Error(`[namespace-css] readScaleVocab: SPACE_LEAF ${missing.join(', ')} absent from the space scale`);
   }
+  // size/radius/ratio use the FULL scale (the SizeLeaf "derive from the scale" model ·
+  // ratio has no curated subset · both leaves dispatch).
   return {
     space: SPACE_LEAF.filter((l) => found.space.includes(l)),
     size: found.size,
     radius: found.radius,
+    ratio: found.ratio,
   };
 }
 

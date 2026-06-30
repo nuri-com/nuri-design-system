@@ -17,7 +17,8 @@
  * radius PRIMITIVES are never touched):
  *   · tokens-primitive.css → the --nuri-px-* scale ONLY (NOT --nuri-radius-*,
  *     which are the reserved radius primitives · hand · decision 32 / 36.1).
- *   · tokens-semantic.css  → --nuri-{space,size,radius}-* (the L2 semantics).
+ *   · tokens-semantic.css  → --nuri-{space,size,radius,ratio}-* (the L2 semantics ·
+ *     ratio is UNITLESS · a bare number, not a px dimension · the aspect-ratio scale).
  *
  * Each rewrite asserts the SoT and the CSS own EXACTLY the same leaves in their
  * families (the drift guard · both directions) — a px primitive added to one but
@@ -48,22 +49,27 @@ export async function loadDimensions(dimensionsTsPath) {
   const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypes(src)));
   // A strip regression must fail LOUD here, not silently emit garbage: every
   // SoT table must survive the strip as a non-empty object.
-  for (const name of ['px', 'space', 'size', 'radius']) {
+  for (const name of ['px', 'space', 'size', 'radius', 'ratio']) {
     if (!mod[name] || typeof mod[name] !== 'object' || !Object.keys(mod[name]).length) {
       throw new Error(`[dimension-css] loadDimensions: ${name} missing/empty (strip regression?)`);
     }
   }
-  return { px: mod.px, space: mod.space, size: mod.size, radius: mod.radius };
+  return { px: mod.px, space: mod.space, size: mod.size, radius: mod.radius, ratio: mod.ratio };
 }
 
 // ── SoT leaf → the CSS declaration RHS ──────────────────────────────
 // A reference (`{ ref: N }`) becomes `var(--nuri-px-N)` (the cascade); a
-// structured literal (`{ value, unit }`) becomes its CSS spelling — 0 stays
-// unitless `0` by Nuri convention (decision 32), else `${value}px`. The shape
-// is exhaustive over Leaf — an unrecognised leaf throws.
+// structured literal (`{ value, unit }`) becomes its CSS spelling, discriminated by
+// `unit`: `none` is a BARE number (the `ratio` scale · `aspect-ratio: 1.586` — NO
+// `px`, the named risk), `px` is a pixel dimension — 0 stays unitless `0` by Nuri
+// convention (decision 32), else `${value}px`. The shape is exhaustive over Leaf —
+// an unrecognised leaf throws.
 export function leafRhs(leaf) {
   if (leaf && 'ref' in leaf) return `var(--nuri-px-${leaf.ref})`;
-  if (leaf && typeof leaf.value === 'number') return leaf.value === 0 ? '0' : `${leaf.value}px`;
+  if (leaf && typeof leaf.value === 'number') {
+    if (leaf.unit === 'none') return `${leaf.value}`;
+    return leaf.value === 0 ? '0' : `${leaf.value}px`;
+  }
   throw new Error(`[dimension-css] leaf is neither { ref } nor { value, unit }: ${JSON.stringify(leaf)}`);
 }
 
@@ -74,10 +80,10 @@ export function primitiveDimMap({ px }) {
   return new Map(Object.keys(px).map((n) => [`--nuri-px-${n}`, `${n}px`]));
 }
 
-// Semantic file: the space/size/radius leaves → var(--nuri-px-N) | literal.
-export function semanticDimMap({ space, size, radius }) {
+// Semantic file: the space/size/radius/ratio leaves → var(--nuri-px-N) | literal.
+export function semanticDimMap({ space, size, radius, ratio }) {
   const map = new Map();
-  for (const [scale, table] of [['space', space], ['size', size], ['radius', radius]]) {
+  for (const [scale, table] of [['space', space], ['size', size], ['radius', radius], ['ratio', ratio]]) {
     for (const [leaf, def] of Object.entries(table)) {
       map.set(`--nuri-${scale}-${leaf}`, leafRhs(def));
     }
@@ -126,7 +132,7 @@ export async function flipDimensionCss({ primitivePath, semanticPath, dims }) {
   );
   await writeFile(primitivePath, primitive, 'utf8');
   const semantic = rewriteDimensionDecls(
-    await readFile(semanticPath, 'utf8'), semanticDimMap(dims), /^--nuri-(space|size|radius)-/,
+    await readFile(semanticPath, 'utf8'), semanticDimMap(dims), /^--nuri-(space|size|radius|ratio)-/,
   );
   await writeFile(semanticPath, semantic, 'utf8');
   return { primitive, semantic };

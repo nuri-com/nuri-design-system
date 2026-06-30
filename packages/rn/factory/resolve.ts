@@ -30,6 +30,7 @@ import {
   space,
   size,
   radius,
+  ratio,
 } from '../contract';
 import type {
   NS,
@@ -78,7 +79,7 @@ export type State = { pressed?: boolean; disabled?: boolean };
 // half of the agnostic emit (web/CSS bind the same tags to their own scale
 // repr). The shared table says `from the space scale`; THIS says `space` = the
 // numeric scale object. ──
-const SCALES: Record<ScaleName, Record<string, number>> = { space, size, radius };
+const SCALES: Record<ScaleName, Record<string, number>> = { space, size, radius, ratio };
 
 // applyFields · the GENERIC RN APPLIER for the agnostic namespaces (box · stack).
 // Walks the shared mapping table (resolve-map.ts) and emits an RN ViewStyle —

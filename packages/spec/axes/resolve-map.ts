@@ -40,7 +40,7 @@ import type { CanonicalId } from './property-spelling';
 // the per-target applier binds the tag to its scale repr (RN → the numeric
 // scale objects · web → the CSS-var scale). NOT the resolved value (that is
 // the emit's, and differs per target).
-export type ScaleName = 'space' | 'size' | 'radius';
+export type ScaleName = 'space' | 'size' | 'radius' | 'ratio';
 
 // One field = one namespace input key → one style property (or, for `expand`,
 // a small multi-prop set) + HOW its value derives. The arms are tagged so the
@@ -111,11 +111,13 @@ export const STACK_FIELDS: Record<keyof StackNS, Field> = {
 // mapping as DATA (was resolveBox's if-wall) ──
 // ⚠ ORDER IS LOAD-BEARING (see above). Order: width · height · minHeight ·
 // minWidth · padding · paddingX · paddingY · paddingStart · paddingEnd ·
-// paddingTop · paddingBottom · radius. The `prop` is a CANONICAL id (the
-// CSS-logical concept · property-spelling.ts), so the box INPUT keys
+// paddingTop · paddingBottom · radius · aspectRatio. The `prop` is a CANONICAL id
+// (the CSS-logical concept · property-spelling.ts), so the box INPUT keys
 // (width/paddingX/radius) and the canonical ids (inlineSize/paddingInline/
 // borderRadius) differ — the registry's `rn` column maps each back to RN's
-// physical prop (width/paddingHorizontal/…).
+// physical prop (width/paddingHorizontal/…). `aspectRatio` is the geometry-group
+// tail: a `ratio`-scale field (the credit-card surface · unitless on both targets ·
+// canonical id == RN prop == web `aspect-ratio`, no de-logicalization).
 export const BOX_FIELDS: Record<keyof BoxNS, Field> = {
   width: { via: 'scale', prop: 'inlineSize', scale: 'size' },
   height: { via: 'scale', prop: 'blockSize', scale: 'size' },
@@ -129,4 +131,5 @@ export const BOX_FIELDS: Record<keyof BoxNS, Field> = {
   paddingTop: { via: 'scale', prop: 'paddingBlockStart', scale: 'space' },
   paddingBottom: { via: 'scale', prop: 'paddingBlockEnd', scale: 'space' },
   radius: { via: 'scale', prop: 'borderRadius', scale: 'radius' },
+  aspectRatio: { via: 'scale', prop: 'aspectRatio', scale: 'ratio' },
 };

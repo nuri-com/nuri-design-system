@@ -359,6 +359,15 @@ const SEMANTIC_EXPECTED = {
                           lilac:   { light: '18px', dark: '18px' } },
   '--nuri-radius-full': { neutral: { light: '9999px', dark: '9999px' },
                           lilac:   { light: '9999px', dark: '9999px' } },
+
+  // ── Semantic ratio · cascade-invariant · UNITLESS (aspect-ratio · no px backing) ──
+  // The bare-number aspect-ratio scale (box-aspect-ratio slice · square=1, card=1.586).
+  // The named-risk surface: a px leak would show as '1px'/'1.586px' here. NO
+  // --nuri-px-N chain (the ratio sits outside the px scale by design).
+  '--nuri-ratio-square': { neutral: { light: '1',     dark: '1'     },
+                           lilac:   { light: '1',     dark: '1'     } },
+  '--nuri-ratio-card':   { neutral: { light: '1.586', dark: '1.586' },
+                           lilac:   { light: '1.586', dark: '1.586' } },
 };
 
 test('resolveSemanticCrossProduct · every semantic token matches the hand-derived oracle', async () => {

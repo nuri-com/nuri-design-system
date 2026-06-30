@@ -24,11 +24,12 @@ import {
   size,
   space,
   radius,
+  ratio,
   typeScale,
   emphasisWeight,
   interaction as interactionTokens,
 } from '../../contract';
-import type { Accent, Theme } from '../../contract';
+import type { Accent, Theme, Descriptor } from '../../contract';
 
 // accentTokens is now accent-MAJOR two-layer (N+59 · Slice 3b·1 · projection model
 // §3): a role is a flat hex (theme-invariant · the P4-frozen brand) or a {light,dark}
@@ -278,6 +279,22 @@ describe('genericity + the resolved style tree (snapshots committed)', () => {
 
   test('resolved Unistyles recipe — Topbar (lilac/light)', () => {
     expect(recipeFor(topbarDescriptor, 'lilac', 'light')).toMatchSnapshot();
+  });
+
+  // box `aspectRatio` (the box-aspect-ratio slice) — the RN render-path proof for the
+  // new `ratio`-scale field. A minimal ad-hoc descriptor carries box{aspectRatio:'card'}
+  // on root; flattenPart (the render path) resolves it through SCALES.ratio → the RN
+  // ViewStyle. ⚠ THE NAMED RISK: the value must be the BARE number 1.586 (ratio.card),
+  // NOT a '1.586px' string — RN/Yoga aspectRatio is unitless. typeof-number asserted.
+  test('box aspectRatio — resolves to { aspectRatio: ratio.card } as a bare number (no px · the named risk)', () => {
+    const theme = buildNuriTheme('neutral', 'light');
+    const ratioBox: Descriptor<Record<string, never>> = {
+      structure: { anatomy: { el: 'view' }, base: { root: { box: { aspectRatio: 'card' } } } },
+    };
+    const style = flattenPart(ratioBox, theme, 'light', 'root', {}, {}).style;
+    expect(style).toEqual({ aspectRatio: ratio.card });
+    expect(style.aspectRatio).toBe(1.586);
+    expect(typeof style.aspectRatio).toBe('number'); // unitless · not '1.586px'
   });
 
   test('flattenPart concrete cell — Button solid/md pressed (the render path)', () => {

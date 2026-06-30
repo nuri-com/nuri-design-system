@@ -358,3 +358,27 @@
   /* radius.full · literal 9999px sentinel · pills (rectangular) + circles (square w=h); browser clamps to min(width/2, height/2) */
   --nuri-radius-full: 9999px;
 }
+
+
+/* ══════════════════════════════════════════════════════════════
+ * 10 · RATIO · semantic vocabulary · aspect-ratio (width : height)
+ *
+ * Role · the box `aspectRatio` field reaches for these to declare a
+ * surface's width:height. UNLIKE space/size/radius these are UNITLESS
+ * — a bare number, NOT a --nuri-px-N alias (an aspect-ratio carries no
+ * length unit · CSS `aspect-ratio: 1.586`, RN `aspectRatio: 1.586` ·
+ * the value is identical on both targets, no unit divergence). They sit
+ * OUTSIDE the px scale by design (the named-risk surface · no `px`).
+ * square = 1:1; card = 1.586:1 (ISO/IEC 7810 ID-1 · the credit-card /
+ * payment-card surface). Box-aspect-ratio slice.
+ * ══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* GENERATED from the TS SoT (pipeline/dimensions.ts · decision 70 · dec-2
+   * reversed for the dimension layer · UNITLESS · the bare-number ratio). Edit the
+   * SoT, not these values — `npm run build` regenerates them in place (Slice 0). */
+  /* ratio.square · 1:1 · a square surface (avatar tile, icon plate) */
+  --nuri-ratio-square: 1;
+  /* ratio.card   · 1.586:1 · the credit-card / payment-card surface (ISO 7810 ID-1) */
+  --nuri-ratio-card:   1.586;
+}
