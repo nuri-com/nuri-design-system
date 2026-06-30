@@ -51,24 +51,18 @@ import type { ResolvedNode } from './resolve';
 import { NuriSurfaceContext } from './createNuriComponent';
 import { STACK_FIELDS, BOX_FIELDS } from '@nuri/spec/resolve-map';
 import { opts as INTERACTIVE_OPTS } from '@nuri/spec/interactive-effects';
+import { PALETTE_KEYS, TYPOGRAPHY_KEYS } from '@nuri/spec/descriptors/schema';
 
-// ── the per-namespace RUNTIME key tables (the schema-derived SoT) ──
+// ── the per-namespace RUNTIME key tables (the schema-derived SoT · ONE per ns) ──
 // box/stack/interactive come STRAIGHT from the shared mapping tables (the same
-// the appliers walk); palette/typography have no Field table (bespoke RN
-// mechanism), so their key list is a `satisfies Record<keyof …NS, 0>` map —
-// total over the namespace by construction (a new schema key is a COMPILE error
-// here), the SAME totality trick that keeps STACK_FIELDS honest. ⚠ The grab
-// order below matches NS_ORDER (stack → box → typography → palette → interactive)
-// so a merged node's style key order is identical to the factory's.
+// the appliers walk); palette/typography from the schema's own runtime key lists
+// (PALETTE_KEYS/TYPOGRAPHY_KEYS · totality-pinned at the source · @nuri/spec). No
+// key set is hand-listed here. ⚠ The grab order below matches NS_ORDER (stack →
+// box → typography → palette → interactive) so a merged node's style key order is
+// identical to the factory's.
 const STACK_KEYS = Object.keys(STACK_FIELDS);
 const BOX_KEYS = Object.keys(BOX_FIELDS);
 const INTERACTIVE_KEYS = Object.keys(INTERACTIVE_OPTS);
-const PALETTE_KEYS = Object.keys(
-  { variant: 0, accent: 0, muted: 0, chrome: 0 } satisfies Record<keyof PaletteNS, 0>,
-);
-const TYPOGRAPHY_KEYS = Object.keys(
-  { size: 0, emphasis: 0 } satisfies Record<keyof TypographyNS, 0>,
-);
 
 // pickNS · bucket flat props into the merged NS by key membership. A
 // classification (which namespace owns a key), NOT a style mapping — the style

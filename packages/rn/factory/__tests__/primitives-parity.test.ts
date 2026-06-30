@@ -32,20 +32,15 @@ import * as path from 'path';
 import { View, Stack, Text, Pressable, Screen, Scroll } from '../primitives';
 import { STACK_FIELDS, BOX_FIELDS } from '@nuri/spec/resolve-map';
 import { opts as INTERACTIVE_OPTS } from '@nuri/spec/interactive-effects';
-import type { PaletteNS, TypographyNS } from '../../contract';
+import { PALETTE_KEYS, TYPOGRAPHY_KEYS } from '@nuri/spec/descriptors/schema';
 
-// ── schema namespace keys · the runtime SoT (independent of primitives.tsx) ──
+// ── schema namespace keys · ONE runtime SoT per namespace, read from @nuri/spec
+// (independent of primitives.tsx · the gate must read the SCHEMA, not the wrapper
+// it checks). box/stack/interactive from the shared Field/opts tables;
+// palette/typography from the schema's totality-pinned runtime key lists. ──
 const STACK_KEYS = Object.keys(STACK_FIELDS);
 const BOX_KEYS = Object.keys(BOX_FIELDS);
 const INTERACTIVE_KEYS = Object.keys(INTERACTIVE_OPTS);
-// palette/typography have no Field table — pin them with a totality `satisfies`
-// (a schema add/remove/rename breaks this line, the Guard-F mechanism one level out).
-const PALETTE_KEYS = Object.keys(
-  { variant: 0, accent: 0, muted: 0, chrome: 0 } satisfies Record<keyof PaletteNS, 0>,
-);
-const TYPOGRAPHY_KEYS = Object.keys(
-  { size: 0, emphasis: 0 } satisfies Record<keyof TypographyNS, 0>,
-);
 
 const sorted = (a: readonly string[]): string[] => [...a].sort();
 const union = (...lists: string[][]): string[] => sorted([...new Set(lists.flat())]);

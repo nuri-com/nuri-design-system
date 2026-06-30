@@ -205,6 +205,27 @@ export type NS = {
   interactive?: InteractiveNS;
 };
 
+// ── The RUNTIME namespace-key lists for the two BESPOKE namespaces ──────
+// The primitive layer (the hand-authorable wrappers · @nuri/rn) and its parity
+// gate need each namespace's key set AT RUNTIME (to bucket flat props · to assert
+// web-ATTRS ≡ RN-props ≡ schema keys). box/stack get theirs from the shared Field
+// tables (`Object.keys(STACK_FIELDS/BOX_FIELDS)` · @nuri/spec/resolve-map) and
+// interactive from the opts table (@nuri/spec/interactive-effects) — one runtime
+// SoT each. palette/typography are NOT in the agnostic Field table (bespoke ·
+// decision 67/73), and their own axis SoTs (palette-surface.ts · typography-axis.ts)
+// are type-stripped + data-URL imported by node, so they may carry NO imports —
+// they cannot host a `keyof …NS` totality pin. So the list lives HERE, beside the
+// type it is pinned to: `satisfies Record<keyof …NS, 0>` keeps it TOTAL over the
+// namespace by construction (a field added/removed/renamed on PaletteNS/TypographyNS
+// is a COMPILE error on this line · the same totality trick that keeps STACK_FIELDS
+// honest), so the runtime list can never silently diverge from the frozen schema.
+export const PALETTE_KEYS = Object.keys(
+  { variant: 0, accent: 0, muted: 0, chrome: 0 } satisfies Record<keyof PaletteNS, 0>,
+);
+export const TYPOGRAPHY_KEYS = Object.keys(
+  { size: 0, emphasis: 0 } satisfies Record<keyof TypographyNS, 0>,
+);
+
 // ══════════════════════════════════════════════════════════════════
 // THE PARTS · anatomy (structure) + the per-part namespace maps
 // ══════════════════════════════════════════════════════════════════
