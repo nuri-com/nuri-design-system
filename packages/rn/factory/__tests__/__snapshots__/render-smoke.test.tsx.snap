@@ -67,6 +67,8 @@ exports[`render-smoke — the ergonomic components mount headless Button — typ
 
 exports[`render-smoke — the ergonomic components mount headless IconAvatar — static (View) · the register glyph inherits the scope fg 1`] = `
 <View
+  accessibilityElementsHidden={true}
+  importantForAccessibility="no-hide-descendants"
   style={
     {
       "alignItems": "center",

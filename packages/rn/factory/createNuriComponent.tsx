@@ -129,6 +129,7 @@ function renderPart<A extends Axes>(
   node: AnatomyNode,
   ctx: RenderCtx<A>,
   inheritedFg: string | undefined,
+  isRoot: boolean,
 ): React.ReactElement | null {
   // A leaf part (text / icon) with no routed content renders NOTHING — the
   // optional-flank collapse (an icon-button with no prefix/suffix is just the
@@ -142,9 +143,20 @@ function renderPart<A extends Axes>(
   });
   const fg = flat.node.fg ?? inheritedFg;
 
+  // F-DECORATIVE-1 · a decorative descriptor (IconAvatar · `decorative: true`)
+  // hides the WHOLE host subtree from the a11y tree. RN has no single `aria-hidden`
+  // (web's idiom · factory.js:536) — the platform-split needs BOTH props together:
+  // `accessibilityElementsHidden` (iOS) + `importantForAccessibility` (Android).
+  // Applied ONCE on the ROOT host only (not per recursed part — the subtree hides as
+  // one), on BOTH the View and Pressable arms (correct regardless of interactivity).
+  const a11yHide =
+    isRoot && ctx.descriptor.decorative
+      ? { accessibilityElementsHidden: true, importantForAccessibility: 'no-hide-descendants' as const }
+      : null;
+
   switch (node.el) {
     case 'view': {
-      const childEls = node.children.map((child) => renderPart(child, ctx, fg));
+      const childEls = node.children.map((child) => renderPart(child, ctx, fg, false));
       // Keyed children: part elements are keyed by name; the part's own content
       // (its escape-hatch / pivot children) gets a stable key too.
       const ownContent = ctx.content[node.name];
@@ -171,6 +183,7 @@ function renderPart<A extends Axes>(
             accessibilityRole="button"
             accessibilityState={{ disabled: ctx.disabled }}
             accessibilityLabel={ctx.accessibilityLabel}
+            {...a11yHide}
             style={({ pressed }) =>
               flattenPart(ctx.descriptor, ctx.theme, ctx.mode, node.name, ctx.selection, {
                 pressed,
@@ -183,7 +196,7 @@ function renderPart<A extends Axes>(
         );
       }
       return (
-        <View key={node.name} style={flat.style}>
+        <View key={node.name} style={flat.style} {...a11yHide}>
           {body}
         </View>
       );
@@ -356,6 +369,7 @@ export function createNuriComponent<A extends Axes>(
         accessibilityLabel: base.accessibilityLabel,
       },
       ambient.foreground,
+      true,
     );
   };
 

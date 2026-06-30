@@ -75,6 +75,36 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
+  test('IconAvatar — DECORATIVE · the root host hides its subtree from AT (F-DECORATIVE-1)', () => {
+    // `decorative: true` (icon-avatar.ts) → the RN projection wires the platform-split
+    // hide-pair on the ROOT host: accessibilityElementsHidden (iOS) +
+    // importantForAccessibility="no-hide-descendants" (Android). This is the RN catch-up
+    // to web's single `aria-hidden` (factory.js:536) — the production a11y gap (D4).
+    const tr = render(
+      <NuriThemeProvider>
+        <IconAvatar variant="soft" icon="apple" />
+      </NuriThemeProvider>,
+    );
+    const root = tr.toJSON() as TestRenderer.ReactTestRendererJSON;
+    expect(root.props.accessibilityElementsHidden).toBe(true);
+    expect(root.props.importantForAccessibility).toBe('no-hide-descendants');
+  });
+
+  test('Button — NON-decorative · the root host does NOT carry the hide-pair', () => {
+    // The other direction: a descriptor with no `decorative` flag never gets the pair,
+    // so an interactive control stays in the a11y tree (it has a name + a role).
+    const tr = render(
+      <NuriThemeProvider>
+        <Button variant="solid" size="md" onPress={() => undefined}>
+          Buy Bitcoin
+        </Button>
+      </NuriThemeProvider>,
+    );
+    const root = tr.toJSON() as TestRenderer.ReactTestRendererJSON;
+    expect(root.props.accessibilityElementsHidden).toBeUndefined();
+    expect(root.props.importantForAccessibility).toBeUndefined();
+  });
+
   test('Topbar — COMPOUND slots · leading/center/trailing regions composed via sub-components', () => {
     const tr = render(
       <NuriThemeProvider>
