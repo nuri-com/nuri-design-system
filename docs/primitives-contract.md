@@ -1,0 +1,313 @@
+# The primitive layer — the map + the web↔RN parity contract
+
+> **Status:** AUDIT (read-only · foundation). This is the authoritative inventory of
+> `@nuri/prototype`'s primitive layer and the spec of the parity contract that keeps the web and
+> RN primitive surfaces in sync. It maps what exists, classifies every element, lists the gap, and
+> specifies the contract mechanism + the follow-up sequencing. It changes **no** code — the
+> implementation briefs are spun from §4.
+>
+> **When in doubt: code wins, then `README.md`, then this doc.** Every load-bearing claim cites
+> `file:line`.
+
+---
+
+## 0. The settled framing (encoded, not relitigated)
+
+The operator + coordinator have settled the architecture; this audit encodes it:
+
+- **`View` is the structural primitive** — the painting node carrying **box ⊕ stack ⊕ palette**, the
+  1:1 of RN `<View>`. On web `<nuri-view>` already *is* that merged node
+  (`<nuri-view class="nuri-box nuri-stack nuri-palette" data-…>` ·
+  [view.js:32](packages/prototype/primitives/view.js:32)).
+- **box / stack / palette / interactive / typography are NAMESPACES** (disjoint style slices ·
+  [schema.ts:200-206](packages/spec/components/schema.ts:200)), not standalone primitives. At the
+  API level we expose **thin wrapper components over View**.
+- **The hand-authorable primitive layer = `Stack` + `View` only. `Box` is DROPPED** — its geometry
+  (padding/radius/sizing/aspect-ratio) is the **box namespace**, which already lands on `View`. A
+  "geometry-without-palette" box is not a distinct intent; `View` covers it. `Stack` stays — flex
+  layout is the one dominant, distinct structural intent.
+  - Guideline: **Stack = laying out children · View = a surface/box/leaf.**
+- **Both targets implement the primitives as thin wrappers** that forward namespace props through
+  the shared `resolve-map`: web = a custom element + the generated namespace CSS; RN = a component
+  → `<View style={…}>`. **RN's hand-authorable wrappers DON'T exist yet — that is the gap (§2).**
+
+### 0.1 One reconciliation the code forces
+
+The framing names **four** parity primitives — *view · text · icon · pressable*. The frozen schema
+`El` union has only **three** members:
+
+```
+El = 'view' | 'text' | 'icon'
+```
+[schema.ts:237](packages/spec/components/schema.ts:237) · pinned by Guard F as
+`El: ['view', 'text', 'icon']` ([scripts/docs-drift.test.js:507](scripts/docs-drift.test.js:507)).
+
+**Pressable is not a 4th `El` — it is the `interactive`-flagged `view`.** The factory renders a
+node as `<Pressable>` when `flat.node.interactive` is set, otherwise as `<View>`
+([createNuriComponent.tsx:165-189](packages/rn/factory/createNuriComponent.tsx:165)); the
+`interactive` opt-in is the `InteractiveNS` namespace
+([schema.ts:191-195](packages/spec/components/schema.ts:191)). The web mirror is identical:
+`<nuri-view>` is the static host, `<nuri-pressable>` is "the static counterpart … the el:'view'+
+interactive case" ([view.js:8-9](packages/prototype/primitives/view.js:8),
+[pressable.js:3-6](packages/prototype/primitives/pressable.js:3)).
+
+So: **3 `El` cases, 4 parity primitives** — View, Text, Icon, and Pressable (= View+interactive).
+This doc uses the 4-primitive parity set while keeping the `El` union at three (a Pressable wrapper
+is built on the interactive-view path, *not* by adding an `El` member — adding one is a versioned
+Guard-F bump).
+
+---
+
+## 1. The primitive registry
+
+Every `packages/prototype/primitives/*` element + the relevant generated namespace CSS, each in
+**exactly one** bucket. "Web impl" = the live custom element; "RN impl" = a **hand-authorable**
+exported component (the factory's *internal* `el`-render does not count — it is not a primitive a
+consumer can write).
+
+### 1.A — CONTRACTED (must have web + RN parallel impls)
+
+| Primitive | Web element / file | Web? | RN hand-authorable? | Namespace / prop surface (schema SoT) |
+|---|---|---|---|---|
+| **View** | `<nuri-view>` · [view.js](packages/prototype/primitives/view.js) + [view.css](packages/prototype/primitives/view.css) | ✅ the merged box⊕stack⊕palette host | ❌ — only the factory's internal `el:'view'` render ([createNuriComponent.tsx:185](packages/rn/factory/createNuriComponent.tsx:185)) | `box` + `stack` + `palette` ([schema.ts:135,109,173](packages/spec/components/schema.ts:135)) |
+| **Stack** | `<nuri-stack>` · [stack.js](packages/prototype/primitives/stack.js) + [styles/stack.css](packages/prototype/styles/stack.css) | ✅ | ❌ | `stack` (`StackNS`: direction·align·justify·gap·wrap·fill · [schema.ts:109-116](packages/spec/components/schema.ts:109)) |
+| **Text** (Typography) | `<nuri-typography>` · [typography.js](packages/prototype/primitives/typography.js) + [styles/typography.css](packages/prototype/styles/typography.css) | ✅ | ❌ — only the factory's internal `el:'text'` render ([createNuriComponent.tsx:192](packages/rn/factory/createNuriComponent.tsx:192)) | `typography` (`size`·`emphasis` · [schema.ts:158-161](packages/spec/components/schema.ts:158)) + colour via `palette` |
+| **Icon** | `<nuri-icon>` · [icon.js](packages/prototype/primitives/icon.js) + [icon.css](packages/prototype/primitives/icon.css) | ✅ | ✅ **`NuriIcon`** ([factory/NuriIcon.tsx](packages/rn/factory/NuriIcon.tsx), exported [index.ts:43](packages/rn/factory/index.ts:43)) | typed `IconName` + `dimension` (shared `size` axis) + `color` (scope fg) |
+| **Pressable** | `<nuri-pressable>` · [pressable.js](packages/prototype/primitives/pressable.js) + [pressable.css](packages/prototype/primitives/pressable.css) | ✅ | ❌ — only the factory's internal interactive-view render ([createNuriComponent.tsx:165](packages/rn/factory/createNuriComponent.tsx:165)) | `interactive` (`pressColor`·`pressScale`·`disabledOpacity` · [schema.ts:191-195](packages/spec/components/schema.ts:191)) + box⊕stack⊕palette |
+| **Screen** (structural) | `<nuri-screen>` · [screen.js](packages/prototype/primitives/screen.js) + [screen.css](packages/prototype/primitives/screen.css) | ✅ flex-column fill | ❌ | none — pure structural fill |
+| **Scroll** (structural) | `<nuri-scroll>` · [scroll.js](packages/prototype/primitives/scroll.js) + [scroll.css](packages/prototype/primitives/scroll.css) | ✅ flex-fill + overflow | ❌ | none — pure structural fill + overflow |
+
+**Icon is the only contracted primitive with both targets done today** (the icon contract · the DS
+owns RN glyph rendering · [NuriIcon.tsx:1-16](packages/rn/factory/NuriIcon.tsx:1)). View, Stack,
+Text, Pressable, Screen, Scroll are **web-only** — the §2 gap.
+
+**Screen / Scroll do NOT map to the descriptor factory.** They are structural containers with no
+namespace composition. On RN they map to react-native directly, per their own headers:
+- **Screen → "a thin component over `<View>` (flex:1)"** ([screen.js:9](packages/prototype/primitives/screen.js:9)).
+- **Scroll → "a thin component over `<ScrollView>`"** ([scroll.js:8](packages/prototype/primitives/scroll.js:8));
+  its content padding is a padded child (today documented as `<nuri-box padding>` ·
+  [scroll.css:23](packages/prototype/primitives/scroll.css:23) → becomes a padded `<View>` post-Box-fold).
+
+#### The namespace CSS (the style slices `View`/`Pressable` carry — NOT standalone primitives)
+
+`packages/prototype/styles/*.css` is **generated** from the resolve-map Field tables
+([box.css:1-15](packages/prototype/styles/box.css:1)). These are the five namespaces; `palette` and
+`interactive` never had a standalone element — they ride `View`/`Pressable` as `.nuri-palette` /
+`.nuri-interactive` classes.
+
+| Namespace CSS | Schema NS | resolve-map SoT |
+|---|---|---|
+| [styles/box.css](packages/prototype/styles/box.css) | `BoxNS` | `BOX_FIELDS` ([resolve-map.ts:121-135](packages/spec/axes/resolve-map.ts:121)) |
+| [styles/stack.css](packages/prototype/styles/stack.css) | `StackNS` | `STACK_FIELDS` ([resolve-map.ts:101-108](packages/spec/axes/resolve-map.ts:101)) |
+| [styles/palette.css](packages/prototype/styles/palette.css) | `PaletteNS` | palette resolver (RN) / cascade (web) |
+| [styles/interactive.css](packages/prototype/styles/interactive.css) | `InteractiveNS` | the interaction baseline |
+| [styles/typography.css](packages/prototype/styles/typography.css) | `TypographyNS` | the type-scale |
+
+### 1.B — FOLD / RETIRE
+
+| Element | File | Verdict |
+|---|---|---|
+| **Box** (`<nuri-box>` standalone element) | [box.js](packages/prototype/primitives/box.js) | **FOLD → View.** Retire the standalone custom element; the **box *namespace* stays** (see below). |
+| **Separator** | [separator.js](packages/prototype/primitives/separator.js) | **Web helper + trivial RN.** Header: "it does NOT port to RN (the RN consumer is a thin `<View>` with marginVertical from the space scale)" ([separator.js:17-18](packages/prototype/primitives/separator.js:17)). Keep web-only; RN is a one-liner, not a contracted parity primitive. |
+| **Spacer** | [spacer.js](packages/prototype/primitives/spacer.js) | **Web helper + trivial RN.** Header: "grow → `<View style={{flex:1}} />`; size → a `<View>` with fixed width/height" ([spacer.js:15-16](packages/prototype/primitives/spacer.js:15)). Same as Separator. |
+| **Scope** | [scope.js](packages/prototype/primitives/scope.js) | **WEB-ONLY mechanism — keep, not a parity primitive.** It is a CSS-cascade scope (`display:contents`, mirrors props → `data-*`). Its own header: "web-only … In RN the same semantic is expressed via React Context (e.g. `<AccentProvider>`), not via Unistyles … the pipeline does NOT translate `<nuri-scope>` 1:1" ([scope.js:11-14,36-38](packages/prototype/primitives/scope.js:11)). The RN equivalent already exists — `NuriThemeProvider` / `NuriScope` ([rn theme + Demo.tsx:27](packages/expo-demo/src/screens/Demo.tsx:27)). |
+
+#### The Box fold — work-list (the namespace stays; only the standalone *element* retires)
+
+The critical distinction: the **`.nuri-box` CLASS / box.css / `BOX_FIELDS`** is the box namespace —
+**load-bearing, stays.** It is applied programmatically onto the merged painting node by the web
+factory ([factory.js:160](packages/prototype/factory/factory.js:160)) and by the icon for glyph
+sizing ([icon.js:72](packages/prototype/primitives/icon.js:72)), and `View` already declares it
+([view.js:32](packages/prototype/primitives/view.js:32)). **The fold is a no-op at the namespace
+level** — geometry already reaches `View`.
+
+What retires is the **`<nuri-box>` standalone custom element** ([box.js](packages/prototype/primitives/box.js)
+— the `display:contents` wrapper around an inner `<div>`). Its **live markup consumers are
+effectively zero**: every `<nuri-box …>` *element* usage is in archived/frozen surfaces, not in any
+active component or screen:
+- `packages/doc/archive/components/*.html` — `box.html`, `scroll.html`, `separator.html`,
+  `screen.html`, `icon-avatar.html` (archived doc pages).
+- `packages/prototype/legacy/**` (frozen oracle).
+- No active playground/demo screen uses `<nuri-box>` markup (the active screens compose with
+  `<nuri-stack>` + page-local CSS · see §4 ④).
+
+So the fold work-list = **(a)** delete `box.js` (the element) + its `nuri-box { display:contents }` /
+`:not(:defined)` host rules in box.css (keep the `.nuri-box[...]` namespace rules); **(b)** update the
+Scroll doc pattern (`<nuri-box padding>` → padded `<View>` ·
+[scroll.css:23](packages/prototype/primitives/scroll.css:23)); **(c)** leave `doc/archive` + `legacy`
+frozen. It is a small, low-risk fold precisely because the geometry already lives on `View`.
+
+### 1.C — LEFTOVER (prune)
+
+`packages/prototype/legacy/**` — the pre-axes hand recipes, a **quarantine, not a build input**:
+not gated, not doc-genned, not a dependency, not live
+([legacy/README.md:17-22](packages/prototype/legacy/README.md:17)). The coherence line: *active =
+`{primitives + descriptor recipes}`; everything else = frozen, rebuilt as a descriptor on demand.*
+
+| Legacy component | Rebuilt? | Verdict |
+|---|---|---|
+| `icon-button` | ✅ **#92** — `iconButtonDescriptor` ([index.ts:87](packages/rn/factory/index.ts:87)) | **PRUNE candidate** — oracle spent |
+| `tab-bar` | ✅ **#96** — `tabBarDescriptor` / `tabDescriptor` ([index.ts:104-105](packages/rn/factory/index.ts:104)) | **PRUNE candidate** — oracle spent |
+| `list` · `list-item` · `list-interactive-item` | ❌ | **KEEP** until rebuilt as descriptor |
+| `nav-item` | ❌ | **KEEP** until rebuilt |
+| `switch` | ❌ | **KEEP** until rebuilt |
+| `tabs` (segmented control · defines `nuri-tab`) | ❌ | **KEEP** until rebuilt |
+| `typography-stack` | ❌ | **KEEP** until rebuilt |
+
+Also frozen alongside: `legacy/pages/*.html` (7 hand doc pages) and `legacy/playground/*.html`
+(`my-vault.html` = the wallet-home rebuild spec; `composition-prototype.html`). These travel with
+their components — prune the spent pairs (`icon-button`, `tab-bar`) only once their doc pages are
+confirmed superseded by the playground; keep the rest as the rebuild oracle.
+
+**Other dead/unreferenced sweep:** none found in the active tree. `doc/archive/**` and
+`doc/assets/nuri/**` are an intentional archived snapshot of the doc surface (they carry their own
+copy of `box.js` etc.); they are not the active projection and are out of scope for this prune.
+
+---
+
+## 2. The web↔RN parity gap (the layer to build)
+
+**Contracted primitives with a web impl but NO hand-authorable RN impl:**
+
+| Primitive | Web | RN today | To build |
+|---|---|---|---|
+| **View** | `<nuri-view>` | factory-internal `el:'view'` only | hand-authorable `<View box stack palette>` wrapper → `<View style={resolve(ns)}>` |
+| **Stack** | `<nuri-stack>` | — | `<Stack direction gap …>` wrapper |
+| **Text** | `<nuri-typography>` | factory-internal `el:'text'` only | `<Text size emphasis>` wrapper |
+| **Pressable** | `<nuri-pressable>` | factory-internal interactive-view only | `<Pressable …>` wrapper (View + interactive) |
+| **Screen** | `<nuri-screen>` | — | thin `<View style={{flex:1}}>` |
+| **Scroll** | `<nuri-scroll>` | — | thin wrapper over `<ScrollView>` |
+| **Icon** | `<nuri-icon>` | ✅ `NuriIcon` | — (done) |
+
+**Confirmed: RN exposes only catalog components + raw react-native today.** The `@nuri/rn` barrel
+re-exports `./contract` (descriptors + schema types) + `./theme` (the provider + `typeStyle` /
+`useToken`) + `./factory` ([rn/index.ts](packages/rn/index.ts)). The factory's public surface is the
+**seven catalog components** (`Button`, `IconAvatar`, `Topbar` + 3 slots, `IconButton`,
+`TabBarItem`, `TabBar`) + `createNuriComponent` + resolver helpers + `NuriIcon`
+([factory/index.ts:69-105](packages/rn/factory/index.ts:69)). **No `View` / `Stack` / `Text` /
+`Box` is exported** (grep over `@nuri/rn` = none). The evidence the gap forces in practice: the demo
+screen does its layout with **raw react-native** — `import { ScrollView, StyleSheet, View } from
+'react-native'` and a `StyleSheet.create` ([Demo.tsx:18](packages/expo-demo/src/screens/Demo.tsx:18)),
+**not** DS primitives. So the playground demo screens are **not yet 1:1 syntax-translatable** to RN.
+
+The RN render path each wrapper reuses already exists: `resolve.ts`'s `resolveNS` / `flattenPart` /
+`applyFields` apply the **same** `BOX_FIELDS` / `STACK_FIELDS` resolve-map the web CSS is generated
+from ([resolve-map.ts:8-12](packages/spec/axes/resolve-map.ts:8)). **The wrappers must call into
+that existing applier — never a second hand-written mapping** (the drift rule).
+
+---
+
+## 3. The contract mechanism (modelled on the existing descriptor contract)
+
+Do **not** invent a new machine. The existing descriptor contract already is: **one schema SoT → two
+projections → gates that assert agreement.** Extend it to the primitive APIs.
+
+### 3.1 One schema SoT
+The namespace types in [`schema.ts`](packages/spec/components/schema.ts) — `StackNS`, `BoxNS`,
+`TypographyNS`, `PaletteNS`, `InteractiveNS`, and `El` / `Part` — pinned by **`FROZEN_SCHEMA`**
+(Guard F · [docs-drift.test.js:438-517](scripts/docs-drift.test.js:438)). The resolve-map Field
+tables (`STACK_FIELDS` / `BOX_FIELDS`) are the **machine-readable key list** per namespace
+([resolve-map.ts:101,121](packages/spec/axes/resolve-map.ts:101)) — `Record<keyof StackNS, Field>`
+is *total over the namespace by construction* (a new field is a compile error), so the schema keys
+and the Field-table keys can never silently diverge.
+
+### 3.2 Two projections
+- **Web** = a custom element whose observed `ATTRS` are the namespace prop surface, **hand-listed
+  today**: `box.js`'s `ATTRS` ([box.js:38-52](packages/prototype/primitives/box.js:38)),
+  `stack.js`'s ([stack.js:34](packages/prototype/primitives/stack.js:34)), `pressable.js`'s
+  ([pressable.js:53](packages/prototype/primitives/pressable.js:53)), `typography.js`'s
+  ([typography.js:33](packages/prototype/primitives/typography.js:33)). **The contract should
+  DERIVE/check these against the schema NS keys** instead of trusting the hand list.
+- **RN** = a component whose props are the namespace prop surface, applied through `resolve.ts`.
+
+### 3.3 The gates (three, mirroring the descriptor gates)
+
+**(a) The per-primitive parity test** — assert, for each contracted primitive:
+```
+web element ATTRS  ==  RN component props  ==  schema namespace keys
+```
+Source the schema keys from `keyof StackNS` / `keyof BoxNS` (or the Field-table keys); fail if a web
+`ATTRS` entry or an RN prop is missing or extra. This converts the hand-listed web `ATTRS` from a
+*trusted* list into a *checked* one — the analogue of the descriptor's anatomy-vs-addressed-parts
+agreement check ([docs-drift.test.js:293-312](scripts/docs-drift.test.js:293)).
+
+**(b) The per-primitive RN render-smoke** — extend the existing
+[render-smoke.test.tsx](packages/rn/factory/__tests__/render-smoke.test.tsx) (today it mounts the
+seven catalog descriptors headless via `react-test-renderer` and snapshots) with one mount per
+primitive wrapper (`<View>`, `<Stack>`, `<Text>`, `<Pressable>`, `<Screen>`, `<Scroll>`): no-throw +
+a committed snapshot. This is the standing consumability guard, primitive-side — the same construct
+as the catalog render-smoke that backs the `rn` CI gate (README §"CI — 5 gates").
+
+**(c) The `FROZEN_SCHEMA`-style versioned pin for the primitive APIs** — the primitive prop surfaces
+are a frozen contract like the descriptor envelope. Extend the Guard-F pin (or add a sibling pin)
+covering the per-primitive prop sets, so adding/removing/renaming a primitive prop is a **deliberate,
+versioned** change (update the pin + log a 65-amendment), never an accident. The `El` / `Part` /
+`NS` pins ([docs-drift.test.js:506-507,596](scripts/docs-drift.test.js:506)) already do this for the
+schema vocab; the primitive-prop pin is the same mechanism one level out.
+
+**No new machinery, no semver.** As the contract-bump note records, a frozen-schema change is cheap
+in a monorepo: edit the type, move the Guard-F pin, regen, and the five gates *are* the
+version-negotiation — there is no external consumer to negotiate with.
+
+---
+
+## 4. Recommended sequencing (the follow-up briefs this audit unlocks)
+
+Ordered. Each sized, with its named risk.
+
+**① Build the RN primitive layer + the parity gate** — *medium.*
+Hand-authorable `Stack` + `View` first (the dominant layout pair), then `Text` + `Pressable`, as
+thin wrappers forwarding namespace props through the **existing** `resolve.ts` appliers → `<View
+style>` / `<Text style>` / `<Pressable>`. Land gates 3.3(a) + 3.3(b) with them.
+> **Risk:** the wrappers must reuse `resolveNS`/`flattenPart`/`applyFields` (the same resolve-map the
+> web CSS is generated from) — a *second* hand-written mapping would reintroduce exactly the drift
+> the single-SoT contract exists to prevent.
+
+**② Fold Box → View + prune the spent legacy** — *small.*
+Retire the `<nuri-box>` standalone element (box.js + its host rules) per the §1.B work-list; prune
+the rebuilt `legacy/icon-button` + `legacy/tab-bar` pairs (#92 / #96).
+> **Risk:** **keep the box *namespace*** (`.nuri-box[...]` rules / box.css / `BOX_FIELDS` / the
+> `factory.js` + `icon.js` class application) — only the *element* drops. Confirm no live screen
+> depends on `<nuri-box>` markup (audit: only `doc/archive` + `legacy`). Leave archived surfaces
+> frozen.
+
+**③ The card as `<View>` composition** — *small–medium.*
+A real `card.ts` surface built from the new `View` primitive (box⊕stack⊕palette), so a card is a DS
+component, not a page-local mockup `<div>`.
+> **Risk:** a card *surface* must be a genuine `View` composition, not a standalone box — the moment
+> a layout can't be expressed in DS props it is a real gap, not a CSS patch.
+
+**④ Re-author the 3 playground screens as pure-DS / RN-translatable + the harness height fix** —
+*medium.*
+The active playground screens use page-local CSS classes — `.screen` and `.screen__body { flex: 1 }`
+on `<nuri-stack>` ([tab-bar.html:91,102,115](packages/playground/pages/tab-bar.html:91)) — which are
+web-only mockups, not DS components, so they don't translate 1:1 to RN. Re-author them on the new
+`Screen` / `Stack` / `View` primitives; move device-fill into the **harness**, not the screen.
+> **Risk:** a screen built from pure DS components must be syntax-translatable to RN with zero
+> page-local CSS; the harness owns device-fill height, the screen owns only DS composition.
+
+---
+
+## Appendix — load-bearing citations (the ones the audit turns on)
+
+- **The `el`-type set is 3, frozen:** `El = 'view' | 'text' | 'icon'`
+  ([schema.ts:237](packages/spec/components/schema.ts:237)) · pinned `El: ['view','text','icon']`
+  ([docs-drift.test.js:507](scripts/docs-drift.test.js:507)). Pressable = interactive-flagged view
+  ([createNuriComponent.tsx:165-189](packages/rn/factory/createNuriComponent.tsx:165)).
+- **RN has no hand-authorable primitive:** the factory barrel exports only catalog components +
+  helpers + `NuriIcon` ([factory/index.ts:69-105](packages/rn/factory/index.ts:69)); the demo lays
+  out with raw `react-native` `View`/`ScrollView`/`StyleSheet`
+  ([Demo.tsx:18](packages/expo-demo/src/screens/Demo.tsx:18)).
+- **The Box-fold work-list:** the box *namespace* (`.nuri-box`) is applied by the factory
+  ([factory.js:160](packages/prototype/factory/factory.js:160)) + the icon
+  ([icon.js:72](packages/prototype/primitives/icon.js:72)) and already lives on `View`
+  ([view.js:32](packages/prototype/primitives/view.js:32)); the standalone `<nuri-box>` *element*
+  ([box.js](packages/prototype/primitives/box.js)) has live markup consumers only in `doc/archive`
+  + `legacy`.
+- **Web `ATTRS` are hand-listed (to be derived/checked):** [box.js:38](packages/prototype/primitives/box.js:38) ·
+  [stack.js:34](packages/prototype/primitives/stack.js:34) ·
+  [pressable.js:53](packages/prototype/primitives/pressable.js:53).
+- **The contract is already a single-SoT, gated machine:** resolve-map Field tables
+  ([resolve-map.ts:101,121](packages/spec/axes/resolve-map.ts:101)) · Guard-F `FROZEN_SCHEMA`
+  ([docs-drift.test.js:438](scripts/docs-drift.test.js:438)) · the RN render-smoke
+  ([render-smoke.test.tsx](packages/rn/factory/__tests__/render-smoke.test.tsx)).
