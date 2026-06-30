@@ -74,6 +74,7 @@
   <script src="../../prototype/primitives/icon.js" type="module"></script>
   <script src="../../prototype/primitives/typography.js" defer></script>
   <script src="../../prototype/primitives/stack.js" defer></script>
+  <script src="../../prototype/primitives/view.js" type="module"></script>
   <script src="../../prototype/recipes/button.js" type="module"></script>
   <script src="../../prototype/recipes/icon-button.js" type="module"></script>
   <script src="../../prototype/recipes/topbar.js" type="module"></script>
@@ -112,7 +113,10 @@
           </nuri-topbar-trailing>
         </nuri-topbar>
 
-        <nuri-stack class="screen__body" direction="column" align="center" justify="center" gap="lg" fill>
+        <nuri-view class="screen__body" direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" fill>
+          <!-- THE CARD (③) · box only (aspect-ratio + radius) — NO palette variant per
+               the operator: the wallet/coin cards reserve the surface, unstyled. -->
+          <nuri-view aspect-ratio="card" radius="lg"></nuri-view>
           <nuri-stack direction="column" align="center" justify="center" gap="xs">
             <nuri-typography size="sm">Total balance</nuri-typography>
             <nuri-typography size="3xl" emphasis>€ 25.87</nuri-typography>
@@ -121,7 +125,7 @@
             <nuri-button size="md" variant="solid">Send</nuri-button>
             <nuri-button size="md" variant="soft">Receive</nuri-button>
           </nuri-stack>
-        </nuri-stack>
+        </nuri-view>
 
         <nuri-tab-bar>
           <nuri-tab-bar-item icon="wallet" label="€ 36.50" selected></nuri-tab-bar-item>
@@ -148,7 +152,10 @@
           </nuri-topbar-trailing>
         </nuri-topbar>
 
-        <nuri-stack class="screen__body" direction="column" align="center" justify="center" gap="lg" fill>
+        <nuri-view class="screen__body" direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" fill>
+          <!-- THE CARD (③) · box only (aspect-ratio + radius) — NO palette variant per
+               the operator: the wallet/coin cards reserve the surface, unstyled. -->
+          <nuri-view aspect-ratio="card" radius="lg"></nuri-view>
           <nuri-stack direction="column" align="center" justify="center" gap="xs">
             <nuri-typography size="sm">Bitcoin holdings</nuri-typography>
             <nuri-typography size="3xl" emphasis>₿ 0.0413</nuri-typography>
@@ -157,7 +164,7 @@
             <nuri-button size="md" variant="solid">Buy</nuri-button>
             <nuri-button size="md" variant="soft">Sell</nuri-button>
           </nuri-stack>
-        </nuri-stack>
+        </nuri-view>
 
         <nuri-tab-bar>
           <nuri-tab-bar-item icon="wallet" label="€ 36.50"></nuri-tab-bar-item>
@@ -184,7 +191,14 @@
           </nuri-topbar-trailing>
         </nuri-topbar>
 
-        <nuri-stack class="screen__body" direction="column" align="center" justify="center" gap="lg" fill>
+        <!-- The main content stack is a hand-authored <nuri-view> — it carries the
+             stack slice (column · gap) AND the box slice (padding-x="lg" = 18px) on
+             ONE node, the box ⊕ stack merge the View primitive exists for. align:stretch
+             gives the card a definite width; justify:start (top-aligned, not centred). -->
+        <nuri-view class="screen__body" direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" fill>
+          <!-- THE CARD (③) · box ⊕ palette on one node (variant="soft" = the bg-strong
+               surface). NO card.ts: a card is a View composition. -->
+          <nuri-view aspect-ratio="card" radius="lg" variant="soft"></nuri-view>
           <nuri-stack direction="column" align="center" justify="center" gap="xs">
             <nuri-typography size="sm">Available cash</nuri-typography>
             <nuri-typography size="3xl" emphasis>€ 1 240.00</nuri-typography>
@@ -193,7 +207,7 @@
             <nuri-button size="md" variant="solid">Add money</nuri-button>
             <nuri-button size="md" variant="soft">Withdraw</nuri-button>
           </nuri-stack>
-        </nuri-stack>
+        </nuri-view>
 
         <nuri-tab-bar>
           <nuri-tab-bar-item icon="wallet" label="€ 36.50"></nuri-tab-bar-item>
