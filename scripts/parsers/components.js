@@ -34,16 +34,12 @@
  * because the resolver always reads from the live CSS source.
  * ────────────────────────────────────────────────────────────── */
 
-import postcss from 'postcss';
-
 import { inferType } from './primitive.js';
 import {
   primitiveSetFor,
   resolveSetPolicy,
   resolveValue,
 } from './semantic.js';
-
-const TOKENS_LAYER_NAME = 'tokens';
 
 // "--nuri-button-min-height" → "minHeight"
 function leafNameFor(cssVar, componentPrefix) {
@@ -67,25 +63,6 @@ const RESERVED_WORDS = new Set([
 function exportNameFor(componentName) {
   const camel = componentName.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
   return RESERVED_WORDS.has(camel) ? `${camel}Tokens` : camel;
-}
-
-// Read every --nuri-<component>-* declaration in the file's
-// `@layer tokens` block. Returns [{ cssVar, value }] in source
-// order, deduplicated on cssVar (later declarations win — matches
-// the cascade in lib/components/<name>/<name>.css where the same
-// vars are re-declared on `:root, [data-accent], [data-theme]` for
-// scope re-resolution per decision 9).
-export function readComponentTokens(css, componentPrefix) {
-  const root = postcss.parse(css);
-  const map = new Map();
-  root.walkAtRules('layer', (rule) => {
-    if (rule.params !== TOKENS_LAYER_NAME) return;
-    rule.walkDecls((decl) => {
-      if (!decl.prop.startsWith(componentPrefix)) return;
-      map.set(decl.prop, decl.value.trim());
-    });
-  });
-  return [...map.entries()].map(([cssVar, value]) => ({ cssVar, value }));
 }
 
 function parseVarRef(value) {
