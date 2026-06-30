@@ -309,7 +309,7 @@ exports[`genericity + the resolved style tree (snapshots committed) resolved Uni
       "backgroundColor": "#fffdf2",
       "flexDirection": "row",
       "gap": 6,
-      "height": 48,
+      "height": 54,
       "paddingEnd": 18,
       "paddingStart": 18,
     },

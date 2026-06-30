@@ -214,7 +214,7 @@ describe('Topbar — same factory, the COMPOUND slot regions (true centring)', (
       flexDirection: 'row',
       alignItems: 'center',
       gap: space.sm,
-      height: size.lg,
+      height: size.xl,
       paddingStart: space.lg,
       paddingEnd: space.lg,
       backgroundColor: chrome.light.bgCanvas,

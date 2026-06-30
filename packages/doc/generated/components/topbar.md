@@ -30,7 +30,7 @@ nav_order: 3
 | Part | Namespace | Token | Resolves to |
 | --- | --- | --- | --- |
 | `root` | `stack` | **direction** `row`<br>**align** `center`<br>**gap** `space.sm` | —<br>—<br>`6px` |
-| `root` | `box` | **height** `size.lg`<br>**paddingStart** `space.lg`<br>**paddingEnd** `space.lg` | `48px`<br>`18px`<br>`18px` |
+| `root` | `box` | **height** `size.xl`<br>**paddingStart** `space.lg`<br>**paddingEnd** `space.lg` | `54px`<br>`18px`<br>`18px` |
 | `root` | `palette` | **bg** `chrome.bgCanvas`<br>**fg** `chrome.textPrimary`<br>**muted** `chrome.textMuted` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-canvas)"></span> `#fffdf2`<br><span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `#222013`<br><span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `#666455` |
 | `leading` | `stack` | **direction** `row`<br>**align** `center`<br>**fill** `even` | —<br>—<br>— |
 | `center` | `stack` | **direction** `row`<br>**align** `center`<br>**justify** `center` | —<br>—<br>— |
