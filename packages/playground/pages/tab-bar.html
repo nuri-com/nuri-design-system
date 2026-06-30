@@ -86,10 +86,6 @@
     .nuri-pg__scroll { gap: 0; }
     [data-pg-nav="ds"] { display: none; }
     [data-pg-nav="index"] { display: none; }
-    /* The screen frame: a column that fills the device height so the tab-bar sits
-       at the BOTTOM edge (the navigator-chrome position · a SIBLING of the body). */
-    .screen { min-block-size: 560px; }
-    .screen__body { flex: 1; }
   </style>
 </head>
 <body>
@@ -100,7 +96,7 @@
        actions, with the bottom bar pinned below — a real screen from the pieces. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="wallet">
     <template>
-      <nuri-stack class="screen" direction="column" align="stretch" justify="start" gap="none" fill>
+      <nuri-stack direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-topbar>
           <nuri-topbar-leading>
             <nuri-icon name="nuri"></nuri-icon>
@@ -113,13 +109,9 @@
           </nuri-topbar-trailing>
         </nuri-topbar>
 
-        <nuri-view class="screen__body" direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
-          <!-- THE CARD (③) · box only (aspect-ratio + radius) — NO palette variant per
-               the operator: the wallet/coin cards reserve the surface, unstyled. -->
+        <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
           <nuri-view aspect-ratio="card" radius="lg"></nuri-view>
           <nuri-typography size="3xl" emphasis align="center">€ 25.87</nuri-typography>
-          <!-- The two actions split the row 50/50: each <nuri-button> sits in a
-               fill="even" View cell (equal flex basis 0), stretching to fill it. -->
           <nuri-view direction="row" align="center" gap="sm">
             <nuri-view fill="even"><nuri-button size="lg" variant="soft">Receive</nuri-button></nuri-view>
             <nuri-view fill="even"><nuri-button size="lg" variant="solid" accent="orange">Send</nuri-button></nuri-view>
@@ -138,7 +130,7 @@
   <!-- COIN screen · the bitcoin destination is active. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="coin">
     <template>
-      <nuri-stack class="screen" direction="column" align="stretch" justify="start" gap="none" fill>
+      <nuri-stack direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-topbar>
           <nuri-topbar-leading>
             <nuri-icon name="nuri"></nuri-icon>
@@ -151,13 +143,9 @@
           </nuri-topbar-trailing>
         </nuri-topbar>
 
-        <nuri-view class="screen__body" direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
-          <!-- THE CARD (③) · box only (aspect-ratio + radius) — NO palette variant per
-               the operator: the wallet/coin cards reserve the surface, unstyled. -->
+        <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
           <nuri-view aspect-ratio="card" radius="lg"></nuri-view>
           <nuri-typography size="3xl" emphasis align="center">₿ 0.0413</nuri-typography>
-          <!-- The two actions split the row 50/50: each <nuri-button> sits in a
-               fill="even" View cell (equal flex basis 0), stretching to fill it. -->
           <nuri-view direction="row" align="center" gap="sm">
             <nuri-view fill="even"><nuri-button size="lg" variant="soft">Details</nuri-button></nuri-view>
             <nuri-view fill="even"><nuri-button size="lg" variant="solid" accent="lilac">Send</nuri-button></nuri-view>
@@ -176,7 +164,7 @@
   <!-- CASH screen · the euro destination is active. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="cash">
     <template>
-      <nuri-stack class="screen" direction="column" align="stretch" justify="start" gap="none" fill>
+      <nuri-stack direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-topbar>
           <nuri-topbar-leading>
             <nuri-icon name="nuri"></nuri-icon>
@@ -189,17 +177,9 @@
           </nuri-topbar-trailing>
         </nuri-topbar>
 
-        <!-- The main content stack is a hand-authored <nuri-view> — it carries the
-             stack slice (column · gap) AND the box slice (padding-x="lg" = 18px) on
-             ONE node, the box ⊕ stack merge the View primitive exists for. align:stretch
-             gives the card a definite width; justify:start (top-aligned, not centred). -->
-        <nuri-view class="screen__body" direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
-          <!-- THE CARD (③) · box ⊕ palette on one node (variant="soft" = the bg-strong
-               surface). NO card.ts: a card is a View composition. -->
+        <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
           <nuri-view aspect-ratio="card" radius="lg" variant="soft"></nuri-view>
           <nuri-typography size="3xl" emphasis align="center">€ 1 240.00</nuri-typography>
-          <!-- The two actions split the row 50/50: each <nuri-button> sits in a
-               fill="even" View cell (equal flex basis 0), stretching to fill it. -->
           <nuri-view direction="row" align="center" gap="sm">
             <nuri-view fill="even"><nuri-button size="lg" variant="soft">Details</nuri-button></nuri-view>
             <nuri-view fill="even"><nuri-button size="lg" variant="solid" accent="lilac">Add Money</nuri-button></nuri-view>
