@@ -50,6 +50,8 @@ import {
   iconAvatarDescriptor,
   topbarDescriptor,
   iconButtonDescriptor,
+  tabDescriptor,
+  tabBarDescriptor,
 } from '../contract';
 
 // The frozen descriptors, each through the SAME factory — the ergonomic,
@@ -74,3 +76,24 @@ export const Topbar = TopbarBase as typeof TopbarBase & TopbarSlots;
 // icon action; flanked = `<IconButton prefix="Buy Bitcoin" icon={<Glyph/>}
 // suffix="Pay" />` (the prefix/suffix text flanks · the new Part vocab).
 export const IconButton = createNuriComponent(iconButtonDescriptor, 'IconButton');
+
+// The bottom navigation bar (presentation only) — TabBar is a DUMB layout
+// container that renders its positional Tab children as EQUAL columns (the
+// open-positional-children capability · NOT a compound: a Tab is a repeated item,
+// not a named slot). The item is `Tab` (TabBar.Item), namespaced onto the bar by a
+// runtime assignment + a typed cast — the same `Topbar.Leading` shape, but attached
+// here (Tab is a separate descriptor, not a factory-generated slot):
+//   const [active, setActive] = useState('wallet');
+//   <TabBar>
+//     <TabBar.Item icon="card" label="Wallet" selected={active === 'wallet'}
+//                  onPress={() => setActive('wallet')} />
+//     …
+//   </TabBar>
+// The DS never sees `active`/`value`; `selected` is a consumer-computed boolean
+// (bridged onto the item's `state` appearance axis · the muted treatment),
+// `onPress` is passthrough.
+export const Tab = createNuriComponent(tabDescriptor, 'TabBar.Item');
+type TabBarSlots = { Item: typeof Tab };
+const TabBarBase = createNuriComponent(tabBarDescriptor, 'TabBar');
+export const TabBar = TabBarBase as typeof TabBarBase & TabBarSlots;
+TabBar.Item = Tab;

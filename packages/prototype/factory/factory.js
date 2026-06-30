@@ -385,6 +385,12 @@ export function buildComponent(descriptor, selection = {}, props = {}) {
           : (descriptor.defaults && descriptor.defaults[axis]) ?? Object.keys(descriptor.variants[axis])[0];
     }
   }
+  // THE `selected` BOOLEAN BRIDGE (the tab-item · the RN createNuriComponent mirror):
+  // a clean consumer boolean drives the 2-value `state` appearance axis (so the API
+  // is `selected`, not a stringly axis attr). No-op without a `state` axis.
+  if (typeof props.selected === 'boolean' && descriptor.variants && descriptor.variants.state) {
+    sel.state = props.selected ? 'selected' : 'unselected';
+  }
 
   // `children` → the PRIMARY content part (the lone non-root part), unless
   // `content` already set it (the createNuriComponent routing). For an `icon`
@@ -395,6 +401,13 @@ export function buildComponent(descriptor, selection = {}, props = {}) {
   if (primary && content[primary.name] === undefined) {
     if (props.children !== undefined) content[primary.name] = props.children;
     else if (props.name !== undefined && primary.el === 'icon') content[primary.name] = props.name;
+  }
+  // OPEN-POSITIONAL-CHILDREN (the TabBar · §7 · the RN createNuriComponent mirror):
+  // an `open` root with no lone primary renders its POSITIONAL children directly —
+  // route them to the root's own content (renderStaticView appends content.root as
+  // the host's own children, before the [none] child parts). Descriptor-driven.
+  else if (anatomy.open && props.children !== undefined && content.root === undefined) {
+    content.root = props.children;
   }
   // Ergonomic per-part props (prefix/icon/suffix · the icon-button's three-part
   // anatomy has no lone primary) → the content map BY PART NAME. On web each is a
@@ -455,6 +468,11 @@ export function defineNuriComponent(descriptor, tagName) {
   const defaultSlot = slotParts[slotParts.length - 1];
   const slotTagToPart = {};
   for (const part of slotParts) slotTagToPart[`${tagName}-${part}`] = part;
+  // OPEN-POSITIONAL HOST (the TabBar · §7 · descriptor-driven · the RN createNuriComponent
+  // mirror): an `open` root with NO named regions and no lone primary renders its
+  // authored POSITIONAL children directly inside the built root. Distinct from
+  // COMPOUND (named slots): the children move in wholesale, no per-region harvest.
+  const isOpenHost = !!anatomy.open && !isCompound && !primary;
 
   // ERGONOMIC per-part STRING attributes — a non-root, non-view part that is NOT the
   // lone primary gets an attribute named after it (prefix/icon/suffix · the icon-
@@ -469,6 +487,10 @@ export function defineNuriComponent(descriptor, tagName) {
   if (interactive) observed.push('disabled');
   if (iconPrimary) observed.push('name');
   observed.push(...nonPrimaryParts);
+  // `selected` boolean ATTR → the `state` appearance axis (the tab-item · the
+  // createNuriComponent boolean bridge). Observed so a live toggle re-renders.
+  const hasStateAxis = !!(descriptor.variants && descriptor.variants.state);
+  if (hasStateAxis) observed.push('selected');
   // a11y name — an interactive control WITHOUT a text primary (the icon-anchored
   // icon-button) needs an explicit accessible name when bare; flanked, the visible
   // text IS the name (the factory honours both). A text-labelled control (Button)
@@ -482,6 +504,7 @@ export function defineNuriComponent(descriptor, tagName) {
 
     #label = null;
     #slots = null;
+    #openKids = null;
     #built = false;
 
     connectedCallback() {
@@ -494,6 +517,18 @@ export function defineNuriComponent(descriptor, tagName) {
       // COMPOUND: harvest the region sub-elements + bare children BEFORE the render
       // replaces them (cloned per render · the topbar-slots slice).
       if (isCompound) this.#slots = harvestSlots(this, slotTagToPart, defaultSlot);
+      // OPEN HOST: capture ALL authored positional children (the Tab items) into a
+      // detached <template> BEFORE the render replaces them — #render clones from it,
+      // so a re-render (an accent change) still has the content (the harvestSlots
+      // pattern, single bucket · no per-region split).
+      if (isOpenHost) {
+        const tpl = document.createElement('template');
+        for (const child of [...this.childNodes]) {
+          if (child.nodeType === 3 && !child.textContent.trim()) continue; // drop whitespace
+          tpl.content.append(child);
+        }
+        this.#openKids = tpl;
+      }
       this.#render();
       this.#built = true;
     }
@@ -517,6 +552,9 @@ export function defineNuriComponent(descriptor, tagName) {
       if (textPrimary) props.children = this.#label;
       if (iconPrimary) props.name = this.getAttribute('name') || '';
       if (interactive) props.disabled = this.hasAttribute('disabled');
+      // `selected` boolean attr → props.selected (buildComponent bridges it to the
+      // `state` axis · present = selected · absent = unselected).
+      if (hasStateAxis) props.selected = this.hasAttribute('selected');
       const accent = this.getAttribute('accent');
       if (accent) props.accent = accent; // Tier-2 self-scope (threaded to the merged node)
       // Ergonomic per-part attributes (prefix/icon/suffix) → props BY PART NAME;
@@ -548,6 +586,19 @@ export function defineNuriComponent(descriptor, tagName) {
         const ctx = { descriptor, selection, content, base: props };
         const regions = anatomy.children.map((child) => renderPart(child, ctx)).filter(Boolean);
         this.replaceChildren(...regions);
+        return;
+      }
+
+      // OPEN HOST (the TabBar · §7): the HOST is the root painting node — apply the
+      // root NS to it directly (the same apply-NS-to-host as compound · full-width
+      // via the .nuri-stack block-flex) and place the authored POSITIONAL children
+      // (the Tab items · cloned) inside it. The RN analogue is the root View
+      // rendering its `content.root` children; here the host IS that View (no inner
+      // <nuri-view> wrapper, so the bar row + the items' `fill:even` flex line up).
+      if (isOpenHost) {
+        applyHostNS(this, mergedNSForPart(descriptor, selection, 'root'), props.accent);
+        const kids = this.#openKids ? this.#openKids.content.cloneNode(true) : document.createDocumentFragment();
+        this.replaceChildren(kids);
         return;
       }
 

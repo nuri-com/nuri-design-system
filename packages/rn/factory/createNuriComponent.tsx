@@ -64,6 +64,15 @@ export type NuriBaseProps = {
   prefix?: string;
   suffix?: string;
   icon?: IconName;
+  // routed to a `label` text part (the tab-item's destination name · the same
+  // ergonomic per-part routing as prefix/suffix · a string leaf).
+  label?: string;
+  // The appearance flag for a 2-state `state` axis (the tab-item's selected vs
+  // unselected · the muted treatment). A CLEAN consumer boolean — the factory
+  // bridges it onto the `state` axis (true→'selected' · false→'unselected'), so the
+  // call site never touches a stringly axis value. The DS stays dumb: `selected` is
+  // JUST appearance; the consumer owns `active === value` + what a tap does.
+  selected?: boolean;
   // a11y accessible name for icon-only / interactive controls (F-ARIA-LABEL-1).
   accessibilityLabel?: string;
 };
@@ -253,6 +262,14 @@ export function createNuriComponent<A extends Axes>(
       const provided = axisBag[axis];
       selection[axis] = typeof provided === 'string' ? provided : defaultByAxis[axis];
     }
+    // THE `selected` BOOLEAN BRIDGE (the tab-item's appearance · descriptor-driven):
+    // a clean consumer boolean drives the 2-value `state` appearance axis, so the
+    // DS exposes `selected={active === value}` (NOT a stringly axis prop). General
+    // by construction — any descriptor with a `state` axis gets it; absent the axis
+    // it is a no-op (the leaf descriptors are unaffected).
+    if (typeof base.selected === 'boolean' && axisNames.includes('state')) {
+      selection.state = base.selected ? 'selected' : 'unselected';
+    }
 
     const content: Partial<Record<Part, React.ReactNode>> = { ...base.content };
     if (isCompound) {
@@ -280,6 +297,15 @@ export function createNuriComponent<A extends Axes>(
       // `children` → the primary content part (unless `content` set it).
       if (base.children !== undefined && primaryPart && content[primaryPart] === undefined) {
         content[primaryPart] = base.children;
+      }
+      // OPEN-POSITIONAL-CHILDREN (the one capability this slice adds · descriptor-
+      // driven, NOT tab-bar-hardcoded): an `open` root with NO named regions and no
+      // lone primary part (the TabBar · §7 open-primitive layer) renders its
+      // POSITIONAL children directly inside itself — route them to the root's own
+      // content (renderPart appends `content[root]` as the view's own children).
+      // Reusable by any open container (List / Tabs).
+      else if (base.children !== undefined && anatomy.open && content.root === undefined) {
+        content.root = base.children;
       }
       // Ergonomic per-part props (prefix/suffix/icon) → the content map BY PART
       // NAME. Drives the multi-part anatomy where `primaryPart` is undefined (the
