@@ -308,6 +308,6 @@ export type Variants<A extends Axes> = {
 export type Descriptor<A extends Axes> = {
   structure: { anatomy: PartAnatomy; base?: PartMap };
   variants?: Variants<A>;
-  defaults?: Partial<Record<string, string>>;
+  defaults?: { [Axis in keyof A]?: A[Axis] };
   decorative?: boolean;
 };
