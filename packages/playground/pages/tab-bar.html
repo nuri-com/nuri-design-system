@@ -113,18 +113,17 @@
           </nuri-topbar-trailing>
         </nuri-topbar>
 
-        <nuri-view class="screen__body" direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" fill>
+        <nuri-view class="screen__body" direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
           <!-- THE CARD (③) · box only (aspect-ratio + radius) — NO palette variant per
                the operator: the wallet/coin cards reserve the surface, unstyled. -->
           <nuri-view aspect-ratio="card" radius="lg"></nuri-view>
-          <nuri-stack direction="column" align="center" justify="center" gap="xs">
-            <nuri-typography size="sm">Total balance</nuri-typography>
-            <nuri-typography size="3xl" emphasis>€ 25.87</nuri-typography>
-          </nuri-stack>
-          <nuri-stack direction="row" align="center" justify="center" gap="sm">
-            <nuri-button size="md" variant="solid">Send</nuri-button>
-            <nuri-button size="md" variant="soft">Receive</nuri-button>
-          </nuri-stack>
+          <nuri-typography size="3xl" emphasis>€ 25.87</nuri-typography>
+          <!-- The two actions split the row 50/50: each <nuri-button> sits in a
+               fill="even" View cell (equal flex basis 0), stretching to fill it. -->
+          <nuri-view direction="row" align="center" gap="sm" padding-y="md">
+            <nuri-view fill="even"><nuri-button size="lg" variant="solid" accent="orange">Send</nuri-button></nuri-view>
+            <nuri-view fill="even"><nuri-button size="lg" variant="soft">Receive</nuri-button></nuri-view>
+          </nuri-view>
         </nuri-view>
 
         <nuri-tab-bar>
@@ -152,18 +151,17 @@
           </nuri-topbar-trailing>
         </nuri-topbar>
 
-        <nuri-view class="screen__body" direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" fill>
+        <nuri-view class="screen__body" direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
           <!-- THE CARD (③) · box only (aspect-ratio + radius) — NO palette variant per
                the operator: the wallet/coin cards reserve the surface, unstyled. -->
           <nuri-view aspect-ratio="card" radius="lg"></nuri-view>
-          <nuri-stack direction="column" align="center" justify="center" gap="xs">
-            <nuri-typography size="sm">Bitcoin holdings</nuri-typography>
-            <nuri-typography size="3xl" emphasis>₿ 0.0413</nuri-typography>
-          </nuri-stack>
-          <nuri-stack direction="row" align="center" justify="center" gap="sm">
-            <nuri-button size="md" variant="solid">Buy</nuri-button>
-            <nuri-button size="md" variant="soft">Sell</nuri-button>
-          </nuri-stack>
+          <nuri-typography size="3xl" emphasis>₿ 0.0413</nuri-typography>
+          <!-- The two actions split the row 50/50: each <nuri-button> sits in a
+               fill="even" View cell (equal flex basis 0), stretching to fill it. -->
+          <nuri-view direction="row" align="center" gap="sm" padding-y="md">
+            <nuri-view fill="even"><nuri-button size="lg" variant="solid" accent="lilac">Send</nuri-button></nuri-view>
+            <nuri-view fill="even"><nuri-button size="lg" variant="soft">Details</nuri-button></nuri-view>
+          </nuri-view>
         </nuri-view>
 
         <nuri-tab-bar>
@@ -195,18 +193,17 @@
              stack slice (column · gap) AND the box slice (padding-x="lg" = 18px) on
              ONE node, the box ⊕ stack merge the View primitive exists for. align:stretch
              gives the card a definite width; justify:start (top-aligned, not centred). -->
-        <nuri-view class="screen__body" direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" fill>
+        <nuri-view class="screen__body" direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
           <!-- THE CARD (③) · box ⊕ palette on one node (variant="soft" = the bg-strong
                surface). NO card.ts: a card is a View composition. -->
           <nuri-view aspect-ratio="card" radius="lg" variant="soft"></nuri-view>
-          <nuri-stack direction="column" align="center" justify="center" gap="xs">
-            <nuri-typography size="sm">Available cash</nuri-typography>
-            <nuri-typography size="3xl" emphasis>€ 1 240.00</nuri-typography>
-          </nuri-stack>
-          <nuri-stack direction="row" align="center" justify="center" gap="sm">
-            <nuri-button size="md" variant="solid">Add money</nuri-button>
-            <nuri-button size="md" variant="soft">Withdraw</nuri-button>
-          </nuri-stack>
+          <nuri-typography size="3xl" emphasis>€ 1 240.00</nuri-typography>
+          <!-- The two actions split the row 50/50: each <nuri-button> sits in a
+               fill="even" View cell (equal flex basis 0), stretching to fill it. -->
+          <nuri-view direction="row" align="center" gap="sm" padding-y="md">
+            <nuri-view fill="even"><nuri-button size="lg" variant="solid" accent="lilac">Add Money</nuri-button></nuri-view>
+            <nuri-view fill="even"><nuri-button size="lg" variant="soft">Details</nuri-button></nuri-view>
+          </nuri-view>
         </nuri-view>
 
         <nuri-tab-bar>
