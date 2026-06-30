@@ -17,7 +17,7 @@ import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { Text, View } from 'react-native';
 import { NuriThemeProvider } from '../../theme';
-import { Button, IconAvatar, IconButton, Topbar, NuriIcon } from '../index';
+import { Button, IconAvatar, IconButton, Topbar, TabBar, NuriIcon } from '../index';
 
 function render(node: React.ReactElement): TestRenderer.ReactTestRenderer {
   let tr!: TestRenderer.ReactTestRenderer;
@@ -108,6 +108,31 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     // flanked → two Text flanks, in row order with the glyph between them.
     const texts = tr.root.findAllByType(Text).map((t) => t.props.children);
     expect(texts).toEqual(['Buy Bitcoin', 'Pay']);
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('TabBar — OPEN container renders its positional Tab children · selected + unselected items', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <TabBar>
+          <TabBar.Item icon="card" label="Wallet" selected onPress={() => undefined} />
+          <TabBar.Item icon="bitcoin" label="Coin" onPress={() => undefined} />
+          <TabBar.Item icon="euro" label="Cash" selected={false} onPress={() => undefined} />
+        </TabBar>
+      </NuriThemeProvider>,
+    );
+    expect(tr.toJSON()).toBeTruthy();
+    // the open bar rendered its three positional items (icon + label each).
+    const labels = tr.root.findAllByType(Text).map((t) => t.props.children);
+    expect(labels).toEqual(['Wallet', 'Coin', 'Cash']);
+    const glyphs = tr.root.findAllByType(NuriIcon).map((g) => g.props.name);
+    expect(glyphs).toEqual(['card', 'bitcoin', 'euro']);
+    // selected → ghost fg (text-primary #222013); unselected → subtle fg
+    // (border-strong) — the colour-only muted treatment, inherited by the glyph (§12).
+    const selectedGlyph = tr.root.findAllByType(NuriIcon).find((g) => g.props.name === 'card');
+    const unselectedGlyph = tr.root.findAllByType(NuriIcon).find((g) => g.props.name === 'bitcoin');
+    expect(selectedGlyph!.props.color).toBe('#222013');
+    expect(unselectedGlyph!.props.color).not.toBe('#222013');
     expect(tr.toJSON()).toMatchSnapshot();
   });
 

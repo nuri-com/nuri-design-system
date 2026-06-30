@@ -200,6 +200,25 @@ const EXPECTED_DESCRIPTORS = {
     parts: ['prefix', 'icon', 'suffix'],
     interactive: ['pressColor', 'pressScale', 'disabledOpacity'],
   },
+  // tab (the tab-bar slice · the bottom-bar ITEM · presentation only) — icon-over-
+  // label, the `state` 2-value appearance axis (selected ghost / unselected subtle ·
+  // the colour-only muted treatment · icon weights dropped at decision 38), pressScale
+  // ONLY (the legacy tab-item baseline · no bg change). The `selected` boolean bridges
+  // onto `state` in both factories.
+  tab: {
+    axes: { state: ['selected', 'unselected'] },
+    parts: ['icon', 'label'],
+    interactive: ['pressScale'],
+  },
+  // tab-bar (the DUMB layout container) — an OPEN row of equal columns, NO variant
+  // axes (a static layout shell · like topbar), NO named parts (the open-positional
+  // children are the Tab items · not slots), NO interactive (the items are, the bar
+  // is not).
+  'tab-bar': {
+    axes: {},
+    parts: [],
+    interactive: [],
+  },
 };
 
 // The anatomy's non-root parts (the structural declaration).

@@ -62,6 +62,13 @@ export const DESCRIPTOR_COMPONENTS = [
   // the SOLE SoT. The build emit + Guard D re-emit read `name` only; the twin
   // gates it (BROWSER_DESCRIPTOR_COMPONENTS · EXPECTED_DESCRIPTORS · Guard F).
   { name: 'icon-button',        source: 'icon-button' },
+  // tab + tab-bar (the tab-bar slice · presentation only) — descriptor-ONLY SoTs
+  // (NO `kind`/deriver · like topbar/icon-button): the bottom-bar ITEM (`tab` ·
+  // icon-over-label · the `state` selected/unselected colour treatment) and its
+  // DUMB layout container (`tab-bar` · an OPEN row of equal columns · no value/
+  // state/derivation). The build emit + Guard D read `name` only.
+  { name: 'tab',                source: 'tab' },
+  { name: 'tab-bar',            source: 'tab-bar' },
 ];
 
 // ── Surface funnel · resolver-model §11 · the variant×accent map as data ──

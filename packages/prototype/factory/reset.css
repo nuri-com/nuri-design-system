@@ -49,9 +49,28 @@
   .nuri-interactive {
     border: 0;
     padding: 0;
+    /* The UA `<button>` background (the `buttonface` / `#efefef` bezel fill ·
+     * appearance:none alone does NOT clear it cross-browser) — normalized to
+     * transparent so a fg-ONLY palette variant (`subtle` · used for an unselected
+     * tab item) reveals the canvas behind it, matching RN's Pressable (no UA
+     * chrome). A variant that PAINTS a bg (solid/soft/ghost) still wins: its
+     * `.nuri-palette[data-variant]` (0,2,0) outranks this `.nuri-interactive`
+     * (0,1,0) in the same @layer, so only the no-bg `subtle` falls through here. */
+    background: transparent;
     font-family: inherit;
     appearance: none;
     -webkit-appearance: none;
     user-select: none;
+  }
+
+  /* RECIPE-HOST display:contents wrapper (the plumbing category named above · the
+   * legacy `nuri-tab-bar-item` pattern). <nuri-tab> wraps a <nuri-pressable> whose
+   * inner <button> is the merged node carrying the item's `stack:{fill:'even'}`
+   * (flex 1 1 0). The host must be layout-INVISIBLE so that button becomes the
+   * tab-bar row's DIRECT flex child — otherwise the `even` flex sits a level too
+   * deep and the columns bunch instead of spreading edge-to-edge. The RN analogue
+   * needs nothing (the Tab IS the Pressable · no wrapper). */
+  nuri-tab {
+    display: contents;
   }
 }

@@ -60,6 +60,8 @@ import { compositionButtonDescriptor } from '@nuri/spec/descriptors/composition-
 import { iconAvatarDescriptor } from '@nuri/spec/descriptors/icon-avatar';
 import { topbarDescriptor } from '@nuri/spec/descriptors/topbar';
 import { iconButtonDescriptor } from '@nuri/spec/descriptors/icon-button';
+import { tabDescriptor } from '@nuri/spec/descriptors/tab';
+import { tabBarDescriptor } from '@nuri/spec/descriptors/tab-bar';
 import type {
   SizeLeaf,
   RadiusLeaf,
@@ -96,6 +98,8 @@ export {
   iconAvatarDescriptor,
   topbarDescriptor,
   iconButtonDescriptor,
+  tabDescriptor,
+  tabBarDescriptor,
 };
 
 export type { Accent, Theme, TypeSize, TypeWeight, TypeStep, TokenPath, IconName };
