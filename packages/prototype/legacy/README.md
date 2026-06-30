@@ -23,22 +23,28 @@ the keep/archive taxonomy) and `docs/package-architecture.md` §3.2.
 
 ## What's here
 
-### `components/` — 9 hand-recipe component dirs (`.css` + `.js`)
+### `components/` — 7 hand-recipe component dirs (`.css` + `.js`)
 
 | dir | notes |
 |---|---|
-| `icon-button` | icon-only action recipe |
 | `list` · `list-item` · `list-interactive-item` | the List family primitives |
 | `nav-item` | the first closed recipe (decision 52) |
 | `switch` | toggle input |
-| `tab-bar` | bottom destination switcher (defines `nuri-tab-bar-item`) |
 | `tabs` | segmented control (defines `nuri-tab`) |
 | `typography-stack` | stacked-text recipe |
 
-### `pages/` — the 7 hand doc pages
+> **Pruned (oracle spent · git-recoverable):** `icon-button` (rebuilt as
+> `iconButtonDescriptor` · #92) and `tab-bar` (rebuilt as `tabBarDescriptor` /
+> `tabDescriptor` · #96) were removed once their active-playground pages
+> (`packages/playground/pages/{icon-button,tab-bar}.html`) confirmed superseded —
+> the §1.C prune of `docs/primitives-contract.md`. Their pre-axes recipes live in
+> git history if a future rebuild needs the exact old source.
 
-`icon-button.html` · `list-base.html` · `list-nav-item.html` · `switch.html` ·
-`tab-bar.html` · `tabs.html` · `typography-stack.html`.
+### `pages/` — the 5 hand doc pages
+
+`list-base.html` · `list-nav-item.html` · `switch.html` · `tabs.html` ·
+`typography-stack.html`. (The `icon-button.html` / `tab-bar.html` doc pages were
+pruned with their components — see above.)
 
 ### `playground/` — the 2 pre-axes compositions
 

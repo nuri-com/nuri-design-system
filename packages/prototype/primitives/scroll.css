@@ -6,7 +6,7 @@
  * remaining main-axis space (flex:1) and scrolls its overflow on the
  * block axis. Pure structure — no surface, no padding, no own tokens
  * (decision 37 · the layout-primitive class, same as Stack / Box /
- * Screen). Padding for the scrolled content is a <nuri-box> placed
+ * Screen). Padding for the scrolled content is a padded <View> placed
  * INSIDE the scroll (in RN that maps to ScrollView's
  * `contentContainerStyle`, never the ScrollView box itself).
  *
@@ -20,7 +20,7 @@
  *
  * Markup
  *   <nuri-scroll>
- *     <nuri-box padding="lg"><nuri-stack>…</nuri-stack></nuri-box>
+ *     <nuri-view padding="lg"><nuri-stack>…</nuri-stack></nuri-view>
  *   </nuri-scroll>
  *
  * No `@layer tokens` block — Scroll bakes only structural CSS

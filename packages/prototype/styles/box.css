@@ -21,8 +21,6 @@
 }
 
 @layer rules {
-  nuri-box { display: contents; }
-  nuri-box:not(:defined) { display: block; }
   .nuri-box { min-width: 0; }
   .nuri-box[data-width="xs"] { inline-size: var(--nuri-size-xs); }
   .nuri-box[data-width="sm"] { inline-size: var(--nuri-size-sm); }
