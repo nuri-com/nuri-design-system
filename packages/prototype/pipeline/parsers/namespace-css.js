@@ -124,9 +124,13 @@ const SHELLS = {
     post: [],
   },
   box: {
+    // The `<nuri-box>` standalone ELEMENT retired (the §1.B fold · box.js deleted ·
+    // its geometry already lands on the merged `View` node). Only the box NAMESPACE
+    // survives — the `.nuri-box[data-*]` dispatch + the `.nuri-box` base — applied
+    // programmatically by the web factory + the icon. So NO element-host shell here
+    // (no `nuri-box { display:contents }` / `:not(:defined)` skeleton — there is no
+    // element left to upgrade); just the namespace base.
     pre: [
-      { sel: 'nuri-box', decls: [['display', 'contents']] },
-      { sel: 'nuri-box:not(:defined)', decls: [['display', 'block']] },
       { sel: '.nuri-box', decls: [['min-width', '0']] },
     ],
     // `center` is NOT a BOX_FIELDS member (RN handles it in box.tsx) — a box-

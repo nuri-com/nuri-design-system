@@ -171,7 +171,7 @@ copy of `box.js` etc.); they are not the active projection and are out of scope 
 
 | Primitive | Web | RN today | To build |
 |---|---|---|---|
-| **View** | `<nuri-view>` | factory-internal `el:'view'` only | hand-authorable `<View box stack palette>` wrapper → `<View style={resolve(ns)}>` |
+| **View** | `<nuri-view>` | factory-internal `el:'view'` only | hand-authorable `<View variant="soft" padding="md" direction="row" gap="sm">` wrapper (flat box ⊕ stack ⊕ palette props · the #102 decision · buckets disjoint) → `<View style={resolve(ns)}>` |
 | **Stack** | `<nuri-stack>` | — | `<Stack direction gap …>` wrapper |
 | **Text** | `<nuri-typography>` | factory-internal `el:'text'` only | `<Text size emphasis>` wrapper |
 | **Pressable** | `<nuri-pressable>` | factory-internal interactive-view only | `<Pressable …>` wrapper (View + interactive) |
