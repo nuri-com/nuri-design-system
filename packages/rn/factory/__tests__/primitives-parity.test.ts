@@ -13,18 +13,20 @@
  * `ATTRS` arrays become a CHECKED projection, not a trusted hand list — the
  * analogue of the descriptor anatomy-vs-addressed-parts agreement check.
  *
- * SCOPE NOTE (the web leg). The fully-current, single-namespace web mirror is
- * `<nuri-stack>` — checked bidirectionally below. `<nuri-view>` carries NO
- * element ATTRS (the web factory applies the merged box⊕stack⊕palette classes
- * directly · view.js), and `<nuri-box>` is mid-retirement (the §1.B fold · stale
- * vs BoxNS), so View's web surface has no element-ATTRS oracle — its parity is
- * RN-props ≡ schema-keys. typography.js / pressable.js expose a PARTIAL namespace
- * surface (typography adds palette's `muted`; pressable realizes disabledOpacity
- * via the native `disabled` attr, not a `disabled-opacity` attr), so their web
- * leg is asserted as a SUBSET-consistency check (every namespace attr they DO
- * expose is a real schema key), the bidirectional half being RN-props ≡ schema.
- * "No web refactor" is an anti-goal this session — the gate reads web, never
- * edits it.
+ * SCOPE NOTE (the web leg). The fully-current web mirrors are `<nuri-stack>`
+ * (single-namespace) and `<nuri-view>` (box ∪ stack ∪ palette) — both checked
+ * BIDIRECTIONALLY below. `<nuri-view>` became hand-authorable in ③ (view.js
+ * gained a public attr surface that self-derives the merged box⊕stack⊕palette
+ * classes + data-* via the factory's own mergeAttrs · the dual-mode mirror of
+ * the RN View primitive), so View now has a real element-ATTRS oracle — closing
+ * the #102-deferred leg (its parity was RN-props ≡ schema only). The view attrs
+ * live in THREE namespace literals (BOX_ATTRS/STACK_ATTRS/PALETTE_ATTRS · the
+ * buckets the reader needs); the gate unions them. typography.js / pressable.js
+ * expose a PARTIAL namespace surface (typography adds palette's `muted`;
+ * pressable realizes disabledOpacity via the native `disabled` attr, not a
+ * `disabled-opacity` attr), so their web leg is asserted as a SUBSET-consistency
+ * check (every namespace attr they DO expose is a real schema key), the
+ * bidirectional half being RN-props ≡ schema.
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as fs from 'fs';
@@ -64,6 +66,26 @@ function webAttrs(file: string): string[] {
     .filter(Boolean);
 }
 
+// <nuri-view>'s public attrs live in THREE namespace literals (BOX_ATTRS /
+// STACK_ATTRS / PALETTE_ATTRS · the buckets view.js's reader needs to construct
+// the namespace map · view.js). Read + union them — the same checked-projection
+// idea as webAttrs, one regex per bucket.
+function viewAttrs(): string[] {
+  const src = fs.readFileSync(
+    path.resolve(__dirname, '../../../prototype/primitives/view.js'),
+    'utf8',
+  );
+  const grab = (name: string): string[] => {
+    const m = src.match(new RegExp(`const ${name} = \\[([\\s\\S]*?)\\]`));
+    if (!m) throw new Error(`no ${name} array in view.js`);
+    return m[1]
+      .split(',')
+      .map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
+      .filter(Boolean);
+  };
+  return [...grab('BOX_ATTRS'), ...grab('STACK_ATTRS'), ...grab('PALETTE_ATTRS')];
+}
+
 describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', () => {
   // ── RN props ≡ schema NS keys (the drift guard · every primitive) ──
   test('Stack props ≡ StackNS keys', () => {
@@ -93,6 +115,10 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
   test('web <nuri-stack> ATTRS (minus the web-only `as` host hatch) ≡ StackNS keys', () => {
     const attrs = webAttrs('stack.js').filter((a) => a !== 'as');
     expect(sorted(attrs)).toEqual(sorted(STACK_KEYS.map(kebab)));
+  });
+
+  test('web <nuri-view> ATTRS ≡ box ∪ stack ∪ palette keys (the #102-deferred leg, now bidirectional)', () => {
+    expect(sorted(viewAttrs())).toEqual(sorted(union(BOX_KEYS, STACK_KEYS, PALETTE_KEYS).map(kebab)));
   });
 
   test('web <nuri-typography> namespace ATTRS are real schema keys (typography ∪ palette)', () => {

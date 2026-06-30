@@ -1,45 +1,163 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · VIEW · CUSTOM ELEMENT
- *   (the static merged-node host · factory-rewrite S4 · decision 67)
+ *   (the merged-node host · factory-rewrite S4 · decision 67 · hand-authorable @③)
  *
- * <nuri-view> is the generic STATIC view host — the web mirror of RN
- * <View> (the el:'view' NON-interactive case in createNuriComponent.tsx ·
- * the N+26 el→primitive lock). It is the static counterpart of
+ * <nuri-view> is the generic view host — the web mirror of RN <View>
+ * (the el:'view' NON-interactive case in createNuriComponent.tsx · the
+ * N+26 el→primitive lock). It is the static counterpart of
  * <nuri-pressable>: where the pressable owns an inner interactive
  * <button>, the view IS the painting node itself.
  *
- * THE ELEMENT IS THE MERGED NODE (B1.5 §4.2 · palette.css). The web
- * factory (factory/factory.js) applies the resolved box ⊕ stack ⊕
- * palette classes + geometry/colour data-* DIRECTLY onto this element —
- * there is no inner element, no interactive opt-in, and no deferred
- * MutationObserver (simpler than the pressable, whose inner <button> is
- * created on connect). So this custom element carries NO sync logic: it
- * is a bare registration whose job is to BE the defined `nuri-view`
- * primitive. The styling lives entirely in the @layer CSS (view.css for
- * the host's default box · box.css / stack.css / palette.css for the
- * merged namespaces · option A · NOT §9 · decision 2 STANDS).
+ * THE ELEMENT IS THE MERGED NODE (B1.5 §4.2 · palette.css). It carries
+ * the resolved box ⊕ stack ⊕ palette classes + geometry/colour data-*
+ * DIRECTLY — there is no inner element. Two consumers paint it:
  *
- * DEDICATED · ≠ <nuri-box> (N+26 lock): <nuri-box> is geometry-only and a
- * display:contents wrapper around an inner <div>; <nuri-view> hosts the
- * full box+stack+palette merge as the painting node, the clean 1:1 with
- * RN <View>. accent self-scope (Tier-2 · decision 27/62) rides the
- * existing token cascade — the factory mirrors `accent` to data-accent
- * directly on this node (like icon-avatar.js's inner span), no JS here.
+ *   1. THE WEB FACTORY (factory/factory.js · renderStaticView) applies the
+ *      merged classes + data-* programmatically, WITHOUT public attrs — the
+ *      catalog-component path (IconAvatar circle · Topbar chrome row).
+ *   2. THE HAND AUTHOR writes the PUBLIC attrs (`aspect-ratio` · `radius` ·
+ *      `variant` · `direction` · `gap` · …) and this element self-derives the
+ *      SAME classes + data-* — the playground card path (`<nuri-view
+ *      aspect-ratio="card" radius="lg" variant="subtle">`), the web twin of
+ *      the RN `View` primitive (#102 · primitives.tsx). flat attrs = box ∪
+ *      stack ∪ palette, the mirror of the RN flat-prop surface.
  *
- * No hand-authoring consumer exists (the hand recipes stay · the factory
- * is the only consumer · P11 · decision 30) — hence no observed
- * attributes / no `as` escape hatch. Markup is the factory's output:
- *   <nuri-view class="nuri-box nuri-stack nuri-palette" data-…>…</nuri-view>
+ * ⚠ THE DUAL-MODE (the named risk · the icon.js:70 host-pinned-vs-self-derive
+ * precedent). #sync SELF-DERIVES only from this element's OWN public attrs.
+ * A factory-painted node carries NO public attr (the factory sets data-* +
+ * classes directly), so #sync must NOT run on it — else it would clobber the
+ * factory merge and break every catalog-rendered View. The latch below
+ * (#managed) only ever flips on a node a hand author touched; a factory node
+ * never carries a public attr, so it stays unmanaged and untouched.
+ *
+ * NO SECOND MECHANISM. The class + data-* spelling is the factory's own
+ * `mergeAttrs` (decision 74 · exported for exactly this kind of apply-to-host
+ * reuse) — this element BUCKETS its attrs into the box/stack/palette namespace
+ * map and hands it to `mergeAttrs`, so the emitted `.nuri-box .nuri-stack
+ * .nuri-palette` + `data-{kebab}` are byte-identical to the factory's. The CSS
+ * (box.css / stack.css / palette.css) dispatches unchanged; this file adds an
+ * attr READER, not new styling. The boolean/enum NORMALIZATION (wrap → 'true',
+ * bare `fill` → 'grow') mirrors the live <nuri-stack> hand-authorable element.
+ *
+ * @layer host default lives in view.css (the RN <View> Yoga box · flex column,
+ * flex-shrink:0). accent self-scope (Tier-2 · decision 27/62) rides the token
+ * cascade via data-accent, mirrored here from the `accent` attr exactly as the
+ * factory mirrors it from ctx.base.accent.
+ *
+ * Loaded as an ES module (it imports the factory's mergeAttrs); the recipes /
+ * pages reference it as `<script type="module">` or via the recipe self-imports.
  * ────────────────────────────────────────────────────────────── */
 
-(() => {
-  // A bare registration: the factory applies the merged node directly, so
-  // the element needs no observed attributes and no connectedCallback work.
-  // Defining it gives <nuri-view> a real custom-element identity (so the
-  // @layer host rule's default box applies as a defined element).
-  class NuriView extends HTMLElement {}
+import { mergeAttrs } from '../factory/factory.js';
 
-  // Idempotent define (decision 74) — the factory-backed recipes self-import this
-  // primitive, so a page's classic <script> tag for it coexists with that import.
-  if (!customElements.get('nuri-view')) customElements.define('nuri-view', NuriView);
-})();
+// The PUBLIC attr surface = box ∪ stack ∪ palette (kebab) — the hand-authorable
+// mirror of the RN View props (box ∪ stack ∪ palette · primitives.tsx:135). The
+// parity gate (primitives-parity.test.ts) reads these three literals and asserts
+// their union ≡ the schema namespace keys (kebab) — a CHECKED projection, not a
+// trusted hand list (contract §3.2). `as` is NOT here: <nuri-view> IS the painting
+// node (no inner host element to override · unlike <nuri-stack>).
+const BOX_ATTRS = [
+  'width', 'height', 'min-height', 'min-width',
+  'padding', 'padding-x', 'padding-y', 'padding-start', 'padding-end', 'padding-top', 'padding-bottom',
+  'radius', 'aspect-ratio',
+];
+const STACK_ATTRS = ['direction', 'align', 'justify', 'gap', 'wrap', 'fill'];
+const PALETTE_ATTRS = ['variant', 'accent', 'muted', 'chrome'];
+const ATTRS = [...BOX_ATTRS, ...STACK_ATTRS, ...PALETTE_ATTRS];
+
+// The full vocabulary of data-* keys this element manages (so a CHANGE/REMOVAL
+// of a public attr re-derives cleanly without touching anything the factory owns
+// — only relevant once #managed, i.e. on a hand-authored node). box/stack keys
+// are 1:1 kebab → `data-{attr}`; palette emits variant/chrome/accent (muted is
+// dropped on web · the web palette has no `data-muted` · memory: web-palette-no-muted).
+const MANAGED_DATA = [
+  ...BOX_ATTRS.map((a) => `data-${a}`),
+  ...STACK_ATTRS.map((a) => `data-${a}`),
+  'data-variant', 'data-chrome', 'data-accent',
+];
+
+// fill · enum grow | grow-shrink | even (the <nuri-stack> normalization · B1.5 §3):
+// a bare `fill` (or `fill="grow"`) means grow; `grow-shrink` / `even` pass through;
+// anything else present defaults to grow. The factory never emits bare fill (its
+// descriptors are explicit), so this normalization is the hand-author's alone.
+const normalizeFill = (v) => (v === 'grow-shrink' ? 'grow-shrink' : v === 'even' ? 'even' : 'grow');
+
+class NuriView extends HTMLElement {
+  static get observedAttributes() {
+    return ATTRS;
+  }
+
+  // The dual-mode latch (the named risk): flips true the first time this node
+  // carries a public attr — i.e. a hand author painted it. A factory-painted
+  // node never carries a public attr, so it stays false and #sync is a no-op,
+  // leaving the factory's classes + data-* untouched.
+  #managed = false;
+
+  connectedCallback() {
+    this.#sync();
+  }
+
+  attributeChangedCallback() {
+    if (this.isConnected) this.#sync();
+  }
+
+  // Self-derive the merged-node classes + data-* from this element's OWN public
+  // attrs, via the factory's mergeAttrs (no second mechanism). Guarded by the
+  // dual-mode latch so it never runs on a factory-painted node.
+  #sync() {
+    const hasPublic = ATTRS.some((a) => this.hasAttribute(a));
+    if (!this.#managed && !hasPublic) return; // factory-painted or bare → don't clobber
+    this.#managed = true;
+
+    const { classes, data } = mergeAttrs(this.#readNS());
+
+    // accent self-scope (Tier-2 · decision 27/62) — the factory mirrors `accent`
+    // to data-accent directly on the node; mergeAttrs leaves accent to the host,
+    // so apply it here with the same spelling.
+    const accent = this.getAttribute('accent');
+    if (accent) data['data-accent'] = accent;
+
+    // namespace classes — toggle the three so removing a namespace's last attr
+    // drops its class (safe: only a #managed, hand-authored node reaches here).
+    for (const c of ['nuri-box', 'nuri-stack', 'nuri-palette']) {
+      this.classList.toggle(c, classes.includes(c));
+    }
+    // data-* — set the derived keys, drop the managed-but-absent ones.
+    for (const key of MANAGED_DATA) {
+      if (key in data) this.setAttribute(key, data[key]);
+      else this.removeAttribute(key);
+    }
+  }
+
+  // Bucket the present public attrs into the namespace map mergeAttrs consumes.
+  // Keys stay kebab — mergeAttrs's camelToKebab is the identity on an already-kebab
+  // key, so the emitted data-* spelling is identical to the factory's (e.g.
+  // 'aspect-ratio' → data-aspect-ratio). The only non-passthrough values are the
+  // stack booleans/enums normalized to the stack.css vocabulary (wrap, fill).
+  #readNS() {
+    const ns = {};
+
+    const box = {};
+    for (const a of BOX_ATTRS) if (this.hasAttribute(a)) box[a] = this.getAttribute(a);
+    if (Object.keys(box).length) ns.box = box;
+
+    const stack = {};
+    for (const a of STACK_ATTRS) {
+      if (!this.hasAttribute(a)) continue;
+      if (a === 'wrap') stack.wrap = true; // boolean attr → mergeAttrs emits data-wrap='true'
+      else if (a === 'fill') stack.fill = normalizeFill(this.getAttribute('fill'));
+      else stack[a] = this.getAttribute(a);
+    }
+    if (Object.keys(stack).length) ns.stack = stack;
+
+    const palette = {};
+    for (const a of PALETTE_ATTRS) if (this.hasAttribute(a)) palette[a] = this.getAttribute(a);
+    if (Object.keys(palette).length) ns.palette = palette;
+
+    return ns;
+  }
+}
+
+// Idempotent define (decision 74) — the factory-backed recipes self-import this
+// primitive, so a page's <script type="module"> tag for it coexists with that import.
+if (!customElements.get('nuri-view')) customElements.define('nuri-view', NuriView);

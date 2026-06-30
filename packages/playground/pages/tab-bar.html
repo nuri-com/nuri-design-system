@@ -74,6 +74,7 @@
   <script src="../../prototype/primitives/icon.js" type="module"></script>
   <script src="../../prototype/primitives/typography.js" defer></script>
   <script src="../../prototype/primitives/stack.js" defer></script>
+  <script src="../../prototype/primitives/view.js" type="module"></script>
   <script src="../../prototype/recipes/button.js" type="module"></script>
   <script src="../../prototype/recipes/icon-button.js" type="module"></script>
   <script src="../../prototype/recipes/topbar.js" type="module"></script>
@@ -85,10 +86,6 @@
     .nuri-pg__scroll { gap: 0; }
     [data-pg-nav="ds"] { display: none; }
     [data-pg-nav="index"] { display: none; }
-    /* The screen frame: a column that fills the device height so the tab-bar sits
-       at the BOTTOM edge (the navigator-chrome position · a SIBLING of the body). */
-    .screen { min-block-size: 560px; }
-    .screen__body { flex: 1; }
   </style>
 </head>
 <body>
@@ -99,7 +96,7 @@
        actions, with the bottom bar pinned below — a real screen from the pieces. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="wallet">
     <template>
-      <nuri-stack class="screen" direction="column" align="stretch" justify="start" gap="none" fill>
+      <nuri-stack direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-topbar>
           <nuri-topbar-leading>
             <nuri-icon name="nuri"></nuri-icon>
@@ -112,16 +109,14 @@
           </nuri-topbar-trailing>
         </nuri-topbar>
 
-        <nuri-stack class="screen__body" direction="column" align="center" justify="center" gap="lg" fill>
-          <nuri-stack direction="column" align="center" justify="center" gap="xs">
-            <nuri-typography size="sm">Total balance</nuri-typography>
-            <nuri-typography size="3xl" emphasis>€ 25.87</nuri-typography>
-          </nuri-stack>
-          <nuri-stack direction="row" align="center" justify="center" gap="sm">
-            <nuri-button size="md" variant="solid">Send</nuri-button>
-            <nuri-button size="md" variant="soft">Receive</nuri-button>
-          </nuri-stack>
-        </nuri-stack>
+        <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
+          <nuri-view aspect-ratio="card" radius="lg"></nuri-view>
+          <nuri-typography size="3xl" emphasis align="center">€ 25.87</nuri-typography>
+          <nuri-view direction="row" align="center" gap="sm">
+            <nuri-view fill="even"><nuri-button size="lg" variant="soft">Receive</nuri-button></nuri-view>
+            <nuri-view fill="even"><nuri-button size="lg" variant="solid" accent="orange">Send</nuri-button></nuri-view>
+          </nuri-view>
+        </nuri-view>
 
         <nuri-tab-bar>
           <nuri-tab-bar-item icon="wallet" label="€ 36.50" selected></nuri-tab-bar-item>
@@ -135,7 +130,7 @@
   <!-- COIN screen · the bitcoin destination is active. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="coin">
     <template>
-      <nuri-stack class="screen" direction="column" align="stretch" justify="start" gap="none" fill>
+      <nuri-stack direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-topbar>
           <nuri-topbar-leading>
             <nuri-icon name="nuri"></nuri-icon>
@@ -148,16 +143,14 @@
           </nuri-topbar-trailing>
         </nuri-topbar>
 
-        <nuri-stack class="screen__body" direction="column" align="center" justify="center" gap="lg" fill>
-          <nuri-stack direction="column" align="center" justify="center" gap="xs">
-            <nuri-typography size="sm">Bitcoin holdings</nuri-typography>
-            <nuri-typography size="3xl" emphasis>₿ 0.0413</nuri-typography>
-          </nuri-stack>
-          <nuri-stack direction="row" align="center" justify="center" gap="sm">
-            <nuri-button size="md" variant="solid">Buy</nuri-button>
-            <nuri-button size="md" variant="soft">Sell</nuri-button>
-          </nuri-stack>
-        </nuri-stack>
+        <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
+          <nuri-view aspect-ratio="card" radius="lg"></nuri-view>
+          <nuri-typography size="3xl" emphasis align="center">₿ 0.0413</nuri-typography>
+          <nuri-view direction="row" align="center" gap="sm">
+            <nuri-view fill="even"><nuri-button size="lg" variant="soft">Details</nuri-button></nuri-view>
+            <nuri-view fill="even"><nuri-button size="lg" variant="solid" accent="lilac">Send</nuri-button></nuri-view>
+          </nuri-view>
+        </nuri-view>
 
         <nuri-tab-bar>
           <nuri-tab-bar-item icon="wallet" label="€ 36.50"></nuri-tab-bar-item>
@@ -171,7 +164,7 @@
   <!-- CASH screen · the euro destination is active. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="cash">
     <template>
-      <nuri-stack class="screen" direction="column" align="stretch" justify="start" gap="none" fill>
+      <nuri-stack direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-topbar>
           <nuri-topbar-leading>
             <nuri-icon name="nuri"></nuri-icon>
@@ -184,16 +177,14 @@
           </nuri-topbar-trailing>
         </nuri-topbar>
 
-        <nuri-stack class="screen__body" direction="column" align="center" justify="center" gap="lg" fill>
-          <nuri-stack direction="column" align="center" justify="center" gap="xs">
-            <nuri-typography size="sm">Available cash</nuri-typography>
-            <nuri-typography size="3xl" emphasis>€ 1 240.00</nuri-typography>
-          </nuri-stack>
-          <nuri-stack direction="row" align="center" justify="center" gap="sm">
-            <nuri-button size="md" variant="solid">Add money</nuri-button>
-            <nuri-button size="md" variant="soft">Withdraw</nuri-button>
-          </nuri-stack>
-        </nuri-stack>
+        <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
+          <nuri-view aspect-ratio="card" radius="lg" variant="soft"></nuri-view>
+          <nuri-typography size="3xl" emphasis align="center">€ 1 240.00</nuri-typography>
+          <nuri-view direction="row" align="center" gap="sm">
+            <nuri-view fill="even"><nuri-button size="lg" variant="soft">Details</nuri-button></nuri-view>
+            <nuri-view fill="even"><nuri-button size="lg" variant="solid" accent="lilac">Add Money</nuri-button></nuri-view>
+          </nuri-view>
+        </nuri-view>
 
         <nuri-tab-bar>
           <nuri-tab-bar-item icon="wallet" label="€ 36.50"></nuri-tab-bar-item>
