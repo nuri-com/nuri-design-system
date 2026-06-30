@@ -482,6 +482,16 @@ export function defineNuriComponent(descriptor, tagName) {
   // authored POSITIONAL children directly inside the built root. Distinct from
   // COMPOUND (named slots): the children move in wholesale, no per-region harvest.
   const isOpenHost = !!anatomy.open && !isCompound && !primary;
+  // MOUNT-A-TREE host (button / icon-button / tab-bar-item · the default #render
+  // path · `replaceChildren(buildComponent(...))`): the host wraps a FRESH nuri-*
+  // tree whose inner merged node carries the geometry/flex. The wrapper must be
+  // layout-INVISIBLE (display:contents) so that merged node becomes the parent's
+  // DIRECT flex child — else a `fill:even` item (tab-bar-item) sits a level too
+  // deep and the columns bunch instead of spreading. This is GENERIC plumbing
+  // for every mount-a-tree host (the data-host-tree marker + ONE reset.css rule),
+  // NOT a per-component selector. The apply-NS-to-host paths (compound topbar /
+  // open tab-bar) are EXCLUDED — they ARE the painting node, so they stay visible.
+  const mountsTree = !isCompound && !isOpenHost;
 
   // ERGONOMIC per-part STRING attributes — a non-root, non-view part that is NOT the
   // lone primary gets an attribute named after it (prefix/icon/suffix · the icon-
@@ -518,6 +528,10 @@ export function defineNuriComponent(descriptor, tagName) {
 
     connectedCallback() {
       if (this.#built) return;
+      // MOUNT-A-TREE host → layout-invisible (display:contents via the data-host-tree
+      // marker + the single generic reset.css rule). The painting-node hosts (compound
+      // topbar / open tab-bar) are excluded — they ARE the surface, so they stay visible.
+      if (mountsTree) this.setAttribute('data-host-tree', '');
       // Decorative · the whole element is hidden from AT (decision 50) — from DATA.
       if (descriptor.decorative) this.setAttribute('aria-hidden', 'true');
       // Capture the authored label BEFORE the factory tree replaces the children

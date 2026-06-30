@@ -63,14 +63,17 @@
     user-select: none;
   }
 
-  /* RECIPE-HOST display:contents wrapper (the plumbing category named above · the
-   * legacy `nuri-tab-bar-item` pattern). <nuri-tab> wraps a <nuri-pressable> whose
-   * inner <button> is the merged node carrying the item's `stack:{fill:'even'}`
-   * (flex 1 1 0). The host must be layout-INVISIBLE so that button becomes the
-   * tab-bar row's DIRECT flex child — otherwise the `even` flex sits a level too
-   * deep and the columns bunch instead of spreading edge-to-edge. The RN analogue
-   * needs nothing (the Tab IS the Pressable · no wrapper). */
-  nuri-tab {
+  /* MOUNT-A-TREE host display:contents wrapper (the plumbing category named above).
+   * A factory mount-a-tree host (<nuri-button> / <nuri-icon-button> / <nuri-tab-bar-item>)
+   * wraps a FRESH nuri-* tree whose inner merged node carries the geometry/flex (e.g. a
+   * tab-bar-item's `stack:{fill:'even'}` · flex 1 1 0). The host must be layout-INVISIBLE
+   * so that merged node becomes the parent's DIRECT flex child — otherwise the `even` flex
+   * sits a level too deep and the columns bunch instead of spreading edge-to-edge. This is
+   * ONE GENERIC rule keyed on the factory's `data-host-tree` marker (defineNuriComponent
+   * sets it on every mount-a-tree host · NOT a per-component selector); the apply-NS-to-host
+   * painting nodes (compound topbar / open tab-bar) carry no marker and stay visible. The RN
+   * analogue needs nothing (the component IS the node · no wrapper). */
+  [data-host-tree] {
     display: contents;
   }
 }
