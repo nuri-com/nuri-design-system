@@ -568,7 +568,9 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
           {
             "color": "#222013",
           },
-          {},
+          {
+            "paddingEnd": 6,
+          },
         ]
       }
     >
@@ -691,7 +693,9 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
           {
             "color": "#bfbcac",
           },
-          {},
+          {
+            "paddingEnd": 6,
+          },
         ]
       }
     >
@@ -814,7 +818,9 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
           {
             "color": "#bfbcac",
           },
-          {},
+          {
+            "paddingEnd": 6,
+          },
         ]
       }
     >
@@ -832,7 +838,7 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — BAR
       "backgroundColor": "#fffdf2",
       "flexDirection": "row",
       "gap": 6,
-      "height": 48,
+      "height": 54,
       "paddingEnd": 18,
       "paddingStart": 18,
     }
@@ -887,7 +893,7 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — COM
       "backgroundColor": "#fffdf2",
       "flexDirection": "row",
       "gap": 6,
-      "height": 48,
+      "height": 54,
       "paddingEnd": 18,
       "paddingStart": 18,
     }

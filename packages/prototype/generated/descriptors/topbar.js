@@ -34,7 +34,7 @@ export const topbarDescriptor = {
       // The chrome row (height · edge padding · the canvas surface · today's values).
       root: {
         stack: { direction: 'row', align: 'center', gap: 'sm' },
-        box: { height: 'lg', paddingStart: 'lg', paddingEnd: 'lg' },
+        box: { height: 'xl', paddingStart: 'lg', paddingEnd: 'lg' },
         palette: { chrome: 'canvas' },
       },
       // The edges: equal-basis-0 flex (`even`) so they take an IDENTICAL share of
