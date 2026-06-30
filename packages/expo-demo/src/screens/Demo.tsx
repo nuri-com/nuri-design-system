@@ -19,6 +19,9 @@ import {
   Button,
   IconAvatar,
   Topbar,
+  TopbarLeading,
+  TopbarCenter,
+  TopbarTrailing,
   NuriScope,
   NuriIcon,
   typeStyle,
@@ -39,17 +42,17 @@ export const Demo: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme })
           via the typed sub-components (the centre lands at the bar's TRUE centre
           with asymmetric edges · the in-bar title is out of scope this slice). */}
       <Topbar>
-        <Topbar.Leading>
+        <TopbarLeading>
           <IconAvatar variant="ghost" icon="card" />
-        </Topbar.Leading>
-        <Topbar.Center>
+        </TopbarLeading>
+        <TopbarCenter>
           {/* The centre region is an OPEN host slot (a `view`, not an icon part),
               so it takes a standalone NuriIcon — the RN twin of `<nuri-icon name>`. */}
           <NuriIcon name="bitcoin" />
-        </Topbar.Center>
-        <Topbar.Trailing>
+        </TopbarCenter>
+        <TopbarTrailing>
           <Button variant="soft" size="sm" onPress={onToggleTheme}>Theme</Button>
-        </Topbar.Trailing>
+        </TopbarTrailing>
       </Topbar>
 
       <ScrollView contentContainerStyle={styles.body}>

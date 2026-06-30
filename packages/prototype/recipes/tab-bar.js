@@ -20,10 +20,11 @@
  * the items use; <nuri-tab> arrives via its own recipe (self-imported below).
  * ────────────────────────────────────────────────────────────── */
 
-import { defineNuriComponent } from '../factory/factory.js';
+import { defineNuriComponent, nuriNames } from '../factory/factory.js';
 import { tabBarDescriptor } from '../generated/descriptors/tab-bar.js';
 // The bar renders its <nuri-tab> children — pull in the item recipe (idempotent
 // define-guard) so a page that links only tab-bar.js still gets the item element.
 import './tab.js';
 
-defineNuriComponent(tabBarDescriptor, 'nuri-tab-bar');
+// Public name == source (`tab-bar`) — the tag is DERIVED, never hand-authored.
+defineNuriComponent(tabBarDescriptor, nuriNames('tab-bar').web);

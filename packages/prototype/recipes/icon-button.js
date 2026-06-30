@@ -23,7 +23,7 @@
  *   aria-label → the accessible name when BARE (icon-only); flanked, the text IS the name.
  * ────────────────────────────────────────────────────────────── */
 
-import { defineNuriComponent } from '../factory/factory.js';
+import { defineNuriComponent, nuriNames } from '../factory/factory.js';
 import { iconButtonDescriptor } from '../generated/descriptors/icon-button.js';
 // Self-import the primitive element defs the factory tree upgrades into (idempotent ·
 // each primitive guards its own define): the interactive host, the text flanks, the glyph.
@@ -31,4 +31,5 @@ import '../primitives/pressable.js';
 import '../primitives/typography.js';
 import '../primitives/icon.js';
 
-defineNuriComponent(iconButtonDescriptor, 'nuri-icon-button');
+// Public name == source (`icon-button`) — the tag is DERIVED, never hand-authored.
+defineNuriComponent(iconButtonDescriptor, nuriNames('icon-button').web);

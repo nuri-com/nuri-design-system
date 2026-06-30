@@ -25,10 +25,11 @@
  * emits only the routed glyph NAME. No active page (button.html) uses `fill`.
  * ────────────────────────────────────────────────────────────── */
 
-import { defineNuriComponent } from '../factory/factory.js';
+import { defineNuriComponent, nuriNames } from '../factory/factory.js';
 import { iconAvatarDescriptor } from '../generated/descriptors/icon-avatar.js';
 // Self-import the primitive element defs the factory tree upgrades into (idempotent).
 import '../primitives/view.js';
 import '../primitives/icon.js';
 
-defineNuriComponent(iconAvatarDescriptor, 'nuri-icon-avatar');
+// Public name == source (`icon-avatar`) — the tag is DERIVED, never hand-authored.
+defineNuriComponent(iconAvatarDescriptor, nuriNames('icon-avatar').web);

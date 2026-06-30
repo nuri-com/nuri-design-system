@@ -48,8 +48,16 @@ import postcss from 'postcss';
 // P11. (The per-component token emit at build/components/button.ts was a
 // separate artifact, retired at Smell-1 · decision 66 arc #0; the descriptor
 // emit here is independent and unaffected.)
+// THE PUBLIC NAME (deterministic-naming) — `public` is the kebab the factory
+// bindings DERIVE the web/RN names from (web `nuri-{public}` · RN `Pascal({public})`),
+// canonical here where it DIFFERS from the descriptor SOURCE name: `composition-button`'s
+// public is `button`, `tab`'s public is `tab-bar-item`. The rest match `name`. The
+// runtime bindings (rn/factory/index.ts + the web recipes) restate the same kebab —
+// they cannot import this build-time registry across the zero-build web boundary —
+// and mirror this table. Nothing assumes `name === public`; the DERIVATION is the
+// single rule (nuriNames), not a per-name hand string.
 export const DESCRIPTOR_COMPONENTS = [
-  { name: 'composition-button', source: 'button',      kind: 'button',      fgPart: 'label' },
+  { name: 'composition-button', source: 'button',      kind: 'button',      fgPart: 'label', public: 'button' },
   { name: 'icon-avatar',        source: 'icon-avatar',  kind: 'iconAvatar',  fgPart: 'icon'  },
   // topbar (the topbar-slots slice · the 2nd contract bump) — joins icon-button
   // as a descriptor-ONLY SoT: NO `kind`/deriver. The CSS parity oracle (deriveTopbar)
@@ -67,7 +75,7 @@ export const DESCRIPTOR_COMPONENTS = [
   // icon-over-label · the `state` selected/unselected colour treatment) and its
   // DUMB layout container (`tab-bar` · an OPEN row of equal columns · no value/
   // state/derivation). The build emit + Guard D read `name` only.
-  { name: 'tab',                source: 'tab' },
+  { name: 'tab',                source: 'tab', public: 'tab-bar-item' },
   { name: 'tab-bar',            source: 'tab-bar' },
 ];
 

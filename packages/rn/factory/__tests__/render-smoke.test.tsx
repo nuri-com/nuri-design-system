@@ -17,7 +17,18 @@ import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { Text, View } from 'react-native';
 import { NuriThemeProvider } from '../../theme';
-import { Button, IconAvatar, IconButton, Topbar, TabBar, NuriIcon } from '../index';
+import {
+  Button,
+  IconAvatar,
+  IconButton,
+  Topbar,
+  TopbarLeading,
+  TopbarCenter,
+  TopbarTrailing,
+  TabBar,
+  TabBarItem,
+  NuriIcon,
+} from '../index';
 
 function render(node: React.ReactElement): TestRenderer.ReactTestRenderer {
   let tr!: TestRenderer.ReactTestRenderer;
@@ -58,9 +69,9 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const tr = render(
       <NuriThemeProvider>
         <Topbar>
-          <Topbar.Leading><View accessibilityLabel="leading" /></Topbar.Leading>
-          <Topbar.Center><Text>Account</Text></Topbar.Center>
-          <Topbar.Trailing><View accessibilityLabel="trailing" /></Topbar.Trailing>
+          <TopbarLeading><View accessibilityLabel="leading" /></TopbarLeading>
+          <TopbarCenter><Text>Account</Text></TopbarCenter>
+          <TopbarTrailing><View accessibilityLabel="trailing" /></TopbarTrailing>
         </Topbar>
       </NuriThemeProvider>,
     );
@@ -115,9 +126,9 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const tr = render(
       <NuriThemeProvider>
         <TabBar>
-          <TabBar.Item icon="card" label="Wallet" selected onPress={() => undefined} />
-          <TabBar.Item icon="bitcoin" label="Coin" onPress={() => undefined} />
-          <TabBar.Item icon="euro" label="Cash" selected={false} onPress={() => undefined} />
+          <TabBarItem icon="card" label="Wallet" selected onPress={() => undefined} />
+          <TabBarItem icon="bitcoin" label="Coin" onPress={() => undefined} />
+          <TabBarItem icon="euro" label="Cash" selected={false} onPress={() => undefined} />
         </TabBar>
       </NuriThemeProvider>,
     );

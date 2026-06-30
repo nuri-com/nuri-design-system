@@ -423,6 +423,15 @@ export function buildComponent(descriptor, selection = {}, props = {}) {
   return renderPart(anatomy, { descriptor, selection: sel, content, base: props });
 }
 
+// ── THE DETERMINISTIC NAMING RULE (deterministic-naming · the web MIRROR) ──
+// ONE public name (kebab-case) per component → web `nuri-{kebab}` · RN `Pascal({kebab})`.
+// The recipes DERIVE their tag from the public name via `nuriNames(...).web` instead
+// of hand-authoring a `nuri-*` string — so the web↔RN pair is always a pure
+// kebab↔Pascal conversion. The RN factory carries the SAME rule (createNuriComponent
+// nuriNames). The factory's slot tags already derive (`${tagName}-${part}`).
+const pascalCase = (kebab) => kebab.split('-').map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join('');
+export const nuriNames = (kebab) => ({ web: `nuri-${kebab}`, rn: pascalCase(kebab) });
+
 /**
  * defineNuriComponent · descriptor + tag name → a registered custom element.
  *
