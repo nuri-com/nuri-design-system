@@ -43,6 +43,20 @@ export type { NuriComponentProps, NuriBaseProps, NuriSlot } from './createNuriCo
 export { NuriIcon } from './NuriIcon';
 export type { NuriIconProps } from './NuriIcon';
 
+// The hand-authorable OPEN primitive layer — the RN twins of the web
+// `<nuri-stack/view/typography/pressable/screen/scroll>` (primitives-contract §1.A ·
+// the §2 parity gap · step ①). Thin wrappers forwarding namespace props through the
+// SAME resolve.ts appliers (no second mapping · the drift rule). NOT descriptors.
+export { View, Stack, Text, Pressable, Screen, Scroll } from './primitives';
+export type {
+  ViewProps,
+  StackProps,
+  TextProps,
+  PressableProps,
+  ScreenProps,
+  ScrollProps,
+} from './primitives';
+
 import { createNuriComponent, nuriNames, compoundSlots } from './createNuriComponent';
 import {
   compositionButtonDescriptor,

@@ -339,6 +339,32 @@ function realizeToken(rn: { token: string; shape?: 'scale' }, theme: NuriTheme):
   return rn.shape === 'scale' ? [{ scale: raw as number }] : raw;
 }
 
+// ── flattenInteractive · apply the interactive transients of a RESOLVED node ──
+// The (selection × state) → ViewStyle tail of flattenPart, EXTRACTED so the open
+// primitive layer (the hand-authorable `Pressable` wrapper · primitives.tsx) reuses
+// the SAME opt-in applier the descriptor factory does — one interactive mapping, not
+// a second hand-written copy (the single-SoT drift rule · N+44). Both callers pass a
+// node from `resolveNS`; the transients realize from the single `opts` SoT.
+//
+// For each opted-in effect whose trigger fires, realize its rn onto a copy of
+// `node.view`: `from` reads the resolved node (pressColor → node.pressedBg · skipped
+// when absent, the old `pressedBg !== undefined` guard), `token` reads the theme
+// baseline. opts key order (pressColor → pressScale → disabledOpacity) reproduces the
+// old if-sequence → byte-identical style key order (the snapshot anchor).
+export function flattenInteractive(node: ResolvedNode, theme: NuriTheme, state: State): ViewStyle {
+  const style: ViewStyle = { ...node.view };
+  for (const key of Object.keys(INTERACTIVE_OPTS) as OptKey[]) {
+    const opt = INTERACTIVE_OPTS[key];
+    if (!state[opt.trigger]) continue;
+    if (!node.interactive?.[key]) continue;
+    const value =
+      'from' in opt.rn ? (node as Record<string, unknown>)[opt.rn.from] : realizeToken(opt.rn, theme);
+    if (value === undefined) continue;
+    (style as Record<string, unknown>)[opt.rn.prop] = value;
+  }
+  return style;
+}
+
 // ── flattenPart · the concrete RN style for a (selection × state) cell ──
 export type PartFlat = { style: ViewStyle; node: ResolvedNode };
 
@@ -352,23 +378,7 @@ export function flattenPart<A extends Axes>(
 ): PartFlat {
   const ns = mergedNSForPart(descriptor, selection, part);
   const node = resolveNS(ns, theme, mode);
-  const style: ViewStyle = { ...node.view };
-  // Interactive transients — the factory's, gated by the opt-in (65.4), projected from
-  // the single `opts` SoT (N+44). For each opted-in effect whose trigger fires, realize
-  // its rn onto the merged style: `from` reads the resolved node (pressColor →
-  // node.pressedBg · skipped when absent, the old `pressedBg !== undefined` guard),
-  // `token` reads the theme baseline. opts key order (pressColor → pressScale →
-  // disabledOpacity) reproduces the old if-sequence → byte-identical style key order.
-  for (const key of Object.keys(INTERACTIVE_OPTS) as OptKey[]) {
-    const opt = INTERACTIVE_OPTS[key];
-    if (!state[opt.trigger]) continue;
-    if (!node.interactive?.[key]) continue;
-    const value =
-      'from' in opt.rn ? (node as Record<string, unknown>)[opt.rn.from] : realizeToken(opt.rn, theme);
-    if (value === undefined) continue;
-    (style as Record<string, unknown>)[opt.rn.prop] = value;
-  }
-  return { style, node };
+  return { style: flattenInteractive(node, theme, state), node };
 }
 
 // ══════════════════════════════════════════════════════════════════

@@ -29,6 +29,16 @@ import {
   TabBarItem,
   NuriIcon,
 } from '../index';
+// The hand-authorable primitives (step ①) — aliased so the DS names don't clash
+// with the raw react-native View/Text imported above for the catalog tests.
+import {
+  View as NuriView,
+  Stack as NuriStack,
+  Text as NuriText,
+  Pressable as NuriPressable,
+  Screen as NuriScreen,
+  Scroll as NuriScroll,
+} from '../primitives';
 
 function render(node: React.ReactElement): TestRenderer.ReactTestRenderer {
   let tr!: TestRenderer.ReactTestRenderer;
@@ -144,6 +154,57 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const unselectedGlyph = tr.root.findAllByType(NuriIcon).find((g) => g.props.name === 'bitcoin');
     expect(selectedGlyph!.props.color).toBe('#222013');
     expect(unselectedGlyph!.props.color).not.toBe('#222013');
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  // ── the hand-authorable primitive layer (step ①) — one headless mount per
+  // primitive · no-throw + a committed snapshot (the consumability guard,
+  // primitive-side · contract §3.3b). A View carrying a palette delivers its fg
+  // by scope into a nested Text (proving the primitives reuse the factory's §12
+  // colour-by-scope, not a parallel mechanism).
+  test('primitives — View ⊃ Stack ⊃ Text compose · merged box⊕stack⊕palette + colour-by-scope', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <NuriScreen>
+          <NuriScroll>
+            <NuriView variant="soft" padding="md" radius="lg">
+              <NuriStack direction="row" gap="sm" align="center">
+                <NuriText size="md" emphasis>
+                  Wallet
+                </NuriText>
+              </NuriStack>
+            </NuriView>
+          </NuriScroll>
+        </NuriScreen>
+      </NuriThemeProvider>,
+    );
+    expect(tr.toJSON()).toBeTruthy();
+    // soft surface fg (#222013) inherited by the nested Text via NuriSurfaceContext.
+    // Inspect the rendered host <Text> (RN), not the DS Text wrapper — the wrapper
+    // computes the style array and forwards it down.
+    const host = tr.root.findByType(Text);
+    const style = host.props.style as unknown;
+    const flat = Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : style;
+    expect(flat.color).toBe('#222013');
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('primitives — Pressable · interactive opt-in · pressed transient via the shared applier', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <NuriPressable
+          variant="solid"
+          padding="md"
+          pressScale
+          pressColor
+          accessibilityLabel="Buy"
+          onPress={() => undefined}
+        >
+          <NuriText size="md">Buy</NuriText>
+        </NuriPressable>
+      </NuriThemeProvider>,
+    );
+    expect(tr.toJSON()).toBeTruthy();
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
