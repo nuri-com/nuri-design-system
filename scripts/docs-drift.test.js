@@ -509,8 +509,12 @@ const FROZEN_SCHEMA = {
   PartAnatomy: { 'el': 'El', 'open?': 'boolean', 'parts?': "Partial<Record<Exclude<Part, 'root'>, PartAnatomy>>" },
   // `defaults` (R1.5 per-axis public default) + `decorative` (decision 50 a11y
   // flag) added at N+50 (the web-factory slice · a deliberate, versioned
-  // post-freeze envelope add · both DATA the two factories read).
-  Descriptor: { 'structure': '{ anatomy: PartAnatomy; base?: PartMap }', 'variants?': 'Variants<A>', 'defaults?': 'Partial<Record<string, string>>', 'decorative?': 'boolean' },
+  // post-freeze envelope add · both DATA the two factories read). `defaults`
+  // TIGHTENED (D8 · type-surface honesty) from `Partial<Record<string, string>>`
+  // to the per-axis mapped type — its keys/values are now constrained to the
+  // descriptor's own axes (a typo'd axis or value is a type error). A type-only
+  // change: the emitted twins are byte-identical (the strip drops types).
+  Descriptor: { 'structure': '{ anatomy: PartAnatomy; base?: PartMap }', 'variants?': 'Variants<A>', 'defaults?': '{ [Axis in keyof A]?: A[Axis] }', 'decorative?': 'boolean' },
   aliasForms: {
     PartMap: 'Partial<Record<Part, NS>>',
     Axes: 'Record<string, string>',

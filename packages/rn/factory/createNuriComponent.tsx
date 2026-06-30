@@ -67,18 +67,23 @@ export type NuriBaseProps = {
   // routed to a `label` text part (the tab-item's destination name · the same
   // ergonomic per-part routing as prefix/suffix · a string leaf).
   label?: string;
-  // The appearance flag for a 2-state `state` axis (the tab-item's selected vs
-  // unselected · the muted treatment). A CLEAN consumer boolean — the factory
-  // bridges it onto the `state` axis (true→'selected' · false→'unselected'), so the
-  // call site never touches a stringly axis value. The DS stays dumb: `selected` is
-  // JUST appearance; the consumer owns `active === value` + what a tap does.
-  selected?: boolean;
   // a11y accessible name for icon-only / interactive controls (F-ARIA-LABEL-1).
   accessibilityLabel?: string;
 };
 
-// The descriptor's axes A, spread as typed optional NAMED props.
-export type NuriComponentProps<A extends Axes> = { [K in keyof A]?: A[K] } & NuriBaseProps;
+// The descriptor's axes A, spread as typed optional NAMED props, plus the shared
+// non-axis base. `selected` is GATED on the descriptor actually having a `state`
+// axis (today TabBarItem alone · `tab.ts`): the appearance flag for a 2-state
+// `state` axis (the tab-item's selected vs unselected · the muted treatment). A
+// CLEAN consumer boolean — the factory bridges it onto the `state` axis
+// (true→'selected' · false→'unselected'), so the call site never touches a
+// stringly axis value. The DS stays dumb: `selected` is JUST appearance; the
+// consumer owns `active === value` + what a tap does. A descriptor with no `state`
+// axis (Button · IconAvatar · IconButton) does NOT accept `selected` — passing it
+// is a type error, not a silent no-op (type-surface honesty · SEED-3).
+export type NuriComponentProps<A extends Axes> = { [K in keyof A]?: A[K] } &
+  NuriBaseProps &
+  ('state' extends keyof A ? { selected?: boolean } : {});
 
 // ── the COMPOUND-COMPONENT capability (the topbar-slots slice) ──
 // A region slot sub-component (TopbarLeading/Center/Trailing · FLAT-named, no
@@ -303,8 +308,9 @@ export function createNuriComponent<A extends Axes>(
     // DS exposes `selected={active === value}` (NOT a stringly axis prop). General
     // by construction — any descriptor with a `state` axis gets it; absent the axis
     // it is a no-op (the leaf descriptors are unaffected).
-    if (typeof base.selected === 'boolean' && axisNames.includes('state')) {
-      selection.state = base.selected ? 'selected' : 'unselected';
+    const selected = (props as { selected?: boolean }).selected;
+    if (typeof selected === 'boolean' && axisNames.includes('state')) {
+      selection.state = selected ? 'selected' : 'unselected';
     }
 
     const content: Partial<Record<Part, React.ReactNode>> = { ...base.content };

@@ -29,6 +29,7 @@ import {
   TabBarItem,
   NuriIcon,
 } from '../index';
+import type { Descriptor } from '../../contract';
 // The hand-authorable primitives (step ①) — aliased so the DS names don't clash
 // with the raw react-native View/Text imported above for the catalog tests.
 import {
@@ -249,5 +250,56 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       </NuriThemeProvider>,
     );
     expect(JSON.stringify(tr.toJSON())).toContain('#12110b');
+  });
+});
+
+// ── TYPE-SURFACE HONESTY (compile-time only · no runtime) ──────────────────
+// These assertions never run; they are typechecked. `tsc` (the parity gate's
+// `--noEmit` step) FAILS if any of them stop holding — that is the point: the 5
+// behaviour gates can't see type-surface drift, so the type honesty is pinned
+// here instead (debt-register §2 · SEED-3 + D8).
+describe('type-surface honesty (compile-time assertions · SEED-3 + D8)', () => {
+  test('the surface holds in both directions', () => {
+    // SEED-3 · `selected` is GATED on a `state` axis. TabBarItem (tab.ts's
+    // `state: 'selected' | 'unselected'`) is the lone state-axis descriptor →
+    // it ACCEPTS the clean consumer boolean.
+    const ok = <TabBarItem icon="card" label="Wallet" selected onPress={() => undefined} />;
+    void ok;
+
+    // …and a descriptor with NO `state` axis REJECTS it — `selected` no longer
+    // lives on the universal base, so passing it is a type error, not a silent
+    // no-op (the bug this fix closes).
+    // @ts-expect-error — Button has no `state` axis → `selected` is not a prop.
+    const buttonRejectsSelected = <Button variant="solid" selected>Buy</Button>;
+    void buttonRejectsSelected;
+    // @ts-expect-error — IconAvatar has no `state` axis → `selected` is not a prop.
+    const avatarRejectsSelected = <IconAvatar variant="soft" icon="apple" selected />;
+    void avatarRejectsSelected;
+
+    // D8 · `defaults` is constrained to the descriptor's OWN axes (the mapped
+    // type `{ [Axis in keyof A]?: A[Axis] }`), no longer the loose
+    // `Partial<Record<string, string>>`. A descriptor over a `state` axis takes
+    // a default keyed by that axis with one of its values…
+    const okDefaults: Descriptor<{ state: 'selected' | 'unselected' }> = {
+      structure: { anatomy: { el: 'view' } },
+      defaults: { state: 'unselected' },
+    };
+    void okDefaults;
+
+    const offAxisValue: Descriptor<{ state: 'selected' | 'unselected' }> = {
+      structure: { anatomy: { el: 'view' } },
+      // @ts-expect-error — 'nonsense' is not a value of the `state` axis.
+      defaults: { state: 'nonsense' },
+    };
+    void offAxisValue;
+
+    const unknownAxisKey: Descriptor<{ state: 'selected' | 'unselected' }> = {
+      structure: { anatomy: { el: 'view' } },
+      // @ts-expect-error — `siez` is not an axis of this descriptor.
+      defaults: { siez: 'unselected' },
+    };
+    void unknownAxisKey;
+
+    expect(true).toBe(true);
   });
 });
