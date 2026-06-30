@@ -21,7 +21,7 @@
  *   disabled → reflected to the factory's interactive host (interactive.css dims + de-presses)
  * ────────────────────────────────────────────────────────────── */
 
-import { defineNuriComponent } from '../factory/factory.js';
+import { defineNuriComponent, nuriNames } from '../factory/factory.js';
 import { compositionButtonDescriptor } from '../generated/descriptors/composition-button.js';
 // Self-import the primitive element defs the factory tree upgrades into (idempotent ·
 // each primitive guards its own define · a page's classic <script> tag coexists). So a
@@ -30,4 +30,6 @@ import { compositionButtonDescriptor } from '../generated/descriptors/compositio
 import '../primitives/pressable.js';
 import '../primitives/typography.js';
 
-defineNuriComponent(compositionButtonDescriptor, 'nuri-button');
+// The public name is `button` (the descriptor SOURCE is `composition-button` ·
+// DESCRIPTOR_COMPONENTS.public) — the tag is DERIVED, never hand-authored.
+defineNuriComponent(compositionButtonDescriptor, nuriNames('button').web);

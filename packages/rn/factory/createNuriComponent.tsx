@@ -81,15 +81,38 @@ export type NuriBaseProps = {
 export type NuriComponentProps<A extends Axes> = { [K in keyof A]?: A[K] } & NuriBaseProps;
 
 // ── the COMPOUND-COMPONENT capability (the topbar-slots slice) ──
-// A region slot sub-component (Topbar.Leading/Center/Trailing). A MARKER: the
-// container harvests its children into the region's content map by the `__nuriSlot`
-// tag (the typed `content` escape-hatch made ergonomic · "no JSX-in-props for the
-// regions" · composition via sub-components). Rendered standalone it just yields its
-// children. DESCRIPTOR-DRIVEN — the factory generates one per fillable `view` region.
+// A region slot sub-component (TopbarLeading/Center/Trailing · FLAT-named, no
+// dot-notation). A MARKER: the container harvests its children into the region's
+// content map by the `__nuriSlot` tag (the typed `content` escape-hatch made
+// ergonomic · "no JSX-in-props for the regions" · composition via sub-components).
+// Rendered standalone it just yields its children. DESCRIPTOR-DRIVEN — the factory
+// generates one per fillable `view` region.
 export type NuriSlot = React.FC<{ children?: React.ReactNode }> & { __nuriSlot: Part };
 
-// part name → its PascalCase sub-component accessor (leading → Leading).
+// part name → its PascalCase token (leading → Leading). Single-token only — the
+// region names are single words; the multi-word kebab→Pascal lives in nuriNames.
 const pascalPart = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
+
+// ── THE DETERMINISTIC NAMING RULE (deterministic-naming · the SINGLE source) ──
+// ONE public name (kebab-case) per component → web `nuri-{kebab}` · RN `Pascal({kebab})`.
+// Mechanically DERIVED here, so a binding never hand-authors a platform name string
+// and the web↔RN pair is always a pure kebab↔Pascal conversion (no lookup table).
+// pascalCase handles the multi-word kebab (`tab-bar-item` → `TabBarItem`); nuriNames
+// is the helper the bindings call (`createNuriComponent(d, nuriNames('button').rn)`).
+// The web factory carries the SAME rule (factory.js nuriNames · the mirror).
+export const pascalCase = (kebab: string): string => kebab.split('-').map(pascalPart).join('');
+export const nuriNames = (kebab: string): { web: string; rn: string } => ({
+  web: `nuri-${kebab}`,
+  rn: pascalCase(kebab),
+});
+
+// Surface the factory-attached compound slots (FLAT-named · one per `view` region).
+// Generic — reads the runtime attachment with NO per-component slot-name map, so a
+// binding can re-export each region as a STANDALONE component (`TopbarLeading`) with
+// no dot-accessor and no hand-authored `{ Leading; Center; Trailing }` cast.
+export function compoundSlots(component: unknown): Record<string, NuriSlot> {
+  return component as Record<string, NuriSlot>;
+}
 
 type RenderCtx<A extends Axes> = {
   descriptor: Descriptor<A>;
@@ -338,9 +361,14 @@ export function createNuriComponent<A extends Axes>(
 
   Component.displayName = displayName;
 
-  // COMPOUND: attach one typed slot sub-component per region (Topbar.Leading /
-  // Center / Trailing). Generic — derived from the anatomy's `view` regions, no
-  // per-component code. Each is a `__nuriSlot`-tagged marker the Component harvests.
+  // COMPOUND: attach one typed slot sub-component per region (TopbarLeading /
+  // TopbarCenter / TopbarTrailing). Generic — derived from the anatomy's `view`
+  // regions, no per-component code. Each is a `__nuriSlot`-tagged marker the
+  // Component harvests. The slot's name is FLAT (the deterministic rule · no
+  // dot-notation): `${displayName}${Region}` — `TopbarLeading`, which converts 1:1
+  // to the web `nuri-topbar-leading`. The parent displayName is already
+  // Pascal(publicKebab); the region is a single token. The binding re-exports each
+  // attached slot as a standalone component via `compoundSlots`.
   if (isCompound) {
     const compound = Component as React.FC<NuriComponentProps<A>> & Record<string, NuriSlot>;
     for (const part of slotParts) {
@@ -348,8 +376,9 @@ export function createNuriComponent<A extends Axes>(
         <React.Fragment>{slotProps.children}</React.Fragment>
       )) as NuriSlot;
       Slot.__nuriSlot = part;
-      Slot.displayName = `${displayName}.${pascalPart(part)}`;
-      compound[pascalPart(part)] = Slot;
+      const slotName = `${displayName}${pascalPart(part)}`;
+      Slot.displayName = slotName;
+      compound[slotName] = Slot;
     }
   }
 

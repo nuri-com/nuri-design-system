@@ -7,7 +7,7 @@
  *   · center   — the centre (a title · a segmented control)
  *   · trailing — the end edge (actions)
  * The factory generates the container PLUS one typed sub-component per region
- * (RN `Topbar.Leading/Center/Trailing` ↔ web `<nuri-topbar-leading/center/
+ * (RN `TopbarLeading/Center/Trailing` ↔ web `<nuri-topbar-leading/center/
  * trailing>`); bare children of the container default to `trailing` (the
  * "just actions" case). DESCRIPTOR-DRIVEN — the compound capability is general
  * by construction (Card Header/Body, List Item will reuse it), exercised here

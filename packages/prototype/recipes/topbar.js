@@ -27,10 +27,12 @@
  * factory.js + the descriptor twin arrive via this module's imports.
  * ────────────────────────────────────────────────────────────── */
 
-import { defineNuriComponent } from '../factory/factory.js';
+import { defineNuriComponent, nuriNames } from '../factory/factory.js';
 import { topbarDescriptor } from '../generated/descriptors/topbar.js';
 // Self-import the typography primitive (idempotent) — a region's title is a
 // <nuri-typography>; the positional buttons self-import pressable themselves.
 import '../primitives/typography.js';
 
-defineNuriComponent(topbarDescriptor, 'nuri-topbar');
+// Public name == source (`topbar`) — the tag is DERIVED; the factory derives the
+// region slot tags (`nuri-topbar-leading/center/trailing`) from it in turn.
+defineNuriComponent(topbarDescriptor, nuriNames('topbar').web);

@@ -19,8 +19,8 @@
     ═══════════════════════════════════════════════════════════════
     THE PAYOFF — three REAL screens composed from the catalog pieces (topbar +
     balance + two Buttons + the tab-bar), one active destination each. The DS is
-    DUMB: <nuri-tab-bar> is an OPEN row that lays out its <nuri-tab> children as
-    EQUAL columns and nothing else; each <nuri-tab> just LOOKS selected or not
+    DUMB: <nuri-tab-bar> is an OPEN row that lays out its <nuri-tab-bar-item> children as
+    EQUAL columns and nothing else; each <nuri-tab-bar-item> just LOOKS selected or not
     (the `selected` boolean → the ghost/subtle colour treatment) and fires its
     press. NO value / state / routing in the DS — the consuming app owns `active`.
 
@@ -124,9 +124,9 @@
         </nuri-stack>
 
         <nuri-tab-bar>
-          <nuri-tab icon="card" label="Wallet" selected></nuri-tab>
-          <nuri-tab icon="bitcoin" label="Coin"></nuri-tab>
-          <nuri-tab icon="euro" label="Cash"></nuri-tab>
+          <nuri-tab-bar-item icon="card" label="Wallet" selected></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="bitcoin" label="Coin"></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="euro" label="Cash"></nuri-tab-bar-item>
         </nuri-tab-bar>
       </nuri-stack>
     </template>
@@ -160,9 +160,9 @@
         </nuri-stack>
 
         <nuri-tab-bar>
-          <nuri-tab icon="card" label="Wallet"></nuri-tab>
-          <nuri-tab icon="bitcoin" label="Coin" selected></nuri-tab>
-          <nuri-tab icon="euro" label="Cash"></nuri-tab>
+          <nuri-tab-bar-item icon="card" label="Wallet"></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="bitcoin" label="Coin" selected></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="euro" label="Cash"></nuri-tab-bar-item>
         </nuri-tab-bar>
       </nuri-stack>
     </template>
@@ -196,9 +196,9 @@
         </nuri-stack>
 
         <nuri-tab-bar>
-          <nuri-tab icon="card" label="Wallet"></nuri-tab>
-          <nuri-tab icon="bitcoin" label="Coin"></nuri-tab>
-          <nuri-tab icon="euro" label="Cash" selected></nuri-tab>
+          <nuri-tab-bar-item icon="card" label="Wallet"></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="bitcoin" label="Coin"></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="euro" label="Cash" selected></nuri-tab-bar-item>
         </nuri-tab-bar>
       </nuri-stack>
     </template>
@@ -211,9 +211,9 @@
     <template>
       <nuri-stack direction="column" align="stretch" justify="center" gap="md" fill>
         <nuri-tab-bar>
-          <nuri-tab icon="card" label="Wallet" selected></nuri-tab>
-          <nuri-tab icon="bitcoin" label="Coin"></nuri-tab>
-          <nuri-tab icon="euro" label="Cash"></nuri-tab>
+          <nuri-tab-bar-item icon="card" label="Wallet" selected></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="bitcoin" label="Coin"></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="euro" label="Cash"></nuri-tab-bar-item>
         </nuri-tab-bar>
       </nuri-stack>
     </template>

@@ -99,7 +99,7 @@ export type TypeKey = TypeSize;
 // are versioned") = the EQUAL-flex-basis-0 edge (flex 1 1 0 + min-size 0):
 // two `even` regions take an identical share of the leftover row, so a
 // `flex:none` centre region lands at the bar's TRUE centre regardless of
-// edge-content asymmetry (the Topbar.Leading/Trailing edges · the centring
+// edge-content asymmetry (the TopbarLeading/Trailing edges · the centring
 // forcing function). Distinct from `grow-shrink` (basis auto · the old pivot).
 export type StackNS = {
   direction?: 'row' | 'column';
@@ -213,7 +213,7 @@ export type NS = {
 // `leading` / `center` / `trailing` (the topbar-slots slice · the SECOND
 // contract bump) — the three TYPED REGIONS of a slot-based action bar, the
 // catalog's first COMPOUND component: the factory generates a container +
-// one typed sub-component per region (RN `Topbar.Leading/Center/Trailing` ↔
+// one typed sub-component per region (RN `TopbarLeading/Center/Trailing` ↔
 // web `<nuri-topbar-leading/center/trailing>`). leading/trailing carry the
 // `even` flex edge; the centre is `flex:none`, so it lands dead-centre with
 // asymmetric edges. They are NAMED, STYLED parts (not the old positional

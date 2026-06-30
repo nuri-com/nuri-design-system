@@ -1,7 +1,8 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT DESCRIPTOR · TAB · AUTHORED SOURCE (hand-maintained)
  *
- * The bottom-bar ITEM (TabBar.Item) — icon-over-label, presentation only. The DS
+ * The bottom-bar ITEM (TabBarItem · web nuri-tab-bar-item) — icon-over-label,
+ * presentation only. The DS
  * is DUMB: it renders an item that LOOKS selected or not and fires `onPress`; it
  * knows nothing about which destination is active (no `value`, no state, no
  * derivation · the consumer owns that). The CONSUMER computes `selected={active

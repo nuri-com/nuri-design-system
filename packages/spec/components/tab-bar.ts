@@ -1,8 +1,8 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT DESCRIPTOR · TAB-BAR · AUTHORED SOURCE (hand-maintained)
  *
- * The bottom navigation BAR — a DUMB layout container. It lays out its `Tab`
- * (TabBar.Item) children as EQUAL COLUMNS and nothing else: NO `value`, NO state,
+ * The bottom navigation BAR — a DUMB layout container. It lays out its `TabBarItem`
+ * children as EQUAL COLUMNS and nothing else: NO `value`, NO state,
  * NO derivation. The consumer assembles the real tab-bar (holds `active`, passes
  * `selected={active === value}` + `onPress` down to each item); the bar never sees
  * `active`/`value`. A controller would be business logic in the DS (rejected · the
@@ -12,9 +12,9 @@
  * true` root with NO named regions — it renders its POSITIONAL children (the Tab
  * items) directly in the row. This is the open-primitive layer (§7), distinct from
  * the topbar's COMPOUND capability (named leading/center/trailing slots + a typed
- * sub-component each). A Tab is a REPEATED item, not a named slot, so it is a
- * separate component namespaced onto the bar (`TabBar.Item = Tab` · the cast in the
- * factory binding), NOT a compound region. The factory's open-positional-children
+ * sub-component each). A TabBarItem is a REPEATED item, not a named slot, so it is a
+ * separate, STANDALONE component (its own public name `tab-bar-item` · web
+ * `nuri-tab-bar-item`), NOT a compound region. The factory's open-positional-children
  * render (the one capability this slice adds · descriptor-driven, reusable by
  * List/Tabs) places the children inside this root.
  *
