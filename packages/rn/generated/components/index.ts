@@ -5,8 +5,8 @@
  * type. Emitter · scripts/parsers/components-api.js — run `npm run build`.
  * ────────────────────────────────────────────────────────────── */
 
-export { Button } from './button';
-export type { ButtonProps } from './button';
+export { Button, ButtonText, ButtonIcon } from './button';
+export type { ButtonProps, ButtonTextProps, ButtonIconProps } from './button';
 export { IconAvatar } from './icon-avatar';
 export type { IconAvatarProps } from './icon-avatar';
 export { Topbar, TopbarLeading, TopbarCenter, TopbarTrailing } from './topbar';

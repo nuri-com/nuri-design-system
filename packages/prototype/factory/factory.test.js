@@ -105,6 +105,26 @@ test('B · buildComponent(Button) · de-collapsed pressable tree · variant+size
   assert.equal(label.hasAttribute('emphasis'), true, 'the de-fused emphasis flag rides along');
 });
 
+test('B2 · <nuri-button> composed slots · text/icon/text render in authored order', async () => {
+  assert.ok(customElements.get('nuri-button-text'), 'ButtonText web twin is registered');
+  assert.ok(customElements.get('nuri-button-icon'), 'ButtonIcon web twin is registered');
+
+  const b = dom.window.document.createElement('nuri-button');
+  b.setAttribute('variant', 'solid');
+  b.innerHTML = '<nuri-button-text>Buy Bitcoin</nuri-button-text><nuri-button-icon name="apple"></nuri-button-icon><nuri-button-text>Pay</nuri-button-text>';
+  mount(b);
+  await tick();
+
+  const btn = b.querySelector('button.nuri-interactive');
+  assert.ok(btn, 'the registered element mounts the pressable tree');
+  const sequence = [...btn.children].map((child) => {
+    const tag = child.tagName.toLowerCase();
+    return tag === 'nuri-icon' ? `${tag}:${child.getAttribute('name')}` : `${tag}:${child.textContent}`;
+  });
+  assert.deepEqual(sequence, ['nuri-typography:Buy Bitcoin', 'nuri-icon:apple', 'nuri-typography:Pay']);
+  assert.equal(btn.hasAttribute('disabled'), false, 'disabled remains on the root Button only when declared, never on slot leaves');
+});
+
 // ══════════════════════════════════════════════════════════════════
 // C · defineNuriComponent · the registered elements (API derivation · reflection)
 // ══════════════════════════════════════════════════════════════════
@@ -237,6 +257,7 @@ test('D · defineNuriComponent is component-agnostic · a fresh descriptor needs
     variants: { tone: { a: { root: { palette: { variant: 'solid' } } }, b: { root: { palette: { variant: 'soft' } } } } },
     defaults: { tone: 'b' },
     decorative: true,
+    api: { axes: ['tone'], themeScope: { accent: true }, slots: { default: { part: 'label', kind: 'text', default: true } } },
   };
   defineNuriComponent(syntheticDescriptor, 'nuri-harness-x');
 

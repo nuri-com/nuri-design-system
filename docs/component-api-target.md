@@ -3,7 +3,8 @@
 > **Status: IN PROGRESS · Phase 1 DONE (the `api` DATA layer + guard · ZERO runtime · shipped) · Phase 2
 > DONE (codegen exact `*Props` types + typed exports · render byte-identical · shipped) · Phase 3 DONE
 > (generated RN adapters normalize props; renderer consumes normalized descriptor instances · render
-> byte-identical) · Phase 4 NEXT (composition renderer + Button lockup).** This is
+> byte-identical) · Phase 4 DONE (composition renderer + Button lockup + translator script) · Phase 5
+> NEXT (descriptor-local parts).** This is
 > the design SoT for Path C, mirroring [`theme-engine-target.md`](./theme-engine-target.md)'s role for the
 > theme rework. It DISTILLS + RECONCILES the external architecture review
 > ([`consumer-feedback/COMPONENT-API-REVIEW-2026-07-01.md`](./consumer-feedback/COMPONENT-API-REVIEW-2026-07-01.md)),
@@ -75,8 +76,9 @@ api: {
       kind: 'text' | 'icon-name' | 'node' | 'region' | 'children';
       prop?: string;          // ONLY legal on a singular `icon-name` slot (the scalar shorthand · e.g. 'icon')
       default?: true;         // the untagged-children sink (Option A · §1c) — bare children route here; ⊥ `prop`; never on `icon-name`
+      component?: true;       // emit a generated marker/component for ordered composition (e.g. ButtonText/ButtonIcon)
       required?: boolean;
-      multiple?: boolean;     // repeated children (e.g. tab-bar's items)
+      multiple?: boolean;     // repeated children (e.g. tab-bar's items or repeatable generated component slots)
     };
   };
 }
@@ -219,12 +221,12 @@ geneous children are a RICHER render than Topbar's one-shot region routing — n
   The renderer now receives the normalized descriptor instance and keeps only anatomy render, baked-recipe
   apply, foreground scope, decorative a11y, Pressable mechanics for the declared target, and
   `Text`/`View`/`NuriIcon`. Render snapshots stayed byte-identical.
-- **Phase 4 — composition renderer + Button lockup + the translator script.** The renderer gains ORDERED
-  heterogeneous child composition (richer than Topbar's region routing); Button's anatomy gains repeatable
-  `text`/`icon` composed children (`ButtonText`/`ButtonIcon`); the mid-text lockup lands HERE. Formalize the
-  deterministic web↔RN screen transform (`nuri-<c>-<slot>` ↔ `<C><Slot>` · attrs→props · ordered children)
-  as a SCRIPT. Break directly (no external consumer · no deprecation bridge).
-- **Phase 5 — descriptor-local parts.** Retire the global `Part` union pressure via codegen validation (NOT
+- **Phase 4 — composition renderer + Button lockup + the translator script · ✅ DONE.** The renderer gains
+  ORDERED heterogeneous child composition (richer than Topbar's region routing); Button's anatomy gains
+  repeatable `text`/`icon` composed children (`ButtonText`/`ButtonIcon`); the mid-text lockup lands HERE.
+  Formalize the deterministic web↔RN screen transform (`nuri-<c>-<slot>` ↔ `<C><Slot>` · attrs→props ·
+  ordered children) as a SCRIPT. Break directly (no external consumer · no deprecation bridge).
+- **Phase 5 — descriptor-local parts · NEXT.** Retire the global `Part` union pressure via codegen validation (NOT
   TS inference · the strip wall). Global names may survive as helper conventions, not universal public vocab.
 
 ## Scope discipline (mirror theme-rework)

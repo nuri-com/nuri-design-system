@@ -81,6 +81,28 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           }
         }
       }
+    },
+    "icon": {
+      "el": "icon",
+      "geometry": {
+        "base": {},
+        "variants": {
+          "size": {
+            "sm": {
+              "width": 18,
+              "height": 18
+            },
+            "md": {
+              "width": 24,
+              "height": 24
+            },
+            "lg": {
+              "width": 24,
+              "height": 24
+            }
+          }
+        }
+      }
     }
   },
   "icon-avatar": {

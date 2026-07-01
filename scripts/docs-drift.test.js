@@ -172,7 +172,7 @@ test('C · doc-stated emitted counts match the live build', () => {
 const EXPECTED_DESCRIPTORS = {
   button: {
     axes: { variant: ['solid', 'soft', 'ghost'], size: ['sm', 'md', 'lg'] },
-    parts: ['label'], // the anatomy's non-root parts
+    parts: ['label', 'icon'], // the anatomy's non-root parts
     interactive: ['pressColor', 'pressScale', 'disabledOpacity'], // the collapsed root opt-in (§8 · no compound)
   },
   'icon-avatar': {
@@ -539,6 +539,7 @@ const FROZEN_SCHEMA = {
     'kind': "'text' | 'icon-name' | 'node' | 'region' | 'children'",
     'prop?': 'string',
     'default?': 'true',
+    'component?': 'true',
     'required?': 'boolean',
     'multiple?': 'boolean',
   },

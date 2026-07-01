@@ -1,7 +1,7 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · TAB-BAR-ITEM · GENERATED RN API ADAPTER · DO NOT EDIT BY HAND
  *
- * The exact public export for `tab-bar-item` (Path C · Phase 3). `{Name}Props`
+ * The exact public export for `tab-bar-item` (Path C component-API). `{Name}Props`
  * is emitted from the descriptor's `api` (packages/spec/components/tab-bar-item.ts);
  * the component adapter normalizes public props into selection, content,
  * behaviour, and accent scope before calling the shared descriptor renderer.

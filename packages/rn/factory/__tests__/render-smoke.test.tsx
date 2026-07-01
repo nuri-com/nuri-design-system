@@ -19,6 +19,8 @@ import { Text, View } from 'react-native';
 import { NuriThemeProvider } from '../../theme';
 import {
   Button,
+  ButtonText,
+  ButtonIcon,
   IconAvatar,
   IconButton,
   Topbar,
@@ -59,6 +61,29 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       </NuriThemeProvider>,
     );
     expect(tr.toJSON()).toBeTruthy();
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('Button — ordered composition renders text/icon/text through the root Pressable', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <Button variant="solid" size="md" disabled onPress={() => undefined}>
+          <ButtonText>Buy Bitcoin</ButtonText>
+          <ButtonIcon name="apple" />
+          <ButtonText>Pay</ButtonText>
+        </Button>
+      </NuriThemeProvider>,
+    );
+    expect(tr.toJSON()).toBeTruthy();
+    const root = tr.toJSON() as TestRenderer.ReactTestRendererJSON;
+    expect(root.type).toBe('View');
+    expect(root.props.accessibilityState).toEqual({ disabled: true });
+    const leaves = tr.root.findAll((node) => node.type === Text || node.type === NuriIcon);
+    const sequence = leaves.map((node) => (node.type === Text ? `text:${node.props.children}` : `icon:${node.props.name}`));
+    expect(sequence).toEqual(['text:Buy Bitcoin', 'icon:apple', 'text:Pay']);
+    const firstTextStyle = leaves[0].props.style as unknown[];
+    const firstTextColor = Object.assign({}, ...firstTextStyle.filter(Boolean)).color;
+    expect(leaves[1].props.color).toBe(firstTextColor);
     expect(tr.toJSON()).toMatchSnapshot();
   });
 

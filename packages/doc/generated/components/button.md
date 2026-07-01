@@ -24,6 +24,7 @@ nav_order: 1
 
 - **root** · `view`
   - **label** · `text`
+  - **icon** · `icon`
 
 ## Base
 
@@ -41,7 +42,10 @@ nav_order: 1
 | `variant` | `ghost` | `root` | `palette` | **bg** `transparent`<br>**fg** `chrome.textPrimary`<br>**muted** `chrome.textMuted`<br>**pressed** `chrome.bgSubtle` | <span class="nuri-doc-swatch" style="background:transparent"></span><br><span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `#222013`<br><span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `#666455`<br><span class="nuri-doc-swatch" style="background:var(--nuri-bg-subtle)"></span> `#fbf9ee` |
 | `size` | `sm` | `root` | `box` | **minHeight** `size.md`<br>**paddingX** `space.md`<br>**radius** `radius.full` | `36px`<br>`12px`<br>`9999px` |
 | `size` | `sm` | `label` | `typography` | **size** `sm`<br>**emphasis** `true` | **fontSize** `14.5`<br>**lineHeight** `1.33`<br>**weight** `600`<br>**letterSpacing** `-0.01` |
+| `size` | `sm` | `icon` | `box` | **width** `size.xs`<br>**height** `size.xs` | `18px`<br>`18px` |
 | `size` | `md` | `root` | `box` | **minHeight** `size.lg`<br>**paddingX** `space.lg`<br>**radius** `radius.full` | `48px`<br>`18px`<br>`9999px` |
 | `size` | `md` | `label` | `typography` | **size** `md`<br>**emphasis** `true` | **fontSize** `17`<br>**lineHeight** `1.29`<br>**weight** `600`<br>**letterSpacing** `-0.02` |
+| `size` | `md` | `icon` | `box` | **width** `size.sm`<br>**height** `size.sm` | `24px`<br>`24px` |
 | `size` | `lg` | `root` | `box` | **minHeight** `size.xl`<br>**paddingX** `space.xl`<br>**radius** `radius.full` | `54px`<br>`24px`<br>`9999px` |
 | `size` | `lg` | `label` | `typography` | **size** `md`<br>**emphasis** `true` | **fontSize** `17`<br>**lineHeight** `1.29`<br>**weight** `600`<br>**letterSpacing** `-0.02` |
+| `size` | `lg` | `icon` | `box` | **width** `size.sm`<br>**height** `size.sm` | `24px`<br>`24px` |

@@ -538,7 +538,7 @@ async function main() {
   }
   await writeFile(RECIPES_OUT, recipesSource, 'utf8');
 
-  // ── Slice 8c · component-API codegen emit (Path C · Phase 3 · RN adapters) ──
+  // ── Slice 8c · component-API codegen emit (Path C · RN adapters) ──
   // Per catalog component, emit `{Name}Props` + a generated adapter at
   // generated/components/<name>.ts from the descriptor's `api`. The adapter
   // normalizes public props into selection/content/behaviour and wraps declared
@@ -583,7 +583,7 @@ async function main() {
     ).join('') +
     `\n[tokens-parser] wrote palette mapping (${paletteRowCount} rows · SoT-asserted) → ${PALETTE_OUT}` +
     `\n[tokens-parser] wrote baked geometry recipes (${coverage.length} components · geometry-only · Arc 2) → ${RECIPES_OUT}` +
-    `\n[tokens-parser] wrote component-API RN adapters (${componentCoverage.length} components + index · Path C Phase 3) → ${COMPONENTS_OUT}`,
+    `\n[tokens-parser] wrote component-API RN adapters (${componentCoverage.length} components + index · Path C) → ${COMPONENTS_OUT}`,
   );
 }
 
