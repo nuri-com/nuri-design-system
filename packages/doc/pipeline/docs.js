@@ -374,6 +374,8 @@ function genHeader(source) {
   ];
 }
 
+const tableCode = (value) => `\`${String(value).replace(/\|/g, '\\|')}\``;
+
 // ════════════════════════════════════════════════════════════════════
 // EMIT · the descriptor IR → the just-the-docs Markdown page string
 // ════════════════════════════════════════════════════════════════════
@@ -448,6 +450,43 @@ export function emitDocPage(ir, opts = {}) {
   }
   lines.push('');
 
+  return lines.join('\n');
+}
+
+// ════════════════════════════════════════════════════════════════════
+// EMIT · generated RN component prop type → API-only pilot page
+// ════════════════════════════════════════════════════════════════════
+function renderApiPropTable(lines, apiType) {
+  lines.push('| Prop | Required | Type | Notes |');
+  lines.push('| --- | --- | --- | --- |');
+  for (const prop of apiType.props) {
+    lines.push(`| \`${prop.name}\` | ${prop.required ? 'yes' : 'no'} | ${tableCode(prop.type)} | ${prop.note} |`);
+  }
+  lines.push('');
+  for (const prop of apiType.forbidden || []) {
+    lines.push(`> \`${prop.name}\` is not accepted (${tableCode(`${prop.name}?: ${prop.type}`)}).`);
+    lines.push('');
+  }
+}
+
+export function emitComponentApiPage(ir) {
+  const title = titleFor(ir.source);
+  const lines = [];
+  const apiTypes = ir.types || [{ typeName: ir.typeName, props: ir.props, forbidden: ir.forbidden }];
+  lines.push(...frontMatter(title, NAV_ORDER[ir.source] ?? 1));
+  lines.push(...genHeader(ir.src));
+  lines.push('');
+  lines.push(`# ${title}`);
+  lines.push('');
+  lines.push('## API');
+  lines.push('');
+  for (const apiType of apiTypes) {
+    if (apiTypes.length > 1) {
+      lines.push(`### ${apiType.typeName}`);
+      lines.push('');
+    }
+    renderApiPropTable(lines, apiType);
+  }
   return lines.join('\n');
 }
 
