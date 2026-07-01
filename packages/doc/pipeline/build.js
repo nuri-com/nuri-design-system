@@ -5,29 +5,23 @@
  * @nuri/spec's DATA exports for authored SoTs, @nuri/rn/generated for the production
  * resolved contract + generated component prop types, and @nuri/prototype/generated
  * for browser-loadable descriptor/token-var twins. Two families:
- *   · COMPONENTS (A4)  — old descriptor pages render from descriptor IR
- *                        (descriptor-ir.js → docs.js#emitDocPage). Pilot exception:
- *                        button + icon-avatar render API-only pages from the
- *                        generated RN prop types, because RN owns the production
- *                        component consumer API surface.
+ *   · COMPONENTS       — API-only pages render from the RN public prop types
+ *                        because RN owns the production component consumer API.
  *   · AXES (A4b)       — each of the 5 namespace-axis SoTs → generated/axes/<source>.md
  *                        (the axis IR · axis-ir.js → docs.js#emitAxisPage). The axes
  *                        are the system's spine (box · stack · palette · interactive ·
  *                        typography · decision 73 · 2 agnostic + 3 bespoke).
  *
  * Sources are read as DATA, never by importing spec's pipeline functions:
- *   · descriptor IR       — from @nuri/prototype/generated/descriptors/<name>.js
- *                           (the browser-ESM twin of the @nuri/spec descriptor SoT).
- *   · API-only props      — from @nuri/rn/generated/components/{button,icon-avatar}.ts
- *                           (generated from descriptor `api`, owned by RN).
+ *   · API-only props      — from @nuri/rn generated component adapters and factory
+ *                           public primitive prop types.
  *   · palette · tokens    — from @nuri/rn/generated/{palette,tokens}.ts.
  *   · token-vars          — from @nuri/prototype/generated/token-vars.ts.
  *   · the 5 axis SoTs     — from @nuri/spec/{resolve-map, property-spelling,
  *                           palette-surface, interactive-effects, typography-axis}.
  *
- * The old descriptor component pages carry a <nuri-demo> STORY authored in
- * _includes/demo/<source>.html (decision 57.2 · NOT generated). API-only pilot pages
- * intentionally do not. All output re-emits byte-identical (decision 35 · the doc CI gate).
+ * Component pages intentionally do not carry authored stories. All output re-emits
+ * byte-identical (decision 35 · the doc CI gate).
  *
  * DAG: doc → rn/prototype → spec. The build reads the generated projection contracts
  * deliberately: RN for production API/value surfaces, prototype for browser-loadable
@@ -37,17 +31,17 @@
 
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 import { loadSpecData, loadDataFromPath } from './strip.js';
-import { docIrFromDescriptor, exportNameFor, DOC_COMPONENTS } from './descriptor-ir.js';
-import { componentApiIrFromFile, isComponentApiPilot } from './component-api-ir.js';
+import { COMPONENT_API_DOCS, componentApiIrFromFile } from './component-api-ir.js';
 import { AXIS_DOCS } from './axis-ir.js';
 import { FOUNDATION_DOCS } from './foundations-ir.js';
-import { emitDocPage, emitComponentApiPage, emitAxisPage, emitFoundationPage, buildDocTokenInputs, makeRoleResolver } from './docs.js';
+import { emitComponentApiPage, emitAxisPage, emitFoundationPage, buildDocTokenInputs, makeRoleResolver } from './docs.js';
 import { interactiveWebProjection } from '../../prototype/pipeline/parsers/interactive-css.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = resolve(__dirname, '../../..');
 const DOC_ROOT = resolve(__dirname, '..');
 const COMPONENTS_OUT = resolve(DOC_ROOT, 'generated/components');
 const AXES_OUT = resolve(DOC_ROOT, 'generated/axes');
@@ -60,35 +54,20 @@ const FOUNDATIONS_OUT = resolve(DOC_ROOT, 'generated/foundations');
 // build-free precedent (the recipes import the same prototype/generated descriptor twins).
 const RN_GENERATED = resolve(__dirname, '../../rn/generated');
 const PROTO_GENERATED = resolve(__dirname, '../../prototype/generated');
-const SPEC_DESCRIPTORS = resolve(PROTO_GENERATED, 'descriptors');
 
-// ── COMPONENTS · each frozen descriptor → its doc page (the A4 family) ──
+// ── COMPONENTS · each public component surface → its API-only doc page ──
 async function buildComponentDocs() {
-  const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'tokens.ts'));
-  const { tokenVars } = await loadDataFromPath(resolve(PROTO_GENERATED, 'token-vars.ts'));
-  const { palette } = await loadDataFromPath(resolve(RN_GENERATED, 'palette.ts'));
-  const { tokens, colors } = buildDocTokenInputs(specTokens, tokenVars);
-
   await mkdir(COMPONENTS_OUT, { recursive: true });
   const reports = [];
-  for (const spec of DOC_COMPONENTS) {
-    if (isComponentApiPilot(spec.name)) {
-      const ir = await componentApiIrFromFile(spec, RN_GENERATED);
-      const out = resolve(COMPONENTS_OUT, `${spec.source}.md`);
-      await writeFile(out, emitComponentApiPage(ir), 'utf8');
-      const propCount = (ir.types || []).reduce((sum, type) => sum + type.props.length + (type.forbidden || []).length, 0);
-      const typeCount = (ir.types || []).length || 1;
-      const typeLabel = typeCount === 1 ? 'prop type' : 'prop types';
-      const propLabel = propCount === 1 ? 'prop' : 'props';
-      reports.push({ family: 'component', source: spec.source, detail: `${typeCount} ${typeLabel} · ${propCount} ${propLabel} · API pilot`, out });
-      continue;
-    }
-    const twin = pathToFileURL(resolve(SPEC_DESCRIPTORS, `${spec.name}.js`)).href;
-    const descriptor = (await import(twin))[exportNameFor(spec.name)];
-    const ir = docIrFromDescriptor(spec, descriptor);
+  for (const spec of COMPONENT_API_DOCS) {
+    const ir = await componentApiIrFromFile(spec, REPO_ROOT);
     const out = resolve(COMPONENTS_OUT, `${spec.source}.md`);
-    await writeFile(out, emitDocPage(ir, { palette, tokens, colors }), 'utf8');
-    reports.push({ family: 'component', source: spec.source, detail: `${Object.keys(ir.axes).length} axes`, out });
+    await writeFile(out, emitComponentApiPage(ir), 'utf8');
+    const propCount = (ir.types || []).reduce((sum, type) => sum + type.props.length + (type.forbidden || []).length, 0);
+    const typeCount = (ir.types || []).length || 1;
+    const typeLabel = typeCount === 1 ? 'prop type' : 'prop types';
+    const propLabel = propCount === 1 ? 'prop' : 'props';
+    reports.push({ family: 'component', source: spec.source, detail: `${typeCount} ${typeLabel} · ${propCount} ${propLabel} · API`, out });
   }
   return reports;
 }

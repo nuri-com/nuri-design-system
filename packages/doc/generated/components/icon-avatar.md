@@ -1,7 +1,7 @@
 ---
 title: Icon Avatar
 layout: default
-nav_order: 2
+nav_order: 3
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/generated/components/icon-avatar.ts
@@ -13,8 +13,8 @@ nav_order: 2
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
-| `variant` | no | `'solid' \| 'soft' \| 'ghost' \| 'subtle'` | style axis |
-| `accent` | no | `Accent` | theme scope |
+| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle'` | style axis |
+| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `icon` | yes | `IconName` | scalar icon name |
 
 > `children` is not accepted (`children?: never`).

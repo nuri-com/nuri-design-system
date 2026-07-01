@@ -4,11 +4,11 @@
  *
  * The §35 discipline (committed build re-emits identically) applied to the
  * doc-gen: generated/components/<source>.md is RENDERED by pipeline/docs.js from
- * either the descriptor IR (the old full page) or, for the button/icon-avatar pilot,
- * the generated RN component prop type. The re-emit identity is the stale-build / hand-edit guard;
+ * the RN public prop type for each documented component-like surface. The re-emit
+ * identity is the stale-build / hand-edit guard;
  * the per-page pins lock the contract — a future emitter change that drops the
- * front-matter, the authored-story include slot, a data section, or the N+23
- * VALUE enrichment breaks HERE, not only at `git diff --exit-code generated/`.
+ * front-matter, an API table, or the source prop surface breaks HERE, not only at
+ * `git diff --exit-code generated/`.
  *
  * Guard G TRAVELLED with the emitter at A4 (it was sibling to @nuri/spec's
  * docs-drift.test.js · Guards A/C/D/E/F STAY in @nuri/spec — they guard the
@@ -25,28 +25,25 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 import { loadSpecData, loadDataFromPath } from './strip.js';
-import { docIrFromDescriptor, exportNameFor, DOC_COMPONENTS } from './descriptor-ir.js';
-import { componentApiIrFromSource, isComponentApiPilot } from './component-api-ir.js';
+import { COMPONENT_API_DOCS, componentApiIrFromFile } from './component-api-ir.js';
 import { AXIS_DOCS } from './axis-ir.js';
 import { FOUNDATION_DOCS } from './foundations-ir.js';
-import { emitDocPage, emitComponentApiPage, emitAxisPage, emitFoundationPage, buildDocTokenInputs, makeRoleResolver } from './docs.js';
+import { emitComponentApiPage, emitAxisPage, emitFoundationPage, buildDocTokenInputs, makeRoleResolver } from './docs.js';
 import { interactiveWebProjection } from '../../prototype/pipeline/parsers/interactive-css.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = resolve(__dirname, '../../..');
 const DOC_ROOT = resolve(__dirname, '..');
 // The generated artifacts left @nuri/spec for the two projections at N+62 (decision 80):
 // the RN contract (tokens · palette → @nuri/rn/generated/), the web output (descriptor
 // twins · token-vars → @nuri/prototype/generated/). Read from the owning projection.
 const RN_GENERATED = resolve(__dirname, '../../rn/generated');
 const PROTO_GENERATED = resolve(__dirname, '../../prototype/generated');
-const SPEC_DESCRIPTORS = resolve(PROTO_GENERATED, 'descriptors');
 const readGenerated = (source) =>
   readFileSync(resolve(DOC_ROOT, 'generated/components', `${source}.md`), 'utf8');
-const readRnComponent = (source) =>
-  readFileSync(resolve(RN_GENERATED, 'components', `${source}.ts`), 'utf8');
 const readAxis = (source) =>
   readFileSync(resolve(DOC_ROOT, 'generated/axes', `${source}.md`), 'utf8');
 const readFoundation = (source) =>
@@ -58,17 +55,16 @@ const readFoundation = (source) =>
 // byte gate.
 const REPATHED_HEADER = 'emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc`';
 
-// Per-page contract: the API pilot pages pin the generated prop table and the absence
-// of old descriptor sections; topbar still pins the authored `## Example` include, the
-// old data sections, and the enriched Token/Resolves-to cells.
+// Per-page contract: every component page is API-only, sourced from an RN public
+// prop type. Pins keep the generator honest without making prose a second source.
 const PAGE_CONTRACT = {
   button: {
     kind: 'api', source: 'button', title: 'Button', nav: 1,
     cells: [
       '### ButtonProps',
-      "| `variant` | no | `'solid' \\| 'soft' \\| 'ghost'` | style axis |",
-      "| `size` | no | `'sm' \\| 'md' \\| 'lg'` | style axis |",
-      '| `accent` | no | `Accent` | theme scope |',
+      "| `variant` | no | `'solid' | 'soft' | 'ghost'` | style axis |",
+      "| `size` | no | `'sm' | 'md' | 'lg'` | style axis |",
+      "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
       '| `onPress` | no | `() => void` | pressable behaviour |',
       '| `disabled` | no | `boolean` | pressable behaviour |',
       '| `accessibilityLabel` | no | `string` | pressable behaviour |',
@@ -81,55 +77,96 @@ const PAGE_CONTRACT = {
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
-  'icon-avatar': {
-    kind: 'api', source: 'icon-avatar', title: 'Icon Avatar', nav: 2,
+  'icon-button': {
+    kind: 'api', source: 'icon-button', title: 'Icon Button', nav: 2,
     cells: [
-      "| `variant` | no | `'solid' \\| 'soft' \\| 'ghost' \\| 'subtle'` | style axis |",
-      '| `accent` | no | `Accent` | theme scope |',
+      "| `variant` | no | `'solid' | 'soft' | 'ghost'` | style axis |",
+      '| `icon` | yes | `IconName` | scalar icon name |',
+      '> `children` is not accepted (`children?: never`).',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  'icon-avatar': {
+    kind: 'api', source: 'icon-avatar', title: 'Icon Avatar', nav: 3,
+    cells: [
+      "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle'` | style axis |",
+      "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
       '| `icon` | yes | `IconName` | scalar icon name |',
       '> `children` is not accepted (`children?: never`).',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`onPress`', '`disabled`', '`accessibilityLabel`'],
   },
-  topbar: {
-    kind: 'descriptor', source: 'topbar', title: 'Topbar', nav: 3,
+  'tab-bar': {
+    kind: 'api', source: 'tab-bar', title: 'Tab Bar', nav: 4,
     cells: [
-      // chrome surface · the canvas swatch + hex in the value column
-      '| `root` | `palette` | **bg** `chrome.bgCanvas`<br>**fg** `chrome.textPrimary`<br>**muted** `chrome.textMuted` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-canvas)"></span> `#fffdf2`<br><span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `#222013`<br><span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `#666455` |',
-      // the MIXED stack cell · literals → the em-dash, gap → the resolved px (the
-      // value column aligns line-for-line with the Token column)
-      '| `root` | `stack` | **direction** `row`<br>**align** `center`<br>**gap** `space.sm` | —<br>—<br>`6px` |',
-      // a region edge · the `even` flex (the topbar-slots slice · true centring) ·
-      // all-literal stack → every value-column cell the em-dash
-      '| `leading` | `stack` | **direction** `row`<br>**align** `center`<br>**fill** `even` | —<br>—<br>— |',
+      "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
+      '| `children` | no | `React.ReactNode` | default content slot |',
     ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  'tab-bar-item': {
+    kind: 'api', source: 'tab-bar-item', title: 'Tab Bar Item', nav: 5,
+    cells: [
+      '| `selected` | no | `boolean` | state axis |',
+      '| `label` | no | `string` | scalar label |',
+      '> `children` is not accepted (`children?: never`).',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  topbar: {
+    kind: 'api', source: 'topbar', title: 'Topbar', nav: 6,
+    cells: [
+      "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
+      '| `children` | no | `React.ReactNode` | default content slot |',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  stack: {
+    kind: 'api', source: 'stack', title: 'Stack', nav: 7,
+    cells: [
+      "| `direction` | no | `'row' | 'column'` | style axis |",
+      "| `gap` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |",
+      "| `fill` | no | `'grow' | 'grow-shrink' | 'even'` | style axis |",
+      '| `children` | no | `React.ReactNode` | default content slot |',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  view: {
+    kind: 'api', source: 'view', title: 'View', nav: 8,
+    cells: [
+      "| `width` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |",
+      "| `aspectRatio` | no | `'square' | 'card'` | style axis |",
+      "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle'` | style axis |",
+      "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  typography: {
+    kind: 'api', source: 'typography', title: 'Typography', nav: 9,
+    cells: [
+      "| `size` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '3xl'` | style axis |",
+      '| `emphasis` | no | `boolean` | style axis |',
+      "| `chrome` | no | `'canvas' | 'subtle' | 'strong'` | style axis |",
+      '| `children` | no | `React.ReactNode` | default content slot |',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  icon: {
+    kind: 'api', source: 'icon', title: 'Icon', nav: 10,
+    cells: [
+      '| `name` | yes | `IconName` | scalar icon name |',
+      '| `color` | no | `string` | glyph rendering |',
+      '| `dimension` | no | `number` | glyph rendering |',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
 };
 
 test('G · each generated/components/*.md re-emits identically from its source surface', async () => {
-  // The value-bearing inputs — re-sourced onto @nuri/spec DATA (the boundary):
-  // @nuri/spec/tokens (the resolved cross-product + px scales + type composite) +
-  // @nuri/spec/token-vars (the colour var registry) → buildDocTokenInputs; the
-  // palette cells from @nuri/spec/palette (build/palette.ts · the data export ·
-  // NOT re-derived from the axis SoTs the way the pre-A4 spec-resident guard did).
-  const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'tokens.ts'));
-  const { tokenVars } = await loadDataFromPath(resolve(PROTO_GENERATED, 'token-vars.ts'));
-  const { palette } = await loadDataFromPath(resolve(RN_GENERATED, 'palette.ts'));
-  const { tokens, colors } = buildDocTokenInputs(specTokens, tokenVars);
-
   // Re-emit must equal the committed page (stale-build / hand-edit guard). The doc
-  // IR is sourced from the AUTHORED descriptor for the old pages, and from the generated
-  // RN component prop type for the API-only pilot pages.
-  for (const spec of DOC_COMPONENTS) {
-    const emitted = isComponentApiPilot(spec.name)
-      ? emitComponentApiPage(componentApiIrFromSource(spec, readRnComponent(spec.source)))
-      : emitDocPage(
-          docIrFromDescriptor(
-            spec,
-            (await import(pathToFileURL(resolve(SPEC_DESCRIPTORS, `${spec.name}.js`)).href))[exportNameFor(spec.name)],
-          ),
-          { palette, tokens, colors },
-        );
+  // IR is sourced from the RN public prop type for every component-like surface.
+  for (const spec of COMPONENT_API_DOCS) {
+    const emitted = emitComponentApiPage(await componentApiIrFromFile(spec, REPO_ROOT));
     assert.equal(
       readGenerated(spec.source),
       emitted,
@@ -138,8 +175,8 @@ test('G · each generated/components/*.md re-emits identically from its source s
   }
 
   // The per-page contract pins (a deliberate emitter change must update these).
-  for (const spec of DOC_COMPONENTS) {
-    const contract = PAGE_CONTRACT[spec.name];
+  for (const spec of COMPONENT_API_DOCS) {
+    const contract = PAGE_CONTRACT[spec.source];
     if (!contract) continue;
     const md = readGenerated(contract.source);
     assert.match(
@@ -152,39 +189,24 @@ test('G · each generated/components/*.md re-emits identically from its source s
       `${contract.source}.md: the provenance header is not re-pathed to the @nuri/doc home (the N+42 → A4b carry)`,
     );
     assert.ok(md.includes('\n## API\n'), `${contract.source}.md: missing the '## API' section`);
-    if (contract.kind === 'api') {
+    assert.ok(
+      md.includes('| Prop | Required | Type | Notes |'),
+      `${contract.source}.md: the API-only prop table drifted`,
+    );
+    assert.ok(
+      !md.includes('\\|'),
+      `${contract.source}.md: generated API type cells must not render visible escaped pipes`,
+    );
+    for (const excluded of contract.excludes || []) {
       assert.ok(
-        md.includes('| Prop | Required | Type | Notes |'),
-        `${contract.source}.md: the API-only prop table drifted`,
-      );
-      for (const excluded of contract.excludes || []) {
-        assert.ok(
-          !md.includes(excluded),
-          `${contract.source}.md: API-only pilot page includes excluded descriptor/behaviour content '${excluded}'`,
-        );
-      }
-    } else {
-      assert.ok(
-        md.includes(`\n{% include demo/${contract.source}.html %}\n`),
-        `${contract.source}.md: the authored <nuri-demo> story include slot is missing (decision 57.2)`,
-      );
-      for (const h of ['## Example', '## Anatomy', '## Base', '## Token map']) {
-        assert.ok(md.includes(`\n${h}\n`), `${contract.source}.md: missing the '${h}' section`);
-      }
-      assert.ok(
-        md.includes('| Part | Namespace | Token | Resolves to |'),
-        `${contract.source}.md: the Base table lost the 2-column Token / Resolves-to split`,
-      );
-      assert.ok(
-        md.includes('| Axis | Value | Part | Namespace | Token | Resolves to |'),
-        `${contract.source}.md: the Token map lost the 2-column Token / Resolves-to split`,
+        !md.includes(excluded),
+        `${contract.source}.md: API-only page includes excluded descriptor/story content '${excluded}'`,
       );
     }
-    // ≥1 enriched cell per page — the N+23 value/swatch/composite RENDERING.
     for (const cell of contract.cells) {
       assert.ok(
         md.includes(cell),
-        `${contract.source}.md: an enriched cell rendering drifted —\n  expected substring: ${cell}`,
+        `${contract.source}.md: an API cell rendering drifted —\n  expected substring: ${cell}`,
       );
     }
   }
