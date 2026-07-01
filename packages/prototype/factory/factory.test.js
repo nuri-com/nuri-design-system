@@ -56,7 +56,7 @@ const classesOf = (el) => [...el.classList].sort();
 test('A · buildComponent(IconAvatar) · static nuri-view · variant DEFAULTS to soft from descriptor.defaults', () => {
   // No selection passed — the unset `variant` must resolve to descriptor.defaults
   // (soft), NOT the variant-order first value (solid · the old first-value gap).
-  const el = buildComponent(iconAvatarDescriptor, {}, { name: 'apple' });
+  const el = buildComponent(iconAvatarDescriptor, {}, { icon: 'apple' });
 
   assert.equal(el.tagName.toLowerCase(), 'nuri-view', 'static view → the element IS the merged node');
   assert.deepEqual(classesOf(el), ['nuri-box', 'nuri-palette', 'nuri-stack'], 'the three agnostic namespace classes merge onto the node');
@@ -65,14 +65,15 @@ test('A · buildComponent(IconAvatar) · static nuri-view · variant DEFAULTS to
   assert.equal(el.getAttribute('data-width'), 'lg');
   assert.equal(el.getAttribute('data-height'), 'lg');
   assert.equal(el.getAttribute('data-radius'), 'full');
-  // the glyph leaf is routed by `name` (icon primary part).
+  // the glyph leaf is routed by the `icon` part name (the component `icon` prop · the
+  // primitive <nuri-icon> leaf below carries `name`).
   const icon = el.querySelector('nuri-icon');
   assert.ok(icon, 'the icon primary part renders a nuri-icon leaf');
-  assert.equal(icon.getAttribute('name'), 'apple', 'name routes to the glyph leaf');
+  assert.equal(icon.getAttribute('name'), 'apple', 'the routed glyph name lands on the <nuri-icon> leaf');
 });
 
 test('A2 · buildComponent(IconAvatar) · an EXPLICIT variant wins over the default', () => {
-  const el = buildComponent(iconAvatarDescriptor, { variant: 'subtle' }, { name: 'card' });
+  const el = buildComponent(iconAvatarDescriptor, { variant: 'subtle' }, { icon: 'card' });
   assert.equal(el.getAttribute('data-variant'), 'subtle', 'an explicit axis value is passed straight through');
 });
 
@@ -107,18 +108,19 @@ test('B · buildComponent(Button) · de-collapsed pressable tree · variant+size
 // ══════════════════════════════════════════════════════════════════
 // C · defineNuriComponent · the registered elements (API derivation · reflection)
 // ══════════════════════════════════════════════════════════════════
-test('C · observedAttributes are DERIVED from the descriptor (axes ∪ accent ∪ disabled? ∪ name?)', () => {
-  // Button: interactive + text primary → variant·size·accent·disabled (NO name).
+test('C · observedAttributes are DERIVED from the descriptor (axes ∪ accent ∪ disabled? ∪ icon?)', () => {
+  // Button: interactive + text primary → variant·size·accent·disabled (NO icon).
   assert.deepEqual(
     [...customElements.get('nuri-button').observedAttributes].sort(),
     ['accent', 'disabled', 'size', 'variant'],
-    'button observes its axes + accent + disabled (interactive), not name',
+    'button observes its axes + accent + disabled (interactive), not icon',
   );
-  // IconAvatar: static + icon primary → variant·accent·name (NO disabled, NO size).
+  // IconAvatar: static + icon part → variant·accent·icon (the component `icon` prop ·
+  // NOT `name`, which is the primitive <nuri-icon>'s attr · NO disabled, NO size).
   assert.deepEqual(
     [...customElements.get('nuri-icon-avatar').observedAttributes].sort(),
-    ['accent', 'name', 'variant'],
-    'icon-avatar observes its axis + accent + name (icon primary), not disabled',
+    ['accent', 'icon', 'variant'],
+    'icon-avatar observes its axis + accent + icon (the glyph part), not disabled',
   );
 });
 
@@ -138,84 +140,76 @@ test('C2 · <nuri-button disabled> · disabled reflects to the interactive host 
 
 test('C3 · <nuri-icon-avatar> · DECORATIVE aria-hidden comes from descriptor.decorative', () => {
   const a = dom.window.document.createElement('nuri-icon-avatar');
-  a.setAttribute('name', 'apple');
+  a.setAttribute('icon', 'apple');
   mount(a);
   assert.equal(a.getAttribute('aria-hidden'), 'true', 'decorative:true in the descriptor → aria-hidden, not a hand attr');
   const view = a.querySelector('nuri-view');
   assert.equal(view.getAttribute('data-variant'), 'soft', 'the default variant resolves from data');
+  // the VALUE path (registered element · #113): the `icon` attribute routes the glyph
+  // NAME onto the inner primitive <nuri-icon name> (not just presence/aria/defaults).
+  const icon = a.querySelector('nuri-icon');
+  assert.ok(icon, 'the glyph leaf renders');
+  assert.equal(icon.getAttribute('name'), 'apple', 'the `icon` attr routes the glyph name onto <nuri-icon>');
 });
 
 // ══════════════════════════════════════════════════════════════════
-// E · icon-button (P11 · the contract bump) — three-part anatomy · the
-// ergonomic prefix/icon/suffix routing · the bare-collapse · dual a11y
+// E · icon-button (P11) — the icon-ONLY glyph circle · the `icon` scalar
+// shorthand routes into the lone `icon` part · the square-floor geometry · a11y
 // ══════════════════════════════════════════════════════════════════
-test('E · buildComponent(icon-button) · FLANKED · prefix/icon/suffix route in row order · box mirrors button', async () => {
-  const el = mount(buildComponent(iconButtonDescriptor, { variant: 'solid', size: 'md' }, { prefix: 'Buy Bitcoin', icon: 'apple', suffix: 'Pay' }));
+test('E · buildComponent(icon-button) · the icon-only circle — just the glyph · square floor · aria-label', async () => {
+  const el = mount(buildComponent(iconButtonDescriptor, { variant: 'solid', size: 'md' }, { icon: 'apple', accessibilityLabel: 'Buy Bitcoin' }));
   assert.equal(el.tagName.toLowerCase(), 'nuri-pressable', 'interactive root → nuri-pressable host');
   await tick();
 
   const btn = el.querySelector('button.nuri-interactive');
   assert.ok(btn, 'the pressable owns the inner interactive button');
   // md box: minHeight lg (coherent w/ Button) + minWidth lg (the square floor) +
-  // a SMALL sm ring (paddingX) + radius full + the anchored row (gap sm) + solid.
+  // a SMALL sm ring (paddingX) + radius full + solid.
   assert.equal(btn.getAttribute('data-min-height'), 'lg', 'size md → minHeight lg (coherent w/ Button)');
   assert.equal(btn.getAttribute('data-min-width'), 'lg', 'the square floor · minWidth = minHeight');
   assert.equal(btn.getAttribute('data-padding-x'), 'md', 'the icon edge ring (md/lg → md · paddingX diverges from Button by design)');
   assert.equal(btn.getAttribute('data-radius'), 'full');
-  assert.equal(btn.getAttribute('data-gap'), 'sm', 'the anchored-row gap');
   assert.equal(btn.getAttribute('data-variant'), 'solid');
 
-  // The three flanks render in VISUAL row order: prefix (text) · icon (glyph) · suffix (text).
+  // ONLY the glyph renders — the lone `icon` part, no text nodes at all.
   const kids = [...btn.children];
-  assert.deepEqual(kids.map((k) => k.tagName.toLowerCase()), ['nuri-typography', 'nuri-icon', 'nuri-typography'], 'prefix → icon → suffix row order');
-  assert.equal(kids[0].textContent, 'Buy Bitcoin', 'prefix string routes to the leading text');
-  assert.equal(kids[1].getAttribute('name'), 'apple', 'icon name routes to the glyph leaf');
-  assert.equal(kids[2].textContent, 'Pay', 'suffix string routes to the trailing text');
-  // the flank edge padding (md → padding-start/end md) gives the FLANKED text its
-  // breathing-room — only present when the flank renders (bare carries none).
-  assert.equal(kids[0].getAttribute('data-padding-start'), 'md', 'prefix gets the leading edge padding');
-  assert.equal(kids[2].getAttribute('data-padding-end'), 'md', 'suffix gets the trailing edge padding');
-  // the md type step rides the flanks (mirrors the button label).
-  assert.equal(kids[0].getAttribute('size'), 'md');
-  assert.equal(kids[0].hasAttribute('emphasis'), true);
+  assert.deepEqual(kids.map((k) => k.tagName.toLowerCase()), ['nuri-icon'], 'icon-only → just the glyph');
+  assert.equal(btn.querySelectorAll('nuri-typography').length, 0, 'no text nodes at all');
+  assert.equal(kids[0].getAttribute('name'), 'apple', 'icon name routes to the glyph leaf');
+  // a11y: the icon-only control carries its accessible name on the inner button.
+  assert.equal(btn.getAttribute('aria-label'), 'Buy Bitcoin', 'the accessible name rides aria-label on the focusable button (F-ARIA-LABEL-1)');
 });
 
-test('E2 · buildComponent(icon-button) · BARE · the icon-only collapse — no empty flank nodes · aria-label', async () => {
+test('E2 · buildComponent(icon-button) · sm · the square-floor geometry + the glyph size leaf', async () => {
   const el = mount(buildComponent(iconButtonDescriptor, { size: 'sm' }, { icon: 'bitcoin', accessibilityLabel: 'Buy Bitcoin' }));
   await tick();
   const btn = el.querySelector('button.nuri-interactive');
 
-  // ONLY the icon renders — the absent prefix/suffix leaves NO empty typography
-  // node (the bare-collapse · so the stack gap never widens the round control).
   const kids = [...btn.children];
-  assert.deepEqual(kids.map((k) => k.tagName.toLowerCase()), ['nuri-icon'], 'bare → just the glyph, no empty flanks');
-  assert.equal(btn.querySelectorAll('nuri-typography').length, 0, 'no flank text nodes at all');
-  // the square floor squares the BARE control: sm → minWidth md (= minHeight md),
+  assert.deepEqual(kids.map((k) => k.tagName.toLowerCase()), ['nuri-icon'], 'just the glyph');
+  // the square floor squares the control: sm → minWidth md (= minHeight md),
   // a small sm ring; the glyph centres (border-box absorbs the ring).
   assert.equal(btn.getAttribute('data-min-height'), 'md', 'sm → minHeight md');
   assert.equal(btn.getAttribute('data-min-width'), 'md', 'sm → minWidth md (the square floor · = minHeight)');
   assert.equal(btn.getAttribute('data-padding-x'), 'sm', 'the small icon ring');
   // sm icon glyph = the xs size leaf (18px · the icon-arc shared box axis).
   assert.equal(kids[0].getAttribute('data-width'), 'xs');
-  // a11y: the icon-only control carries its accessible name on the inner button.
-  assert.equal(btn.getAttribute('aria-label'), 'Buy Bitcoin', 'bare → aria-label on the focusable button (F-ARIA-LABEL-1)');
 });
 
-test('E3 · defineNuriComponent(icon-button) · observedAttributes derive the ergonomic per-part + a11y surface', () => {
-  // axes (variant·size) ∪ accent ∪ disabled (interactive) ∪ the non-primary part
-  // attrs (prefix·icon·suffix) ∪ aria-label (interactive, no text primary). NO name
-  // (there is no lone icon primary).
+test('E3 · defineNuriComponent(icon-button) · observedAttributes derive the icon-only + a11y surface', () => {
+  // axes (variant·size) ∪ accent ∪ disabled (interactive) ∪ the lone `icon` part
+  // ∪ aria-label (interactive, no text primary).
   assert.deepEqual(
     [...customElements.get('nuri-icon-button').observedAttributes].sort(),
-    ['accent', 'aria-label', 'disabled', 'icon', 'prefix', 'size', 'suffix', 'variant'],
-    'the icon-anchored API: axes + accent + disabled + prefix/icon/suffix + aria-label',
+    ['accent', 'aria-label', 'disabled', 'icon', 'size', 'variant'],
+    'the icon-only API: axes + accent + disabled + icon + aria-label',
   );
 });
 
-test('E4 · <nuri-icon-button> · the registered element renders flanked + reflects disabled', async () => {
+test('E4 · <nuri-icon-button> · the registered element renders the glyph + reflects disabled', async () => {
   const ib = dom.window.document.createElement('nuri-icon-button');
   ib.setAttribute('icon', 'apple');
-  ib.setAttribute('suffix', 'Pay');
+  ib.setAttribute('aria-label', 'Apple Pay');
   ib.setAttribute('disabled', '');
   mount(ib);
   await tick();
@@ -224,7 +218,10 @@ test('E4 · <nuri-icon-button> · the registered element renders flanked + refle
   assert.ok(btn, 'the registered element mounts the factory tree');
   assert.equal(btn.hasAttribute('disabled'), true, 'disabled reflects to the native button');
   const kids = [...btn.children];
-  assert.deepEqual(kids.map((k) => k.tagName.toLowerCase()), ['nuri-icon', 'nuri-typography'], 'icon + trailing suffix, no leading prefix node');
+  assert.deepEqual(kids.map((k) => k.tagName.toLowerCase()), ['nuri-icon'], 'just the glyph');
+  // the VALUE path (registered element · #113): the `icon` attribute routes the glyph
+  // NAME onto the inner primitive <nuri-icon name>, not just a bare present leaf.
+  assert.equal(kids[0].getAttribute('name'), 'apple', 'the `icon` attr routes the glyph name onto <nuri-icon>');
   assert.equal(btn.getAttribute('data-variant'), 'soft', 'the descriptor default (soft) with no variant attr');
 });
 

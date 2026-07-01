@@ -19,21 +19,17 @@ export const iconButtonDescriptor = {
   structure: {
     anatomy: {
       el: 'view',
-      // Authored in VISUAL row order (prefix → icon → suffix · left → centre →
-      // right): both factories walk the anatomy in key order, so this IS the
-      // rendered order on RN and web (the twin is a verbatim passthrough · the
-      // PART_ORDER re-sort matches this same order · parity-load-bearing).
+      // ONE non-root part: the glyph is the whole control (the lone primary · the
+      // `icon` prop routes here via the factory same-name shorthand).
       parts: {
-        prefix: { el: 'text' },
         icon: { el: 'icon' },
-        suffix: { el: 'text' },
       },
     },
     base: {
       root: {
-        // The anchored row: the icon centres, the optional flanks sit beside it
-        // with a gap (only between RENDERED items — a bare control has one item,
-        // so the gap never widens the circle).
+        // The centred round action: the single glyph sits dead-centre; the row
+        // stack + gap are inert with one item (kept for parity with the coherent
+        // Button root · a bare circle has nothing to space).
         stack: { direction: 'row', align: 'center', justify: 'center', gap: 'sm' },
         interactive: { pressColor: true, pressScale: true, disabledOpacity: true },
       },
@@ -46,30 +42,21 @@ export const iconButtonDescriptor = {
       ghost: { root: { palette: { variant: 'ghost' } } },
     },
     // SIZE · minHeight + radius stay coherent with button; minWidth =
-    // minHeight floors the bare control to a SQUARE (the root paddingX is the icon
-    // edge ring — sm 6 · md/lg 12 — absorbed by the border-box floor, so the bare
-    // form stays square while the icon-at-an-edge in the single-flank forms gets a
-    // comfortable gap). The flank paddingStart/End add the FLANKED text's own edge
-    // breathing-room on top. The icon `box` sizes the glyph; prefix/suffix
-    // typography mirrors the button label.
+    // minHeight floors the control to a SQUARE (the root paddingX is the icon
+    // edge ring — sm 6 · md/lg 12 — absorbed by the border-box floor, so the
+    // glyph centres in a perfect square). The icon `box` sizes the glyph.
     size: {
       sm: {
         root: { box: { minHeight: 'md', minWidth: 'md', paddingX: 'sm', radius: 'full' } },
-        prefix: { box: { paddingStart: 'sm' }, typography: { size: 'sm', emphasis: true } },
         icon: { box: { width: 'xs', height: 'xs' } },
-        suffix: { box: { paddingEnd: 'sm' }, typography: { size: 'sm', emphasis: true } },
       },
       md: {
         root: { box: { minHeight: 'lg', minWidth: 'lg', paddingX: 'md', radius: 'full' } },
-        prefix: { box: { paddingStart: 'md' }, typography: { size: 'md', emphasis: true } },
         icon: { box: { width: 'sm', height: 'sm' } },
-        suffix: { box: { paddingEnd: 'md' }, typography: { size: 'md', emphasis: true } },
       },
       lg: {
         root: { box: { minHeight: 'xl', minWidth: 'xl', paddingX: 'md', radius: 'full' } },
-        prefix: { box: { paddingStart: 'lg' }, typography: { size: 'md', emphasis: true } },
         icon: { box: { width: 'sm', height: 'sm' } },
-        suffix: { box: { paddingEnd: 'lg' }, typography: { size: 'md', emphasis: true } },
       },
     },
   },

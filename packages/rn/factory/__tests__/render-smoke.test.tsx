@@ -137,30 +137,44 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
-  test('IconButton — BARE · the icon-anchored control · glyph routed via the `icon` prop · a11y name', () => {
+  test('IconButton — the icon-only glyph circle · glyph routed via the `icon` prop · a11y name', () => {
     const tr = render(
       <NuriThemeProvider>
         <IconButton variant="solid" size="md" icon="apple" accessibilityLabel="Buy Bitcoin" onPress={() => undefined} />
       </NuriThemeProvider>,
     );
     expect(tr.toJSON()).toBeTruthy();
-    // bare → the register glyph renders (scope fg threaded in) with NO flank Text nodes
-    // (the optional-flank collapse · so a stack gap never widens the round control).
+    // icon-only → the register glyph renders (scope fg threaded in) with NO Text
+    // nodes (the control is the lone `icon` part · no visible text to name it).
     expect(tr.root.findAllByType(Text)).toHaveLength(0);
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
-  test('IconButton — FLANKED · prefix/suffix text flank the icon (`Buy Bitcoin 🍎 Pay`)', () => {
+  // REGRESSION LOCK (#113 · taner): a lone `icon` leaf is NOT a `children` sink —
+  // the `icon` prop fills the glyph and stray children never hijack it (they were
+  // routed into the icon part before the primaryPart-gated-on-text fix, silently
+  // dropping `icon` and pushing a garbage string into the glyph).
+  test('IconButton — the `icon` prop wins · stray children do NOT hijack the glyph', () => {
     const tr = render(
       <NuriThemeProvider>
-        <IconButton variant="soft" prefix="Buy Bitcoin" icon="apple" suffix="Pay" onPress={() => undefined} />
+        <IconButton icon="wallet" accessibilityLabel="Wallet">stray</IconButton>
       </NuriThemeProvider>,
     );
-    expect(tr.toJSON()).toBeTruthy();
-    // flanked → two Text flanks, in row order with the glyph between them.
-    const texts = tr.root.findAllByType(Text).map((t) => t.props.children);
-    expect(texts).toEqual(['Buy Bitcoin', 'Pay']);
-    expect(tr.toJSON()).toMatchSnapshot();
+    const glyph = tr.root.findByType(NuriIcon);
+    expect(glyph.props.name).toBe('wallet');
+    // the stray children string reaches no part → no Text node renders it.
+    expect(tr.root.findAllByType(Text)).toHaveLength(0);
+  });
+
+  test('IconAvatar — the `icon` prop wins · stray children do NOT hijack the glyph', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <IconAvatar icon="wallet">stray</IconAvatar>
+      </NuriThemeProvider>,
+    );
+    const glyph = tr.root.findByType(NuriIcon);
+    expect(glyph.props.name).toBe('wallet');
+    expect(tr.root.findAllByType(Text)).toHaveLength(0);
   });
 
   test('TabBar — OPEN container renders its positional Tab children · selected + unselected items', () => {

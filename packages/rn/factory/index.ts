@@ -95,9 +95,11 @@ export const TopbarLeading = topbarSlots.TopbarLeading;
 export const TopbarCenter = topbarSlots.TopbarCenter;
 export const TopbarTrailing = topbarSlots.TopbarTrailing;
 
-// The icon-anchored control (P11 · the first contract bump): bare = the round
-// icon action; flanked = `<IconButton prefix="Buy Bitcoin" icon="apple"
-// suffix="Pay" />` (the prefix/suffix text flanks · the new Part vocab).
+// The conventional icon-ONLY glyph circle: `<IconButton variant="soft"
+// icon="apple" accessibilityLabel="Buy with Apple Pay" onPress={…} />`. `icon` is
+// the scalar icon-name shorthand routed into the lone `icon` part; there is no
+// visible text, so a11y rides `accessibilityLabel`. (The anchored mid-text lockup
+// relocated to composable Button · Path C Phase 4 · docs/component-api-target.md.)
 export const IconButton = createNuriComponent(iconButtonDescriptor, nuriNames('icon-button').rn, recipes['icon-button']);
 
 // The bottom navigation bar (presentation only) — TabBar is a DUMB layout

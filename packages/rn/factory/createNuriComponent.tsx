@@ -52,19 +52,17 @@ export type NuriBaseProps = {
   children?: React.ReactNode;
   // escape hatch — explicit per-part content (multi-part / open host slot).
   content?: Partial<Record<Part, React.ReactNode>>;
-  // ERGONOMIC per-part props for an anatomy with NO lone primary part (the
-  // icon-anchored icon-button · P11): each routes to the same-named part. On RN
-  // `icon` is a TYPED register key (`IconName` · the build-error gate) — the DS
-  // resolves the name → the register glyph and renders it (the factory OWNS RN
-  // glyph rendering now · NuriIcon), threading the scope fg + the per-part box
-  // dimension in. The `prefix`/`suffix` flanks are strings. An absent flank stays
-  // undefined → its leaf renders nothing (the bare-collapse · no empty text
-  // inflating the gap). (Web stays loose — `<nuri-icon name>` is a runtime string.)
-  prefix?: string;
-  suffix?: string;
+  // ERGONOMIC per-part prop routed to the same-named part. On RN `icon` is a TYPED
+  // register key (`IconName` · the build-error gate) — the DS resolves the name → the
+  // register glyph and renders it (the factory OWNS RN glyph rendering now · NuriIcon),
+  // threading the scope fg + the per-part box dimension in. Fills the `icon` leaf of
+  // IconButton / IconAvatar (B0 · icon-only) and the tab-item. An absent prop stays
+  // undefined → its leaf renders nothing. (Web stays loose — `<nuri-icon name>` is a
+  // runtime string.) The retired `prefix`/`suffix` flanks were dropped at B0 — the
+  // mid-text lockup relocates to composable Button (Path C Phase 4).
   icon?: IconName;
   // routed to a `label` text part (the tab-item's destination name · the same
-  // ergonomic per-part routing as prefix/suffix · a string leaf).
+  // ergonomic same-name per-part routing as `icon` · a string leaf).
   label?: string;
   // a11y accessible name for icon-only / interactive controls (F-ARIA-LABEL-1).
   accessibilityLabel?: string;
@@ -283,18 +281,23 @@ export function createNuriComponent<A extends Axes>(
     for (const axis of axisNames) defaultByAxis[axis] = descriptor.defaults?.[axis] ?? Object.keys(variants[axis])[0];
   }
 
-  // The lone non-root part receives `children`. Ambiguous (≠1 child) → the
-  // consumer must use `content` (none of the leaf descriptors are).
+  // The lone non-root TEXT part receives `children` (Button's label). Gated on
+  // `el: 'text'` (mirrors the web factory): a lone `icon` leaf (IconButton /
+  // IconAvatar after B0) is NOT a children sink — it is filled by the `icon`
+  // same-name prop below, so stray children never hijack the glyph. Ambiguous (≠1
+  // child) → the consumer must use `content` (none of the leaf descriptors are).
   const primaryPart: Part | undefined =
-    anatomy.children.length === 1 ? anatomy.children[0].name : undefined;
+    anatomy.children.length === 1 && anatomy.children[0].el === 'text'
+      ? anatomy.children[0].name
+      : undefined;
 
   // COMPOUND capability (descriptor-driven · NOT topbar-hardcoded): a non-root
   // `view` part is a fillable REGION (a slot). A multi-region anatomy makes this a
   // COMPOUND component — the factory attaches one typed sub-component per region
   // (below) and routes bare children to the DEFAULT slot (the last region · the
   // trailing-most · the "just actions" case). A leaf-only anatomy (Button →
-  // label · IconAvatar → icon · IconButton → prefix/icon/suffix) has no region
-  // → not compound (the prior single-primary / ergonomic-prop routing stands).
+  // label · IconAvatar / IconButton → icon) has no region → not compound (the
+  // single-primary / ergonomic same-name routing stands).
   const slotParts: Part[] = anatomy.children.filter((c) => c.el === 'view').map((c) => c.name);
   const isCompound = slotParts.length > 0;
   const defaultSlot: Part | undefined = slotParts[slotParts.length - 1];
@@ -361,11 +364,12 @@ export function createNuriComponent<A extends Axes>(
       else if (base.children !== undefined && anatomy.open && content.root === undefined) {
         content.root = base.children;
       }
-      // Ergonomic per-part props (prefix/suffix/icon) → the content map BY PART
-      // NAME. Drives the multi-part anatomy where `primaryPart` is undefined (the
-      // icon-button · the `content` escape-hatch made ergonomic); a single-primary
-      // component is unaffected (its lone part took `children` above). An unset
-      // prop leaves the part absent → the leaf renders nothing (the bare-collapse).
+      // Ergonomic per-part props (the `icon` glyph · the tab-item's `label`) → the
+      // content map BY PART NAME. Fills a lone `icon` leaf (IconButton / IconAvatar ·
+      // `primaryPart` undefined for a non-text lone part) and the multi-part anatomy
+      // (tab-item icon/label). An unset prop leaves the part absent → the leaf renders
+      // nothing. `icon` wins here even if stray children were passed (they never reach
+      // a non-text lone part — the glyph is not a children sink).
       for (const child of anatomy.children) {
         const provided = (props as Record<string, unknown>)[child.name];
         if (provided !== undefined && content[child.name] === undefined) {

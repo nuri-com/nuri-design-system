@@ -206,43 +206,6 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         }
       }
     },
-    "prefix": {
-      "el": "text",
-      "geometry": {
-        "base": {},
-        "variants": {
-          "size": {
-            "sm": {
-              "paddingStart": 6
-            },
-            "md": {
-              "paddingStart": 12
-            },
-            "lg": {
-              "paddingStart": 18
-            }
-          }
-        }
-      },
-      "typography": {
-        "variants": {
-          "size": {
-            "sm": {
-              "size": "sm",
-              "emphasis": true
-            },
-            "md": {
-              "size": "md",
-              "emphasis": true
-            },
-            "lg": {
-              "size": "md",
-              "emphasis": true
-            }
-          }
-        }
-      }
-    },
     "icon": {
       "el": "icon",
       "geometry": {
@@ -260,43 +223,6 @@ export const recipes: Record<string, BakedComponentRecipe> = {
             "lg": {
               "width": 24,
               "height": 24
-            }
-          }
-        }
-      }
-    },
-    "suffix": {
-      "el": "text",
-      "geometry": {
-        "base": {},
-        "variants": {
-          "size": {
-            "sm": {
-              "paddingEnd": 6
-            },
-            "md": {
-              "paddingEnd": 12
-            },
-            "lg": {
-              "paddingEnd": 18
-            }
-          }
-        }
-      },
-      "typography": {
-        "variants": {
-          "size": {
-            "sm": {
-              "size": "sm",
-              "emphasis": true
-            },
-            "md": {
-              "size": "md",
-              "emphasis": true
-            },
-            "lg": {
-              "size": "md",
-              "emphasis": true
             }
           }
         }
