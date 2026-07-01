@@ -16,7 +16,6 @@ import { nuriNames, renderDescriptorInstance } from '../../factory/createNuriCom
 import type { NuriBehaviour } from '../../factory/createNuriComponent';
 import { iconAvatarDescriptor } from '@nuri/spec/descriptors/icon-avatar';
 import { recipes } from '../recipes';
-import type { Part } from '../../contract';
 import { NuriScope } from '../../theme';
 import type { Accent } from '../tokens';
 import type { IconName } from '../icons';
@@ -28,15 +27,17 @@ export type IconAvatarProps = {
   children?: never;
 };
 
+type IconAvatarPart = 'root' | 'icon';
+
 const iconAvatarDisplayName = nuriNames('icon-avatar').rn;
 
 const IconAvatarInner: React.FC<IconAvatarProps> = (props) => {
   const selection: Record<string, string> = {
     "variant": props.variant ?? "soft",
   };
-  const content: Partial<Record<Part, React.ReactNode>> = {};
+  const content: Partial<Record<IconAvatarPart, React.ReactNode>> = {};
   if (props.icon !== undefined) content["icon"] = props.icon;
-  const behaviour: NuriBehaviour = {};
+  const behaviour: NuriBehaviour<IconAvatarPart> = {};
 
   return renderDescriptorInstance({
     descriptor: iconAvatarDescriptor,

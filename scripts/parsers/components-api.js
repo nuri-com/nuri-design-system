@@ -21,6 +21,61 @@ const q = (value) => JSON.stringify(value);
 
 const PRESSABLE_TS = { onPress: '() => void', disabled: 'boolean', accessibilityLabel: 'string' };
 
+function anatomyParts(anatomy) {
+  if (!anatomy || anatomy.el !== 'view') {
+    throw new Error('[components-api] descriptor anatomy must declare a view root');
+  }
+  const parts = ['root'];
+  const seen = new Set(parts);
+  const walk = (node) => {
+    if (!node || !node.parts) return;
+    for (const [part, child] of Object.entries(node.parts)) {
+      if (part === 'root') throw new Error("[components-api] 'root' is reserved for the descriptor host and cannot be nested");
+      if (seen.has(part)) throw new Error(`[components-api] duplicate descriptor-local part '${part}'`);
+      seen.add(part);
+      parts.push(part);
+      walk(child);
+    }
+  };
+  walk(anatomy);
+  return parts;
+}
+
+function assertLocalPart(name, partSet, part, surface) {
+  if (!partSet.has(part)) {
+    throw new Error(
+      `[components-api] ${name}: ${surface} targets part '${part}', which is not in the descriptor anatomy (${[...partSet].join(', ')})`,
+    );
+  }
+}
+
+export function validateDescriptorLocalParts(name, descriptor) {
+  const parts = anatomyParts(descriptor.structure?.anatomy);
+  const partSet = new Set(parts);
+
+  const base = descriptor.structure?.base || {};
+  for (const part of Object.keys(base)) assertLocalPart(name, partSet, part, 'structure.base');
+
+  const variants = descriptor.variants || {};
+  for (const [axis, values] of Object.entries(variants)) {
+    for (const [value, partMap] of Object.entries(values)) {
+      for (const part of Object.keys(partMap || {})) {
+        assertLocalPart(name, partSet, part, `variants.${axis}.${value}`);
+      }
+    }
+  }
+
+  const slots = descriptor.api?.slots || {};
+  for (const [slotName, slot] of Object.entries(slots)) {
+    assertLocalPart(name, partSet, slot.part, `api.slots.${slotName}.part`);
+  }
+
+  const target = descriptor.api?.behaviour?.pressable?.target;
+  if (target !== undefined) assertLocalPart(name, partSet, target, 'api.behaviour.pressable.target');
+
+  return parts;
+}
+
 async function loadDescriptor(spec, source) {
   const js = emitDescriptorJsFromSource(spec, source);
   const mod = await import('data:text/javascript,' + encodeURIComponent(js));
@@ -28,6 +83,7 @@ async function loadDescriptor(spec, source) {
   if (!descriptor || !descriptor.api) {
     throw new Error(`[components-api] loadDescriptor: '${spec.name}' export ${exportNameFor(spec.name)} missing/invalid api`);
   }
+  validateDescriptorLocalParts(spec.name, descriptor);
   return descriptor;
 }
 
@@ -112,23 +168,23 @@ function emitSelection(descriptor) {
   return lines;
 }
 
-function emitContent(api) {
-  const lines = ['  const content: Partial<Record<Part, React.ReactNode>> = {};'];
+function emitContent(api, partTypeName) {
+  const lines = [`  const content: Partial<Record<${partTypeName}, React.ReactNode>> = {};`];
   const regionSlots = Object.values(api.slots).filter((slot) => slot.kind === 'region');
   const fallbackRegion = Object.values(api.slots).find((slot) => slot.kind === 'region' && slot.default === true);
   const componentSlots = Object.values(api.slots).filter((slot) => slot.component === true);
   const fallbackSlot = Object.values(api.slots).find((slot) => slot.default === true);
 
   if (regionSlots.length) {
-    lines.push(`  const harvested = harvestNuriSlots(props.children, ${fallbackRegion ? q(fallbackRegion.part) : 'undefined'});`);
+    lines.push(`  const harvested = harvestNuriSlots<${partTypeName}>(props.children, ${fallbackRegion ? q(fallbackRegion.part) : 'undefined'});`);
     for (const slot of regionSlots) {
       lines.push(`  if (harvested[${q(slot.part)}] !== undefined) content[${q(slot.part)}] = harvested[${q(slot.part)}];`);
     }
   }
 
   if (componentSlots.length) {
-    lines.push('  const composition: Partial<Record<Part, NuriCompositionEntry[]>> = {};');
-    lines.push(`  const harvestedComposition = harvestNuriComposition(props.children, ${fallbackSlot ? q(fallbackSlot.part) : 'undefined'});`);
+    lines.push(`  const composition: Partial<Record<${partTypeName}, NuriCompositionEntry<${partTypeName}>[]>> = {};`);
+    lines.push(`  const harvestedComposition = harvestNuriComposition<${partTypeName}>(props.children, ${fallbackSlot ? q(fallbackSlot.part) : 'undefined'});`);
     lines.push('  if (harvestedComposition.hasSlots) {');
     lines.push('    composition.root = harvestedComposition.items;');
     lines.push('  }');
@@ -151,9 +207,9 @@ function emitContent(api) {
   return lines;
 }
 
-function emitBehaviour(api) {
+function emitBehaviour(api, partTypeName) {
   const pressable = api.behaviour && api.behaviour.pressable;
-  const lines = ['  const behaviour: NuriBehaviour = {};'];
+  const lines = [`  const behaviour: NuriBehaviour<${partTypeName}> = {};`];
   if (!pressable) return lines;
 
   lines.push('  behaviour.pressable = {', `    target: ${q(pressable.target)},`);
@@ -185,6 +241,8 @@ export function emitComponentFile(spec, descriptor) {
   const Pascal = pascalCase(name);
   const local = lowerFirst(Pascal);
   const descId = exportNameFor(name);
+  const partTypeName = `${Pascal}Part`;
+  const parts = validateDescriptorLocalParts(name, descriptor);
   const { lines, usesAccent, usesIcon, regionParts, componentSlots } = buildProps(descriptor.api, descriptor.variants || {});
   const hasRegions = regionParts.length > 0;
   const hasComponentSlots = componentSlots.length > 0;
@@ -199,7 +257,6 @@ export function emitComponentFile(spec, descriptor) {
     `import type { NuriBehaviour${hasComponentSlots ? ', NuriCompositionEntry' : ''} } from '../../factory/createNuriComponent';`,
     `import { ${descId} } from '@nuri/spec/descriptors/${name}';`,
     "import { recipes } from '../recipes';",
-    "import type { Part } from '../../contract';",
   ];
   if (usesAccent) {
     imports.push("import { NuriScope } from '../../theme';");
@@ -213,6 +270,8 @@ export function emitComponentFile(spec, descriptor) {
     `export type ${Pascal}Props = {`,
     ...lines,
     '};',
+    '',
+    `type ${partTypeName} = ${parts.map((part) => `'${part}'`).join(' | ')};`,
     '',
     `const ${displayNameConst} = nuriNames('${name}').rn;`,
   ];
@@ -248,8 +307,8 @@ export function emitComponentFile(spec, descriptor) {
     '',
     `const ${innerName}: React.FC<${Pascal}Props> = (props) => {`,
     ...emitSelection(descriptor),
-    ...emitContent(descriptor.api),
-    ...emitBehaviour(descriptor.api),
+    ...emitContent(descriptor.api, partTypeName),
+    ...emitBehaviour(descriptor.api, partTypeName),
     '',
     '  return renderDescriptorInstance({',
     `    descriptor: ${descId},`,

@@ -51,6 +51,7 @@ import assert from 'node:assert/strict';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
+import { emitComponentFile } from './parsers/components-api.js';
 import { DESCRIPTOR_COMPONENTS, exportNameFor } from './parsers/descriptors.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -88,6 +89,33 @@ function anatomyIndex(anatomy) {
   };
   walk(anatomy);
   return index;
+}
+
+function anatomyDuplicates(anatomy) {
+  const seen = new Set(['root']);
+  const duplicates = [];
+  const walk = (node) => {
+    if (!node || !node.parts) return;
+    for (const [part, child] of Object.entries(node.parts)) {
+      if (part === 'root' || seen.has(part)) duplicates.push(part);
+      seen.add(part);
+      walk(child);
+    }
+  };
+  walk(anatomy);
+  return duplicates;
+}
+
+function authoredPartMaps(descriptor) {
+  const maps = [];
+  if (descriptor.structure.base) maps.push(['structure.base', descriptor.structure.base]);
+  const variants = descriptor.variants || {};
+  for (const [axis, values] of Object.entries(variants)) {
+    for (const [value, partMap] of Object.entries(values)) {
+      maps.push([`variants.${axis}.${value}`, partMap]);
+    }
+  }
+  return maps;
 }
 
 // The legal slot `kind` vocabulary + the anatomy `el` each kind must target
@@ -135,6 +163,32 @@ test('component-api · every descriptor declares an `api` block', () => {
     assert.ok(api && typeof api === 'object', `${name}: descriptor has no \`api\` block (REQUIRED · Path C Phase 1)`);
     assert.ok(Array.isArray(api.axes), `${name}: api.axes must be an array`);
     assert.ok(api.slots && typeof api.slots === 'object', `${name}: api.slots must be an object`);
+  }
+});
+
+// ── Local part universe · anatomy is the descriptor-local source of truth ──
+test('component-api · every descriptor anatomy has one root host and unique local part ids', () => {
+  for (const name of NAMES) {
+    const anatomy = CATALOG[name].structure.anatomy;
+    assert.ok(anatomy && typeof anatomy === 'object', `${name}: structure.anatomy must be an object`);
+    assert.equal(anatomy.el, 'view', `${name}: root anatomy must be a view host`);
+    const duplicates = anatomyDuplicates(anatomy);
+    assert.deepEqual(duplicates, [], `${name}: anatomy reuses reserved/duplicate part ids (${duplicates.join(', ')})`);
+  }
+});
+
+test('component-api · every structure/variant part map key is anatomy-local', () => {
+  for (const name of NAMES) {
+    const d = CATALOG[name];
+    const index = anatomyIndex(d.structure.anatomy);
+    for (const [surface, partMap] of authoredPartMaps(d)) {
+      for (const part of Object.keys(partMap || {})) {
+        assert.ok(
+          index.has(part),
+          `${name}: ${surface} styles part '${part}', which is not in the descriptor anatomy (${[...index.keys()].join(', ')})`,
+        );
+      }
+    }
   }
 });
 
@@ -372,4 +426,32 @@ test('component-api · generated prop and component-slot identifiers are safe', 
       }
     }
   }
+});
+
+test('component-api · codegen accepts descriptor-local part ids outside the old roster', () => {
+  const descriptor = {
+    structure: {
+      anatomy: { el: 'view', parts: { badge: { el: 'text' } } },
+      base: { root: { stack: { direction: 'row' } }, badge: { typography: { size: 'sm' } } },
+    },
+    variants: {
+      tone: {
+        quiet: { badge: { palette: { muted: true } } },
+        loud: { badge: { typography: { emphasis: true } } },
+      },
+    },
+    defaults: { tone: 'quiet' },
+    api: {
+      axes: ['tone'],
+      themeScope: { accent: true },
+      slots: {
+        default: { part: 'badge', kind: 'text', default: true },
+      },
+    },
+  };
+
+  const source = emitComponentFile({ name: 'local-probe' }, descriptor);
+  assert.match(source, /type LocalProbePart = 'root' \| 'badge';/);
+  assert.match(source, /const content: Partial<Record<LocalProbePart, React\.ReactNode>> = \{\};/);
+  assert.doesNotMatch(source, /import type \{ Part \}/);
 });

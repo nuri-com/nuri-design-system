@@ -16,7 +16,6 @@ import { nuriNames, renderDescriptorInstance } from '../../factory/createNuriCom
 import type { NuriBehaviour } from '../../factory/createNuriComponent';
 import { iconButtonDescriptor } from '@nuri/spec/descriptors/icon-button';
 import { recipes } from '../recipes';
-import type { Part } from '../../contract';
 import { NuriScope } from '../../theme';
 import type { Accent } from '../tokens';
 import type { IconName } from '../icons';
@@ -32,6 +31,8 @@ export type IconButtonProps = {
   children?: never;
 };
 
+type IconButtonPart = 'root' | 'icon';
+
 const iconButtonDisplayName = nuriNames('icon-button').rn;
 
 const IconButtonInner: React.FC<IconButtonProps> = (props) => {
@@ -39,9 +40,9 @@ const IconButtonInner: React.FC<IconButtonProps> = (props) => {
     "variant": props.variant ?? "soft",
     "size": props.size ?? "md",
   };
-  const content: Partial<Record<Part, React.ReactNode>> = {};
+  const content: Partial<Record<IconButtonPart, React.ReactNode>> = {};
   if (props.icon !== undefined) content["icon"] = props.icon;
-  const behaviour: NuriBehaviour = {};
+  const behaviour: NuriBehaviour<IconButtonPart> = {};
   behaviour.pressable = {
     target: "root",
     onPress: props.onPress,

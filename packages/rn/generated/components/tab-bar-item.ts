@@ -16,7 +16,6 @@ import { nuriNames, renderDescriptorInstance } from '../../factory/createNuriCom
 import type { NuriBehaviour } from '../../factory/createNuriComponent';
 import { tabBarItemDescriptor } from '@nuri/spec/descriptors/tab-bar-item';
 import { recipes } from '../recipes';
-import type { Part } from '../../contract';
 import { NuriScope } from '../../theme';
 import type { Accent } from '../tokens';
 import type { IconName } from '../icons';
@@ -31,6 +30,8 @@ export type TabBarItemProps = {
   children?: never;
 };
 
+type TabBarItemPart = 'root' | 'icon' | 'label';
+
 const tabBarItemDisplayName = nuriNames('tab-bar-item').rn;
 
 const TabBarItemInner: React.FC<TabBarItemProps> = (props) => {
@@ -40,10 +41,10 @@ const TabBarItemInner: React.FC<TabBarItemProps> = (props) => {
   if (typeof props.selected === 'boolean') {
     selection["state"] = props.selected ? "selected" : "unselected";
   }
-  const content: Partial<Record<Part, React.ReactNode>> = {};
+  const content: Partial<Record<TabBarItemPart, React.ReactNode>> = {};
   if (props.icon !== undefined) content["icon"] = props.icon;
   if (props.label !== undefined) content["label"] = props.label;
-  const behaviour: NuriBehaviour = {};
+  const behaviour: NuriBehaviour<TabBarItemPart> = {};
   behaviour.pressable = {
     target: "root",
     onPress: props.onPress,

@@ -16,7 +16,6 @@ import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriComposi
 import type { NuriBehaviour, NuriCompositionEntry } from '../../factory/createNuriComponent';
 import { buttonDescriptor } from '@nuri/spec/descriptors/button';
 import { recipes } from '../recipes';
-import type { Part } from '../../contract';
 import { NuriScope } from '../../theme';
 import type { Accent } from '../tokens';
 import type { IconName } from '../icons';
@@ -30,6 +29,8 @@ export type ButtonProps = {
   accessibilityLabel?: string;
   children?: React.ReactNode;
 };
+
+type ButtonPart = 'root' | 'label' | 'icon';
 
 const buttonDisplayName = nuriNames('button').rn;
 export type ButtonTextProps = {
@@ -47,14 +48,14 @@ const ButtonInner: React.FC<ButtonProps> = (props) => {
     "variant": props.variant ?? "soft",
     "size": props.size ?? "md",
   };
-  const content: Partial<Record<Part, React.ReactNode>> = {};
-  const composition: Partial<Record<Part, NuriCompositionEntry[]>> = {};
-  const harvestedComposition = harvestNuriComposition(props.children, "label");
+  const content: Partial<Record<ButtonPart, React.ReactNode>> = {};
+  const composition: Partial<Record<ButtonPart, NuriCompositionEntry<ButtonPart>[]>> = {};
+  const harvestedComposition = harvestNuriComposition<ButtonPart>(props.children, "label");
   if (harvestedComposition.hasSlots) {
     composition.root = harvestedComposition.items;
   }
   if (!harvestedComposition.hasSlots && props.children !== undefined) content["label"] = props.children;
-  const behaviour: NuriBehaviour = {};
+  const behaviour: NuriBehaviour<ButtonPart> = {};
   behaviour.pressable = {
     target: "root",
     onPress: props.onPress,

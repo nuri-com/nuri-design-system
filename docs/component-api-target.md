@@ -4,7 +4,7 @@
 > DONE (codegen exact `*Props` types + typed exports · render byte-identical · shipped) · Phase 3 DONE
 > (generated RN adapters normalize props; renderer consumes normalized descriptor instances · render
 > byte-identical) · Phase 4 DONE (composition renderer + Button lockup + translator script) · Phase 5
-> NEXT (descriptor-local parts).** This is
+> DONE (descriptor-local parts).** This is
 > the design SoT for Path C, mirroring [`theme-engine-target.md`](./theme-engine-target.md)'s role for the
 > theme rework. It DISTILLS + RECONCILES the external architecture review
 > ([`consumer-feedback/COMPONENT-API-REVIEW-2026-07-01.md`](./consumer-feedback/COMPONENT-API-REVIEW-2026-07-01.md)),
@@ -84,9 +84,9 @@ api: {
 }
 ```
 
-`PartId` in Phase 1 = the current global `Part` union member (validated to exist in the descriptor's
-anatomy). Phase 5 narrows it to descriptor-local literals (codegen validation, NOT TS inference · the strip
-wall).
+`PartId` is descriptor-local: the descriptor's anatomy declares the valid part ids, with `root` as the
+required host convention. Codegen/drift guards validate every authored part reference against that local
+anatomy (NOT TS inference · the strip wall), so new private parts do not require a frozen global roster bump.
 
 ## Target catalog design (SETTLED 2026-07-01 · the operator's redesign)
 
@@ -163,8 +163,8 @@ geneous children are a RICHER render than Topbar's one-shot region routing — n
   `prefix`/`suffix` parts from the icon-button descriptor (RN + web twin) + their size-variant entries;
   icon-button is now the bare glyph circle (`icon` part only · sizing squares via `minWidth=minHeight`). RN
   snapshots changed (deliberate · regenerated + visually confirmed the circle geometry is unchanged: 48²
-  md · radius full · 24px glyph); every other component's snapshot stayed identical. `prefix`/`suffix` stay
-  in the frozen `Part` union for now (a later slice removes them if Button-composition doesn't reuse them).
+  md · radius full · 24px glyph); every other component's snapshot stayed identical. The old global part
+  roster was retired in Phase 5, so those retired names no longer pressure the schema.
   **Web-attr generalization (operator directive, 2026-07-01):** a component with an `icon` PART exposes the
   glyph via the `icon` attribute/prop on **both** RN and web — only the primitive `<nuri-icon>` leaf uses
   `name`. Reducing icon-button to a lone `icon` primary made the web factory (which routed a lone icon
@@ -226,8 +226,12 @@ geneous children are a RICHER render than Topbar's one-shot region routing — n
   repeatable `text`/`icon` composed children (`ButtonText`/`ButtonIcon`); the mid-text lockup lands HERE.
   Formalize the deterministic web↔RN screen transform (`nuri-<c>-<slot>` ↔ `<C><Slot>` · attrs→props ·
   ordered children) as a SCRIPT. Break directly (no external consumer · no deprecation bridge).
-- **Phase 5 — descriptor-local parts · NEXT.** Retire the global `Part` union pressure via codegen validation (NOT
-  TS inference · the strip wall). Global names may survive as helper conventions, not universal public vocab.
+- **Phase 5 — descriptor-local parts · ✅ DONE.** Retired the global `Part` union pressure: schema part ids
+  are descriptor-local strings (`PartId`), `root` remains the required host convention, and codegen/drift
+  guards validate every `structure.base`, variant part map, slot target, pressable target, and generated
+  composition target against the descriptor's own anatomy (NOT TS inference · the strip wall). Generated RN
+  adapters now emit per-component part aliases for their `content`/`composition` maps instead of importing a
+  global part roster.
 
 ## Scope discipline (mirror theme-rework)
 

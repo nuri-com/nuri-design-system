@@ -16,7 +16,6 @@ import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriSlots }
 import type { NuriBehaviour } from '../../factory/createNuriComponent';
 import { topbarDescriptor } from '@nuri/spec/descriptors/topbar';
 import { recipes } from '../recipes';
-import type { Part } from '../../contract';
 import { NuriScope } from '../../theme';
 import type { Accent } from '../tokens';
 
@@ -24,6 +23,8 @@ export type TopbarProps = {
   accent?: Accent;
   children?: React.ReactNode;
 };
+
+type TopbarPart = 'root' | 'leading' | 'center' | 'trailing';
 
 const topbarDisplayName = nuriNames('topbar').rn;
 export const TopbarLeading = createNuriSlot("leading", `${topbarDisplayName}Leading`);
@@ -33,12 +34,12 @@ export const TopbarTrailing = createNuriSlot("trailing", `${topbarDisplayName}Tr
 const TopbarInner: React.FC<TopbarProps> = (props) => {
   const selection: Record<string, string> = {
   };
-  const content: Partial<Record<Part, React.ReactNode>> = {};
-  const harvested = harvestNuriSlots(props.children, "trailing");
+  const content: Partial<Record<TopbarPart, React.ReactNode>> = {};
+  const harvested = harvestNuriSlots<TopbarPart>(props.children, "trailing");
   if (harvested["leading"] !== undefined) content["leading"] = harvested["leading"];
   if (harvested["center"] !== undefined) content["center"] = harvested["center"];
   if (harvested["trailing"] !== undefined) content["trailing"] = harvested["trailing"];
-  const behaviour: NuriBehaviour = {};
+  const behaviour: NuriBehaviour<TopbarPart> = {};
 
   return renderDescriptorInstance({
     descriptor: topbarDescriptor,

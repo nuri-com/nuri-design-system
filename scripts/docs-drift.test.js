@@ -180,10 +180,10 @@ const EXPECTED_DESCRIPTORS = {
     parts: ['icon'],
     interactive: [], // static · no `interactive` (65.3 · the IconAvatar story)
   },
-  // topbar (the topbar-slots slice · the 2nd contract bump · the catalog's first
+  // topbar (the topbar-slots slice · the catalog's first
   // COMPOUND component) — a slot-based action bar with NO variant axes (a static
-  // layout shell): three typed regions (leading/center/trailing · the new Part
-  // vocab), the edges carrying the `even` flex so the centre lands dead-centre.
+  // layout shell): three descriptor-local typed regions, the edges carrying the
+  // `even` flex so the centre lands dead-centre.
   // The stringly-boolean `center` axis is GONE (true centring is structural now).
   topbar: {
     axes: {},
@@ -192,8 +192,8 @@ const EXPECTED_DESCRIPTORS = {
   },
   // icon-button (P11 · reduced to icon-ONLY at Path C Phase 0/B0) — the
   // conventional glyph circle: a lone `icon` part is the whole control (the
-  // anchored prefix/suffix flanks retired · the lockup relocated to composable
-  // Button · Phase 4), interactive like Button (all three channels), variant × size.
+  // anchored flanks retired · the lockup relocated to composable Button · Phase 4),
+  // interactive like Button (all three channels), variant × size.
   'icon-button': {
     axes: { variant: ['solid', 'soft', 'ghost'], size: ['sm', 'md', 'lg'] },
     parts: ['icon'],
@@ -420,7 +420,7 @@ test('E · build/palette.ts re-derives from the TS SoT and matches the pinned co
 // What it LOCKS: the five namespace field vocabularies (StackNS / BoxNS /
 // TypographyNS / PaletteNS / InteractiveNS · field name → declared value type),
 // the leaf vocabs (SpaceLeaf / RadiusLeaf member sets · SizeLeaf / TypeKey
-// declaration forms), the palette sub-vocabs, and the Part / El / NS /
+// declaration forms), the palette sub-vocabs, and the PartId / El / NS /
 // PartAnatomy / PartMap / Axes / Variants / Descriptor envelope. A field
 // added / removed / renamed / retyped, or a union member moved, BREAKS here.
 // What it does NOT lock: the per-component AXES + instance VALUES (Guard D ·
@@ -495,18 +495,12 @@ const FROZEN_SCHEMA = {
     TypeSize: "keyof typeof import('../tokens/typography').type",
     TypeKey: 'TypeSize', // de-fused at N+45 (decision 77) · the `${TypeSize}Em` arm retired
   },
-  // The parts + composition + envelope (65.3 §7 · decision 24.1). `prefix`/
-  // `suffix` ADDED at P11 (the icon-button slice · the first real post-freeze
-  // contract bump · decision 65 "post-freeze changes are versioned"): the text
-  // flanks of the icon-anchored control. `leading`/`center`/`trailing` ADDED at
-  // the topbar-slots slice (the 2nd contract bump): the three typed regions of
-  // the compound action-bar (the factory's compound-component capability). The
-  // monorepo gates every projection together, so this pin move IS the version
-  // negotiation.
-  Part: ['root', 'leading', 'prefix', 'label', 'icon', 'center', 'suffix', 'trailing', 'content'],
+  // Part ids are descriptor-local (Path C · Phase 5). `root` is still the required
+  // host convention, but non-root names are validated against each descriptor's
+  // anatomy by component-api guards/codegen rather than frozen as one global roster.
   El: ['view', 'text', 'icon'],
   NS: { 'stack?': 'StackNS', 'box?': 'BoxNS', 'typography?': 'TypographyNS', 'palette?': 'PaletteNS', 'interactive?': 'InteractiveNS' },
-  PartAnatomy: { 'el': 'El', 'open?': 'boolean', 'parts?': "Partial<Record<Exclude<Part, 'root'>, PartAnatomy>>" },
+  PartAnatomy: { 'el': 'El', 'open?': 'boolean', 'parts?': "Partial<Record<Exclude<P, 'root'>, PartAnatomy<P>>>" },
   // `defaults` (R1.5 per-axis public default) + `decorative` (decision 50 a11y
   // flag) added at N+50 (the web-factory slice · a deliberate, versioned
   // post-freeze envelope add · both DATA the two factories read). `defaults`
@@ -524,18 +518,18 @@ const FROZEN_SCHEMA = {
   // phase (codegen consumes it in Phase 2), so the emitted twins carry it
   // verbatim and every render/snapshot stays byte-identical. `ComponentApi` +
   // `SlotSpec` are pinned as full field-maps below (like NS / PartAnatomy).
-  Descriptor: { 'structure': '{ anatomy: PartAnatomy; base?: PartMap }', 'variants?': 'Variants<A>', 'defaults?': '{ [Axis in keyof A]?: A[Axis] }', 'decorative?': 'boolean', 'api': 'ComponentApi' },
+  Descriptor: { 'structure': '{ anatomy: PartAnatomy<P>; base?: PartMap<P> }', 'variants?': 'Variants<A, P>', 'defaults?': '{ [Axis in keyof A]?: A[Axis] }', 'decorative?': 'boolean', 'api': 'ComponentApi<P>' },
   // The PUBLIC-API layer (Path C · Phase 1). Field-for-field pins (like NS /
   // PartAnatomy) — a field added/removed/renamed/retyped on either breaks here.
   ComponentApi: {
     'axes': 'string[]',
     'themeScope?': '{ accent: true }',
-    'behaviour?': "{ pressable?: { target: Part; props: ('onPress' | 'disabled' | 'accessibilityLabel')[] } }",
+    'behaviour?': "{ pressable?: { target: P; props: ('onPress' | 'disabled' | 'accessibilityLabel')[] } }",
     'propMaps?': '{ selected?: { axis: string; true: string; false: string } }',
-    'slots': 'Record<string, SlotSpec>',
+    'slots': 'Record<string, SlotSpec<P>>',
   },
   SlotSpec: {
-    'part': 'Part',
+    'part': 'P',
     'kind': "'text' | 'icon-name' | 'node' | 'region' | 'children'",
     'prop?': 'string',
     'default?': 'true',
@@ -544,9 +538,11 @@ const FROZEN_SCHEMA = {
     'multiple?': 'boolean',
   },
   aliasForms: {
-    PartMap: 'Partial<Record<Part, NS>>',
+    PartId: 'string',
+    Part: 'PartId',
+    PartMap: 'Partial<Record<P, NS>>',
     Axes: 'Record<string, string>',
-    Variants: '{ [Axis in keyof A]: { [Value in A[Axis]]: PartMap }; }',
+    Variants: '{ [Axis in keyof A]: { [Value in A[Axis]]: PartMap<P> }; }',
   },
 };
 
@@ -561,7 +557,7 @@ const normType = (s) =>
 // we must skip past lives inside `{}`; unions/generics never hold one). A
 // missing/renamed type throws here with a legible message (drift, not a pass).
 function typeRhs(src, name) {
-  const m = new RegExp(`export type ${name}\\b[^=]*=\\s*`).exec(src);
+  const m = new RegExp(`export type ${name}\\b(?:<[^>]*>)?\\s*=\\s*`).exec(src);
   assert.ok(m, `[freeze] schema declares no \`export type ${name}\` — the frozen contract type was renamed or removed (B3 · decision 65)`);
   let depth = 0, i = m.index + m[0].length;
   const start = i;
@@ -620,8 +616,7 @@ test('F · the descriptor schema shape is frozen (B3 · decision 65 step 5)', ()
     assert.equal(normType(typeRhs(src, name)), normType(pinned), drift(`leaf form ${name}`));
   }
 
-  // The parts + structural unions (member sets).
-  assert.deepEqual(unionMembers(typeRhs(src, 'Part')), [...FROZEN_SCHEMA.Part].sort(), drift('Part'));
+  // The structural unions (member sets).
   assert.deepEqual(unionMembers(typeRhs(src, 'El')), [...FROZEN_SCHEMA.El].sort(), drift('El'));
 
   // The composition + anatomy + descriptor envelope (field maps).

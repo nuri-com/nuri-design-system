@@ -17,7 +17,7 @@
  * honorary"). The schema SHAPE — the five namespace field vocabularies
  * (Stack/Box/Typography/Palette/Interactive NS), the leaf vocabs (SizeLeaf/
  * SpaceLeaf/RadiusLeaf/TypeKey), and the Descriptor/PartAnatomy/PartMap/
- * Part/El envelope — is locked by Guard F (pipeline/docs-drift.test.js · the
+ * PartId/El envelope — is locked by Guard F (pipeline/docs-drift.test.js · the
  * FROZEN_SCHEMA pin); a field added/removed/renamed/retyped breaks the build.
  * A post-freeze shape change is DELIBERATE + VERSIONED: update the freeze pin
  * AND log it as a contract change in the decisionlog (a 65 amendment) — the
@@ -227,30 +227,19 @@ export const TYPOGRAPHY_KEYS = Object.keys(
 );
 
 // ══════════════════════════════════════════════════════════════════
-// THE PARTS · anatomy (structure) + the per-part namespace maps
+// THE PART IDS · anatomy (structure) + the per-part namespace maps
 // ══════════════════════════════════════════════════════════════════
 
-// The named parts a composition addresses. The structure half (the
-// decision-24.1 page anatomy) declares which a component has; base +
-// variants compose them by name. `root` is the host.
-//
-// `prefix` / `suffix` (P11 · the FIRST real post-freeze contract bump ·
-// the icon-button slice) — the text flanks of an ICON-ANCHORED control
-// (`prefix 🍎 suffix` · brand lockups · Apple Pay). A DELIBERATE, VERSIONED
-// addition to the frozen vocab (decision 65 · "post-freeze changes are
-// versioned"): the Guard-F pin (FROZEN_SCHEMA.Part) moves with it, the
-// monorepo gates every projection together (no version-negotiation
-// machinery · one repo, no external consumer to negotiate with).
-//
-// `leading` / `center` / `trailing` (the topbar-slots slice · the SECOND
-// contract bump) — the three TYPED REGIONS of a slot-based action bar, the
-// catalog's first COMPOUND component: the factory generates a container +
-// one typed sub-component per region (RN `TopbarLeading/Center/Trailing` ↔
-// web `<nuri-topbar-leading/center/trailing>`). leading/trailing carry the
-// `even` flex edge; the centre is `flex:none`, so it lands dead-centre with
-// asymmetric edges. They are NAMED, STYLED parts (not the old positional
-// `open`-primitive slots), hence enumerated — same versioned-bump mechanism.
-export type Part = 'root' | 'leading' | 'prefix' | 'label' | 'icon' | 'center' | 'suffix' | 'trailing' | 'content';
+// The named parts a descriptor composition addresses. The structure half declares
+// which part ids a component has; base + variants + api targets compose them by
+// name. `root` remains the required host convention, but non-root ids are
+// descriptor-local: adding a private part to one descriptor must not bump a
+// frozen global roster. The codegen/drift guards validate every reference against
+// the descriptor's own anatomy because TS inference cannot survive the strip
+// pipeline. `Part` remains a compatibility alias for internal consumers; it is no
+// longer a closed public vocabulary.
+export type PartId = string;
+export type Part = PartId;
 
 // The structural elements a part renders as — view-ish, text-ish, or the
 // glyph leaf. Drives the factory's JSX (and the web painting node);
@@ -259,10 +248,10 @@ export type El = 'view' | 'text' | 'icon';
 
 // A part's anatomy: its element, whether it is OPEN (accepts positional
 // children · the §7 open-primitive layer), and any nested named parts.
-export type PartAnatomy = {
+export type PartAnatomy<P extends PartId = PartId> = {
   el: El;
   open?: boolean;
-  parts?: Partial<Record<Exclude<Part, 'root'>, PartAnatomy>>;
+  parts?: Partial<Record<Exclude<P, 'root'>, PartAnatomy<P>>>;
 };
 
 // A per-part namespace map — `{ root: NS, label: NS, … }`. The SAME shape
@@ -270,7 +259,7 @@ export type PartAnatomy = {
 // content-pivot's `stack{fill}` which is a PART's base) and each variant
 // value (the recipe's per-axis decision). base is per-part, not root-only,
 // so a part's invariant base (the pivot) has a home.
-export type PartMap = Partial<Record<Part, NS>>;
+export type PartMap<P extends PartId = PartId> = Partial<Record<P, NS>>;
 
 // ══════════════════════════════════════════════════════════════════
 // THE DESCRIPTOR · pure data (65.3 §7) · structure + variants
@@ -284,8 +273,8 @@ export type Axes = Record<string, string>;
 // No `compoundVariants` — the press transition is no longer data
 // (decision 65 · behaviour ≠ data); interaction is the `interactive`
 // opt-in in `structure.base` (Button is interactive across all variants).
-export type Variants<A extends Axes> = {
-  [Axis in keyof A]: { [Value in A[Axis]]: PartMap };
+export type Variants<A extends Axes, P extends PartId = PartId> = {
+  [Axis in keyof A]: { [Value in A[Axis]]: PartMap<P> };
 };
 
 // ══════════════════════════════════════════════════════════════════
@@ -308,17 +297,17 @@ export type Variants<A extends Axes> = {
 // COMPOSITION-only (a flat sub-component per slot · never a named prop · the
 // operator's 2026-07-01 rule). The ONE exception: a SCALAR ref — an
 // `icon-name` is a string token like `variant`, not a subtree — MAY declare a
-// `prop` shorthand (`icon="apple"`). `part` in Phase 1 is a global `Part`
-// (validated to exist in the descriptor's anatomy · Phase 5 narrows it to
-// descriptor-local literals via codegen, not TS inference · the strip wall).
+// `prop` shorthand (`icon="apple"`). `part` is a descriptor-local `PartId`,
+// validated against that descriptor's anatomy by the codegen/drift guards (not TS
+// inference · the strip wall).
 // `prop` = the scalar icon-name shorthand (ONLY legal on a singular `icon-name`
 // slot); `default: true` = the untagged-children sink (bare positional children
 // route here; mutually exclusive with `prop`; never on `icon-name`);
 // `component: true` = emit a generated marker/component for ordered composition
 // (RN `ButtonText` / web `<nuri-button-text>`); `multiple: true` = repeated
 // children, either an open `children` host or a component-declared slot sequence.
-export type SlotSpec = {
-  part: Part;
+export type SlotSpec<P extends PartId = PartId> = {
+  part: P;
   kind: 'text' | 'icon-name' | 'node' | 'region' | 'children';
   prop?: string;
   default?: true;
@@ -334,12 +323,12 @@ export type SlotSpec = {
 // the press affordance, ONLY where declared and the target part is `interactive`;
 // `propMaps.selected` = the `selected`→state-axis bridge as DATA (kills the
 // `'state' extends keyof A` factory magic); `slots` = the content entry points.
-export type ComponentApi = {
+export type ComponentApi<P extends PartId = PartId> = {
   axes: string[];
   themeScope?: { accent: true };
-  behaviour?: { pressable?: { target: Part; props: ('onPress' | 'disabled' | 'accessibilityLabel')[] } };
+  behaviour?: { pressable?: { target: P; props: ('onPress' | 'disabled' | 'accessibilityLabel')[] } };
   propMaps?: { selected?: { axis: string; true: string; false: string } };
-  slots: Record<string, SlotSpec>;
+  slots: Record<string, SlotSpec<P>>;
 };
 
 // The per-component descriptor — PURE DATA (no theme thunk). `structure`
@@ -362,10 +351,10 @@ export type ComponentApi = {
 // PUBLIC-API contract (Path C · Phase 1 · above): REQUIRED, pure data, ignored
 // by the renderer this phase (codegen consumes it later). A deliberate,
 // versioned post-freeze envelope add (the Guard-F pin moves with it).
-export type Descriptor<A extends Axes> = {
-  structure: { anatomy: PartAnatomy; base?: PartMap };
-  variants?: Variants<A>;
+export type Descriptor<A extends Axes, P extends PartId = PartId> = {
+  structure: { anatomy: PartAnatomy<P>; base?: PartMap<P> };
+  variants?: Variants<A, P>;
   defaults?: { [Axis in keyof A]?: A[Axis] };
   decorative?: boolean;
-  api: ComponentApi;
+  api: ComponentApi<P>;
 };
