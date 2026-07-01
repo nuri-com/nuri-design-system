@@ -1,22 +1,20 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · TYPE TEST · the component-API exact surface (Path C · Phase 2)
+ * NURI · TYPE TEST · the component-API exact surface (Path C · Phase 3)
  * ──────────────────────────────────────────────────────────────────
- * THE LOAD-BEARING PROOF of Phase 2. Phase 2's whole deliverable is the TYPE
- * surface — each component's exact public props (`ButtonProps` with no `icon`;
- * `IconButtonProps` with a required scalar `icon` + `children?: never`). The render
- * is byte-identical (same factory instance · same recipe), so the render-smoke
- * CANNOT see this change — tsc is the only gate. This fixture asserts the surface
- * with `@ts-expect-error`: each marked line MUST error, so REMOVING a
- * `@ts-expect-error` makes tsc FAIL (an unused directive · TS2578) — that is the
- * bind proof (the narrowing actually bites; the export is not silently the wide bag).
+ * THE LOAD-BEARING PROOF for the generated adapter public surface. Each component's
+ * exact props (`ButtonProps` with no `icon`; `IconButtonProps` with a required
+ * scalar `icon` + `children?: never`) are emitted from descriptor `api` and then
+ * normalized by the generated RN adapter at runtime. This fixture asserts that
+ * surface with `@ts-expect-error`: each marked line MUST error, so REMOVING a
+ * `@ts-expect-error` makes tsc FAIL (an unused directive · TS2578). That proves the
+ * generated exports are still exact and have not widened back into the old soup.
  *
  * It is NOT a jest suite (jest is scoped to `factory/`; this lives OUTSIDE that root)
  * — it is pure `tsc` fodder, checked by `npm run typecheck -w @nuri/rn`. The fixtures
  * are `export const` so they are not unused-locals; none is rendered at runtime.
  *
- * Anti-goal reminder: NO `as`/`as unknown` casts anywhere — the exports are DIRECT
- * `FC<Wide>`→`FC<Narrow>` bindings (sound by prop contravariance). A cast here would
- * hide exactly the narrowing this fixture exists to prove.
+ * Anti-goal reminder: NO `as`/`as unknown` casts anywhere. A cast here would hide
+ * exactly the public-surface regression this fixture exists to catch.
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';

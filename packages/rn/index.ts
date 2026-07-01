@@ -3,14 +3,13 @@
  * Import Nuri from here: `import { Button, NuriThemeProvider } from './src/nuri'`.
  *
  * The clean factory example (R1.5): the contract seam + the theme runtime +
- * the generic descriptor factory (which exports the ergonomic, 1:1-with-web
- * Button / IconAvatar / Topbar). The hand-written migration mirrors are
- * retired — the factory is the single, real consumer of the frozen contract.
+ * generated descriptor adapters (Button / IconAvatar / Topbar / ...) over a
+ * shared normalized renderer. The hand-written migration mirrors are retired.
  *
  * PUBLIC SURFACE (SEED-4 · Arc 1): the theming API (NuriThemeProvider · NuriScope ·
  * useNuriTheme · resolveToken · useToken · typeStyle · the ThemePayload types), the
- * components + factory helpers (createNuriComponent · nuriNames · compoundSlots ·
- * NuriSurfaceContext · the Button/IconAvatar/Topbar/… instances), NuriIcon, and the
+ * components + renderer helpers (nuriNames · NuriSurfaceContext · the
+ * Button/IconAvatar/Topbar/… instances), NuriIcon, and the
  * hand-authorable primitives (View/Stack/Text/Pressable/Screen/Scroll). The generic
  * descriptor ENGINE (resolveNS · flattenPart · flattenBakedPart · buildNuriTheme ·
  * the palette MAPPING · the baked geometry recipe + the resolver intermediate types)

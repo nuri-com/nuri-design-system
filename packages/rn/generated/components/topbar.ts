@@ -1,11 +1,10 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · COMPONENT · TOPBAR · EXACT PUBLIC SURFACE · GENERATED · DO NOT EDIT BY HAND
+ * NURI · COMPONENT · TOPBAR · GENERATED RN API ADAPTER · DO NOT EDIT BY HAND
  *
- * The EXACT-typed public export for `topbar` (Path C · Phase 2). `{Name}Props`
+ * The exact public export for `topbar` (Path C · Phase 3). `{Name}Props`
  * is emitted from the descriptor's `api` (packages/spec/components/topbar.ts);
- * the export binds the EXISTING createNuriComponent instance to it — a TYPE
- * NARROWING over the wide `NuriComponentProps` bag (FC<Wide> ⊑ FC<Narrow> · props
- * contravariant · NO cast · same instance · same recipe · render byte-identical).
+ * the component adapter normalizes public props into selection, content,
+ * behaviour, and accent scope before calling the shared descriptor renderer.
  *
  * Source · the authored descriptor `api`+`variants`. Emitter · scripts/parsers/
  * components-api.js — run `npm run build`. Committed (decision 35) · the re-emit
@@ -13,9 +12,12 @@
  * ────────────────────────────────────────────────────────────── */
 
 import * as React from 'react';
-import { createNuriComponent, nuriNames, compoundSlots } from '../../factory/createNuriComponent';
+import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriSlots } from '../../factory/createNuriComponent';
+import type { NuriBehaviour } from '../../factory/createNuriComponent';
 import { topbarDescriptor } from '@nuri/spec/descriptors/topbar';
 import { recipes } from '../recipes';
+import type { Part } from '../../contract';
+import { NuriScope } from '../../theme';
 import type { Accent } from '../tokens';
 
 export type TopbarProps = {
@@ -23,13 +25,34 @@ export type TopbarProps = {
   children?: React.ReactNode;
 };
 
-export const Topbar: React.FC<TopbarProps> = createNuriComponent(
-  topbarDescriptor,
-  nuriNames('topbar').rn,
-  recipes['topbar'],
-);
+const topbarDisplayName = nuriNames('topbar').rn;
+export const TopbarLeading = createNuriSlot("leading", `${topbarDisplayName}Leading`);
+export const TopbarCenter = createNuriSlot("center", `${topbarDisplayName}Center`);
+export const TopbarTrailing = createNuriSlot("trailing", `${topbarDisplayName}Trailing`);
 
-const topbarSlots = compoundSlots(Topbar);
-export const TopbarLeading = topbarSlots.TopbarLeading;
-export const TopbarCenter = topbarSlots.TopbarCenter;
-export const TopbarTrailing = topbarSlots.TopbarTrailing;
+const TopbarInner: React.FC<TopbarProps> = (props) => {
+  const selection: Record<string, string> = {
+  };
+  const content: Partial<Record<Part, React.ReactNode>> = {};
+  const harvested = harvestNuriSlots(props.children, "trailing");
+  if (harvested["leading"] !== undefined) content["leading"] = harvested["leading"];
+  if (harvested["center"] !== undefined) content["center"] = harvested["center"];
+  if (harvested["trailing"] !== undefined) content["trailing"] = harvested["trailing"];
+  const behaviour: NuriBehaviour = {};
+
+  return renderDescriptorInstance({
+    descriptor: topbarDescriptor,
+    recipe: recipes["topbar"],
+    displayName: topbarDisplayName,
+    selection,
+    content,
+    behaviour,
+  });
+};
+TopbarInner.displayName = `${topbarDisplayName}Inner`;
+
+export const Topbar: React.FC<TopbarProps> = (props) =>
+  props.accent !== undefined
+    ? React.createElement(NuriScope, { accent: props.accent, children: React.createElement(TopbarInner, props) })
+    : React.createElement(TopbarInner, props);
+Topbar.displayName = topbarDisplayName;

@@ -1,8 +1,9 @@
 # Target design — the component-API layer (the descriptor declares its public API · codegen makes it exact · the renderer just renders)
 
 > **Status: IN PROGRESS · Phase 1 DONE (the `api` DATA layer + guard · ZERO runtime · shipped) · Phase 2
-> DONE (codegen exact `*Props` types + typed exports · render byte-identical · shipped) · Phase 3 (renderer
-> shrink) NEXT (Path C · operator-confirmed 2026-07-01).** This is
+> DONE (codegen exact `*Props` types + typed exports · render byte-identical · shipped) · Phase 3 DONE
+> (generated RN adapters normalize props; renderer consumes normalized descriptor instances · render
+> byte-identical) · Phase 4 NEXT (composition renderer + Button lockup).** This is
 > the design SoT for Path C, mirroring [`theme-engine-target.md`](./theme-engine-target.md)'s role for the
 > theme rework. It DISTILLS + RECONCILES the external architecture review
 > ([`consumer-feedback/COMPONENT-API-REVIEW-2026-07-01.md`](./consumer-feedback/COMPONENT-API-REVIEW-2026-07-01.md)),
@@ -211,10 +212,13 @@ geneous children are a RICHER render than Topbar's one-shot region routing — n
   (the Arc-2 recipe-emit path · node can't import `.ts`), stated in the emitter header. The naming guard's RN
   `nuriNames(...)` site moved from `factory/index.ts` to the generated per-component files. All gates green ·
   8 RN snapshots byte-identical · the 2 twins (icon-avatar/icon-button) re-emitted from the Option-A slot.
-- **Phase 3 — shrink `createNuriComponent` → `renderDescriptorInstance`.** DELETE from the renderer:
-  primaryPart guessing · same-name prop routing (`:371`) · the `selected` bridge (`:324`) · compound-slot
-  inference from `view` parts · the public `content` hatch. KEEP: anatomy render · baked-recipe apply ·
-  foreground scope · Pressable mechanics for DECLARED behaviour · `Text`/`View`/`NuriIcon`.
+- **Phase 3 — shrink `createNuriComponent` → `renderDescriptorInstance` · ✅ DONE.** Generated RN
+  components are now exact runtime adapters: they build concrete `selection` from descriptor defaults +
+  first-value fallback, apply `propMaps.selected`, route declared slots into the content map, harvest
+  declared region markers, pass only declared pressable behaviour, and wrap `accent` in `NuriScope`.
+  The renderer now receives the normalized descriptor instance and keeps only anatomy render, baked-recipe
+  apply, foreground scope, decorative a11y, Pressable mechanics for the declared target, and
+  `Text`/`View`/`NuriIcon`. Render snapshots stayed byte-identical.
 - **Phase 4 — composition renderer + Button lockup + the translator script.** The renderer gains ORDERED
   heterogeneous child composition (richer than Topbar's region routing); Button's anatomy gains repeatable
   `text`/`icon` composed children (`ButtonText`/`ButtonIcon`); the mid-text lockup lands HERE. Formalize the
