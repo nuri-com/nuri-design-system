@@ -1,0 +1,190 @@
+# Target design — the component-API layer (the descriptor declares its public API · codegen makes it exact · the renderer just renders)
+
+> **Status: DECIDED · NOT STARTED (Path C · the next major arc · operator-confirmed 2026-07-01).** This is
+> the design SoT for Path C, mirroring [`theme-engine-target.md`](./theme-engine-target.md)'s role for the
+> theme rework. It DISTILLS + RECONCILES the external architecture review
+> ([`consumer-feedback/COMPONENT-API-REVIEW-2026-07-01.md`](./consumer-feedback/COMPONENT-API-REVIEW-2026-07-01.md)),
+> which is the raw artifact — read the reconciliations (§Overrides) as the binding deltas where Nuri's
+> model overrides the review. The Phase-1 brief starts from THIS note, not the raw review.
+
+## The diagnosis (the review's executive summary · confirmed against the code)
+
+The RN factory has crossed from "generic" into **policy soup**. The visible smell is the global
+`NuriBaseProps` bag — `prefix`/`suffix`/`icon`/`label`/`content`/`onPress`/`disabled`/`accessibilityLabel`
+on EVERY factory-built component (`createNuriComponent.tsx:46`). The type system allows nonsense
+(`<Topbar onPress disabled>`, `<IconAvatar prefix suffix>`, `<Button icon prefix suffix label>`), and some
+of it silently routes into parts when the anatomy happens to contain a same-named leaf.
+
+The root cause is a **missing schema layer**: the descriptor declares **anatomy + style composition**
+(`structure`/`variants`/`defaults`), but NOT the **public API** — slots, allowed props, behaviour
+affordances, prop→axis maps. Because that layer is absent, `createNuriComponent` BECAME the missing schema
+and accreted global heuristics (grep-proven in the renderer):
+- lone child part receives `children` (`primaryPart` guess · `:352`);
+- **same-named props route into same-named parts** — "if a part name exists, maybe it is a prop" (`:371`);
+- the `state` axis magically becomes a public `selected` boolean (`'state' extends keyof A` · `:83`, `:324`);
+- any component accepts `onPress`/`disabled`/`accessibilityLabel`;
+- `content?: Partial<Record<Part, ReactNode>>` can target any global `Part`;
+- compound-slot regions are harvested from every non-root `view` child.
+
+This is the **deferred SEED-3 part-half seen deeper** ([[seed3-part-half-blocked-by-strip]]): the
+prefix/suffix/icon/label per-descriptor derivation that collided with the type-strip. Path C's codegen
+adapters sidestep the strip wall that blocked TS inference.
+
+## The north star (handoff PHILOSOPHY §3)
+
+**The DS gives DUMB presentation; the consumer owns state/behaviour/sizing** — and **the descriptor owns
+the public-API contract, not the renderer.** Anatomy alone is NOT a public API. The three jobs anatomy does
+today (internal render tree · style-target graph · public content API) must SPLIT: the first two stay in
+`structure`; the third moves to a new `api` section. Then:
+
+> **Path C = descriptor declares its `api` → codegen emits exact per-component adapters/types → a small
+> shared renderer consumes a NORMALIZED instance and just renders.**
+
+`createNuriComponent` shrinks to `renderDescriptorInstance({ descriptor, selection, content, behaviour,
+themeScope })`. It stops being the place where the component API is invented; the codegen makes it exact;
+the renderer renders. This shares the Arc-2 codegen pass (`scripts/parsers/` → `packages/rn/generated/`) —
+one pass emits both the baked geometry recipe AND the public adapter/types.
+
+## The canonical `api` shape (v1 · reconciled — the review is inconsistent between its §3.2 and §13)
+
+The review gives two different shapes (nested maps in §3.2 · flat arrays in §13). The binding v1 for Nuri:
+
+```ts
+api: {
+  // which VARIANT axes surface as public style props (the default already lives in `defaults`)
+  axes: string[];                                    // e.g. ['variant', 'size']
+
+  // accent theme-scope (Option 1 · universal-but-DECLARED · see Overrides)
+  themeScope?: { accent: true };
+
+  // behaviour props — ONLY where declared; target part must be `interactive`
+  behaviour?: { pressable?: { target: PartId; props: ('onPress'|'disabled'|'accessibilityLabel')[] } };
+
+  // the `selected`→state bridge as DATA (kills the `'state' extends keyof A` magic)
+  propMaps?: { selected?: { axis: string; true: string; false: string } };
+
+  // content entry points. RICH content (text runs · mixed icon+text · regions · repeated children) is
+  // COMPOSITION-only — never a named prop (Overrides §1). The ONE exception: a SCALAR ref — an `icon-name`
+  // is a string token like `variant`, not a subtree — MAY declare a `prop` shorthand (Overrides §1a).
+  slots: {
+    [name: string]: {
+      part: PartId;
+      kind: 'text' | 'icon-name' | 'node' | 'region' | 'children';
+      prop?: string;          // ONLY legal on a singular `icon-name` slot (the scalar shorthand · e.g. 'icon')
+      default?: true;         // the default `children` slot
+      required?: boolean;
+      multiple?: boolean;     // repeated children (e.g. tab-bar's items)
+    };
+  };
+}
+```
+
+`PartId` in Phase 1 = the current global `Part` union member (validated to exist in the descriptor's
+anatomy). Phase 5 narrows it to descriptor-local literals (codegen validation, NOT TS inference · the strip
+wall).
+
+## Target catalog design (SETTLED 2026-07-01 · the operator's redesign)
+
+The icon-anchored icon-button is **retired** (it had no live-screen consumer — the only usage was already
+icon-only). The lockup capability RELOCATES to a composable **Button**. The two roles split clean:
+- **IconButton = conventional icon-ONLY** — `<IconButton variant="soft" accessibilityLabel="Apple Pay"
+  icon="apple" />`. `icon` is a SCALAR icon-name shorthand prop (Overrides §1a), not rich content.
+- **Button = text OR composed lockup.** Bare text is the default slot: `<Button>Buy</Button>`. The mid-text
+  icon lockup is ORDERED composition over FLAT slot components: `<Button><ButtonText>Buy Bitcoin</ButtonText>
+  <ButtonIcon name="apple"/><ButtonText>Pay</ButtonText></Button>` → renders `Buy Bitcoin 🍎 Pay`.
+
+**The compound-slot naming rule (already shipped for Topbar · the determinism guarantee).** RN exposes flat
+`${Component}${Slot}` sub-components (`ButtonText`, `TopbarLeading`) — NO dot-notation ([[ds-boundary-and-naming]])
+— which map **1:1** to web custom elements `nuri-<component>-<slot>` (`nuri-button-text`, `nuri-topbar-leading`),
+a pure kebab↔Pascal pass (`createNuriComponent.tsx:418`). So the **web→RN screen translation stays a
+deterministic AST transform** (rename element · attrs→props · recurse children IN ORDER) and can become a
+script — Topbar's `nuri-topbar-leading`↔`TopbarLeading` is the existing proof. Ordered children translate
+position-for-position, so a `[text, icon, text]` lockup carries over verbatim. (Button's ordered-hetero-
+geneous children are a RICHER render than Topbar's one-shot region routing — new renderer work · Phase 4.)
+
+### The `api` table (the settled shapes · Phase-1 declares over these)
+| descriptor | axes | themeScope | behaviour.pressable | propMaps | slots |
+|---|---|---|---|---|---|
+| **button** | variant, size | accent | root · onPress/disabled/a11yLabel | — | default→label·text *(+ Phase-4: repeatable `text`/`icon` composed children)* |
+| **icon-button** | variant, size | accent | root · onPress/disabled/a11yLabel | — | default→icon·icon-name·**prop `icon`** (icon-ONLY · no prefix/suffix) |
+| **icon-avatar** | variant | accent | — (NOT interactive) | — | default→icon·icon-name·**prop `icon`** |
+| **topbar** | — | accent | — | — | leading→leading·region · center→center·region · trailing→trailing·region(default) |
+| **tab-bar** | — | accent | — | — | default→(container)·children (repeated tab-bar-items · `multiple`) |
+| **tab-bar-item** | — | accent | root · onPress/(disabled?)/a11yLabel | selected→state (true→selected · false→unselected) | icon→icon·icon-name · label→label·text |
+
+## Overrides — where Nuri's model OVERRIDES the raw review (binding)
+
+1. **RICH content is composition, never a named prop** (operator, 2026-07-01 · reverses the earlier
+   icon-anchored-as-props stance in [[icon-button-is-anchored]]). The operator originally pushed
+   `<IconButton icon="apple" prefix="Buy" suffix="Pay">`; they retired it: *"the composition rule vs
+   content-in-prop wins · solving the debt is more urgent than saving the old API."* Content-as-named-prop
+   for SUBTREES (text runs · mixed icon+text · regions) IS the "part name implies prop" pattern the arc
+   exists to kill. The mid-text lockup is NOT lost — it relocates from a doomed icon-button carve-out to
+   **Button composition** (ordered flat `ButtonText`/`ButtonIcon` children · Target-catalog-design above),
+   which is MORE flexible than the old fixed prefix/icon/suffix AND the most deterministically-translatable
+   content model (ordered children ↔ ordered children · no per-prop mapping table). This DELETES the
+   `delivery` discriminator: all rich content is composition.
+1a. **A SCALAR ref MAY be a prop** (the ONE narrow exception · the operator's icon-only IconButton). An
+   `icon-name` is a string token like `variant="soft"`, not a React subtree — so a SINGULAR `icon-name` slot
+   may declare a `prop` shorthand (`icon="apple"`). This is NOT the soup: it's DECLARED in `api`, singular,
+   and kind-gated (only `icon-name`; never text/node/region/children). The guard enforces `prop` appears
+   only on a singular `icon-name` slot. Keeps `<IconButton icon="apple"/>` and `<IconAvatar icon="user"/>`
+   ergonomic without a slot-component ceremony for the single-glyph case.
+2. **accent = Option 1 (universal), but DECLARED** (`api.themeScope.accent: true` on every descriptor). The
+   review prefers Option 2 (per-descriptor opt-in) for purity but calls Option 1 acceptable. Nuri's colour
+   model already treats accent as a uniform scope on every component ([[rn-colour-provider-model]]) — so
+   universal is the honest shape. Declaring it (rather than a hard-coded global `ThemeScopeProps`) keeps
+   "no magic · the descriptor owns the API" intact. Minimal option; still declared-not-magic.
+3. **NO shadcn-style eject as default.** Generated components stay canonical inside `@nuri/rn` (the review
+   agrees · §6.2). `@nuri/rn` has no external consumer, so BREAK directly — no deprecation bridge, no shim
+   (handoff PHILOSOPHY §5). Optional eject is a FUTURE product decision, out of this arc.
+4. **`content` escape hatch → internal/test only.** Drop the public `content?: Partial<Record<Part, …>>`;
+   keep an internal `renderDescriptorForTest` (or `__content`) if the render-smoke needs it.
+
+## The migration (sequenced · the review's §13 + the operator's "B" reorder · one seam per PR · CLOSE each)
+
+- **Phase 0 (B0) — icon-button → icon-ONLY · render-changing · FIRST · ✅ DONE** (the operator's "B": settle
+  the anatomy before declaring API over it, so Phase 1 never declares doomed prefix/suffix slots). Dropped the
+  `prefix`/`suffix` parts from the icon-button descriptor (RN + web twin) + their size-variant entries;
+  icon-button is now the bare glyph circle (`icon` part only · sizing squares via `minWidth=minHeight`). RN
+  snapshots changed (deliberate · regenerated + visually confirmed the circle geometry is unchanged: 48²
+  md · radius full · 24px glyph); every other component's snapshot stayed identical. `prefix`/`suffix` stay
+  in the frozen `Part` union for now (a later slice removes them if Button-composition doesn't reuse them).
+  **Web-attr generalization (operator directive, 2026-07-01):** a component with an `icon` PART exposes the
+  glyph via the `icon` attribute/prop on **both** RN and web — only the primitive `<nuri-icon>` leaf uses
+  `name`. Reducing icon-button to a lone `icon` primary made the web factory (which routed a lone icon
+  primary via `name`, the icon-avatar convention) surface it as `name`; the operator ruled `icon` should be
+  uniform, so `defineNuriComponent` now addresses a lone `icon`-el primary by its part name (`icon`). This
+  is generic, so **icon-avatar also flips** `name`→`icon` on web (its live consumers + tests migrated). The
+  unification the review assigned to Phase 2 codegen thus lands early for the singular-icon case. Its own small PR.
+- **Phase 1 — declare `api` as DATA + a guard · ZERO runtime change.** Add the `api` section to all six
+  (now-settled) descriptors (the table above) + a validation guard: every slot/behaviour target is a real
+  anatomy part · `prop` only on a singular `icon-name` slot · every `api.axes` member exists in `variants` ·
+  every propMap axis/value exists · every `pressable.target` part is `interactive`. The renderer STILL
+  ignores `api` — so all 5 gates + snapshots stay byte-identical (the green-means-safe proof). **Contract
+  bump:** `api` joins the FROZEN Descriptor schema → move the Guard-F `FROZEN_SCHEMA` pin + log a
+  decision-65 amendment · cheap ([[contract-bump-mechanism]]). `api` is REQUIRED so all six land together.
+- **Phase 2 — codegen exact wrappers/types** → `packages/rn/generated/components/*`. `ButtonProps` (no
+  `icon`/`prefix`/`suffix`), `IconButtonProps` with the declared scalar `icon` prop; each component's real
+  surface. Shares the Arc-2 codegen pass; output committed + drift-gated.
+- **Phase 3 — shrink `createNuriComponent` → `renderDescriptorInstance`.** DELETE from the renderer:
+  primaryPart guessing · same-name prop routing (`:371`) · the `selected` bridge (`:324`) · compound-slot
+  inference from `view` parts · the public `content` hatch. KEEP: anatomy render · baked-recipe apply ·
+  foreground scope · Pressable mechanics for DECLARED behaviour · `Text`/`View`/`NuriIcon`.
+- **Phase 4 — composition renderer + Button lockup + the translator script.** The renderer gains ORDERED
+  heterogeneous child composition (richer than Topbar's region routing); Button's anatomy gains repeatable
+  `text`/`icon` composed children (`ButtonText`/`ButtonIcon`); the mid-text lockup lands HERE. Formalize the
+  deterministic web↔RN screen transform (`nuri-<c>-<slot>` ↔ `<C><Slot>` · attrs→props · ordered children)
+  as a SCRIPT. Break directly (no external consumer · no deprecation bridge).
+- **Phase 5 — descriptor-local parts.** Retire the global `Part` union pressure via codegen validation (NOT
+  TS inference · the strip wall). Global names may survive as helper conventions, not universal public vocab.
+
+## Scope discipline (mirror theme-rework)
+
+Path C is an **architecture + type-honesty** change (make the descriptor own the API · make each
+component's surface exact), NOT a behaviour/correctness change — the RENDERED output stays identical
+through Phase 3 (the render-smoke snapshots are the byte-identical proof; only the TYPE surface and the
+prop-delivery names change). The invariant it moves toward: **the gates + register catch behaviour + drift,
+never type-honesty / API-shape** (handoff PHILOSOPHY §4) — so this arc's whole value is gate-INVISIBLE and
+lives on the guard (Phase 1's api-validation) + the reviewers. One seam per PR; CLOSE each phase, don't
+split ([[close-dont-split]]).

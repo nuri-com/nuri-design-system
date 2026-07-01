@@ -15,13 +15,13 @@
 
   <!--
     ═══════════════════════════════════════════════════════════════
-    PLAYGROUND · DOCUMENT · ICON BUTTON (P11 · the first contract bump)
+    PLAYGROUND · DOCUMENT · ICON BUTTON (P11)
     ═══════════════════════════════════════════════════════════════
-    The icon-ANCHORED control: the icon is the structural centre, with OPTIONAL
-    prefix / suffix text flanking it. Bare = the round icon action; flanked is the
-    brand-lockup / Apple-Pay pattern (`Buy Bitcoin 🍎 Pay`). Four boards settle the
-    bare-vs-flanked geometry: NUDO (icon-only) · LEADING (prefix 🍎) · TRAILING
-    (🍎 suffix) · MID-TEXT (prefix 🍎 suffix).
+    The conventional icon-ONLY glyph circle: a lone `icon` part is the whole round
+    pressable action (`<nuri-icon-button icon="apple" aria-label="…">`). The NUDO
+    board settles the circle geometry across the variant + size surfaces. (The
+    anchored mid-text lockup — `Buy Bitcoin 🍎 Pay` — relocated to composable
+    Button · Path C Phase 4 · docs/component-api-target.md.)
 
     Composed from the ACTIVE set only — the icon-button recipe + the shared
     @nuri/prototype demo layer. ZERO import from @nuri/doc (the DAG stays
@@ -111,38 +111,6 @@
           <nuri-icon-button size="md" icon="bitcoin" aria-label="Bitcoin medium"></nuri-icon-button>
           <nuri-icon-button size="lg" icon="bitcoin" aria-label="Bitcoin large"></nuri-icon-button>
         </nuri-stack>
-      </nuri-stack>
-    </template>
-  </nuri-demo>
-
-  <!-- leading · prefix text then the icon (`Buy Bitcoin 🍎`). -->
-  <nuri-demo layout="board" controls="device,theme,accent" label="leading">
-    <template>
-      <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
-        <nuri-icon-button variant="solid" prefix="Buy Bitcoin" icon="apple"></nuri-icon-button>
-        <nuri-icon-button variant="soft" prefix="Pay with" icon="card"></nuri-icon-button>
-      </nuri-stack>
-    </template>
-  </nuri-demo>
-
-  <!-- trailing · the icon then suffix text (`🍎 Pay`). -->
-  <nuri-demo layout="board" controls="device,theme,accent" label="trailing">
-    <template>
-      <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
-        <nuri-icon-button variant="solid" icon="apple" suffix="Pay"></nuri-icon-button>
-        <nuri-icon-button variant="ghost" icon="euro" suffix="Euro"></nuri-icon-button>
-      </nuri-stack>
-    </template>
-  </nuri-demo>
-
-  <!-- mid-text · the icon ANCHORED between two flanks (`Buy Bitcoin 🍎 Pay`) — the
-       brand-lockup pattern, across sizes. -->
-  <nuri-demo layout="board" controls="device,theme,accent" label="mid-text">
-    <template>
-      <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
-        <nuri-icon-button size="lg" variant="solid" prefix="Buy Bitcoin" icon="apple" suffix="Pay"></nuri-icon-button>
-        <nuri-icon-button size="md" variant="soft" prefix="Buy Bitcoin" icon="apple" suffix="Pay"></nuri-icon-button>
-        <nuri-icon-button size="sm" variant="ghost" prefix="Buy Bitcoin" icon="apple" suffix="Pay"></nuri-icon-button>
       </nuri-stack>
     </template>
   </nuri-demo>

@@ -137,29 +137,16 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
-  test('IconButton — BARE · the icon-anchored control · glyph routed via the `icon` prop · a11y name', () => {
+  test('IconButton — the icon-only glyph circle · glyph routed via the `icon` prop · a11y name', () => {
     const tr = render(
       <NuriThemeProvider>
         <IconButton variant="solid" size="md" icon="apple" accessibilityLabel="Buy Bitcoin" onPress={() => undefined} />
       </NuriThemeProvider>,
     );
     expect(tr.toJSON()).toBeTruthy();
-    // bare → the register glyph renders (scope fg threaded in) with NO flank Text nodes
-    // (the optional-flank collapse · so a stack gap never widens the round control).
+    // icon-only → the register glyph renders (scope fg threaded in) with NO Text
+    // nodes (the control is the lone `icon` part · no visible text to name it).
     expect(tr.root.findAllByType(Text)).toHaveLength(0);
-    expect(tr.toJSON()).toMatchSnapshot();
-  });
-
-  test('IconButton — FLANKED · prefix/suffix text flank the icon (`Buy Bitcoin 🍎 Pay`)', () => {
-    const tr = render(
-      <NuriThemeProvider>
-        <IconButton variant="soft" prefix="Buy Bitcoin" icon="apple" suffix="Pay" onPress={() => undefined} />
-      </NuriThemeProvider>,
-    );
-    expect(tr.toJSON()).toBeTruthy();
-    // flanked → two Text flanks, in row order with the glyph between them.
-    const texts = tr.root.findAllByType(Text).map((t) => t.props.children);
-    expect(texts).toEqual(['Buy Bitcoin', 'Pay']);
     expect(tr.toJSON()).toMatchSnapshot();
   });
 

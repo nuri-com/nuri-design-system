@@ -190,12 +190,13 @@ const EXPECTED_DESCRIPTORS = {
     parts: ['leading', 'center', 'trailing'],
     interactive: [],
   },
-  // icon-button (P11 · the first contract bump) — the icon-anchored control: a
-  // three-part anatomy (the prefix/icon/suffix flanks · the new `prefix`/`suffix`
-  // Part vocab), interactive like Button (all three channels), variant × size.
+  // icon-button (P11 · reduced to icon-ONLY at Path C Phase 0/B0) — the
+  // conventional glyph circle: a lone `icon` part is the whole control (the
+  // anchored prefix/suffix flanks retired · the lockup relocated to composable
+  // Button · Phase 4), interactive like Button (all three channels), variant × size.
   'icon-button': {
     axes: { variant: ['solid', 'soft', 'ghost'], size: ['sm', 'md', 'lg'] },
-    parts: ['prefix', 'icon', 'suffix'],
+    parts: ['icon'],
     interactive: ['pressColor', 'pressScale', 'disabledOpacity'],
   },
   // tab-bar-item (the bottom-bar ITEM · presentation only) — icon-over-label, the

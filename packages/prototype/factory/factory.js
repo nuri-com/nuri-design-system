@@ -392,15 +392,15 @@ export function buildComponent(descriptor, selection = {}, props = {}) {
     sel.state = props.selected ? 'selected' : 'unselected';
   }
 
-  // `children` → the PRIMARY content part (the lone non-root part), unless
-  // `content` already set it (the createNuriComponent routing). For an `icon`
-  // primary part (IconAvatar) the routed content is the glyph NAME instead —
-  // <nuri-icon-avatar name=X> routes `name`, not children (the recipe's API).
+  // `children` → a lone TEXT primary part (Button's label), unless `content` already
+  // set it (the createNuriComponent routing). An `icon` primary part (IconAvatar /
+  // IconButton) is addressed by its part NAME instead — <nuri-icon-avatar icon=X> /
+  // <nuri-icon-button icon=X> route the `icon` attribute via the ergonomic per-part
+  // loop below (the component `icon` prop · not `name`, the primitive <nuri-icon>'s attr).
   const primary = anatomy.children.length === 1 ? anatomy.children[0] : undefined;
   const content = { ...props.content };
-  if (primary && content[primary.name] === undefined) {
-    if (props.children !== undefined) content[primary.name] = props.children;
-    else if (props.name !== undefined && primary.el === 'icon') content[primary.name] = props.name;
+  if (primary && primary.el === 'text' && props.children !== undefined && content[primary.name] === undefined) {
+    content[primary.name] = props.children;
   }
   // OPEN-POSITIONAL-CHILDREN (the TabBar · §7 · the RN createNuriComponent mirror):
   // an `open` root with no lone primary renders its POSITIONAL children directly —
@@ -462,10 +462,10 @@ export function defineNuriComponent(descriptor, tagName) {
   const axisNames = descriptor.variants ? Object.keys(descriptor.variants) : [];
   const anatomy = resolveAnatomy(descriptor);
   // The lone non-root part receives the routed content (createNuriComponent's
-  // primaryPart): a `text` el captures the label · an `icon` el routes `name`.
+  // primaryPart): a `text` el captures the label (children/textContent) · an `icon`
+  // el is addressed by its part name (the `icon` attribute · the per-part path below).
   const primary = anatomy.children.length === 1 ? anatomy.children[0] : undefined;
   const textPrimary = !!primary && primary.el === 'text';
-  const iconPrimary = !!primary && primary.el === 'icon';
   // COMPOUND capability (the topbar-slots slice · descriptor-driven · the web twin
   // of createNuriComponent's): a non-root `view` part is a fillable REGION (a slot)
   // → the factory generates a sub-element (<nuri-topbar-leading/center/trailing>,
@@ -493,19 +493,21 @@ export function defineNuriComponent(descriptor, tagName) {
   // open tab-bar) are EXCLUDED — they ARE the painting node, so they stay visible.
   const mountsTree = !isCompound && !isOpenHost;
 
-  // ERGONOMIC per-part STRING attributes — a non-root, non-view part that is NOT the
-  // lone primary gets an attribute named after it (prefix/icon/suffix · the icon-
-  // button's three-part anatomy). View REGIONS are slot-filled by sub-elements (not
-  // attrs), so they are excluded. For a single-primary component this set is empty.
-  const nonPrimaryParts = anatomy.children.filter((c) => c !== primary && c.el !== 'view').map((c) => c.name);
+  // ERGONOMIC per-part STRING attributes — a non-root, non-view LEAF addressed by its
+  // OWN part name (prefix/suffix text flanks · and the `icon` glyph part, whether or
+  // not it is the lone primary: a component with an `icon` PART takes the `icon`
+  // attribute, matching the RN same-name prop — only the primitive <nuri-icon> leaf
+  // uses `name`). A lone `text` primary is addressed by children/textContent instead,
+  // so it is excluded. View REGIONS are slot-filled by sub-elements (not attrs). For a
+  // text-primary component (Button) this set is empty.
+  const perPartAttrs = anatomy.children.filter((c) => c.el !== 'view' && !(c === primary && c.el === 'text')).map((c) => c.name);
   // Interactive iff the root opts in (the `disabled` reflection is generic to any
   // interactive component · button has it, icon-avatar does not).
   const interactive = !!(descriptor.structure.base && descriptor.structure.base.root && descriptor.structure.base.root.interactive);
 
   const observed = [...axisNames, 'accent'];
   if (interactive) observed.push('disabled');
-  if (iconPrimary) observed.push('name');
-  observed.push(...nonPrimaryParts);
+  observed.push(...perPartAttrs);
   // `selected` boolean ATTR → the `state` appearance axis (the tab-item · the
   // createNuriComponent boolean bridge). Observed so a live toggle re-renders.
   const hasStateAxis = !!(descriptor.variants && descriptor.variants.state);
@@ -573,17 +575,16 @@ export function defineNuriComponent(descriptor, tagName) {
       }
       const props = {};
       if (textPrimary) props.children = this.#label;
-      if (iconPrimary) props.name = this.getAttribute('name') || '';
       if (interactive) props.disabled = this.hasAttribute('disabled');
       // `selected` boolean attr → props.selected (buildComponent bridges it to the
       // `state` axis · present = selected · absent = unselected).
       if (hasStateAxis) props.selected = this.hasAttribute('selected');
       const accent = this.getAttribute('accent');
       if (accent) props.accent = accent; // Tier-2 self-scope (threaded to the merged node)
-      // Ergonomic per-part attributes (prefix/icon/suffix) → props BY PART NAME;
-      // buildComponent routes them into the content map (a STRING flank / glyph
-      // name). An absent attr leaves the part out → its leaf renders nothing.
-      for (const p of nonPrimaryParts) {
+      // Ergonomic per-part attributes (prefix/suffix text · the `icon` glyph part) →
+      // props BY PART NAME; buildComponent routes them into the content map (a STRING
+      // flank / glyph name). An absent attr leaves the part out → its leaf renders nothing.
+      for (const p of perPartAttrs) {
         const v = this.getAttribute(p);
         if (v != null) props[p] = v;
       }
