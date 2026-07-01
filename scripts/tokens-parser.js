@@ -188,7 +188,6 @@ const PALETTE_SURFACE_SRC = resolve(SPEC_ROOT, 'axes/palette-surface.ts');
 const TYPOGRAPHY_AXIS_SRC = resolve(SPEC_ROOT, 'axes/typography-axis.ts');
 const RESOLVE_MAP_SRC     = resolve(SPEC_ROOT, 'axes/resolve-map.ts');
 const PROPERTY_SPELLING_SRC = resolve(SPEC_ROOT, 'axes/property-spelling.ts');
-const INTERACTIVE_EFFECTS_SRC = resolve(SPEC_ROOT, 'axes/interactive-effects.ts');
 const DESCRIPTORS_SRC  = resolve(SPEC_ROOT, 'components');
 const ICONS_DIR        = resolve(SPEC_ROOT, 'icons');
 // ── outputs · the RN projection (committed · Movement A) ──
@@ -525,9 +524,7 @@ async function main() {
     descriptorsDir: DESCRIPTORS_SRC,
     resolveMapPath: RESOLVE_MAP_SRC,
     propertySpellingPath: PROPERTY_SPELLING_SRC,
-    interactivePath: INTERACTIVE_EFFECTS_SRC,
     dims,
-    interaction,
   });
   // COVERAGE · every roster component MUST have a baked recipe (no silent gap · the
   // factory throws on a missing recipe · brief §Open seams). A loud build failure here

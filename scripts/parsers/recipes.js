@@ -4,10 +4,24 @@
  * The RN projection's BUILD-TIME geometry bake. box/stack/typography/interactive
  * are STATIC — a pure function of the descriptor + selection, ZERO theme/state
  * input — yet the RN factory re-resolved them every render (`flattenPart` per
- * part + per press · D11). This emitter resolves them ONCE at build into
- * `packages/rn/generated/recipes.ts`; the factory LOADS + composes them
+ * part + per press · D11). This emitter resolves the box/stack GEOMETRY ONCE at
+ * build into `packages/rn/generated/recipes.ts`; the factory LOADS + composes it
  * (`flattenBakedPart` · resolve.ts). It PROMOTES the old test-only
  * `toUnistylesRecipe` precompute (D5), reshaped COLOUR-FREE.
+ *
+ * ── WHAT IS BAKED (per part · base + per axis/value) ───────────────
+ *   · geometry     box ⊕ stack resolved to CONCRETE ViewStyle (colour SKIPPED).
+ *   · typography   the RAW { size?, emphasis? } namespace PARTIAL (NOT a resolved
+ *                  ref) — merged at runtime (mergeNS semantics · base ⊕ variants,
+ *                  field-level, later wins) THEN resolved to the type ref, so an
+ *                  emphasis-only variant over a base `size` composes faithfully.
+ *   · interactive  the RAW { pressColor?, pressScale?, disabledOpacity? } opt-in
+ *                  (booleans · colour-free) — carried through the SAME base/variant
+ *                  channel so SELECTION-DEPENDENT interactivity is preserved (a
+ *                  variant that opts a node into an effect is honoured, not dropped).
+ * Both typography + interactive are baked as MERGEABLE PARTIALS and realized at
+ * runtime by the SAME appliers the runtime resolver uses (typeStyle · flatten-
+ * Interactive) — single source, so the bake cannot diverge from resolveNS's merge.
  *
  * ── THE TOOLCHAIN SEAM (stated · brief §Open seams) ────────────────
  * The bake reuses the SINGLE-SOURCED namespace→style MAPPING (@nuri/spec's
@@ -20,9 +34,11 @@
  * type-strip toolchain · debt-register SEED-1b), and adding a bundler for one emit
  * is out of grain. The applier interpreter is ~30 lines; the KNOWLEDGE (the field
  * tables + spellings + scales) is single-sourced in spec. The oracle-equivalence
- * guard (packages/rn/factory/__tests__/geometry-bake.test.ts) binds this emit
- * byte-for-byte to the TS runtime resolver (flattenPart), mutation-proven — so a
- * drift between the two appliers fails CI, not silently ships.
+ * guard (packages/rn/factory/__tests__/geometry-bake.test.ts · full node + style)
+ * binds this emit byte-for-byte to the TS runtime resolver, mutation-proven — so a
+ * drift between the two appliers fails CI, not silently ships. The generator's own
+ * generality (variant-level interactive · emphasis-only typography) is pinned by
+ * scripts/recipes.test.js.
  *
  * ── DENSITY SEAM (design, don't build · P11) ───────────────────────
  * The pipeline stays shaped as `descriptor refs × scale table → baked geometry`
@@ -111,8 +127,9 @@ function applyFieldsNode(fields, ns, spelling, scales) {
 }
 
 // ── resolveGeometryNode · the Node port of resolveNS, GEOMETRY-ONLY (palette
-// SKIPPED · structurally colour-free) + theme-free. stack/box → applyFieldsNode;
-// typography → a type REF; interactive → the opt-in carried onto the node. ──
+// SKIPPED · structurally colour-free) + theme-free. stack/box → applyFieldsNode
+// (concrete ViewStyle); typography + interactive are carried through as the RAW
+// namespace partials (merged + realized at runtime · single source). ──
 function resolveGeometryNode(ns, deps) {
   const node = { view: {} };
   for (const key of NS_ORDER) {
@@ -126,55 +143,18 @@ function resolveGeometryNode(ns, deps) {
         Object.assign(node.view, applyFieldsNode(deps.BOX_FIELDS, v, deps.spelling, deps.scales));
         break;
       case 'typography':
-        if (v.size !== undefined) node.type = v.emphasis ? { size: v.size, emphasis: true } : { size: v.size };
+        node.typography = v; // the raw { size?, emphasis? } partial — merged at runtime
         break;
       case 'palette':
         break; // colour is the Arc-1 runtime path — NEVER baked (the no-colour invariant)
       case 'interactive':
-        node.interactive = v;
+        node.interactive = v; // the raw opt-in booleans — merged at runtime
         break;
       default:
         throw new Error(`[recipes] unhandled namespace '${key}'`);
     }
   }
   return node;
-}
-
-// read a dotted theme-ish path (the opt's `token` · e.g. 'interaction.pressScale').
-const readPath = (obj, path) => path.split('.').reduce((o, k) => (o == null ? o : o[k]), obj);
-
-// ── bakeInteractive · the base node's interactive opt-in → the STATIC state patches ──
-// Walks `opts` in key order (pressColor → pressScale → disabledOpacity · the RN
-// applier's order). A `from` opt (pressColor) is node-derived colour → a MARKER only
-// (the pressedBg comes from the runtime colour path · Arc 1). A `token` opt
-// (pressScale · disabledOpacity) is a theme-free constant → baked into the trigger's
-// static patch (pressed → pressedStatic · disabled → disabledStatic), realized from
-// the interaction baseline exactly as realizeToken does at runtime.
-function bakeInteractive(interactiveNS, opts, interaction) {
-  if (!interactiveNS) return undefined;
-  const themeish = { interaction };
-  const out = {};
-  let pressedStatic;
-  let disabledStatic;
-  for (const key of Object.keys(opts)) {
-    if (!interactiveNS[key]) continue;
-    const opt = opts[key];
-    if ('from' in opt.rn) {
-      out[key] = true; // colour marker (pressColor · runtime pressedBg)
-      continue;
-    }
-    // The interaction baseline loads as a numeric STRING (the CSS-flip SoT); the
-    // runtime resolver uses a real NUMBER (generated/interaction.ts · theme.interaction).
-    // Coerce so the bake is byte-identical to flattenPart (the oracle guard).
-    const raw = Number(readPath(themeish, opt.rn.token));
-    const value = opt.rn.shape === 'scale' ? [{ scale: raw }] : raw;
-    out[key] = true;
-    if (opt.trigger === 'pressed') (pressedStatic ??= {})[opt.rn.prop] = value;
-    else if (opt.trigger === 'disabled') (disabledStatic ??= {})[opt.rn.prop] = value;
-  }
-  if (pressedStatic) out.pressedStatic = pressedStatic;
-  if (disabledStatic) out.disabledStatic = disabledStatic;
-  return Object.keys(out).length ? out : undefined;
 }
 
 // ── anatomy walk (the Node twin of resolveAnatomy) → [{ name, el, open }] parts,
@@ -190,9 +170,12 @@ function anatomyParts(anatomy) {
 }
 
 // ── buildGeometryRecipe · one descriptor → its BakedComponentRecipe (geometry-only) ──
-// The Node twin of the (removed) toUnistylesRecipe, reshaped colour-free: per part,
-// the base geometry + the per-axis geometry patches (only axes/values that carry
-// geometry), the type-ref channel, and the interactive statics.
+// The Node twin of the (removed) toUnistylesRecipe, reshaped colour-free. Per part:
+// the base geometry + per-axis geometry patches (only axes/values that carry
+// geometry); typography + interactive as base/variants channels of the RAW mergeable
+// partials (so emphasis-only + variant-level interactive survive · the reviewer's
+// blocking findings). Iterates ALL axis values (not only geometry-bearing ones) for
+// the typography/interactive channels.
 export function buildGeometryRecipe(descriptor, deps) {
   const recipe = {};
   const axes = descriptor.variants ? Object.keys(descriptor.variants) : [];
@@ -200,32 +183,40 @@ export function buildGeometryRecipe(descriptor, deps) {
     const baseNS = descriptor.structure.base?.[part] ?? {};
     const baseNode = resolveGeometryNode(baseNS, deps);
 
-    const variants = {};
-    const typeVariants = {};
+    const geomVariants = {};
+    const typoVariants = {};
+    const interVariants = {};
     for (const axis of axes) {
       const valueMap = descriptor.variants[axis];
-      const axisStyles = {};
+      const axisGeom = {};
+      const axisTypo = {};
+      const axisInter = {};
       for (const value of Object.keys(valueMap)) {
         const partNS = valueMap[value][part];
         if (!partNS) continue;
         const vNode = resolveGeometryNode(partNS, deps);
-        if (Object.keys(vNode.view).length) axisStyles[value] = vNode.view;
-        if (vNode.type !== undefined) (typeVariants[axis] ??= {})[value] = vNode.type;
+        if (Object.keys(vNode.view).length) axisGeom[value] = vNode.view;
+        if (vNode.typography !== undefined) axisTypo[value] = vNode.typography;
+        if (vNode.interactive !== undefined) axisInter[value] = vNode.interactive;
       }
-      if (Object.keys(axisStyles).length) variants[axis] = axisStyles;
+      if (Object.keys(axisGeom).length) geomVariants[axis] = axisGeom;
+      if (Object.keys(axisTypo).length) typoVariants[axis] = axisTypo;
+      if (Object.keys(axisInter).length) interVariants[axis] = axisInter;
     }
 
     const partRecipe = { el };
     if (open) partRecipe.open = true;
-    partRecipe.geometry = { base: baseNode.view, variants };
+    partRecipe.geometry = { base: baseNode.view, variants: geomVariants };
 
-    const typeStep = {};
-    if (baseNode.type !== undefined) typeStep.base = baseNode.type;
-    if (Object.keys(typeVariants).length) typeStep.variants = typeVariants;
-    if (Object.keys(typeStep).length) partRecipe.typeStep = typeStep;
+    const typography = {};
+    if (baseNode.typography !== undefined) typography.base = baseNode.typography;
+    if (Object.keys(typoVariants).length) typography.variants = typoVariants;
+    if (Object.keys(typography).length) partRecipe.typography = typography;
 
-    const interactive = bakeInteractive(baseNode.interactive, deps.opts, deps.interaction);
-    if (interactive) partRecipe.interactive = interactive;
+    const interactive = {};
+    if (baseNode.interactive !== undefined) interactive.base = baseNode.interactive;
+    if (Object.keys(interVariants).length) interactive.variants = interVariants;
+    if (Object.keys(interactive).length) partRecipe.interactive = interactive;
 
     recipe[part] = partRecipe;
   }
@@ -259,14 +250,24 @@ async function loadFieldTable(resolveMapPath) {
   return { STACK_FIELDS: mod.STACK_FIELDS, BOX_FIELDS: mod.BOX_FIELDS };
 }
 
-async function loadStripSoT(tsPath, exportName, sanity) {
-  const src = await readFile(tsPath, 'utf8');
+async function loadRegistry(propertySpellingPath) {
+  const src = await readFile(propertySpellingPath, 'utf8');
   const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypesShared(src)));
-  const value = mod[exportName];
-  if (!value || typeof value !== 'object' || !sanity(value)) {
-    throw new Error(`[recipes] loadStripSoT: ${tsPath} export '${exportName}' missing/invalid (strip regression?)`);
+  const reg = mod.PROPERTY_SPELLING;
+  if (!reg || typeof reg !== 'object' || !reg.padding || reg.padding.rn === undefined) {
+    throw new Error('[recipes] loadRegistry: PROPERTY_SPELLING missing/invalid (strip regression?)');
   }
-  return value;
+  return reg;
+}
+
+// loadRecipeDeps · the single-sourced spec tables the bake applies. Exported so the
+// generator test (scripts/recipes.test.js) bakes synthetic descriptors against the
+// SAME deps the build uses (no divergent fixture).
+export async function loadRecipeDeps({ resolveMapPath, propertySpellingPath, dims }) {
+  const { STACK_FIELDS, BOX_FIELDS } = await loadFieldTable(resolveMapPath);
+  const spelling = await loadRegistry(propertySpellingPath);
+  const scales = buildScales(dims);
+  return { STACK_FIELDS, BOX_FIELDS, spelling, scales };
 }
 
 // A descriptor SOURCE → its live data object (via the descriptor browser-ESM strip ·
@@ -292,13 +293,15 @@ export function emitRecipesTs(recipesByComponent) {
     ' * BOX_FIELDS + property-spelling `.rn` + the dimension scales).',
     ' * Emitter · scripts/parsers/recipes.js — run `npm run build`.',
     ' *',
-    ' * The build-time-STATIC geometry slice (Arc 2 · D11 + D5): box/stack/typography/',
-    ' * interactive resolved to concrete ViewStyle ONCE, keyed by component → part.',
-    ' * The RN factory LOADS + composes this (flattenBakedPart · resolve.ts) instead of',
-    ' * re-resolving every render. COLOUR-FREE by construction — NO backgroundColor / fg /',
-    ' * pressedBg / hex / accent·mode variant; colour is the Arc-1 runtime theme path,',
-    ' * merged on at render. Bound byte-for-byte to the TS runtime resolver by the',
-    ' * oracle-equivalence guard (factory/__tests__/geometry-bake.test.ts).',
+    ' * The build-time-STATIC geometry slice (Arc 2 · D11 + D5): box/stack resolved to',
+    ' * concrete ViewStyle ONCE, keyed by component → part; typography + interactive as',
+    ' * the RAW mergeable namespace partials (merged + realized at runtime by the same',
+    ' * appliers the runtime resolver uses). The RN factory LOADS + composes this',
+    ' * (flattenBakedPart · resolve.ts) instead of re-resolving every render. COLOUR-FREE',
+    ' * by construction — NO backgroundColor / fg / pressedBg / hex / accent·mode variant;',
+    ' * colour is the Arc-1 runtime theme path, merged on at render. Bound byte-for-byte',
+    ' * to the TS runtime resolver by the oracle-equivalence guard (full node + style ·',
+    ' * factory/__tests__/geometry-bake.test.ts).',
     ' * ────────────────────────────────────────────────────────────── */',
     '',
     "import type { BakedComponentRecipe } from '../factory/resolve';",
@@ -313,12 +316,8 @@ export function emitRecipesTs(recipesByComponent) {
 // Loads the spec tables + every roster descriptor, bakes each into its geometry
 // recipe, and returns { source, coverage } (coverage = the emitted component names,
 // for the loud coverage assertion — every roster component MUST have a recipe).
-export async function emitRecipes({ descriptorComponents, descriptorsDir, resolveMapPath, propertySpellingPath, interactivePath, dims, interaction }) {
-  const { STACK_FIELDS, BOX_FIELDS } = await loadFieldTable(resolveMapPath);
-  const spelling = await loadStripSoT(propertySpellingPath, 'PROPERTY_SPELLING', (r) => r.padding && r.padding.rn !== undefined);
-  const opts = await loadStripSoT(interactivePath, 'opts', (o) => o.pressScale && o.pressScale.rn !== undefined);
-  const scales = buildScales(dims);
-  const deps = { STACK_FIELDS, BOX_FIELDS, spelling, scales, opts, interaction };
+export async function emitRecipes({ descriptorComponents, descriptorsDir, resolveMapPath, propertySpellingPath, dims }) {
+  const deps = await loadRecipeDeps({ resolveMapPath, propertySpellingPath, dims });
 
   const recipesByComponent = {};
   for (const spec of descriptorComponents) {

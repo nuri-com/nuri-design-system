@@ -39,6 +39,7 @@ import type {
   NS,
   PaletteNS,
   InteractiveNS,
+  TypographyNS,
   Part,
   El,
   PartAnatomy,
@@ -393,25 +394,29 @@ export function flattenPart<A extends Axes>(
 // COLOUR-FREE: the artifact carries NO backgroundColor / fg / pressedBg / hex / any
 // accent·mode variant — colour stays the Arc-1 runtime path (`resolvePalette`
 // against the theme context), merged on at render (`flattenBakedPart`).
+//
+// box/stack are baked to CONCRETE ViewStyle; typography + interactive are baked as
+// the RAW mergeable namespace PARTIALS (base + per-axis/value), so the runtime merges
+// them (mergeNS semantics · later wins) and realizes them through the SAME appliers
+// the runtime resolver uses (typeStyle · flattenInteractive). That keeps selection-
+// dependent interactivity + emphasis-only typography variants faithful — the bake is
+// a rename of WHEN geometry resolves, not a re-encoding of the descriptor semantics.
 export type BakedPartRecipe = {
   el: El;
   open?: boolean;
   // box ⊕ stack resolved to concrete ViewStyle (geometry ONLY · no colour). `base`
   // + the per-axis geometry patches; the runtime composes `base ⊕ variants[axis][value]`.
   geometry: { base: ViewStyle; variants: Record<string, Record<string, ViewStyle>> };
-  // the label/icon type REF ({ size, emphasis }); typeStyle expands it at render (the
-  // `× fontScale` Dynamic-Type multiply stays runtime · P11). Bakes the REF, not metrics.
-  typeStep?: { base?: TypeRef; variants?: Record<string, Record<string, TypeRef>> };
-  // the interactive opt-in as STATIC state patches — pressScale/disabledOpacity are
-  // theme-free constants (the interaction baseline · baked); pressColor is a MARKER
-  // (the pressedBg comes from the runtime colour path · Arc 1). NO colour in the statics.
-  interactive?: {
-    pressColor?: true;
-    pressScale?: true;
-    disabledOpacity?: true;
-    pressedStatic?: ViewStyle;
-    disabledStatic?: ViewStyle;
-  };
+  // the RAW typography namespace partial ({ size?, emphasis? }) · base + per-axis/value.
+  // Merged at runtime (field-level · later wins) THEN resolved to the type ref (via
+  // typeStyle · the `× fontScale` seam stays runtime · P11) — so a variant that changes
+  // ONLY `emphasis` over a base `size` composes correctly (not dropped).
+  typography?: { base?: TypographyNS; variants?: Record<string, Record<string, TypographyNS>> };
+  // the RAW interactive opt-in ({ pressColor?, pressScale?, disabledOpacity? } booleans ·
+  // colour-free) · base + per-axis/value. Merged at runtime then realized by the SHARED
+  // flattenInteractive — so a variant that opts a node into an effect is honoured (the
+  // opt-in is not base-only). NO realized colour here (pressColor's bg is Arc-1 runtime).
+  interactive?: { base?: InteractiveNS; variants?: Record<string, Record<string, InteractiveNS>> };
 };
 export type BakedComponentRecipe = Record<string, BakedPartRecipe>;
 
@@ -454,48 +459,38 @@ function composeGeometry(geometry: BakedPartRecipe['geometry'], selection: Selec
   return out;
 }
 
-// composeTypeRef · the label/icon type ref for a selection (base ⊕ variant · later
-// wins · field-merged, mirroring mergeNS over the typography namespace).
-function composeTypeRef(typeStep: BakedPartRecipe['typeStep'], selection: Selection): TypeRef | undefined {
-  if (!typeStep) return undefined;
-  let ref: TypeRef | undefined = typeStep.base ? { ...typeStep.base } : undefined;
-  if (typeStep.variants) {
-    for (const axis of Object.keys(typeStep.variants)) {
+// composeChannel · base ⊕ each selected axis's partial patch (field-level merge ·
+// later wins · the mergeNS semantics for a single namespace). Shared by typography +
+// interactive, which are both baked as raw mergeable partials.
+function composeChannel<T extends Record<string, unknown>>(
+  channel: { base?: T; variants?: Record<string, Record<string, T>> } | undefined,
+  selection: Selection,
+): T | undefined {
+  if (!channel) return undefined;
+  let ns: T = { ...(channel.base ?? ({} as T)) };
+  if (channel.variants) {
+    for (const axis of Object.keys(channel.variants)) {
       const value = selection[axis];
-      const v = value !== undefined ? typeStep.variants[axis][value] : undefined;
-      if (v) ref = { ...(ref ?? {}), ...v } as TypeRef;
+      const patch = value !== undefined ? channel.variants[axis][value] : undefined;
+      if (patch) ns = { ...ns, ...patch };
     }
   }
-  return ref;
+  return Object.keys(ns).length ? ns : undefined;
 }
 
-// applyBakedInteractive · the state patch, in the SAME opts key order flattenInteractive
-// walks (pressColor → pressScale → disabledOpacity), sourcing the non-colour effects
-// from the baked statics and pressColor's bg from the runtime colour path (pressedBg).
-function applyBakedInteractive(
-  view: ViewStyle,
-  interactive: BakedPartRecipe['interactive'],
-  pressedBg: string | undefined,
-  state: State,
-): ViewStyle {
-  const style: ViewStyle = { ...view };
-  if (!interactive) return style;
-  if (state.pressed && interactive.pressColor && pressedBg !== undefined) {
-    style.backgroundColor = pressedBg;
-  }
-  if (state.pressed && interactive.pressScale && interactive.pressedStatic) {
-    Object.assign(style, interactive.pressedStatic);
-  }
-  if (state.disabled && interactive.disabledOpacity && interactive.disabledStatic) {
-    Object.assign(style, interactive.disabledStatic);
-  }
-  return style;
+// resolveTypeRef · the merged typography partial → the type ref (mirrors resolveNS's
+// typography arm: a ref only when `size` is present; emphasis rides as the boolean).
+function resolveTypeRef(typography: TypographyNS | undefined): TypeRef | undefined {
+  if (!typography || typography.size === undefined) return undefined;
+  return typography.emphasis ? { size: typography.size, emphasis: true } : { size: typography.size };
 }
 
 // ── flattenBakedPart · the Arc-2 render cell (LOAD the bake · merge colour + state) ──
 // The closed-component render path. Composes the baked STATIC geometry, resolves ONLY
-// colour at runtime (the Arc-1 theme path · resolvePalette), and merges the interactive
-// state patch — byte-identical to flattenPart's output (the oracle guard proves it), but
+// colour at runtime (the Arc-1 theme path · resolvePalette), merges the typography +
+// interactive PARTIALS then realizes them through the SAME appliers the runtime
+// resolver uses (typeStyle at render · flattenInteractive here). Byte-identical to
+// flattenPart's { style, node } (the oracle guard proves it over the full node), but
 // WITHOUT re-resolving box/stack/typography every render (D11 retired for closed parts).
 export function flattenBakedPart<A extends Axes>(
   recipePart: BakedPartRecipe,
@@ -510,23 +505,17 @@ export function flattenBakedPart<A extends Axes>(
   const p = paletteNS ? resolvePalette(paletteNS, theme) : {};
   const view: ViewStyle = { ...geometry };
   if (p.bg !== undefined) view.backgroundColor = p.bg;
-  const typeRef = composeTypeRef(recipePart.typeStep, selection);
+  const type = resolveTypeRef(composeChannel<TypographyNS>(recipePart.typography, selection));
+  const interactive = composeChannel<InteractiveNS>(recipePart.interactive, selection);
   const node: ResolvedNode = {
     view,
     ...(p.fg !== undefined ? { fg: p.fg } : {}),
     ...(p.fgMuted !== undefined ? { fgMuted: p.fgMuted } : {}),
     ...(p.pressedBg !== undefined ? { pressedBg: p.pressedBg } : {}),
-    ...(typeRef !== undefined ? { type: typeRef } : {}),
-    ...(recipePart.interactive
-      ? {
-          interactive: {
-            ...(recipePart.interactive.pressColor ? { pressColor: true } : {}),
-            ...(recipePart.interactive.pressScale ? { pressScale: true } : {}),
-            ...(recipePart.interactive.disabledOpacity ? { disabledOpacity: true } : {}),
-          },
-        }
-      : {}),
+    ...(type !== undefined ? { type } : {}),
+    ...(interactive !== undefined ? { interactive } : {}),
   };
-  const style = applyBakedInteractive(view, recipePart.interactive, node.pressedBg, state);
-  return { style, node };
+  // Realize the interactive state patch through the SHARED runtime applier (single
+  // source · reads theme.interaction for the token arm + node.pressedBg for pressColor).
+  return { style: flattenInteractive(node, theme, state), node };
 }

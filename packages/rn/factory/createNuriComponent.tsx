@@ -261,12 +261,13 @@ function renderPart<A extends Axes>(
 // per-component branching); the typed named-prop surface is derived from A.
 export function createNuriComponent<A extends Axes>(
   descriptor: Descriptor<A>,
-  displayName = 'NuriComponent',
-  recipe?: BakedComponentRecipe,
+  displayName: string,
+  recipe: BakedComponentRecipe,
 ): React.FC<NuriComponentProps<A>> {
-  // The build-time-static geometry slice (Arc 2 · D11) — a closed component MUST
-  // be given its baked recipe (generated/recipes.ts). No silent fallback to the
-  // runtime resolver: a missing recipe is a build/wiring bug, thrown loudly here.
+  // The build-time-static geometry slice (Arc 2 · D11) — a closed component MUST be
+  // given its baked recipe (generated/recipes.ts). Required at the TYPE level (a
+  // descriptor-only call is a compile error), with a defensive runtime throw for the
+  // JS boundary: no silent fallback to the runtime resolver (closed = baked).
   if (!recipe) throw new Error(`nuri-factory: createNuriComponent('${displayName}') requires a baked recipe`);
   const anatomy = resolveAnatomy(descriptor);
   const axisNames: string[] = descriptor.variants ? Object.keys(descriptor.variants) : [];

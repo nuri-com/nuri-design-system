@@ -6,13 +6,15 @@
  * BOX_FIELDS + property-spelling `.rn` + the dimension scales).
  * Emitter · scripts/parsers/recipes.js — run `npm run build`.
  *
- * The build-time-STATIC geometry slice (Arc 2 · D11 + D5): box/stack/typography/
- * interactive resolved to concrete ViewStyle ONCE, keyed by component → part.
- * The RN factory LOADS + composes this (flattenBakedPart · resolve.ts) instead of
- * re-resolving every render. COLOUR-FREE by construction — NO backgroundColor / fg /
- * pressedBg / hex / accent·mode variant; colour is the Arc-1 runtime theme path,
- * merged on at render. Bound byte-for-byte to the TS runtime resolver by the
- * oracle-equivalence guard (factory/__tests__/geometry-bake.test.ts).
+ * The build-time-STATIC geometry slice (Arc 2 · D11 + D5): box/stack resolved to
+ * concrete ViewStyle ONCE, keyed by component → part; typography + interactive as
+ * the RAW mergeable namespace partials (merged + realized at runtime by the same
+ * appliers the runtime resolver uses). The RN factory LOADS + composes this
+ * (flattenBakedPart · resolve.ts) instead of re-resolving every render. COLOUR-FREE
+ * by construction — NO backgroundColor / fg / pressedBg / hex / accent·mode variant;
+ * colour is the Arc-1 runtime theme path, merged on at render. Bound byte-for-byte
+ * to the TS runtime resolver by the oracle-equivalence guard (full node + style ·
+ * factory/__tests__/geometry-bake.test.ts).
  * ────────────────────────────────────────────────────────────── */
 
 import type { BakedComponentRecipe } from '../factory/resolve';
@@ -48,18 +50,10 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         }
       },
       "interactive": {
-        "pressColor": true,
-        "pressScale": true,
-        "disabledOpacity": true,
-        "pressedStatic": {
-          "transform": [
-            {
-              "scale": 0.97
-            }
-          ]
-        },
-        "disabledStatic": {
-          "opacity": 0.4
+        "base": {
+          "pressColor": true,
+          "pressScale": true,
+          "disabledOpacity": true
         }
       }
     },
@@ -69,7 +63,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "base": {},
         "variants": {}
       },
-      "typeStep": {
+      "typography": {
         "variants": {
           "size": {
             "sm": {
@@ -205,18 +199,10 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         }
       },
       "interactive": {
-        "pressColor": true,
-        "pressScale": true,
-        "disabledOpacity": true,
-        "pressedStatic": {
-          "transform": [
-            {
-              "scale": 0.97
-            }
-          ]
-        },
-        "disabledStatic": {
-          "opacity": 0.4
+        "base": {
+          "pressColor": true,
+          "pressScale": true,
+          "disabledOpacity": true
         }
       }
     },
@@ -238,7 +224,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           }
         }
       },
-      "typeStep": {
+      "typography": {
         "variants": {
           "size": {
             "sm": {
@@ -297,7 +283,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           }
         }
       },
-      "typeStep": {
+      "typography": {
         "variants": {
           "size": {
             "sm": {
@@ -334,13 +320,8 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "variants": {}
       },
       "interactive": {
-        "pressScale": true,
-        "pressedStatic": {
-          "transform": [
-            {
-              "scale": 0.97
-            }
-          ]
+        "base": {
+          "pressScale": true
         }
       }
     },
@@ -362,7 +343,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         },
         "variants": {}
       },
-      "typeStep": {
+      "typography": {
         "base": {
           "size": "xs",
           "emphasis": true
