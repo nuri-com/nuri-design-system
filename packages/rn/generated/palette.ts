@@ -5,7 +5,7 @@
  * emit time — a contradiction fails the build · decision 48):
  *   pipeline/palette-surface.ts   every variant + chrome bg/fg pair
  *                                 (+ the pressed swap → pressedBg)
- *   pipeline/typography-axis.ts   the muted dispatch → the muted fg (fgMuted)
+ *   pipeline/typography-axis.ts   the muted role → the muted fg (fgMuted)
  * (Re-sourced at N+40 from the generated lib/components/{palette,typography}.css
  *  these SoTs emit · §74 'Next: final' — the spec build stops reading the namespace
  *  CSS the A3 carve relocates · build/palette.ts cells unchanged.)

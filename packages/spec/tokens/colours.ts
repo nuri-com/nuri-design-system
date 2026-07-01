@@ -30,15 +30,10 @@
  * resolved cream since decision 31, so build/* stays byte-identical · the change
  * is web-only).
  *
- * Consumed by the node pipeline via a type-strip + data:-URL import (loadColours ·
- * pipeline/parsers/colour-css.js · node 20 cannot import a .ts) — the same
- * technique the descriptor twins (decision 69), the L3.1 Field-table loader, and
- * the dimension SoT (N+31) use. Authored to keep the strip trivial: the only TS
- * apparatus is single-line `type` aliases and the `as const` / `satisfies`
- * suffixes (named types only in `satisfies`, so no inner `;` trips the stripper),
- * with no imports. Base: decision 2 (reversed here for L1 colour) · 31 (cream
- * default · the --neutral flag) · 63 (the cascade · ring-fenced to C2) · 70 (the
- * cascade model) · the token-standards eval (the DTCG shape).
+ * Consumed by the node pipeline through the shared TS data loader (loadColours ·
+ * scripts/parsers/colour-css.js). Base: decision 2 (reversed here for L1 colour) ·
+ * 31 (cream default · the --neutral flag) · 63 (the cascade · ring-fenced to C2) ·
+ * 70 (the cascade model) · the token-standards eval (the DTCG shape).
  * ══════════════════════════════════════════════════════════════════ */
 
 // A colour PRIMITIVE leaf — a literal `{ value: '#fcfcfc' }` (DTCG `value` · the

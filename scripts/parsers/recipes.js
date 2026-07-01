@@ -31,8 +31,7 @@
  * mapping: it is the RN twin of the web geometry emit (prototype/pipeline/parsers/
  * namespace-css.js, which applies the SAME tables in Node to emit box.css/stack.css).
  * Node 20 cannot run the TS resolver (no tsx/esbuild · the deliberate node-20 +
- * type-strip toolchain · debt-register SEED-1b), and adding a bundler for one emit
- * is out of grain. The applier interpreter is ~30 lines; the KNOWLEDGE (the field
+ * TS-data loader. The applier interpreter is ~30 lines; the KNOWLEDGE (the field
  * tables + spellings + scales) is single-sourced in spec. The oracle-equivalence
  * guard (packages/rn/factory/__tests__/geometry-bake.test.ts · full node + style)
  * binds this emit byte-for-byte to the TS runtime resolver, mutation-proven — so a
@@ -52,8 +51,8 @@
 
 import { readFile } from 'node:fs/promises';
 
-import { stripTypes as stripTypesShared } from './dimension-css.js';
 import { emitDescriptorJsFromSource, exportNameFor } from './descriptors.js';
+import { loadTsDataFromPath } from '../ts-data-loader.js';
 
 // ── the RN key order the resolver merges in (resolve.ts NS_ORDER) · palette is
 // SKIPPED here (colour is the Arc-1 runtime path · never baked) ──
@@ -80,11 +79,21 @@ export function buildScales(dims) {
   return out;
 }
 
+function fillCaseToRn(fill) {
+  const out = {
+    flexGrow: fill.grow,
+    flexShrink: fill.shrink,
+  };
+  if (fill.basis !== undefined) out.flexBasis = fill.basis;
+  if (fill.minInline !== undefined) out.minWidth = fill.minInline;
+  return out;
+}
+
 // ── applyFieldsNode · the Node port of resolve.ts's `applyFields` (box · stack) ──
 // Walks the shared Field TABLE in its declaration order (NOT the input's) so the
 // emit reproduces the runtime resolver's key order byte-for-byte. The RN property
 // NAME is the property-spelling registry's `.rn` column (single-sourced spelling);
-// the `expand` (fill) arm is an RN-spelled multi-prop fragment straight off the table.
+// the `expand` (fill) arm spells the table's neutral flex intent locally.
 function applyFieldsNode(fields, ns, spelling, scales) {
   const out = {};
   const rnProp = (id) => {
@@ -117,7 +126,7 @@ function applyFieldsNode(fields, ns, spelling, scales) {
         out[rnProp(f.prop)] = value ? f.on : f.off;
         break;
       case 'expand':
-        Object.assign(out, f.cases[value]);
+        Object.assign(out, fillCaseToRn(f.cases[value]));
         break;
       default:
         throw new Error(`[recipes] unhandled field via '${f.via}'`);
@@ -224,38 +233,24 @@ export function buildGeometryRecipe(descriptor, deps) {
 }
 
 // ════════════════════════════════════════════════════════════════════
-// LOADERS · the single-sourced spec tables (node 20 · type-strip + data:-URL)
+// LOADERS · the single-sourced spec tables (shared TS→ESM data transform)
 // ════════════════════════════════════════════════════════════════════
 
-// resolve-map.ts's tagged-union `Field` type needs the bespoke strip (the SAME one
-// prototype/pipeline/parsers/namespace-css.js uses · resolve-map has only `import
-// type` imports, so the stripped module needs no resolution). Kept in lockstep by
-// the oracle guard (a strip drift diverges the emit from the runtime resolver).
-function stripFieldTable(src) {
-  return src
-    .replace(/^import type .*;\n/gm, '')
-    .replace(/^export type ScaleName = .*;\n/m, '')
-    .replace(/^export type Field =\n(?:\s*\|.*\n)*/m, '')
-    .replace(/^((?:export )?const \w+): [^=\n]+ = /gm, '$1 = ');
-}
-
 async function loadFieldTable(resolveMapPath) {
-  const src = await readFile(resolveMapPath, 'utf8');
-  const mod = await import('data:text/javascript,' + encodeURIComponent(stripFieldTable(src)));
+  const mod = await loadTsDataFromPath(resolveMapPath);
   for (const name of ['STACK_FIELDS', 'BOX_FIELDS']) {
     if (!mod[name] || typeof mod[name] !== 'object' || !Object.keys(mod[name]).length) {
-      throw new Error(`[recipes] loadFieldTable: stripped resolve-map has no usable ${name} (strip regression?)`);
+      throw new Error(`[recipes] loadFieldTable: resolve-map has no usable ${name} (loader regression?)`);
     }
   }
   return { STACK_FIELDS: mod.STACK_FIELDS, BOX_FIELDS: mod.BOX_FIELDS };
 }
 
 async function loadRegistry(propertySpellingPath) {
-  const src = await readFile(propertySpellingPath, 'utf8');
-  const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypesShared(src)));
+  const mod = await loadTsDataFromPath(propertySpellingPath);
   const reg = mod.PROPERTY_SPELLING;
   if (!reg || typeof reg !== 'object' || !reg.padding || reg.padding.rn === undefined) {
-    throw new Error('[recipes] loadRegistry: PROPERTY_SPELLING missing/invalid (strip regression?)');
+    throw new Error('[recipes] loadRegistry: PROPERTY_SPELLING missing/invalid (loader regression?)');
   }
   return reg;
 }

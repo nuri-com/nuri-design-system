@@ -29,7 +29,7 @@
  *
  * The five axis SoTs live in @nuri/spec (the data root · DAG: prototype → spec). They
  * are read across the package boundary via the spec EXPORTS MAP (import.meta.resolve)
- * + type-stripped (node 20 cannot import a .ts · parsers/strip.js). The scale vocab
+ * + imported through the shared TS data loader. The scale vocab
  * rides spec's generated styles/tokens-semantic.css (read via the spec package root).
  * ══════════════════════════════════════════════════════════════════ */
 
@@ -54,7 +54,7 @@ const PKG_ROOT = resolve(__dirname, '..'); // packages/prototype
 // The five axis SoTs are @nuri/spec DATA — resolved across the package boundary via the
 // spec EXPORTS MAP (the declared cross-package contract · N+41 · the A3 carve · convergence
 // §5 "prototype reads spec's data"). import.meta.resolve honours `exports`; the loaders read
-// each .ts as text + type-strip it (node 20 cannot import a .ts). resolve-map +
+// each .ts through the shared TS data loader. resolve-map +
 // property-spelling were already exported (N+39 · the rn→spec DAG); palette-surface /
 // interactive-effects / typography-axis were added at A3 for THIS reader.
 const specPath = (subpath) => fileURLToPath(import.meta.resolve(subpath));

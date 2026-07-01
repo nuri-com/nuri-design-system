@@ -27,25 +27,20 @@
  * The drift guard runs in BOTH directions over /^--nuri-type-/ (the family this
  * emit owns): the SoT must declare exactly the --nuri-type-* leaves the CSS does.
  *
- * loadTypography type-strips + data:-URL imports the .ts SoT (node 20 cannot
- * import a .ts) reusing dimension-css.js's shared stripTypes.
+ * loadTypography imports the .ts SoT through scripts/ts-data-loader.js, the shared
+ * build-time TS→ESM data boundary.
  * ══════════════════════════════════════════════════════════════════ */
 
 import { readFile, writeFile } from 'node:fs/promises';
 import postcss from 'postcss';
 
-import { stripTypes } from './dimension-css.js';
+import { loadTsDataFromPath } from '../ts-data-loader.js';
 
 // ── load the TS SoT ────────────────────────────────────────────────
-// Strip the (deliberately trivial) TS apparatus typography.ts uses — the
-// single-line `type` aliases and the trailing `as const satisfies …` suffix —
-// then import the self-contained data module (no runtime imports) via a data:
-// URL. A strip regression must fail LOUD here, not silently emit garbage.
 export async function loadTypography(typographyTsPath) {
-  const src = await readFile(typographyTsPath, 'utf8');
-  const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypes(src)));
+  const mod = await loadTsDataFromPath(typographyTsPath);
   if (!mod.type || typeof mod.type !== 'object' || !Object.keys(mod.type).length) {
-    throw new Error('[type-css] loadTypography: `type` missing/empty (strip regression?)');
+    throw new Error('[type-css] loadTypography: `type` missing/empty (loader regression?)');
   }
   return mod.type;
 }

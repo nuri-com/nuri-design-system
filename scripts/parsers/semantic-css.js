@@ -37,25 +37,23 @@
  * through verbatim. Wiring order (tokens-parser.js Slice 0): dimension flip →
  * colour-primitive flip → THIS, before any downstream slice reads the CSS.
  *
- * loadSemanticColours type-strips + data:-URL imports the .ts SoT (node 20 cannot
- * import a .ts) — reusing stripTypes from dimension-css.js (one strip impl ·
- * decision 48): the descriptor-twin / L3.1 / N+31 / C1 technique.
+ * loadSemanticColours imports the .ts SoT through scripts/ts-data-loader.js, the
+ * shared build-time TS→ESM data boundary.
  * ══════════════════════════════════════════════════════════════════ */
 
 import { readFile, writeFile } from 'node:fs/promises';
 
-import { stripTypes } from './dimension-css.js';
+import { loadTsDataFromPath } from '../ts-data-loader.js';
 
 const THEMES = ['light', 'dark'];
 
 // ── load the TS SoT (the semantic matrix) ───────────────────────────
 export async function loadSemanticColours(coloursTsPath) {
-  const src = await readFile(coloursTsPath, 'utf8');
-  const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypes(src)));
-  // A strip regression must fail LOUD here, not silently emit garbage.
+  const mod = await loadTsDataFromPath(coloursTsPath);
+  // A loader regression must fail LOUD here, not silently emit garbage.
   for (const name of ['chrome', 'accent']) {
     if (!mod[name] || typeof mod[name] !== 'object' || !Object.keys(mod[name]).length) {
-      throw new Error(`[semantic-css] loadSemanticColours: ${name} missing/empty (strip regression?)`);
+      throw new Error(`[semantic-css] loadSemanticColours: ${name} missing/empty (loader regression?)`);
     }
   }
   return { chrome: mod.chrome, accent: mod.accent };

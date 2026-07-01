@@ -13,6 +13,7 @@
     "build": "node scripts/tokens-parser.js && npm run build --workspaces --if-present"
   },
   "devDependencies": {
-    "postcss": "^8.4.49"
+    "postcss": "^8.4.49",
+    "typescript": "^6.0.3"
   }
 }

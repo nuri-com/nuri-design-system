@@ -7,7 +7,7 @@
  * 3b·2b·i) — the values no longer live ONLY in the hand-authored CSS.
  *
  * This module owns the family end to end from the SoT:
- *   · loadInteraction    — strip-imports the TS SoT (node 20 cannot import a .ts)
+ *   · loadInteraction    — imports the TS SoT through the shared TS data loader
  *   · flipInteractionCss — writes the SoT values INTO the --nuri-interaction-*
  *                          declarations in styles/tokens-primitive.css (decision 2
  *                          reversed for the family · the dimension/type-css posture)
@@ -25,7 +25,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import postcss from 'postcss';
 
-import { stripTypes } from './dimension-css.js';
+import { loadTsDataFromPath } from '../ts-data-loader.js';
 
 // leaf identifier → the --nuri-interaction-* primitive it OWNS. Double duty:
 // the emit ORDER (byte-stable across builds · the drift guard compares re-emit)
@@ -37,14 +37,10 @@ export const INTERACTION_PRIMITIVES = {
 };
 
 // ── load the TS SoT ────────────────────────────────────────────────
-// Strip the (trivial) TS apparatus (the `as const` suffix) then import the self-
-// contained data module via a data: URL — exactly as loadTypography/loadDimensions
-// do. A strip regression fails LOUD here, not in a silent emit.
 export async function loadInteraction(interactionTsPath) {
-  const src = await readFile(interactionTsPath, 'utf8');
-  const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypes(src)));
+  const mod = await loadTsDataFromPath(interactionTsPath);
   if (!mod.interaction || typeof mod.interaction !== 'object') {
-    throw new Error('[interaction] loadInteraction: `interaction` missing/empty (strip regression?)');
+    throw new Error('[interaction] loadInteraction: `interaction` missing/empty (loader regression?)');
   }
   return mod.interaction;
 }

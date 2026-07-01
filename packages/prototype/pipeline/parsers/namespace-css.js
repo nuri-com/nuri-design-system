@@ -39,10 +39,9 @@
  *   2. LITERAL_VOCAB — a `literal` field is value-passthrough; the table names
  *      no vocabulary (RN passes the runtime value straight through). The web
  *      must ENUMERATE the inputs → `direction: row|column` (also erased schema).
- *   3. EXPAND_WEB — the `expand` arm's web declarations. The RN cases are a
- *      multi-prop fragment ({flexGrow:1,flexShrink:0}); the CSS writes the `flex`
- *      shorthand (`1 0 auto`) + a LOGICAL min-size (min-inline-size:0, not RN's
- *      physical minWidth). A mechanism difference, not a name → NOT a registry
+ *   3. The `expand` arm's web declarations. The table carries neutral
+ *      grow/shrink/basis/minInline intents; CSS writes the `flex` shorthand +
+ *      logical min-size. A mechanism difference, not a name → NOT a registry
  *      entry (decision 73 cl.2), so its web spelling stays here.
  *
  * The vocabulary for the OTHER arms rides the table itself: `keyword`
@@ -69,11 +68,7 @@
 
 import { readFile } from 'node:fs/promises';
 
-// The shared type-strip (decision 48 · one strip impl) — used to load the
-// property-spelling registry (.ts SoT · authored in the strip-trivial
-// `as const satisfies` style · like palette-surface.ts). resolve-map.ts keeps
-// its own bespoke strip below (its tagged-union + typed-const style needs it).
-import { stripTypes as stripTypesShared } from './strip.js';
+import { loadTsDataFromPath } from './strip.js';
 
 // ── 1 · the SpaceLeaf curation (cascade.md "double declaration to remove") ──
 // The 5 of the space scale's 8 leaves the layout primitives expose (schema.ts
@@ -86,16 +81,12 @@ const LITERAL_VOCAB = {
   direction: ['row', 'column'], // StackNS['direction'] (erased) · hand order
 };
 
-// ── 3 · EXPAND_WEB · the `expand` arm's per-target web declarations ──
-// Keyed by the field key, then by the TABLE's case key (the vocab still comes
-// from the table · a case without a web spelling throws). Decls as [prop, value].
-const EXPAND_WEB = {
-  fill: {
-    grow: [['flex', '1 0 auto']], // RN {flexGrow:1,flexShrink:0} → the shorthand
-    'grow-shrink': [['flex', '1 1 auto'], ['min-inline-size', '0']], // logical, not RN's minWidth
-    even: [['flex', '1 1 0'], ['min-inline-size', '0']], // basis-0 equal split (the topbar edges)
-  },
-};
+function expandWebDecls(fill) {
+  const basis = fill.basis === undefined ? 'auto' : String(fill.basis);
+  const decls = [['flex', `${fill.grow} ${fill.shrink} ${basis}`]];
+  if (fill.minInline !== undefined) decls.push(['min-inline-size', String(fill.minInline)]);
+  return decls;
+}
 
 // ── camelCase → kebab-case · the data-ATTR spelling only ──
 // The merged-node dispatch keys on the namespace INPUT key (paddingX→data-padding-x ·
@@ -151,8 +142,8 @@ function rulesForField(ns, key, field, scaleVocab, registry) {
   const sel = (v) => selectorFor(ns, key, v);
   // The CSS PROPERTY name is the registry's `.css` for the field's canonical id
   // (single-sourced spelling · decision 73 cl.2). `expand` carries no `prop` (its
-  // web decls live in EXPAND_WEB). A canonical id absent from the registry is a
-  // strip/registry regression → throw (the spelling analogue of assertNever).
+  // web declarations are derived from the neutral fill case). A canonical id absent from the registry is a
+  // loader/registry regression → throw (the spelling analogue of assertNever).
   let prop;
   if (field.prop !== undefined) {
     const entry = registry[field.prop];
@@ -180,13 +171,10 @@ function rulesForField(ns, key, field, scaleVocab, registry) {
       // wrap rule is `[data-wrap="true"] { flex-wrap: wrap }` only).
       return [{ sel: sel('true'), decls: [[prop, field.on]] }];
     case 'expand': {
-      const web = EXPAND_WEB[key];
-      if (!web) throw new Error(`[namespace-css] ${ns}.${key}: 'expand' field has no EXPAND_WEB spelling`);
-      // iterate the TABLE's case keys (the vocab) → look up the web decls.
+      if (key !== 'fill') throw new Error(`[namespace-css] ${ns}.${key}: 'expand' field has no web spelling`);
+      // iterate the TABLE's case keys (the vocab) → spell the neutral intent.
       return Object.keys(field.cases).map((caseKey) => {
-        const decls = web[caseKey];
-        if (!decls) throw new Error(`[namespace-css] ${ns}.${key}: expand case '${caseKey}' has no web spelling in EXPAND_WEB`);
-        return { sel: sel(caseKey), decls };
+        return { sel: sel(caseKey), decls: expandWebDecls(field.cases[caseKey]) };
       });
     }
     default:
@@ -255,8 +243,7 @@ export function emitNamespaceCss({ ns, title, fields, scaleVocab, registry }) {
 // readScaleVocab · the per-scale leaf vocabulary, derived from the token scale
 // ══════════════════════════════════════════════════════════════════
 // Reads the semantic scale leaf KEYS from styles/tokens-semantic.css (the L2
-// CSS SoT · where --nuri-{space,size,radius}-<leaf> live · node 20 cannot import
-// the build/tokens.ts scale objects). `size`/`radius` use the FULL scale (the
+// CSS SoT · where --nuri-{space,size,radius}-<leaf> live). `size`/`radius` use the FULL scale (the
 // SizeLeaf "derive from the scale" model); `space` is curated to SPACE_LEAF.
 // Post-L2-flip this reads the authored TS scale directly — the derivation, not
 // the source, is the point. Returns { space, size, radius } as ordered arrays.
@@ -291,58 +278,33 @@ export async function readScaleVocab(semanticCssPath) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// loadFieldTable · read + type-strip resolve-map.ts → { STACK_FIELDS, BOX_FIELDS }
+// loadFieldTable · read + transpile resolve-map.ts → { STACK_FIELDS, BOX_FIELDS }
 // ══════════════════════════════════════════════════════════════════
-// node 20 cannot import the .ts SoT, so we read it as text, strip the TS apparatus
-// (the SAME technique as the descriptor browser-ESM twins · emitDescriptorJsFromSource),
-// and import the resulting self-contained ESM via a data: URL (resolve-map.ts has
-// only `import type` imports, so the stripped module needs no module resolution).
-// The table now lives in @nuri/spec's pipeline/ (N+39 · the rn→spec DAG); the RN
-// side became a plain import, but this web read stays type-stripped (node 20 · .ts).
-
-// Strip the four TS constructs resolve-map.ts uses (and ONLY those):
-//   · `import type …;`            (the 2 type-only imports → no runtime dep)
-//   · `export type ScaleName …;`  (single-line)
-//   · `export type Field = …;`    (the multi-line tagged union · `  | …` arms)
-//   · `const X: <Type> = `        (annotations on the 5 data consts)
-export function stripTypes(src) {
-  return src
-    .replace(/^import type .*;\n/gm, '')
-    .replace(/^export type ScaleName = .*;\n/m, '')
-    .replace(/^export type Field =\n(?:\s*\|.*\n)*/m, '')
-    .replace(/^((?:export )?const \w+): [^=\n]+ = /gm, '$1 = ');
-}
-
 export async function loadFieldTable(resolveMapPath) {
-  const src = await readFile(resolveMapPath, 'utf8');
-  const stripped = stripTypes(src);
-  const mod = await import('data:text/javascript,' + encodeURIComponent(stripped));
-  // Sanity — a strip regression must fail LOUD here, not silently emit garbage.
+  const mod = await loadTsDataFromPath(resolveMapPath);
+  // Sanity — a loader regression must fail LOUD here, not silently emit garbage.
   for (const name of ['STACK_FIELDS', 'BOX_FIELDS']) {
     if (!mod[name] || typeof mod[name] !== 'object' || !Object.keys(mod[name]).length) {
-      throw new Error(`[namespace-css] loadFieldTable: stripped resolve-map has no usable ${name} (strip regression?)`);
+      throw new Error(`[namespace-css] loadFieldTable: resolve-map has no usable ${name} (loader regression?)`);
     }
   }
   return { STACK_FIELDS: mod.STACK_FIELDS, BOX_FIELDS: mod.BOX_FIELDS };
 }
 
 // ══════════════════════════════════════════════════════════════════
-// loadRegistry · read + type-strip property-spelling.ts → PROPERTY_SPELLING
+// loadRegistry · read + transpile property-spelling.ts → PROPERTY_SPELLING
 // ══════════════════════════════════════════════════════════════════
 // The property-spelling registry (canonical id → { rn, css } · decision 73 cl.2)
 // supplies the per-target property NAME the field's canonical id resolves to. Like
-// the siblings (loadSurface/loadEffects/loadAxis), it is type-stripped + data:-URL
-// imported (node 20 · .ts) — but via the SHARED stripTypes (dimension-css.js · the
-// registry is authored in the `as const satisfies <named type>` style, NOT the
-// resolve-map tagged-union style the bespoke strip above targets). The web emit
-// reads `.css`; `.rn` is the RN applier's column (resolve.ts · unused here).
+// the siblings (loadSurface/loadEffects/loadAxis), it is loaded through the shared
+// TS data transform. The web emit reads `.css`; `.rn` is the RN applier's column
+// (resolve.ts · unused here).
 export async function loadRegistry(registryTsPath) {
-  const src = await readFile(registryTsPath, 'utf8');
-  const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypesShared(src)));
+  const mod = await loadTsDataFromPath(registryTsPath);
   const reg = mod.PROPERTY_SPELLING;
-  // Sanity — a strip regression must fail LOUD here (a known entry resolves to {css}).
+  // Sanity — a loader regression must fail LOUD here (a known entry resolves to {css}).
   if (!reg || typeof reg !== 'object' || !reg.padding || reg.padding.css === undefined) {
-    throw new Error('[namespace-css] loadRegistry: PROPERTY_SPELLING missing/empty or lacks {css} entries (strip regression?)');
+    throw new Error('[namespace-css] loadRegistry: PROPERTY_SPELLING missing/empty or lacks {css} entries (loader regression?)');
   }
   return reg;
 }

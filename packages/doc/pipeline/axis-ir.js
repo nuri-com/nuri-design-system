@@ -161,7 +161,7 @@ export function interactiveAxisIr(opts, interactiveWeb) {
 //   (c) wrapper    — the web-only `nuri-typography` element (muted + align · a REAL
 //                    element, unlike palette/interactive's merged-node class). NO RN
 //                    analog (RN inherits colour by scope, aligns on the Text node · §76).
-export function typographyAxisIr(axis, typeSizes) {
+export function typographyAxisIr(axis, typeSizes, typographyWeb) {
   // (a) the agnostic size axis — the spike of the `| Input | Web | RN | Value |` grammar.
   const size = typeSizes.map((s) => ({
     input: s,
@@ -170,10 +170,10 @@ export function typographyAxisIr(axis, typeSizes) {
   }));
   // (b) the orthogonal emphasis boolean — one row, the data-attr + the weight override.
   const emphasis = { input: 'emphasis', web: '[data-type-emphasis]', rn: 'typeStyle(size, true)', value: 'semibold' };
-  // (c) the web-only wrapper dispatch (muted + align · unchanged · the real element).
-  const wrapper = axis.dispatch.map((r) => ({
+  // (c) the web-only wrapper dispatch (muted + align · projected from neutral spec data).
+  const wrapper = typographyWeb.dispatch.map((r) => ({
     name: r.name,
-    selector: axis.element + r.attr,
+    selector: r.selector,
     decls: r.decls.map(([prop, value]) => [prop, value]),
   }));
   return { source: 'typography', kind: 'typography', size, emphasis, element: axis.element, wrapper };
@@ -217,6 +217,6 @@ export const AXIS_DOCS = [
     nav: 5,
     src: 'packages/rn/generated/tokens.ts · packages/prototype/generated/styles/typography.css · packages/rn/theme.tsx · packages/spec/axes/typography-axis.ts',
     lead: 'The bespoke **typography** axis — two orthogonal inputs (decision 77): **`size`**, a foundation type-step, and **`emphasis`**, a boolean weight override. Both realize on either target (web a `data-*` attribute · RN `typeStyle`); each step’s resolved composite (font-size · line-height · weight · tracking) lives in the type **scale** (Foundations). The `nuri-typography` **wrapper** below is a separate **web-only** prose helper — muted tone + block alignment for authored content, with no RN analog.',
-    build: (d) => typographyAxisIr(d.axis, d.typeSizes),
+    build: (d) => typographyAxisIr(d.axis, d.typeSizes, d.typographyWeb),
   },
 ];

@@ -33,6 +33,7 @@ import { AXIS_DOCS } from './axis-ir.js';
 import { FOUNDATION_DOCS } from './foundations-ir.js';
 import { emitComponentApiPage, emitAxisPage, emitFoundationPage, buildDocTokenInputs, makeRoleResolver } from './docs.js';
 import { interactiveWebProjection } from '../../prototype/pipeline/parsers/interactive-css.js';
+import { typographyWebProjection } from '../../prototype/pipeline/parsers/typography-css.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '../../..');
@@ -230,7 +231,7 @@ const AXIS_CONTRACT = {
       '| `align` | `align-items` | `alignItems` | `start` → `flex-start`<br>`center` → `center`<br>`end` → `flex-end`<br>`stretch` → `stretch`<br>`baseline` → `baseline` |',
       // the mechanism-divergent expand arm (fill · no registry entry · rn → em-dash) ·
       // `even` (the topbar-slots slice · the equal-basis-0 edge for true centring)
-      '| `fill` | `flex` | — | `grow` → `flexGrow: 1` · `flexShrink: 0`<br>`grow-shrink` → `flexGrow: 1` · `flexShrink: 1` · `minWidth: 0`<br>`even` → `flexGrow: 1` · `flexShrink: 1` · `flexBasis: 0` · `minWidth: 0` |',
+      '| `fill` | `flex` | — | `grow` → `grow: 1` · `shrink: 0`<br>`grow-shrink` → `grow: 1` · `shrink: 1` · `minInline: 0`<br>`even` → `grow: 1` · `shrink: 1` · `basis: 0` · `minInline: 0` |',
     ],
     includes: ['| Input | Web | RN | Value |'], // the locked grammar (CSS → Web · the N+47 rename)
   },
@@ -308,6 +309,7 @@ test('G · each generated/axes/*.md re-emits identically from its axis SoT', asy
   const { opts } = await loadSpecData('interactive-effects');
   const interactiveWeb = interactiveWebProjection(opts);
   const { axis } = await loadSpecData('typography-axis');
+  const typographyWeb = typographyWebProjection(axis);
   const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'tokens.ts'));
   const { tokenVars } = await loadDataFromPath(resolve(PROTO_GENERATED, 'token-vars.ts'));
   const d = {
@@ -318,6 +320,7 @@ test('G · each generated/axes/*.md re-emits identically from its axis SoT', asy
     opts,
     interactiveWeb,
     axis,
+    typographyWeb,
     typeSizes: Object.keys(specTokens.type), // the 6 type-step sizes (the `size` axis · decision 77)
     roleColor: makeRoleResolver(specTokens, tokenVars),
   };

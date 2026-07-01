@@ -39,6 +39,7 @@ import { AXIS_DOCS } from './axis-ir.js';
 import { FOUNDATION_DOCS } from './foundations-ir.js';
 import { emitComponentApiPage, emitAxisPage, emitFoundationPage, buildDocTokenInputs, makeRoleResolver } from './docs.js';
 import { interactiveWebProjection } from '../../prototype/pipeline/parsers/interactive-css.js';
+import { typographyWebProjection } from '../../prototype/pipeline/parsers/typography-css.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '../../..');
@@ -84,6 +85,7 @@ async function buildAxisDocs() {
   const { opts } = await loadSpecData('interactive-effects');
   const interactiveWeb = interactiveWebProjection(opts);
   const { axis } = await loadSpecData('typography-axis');
+  const typographyWeb = typographyWebProjection(axis);
   const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'tokens.ts'));
   const { tokenVars } = await loadDataFromPath(resolve(PROTO_GENERATED, 'token-vars.ts'));
   const d = {
@@ -94,6 +96,7 @@ async function buildAxisDocs() {
     opts,
     interactiveWeb,
     axis,
+    typographyWeb,
     typeSizes: Object.keys(specTokens.type), // the 6 type-step sizes (the `size` axis rows · decision 77)
     roleColor: makeRoleResolver(specTokens, tokenVars),
   };

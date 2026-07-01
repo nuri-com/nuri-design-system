@@ -21,16 +21,15 @@
  * P11 — "no second consumer, no oracle yet"), realized now that BOTH emits exist
  * and the generated CSS + the RN snapshots are the dual oracle.
  *
- * The mechanism-divergent `expand` arm (fill) is NOT a registry entry — its RN
- * cases are a multi-prop ViewStyle fragment and its web spelling is the `flex`
- * shorthand (namespace-css.js's EXPAND_WEB), a difference of MECHANISM not name
- * (decision 73 cl.2). So `expand` keeps its own multi-prop shape here.
+ * The mechanism-divergent `expand` arm (fill) is NOT a registry entry: it carries
+ * neutral flex intents here, then RN spells them as a multi-prop ViewStyle fragment
+ * and web spells them as `flex` + `min-inline-size`.
  *
  * HOME (transitional · convergence `final`): this axis SoT lives in @nuri/spec's
  * pipeline/ (the decision-68 rn→spec DAG · was mis-homed in @nuri/rn through the
  * shadow phase). @nuri/rn imports it via the exports map (`@nuri/spec/resolve-map`);
- * the web build reads it in place (type-strip + data:-URL · node 20 cannot import
- * a .ts). The codegen-vs-data home re-org is convergence phase 4.
+ * the web build reads it through the shared TS data loader. The codegen-vs-data
+ * home re-org is convergence phase 4.
  * ══════════════════════════════════════════════════════════════════ */
 
 import type { StackNS, BoxNS } from '../components/schema';
@@ -47,15 +46,20 @@ export type ScaleName = 'space' | 'size' | 'radius' | 'ratio';
 // applier dispatches exhaustively (a new arm without a case is a compile error
 // at `applyFields` · the assertNever backstop). `prop` is a CANONICAL id (the
 // per-target name comes from property-spelling.ts); `scale`/`map`/`on`/`off` are
-// neutral. The `expand` cases are an RN-spelled multi-prop fragment — the
-// mechanism-divergent arm that stays OUT of the registry (decision 73 cl.2); it
-// is RN-free here only by typing (Record<string, string | number>, no ViewStyle).
+// neutral. The `expand` cases are neutral flex intents; each projection owns the
+// target spelling because fill diverges by mechanism, not by a single property name.
+export type FillCase = {
+  grow: number;
+  shrink: number;
+  basis?: number | 'auto';
+  minInline?: 0;
+};
 export type Field =
   | { via: 'scale'; prop: CanonicalId; scale: ScaleName } //       value = scale[input]
   | { via: 'keyword'; prop: CanonicalId; map: Record<string, string> } // value = map[input]
   | { via: 'literal'; prop: CanonicalId } //                       value = input (passthrough)
   | { via: 'flag'; prop: CanonicalId; on: string; off: string } // value = input ? on : off
-  | { via: 'expand'; cases: Record<string, Record<string, string | number>> }; // multi-prop set
+  | { via: 'expand'; cases: Record<string, FillCase> }; // neutral multi-prop intent
 
 // ── flexbox keyword maps · NEUTRAL (CSS align-items/justify-content take the
 // SAME flex-* keywords) · were the ALIGN/JUSTIFY consts in resolve.ts ──
@@ -81,14 +85,13 @@ const JUSTIFY: Record<NonNullable<StackNS['justify']>, string> = {
 // regions take an IDENTICAL share of the leftover row (basis 0 ⇒ pure grow split),
 // so a flex:none centre lands dead-centre with asymmetric edges (the centring
 // forcing function · min-size 0 lets an over-wide edge truncate, not shove the
-// centre). The RN cases are RN-SPELLED multi-prop (flexGrow/flexShrink/flexBasis/
-// minWidth); the web spelling (the `flex` shorthand + the logical min-size) is
-// namespace-css.js's EXPAND_WEB. A mechanism difference, not a name → NOT a
-// registry entry (decision 73 cl.2). Was resolveFill's switch.
-const FILL: Record<NonNullable<StackNS['fill']>, Record<string, string | number>> = {
-  grow: { flexGrow: 1, flexShrink: 0 },
-  'grow-shrink': { flexGrow: 1, flexShrink: 1, minWidth: 0 },
-  even: { flexGrow: 1, flexShrink: 1, flexBasis: 0, minWidth: 0 },
+// centre). Each projection spells this neutral intent locally. A mechanism
+// difference, not a name → NOT a registry entry (decision 73 cl.2). Was
+// resolveFill's switch.
+const FILL: Record<NonNullable<StackNS['fill']>, FillCase> = {
+  grow: { grow: 1, shrink: 0 },
+  'grow-shrink': { grow: 1, shrink: 1, minInline: 0 },
+  even: { grow: 1, shrink: 1, basis: 0, minInline: 0 },
 };
 
 // ── stack → flex · the mapping as DATA (was resolveStack's if-wall · mirrors
