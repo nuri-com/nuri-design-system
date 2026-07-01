@@ -59,11 +59,11 @@ export type {
 
 import { createNuriComponent, nuriNames, compoundSlots } from './createNuriComponent';
 import {
-  compositionButtonDescriptor,
+  buttonDescriptor,
   iconAvatarDescriptor,
   topbarDescriptor,
   iconButtonDescriptor,
-  tabDescriptor,
+  tabBarItemDescriptor,
   tabBarDescriptor,
 } from '../contract';
 
@@ -74,13 +74,14 @@ import {
 //
 // EVERY name is DERIVED from ONE public kebab name via `nuriNames` (the
 // deterministic rule · web `nuri-{kebab}` · RN `Pascal({kebab})`) — no
-// hand-authored displayName string. The public name is the registry's
-// (DESCRIPTOR_COMPONENTS.public): `composition-button` → `button`, `tab` →
-// `tab-bar-item`; the rest match the source. Mirrored by the web recipes' tags.
+// hand-authored displayName string. The public name IS the descriptor name now
+// (deterministic-naming · SEED-2 · DESCRIPTOR_COMPONENTS, name===public): the
+// `nuriNames('…')` string equals each descriptor's source-file basename. Mirrored
+// by the web recipes' tags; the naming guard pins each string ∈ the one roster.
 //   <Button variant="solid" size="md" accent="lilac" onPress={…}>Buy</Button>
 //   <IconAvatar variant="soft" icon="apple" />
 //   <Topbar><TopbarLeading>…</TopbarLeading><TopbarCenter>…</TopbarCenter>…</Topbar>
-export const Button = createNuriComponent(compositionButtonDescriptor, nuriNames('button').rn);
+export const Button = createNuriComponent(buttonDescriptor, nuriNames('button').rn);
 export const IconAvatar = createNuriComponent(iconAvatarDescriptor, nuriNames('icon-avatar').rn);
 
 // Topbar is the catalog's first COMPOUND component (the slot-based action bar):
@@ -115,5 +116,5 @@ export const IconButton = createNuriComponent(iconButtonDescriptor, nuriNames('i
 // The DS never sees `active`/`value`; `selected` is a consumer-computed boolean
 // (bridged onto the item's `state` appearance axis · the muted treatment),
 // `onPress` is passthrough.
-export const TabBarItem = createNuriComponent(tabDescriptor, nuriNames('tab-bar-item').rn);
+export const TabBarItem = createNuriComponent(tabBarItemDescriptor, nuriNames('tab-bar-item').rn);
 export const TabBar = createNuriComponent(tabBarDescriptor, nuriNames('tab-bar').rn);

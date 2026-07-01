@@ -27,29 +27,32 @@
  * @nuri/doc at N+42 · the A4 carve).
  * ────────────────────────────────────────────────────────────── */
 
-// ── The frozen descriptor set · scope-locked ─────────────────────────
-// Each entry maps a descriptor NAME → its authored source file + the PUBLIC kebab
-// the factory bindings DERIVE the web/RN names from (web `nuri-{public}` · RN
-// `Pascal({public})`). `public` is canonical here only where it DIFFERS from the
-// source `name`: `composition-button`'s public is `button`, `tab`'s is
-// `tab-bar-item`; the rest match `name`. The runtime bindings (rn/factory/index.ts
-// + the web recipes) restate the same kebab — they cannot import this build-time
-// registry across the zero-build web boundary — and mirror this table. Nothing
-// assumes `name === public`; the DERIVATION is the single rule (nuriNames), not a
-// per-name hand string. (`kind`/`fgPart` — read only by the retired oracle's
-// derivers — were dropped with it · debt-register D2.)
+// ── The frozen descriptor set · scope-locked · the ONE build-side roster ──────
+// Each entry is a descriptor NAME, and `name` IS the component's PUBLIC kebab: the
+// authored source file is `components/<name>.ts`, the exports subpath is
+// `./descriptors/<name>`, and the factory bindings DERIVE the web/RN names from the
+// SAME kebab (web `nuri-{name}` · RN `Pascal({name})` · nuriNames). The vestigial
+// `source`/`public` overrides are GONE (deterministic-naming · SEED-2 · D7): the two
+// components that carried them — `composition-button`→`button`, `tab`→`tab-bar-item`
+// — were renamed at the source so `name === public` for every component, and the
+// oracle that read `source`/`kind`/`fgPart` was pruned (debt-register D1/D2). The
+// runtime bindings (rn/factory/index.ts + the web recipes) restate the same kebab —
+// they cannot import this build-time registry across the zero-build web boundary —
+// and the naming guard (scripts/naming.test.js · D7 §2) pins that every restated
+// name ∈ this ONE roster, so a rename that misses a site fails CI. This is the sole
+// build-side list; BROWSER_DESCRIPTOR_COMPONENTS (tokens-parser.js) derives from it.
 export const DESCRIPTOR_COMPONENTS = [
-  { name: 'composition-button', source: 'button',      public: 'button' },
-  { name: 'icon-avatar',        source: 'icon-avatar' },
-  { name: 'topbar',             source: 'topbar' },
-  { name: 'icon-button',        source: 'icon-button' },
-  { name: 'tab',                source: 'tab', public: 'tab-bar-item' },
-  { name: 'tab-bar',            source: 'tab-bar' },
+  { name: 'button' },
+  { name: 'icon-avatar' },
+  { name: 'topbar' },
+  { name: 'icon-button' },
+  { name: 'tab-bar-item' },
+  { name: 'tab-bar' },
 ];
 
 // ── NAME → the export identifier / camelCase ─────────────────────────
-// `composition-button` → `compositionButtonDescriptor`. Used by the .js twin's
-// header (the `import { … }` example) + the docs/Guard D twin reader.
+// `tab-bar-item` → `tabBarItemDescriptor`. Used by the .js twin's header (the
+// `import { … }` example) + the docs/Guard D twin reader.
 const camel = (s) => s.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
 
 export function exportNameFor(name) {

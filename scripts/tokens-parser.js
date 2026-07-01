@@ -203,11 +203,11 @@ const ACCENTS_JS_OUT   = resolve(PROTO_GENERATED, 'accents.js');
 
 // Component descriptors that ALSO emit a browser-ESM twin (decision 67 · the
 // runtime web factory). The .js form lets a browser `import` the descriptor and
-// resolve it with NO build step (zero-build · what Nuri IS #3). WIDENED at S4 to
-// the FULL DESCRIPTOR_COMPONENTS set — the web factory now de-collapses all
-// three frozen descriptors (Button at S3 · icon-avatar + topbar at S4), so each
-// has a live consumer (P11 · decision 30 · no speculative emit ahead of one).
-const BROWSER_DESCRIPTOR_COMPONENTS = ['composition-button', 'icon-avatar', 'topbar', 'icon-button', 'tab', 'tab-bar'];
+// resolve it with NO build step (zero-build · what Nuri IS #3). This is the FULL
+// DESCRIPTOR_COMPONENTS set (widened at S4 · the web factory de-collapses every
+// frozen descriptor) — so it DERIVES from the one build-side roster rather than
+// restating the names (deterministic-naming · D7 · same scripts/ boundary).
+const BROWSER_DESCRIPTOR_COMPONENTS = DESCRIPTOR_COMPONENTS.map((spec) => spec.name);
 
 // (Slice 4 · the per-component `@layer tokens` WALK · REMOVED at N+41 · the A3 carve.)
 // The walk read each component's lib/components/<name>/<name>.css to report its TokenPath

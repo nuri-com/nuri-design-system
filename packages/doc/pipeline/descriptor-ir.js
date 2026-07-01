@@ -16,14 +16,14 @@
  * throws) or a byte-identical-gate failure.
  * ────────────────────────────────────────────────────────────── */
 
-// kebab → camel (composition-button → compositionButton).
+// kebab → camel (tab-bar-item → tabBarItem).
 const camel = (s) => s.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
 
-// The export const name on the descriptor twin (compositionButtonDescriptor).
+// The export const name on the descriptor twin (tabBarItemDescriptor).
 export function exportNameFor(name) {
   return camel(name) + 'Descriptor';
 }
-// The axes type name (CompositionButtonAxes) — surfaced on the IR (vestigial
+// The axes type name (TabBarItemAxes) — surfaced on the IR (vestigial
 // for the emitter, kept for IR-shape fidelity with the pre-A4 pipeline).
 function typeNameFor(name) {
   const c = camel(name);
@@ -50,14 +50,16 @@ export function docIrFromDescriptor(spec, descriptor) {
   };
 }
 
-// The component manifest — { descriptor NAME → doc SOURCE slug }. A copy of the
-// {name, source} pairs from @nuri/spec's DESCRIPTOR_COMPONENTS (the 3 frozen
-// descriptors · 65.3): @nuri/doc owns WHICH descriptors it documents (the full
-// descriptor set; the axis family landed at A4b · axis-ir.js#AXIS_DOCS, the token
-// family lands at A4c · each under its own manifest). The browser-ESM twin for each
-// is imported from @nuri/spec.
+// The component manifest — { descriptor NAME → doc SOURCE slug }. A subset of
+// @nuri/spec's DESCRIPTOR_COMPONENTS names (@nuri/doc owns WHICH descriptors it
+// documents · the axis family landed at A4b · axis-ir.js#AXIS_DOCS, the token family
+// lands at A4c · each under its own manifest). Since deterministic-naming (SEED-2)
+// every descriptor's `name === public`, so `source` (the .md slug + demo include)
+// now equals `name`; the pair is kept for the emitter's two distinct reads (name →
+// twin import + provenance · source → output path + include). The browser-ESM twin
+// for each is imported from @nuri/spec. (Guarded ⊂ the roster by scripts/naming.test.js.)
 export const DOC_COMPONENTS = [
-  { name: 'composition-button', source: 'button' },
+  { name: 'button', source: 'button' },
   { name: 'icon-avatar', source: 'icon-avatar' },
   { name: 'topbar', source: 'topbar' },
 ];

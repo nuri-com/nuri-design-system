@@ -36,7 +36,7 @@ await import('../recipes/icon-button.js');
 // The factory + the descriptor twins, for the buildComponent-direct assertions
 // (same cached module instances the recipes use).
 const { buildComponent, defineNuriComponent } = await import('../factory/factory.js');
-const { compositionButtonDescriptor } = await import('../generated/descriptors/composition-button.js');
+const { buttonDescriptor } = await import('../generated/descriptors/button.js');
 const { iconAvatarDescriptor } = await import('../generated/descriptors/icon-avatar.js');
 const { iconButtonDescriptor } = await import('../generated/descriptors/icon-button.js');
 
@@ -80,7 +80,7 @@ test('A2 · buildComponent(IconAvatar) · an EXPLICIT variant wins over the defa
 // B · buildComponent · Button — interactive merged node + label + DEFAULTS
 // ══════════════════════════════════════════════════════════════════
 test('B · buildComponent(Button) · de-collapsed pressable tree · variant+size DEFAULT from data · label routed', async () => {
-  const el = mount(buildComponent(compositionButtonDescriptor, {}, { children: 'Pay' }));
+  const el = mount(buildComponent(buttonDescriptor, {}, { children: 'Pay' }));
 
   assert.equal(el.tagName.toLowerCase(), 'nuri-pressable', 'interactive view → nuri-pressable host');
   await tick(); // let the pressable create its inner button + the deferred merge land

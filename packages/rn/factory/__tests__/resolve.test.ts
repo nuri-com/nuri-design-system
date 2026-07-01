@@ -16,7 +16,7 @@ import { buildNuriTheme, INTERACTION_BASELINE } from '../theme';
 import { typeStyle } from '../../theme';
 import { recipeFor, flattenPart, resolveAnatomy } from '../resolve';
 import {
-  compositionButtonDescriptor,
+  buttonDescriptor,
   iconAvatarDescriptor,
   topbarDescriptor,
   accentTokens,
@@ -83,7 +83,7 @@ describe('baseline theme (resolver-model §11)', () => {
 });
 
 describe('Button — the richest descriptor (every namespace + interactive)', () => {
-  const r = recipeFor(compositionButtonDescriptor, 'lilac', 'light');
+  const r = recipeFor(buttonDescriptor, 'lilac', 'light');
 
   test('root base = the stack composition (row · center · center)', () => {
     expect(r.root.base).toEqual({
@@ -260,17 +260,17 @@ describe('Topbar — same factory, the COMPOUND slot regions (true centring)', (
 
 describe('genericity + the resolved style tree (snapshots committed)', () => {
   test('three descriptors, ONE engine — anatomy shapes', () => {
-    expect(resolveAnatomy(compositionButtonDescriptor)).toMatchObject({ name: 'root', el: 'view', open: false });
+    expect(resolveAnatomy(buttonDescriptor)).toMatchObject({ name: 'root', el: 'view', open: false });
     expect(resolveAnatomy(iconAvatarDescriptor).children[0]).toMatchObject({ name: 'icon', el: 'icon' });
     expect(resolveAnatomy(topbarDescriptor)).toMatchObject({ name: 'root', open: true });
   });
 
   test('resolved Unistyles recipe — Button (lilac/light)', () => {
-    expect(recipeFor(compositionButtonDescriptor, 'lilac', 'light')).toMatchSnapshot();
+    expect(recipeFor(buttonDescriptor, 'lilac', 'light')).toMatchSnapshot();
   });
 
   test('resolved Unistyles recipe — Button (neutral/dark · accent×mode)', () => {
-    expect(recipeFor(compositionButtonDescriptor, 'neutral', 'dark')).toMatchSnapshot();
+    expect(recipeFor(buttonDescriptor, 'neutral', 'dark')).toMatchSnapshot();
   });
 
   test('resolved Unistyles recipe — IconAvatar (lilac/light)', () => {
@@ -299,7 +299,7 @@ describe('genericity + the resolved style tree (snapshots committed)', () => {
 
   test('flattenPart concrete cell — Button solid/md pressed (the render path)', () => {
     const theme = buildNuriTheme('lilac', 'light');
-    const pressed = flattenPart(compositionButtonDescriptor, theme, 'light', 'root', { variant: 'solid', size: 'md' }, { pressed: true }).style;
+    const pressed = flattenPart(buttonDescriptor, theme, 'light', 'root', { variant: 'solid', size: 'md' }, { pressed: true }).style;
     expect(pressed).toEqual({
       flexDirection: 'row',
       alignItems: 'center',
