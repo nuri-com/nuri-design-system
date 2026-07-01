@@ -159,18 +159,16 @@ test('C · doc-stated emitted counts match the live build', () => {
   // tokens-parser.test.js, not a hand-stated count.)
 });
 
-// ── Guard D · descriptors ⊂ their live sources (the composition model 65.3 · R-EXPO-6) ──
+// ── Guard D · the descriptor twin re-emits + its composition-form shape holds (65.3 · R-EXPO-6) ──
 // The TokenPath discipline (decision 34) applied to the per-component
-// descriptor: the emitted contract must always re-derive — in the
-// COMPOSITION form (65.3 §7 · structure { anatomy, base } + variants ·
-// the five primitive namespaces) — from its two sources: the @layer CSS
-// (mapping · the 65.1 bootstrap) and the page data-part anatomy (structure
-// · decision 24.1). A renamed/removed part, variant, or namespace value
-// breaks the build (deriveDescriptor throws — the surface funnel,
-// scale-leaf, interaction-baseline, and page-part assertions) AND this
-// test; the pinned shapes catch a dropped axis value, a moved part, or a
-// changed `interactive` opt-in even if the build was re-emitted. The
-// validated shapes (B1.5 · the three composed recipes).
+// descriptor — now in the post-oracle world: the descriptor is the SOLE
+// SoT (the CSS parity oracle retired at the L3c flip · decision 74), so
+// this guard reads the AUTHORED descriptor in its COMPOSITION form (65.3
+// §7 · structure { anatomy, base } + variants · the five primitive
+// namespaces) via its committed browser-ESM twin, and pins the shape: a
+// renamed/removed part, variant, or namespace value (incl. the collapsed
+// `interactive` opt-in) breaks this test even if the build re-emitted
+// clean. The validated shapes (B1.5 · the three composed recipes).
 const EXPECTED_DESCRIPTORS = {
   'composition-button': {
     axes: { variant: ['solid', 'soft', 'ghost'], size: ['sm', 'md', 'lg'] },
@@ -267,10 +265,11 @@ test('D · build/descriptors/* re-emits from the authored SoT + the composition-
 
     // ── (2) THE COMPOSITION-FORM IR · sourced from the AUTHORED descriptor (decision
     // 69 · the SoT) via its browser-ESM twin (node cannot import the .ts). The B1 PARITY
-    // ORACLE (deriveDescriptor(CSS,HTML) re-reads the hand CSS+HTML and asserts derive ==
-    // authored) RETIRED with the recipe CSS at the L3c flip (decision 74 · the
-    // "until B2 generates the CSS" boundary decision 69 named): the descriptor is now
-    // the SOLE SoT — there is no hand recipe CSS to cross-derive from. The descriptor
+    // ORACLE (the pre-SoT cross-check that re-read the hand CSS+HTML and asserted the
+    // derived shape == the authored data) RETIRED with the recipe CSS at the L3c flip
+    // (decision 74 · the "until B2 generates the CSS" boundary decision 69 named): the
+    // descriptor is now the SOLE SoT — there is no hand recipe CSS to cross-derive from.
+    // Its dead derivation code was pruned at debt-register D1. The descriptor
     // stays honest via Guard F (the frozen schema shape) + leg (1) re-emit freshness +
     // leg (3) the composition-form pins below (now pinning the authored IR directly).
     // The IR reshape is INLINED here (was docIrFromDescriptor · MOVED to @nuri/doc at

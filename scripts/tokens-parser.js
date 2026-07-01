@@ -59,7 +59,6 @@ import {
 } from './parsers/semantic.js';
 
 import {
-  readComponentTokens,
   resolveComponentValue,
   emitComponentTs,
   emitTokenPathsTs,
@@ -79,9 +78,6 @@ import {
 
 import {
   DESCRIPTOR_COMPONENTS,
-  deriveDescriptor,
-  emitDescriptorTs,
-  emitDescriptorTsFromSource,
   emitDescriptorJsFromSource,
   exportNameFor,
 } from './parsers/descriptors.js';
@@ -147,7 +143,6 @@ export {
   SET_POLICY,
   resolveSetPolicy,
   primitiveSetFor,
-  readComponentTokens,
   resolveComponentValue,
   emitComponentTs,
   emitTokenPathsTs,
@@ -163,9 +158,6 @@ export {
   flipInteractionCss,
   INTERACTION_PRIMITIVES,
   DESCRIPTOR_COMPONENTS,
-  deriveDescriptor,
-  emitDescriptorTs,
-  emitDescriptorTsFromSource,
   emitDescriptorJsFromSource,
   exportNameFor,
   PALETTE_CONTRACT,
@@ -224,8 +216,9 @@ const BROWSER_DESCRIPTOR_COMPONENTS = ['composition-button', 'icon-avatar', 'top
 // left to read. It was always build-output-neutral (the TokenPath union below derives from
 // classifiedGroups · Slice 5 · NOT this walk), so removing it leaves build/* byte-identical.
 // The resolver it exercised (resolveComponentValue) is covered by tokens-parser.test.js on
-// synthetic input (reframed at N+38); the re-export of readComponentTokens / emitComponentTs /
-// resolveComponentValue stays (the test API).
+// synthetic input (reframed at N+38); the re-export of emitComponentTs / resolveComponentValue
+// stays (the test API). (readComponentTokens — the `@layer tokens` reader half — was pruned
+// as dead at debt-register D1: it had no caller once the walk was removed.)
 
 // Parse the orchestrator's CLI flag `--neutral=<scale>` from argv
 // (decision 31). Default = DEFAULT_NEUTRAL. validateNeutral throws on
