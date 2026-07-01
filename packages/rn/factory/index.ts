@@ -18,12 +18,12 @@
 export { INTERACTION_BASELINE } from './theme';
 export type { NuriTheme, SurfaceRole, ChromeRole } from './theme';
 
-// The generic descriptor ENGINE (resolveNS · flattenPart · toUnistylesRecipe ·
-// recipeFor · assertNever + their intermediate types ResolvedNode/ResolvedPalette/
-// PartFlat/CompoundVariant/PartRecipe/ComponentRecipe) is INTERNAL (SEED-4 · Arc 1 ·
-// @nuri/rn has no external consumer). It stays a plain module export off ./resolve
-// (imported directly by the factory/primitives + the tests), NOT part of the public
-// barrel. Only the anatomy walk + the Selection/State value types stay public.
+// The generic descriptor ENGINE (resolveNS · flattenPart · flattenBakedPart ·
+// assertNever + their intermediate types ResolvedNode/ResolvedPalette/PartFlat/
+// BakedPartRecipe/BakedComponentRecipe) is INTERNAL (SEED-4 · Arc 1 · @nuri/rn has
+// no external consumer). It stays a plain module export off ./resolve (imported
+// directly by the factory/primitives + the tests), NOT part of the public barrel.
+// Only the anatomy walk + the Selection/State value types stay public.
 export { resolveAnatomy } from './resolve';
 export type { AnatomyNode, Selection, State } from './resolve';
 
@@ -59,6 +59,12 @@ import {
   tabBarItemDescriptor,
   tabBarDescriptor,
 } from '../contract';
+// The BAKED GEOMETRY SLICE (Arc 2 · D11 + D5 · generated/recipes.ts) — box/stack/
+// typography/interactive resolved at build, keyed by the component's public kebab.
+// Each binding hands its recipe to createNuriComponent, which LOADS it instead of
+// re-resolving geometry every render. Internal engine detail (like generated/palette),
+// imported straight from generated/ — never on the public barrel.
+import { recipes } from '../generated/recipes';
 
 // The frozen descriptors, each through the SAME factory — the ergonomic,
 // 1:1-with-web components the RN team consumes (typed named props derived from
@@ -74,8 +80,8 @@ import {
 //   <Button variant="solid" size="md" accent="lilac" onPress={…}>Buy</Button>
 //   <IconAvatar variant="soft" icon="apple" />
 //   <Topbar><TopbarLeading>…</TopbarLeading><TopbarCenter>…</TopbarCenter>…</Topbar>
-export const Button = createNuriComponent(buttonDescriptor, nuriNames('button').rn);
-export const IconAvatar = createNuriComponent(iconAvatarDescriptor, nuriNames('icon-avatar').rn);
+export const Button = createNuriComponent(buttonDescriptor, nuriNames('button').rn, recipes['button']);
+export const IconAvatar = createNuriComponent(iconAvatarDescriptor, nuriNames('icon-avatar').rn, recipes['icon-avatar']);
 
 // Topbar is the catalog's first COMPOUND component (the slot-based action bar):
 // the factory attaches one typed region sub-component, FLAT-named (the runtime is
@@ -83,7 +89,7 @@ export const IconAvatar = createNuriComponent(iconAvatarDescriptor, nuriNames('i
 // each region as a STANDALONE component — `TopbarLeading/Center/Trailing` ↔ the web
 // `nuri-topbar-leading/center/trailing` (no dot-notation, no hand-authored cast).
 // Bare children of <Topbar> default to the trailing region (the "just actions" case).
-export const Topbar = createNuriComponent(topbarDescriptor, nuriNames('topbar').rn);
+export const Topbar = createNuriComponent(topbarDescriptor, nuriNames('topbar').rn, recipes['topbar']);
 const topbarSlots = compoundSlots(Topbar);
 export const TopbarLeading = topbarSlots.TopbarLeading;
 export const TopbarCenter = topbarSlots.TopbarCenter;
@@ -92,7 +98,7 @@ export const TopbarTrailing = topbarSlots.TopbarTrailing;
 // The icon-anchored control (P11 · the first contract bump): bare = the round
 // icon action; flanked = `<IconButton prefix="Buy Bitcoin" icon="apple"
 // suffix="Pay" />` (the prefix/suffix text flanks · the new Part vocab).
-export const IconButton = createNuriComponent(iconButtonDescriptor, nuriNames('icon-button').rn);
+export const IconButton = createNuriComponent(iconButtonDescriptor, nuriNames('icon-button').rn, recipes['icon-button']);
 
 // The bottom navigation bar (presentation only) — TabBar is a DUMB layout
 // container that renders its positional TabBarItem children as EQUAL columns (the
@@ -109,5 +115,5 @@ export const IconButton = createNuriComponent(iconButtonDescriptor, nuriNames('i
 // The DS never sees `active`/`value`; `selected` is a consumer-computed boolean
 // (bridged onto the item's `state` appearance axis · the muted treatment),
 // `onPress` is passthrough.
-export const TabBarItem = createNuriComponent(tabBarItemDescriptor, nuriNames('tab-bar-item').rn);
-export const TabBar = createNuriComponent(tabBarDescriptor, nuriNames('tab-bar').rn);
+export const TabBarItem = createNuriComponent(tabBarItemDescriptor, nuriNames('tab-bar-item').rn, recipes['tab-bar-item']);
+export const TabBar = createNuriComponent(tabBarDescriptor, nuriNames('tab-bar').rn, recipes['tab-bar']);

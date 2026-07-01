@@ -12,9 +12,9 @@
  * components + factory helpers (createNuriComponent · nuriNames · compoundSlots ·
  * NuriSurfaceContext · the Button/IconAvatar/Topbar/… instances), NuriIcon, and the
  * hand-authorable primitives (View/Stack/Text/Pressable/Screen/Scroll). The generic
- * descriptor ENGINE (resolveNS · flattenPart · toUnistylesRecipe · recipeFor ·
- * buildNuriTheme · the palette MAPPING · the resolver intermediate types) is
- * deliberately INTERNAL — intra-package module exports only, not on this barrel.
+ * descriptor ENGINE (resolveNS · flattenPart · flattenBakedPart · buildNuriTheme ·
+ * the palette MAPPING · the baked geometry recipe + the resolver intermediate types)
+ * is deliberately INTERNAL — intra-package module exports only, not on this barrel.
  *
  * ⚠ Arc 1 INTENTIONALLY RESHAPED THE RN API (Option B · resolve colour once at the
  * provider): the payload now lives in context and the engine left the public
