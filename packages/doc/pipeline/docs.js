@@ -592,8 +592,8 @@ function channelCell(ch) {
   return `${swatch(`var(${ch.var})`)} \`${ch.role}\` \`${ch.hex}\``;
 }
 
-// ── interactive (§76 · the fan-out · re-sourced off the deleted `effects` bridge onto
-// `opts`/`webChrome`/`webOrder`) · TWO sections, mirroring typography's de-fusion shape:
+// ── interactive (§76 · the fan-out · SEED-1a: spec `opts` + prototype web projection)
+// · TWO sections, mirroring typography's de-fusion shape:
 //   · Effects — the AGNOSTIC axis (the 3 opt-ins) on the locked `| Input | Web | RN |
 //               Value |` grammar: the web realization (assembled selector → decls, or a
 //               palette cross-ref where the rule lives in palette) · the RN realization
