@@ -7,15 +7,11 @@ has_children: true
 
 # Components
 
-The frozen descriptor components, **generated** from `@nuri/spec` on every build
-by `@nuri/doc`'s doc-gen (`pipeline/build.js`) — each page is build output,
-rendered from the component's descriptor + token data, so it **cannot drift** from
-the spec the way the old hand-written pages did (the generation thesis · decision 66).
+The current component-like public surfaces, **generated** from the RN consumer prop
+types on every build by `@nuri/doc`'s doc-gen (`pipeline/build.js`). Each page is
+API-only build output: props, required/optional state, type, and a short mechanical
+note.
 
-Each **Example** is a live `<nuri-demo>` (decision 10): one `<template>` → live
-preview + code, hydrated by `@nuri/prototype`'s build-free factory.
-
-> The active set is exactly **{ the 3 descriptor recipes }** (button · icon-avatar ·
-> topbar · the convergence coherence line). The pre-axes hand component pages are
-> frozen under `archive/` (the rebuild-as-descriptor regen spec); new components
-> land here as descriptors, one at a time (convergence phase 6).
+Generated descriptor components and the hand-authorable primitives live together
+here because consumers meet both as component APIs. The older authored component
+reference pages remain frozen under `archive/`.

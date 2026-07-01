@@ -220,7 +220,18 @@ export function buildDocTokenInputs(specTokens, tokenVars) {
 
 // nav_order per component source (the website slice grows this as coverage
 // does · P11). default 1 for an un-listed source.
-const NAV_ORDER = { button: 1, 'icon-avatar': 2, topbar: 3 };
+const NAV_ORDER = {
+  button: 1,
+  'icon-button': 2,
+  'icon-avatar': 3,
+  'tab-bar': 4,
+  'tab-bar-item': 5,
+  topbar: 6,
+  stack: 7,
+  view: 8,
+  typography: 9,
+  icon: 10,
+};
 
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const titleFor = (source) => source.split('-').map(cap).join(' ');
@@ -375,6 +386,7 @@ function genHeader(source) {
 }
 
 const tableCode = (value) => `\`${String(value).replace(/\|/g, '\\|')}\``;
+const apiTableCode = (value) => `\`${String(value)}\``;
 
 // ════════════════════════════════════════════════════════════════════
 // EMIT · the descriptor IR → the just-the-docs Markdown page string
@@ -460,20 +472,20 @@ function renderApiPropTable(lines, apiType) {
   lines.push('| Prop | Required | Type | Notes |');
   lines.push('| --- | --- | --- | --- |');
   for (const prop of apiType.props) {
-    lines.push(`| \`${prop.name}\` | ${prop.required ? 'yes' : 'no'} | ${tableCode(prop.type)} | ${prop.note} |`);
+    lines.push(`| \`${prop.name}\` | ${prop.required ? 'yes' : 'no'} | ${apiTableCode(prop.type)} | ${prop.note} |`);
   }
   lines.push('');
   for (const prop of apiType.forbidden || []) {
-    lines.push(`> \`${prop.name}\` is not accepted (${tableCode(`${prop.name}?: ${prop.type}`)}).`);
+    lines.push(`> \`${prop.name}\` is not accepted (${apiTableCode(`${prop.name}?: ${prop.type}`)}).`);
     lines.push('');
   }
 }
 
 export function emitComponentApiPage(ir) {
-  const title = titleFor(ir.source);
+  const title = ir.title || titleFor(ir.source);
   const lines = [];
   const apiTypes = ir.types || [{ typeName: ir.typeName, props: ir.props, forbidden: ir.forbidden }];
-  lines.push(...frontMatter(title, NAV_ORDER[ir.source] ?? 1));
+  lines.push(...frontMatter(title, ir.nav ?? NAV_ORDER[ir.source] ?? 1));
   lines.push(...genHeader(ir.src));
   lines.push('');
   lines.push(`# ${title}`);
