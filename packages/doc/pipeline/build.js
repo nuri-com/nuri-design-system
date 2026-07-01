@@ -1,30 +1,38 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · @nuri/doc · BUILD (N+42 · A4 · the doc-gen orchestrator · N+43 · A4b axes)
  *
- * Generates the Nuri documentation from @nuri/spec's DATA exports (convergence §5 ·
- * decision 75 · "spec emits data, doc transforms data → Markdown"). Two families,
- * each a frozen @nuri/spec SoT → a just-the-docs Markdown page:
- *   · COMPONENTS (A4)  — each descriptor → generated/components/<source>.md (the
- *                        descriptor IR · descriptor-ir.js → docs.js#emitDocPage).
+ * Generates the Nuri documentation from the source that owns each public surface:
+ * @nuri/spec's DATA exports for authored SoTs, @nuri/rn/generated for the production
+ * resolved contract + generated component prop types, and @nuri/prototype/generated
+ * for browser-loadable descriptor/token-var twins. Two families:
+ *   · COMPONENTS (A4)  — old descriptor pages render from descriptor IR
+ *                        (descriptor-ir.js → docs.js#emitDocPage). Pilot exception:
+ *                        button + icon-avatar render API-only pages from the
+ *                        generated RN prop types, because RN owns the production
+ *                        component consumer API surface.
  *   · AXES (A4b)       — each of the 5 namespace-axis SoTs → generated/axes/<source>.md
  *                        (the axis IR · axis-ir.js → docs.js#emitAxisPage). The axes
  *                        are the system's spine (box · stack · palette · interactive ·
  *                        typography · decision 73 · 2 agnostic + 3 bespoke).
  *
- * All sources are @nuri/spec DATA, read in node via the strip.js loader (node 20
- * cannot import a .ts · NEVER spec's pipeline functions):
- *   · the descriptor IR  — from @nuri/spec/descriptors/<name> (the browser-ESM twin).
- *   · palette · tokens ·  — from @nuri/spec/{palette, tokens, token-vars}.
- *     token-vars
+ * Sources are read as DATA, never by importing spec's pipeline functions:
+ *   · descriptor IR       — from @nuri/prototype/generated/descriptors/<name>.js
+ *                           (the browser-ESM twin of the @nuri/spec descriptor SoT).
+ *   · API-only props      — from @nuri/rn/generated/components/{button,icon-avatar}.ts
+ *                           (generated from descriptor `api`, owned by RN).
+ *   · palette · tokens    — from @nuri/rn/generated/{palette,tokens}.ts.
+ *   · token-vars          — from @nuri/prototype/generated/token-vars.ts.
  *   · the 5 axis SoTs     — from @nuri/spec/{resolve-map, property-spelling,
  *                           palette-surface, interactive-effects, typography-axis}.
  *
- * The <nuri-demo> STORY (components only) is authored in _includes/demo/<source>.html
- * (decision 57.2 · NOT generated); the page carries an `## Example` include slot. All
- * output re-emits byte-identical (decision 35 · the doc CI gate).
+ * The old descriptor component pages carry a <nuri-demo> STORY authored in
+ * _includes/demo/<source>.html (decision 57.2 · NOT generated). API-only pilot pages
+ * intentionally do not. All output re-emits byte-identical (decision 35 · the doc CI gate).
  *
- * DAG: doc → prototype → spec. The build reads @nuri/spec only (the descriptor twins +
- * the data exports); @nuri/prototype is consumed at RUNTIME (the staged site · stage.mjs).
+ * DAG: doc → rn/prototype → spec. The build reads the generated projection contracts
+ * deliberately: RN for production API/value surfaces, prototype for browser-loadable
+ * descriptor twins + CSS var spelling. @nuri/prototype is also consumed at RUNTIME
+ * by the staged site (stage.mjs).
  * ────────────────────────────────────────────────────────────── */
 
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -33,9 +41,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { loadSpecData, loadDataFromPath } from './strip.js';
 import { docIrFromDescriptor, exportNameFor, DOC_COMPONENTS } from './descriptor-ir.js';
+import { componentApiIrFromFile, isComponentApiPilot } from './component-api-ir.js';
 import { AXIS_DOCS } from './axis-ir.js';
 import { FOUNDATION_DOCS } from './foundations-ir.js';
-import { emitDocPage, emitAxisPage, emitFoundationPage, buildDocTokenInputs, makeRoleResolver } from './docs.js';
+import { emitDocPage, emitComponentApiPage, emitAxisPage, emitFoundationPage, buildDocTokenInputs, makeRoleResolver } from './docs.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DOC_ROOT = resolve(__dirname, '..');
@@ -62,6 +71,13 @@ async function buildComponentDocs() {
   await mkdir(COMPONENTS_OUT, { recursive: true });
   const reports = [];
   for (const spec of DOC_COMPONENTS) {
+    if (isComponentApiPilot(spec.name)) {
+      const ir = await componentApiIrFromFile(spec, RN_GENERATED);
+      const out = resolve(COMPONENTS_OUT, `${spec.source}.md`);
+      await writeFile(out, emitComponentApiPage(ir), 'utf8');
+      reports.push({ family: 'component', source: spec.source, detail: `${ir.props.length} props · API pilot`, out });
+      continue;
+    }
     const twin = pathToFileURL(resolve(SPEC_DESCRIPTORS, `${spec.name}.js`)).href;
     const descriptor = (await import(twin))[exportNameFor(spec.name)];
     const ir = docIrFromDescriptor(spec, descriptor);
