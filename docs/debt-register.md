@@ -97,25 +97,20 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
   (`tabBarItemDescriptor` / `TabBarItemAxes`); drop the `public` override and `source` field; update
   the RN bindings + web recipes + the three roster lists (see D7). One name, one derivation.
 
-#### SEED-3 — `NuriBaseProps` is a universal union polluted with per-component props · **DEBT** · S3
+#### SEED-3 — per-descriptor prop surface replaces the old universal `NuriBaseProps` soup · **RESOLVED (Path C component API)** · S3
 
-- **Location:** `packages/rn/factory/createNuriComponent.tsx:47-78`; consumed via
-  `NuriComponentProps<A> = {[K in keyof A]?: A[K]} & NuriBaseProps` (`:81`).
-- **What:** the base prop type shared by **every** factory component carries `prefix?` / `suffix?` /
-  `icon?` (`:64-66`, icon-button-only) and `label?` / `selected?` (`:67-75`, tab-item-only). So
-  `<Button>`, `<Topbar>`, `<IconAvatar>`, `<TabBar>` all *typecheck* `icon`, `prefix`, `suffix`,
-  `selected` — props they silently ignore. `<Button selected icon="x" prefix="y" />` compiles and
-  does nothing (Button has no `state` axis → the `selected` bridge at `:293` is a no-op; no `prefix`/
-  `suffix`/`icon` parts → the ergonomic loop at `:338-343` finds no matching part).
-- **Invariant violated:** type-surface honesty — the prop type should describe what the component
-  *accepts*. Here it over-promises across the catalog.
-- **Cause:** the per-part ergonomic routing (`:338-343`) and the `selected` bridge (`:293`) were
-  expressed as a **universal base union** instead of being **derived per descriptor** from the
-  anatomy's part names + the presence of a `state` axis.
-- **Fix (cause-level):** derive the prop surface from the descriptor. `prefix`/`suffix`/`icon`/`label`
-  should be present only when the anatomy has a same-named leaf part; `selected` only when the
-  descriptor has a `state` axis. A mapped type over `resolveAnatomy(descriptor)` + `descriptor.variants`
-  yields the honest per-component surface — the same data the runtime already routes on.
+- **Status (2026-07-01):** resolved before this register entry was updated. The public catalog
+  components now come from generated per-descriptor adapters in `packages/rn/generated/components/*`.
+  Their prop types are emitted from each descriptor's `api`, so component-specific props stay on the
+  component that declares them: `Button` has no scalar `icon`/`selected`, `IconButton` requires
+  `icon` and forbids children, `TabBarItem` alone gets the `selected` bridge, and non-interactive
+  descriptors do not receive press props.
+- **Proof:** `packages/rn/type-tests/component-types.test-d.tsx` uses `@ts-expect-error` fixtures to
+  pin the exact public surfaces under `npm run typecheck -w @nuri/rn`; the generated adapters normalize
+  props into `renderDescriptorInstance`, whose renderer no longer owns a universal `NuriBaseProps`
+  surface.
+- **Former issue:** the old shared base prop type allowed props like `icon`, `prefix`, `suffix`,
+  `label`, and `selected` on components that ignored them at runtime.
 
 #### SEED-4 — the RN theme colour-resolution indirection · **DEBT** · S2
 
@@ -241,27 +236,17 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
   literals.
 - **Fix (cause-level):** update the `passthroughHeader*` literals to the real paths and regenerate.
 
-#### D4 — `decorative` is honoured on web, SILENTLY DROPPED on RN (production) · **DEBT** · S3
+#### D4 — RN `decorative` a11y parity · **RESOLVED (RN renderer catch-up)** · S3
 
-- **Location:** schema field `packages/spec/components/schema.ts:305-312`; set
-  `icon-avatar.ts:65` (`decorative: true`). Web reads it: `packages/prototype/factory/factory.js:536`
-  (`if (descriptor.decorative) this.setAttribute('aria-hidden','true')`). RN: **no reference** —
-  grep for `decorative` across `packages/rn/` returns nothing; `createNuriComponent.tsx` never reads
-  it.
-- **What:** `IconAvatar` is `decorative:true` — it must be hidden from the a11y tree. The web factory
-  applies `aria-hidden`. The **RN** factory ignores the field entirely, so on the **production
-  target** the decorative avatar is *not* hidden (F-DECORATIVE-1 in `docs/RISKS.md` says RN needs
-  `accessibilityElementsHidden` + `importantForAccessibility="no-hide-descendants"`). The schema
-  comment (`:305-307`) only ever mentions "the web factory reads it."
-- **Invariant violated:** cross-projection parity — a descriptor field consumed by one projection and
-  ignored by the other, and the ignored one is production. This is the same class of *type-honesty*
-  problem as SEED-3 but realized as a behaviour gap (the descriptor *says* decorative; RN doesn't act
-  on it).
-- **Cause:** `decorative` was added for the web factory's a11y pass and never wired into the RN
-  factory's render.
-- **Fix (cause-level):** in `createNuriComponent.tsx`, when `descriptor.decorative`, set
-  `accessibilityElementsHidden` + `importantForAccessibility="no-hide-descendants"` on the root host.
-  (A render-smoke assertion on the a11y props would also close the gate blind-spot.)
+- **Status (2026-07-01):** resolved before this register entry was updated. RN now reads
+  `descriptor.decorative` in `packages/rn/factory/createNuriComponent.tsx` and applies the platform
+  hide pair on the root host: `accessibilityElementsHidden` +
+  `importantForAccessibility="no-hide-descendants"`.
+- **Proof:** `packages/rn/factory/__tests__/render-smoke.test.tsx` asserts the positive
+  `IconAvatar` case and the negative `Button` case, and the committed RN snapshot carries the hide
+  pair only on the decorative root.
+- **Former issue:** `IconAvatar` was `decorative:true`, web applied `aria-hidden`, but the production
+  RN projection ignored the descriptor field.
 
 #### D5 — a parallel, test-only descriptor→style resolution path · **DEBT (justified-but-costly)** · S2
 
@@ -321,19 +306,16 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
   call (or a roster JSON) so the public name is never hand-typed twice. Folds naturally into SEED-2's
   rename (make `name === public`, then the roster is one column).
 
-#### D8 — `defaults` is a type hole in the FROZEN schema · **DEBT** · S1
+#### D8 — descriptor `defaults` typing · **RESOLVED (Path C component API)** · S1
 
-- **Location:** `packages/spec/components/schema.ts:311` (`defaults?: Partial<Record<string, string>>`);
-  pinned frozen at `scripts/docs-drift.test.js:513`.
-- **What:** `defaults` keys and values are bare `string`, not `keyof A` / the axis-value unions. So
-  `defaults: { variant: 'nonsense', siez: 'md' }` (wrong value, typo'd key) **typechecks**. The
-  factory reads it at `createNuriComponent.tsx:255` (`descriptor.defaults?.[axis] ?? firstValue`), so
-  a bad default silently falls back to the first axis value rather than erroring.
-- **Invariant violated:** type-surface honesty — a frozen contract field that doesn't constrain its
-  own values.
-- **Cause:** `defaults` was typed loosely (it predates / sits outside the per-axis generic `A`).
-- **Fix (cause-level):** type it `{ [Axis in keyof A]?: A[Axis] }` (the same shape the factory's
-  `defaultByAxis` expects). Low risk; tighten the frozen pin alongside.
+- **Status (2026-07-01):** resolved. `packages/spec/components/schema.ts` now types defaults as
+  `{ [Axis in keyof A]?: A[Axis] }`, so a default key must be one of the descriptor's axes and the
+  value must be one of that axis's values. The frozen schema pin in `scripts/docs-drift.test.js` moved
+  with the deliberate contract tightening.
+- **Proof:** `packages/rn/factory/__tests__/render-smoke.test.tsx` includes compile-time
+  `@ts-expect-error` assertions for both a bad default value and an unknown default key.
+- **Former issue:** `defaults?: Partial<Record<string, string>>` accepted misspelled keys and
+  impossible values, letting bad descriptor defaults typecheck.
 
 #### D9 — `NuriIcon` hardcodes a `'#000'` colour fallback in a colour-by-scope system · **RESOLVED (minor-tail-cleanup)** · S1
 
@@ -439,11 +421,11 @@ invisible* to them.
 |---|---|---|---|
 | **Spec agnosticism** | Target realization in spec is *valid data that emits correctly* — re-emit + render-smoke both stay green. | SEED-1/D6 class now guarded | **Landed:** `scripts/spec-agnosticism.test.js` scans comment-stripped `packages/spec/**` for CSS selector/var/declaration payloads and RN ViewStyle keys, with explicit allowlists for the property-spelling registry, interactive RN realization vocabulary, and the public `BoxNS.minWidth` input. |
 | **Naming coherence** | Guard D pins descriptor *shape/axes/parts*, never *names*; `nuriNames` derives correctly from whatever string it's *handed*. The hand-authored input strings are unchecked. | SEED-2, D7 | A test asserting `file basename === public`, and that every `nuriNames(x)` site's `x` ∈ the one exported roster. |
-| **Type-surface honesty** | tsc passes — optional props that are ignored, and a `Partial<Record<string,string>>` hole, are all *type-valid*. | SEED-3, D8 | Derive the prop surface per-descriptor (then ignored props become type errors); tighten `defaults` to `keyof A`. |
+| **Type-surface honesty** | tsc passes — optional props that are ignored, and a `Partial<Record<string,string>>` hole, are all *type-valid*. | SEED-3 / D8 (resolved 2026-07-01) | **Landed:** generated per-descriptor RN adapters emit exact prop types from descriptor `api`; `Descriptor.defaults` is keyed/value-constrained by the descriptor axes; `@ts-expect-error` type fixtures pin both. |
 | **Dead code** | An uninvoked export breaks nothing; the re-emit path doesn't touch it. | D1, D2 | A "no unused exports" pass (e.g. `knip`/`ts-prune`) over `scripts/` + `packages/rn`. |
 | **Duplication / parallel structure** | Multiple hand-lists that *happen* to agree pass; only the cross-checked pair (D-roster ↔ EXPECTED) throws. | D5, D7 | One exported roster; assert the parallel lists are slices of it. |
 | **Generated-doc accuracy** | The re-emit gate proves committed ≡ generator output; it **cannot** see that the generator's header *strings* name dead paths. | D3 (resolved 2026-07-01) | A check that paths cited in generated headers resolve on disk would prevent recurrence. |
-| **Cross-projection parity** | The render-smoke renders but asserts no a11y props; expo-demo tsc accepts an ignored optional field. | D4 | Render-smoke assertions on a11y output (`aria-hidden` web ↔ `accessibilityElementsHidden` RN) for `decorative` descriptors. |
+| **Cross-projection parity** | The render-smoke renders but asserts no a11y props; expo-demo tsc accepts an ignored optional field. | D4 (resolved 2026-07-01) | **Landed:** RN renderer applies the decorative hide pair on root hosts and render-smoke asserts both the positive `IconAvatar` case and the non-decorative `Button` case. |
 | **Wrong abstraction / redundant layer / resolution-at-the-wrong-time** | Redundant or mistimed resolution emits the *same output* — render-smoke renders identical pixels, the re-emit gate sees a faithful generator. No gate measures *when* resolution happens or whether the promised zero-runtime path exists. Over-engineering and runtime-vs-build placement are invisible to behaviour + drift. | SEED-4, D5, D11 | Mostly a design judgement (no clean mechanical guard). Partial signals: assert `theme.surface[v].bg === slice` deref (proves SEED-4's layer is a rename); assert the shipped static style ≡ `toUnistylesRecipe`'s `{base,variants}` (proves D11's runtime path duplicates the discarded precompute). |
 
 The meta-finding: the gates form a tight **behaviour + drift** net and a near-zero **consistency**
@@ -457,13 +439,11 @@ pass** (landed with D1/D2 and stops the next refactor leaving rot).
 
 Ordered by blast radius × independence. Each is a candidate working-session brief.
 
-1. **D4 · RN `decorative` a11y wiring** — S3, ~XS. Read `descriptor.decorative` in
-   `createNuriComponent.tsx`; set the RN hide pair; add a render-smoke a11y assertion. Production
-   accessibility correctness; isolated; no contract change. **Do first.**
-2. **SEED-3 · per-descriptor prop surface** — S3, ~M. Replace `NuriBaseProps`'s universal union with
-   a mapped type derived from the anatomy + `state`-axis presence. Touches `createNuriComponent.tsx`
-   types + `expo-demo` call sites (the ignored props become errors — that's the point). **Depends on
-   nothing; pairs naturally with D8.**
+1. **D4 · RN `decorative` a11y wiring** — **RESOLVED (2026-07-01).** RN now applies the root hide
+   pair for decorative descriptors and render-smoke pins both directions.
+2. **SEED-3 + D8 · per-descriptor prop surface + typed defaults** — **RESOLVED (2026-07-01).**
+   Generated RN adapters expose exact descriptor-declared props, type fixtures prevent regressions,
+   and `defaults` is keyed/value-constrained by descriptor axes.
 3. **D1 + D2 · delete the dead oracle** — S2, ~M (mechanical, ~300 lines). Remove the oracle block +
    `kind`/`fgPart` + the orphan re-exports in `tokens-parser.js`. Re-run the `spec` gate (the live
    passthrough path is untouched → byte-identical emit). Add the **no-unused-exports** guard in the
@@ -477,14 +457,12 @@ Ordered by blast radius × independence. Each is a candidate working-session bri
    were replaced with the shared TypeScript transform, `fill` is neutral and spelled per projection,
    typography wrapper web realization moved to the prototype emitter, and the broad agnosticism lint
    landed.
-6. **D8 · tighten `defaults` typing** — S1, ~XS. `keyof A`-type it; move the frozen pin. Ride with
-   SEED-3.
-7. **SEED-4 · theme colour-resolution indirection** — S2, ~M, *depth decision-gated*. Factory consumes
+6. **SEED-4 · theme colour-resolution indirection** — S2, ~M, *depth decision-gated*. Factory consumes
    the resolved slice; variant→role mapping becomes a typed static index; `resolveColor` /
    `RUNTIME_GROUPS` / the `NuriTheme.surface`/`.chrome` rebuild dissolve. Operator picks **full** vs
    **minimal** depth at brief time. Touches `resolve.ts` + `theme.ts` + the palette emit; pairs with the
    render-smoke `theme.surface === slice` assertion. Independent of the others; do after the S3 fixes.
-8. **D11 + D5 · RN build-time-static resolution** — S2, ~L, *depth decision-gated*. Codegen precomputes
+7. **D11 + D5 · RN build-time-static resolution** — S2, ~L, *depth decision-gated*. Codegen precomputes
    the static box/stack/typography ViewStyle (per component · part · axis-value) into an `rn/generated/`
    artifact (source: `toUnistylesRecipe`'s `{base,variants}`); the runtime resolver shrinks to "load the
    baked slice, merge palette + interactive." Delivers the README's promised zero-runtime static slice
