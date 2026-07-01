@@ -1,0 +1,120 @@
+/* ══════════════════════════════════════════════════════════════════
+ * NURI · FACTORY · THE BYTE-IDENTICAL COLOUR GUARD (SEED-4 · the named signal)
+ * ──────────────────────────────────────────────────────────────────
+ * The load-bearing proof that the Option-B colour rework (resolve ONCE at the
+ * provider · debt-register SEED-4) is a FAITHFUL RENAME, not a behaviour change:
+ * the provider payload `buildNuriTheme(accent, mode)` — its `surface`, resolved
+ * `chrome` slots, and the raw `slices` (chrome + the collapsed accent slice) —
+ * must equal, byte-for-byte across EVERY (accent × mode) pair, the value the old
+ * per-render `buildNuriTheme` + `runtimeTokens` ceremony produced.
+ *
+ * The old builders are DELETED, so the reference here is an INDEPENDENT oracle:
+ * the expected hexes are re-derived straight from the raw token SoTs (accentTokens
+ * / chrome / space / size / radius) with the settled variant→role mapping inlined
+ * — NOT from generated/palette.ts and NOT from factory/theme.ts's builder. That
+ * independence is what makes this guard BIND: mutate one cell of the palette
+ * mapping (e.g. solid.bg → a different ref) and the payload diverges from this
+ * oracle → RED. GREEN ⇒ the mapping-once collapse reproduces the pre-SEED-4 hexes
+ * exactly, so the ceremony (resolveColor · RUNTIME_GROUPS · resolveAccentSlice ·
+ * runtimeTokens · the per-component rebuild) was pure indirection, safe to delete.
+ * (The render-smoke + recipe snapshots staying byte-identical is the companion
+ * end-to-end proof.)
+ * ══════════════════════════════════════════════════════════════════ */
+
+import { buildNuriTheme } from '../theme';
+import {
+  accentTokens,
+  chrome,
+  space,
+  size,
+  radius,
+} from '../../contract';
+import type { Accent, Theme } from '../../contract';
+
+// Derive the matrix from the token SoTs, so a new accent (or mode) is covered
+// automatically — the guard can never silently under-test the (accent × mode) grid.
+const ACCENTS = Object.keys(accentTokens) as Accent[];
+const MODES = Object.keys(chrome) as Theme[];
+
+// Collapse one accent role's flat-or-{light,dark} value to its mode hex — the
+// SAME collapse the builder does, RESTATED here so the oracle reads the contract
+// (accentTokens) directly, not the factory's own resolution.
+const acc = (a: Accent, role: keyof (typeof accentTokens)[Accent], mode: Theme): string => {
+  const v = accentTokens[a][role] as string | { light: string; dark: string };
+  return typeof v === 'string' ? v : v[mode];
+};
+
+// The FULL collapsed accent slice (every role) — the raw slice `useToken`/
+// `resolveToken` read (payload.slices.accent).
+const accentSlice = (a: Accent, mode: Theme): Record<string, string> => {
+  const out: Record<string, string> = {};
+  for (const role of Object.keys(accentTokens[a]) as (keyof (typeof accentTokens)[Accent])[]) {
+    out[role] = acc(a, role, mode);
+  }
+  return out;
+};
+
+// The settled variant→role mapping (the global theme POLICY · generated/
+// palette.ts · EXPECTED_PALETTE in docs-drift Guard E), inlined INDEPENDENTLY so
+// a drift in the mapping fails this guard rather than sailing through.
+const expectedSurface = (a: Accent, mode: Theme) => {
+  const c = chrome[mode];
+  return {
+    solid: { bg: acc(a, 'solid', mode), fg: acc(a, 'onSolid', mode), fgMuted: undefined, pressedBg: acc(a, 'solidPressed', mode) },
+    soft: { bg: c.bgStrong, fg: c.textPrimary, fgMuted: c.textMuted, pressedBg: c.bgPressed },
+    ghost: { bg: 'transparent', fg: c.textPrimary, fgMuted: c.textMuted, pressedBg: c.bgSubtle },
+    subtle: { bg: undefined, fg: c.borderStrong, fgMuted: undefined, pressedBg: undefined },
+  };
+};
+
+const expectedChromeSlots = (mode: Theme) => {
+  const c = chrome[mode];
+  return {
+    canvas: { bg: c.bgCanvas, fg: c.textPrimary, fgMuted: c.textMuted },
+    subtle: { bg: c.bgSubtle, fg: c.textPrimary, fgMuted: c.textMuted },
+    strong: { bg: c.bgStrong, fg: c.textPrimary, fgMuted: c.textMuted },
+  };
+};
+
+describe('SEED-4 · the provider payload is byte-identical to the pre-rework colour resolution', () => {
+  for (const a of ACCENTS) {
+    for (const mode of MODES) {
+      test(`payload(${a}, ${mode}) · surface + chrome slots + raw slices`, () => {
+        const p = buildNuriTheme(a, mode);
+
+        // The resolved surface (the variant→role mapping applied ONCE) === the
+        // independent oracle. `toEqual` compares undefined bg/fgMuted verbatim.
+        expect(p.surface).toEqual(expectedSurface(a, mode));
+
+        // The resolved chrome slots (canvas/subtle/strong).
+        expect(p.chrome).toEqual(expectedChromeSlots(mode));
+
+        // The raw orthogonal slices (chrome[mode] + the collapsed accent slice +
+        // the invariant dimension scales) — what useToken/resolveToken read. The
+        // old `runtimeTokens(accent, mode)` output, byte-for-byte.
+        expect(p.slices).toEqual({
+          chrome: chrome[mode],
+          accent: accentSlice(a, mode),
+          space,
+          size,
+          radius,
+        });
+
+        // The Address scalars ride the payload (orthogonal single-axis override).
+        expect(p.mode).toBe(mode);
+        expect(p.accent).toBe(a);
+
+        // The chrome text/border roles are the raw chrome leaves, verbatim.
+        expect(p.text).toEqual({ primary: chrome[mode].textPrimary, muted: chrome[mode].textMuted, onInverse: chrome[mode].textOnInverse });
+        expect(p.border).toEqual({ subtle: chrome[mode].borderSubtle, default: chrome[mode].borderDefault, strong: chrome[mode].borderStrong });
+      });
+    }
+  }
+
+  // The neutral-inverts-with-mode invariant (the N+15 lesson · a spot check that
+  // the collapse honours the two-layer table's {light,dark} arm).
+  test('neutral.solid inverts across mode (the collapse is real)', () => {
+    expect(buildNuriTheme('neutral', 'light').surface.solid.bg).toBe('#12110b');
+    expect(buildNuriTheme('neutral', 'dark').surface.solid.bg).toBe('#fffdf2');
+  });
+});

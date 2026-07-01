@@ -11,13 +11,15 @@
  *  CSS the A3 carve relocates · build/palette.ts cells unchanged.)
  * Emitter · pipeline/parsers/palette.js — run `npm run build`
  *
- * The {variant | chrome} → {bg · fg · fgMuted · pressedBg} mapping
- * as TokenPath data (decision 34) — accent×theme-GENERIC; the
- * consumer dereferences each path against the live (accent × theme)
- * slice via resolveToken at render time (decision 65.1: engine =
+ * The {variant | chrome} → {bg · fg · fgMuted · pressedBg} mapping as
+ * STRUCTURAL colour REFS (decision 34 · SEED-4) — accent×theme-GENERIC. Each
+ * cell is `{ group, leaf }` preserving the (group, leaf) so the RN theme
+ * builder (generated → factory/theme.ts) indexes the selected chrome | accent
+ * slice with ZERO parse (the old dotted-string + resolveColor dot-sniff is
+ * gone). The mapping is applied ONCE at the provider (Option B · 65.1: engine =
  * platform-native, mapping = data · emitted ONCE · 65.2).
  *
- *   · ghost.bg = the literal 'transparent' (NOT a TokenPath) — the
+ *   · ghost.bg = the literal 'transparent' (NOT a ref) — the
  *     build/components/button.ts ghostBg convention.
  *   · subtle = fg-only (no bg/pressed) · the IconAvatar role.
  *   · chrome = theme-only surfaces (no accent, no pressed).
@@ -29,44 +31,53 @@
 
 import type { TokenPath } from './token-paths';
 
+// A colour cell is a structural REF — `{ group, leaf }` preserved so the theme
+// builder indexes the selected (chrome | accent) slice with ZERO parse — or a
+// verbatim literal (ghost's 'transparent'). `ColorRef` is narrowed to the two
+// COLOUR groups (chrome | accent · the only groups a palette cell refs) and pins
+// each ref's `${group}.${leaf}` to a real runtime TokenPath (the emit guarantee).
+type ColorPath = Extract<TokenPath, `chrome.${string}` | `accent.${string}`>;
+export type ColorRef<P extends ColorPath = ColorPath> =
+  P extends `${infer G}.${infer L}` ? { readonly group: G; readonly leaf: L } : never;
+
 export const palette = {
   variant: {
     solid: {
-      bg:         'accent.solid'        as const satisfies TokenPath,
-      fg:         'accent.onSolid'      as const satisfies TokenPath,
-      pressedBg:  'accent.solidPressed' as const satisfies TokenPath,
+      bg:         { group: 'accent', leaf: 'solid'        } as const satisfies ColorRef,
+      fg:         { group: 'accent', leaf: 'onSolid'      } as const satisfies ColorRef,
+      pressedBg:  { group: 'accent', leaf: 'solidPressed' } as const satisfies ColorRef,
     },
     soft: {
-      bg:         'chrome.bgStrong'     as const satisfies TokenPath,
-      fg:         'chrome.textPrimary'  as const satisfies TokenPath,
-      fgMuted:    'chrome.textMuted'    as const satisfies TokenPath,
-      pressedBg:  'chrome.bgPressed'    as const satisfies TokenPath,
+      bg:         { group: 'chrome', leaf: 'bgStrong'     } as const satisfies ColorRef,
+      fg:         { group: 'chrome', leaf: 'textPrimary'  } as const satisfies ColorRef,
+      fgMuted:    { group: 'chrome', leaf: 'textMuted'    } as const satisfies ColorRef,
+      pressedBg:  { group: 'chrome', leaf: 'bgPressed'    } as const satisfies ColorRef,
     },
     ghost: {
       bg:         'transparent',
-      fg:         'chrome.textPrimary'  as const satisfies TokenPath,
-      fgMuted:    'chrome.textMuted'    as const satisfies TokenPath,
-      pressedBg:  'chrome.bgSubtle'     as const satisfies TokenPath,
+      fg:         { group: 'chrome', leaf: 'textPrimary'  } as const satisfies ColorRef,
+      fgMuted:    { group: 'chrome', leaf: 'textMuted'    } as const satisfies ColorRef,
+      pressedBg:  { group: 'chrome', leaf: 'bgSubtle'     } as const satisfies ColorRef,
     },
     subtle: {
-      fg:         'chrome.borderStrong' as const satisfies TokenPath,
+      fg:         { group: 'chrome', leaf: 'borderStrong' } as const satisfies ColorRef,
     },
   },
   chrome: {
     canvas: {
-      bg:         'chrome.bgCanvas'     as const satisfies TokenPath,
-      fg:         'chrome.textPrimary'  as const satisfies TokenPath,
-      fgMuted:    'chrome.textMuted'    as const satisfies TokenPath,
+      bg:         { group: 'chrome', leaf: 'bgCanvas'     } as const satisfies ColorRef,
+      fg:         { group: 'chrome', leaf: 'textPrimary'  } as const satisfies ColorRef,
+      fgMuted:    { group: 'chrome', leaf: 'textMuted'    } as const satisfies ColorRef,
     },
     subtle: {
-      bg:         'chrome.bgSubtle'     as const satisfies TokenPath,
-      fg:         'chrome.textPrimary'  as const satisfies TokenPath,
-      fgMuted:    'chrome.textMuted'    as const satisfies TokenPath,
+      bg:         { group: 'chrome', leaf: 'bgSubtle'     } as const satisfies ColorRef,
+      fg:         { group: 'chrome', leaf: 'textPrimary'  } as const satisfies ColorRef,
+      fgMuted:    { group: 'chrome', leaf: 'textMuted'    } as const satisfies ColorRef,
     },
     strong: {
-      bg:         'chrome.bgStrong'     as const satisfies TokenPath,
-      fg:         'chrome.textPrimary'  as const satisfies TokenPath,
-      fgMuted:    'chrome.textMuted'    as const satisfies TokenPath,
+      bg:         { group: 'chrome', leaf: 'bgStrong'     } as const satisfies ColorRef,
+      fg:         { group: 'chrome', leaf: 'textPrimary'  } as const satisfies ColorRef,
+      fgMuted:    { group: 'chrome', leaf: 'textMuted'    } as const satisfies ColorRef,
     },
   },
 } as const;

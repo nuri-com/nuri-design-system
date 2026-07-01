@@ -52,11 +52,12 @@ import { interaction } from './generated/interaction';
 
 // ── The FROZEN descriptor contract (decision 65 · 65.3 · 65.6 · Guard F) ──
 // The cross-repo authoring language the generic factory consumes: the
-// composition schema (the five disjoint namespaces · 65.3 §6), the palette
-// mapping ({variant|chrome} → {bg·fg·fgMuted·pressedBg} as TokenPath data ·
-// build/palette.ts), and the three per-component descriptors (PURE DATA ·
-// no theme thunk · 65.3 §7).
-import { palette } from './generated/palette';
+// composition schema (the five disjoint namespaces · 65.3 §6) and the three
+// per-component descriptors (PURE DATA · no theme thunk · 65.3 §7).
+// NOTE: the palette MAPPING ({variant|chrome} → colour refs · generated/palette.ts)
+// is an INTERNAL engine detail, NOT part of the public contract seam (SEED-4 · Arc
+// 1) — factory/theme.ts imports it directly from generated/, so it never reaches
+// the public barrel.
 import { buttonDescriptor } from '@nuri/spec/descriptors/button';
 import { iconAvatarDescriptor } from '@nuri/spec/descriptors/icon-avatar';
 import { topbarDescriptor } from '@nuri/spec/descriptors/topbar';
@@ -95,8 +96,7 @@ export {
   emphasisWeight,
   icons,
   interaction,
-  // descriptor contract
-  palette,
+  // descriptor contract (the palette MAPPING is internal · not re-exported · SEED-4)
   buttonDescriptor,
   iconAvatarDescriptor,
   topbarDescriptor,

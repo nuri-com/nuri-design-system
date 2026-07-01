@@ -42,9 +42,8 @@ import {
   ScrollView as RNScrollView,
 } from 'react-native';
 import type { ViewStyle, TextStyle } from 'react-native';
-import type { StackNS, BoxNS, TypographyNS, PaletteNS, InteractiveNS, NS } from '../contract';
-import { useNuriTheme, typeStyle } from '../theme';
-import { buildNuriTheme } from './theme';
+import type { StackNS, BoxNS, TypographyNS, PaletteNS, InteractiveNS, NS, Accent } from '../contract';
+import { useNuriTheme, typeStyle, NuriScope } from '../theme';
 import type { NuriTheme } from './theme';
 import { resolveNS, flattenInteractive } from './resolve';
 import type { ResolvedNode } from './resolve';
@@ -85,18 +84,19 @@ function pickNS(props: Record<string, unknown>): NS {
 }
 
 // useResolvedNode · the one resolution path every painting primitive shares.
-// Reads the ambient (accent, mode) + surface fg, builds the theme, and resolves
-// the bucketed namespaces through resolveNS (palette.accent self-scopes INSIDE
-// resolvePalette · decision 27/62 · so the base theme uses the ambient accent).
+// Reads the RESOLVED payload from context (Option B · SEED-4 · no per-primitive
+// `buildNuriTheme` rebuild) + the ambient surface fg, and resolves the bucketed
+// namespaces through resolveNS. An `accent` palette prop is handled OUTSIDE, by
+// scopedByAccent (a NuriScope wrapper), so the payload read here is ALREADY the
+// correctly-scoped theme — resolvePalette never re-resolves an accent.
 function useResolvedNode(nsProps: Record<string, unknown>): {
   node: ResolvedNode;
   fg: string | undefined;
   theme: NuriTheme;
 } {
-  const { mode, accent } = useNuriTheme();
+  const theme = useNuriTheme();
   const ambient = React.useContext(NuriSurfaceContext);
-  const theme = React.useMemo(() => buildNuriTheme(accent, mode), [accent, mode]);
-  const node = resolveNS(pickNS(nsProps), theme, mode);
+  const node = resolveNS(pickNS(nsProps), theme);
   return { node, fg: node.fg ?? ambient.foreground, theme };
 }
 
@@ -110,6 +110,26 @@ const withKeys = <P,>(component: React.FC<P>, propKeys: readonly string[]): Prim
   c.propKeys = propKeys;
   return c;
 };
+
+// scopedByAccent · a painting primitive whose palette carries an `accent`
+// establishes a NuriScope for it — the SAME "accent = nested scope" mechanism the
+// factory prop-accent uses (createNuriComponent) — so the SCOPED payload reaches
+// resolvePalette. Without it, the dropped `resolvePalette` self-scope would
+// silently paint the AMBIENT accent (the ns.accent field is now honoured by the
+// scope, never a per-node buildNuriTheme rebuild). No accent → no wrapper (the
+// Impl reads the ambient payload · snapshots for accent-less primitives unchanged).
+function scopedByAccent<P extends { accent?: Accent }>(Impl: React.FC<P>): React.FC<P> {
+  const Scoped: React.FC<P> = (props) =>
+    props.accent !== undefined ? (
+      <NuriScope accent={props.accent}>
+        <Impl {...props} />
+      </NuriScope>
+    ) : (
+      <Impl {...props} />
+    );
+  Scoped.displayName = Impl.displayName;
+  return Scoped;
+}
 
 // §12 — wrap children in the surface-fg provider when this node resolves an fg,
 // so descendant Text/Icon inherit it (the factory's colour-by-scope · reused).
@@ -132,7 +152,7 @@ const ViewImpl: React.FC<ViewProps> = (props) => {
   return <RNView style={node.view}>{withSurface(node.fg, children)}</RNView>;
 };
 ViewImpl.displayName = 'View';
-export const View = withKeys(ViewImpl, [...BOX_KEYS, ...STACK_KEYS, ...PALETTE_KEYS]);
+export const View = withKeys(scopedByAccent(ViewImpl), [...BOX_KEYS, ...STACK_KEYS, ...PALETTE_KEYS]);
 
 // ════════════════════════════════════════════════════════════════
 // Stack — the flex-layout slice (stack namespace) · RN <View>
@@ -172,7 +192,7 @@ const TextImpl: React.FC<TextProps> = (props) => {
   );
 };
 TextImpl.displayName = 'Text';
-export const Text = withKeys(TextImpl, [...TYPOGRAPHY_KEYS, ...PALETTE_KEYS]);
+export const Text = withKeys(scopedByAccent(TextImpl), [...TYPOGRAPHY_KEYS, ...PALETTE_KEYS]);
 
 // ════════════════════════════════════════════════════════════════
 // Pressable — View + the interactive opt-in (+ onPress) · RN <Pressable>
@@ -211,7 +231,7 @@ const PressableImpl: React.FC<PressableProps> = (props) => {
   );
 };
 PressableImpl.displayName = 'Pressable';
-export const Pressable = withKeys(PressableImpl, [
+export const Pressable = withKeys(scopedByAccent(PressableImpl), [
   ...BOX_KEYS,
   ...STACK_KEYS,
   ...PALETTE_KEYS,

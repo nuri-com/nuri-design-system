@@ -291,7 +291,7 @@ describe('genericity + the resolved style tree (snapshots committed)', () => {
     const ratioBox: Descriptor<Record<string, never>> = {
       structure: { anatomy: { el: 'view' }, base: { root: { box: { aspectRatio: 'card' } } } },
     };
-    const style = flattenPart(ratioBox, theme, 'light', 'root', {}, {}).style;
+    const style = flattenPart(ratioBox, theme, 'root', {}, {}).style;
     expect(style).toEqual({ aspectRatio: ratio.card });
     expect(style.aspectRatio).toBe(1.586);
     expect(typeof style.aspectRatio).toBe('number'); // unitless · not '1.586px'
@@ -299,7 +299,7 @@ describe('genericity + the resolved style tree (snapshots committed)', () => {
 
   test('flattenPart concrete cell — Button solid/md pressed (the render path)', () => {
     const theme = buildNuriTheme('lilac', 'light');
-    const pressed = flattenPart(buttonDescriptor, theme, 'light', 'root', { variant: 'solid', size: 'md' }, { pressed: true }).style;
+    const pressed = flattenPart(buttonDescriptor, theme, 'root', { variant: 'solid', size: 'md' }, { pressed: true }).style;
     expect(pressed).toEqual({
       flexDirection: 'row',
       alignItems: 'center',

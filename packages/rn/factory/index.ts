@@ -11,28 +11,21 @@
  * per-component code.
  * ══════════════════════════════════════════════════════════════════ */
 
-export { buildNuriTheme, INTERACTION_BASELINE } from './theme';
+// The theme PAYLOAD shape (typed) + the interaction baseline are public; the
+// PAYLOAD BUILDER (`buildNuriTheme`) is an internal engine detail (SEED-4 · Arc 1)
+// — the provider/scope drive it, consumers never call it — so it is NOT re-exported
+// (still an intra-package export off ./theme for the resolution tests + the provider).
+export { INTERACTION_BASELINE } from './theme';
 export type { NuriTheme, SurfaceRole, ChromeRole } from './theme';
 
-export {
-  resolveNS,
-  resolveAnatomy,
-  flattenPart,
-  toUnistylesRecipe,
-  recipeFor,
-  assertNever,
-} from './resolve';
-export type {
-  ResolvedNode,
-  ResolvedPalette,
-  AnatomyNode,
-  PartFlat,
-  Selection,
-  State,
-  CompoundVariant,
-  PartRecipe,
-  ComponentRecipe,
-} from './resolve';
+// The generic descriptor ENGINE (resolveNS · flattenPart · toUnistylesRecipe ·
+// recipeFor · assertNever + their intermediate types ResolvedNode/ResolvedPalette/
+// PartFlat/CompoundVariant/PartRecipe/ComponentRecipe) is INTERNAL (SEED-4 · Arc 1 ·
+// @nuri/rn has no external consumer). It stays a plain module export off ./resolve
+// (imported directly by the factory/primitives + the tests), NOT part of the public
+// barrel. Only the anatomy walk + the Selection/State value types stay public.
+export { resolveAnatomy } from './resolve';
+export type { AnatomyNode, Selection, State } from './resolve';
 
 export { createNuriComponent, NuriSurfaceContext, nuriNames, pascalCase, compoundSlots } from './createNuriComponent';
 export type { NuriComponentProps, NuriBaseProps, NuriSlot } from './createNuriComponent';
