@@ -50,72 +50,44 @@ export type {
   ScrollProps,
 } from './primitives';
 
-import { createNuriComponent, nuriNames, compoundSlots } from './createNuriComponent';
-import {
-  buttonDescriptor,
-  iconAvatarDescriptor,
-  topbarDescriptor,
-  iconButtonDescriptor,
-  tabBarItemDescriptor,
-  tabBarDescriptor,
-} from '../contract';
-// The BAKED GEOMETRY SLICE (Arc 2 · D11 + D5 · generated/recipes.ts) — box/stack/
-// typography/interactive resolved at build, keyed by the component's public kebab.
-// Each binding hands its recipe to createNuriComponent, which LOADS it instead of
-// re-resolving geometry every render. Internal engine detail (like generated/palette),
-// imported straight from generated/ — never on the public barrel.
-import { recipes } from '../generated/recipes';
-
 // The frozen descriptors, each through the SAME factory — the ergonomic,
-// 1:1-with-web components the RN team consumes (typed named props derived from
-// each descriptor's axes; zero per-component code). These ARE the public Nuri
-// RN components now (the hand-written migration mirrors are retired · R1.5).
+// 1:1-with-web components the RN team consumes. These ARE the public Nuri RN
+// components (the hand-written migration mirrors are retired · R1.5).
 //
-// EVERY name is DERIVED from ONE public kebab name via `nuriNames` (the
-// deterministic rule · web `nuri-{kebab}` · RN `Pascal({kebab})`) — no
-// hand-authored displayName string. The public name IS the descriptor name now
-// (deterministic-naming · SEED-2 · DESCRIPTOR_COMPONENTS, name===public): the
-// `nuriNames('…')` string equals each descriptor's source-file basename. Mirrored
-// by the web recipes' tags; the naming guard pins each string ∈ the one roster.
+// EXACT-TYPED per component (Path C · Phase 2 · docs/component-api-target.md): the
+// `createNuriComponent` bindings + the per-component `*Props` types now live in the
+// GENERATED codegen output (packages/rn/generated/components/* · emitted from each
+// descriptor's `api` · committed + drift-gated). This barrel RE-EXPORTS them so the
+// public surface is one path. Each export is the EXISTING factory instance NARROWED
+// to its real surface (`FC<Wide>`→`FC<Narrow>` · props contravariant · same instance,
+// same recipe, render byte-identical) — so `<Button icon="x"/>` is now a TYPE error
+// (ButtonProps has no `icon`) and `<IconButton>child</IconButton>` is one too
+// (`children?: never`), while the RUNTIME is unchanged. The compound Topbar's flat
+// region sub-components (TopbarLeading/Center/Trailing) are re-exported from the
+// generated module too (the `compoundSlots` attachment is preserved on the generated
+// instance). The renderer heuristics (primaryPart · same-name routing · the selected
+// bridge) stay UNTOUCHED until Phase 3 — this phase only tightens the TYPE surface.
 //   <Button variant="solid" size="md" accent="lilac" onPress={…}>Buy</Button>
 //   <IconAvatar variant="soft" icon="apple" />
+//   <IconButton variant="soft" icon="apple" accessibilityLabel="Buy" onPress={…} />
 //   <Topbar><TopbarLeading>…</TopbarLeading><TopbarCenter>…</TopbarCenter>…</Topbar>
-export const Button = createNuriComponent(buttonDescriptor, nuriNames('button').rn, recipes['button']);
-export const IconAvatar = createNuriComponent(iconAvatarDescriptor, nuriNames('icon-avatar').rn, recipes['icon-avatar']);
-
-// Topbar is the catalog's first COMPOUND component (the slot-based action bar):
-// the factory attaches one typed region sub-component, FLAT-named (the runtime is
-// generic · derived from the anatomy's `view` regions). `compoundSlots` surfaces
-// each region as a STANDALONE component — `TopbarLeading/Center/Trailing` ↔ the web
-// `nuri-topbar-leading/center/trailing` (no dot-notation, no hand-authored cast).
-// Bare children of <Topbar> default to the trailing region (the "just actions" case).
-export const Topbar = createNuriComponent(topbarDescriptor, nuriNames('topbar').rn, recipes['topbar']);
-const topbarSlots = compoundSlots(Topbar);
-export const TopbarLeading = topbarSlots.TopbarLeading;
-export const TopbarCenter = topbarSlots.TopbarCenter;
-export const TopbarTrailing = topbarSlots.TopbarTrailing;
-
-// The conventional icon-ONLY glyph circle: `<IconButton variant="soft"
-// icon="apple" accessibilityLabel="Buy with Apple Pay" onPress={…} />`. `icon` is
-// the scalar icon-name shorthand routed into the lone `icon` part; there is no
-// visible text, so a11y rides `accessibilityLabel`. (The anchored mid-text lockup
-// relocated to composable Button · Path C Phase 4 · docs/component-api-target.md.)
-export const IconButton = createNuriComponent(iconButtonDescriptor, nuriNames('icon-button').rn, recipes['icon-button']);
-
-// The bottom navigation bar (presentation only) — TabBar is a DUMB layout
-// container that renders its positional TabBarItem children as EQUAL columns (the
-// open-positional-children capability · NOT a compound: an item is repeated, not a
-// named slot). The item is a SEPARATE descriptor with its own public name
-// (`tab-bar-item` → `TabBarItem` · web `nuri-tab-bar-item`), exported standalone —
-// no `TabBar.Item` dot-accessor, no cast:
-//   const [active, setActive] = useState('wallet');
-//   <TabBar>
-//     <TabBarItem icon="card" label="Wallet" selected={active === 'wallet'}
-//                 onPress={() => setActive('wallet')} />
-//     …
-//   </TabBar>
-// The DS never sees `active`/`value`; `selected` is a consumer-computed boolean
-// (bridged onto the item's `state` appearance axis · the muted treatment),
-// `onPress` is passthrough.
-export const TabBarItem = createNuriComponent(tabBarItemDescriptor, nuriNames('tab-bar-item').rn, recipes['tab-bar-item']);
-export const TabBar = createNuriComponent(tabBarDescriptor, nuriNames('tab-bar').rn, recipes['tab-bar']);
+//   <TabBar><TabBarItem icon="card" label="Wallet" selected onPress={…} />…</TabBar>
+export {
+  Button,
+  IconAvatar,
+  Topbar,
+  TopbarLeading,
+  TopbarCenter,
+  TopbarTrailing,
+  IconButton,
+  TabBarItem,
+  TabBar,
+} from '../generated/components';
+export type {
+  ButtonProps,
+  IconAvatarProps,
+  TopbarProps,
+  IconButtonProps,
+  TabBarItemProps,
+  TabBarProps,
+} from '../generated/components';

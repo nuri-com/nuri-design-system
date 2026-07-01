@@ -1,7 +1,8 @@
 # Target design — the component-API layer (the descriptor declares its public API · codegen makes it exact · the renderer just renders)
 
 > **Status: IN PROGRESS · Phase 1 DONE (the `api` DATA layer + guard · ZERO runtime · shipped) · Phase 2
-> (codegen) NEXT (Path C · operator-confirmed 2026-07-01).** This is
+> DONE (codegen exact `*Props` types + typed exports · render byte-identical · shipped) · Phase 3 (renderer
+> shrink) NEXT (Path C · operator-confirmed 2026-07-01).** This is
 > the design SoT for Path C, mirroring [`theme-engine-target.md`](./theme-engine-target.md)'s role for the
 > theme rework. It DISTILLS + RECONCILES the external architecture review
 > ([`consumer-feedback/COMPONENT-API-REVIEW-2026-07-01.md`](./consumer-feedback/COMPONENT-API-REVIEW-2026-07-01.md)),
@@ -107,8 +108,8 @@ geneous children are a RICHER render than Topbar's one-shot region routing — n
 | descriptor | axes | themeScope | behaviour.pressable | propMaps | slots |
 |---|---|---|---|---|---|
 | **button** | variant, size | accent | root · onPress/disabled/a11yLabel | — | default→label·text *(+ Phase-4: repeatable `text`/`icon` composed children)* |
-| **icon-button** | variant, size | accent | root · onPress/disabled/a11yLabel | — | default→icon·icon-name·**prop `icon`** (icon-ONLY · no prefix/suffix) |
-| **icon-avatar** | variant | accent | — (NOT interactive) | — | default→icon·icon-name·**prop `icon`** |
+| **icon-button** | variant, size | accent | root · onPress/disabled/a11yLabel | — | icon→icon·icon-name·**prop `icon`**·required (icon-ONLY · NO `default` — the icon is a prop, not a children-sink · §1c) |
+| **icon-avatar** | variant | accent | — (NOT interactive) | — | icon→icon·icon-name·**prop `icon`**·required (NO `default`) |
 | **topbar** | — | accent | — | — | leading→leading·region · center→center·region · trailing→trailing·region(default) |
 | **tab-bar** | — | accent | — | — | default→(container)·children (repeated tab-bar-items · `multiple`) |
 | **tab-bar-item** | — | accent | root · onPress/(disabled?)/a11yLabel | selected→state (true→selected · false→unselected) | icon→icon·icon-name · label→label·text |
@@ -131,6 +132,16 @@ geneous children are a RICHER render than Topbar's one-shot region routing — n
    and kind-gated (only `icon-name`; never text/node/region/children). The guard enforces `prop` appears
    only on a singular `icon-name` slot. Keeps `<IconButton icon="apple"/>` and `<IconAvatar icon="user"/>`
    ergonomic without a slot-component ceremony for the single-glyph case.
+1c. **`default: true` means exactly "the untagged-children sink"** (operator, 2026-07-01 · Option A · the
+   Phase-2 codegen contract). NOT "the primary slot." The rule codegen implements is one line: *if the
+   consumer passes bare React `children`, route them to the `default` slot's part.* So `<Button>Buy</Button>`
+   → the default `label` slot; `<TabBar>{items}</TabBar>` → the default children slot; `<Topbar>{actions}</Topbar>`
+   → the default `trailing` region. A `default` slot is therefore CHILDREN-delivered — **mutually exclusive
+   with `prop`** (which is prop-delivered · §1a) and never on `kind:'icon-name'`. IconButton/IconAvatar have
+   NO `default` (their glyph is the scalar `icon` prop, not children) — a component with no `default` slot
+   generates `children?: never`. Rejecting "default = primary" now avoids the Phase-4 ambiguity where a
+   composed `<Button icon="…">Send</Button>` would have two plausible "primaries" (text sink vs icon anchor).
+   Guard (Phase 2): `default` ⊥ `prop` · `default` only on `text`/`node`/`region`/`children`.
 2. **accent = Option 1 (universal), but DECLARED** (`api.themeScope.accent: true` on every descriptor). The
    review prefers Option 2 (per-descriptor opt-in) for purity but calls Option 1 acceptable. Nuri's colour
    model already treats accent as a uniform scope on every component ([[rn-colour-provider-model]]) — so
@@ -174,9 +185,32 @@ geneous children are a RICHER render than Topbar's one-shot region routing — n
   `typeFields`, like `NS`/`PartAnatomy`), NOT `aliasForms` whole-RHS strings — object types with fields read
   cleanly field-for-field that way. The synthetic RN test-fixture descriptors gained a minimal
   `api: { axes: [], slots: {} }` to satisfy the now-required field (factory-ignored · no behaviour change).
-- **Phase 2 — codegen exact wrappers/types** → `packages/rn/generated/components/*`. `ButtonProps` (no
-  `icon`/`prefix`/`suffix`), `IconButtonProps` with the declared scalar `icon` prop; each component's real
-  surface. Shares the Arc-2 codegen pass; output committed + drift-gated.
+- **Phase 2 — codegen exact `*Props` types + typed exports · render byte-identical · ✅ DONE.** (a) *Option-A data
+  prereq* — dropped `default` from IconButton/IconAvatar's icon slot (→ `icon:{part,kind:'icon-name',prop:'icon',
+  required:true}`) + guard rules `default` ⊥ `prop`, `default` only on `text|node|region|children` (§1c ·
+  Channels 9/10 · mutation-proven). (b)
+  *Codegen* emits `packages/rn/generated/components/*` from each `api`: `ButtonProps` (children + axes +
+  declared behaviour + accent · **no** `icon`/`prefix`/`suffix`), `IconButtonProps` (required scalar `icon` ·
+  **`children?: never`**), etc. The exports become EXACT-typed bindings over the EXISTING factory instance —
+  `FC<Wide>` is assignable to `FC<Narrow>` (props contravariant), so this NARROWS the type with ZERO runtime
+  change (same `createNuriComponent` instance · same recipe): render snapshots stay byte-identical, only the
+  TYPE surface tightens. The factory internals (heuristics) stay until Phase 3. Shares the Arc-2 codegen pass;
+  output committed + drift-gated. **The load-bearing proof is a TYPE test** (`@ts-expect-error`): `<Button
+  icon="x"/>` errors · `<IconButton icon="x"/>` compiles · `<IconButton>child</IconButton>` errors — tsc IS
+  the gate (the type surface is the deliverable · the render-smoke can't see it). **SHIPPED as:** the emitter
+  `scripts/parsers/components-api.js` (wired into the orchestrator's Slice 8c) reads each descriptor's
+  `api`+`variants` off the authored source via the SAME browser-ESM strip the recipe emit uses; it writes
+  `packages/rn/generated/components/<name>.ts` (per-component `{Name}Props` + the narrowed `React.FC<{Name}Props>`
+  binding · NO cast) + an `index.ts` barrel, which `factory/index.ts` re-exports. The load-bearing proof is
+  `packages/rn/type-tests/component-types.test-d.tsx` (7 `@ts-expect-error` fixtures · checked by
+  `npm run typecheck -w @nuri/rn` · removing a directive → tsc fails, VERIFIED). Three open seams resolved:
+  (1) *compound slots* — the generated Topbar re-attaches + re-exports `TopbarLeading/Center/Trailing` via the
+  unchanged `compoundSlots(instance)` mechanism (derived from the api's `kind:'region'` slots). (2)
+  *TabBarItem icon/label* — emitted as `icon?: IconName` + `label?: string` (TODAY's same-name delivery ·
+  byte-identical · Phase 4 converts them to composed children). (3) *codegen source* — the authored `.ts`
+  (the Arc-2 recipe-emit path · node can't import `.ts`), stated in the emitter header. The naming guard's RN
+  `nuriNames(...)` site moved from `factory/index.ts` to the generated per-component files. All gates green ·
+  8 RN snapshots byte-identical · the 2 twins (icon-avatar/icon-button) re-emitted from the Option-A slot.
 - **Phase 3 — shrink `createNuriComponent` → `renderDescriptorInstance`.** DELETE from the renderer:
   primaryPart guessing · same-name prop routing (`:371`) · the `selected` bridge (`:324`) · compound-slot
   inference from `view` parts · the public `content` hatch. KEEP: anatomy render · baked-recipe apply ·

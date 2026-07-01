@@ -33,7 +33,11 @@
  *   6.  `multiple: true` only on a `kind: 'children'` slot;
  *   7.  `prop` (the scalar shorthand) ONLY on a SINGULAR `kind: 'icon-name'` slot
  *       (Overrides §1a · never text/node/region/children · never a `multiple` slot);
- *   8.  `themeScope.accent` is declared `true` on every descriptor (universal · §2).
+ *   8.  `themeScope.accent` is declared `true` on every descriptor (universal · §2);
+ *   9.  `default: true` is MUTUALLY EXCLUSIVE with `prop` (Option A · §1c — a default
+ *       slot is children-delivered, a prop slot is prop-delivered · Phase-2 codegen);
+ *   10. `default: true` only on a CHILDREN-deliverable kind — text/node/region/children,
+ *       never `icon-name` (Option A · §1c · the untagged-children sink is a subtree).
  *
  * Sibling to docs-drift.test.js / naming.test.js — picked up by the existing
  * `node --test scripts/*.test.js` gate · zero new deps.
@@ -274,6 +278,48 @@ test('component-api · prop only on a singular kind:icon-name slot', () => {
       if (spec.prop === undefined) continue;
       assert.equal(spec.kind, 'icon-name', `${name}: slot '${slot}' declares prop '${spec.prop}' but kind '${spec.kind}' — the scalar shorthand is only legal on kind:'icon-name' (Overrides §1a)`);
       assert.notEqual(spec.multiple, true, `${name}: slot '${slot}' declares prop '${spec.prop}' but is multiple — the scalar shorthand requires a SINGULAR slot`);
+    }
+  }
+});
+
+// ── Channel 9 · `default: true` is MUTUALLY EXCLUSIVE with `prop` (Option A · §1c) ──
+// A `default` slot is CHILDREN-delivered (a bare positional child fills it); a `prop`
+// slot is PROP-delivered (the scalar `icon` shorthand · §1a). The two delivery modes
+// are exclusive — a slot cannot be both the children-sink AND a prop. Phase-2 codegen
+// branches on this (a `default` slot → `children?: ReactNode`; a `prop` slot → the
+// scalar prop; a component with NEITHER → `children?: never`), so the contradiction
+// must fail here.
+test('component-api · default:true is mutually exclusive with prop', () => {
+  for (const name of NAMES) {
+    const d = CATALOG[name];
+    for (const [slot, spec] of slotEntries(d)) {
+      if (spec.default === true) {
+        assert.equal(
+          spec.prop,
+          undefined,
+          `${name}: slot '${slot}' is default:true AND declares prop '${spec.prop}' — a default slot is CHILDREN-delivered, ⊥ the prop-delivered scalar shorthand (Option A · §1c)`,
+        );
+      }
+    }
+  }
+});
+
+// ── Channel 10 · `default: true` only on a CHILDREN-deliverable kind (never icon-name) ──
+// The untagged-children sink accepts a React subtree (`text`/`node`/`region`/
+// `children`); a scalar `icon-name` glyph is NOT children (it is the `prop` shorthand ·
+// §1a). Codegen would mis-generate a `children?: ReactNode` for a glyph slot, so a
+// `default:true` on `kind:'icon-name'` must fail (Option A · §1c).
+const DEFAULT_KINDS = ['text', 'node', 'region', 'children'];
+test('component-api · default:true only on a text/node/region/children slot', () => {
+  for (const name of NAMES) {
+    const d = CATALOG[name];
+    for (const [slot, spec] of slotEntries(d)) {
+      if (spec.default === true) {
+        assert.ok(
+          DEFAULT_KINDS.includes(spec.kind),
+          `${name}: slot '${slot}' is default:true but kind '${spec.kind}' — the untagged-children sink is only legal on ${DEFAULT_KINDS.join('/')} (never icon-name · Option A · §1c)`,
+        );
+      }
     }
   }
 });
