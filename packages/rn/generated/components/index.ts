@@ -1,9 +1,8 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · COMPONENTS · EXACT PUBLIC SURFACE · BARREL · GENERATED · DO NOT EDIT BY HAND
+ * NURI · COMPONENTS · GENERATED RN API ADAPTER BARREL · DO NOT EDIT BY HAND
  *
- * Re-exports every catalog component + its `{Name}Props` type (Path C · Phase 2).
- * The RN factory barrel (packages/rn/factory/index.ts) re-exports THIS module.
- * Emitter · scripts/parsers/components-api.js — run `npm run build`.
+ * Re-exports every catalog component, generated region marker, and `{Name}Props`
+ * type. Emitter · scripts/parsers/components-api.js — run `npm run build`.
  * ────────────────────────────────────────────────────────────── */
 
 export { Button } from './button';

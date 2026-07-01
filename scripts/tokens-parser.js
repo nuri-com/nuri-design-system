@@ -538,15 +538,14 @@ async function main() {
   }
   await writeFile(RECIPES_OUT, recipesSource, 'utf8');
 
-  // ── Slice 8c · component-API codegen emit (Path C · Phase 2 · the exact surface) ──
-  // Per catalog component, emit `{Name}Props` + a typed export at
-  // generated/components/<name>.ts from the descriptor's `api` — the EXACT public
-  // surface (ButtonProps has no icon; IconButtonProps has a required scalar `icon` +
-  // `children?: never`). The export NARROWS the type over the EXISTING factory
-  // instance (FC<Wide> ⊑ FC<Narrow> · same recipe · render byte-identical) — the
-  // renderer is untouched (Phase 3 shrinks it). Reads the `api`/`variants` off the
-  // authored source via the SAME browser-ESM strip the recipe emit uses. Committed +
-  // drift-gated (the re-emit-clean gate). The RN factory barrel re-exports the index.
+  // ── Slice 8c · component-API codegen emit (Path C · Phase 3 · RN adapters) ──
+  // Per catalog component, emit `{Name}Props` + a generated adapter at
+  // generated/components/<name>.ts from the descriptor's `api`. The adapter
+  // normalizes public props into selection/content/behaviour and wraps declared
+  // accent scopes before calling the shared renderer. Reads the `api`/`variants`
+  // off the authored source via the SAME browser-ESM strip the recipe emit uses.
+  // Committed + drift-gated (the re-emit-clean gate). The RN factory barrel
+  // re-exports the index.
   await mkdir(COMPONENTS_OUT, { recursive: true });
   const { files: componentFiles, coverage: componentCoverage } = await emitComponentApi({
     descriptorComponents: DESCRIPTOR_COMPONENTS,
@@ -554,7 +553,7 @@ async function main() {
   });
   const missingComponent = DESCRIPTOR_COMPONENTS.map((s) => s.name).filter((n) => !componentCoverage.includes(n));
   if (missingComponent.length) {
-    throw new Error(`[tokens-parser] component-API codegen coverage gap — no exact surface for: ${missingComponent.join(', ')}`);
+    throw new Error(`[tokens-parser] component-API codegen coverage gap — no generated adapter for: ${missingComponent.join(', ')}`);
   }
   for (const { filename, source } of componentFiles) {
     await writeFile(resolve(COMPONENTS_OUT, filename), source, 'utf8');
@@ -584,7 +583,7 @@ async function main() {
     ).join('') +
     `\n[tokens-parser] wrote palette mapping (${paletteRowCount} rows · SoT-asserted) → ${PALETTE_OUT}` +
     `\n[tokens-parser] wrote baked geometry recipes (${coverage.length} components · geometry-only · Arc 2) → ${RECIPES_OUT}` +
-    `\n[tokens-parser] wrote component-API exact surfaces (${componentCoverage.length} components + index · Path C Phase 2) → ${COMPONENTS_OUT}`,
+    `\n[tokens-parser] wrote component-API RN adapters (${componentCoverage.length} components + index · Path C Phase 3) → ${COMPONENTS_OUT}`,
   );
 }
 

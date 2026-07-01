@@ -1,14 +1,8 @@
 /* ══════════════════════════════════════════════════════════════════
  * NURI · FACTORY · public surface
  * ──────────────────────────────────────────────────────────────────
- * The generic descriptor → RN factory (decision 65 · 65.5 X-wired). ALONGSIDE
- * the hand-written src/nuri/components/* (the golden reference) — proves the
- * frozen contract is consumable end-to-end, it does NOT replace them (R3 ·
- * clean-slate retirement is LAST · 65.5).
- *
- * GENERICITY, demonstrated: the three pre-built components below are the SAME
- * createNuriComponent applied to the three frozen descriptors — zero
- * per-component code.
+ * The RN projection surface: generated component adapters, the shared normalized
+ * descriptor renderer, primitives, theme types, and the DS-owned icon renderer.
  * ══════════════════════════════════════════════════════════════════ */
 
 // The theme PAYLOAD shape (typed) + the interaction baseline are public; the
@@ -27,8 +21,15 @@ export type { NuriTheme, SurfaceRole, ChromeRole } from './theme';
 export { resolveAnatomy } from './resolve';
 export type { AnatomyNode, Selection, State } from './resolve';
 
-export { createNuriComponent, NuriSurfaceContext, nuriNames, pascalCase, compoundSlots } from './createNuriComponent';
-export type { NuriComponentProps, NuriBaseProps, NuriSlot } from './createNuriComponent';
+export {
+  NuriSurfaceContext,
+  nuriNames,
+  pascalCase,
+  createNuriSlot,
+  harvestNuriSlots,
+  renderDescriptorInstance,
+} from './createNuriComponent';
+export type { NuriSlot, NuriBehaviour, NuriDescriptorInstance } from './createNuriComponent';
 
 // The DS-owned RN glyph renderer (the icon contract): resolves a typed `IconName`
 // → the register glyph → react-native-svg. The factory's icon part renders this;
@@ -50,23 +51,11 @@ export type {
   ScrollProps,
 } from './primitives';
 
-// The frozen descriptors, each through the SAME factory — the ergonomic,
-// 1:1-with-web components the RN team consumes. These ARE the public Nuri RN
-// components (the hand-written migration mirrors are retired · R1.5).
-//
-// EXACT-TYPED per component (Path C · Phase 2 · docs/component-api-target.md): the
-// `createNuriComponent` bindings + the per-component `*Props` types now live in the
-// GENERATED codegen output (packages/rn/generated/components/* · emitted from each
-// descriptor's `api` · committed + drift-gated). This barrel RE-EXPORTS them so the
-// public surface is one path. Each export is the EXISTING factory instance NARROWED
-// to its real surface (`FC<Wide>`→`FC<Narrow>` · props contravariant · same instance,
-// same recipe, render byte-identical) — so `<Button icon="x"/>` is now a TYPE error
-// (ButtonProps has no `icon`) and `<IconButton>child</IconButton>` is one too
-// (`children?: never`), while the RUNTIME is unchanged. The compound Topbar's flat
-// region sub-components (TopbarLeading/Center/Trailing) are re-exported from the
-// generated module too (the `compoundSlots` attachment is preserved on the generated
-// instance). The renderer heuristics (primaryPart · same-name routing · the selected
-// bridge) stay UNTOUCHED until Phase 3 — this phase only tightens the TYPE surface.
+// Generated component adapters (Path C · Phase 3). Each descriptor's `api` emits
+// an exact public `*Props` type and a runtime adapter that normalizes public props
+// into selection, content, behaviour, and accent scope before calling the shared
+// renderer. The renderer receives a descriptor instance; it no longer derives a
+// consumer API from anatomy.
 //   <Button variant="solid" size="md" accent="lilac" onPress={…}>Buy</Button>
 //   <IconAvatar variant="soft" icon="apple" />
 //   <IconButton variant="soft" icon="apple" accessibilityLabel="Buy" onPress={…} />

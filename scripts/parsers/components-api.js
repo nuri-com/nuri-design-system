@@ -1,66 +1,26 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · PARSER · COMPONENT-API CODEGEN (Path C · Phase 2)
+ * NURI · PARSER · COMPONENT-API CODEGEN (Path C · Phase 3)
  * ──────────────────────────────────────────────────────────────────
- * The RN projection's per-component PUBLIC-SURFACE emit. Phase 1 made every
- * descriptor DECLARE its `api` (data + guard · scripts/component-api.test.js);
- * this emitter makes that data DO WORK — for each catalog component it emits an
- * EXACT `{Name}Props` type + a typed export at packages/rn/generated/components/
- * <name>.ts, so `@nuri/rn`'s public surface stops being the global `NuriBaseProps`
- * bag and becomes each component's REAL surface (`ButtonProps` with no icon/prefix/
- * suffix; `IconButtonProps` with a required scalar `icon` + `children?: never`).
+ * Emits RN projection component adapters from each descriptor's public `api`.
+ * The generated `{Name}Props` types stay exact, and the generated component
+ * normalizes those props into the renderer's descriptor instance:
+ * `{ selection, content, behaviour }`, plus an `NuriScope` wrapper for accent.
  *
- * ── THE MECHANISM · a TYPE NARROWING, not a rewrite (docs/component-api-target.md
- *    §Phase 2 · §1c) ────────────────────────────────────────────────
- * `createNuriComponent` returns `FC<NuriComponentProps<A>>` (the WIDE bag). The
- * emitted export binds that SAME instance to `FC<{Name}Props>` (the NARROW surface).
- * This is SOUND with NO cast: props are contravariant, so `FC<Wide>` ⊑ `FC<Narrow>`
- * whenever `Narrow` ⊑ `Wide` (every narrow prop is acceptable to the wide bag). The
- * instance, the recipe and the render are UNCHANGED — only the TYPE tightens. The
- * factory internals (the primaryPart / same-name / selected heuristics) stay until
- * Phase 3; the render-smoke snapshots stay byte-identical. The load-bearing proof is
- * the `@ts-expect-error` TYPE test (packages/rn/type-tests/component-types.test-d.tsx),
- * NOT a render snapshot — tsc can't see a runtime, and the render can't see a type.
- *
- * ── THE FIELD MAP (each `api` field → the emitted prop) ────────────
- *   · axes: ['variant','size']         → `variant?: '…' | '…'` (union ← variants[axis] keys)
- *   · themeScope.accent                → `accent?: Accent`
- *   · behaviour.pressable.props        → only the DECLARED subset of
- *                                        onPress?/disabled?/accessibilityLabel?
- *   · propMaps.selected                → `selected?: boolean`
- *   · a `default` slot (children-sink) → `children?: React.ReactNode`
- *   · a slot with `prop` (icon-name)   → `<prop>: IconName` (REQUIRED iff required)
- *   · a non-default icon-name / text slot (tab-bar-item's icon/label · NOT `prop`,
- *     NOT composition yet · Phase 4 converts them) → `<slot>?: IconName` / `?: string`
- *   · a non-default region/node/children slot (topbar's leading/center) → NO prop
- *     (composition via the flat region sub-components · attached on the instance)
- *   · NO `default` slot                → `children?: never`
- *
- * ── SOURCE · the AUTHORED descriptors (the Arc-2 recipe-emit path) ──
- * Reads each descriptor's `api`+`variants` off the AUTHORED source (packages/spec/
- * components/<name>.ts) via the one browser-ESM strip (emitDescriptorJsFromSource +
- * a data:-URL import · node 20 cannot import the .ts), EXACTLY as scripts/parsers/
- * recipes.js does. Byte-identical to reading the committed twin (the twin is that
- * strip's verbatim output · gated by Guard D). Output committed + drift-gated (the
- * `npm run build` re-emit-clean gate · like recipes.ts).
+ * The shared renderer no longer invents public API from anatomy. This emitter is
+ * where declared axes, prop maps, slots, and behaviour become runtime input.
  * ══════════════════════════════════════════════════════════════════ */
 
 import { readFile } from 'node:fs/promises';
 
 import { emitDescriptorJsFromSource, exportNameFor } from './descriptors.js';
 
-// kebab → Pascal (`tab-bar-item` → `TabBarItem`) — the RN name rule (the twin of
-// createNuriComponent's `pascalCase`). Single tokens capitalize + join.
 const pascalCase = (kebab) => kebab.split('-').map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join('');
-// A single part token → its PascalCase (region sub-component: `leading` → `Leading`).
 const pascalPart = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-// lower-first (the compound slots local var: `Topbar` → `topbar`).
 const lowerFirst = (s) => s.charAt(0).toLowerCase() + s.slice(1);
+const q = (value) => JSON.stringify(value);
 
-// The TS type for each legal pressable prop (the schema union · schema.ts).
 const PRESSABLE_TS = { onPress: '() => void', disabled: 'boolean', accessibilityLabel: 'string' };
 
-// A descriptor SOURCE → its live data object (the recipes.js path · the one strip +
-// a data:-URL import · node 20 cannot import the .ts).
 async function loadDescriptor(spec, source) {
   const js = emitDescriptorJsFromSource(spec, source);
   const mod = await import('data:text/javascript,' + encodeURIComponent(js));
@@ -71,53 +31,38 @@ async function loadDescriptor(spec, source) {
   return descriptor;
 }
 
-// ── buildProps · the descriptor's `api` → the emitted `{Name}Props` field lines +
-// the import/compound bookkeeping (usesAccent/usesIcon/regionParts). ──
 function buildProps(api, variants) {
   const lines = [];
   let usesAccent = false;
   let usesIcon = false;
   let hasDefault = false;
 
-  // axes → the public style-prop unions (values ← variants[axis] keys · the guard
-  // pins every api.axes member is a real variants axis).
   for (const axis of api.axes) {
     const values = Object.keys(variants[axis] || {});
     if (!values.length) continue;
     lines.push(`  ${axis}?: ${values.map((v) => `'${v}'`).join(' | ')};`);
   }
 
-  // accent — the universal-but-DECLARED theme scope (Overrides §2).
   if (api.themeScope && api.themeScope.accent) {
     usesAccent = true;
     lines.push('  accent?: Accent;');
   }
 
-  // behaviour — only the DECLARED subset of the pressable props.
   const pressableProps = (api.behaviour && api.behaviour.pressable && api.behaviour.pressable.props) || [];
   for (const p of pressableProps) lines.push(`  ${p}?: ${PRESSABLE_TS[p]};`);
 
-  // the `selected`→state bridge as a clean consumer boolean (propMaps.selected).
   if (api.propMaps && api.propMaps.selected) lines.push('  selected?: boolean;');
 
-  // slots — the content entry points (the field map above).
   for (const [slotName, slot] of Object.entries(api.slots)) {
     if (slot.default === true) {
-      // the untagged-children sink (Option A · §1c) → `children?: React.ReactNode`
-      // (emitted last, below); never a named prop.
       hasDefault = true;
       continue;
     }
     if (slot.prop) {
-      // the scalar icon-name shorthand (Overrides §1a) — REQUIRED iff `required`.
       usesIcon = true;
       lines.push(`  ${slot.prop}${slot.required ? '' : '?'}: IconName;`);
       continue;
     }
-    // a non-default, non-prop slot. icon-name / text slots (tab-bar-item's
-    // icon/label) route TODAY's same-name props (byte-identical · Phase 4 converts
-    // them to composed children); region/node/children slots are composition
-    // (the flat sub-components), NOT props.
     if (slot.kind === 'icon-name') {
       usesIcon = true;
       lines.push(`  ${slotName}?: IconName;`);
@@ -126,27 +71,85 @@ function buildProps(api, variants) {
     }
   }
 
-  // the children channel — the sink when there is a `default` slot, else FORBIDDEN
-  // (`children?: never` · a component with no untagged-children slot).
   lines.push(hasDefault ? '  children?: React.ReactNode;' : '  children?: never;');
 
-  // region slots (kind:'region') → the compound flat sub-components attached on the
-  // instance (createNuriComponent.compoundSlots) · preserved on the generated export.
   const regionParts = Object.values(api.slots).filter((s) => s.kind === 'region').map((s) => s.part);
-
   return { lines, usesAccent, usesIcon, regionParts };
+}
+
+function fallbackSelectionValue(descriptor, axis, values) {
+  return descriptor.defaults?.[axis] ?? values[0];
+}
+
+function emitSelection(descriptor) {
+  const variants = descriptor.variants || {};
+  const publicAxes = new Set(descriptor.api.axes || []);
+  const lines = ['  const selection: Record<string, string> = {'];
+  for (const [axis, table] of Object.entries(variants)) {
+    const values = Object.keys(table);
+    if (!values.length) continue;
+    const fallback = q(fallbackSelectionValue(descriptor, axis, values));
+    const value = publicAxes.has(axis) ? `props.${axis} ?? ${fallback}` : fallback;
+    lines.push(`    ${q(axis)}: ${value},`);
+  }
+  lines.push('  };');
+
+  const selected = descriptor.api.propMaps && descriptor.api.propMaps.selected;
+  if (selected) {
+    lines.push(
+      '  if (typeof props.selected === \'boolean\') {',
+      `    selection[${q(selected.axis)}] = props.selected ? ${q(selected.true)} : ${q(selected.false)};`,
+      '  }',
+    );
+  }
+  return lines;
+}
+
+function emitContent(api) {
+  const lines = ['  const content: Partial<Record<Part, React.ReactNode>> = {};'];
+  const regionSlots = Object.values(api.slots).filter((slot) => slot.kind === 'region');
+  const fallbackRegion = Object.values(api.slots).find((slot) => slot.kind === 'region' && slot.default === true);
+
+  if (regionSlots.length) {
+    lines.push(`  const harvested = harvestNuriSlots(props.children, ${fallbackRegion ? q(fallbackRegion.part) : 'undefined'});`);
+    for (const slot of regionSlots) {
+      lines.push(`  if (harvested[${q(slot.part)}] !== undefined) content[${q(slot.part)}] = harvested[${q(slot.part)}];`);
+    }
+  }
+
+  for (const [slotName, slot] of Object.entries(api.slots)) {
+    if (slot.kind === 'region') continue;
+    if (slot.default === true) {
+      lines.push(`  if (props.children !== undefined) content[${q(slot.part)}] = props.children;`);
+      continue;
+    }
+    const prop = slot.prop || (slot.kind === 'icon-name' || slot.kind === 'text' ? slotName : null);
+    if (prop) lines.push(`  if (props.${prop} !== undefined) content[${q(slot.part)}] = props.${prop};`);
+  }
+
+  return lines;
+}
+
+function emitBehaviour(api) {
+  const pressable = api.behaviour && api.behaviour.pressable;
+  const lines = ['  const behaviour: NuriBehaviour = {};'];
+  if (!pressable) return lines;
+
+  lines.push('  behaviour.pressable = {', `    target: ${q(pressable.target)},`);
+  for (const prop of pressable.props) lines.push(`    ${prop}: props.${prop},`);
+  lines.push('  };');
+  return lines;
 }
 
 function fileHeader(name) {
   return [
     '/* ──────────────────────────────────────────────────────────────',
-    ` * NURI · COMPONENT · ${name.toUpperCase()} · EXACT PUBLIC SURFACE · GENERATED · DO NOT EDIT BY HAND`,
+    ` * NURI · COMPONENT · ${name.toUpperCase()} · GENERATED RN API ADAPTER · DO NOT EDIT BY HAND`,
     ' *',
-    ` * The EXACT-typed public export for \`${name}\` (Path C · Phase 2). \`{Name}Props\``,
+    ` * The exact public export for \`${name}\` (Path C · Phase 3). \`{Name}Props\``,
     " * is emitted from the descriptor's `api` (packages/spec/components/" + name + '.ts);',
-    ' * the export binds the EXISTING createNuriComponent instance to it — a TYPE',
-    ' * NARROWING over the wide `NuriComponentProps` bag (FC<Wide> ⊑ FC<Narrow> · props',
-    ' * contravariant · NO cast · same instance · same recipe · render byte-identical).',
+    ' * the component adapter normalizes public props into selection, content,',
+    ' * behaviour, and accent scope before calling the shared descriptor renderer.',
     ' *',
     ' * Source · the authored descriptor `api`+`variants`. Emitter · scripts/parsers/',
     ' * components-api.js — run `npm run build`. Committed (decision 35) · the re-emit',
@@ -156,57 +159,89 @@ function fileHeader(name) {
   ].join('\n');
 }
 
-// ── emitComponentFile · one descriptor → its generated/components/<name>.ts ──
 export function emitComponentFile(spec, descriptor) {
   const name = spec.name;
   const Pascal = pascalCase(name);
+  const local = lowerFirst(Pascal);
   const descId = exportNameFor(name);
   const { lines, usesAccent, usesIcon, regionParts } = buildProps(descriptor.api, descriptor.variants || {});
-  const isCompound = regionParts.length > 0;
+  const hasRegions = regionParts.length > 0;
+
+  const factoryImports = ['nuriNames', 'renderDescriptorInstance'];
+  if (hasRegions) factoryImports.push('createNuriSlot', 'harvestNuriSlots');
 
   const imports = [
     "import * as React from 'react';",
-    `import { createNuriComponent, nuriNames${isCompound ? ', compoundSlots' : ''} } from '../../factory/createNuriComponent';`,
+    `import { ${factoryImports.join(', ')} } from '../../factory/createNuriComponent';`,
+    "import type { NuriBehaviour } from '../../factory/createNuriComponent';",
     `import { ${descId} } from '@nuri/spec/descriptors/${name}';`,
     "import { recipes } from '../recipes';",
+    "import type { Part } from '../../contract';",
   ];
-  if (usesAccent) imports.push("import type { Accent } from '../tokens';");
+  if (usesAccent) {
+    imports.push("import { NuriScope } from '../../theme';");
+    imports.push("import type { Accent } from '../tokens';");
+  }
   if (usesIcon) imports.push("import type { IconName } from '../icons';");
 
+  const displayNameConst = `${local}DisplayName`;
+  const innerName = `${Pascal}Inner`;
   const body = [
     `export type ${Pascal}Props = {`,
     ...lines,
     '};',
     '',
-    `export const ${Pascal}: React.FC<${Pascal}Props> = createNuriComponent(`,
-    `  ${descId},`,
-    `  nuriNames('${name}').rn,`,
-    `  recipes['${name}'],`,
-    ');',
+    `const ${displayNameConst} = nuriNames('${name}').rn;`,
   ];
 
-  if (isCompound) {
-    const slotsVar = `${lowerFirst(Pascal)}Slots`;
-    body.push('', `const ${slotsVar} = compoundSlots(${Pascal});`);
+  if (hasRegions) {
     for (const part of regionParts) {
-      const slotId = `${Pascal}${pascalPart(part)}`;
-      body.push(`export const ${slotId} = ${slotsVar}.${slotId};`);
+      body.push(`export const ${Pascal}${pascalPart(part)} = createNuriSlot(${q(part)}, \`${'${'}${displayNameConst}}${pascalPart(part)}\`);`);
     }
+  }
+
+  body.push(
+    '',
+    `const ${innerName}: React.FC<${Pascal}Props> = (props) => {`,
+    ...emitSelection(descriptor),
+    ...emitContent(descriptor.api),
+    ...emitBehaviour(descriptor.api),
+    '',
+    '  return renderDescriptorInstance({',
+    `    descriptor: ${descId},`,
+    `    recipe: recipes[${q(name)}],`,
+    `    displayName: ${displayNameConst},`,
+    '    selection,',
+    '    content,',
+    '    behaviour,',
+    '  });',
+    '};',
+    `${innerName}.displayName = \`${'${'}${displayNameConst}}Inner\`;`,
+    '',
+  );
+
+  if (usesAccent) {
+    body.push(
+      `export const ${Pascal}: React.FC<${Pascal}Props> = (props) =>`,
+      '  props.accent !== undefined',
+      `    ? React.createElement(NuriScope, { accent: props.accent, children: React.createElement(${innerName}, props) })`,
+      `    : React.createElement(${innerName}, props);`,
+      `${Pascal}.displayName = ${displayNameConst};`,
+    );
+  } else {
+    body.push(`export const ${Pascal}: React.FC<${Pascal}Props> = ${innerName};`);
   }
 
   return fileHeader(name) + '\n' + imports.join('\n') + '\n\n' + body.join('\n') + '\n';
 }
 
-// ── the index barrel · re-exports every component + its Props type (+ region
-// sub-components), so the RN factory barrel re-exports ONE path. ──
 function emitIndex(entries) {
   const header = [
     '/* ──────────────────────────────────────────────────────────────',
-    ' * NURI · COMPONENTS · EXACT PUBLIC SURFACE · BARREL · GENERATED · DO NOT EDIT BY HAND',
+    ' * NURI · COMPONENTS · GENERATED RN API ADAPTER BARREL · DO NOT EDIT BY HAND',
     ' *',
-    ' * Re-exports every catalog component + its `{Name}Props` type (Path C · Phase 2).',
-    ' * The RN factory barrel (packages/rn/factory/index.ts) re-exports THIS module.',
-    ' * Emitter · scripts/parsers/components-api.js — run `npm run build`.',
+    ' * Re-exports every catalog component, generated region marker, and `{Name}Props`',
+    ' * type. Emitter · scripts/parsers/components-api.js — run `npm run build`.',
     ' * ────────────────────────────────────────────────────────────── */',
     '',
   ].join('\n');
@@ -219,9 +254,6 @@ function emitIndex(entries) {
   return header + '\n' + lines.join('\n') + '\n';
 }
 
-// ── emitComponentApi · the orchestrator step (tokens-parser.js). Loads every roster
-// descriptor, emits its exact-surface file + the index barrel, and returns
-// { files: [{ filename, source }], coverage } (coverage = the emitted names). ──
 export async function emitComponentApi({ descriptorComponents, descriptorsDir }) {
   const files = [];
   const indexEntries = [];

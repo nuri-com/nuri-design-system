@@ -1,11 +1,10 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · COMPONENT · TAB-BAR · EXACT PUBLIC SURFACE · GENERATED · DO NOT EDIT BY HAND
+ * NURI · COMPONENT · TAB-BAR · GENERATED RN API ADAPTER · DO NOT EDIT BY HAND
  *
- * The EXACT-typed public export for `tab-bar` (Path C · Phase 2). `{Name}Props`
+ * The exact public export for `tab-bar` (Path C · Phase 3). `{Name}Props`
  * is emitted from the descriptor's `api` (packages/spec/components/tab-bar.ts);
- * the export binds the EXISTING createNuriComponent instance to it — a TYPE
- * NARROWING over the wide `NuriComponentProps` bag (FC<Wide> ⊑ FC<Narrow> · props
- * contravariant · NO cast · same instance · same recipe · render byte-identical).
+ * the component adapter normalizes public props into selection, content,
+ * behaviour, and accent scope before calling the shared descriptor renderer.
  *
  * Source · the authored descriptor `api`+`variants`. Emitter · scripts/parsers/
  * components-api.js — run `npm run build`. Committed (decision 35) · the re-emit
@@ -13,9 +12,12 @@
  * ────────────────────────────────────────────────────────────── */
 
 import * as React from 'react';
-import { createNuriComponent, nuriNames } from '../../factory/createNuriComponent';
+import { nuriNames, renderDescriptorInstance } from '../../factory/createNuriComponent';
+import type { NuriBehaviour } from '../../factory/createNuriComponent';
 import { tabBarDescriptor } from '@nuri/spec/descriptors/tab-bar';
 import { recipes } from '../recipes';
+import type { Part } from '../../contract';
+import { NuriScope } from '../../theme';
 import type { Accent } from '../tokens';
 
 export type TabBarProps = {
@@ -23,8 +25,28 @@ export type TabBarProps = {
   children?: React.ReactNode;
 };
 
-export const TabBar: React.FC<TabBarProps> = createNuriComponent(
-  tabBarDescriptor,
-  nuriNames('tab-bar').rn,
-  recipes['tab-bar'],
-);
+const tabBarDisplayName = nuriNames('tab-bar').rn;
+
+const TabBarInner: React.FC<TabBarProps> = (props) => {
+  const selection: Record<string, string> = {
+  };
+  const content: Partial<Record<Part, React.ReactNode>> = {};
+  if (props.children !== undefined) content["root"] = props.children;
+  const behaviour: NuriBehaviour = {};
+
+  return renderDescriptorInstance({
+    descriptor: tabBarDescriptor,
+    recipe: recipes["tab-bar"],
+    displayName: tabBarDisplayName,
+    selection,
+    content,
+    behaviour,
+  });
+};
+TabBarInner.displayName = `${tabBarDisplayName}Inner`;
+
+export const TabBar: React.FC<TabBarProps> = (props) =>
+  props.accent !== undefined
+    ? React.createElement(NuriScope, { accent: props.accent, children: React.createElement(TabBarInner, props) })
+    : React.createElement(TabBarInner, props);
+TabBar.displayName = tabBarDisplayName;

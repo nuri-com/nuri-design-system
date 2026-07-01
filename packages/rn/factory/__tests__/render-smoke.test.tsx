@@ -157,7 +157,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
   test('IconButton — the `icon` prop wins · stray children do NOT hijack the glyph', () => {
     const tr = render(
       <NuriThemeProvider>
-        {/* @ts-expect-error Path C · Phase 2 narrows IconButton to `children?: never` — the type now FORBIDS this at the call site (that IS the fix). This runtime lock stays: the factory internals (untouched until Phase 3) still DROP stray children, so a JS caller can't hijack the glyph either. */}
+        {/* @ts-expect-error Path C emits IconButton with `children?: never` — the type FORBIDS this at the call site. This runtime lock stays: the generated adapter ignores forbidden children and routes the declared `icon` prop into the glyph, so a JS caller can't hijack it either. */}
         <IconButton icon="wallet" accessibilityLabel="Wallet">stray</IconButton>
       </NuriThemeProvider>,
     );
@@ -170,7 +170,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
   test('IconAvatar — the `icon` prop wins · stray children do NOT hijack the glyph', () => {
     const tr = render(
       <NuriThemeProvider>
-        {/* @ts-expect-error Path C · Phase 2 narrows IconAvatar to `children?: never` — the type now FORBIDS this. The runtime lock stays (the factory still drops stray children until Phase 3). */}
+        {/* @ts-expect-error Path C emits IconAvatar with `children?: never` — the type FORBIDS this. The generated adapter ignores forbidden children and routes the declared `icon` prop into the glyph. */}
         <IconAvatar icon="wallet">stray</IconAvatar>
       </NuriThemeProvider>,
     );
