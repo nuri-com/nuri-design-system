@@ -33,8 +33,8 @@ import { Pressable, Text, View } from 'react-native';
 import type { Accent, Descriptor, Axes, Part, IconName } from '../contract';
 import { typeStyle, useNuriTheme, NuriScope } from '../theme';
 import type { NuriTheme } from './theme';
-import { resolveAnatomy, flattenPart, assertNever } from './resolve';
-import type { AnatomyNode, Selection } from './resolve';
+import { resolveAnatomy, flattenBakedPart, assertNever } from './resolve';
+import type { AnatomyNode, Selection, BakedComponentRecipe } from './resolve';
 import { NuriIcon } from './NuriIcon';
 
 // §12 surface context — the resolved foreground a surface provides to propless
@@ -120,6 +120,7 @@ export function compoundSlots(component: unknown): Record<string, NuriSlot> {
 
 type RenderCtx<A extends Axes> = {
   descriptor: Descriptor<A>;
+  recipe: BakedComponentRecipe;
   theme: NuriTheme;
   selection: Selection;
   disabled: boolean;
@@ -140,7 +141,12 @@ function renderPart<A extends Axes>(
   // (it may be an open host / pivot with no own content · Topbar).
   if (node.el !== 'view' && ctx.content[node.name] == null) return null;
 
-  const flat = flattenPart(ctx.descriptor, ctx.theme, node.name, ctx.selection, {
+  // LOAD the baked geometry for this part (Arc 2 · D11) — a loud throw if it is
+  // missing (no silent runtime fallback · closed = baked · brief §Open seams).
+  const recipePart = ctx.recipe[node.name];
+  if (!recipePart) throw new Error(`nuri-factory: no baked recipe for part '${node.name}'`);
+
+  const flat = flattenBakedPart(recipePart, ctx.descriptor, ctx.theme, node.name, ctx.selection, {
     pressed: false,
     disabled: ctx.disabled,
   });
@@ -188,7 +194,7 @@ function renderPart<A extends Axes>(
             accessibilityLabel={ctx.accessibilityLabel}
             {...a11yHide}
             style={({ pressed }) =>
-              flattenPart(ctx.descriptor, ctx.theme, node.name, ctx.selection, {
+              flattenBakedPart(recipePart, ctx.descriptor, ctx.theme, node.name, ctx.selection, {
                 pressed,
                 disabled: ctx.disabled,
               }).style
@@ -256,7 +262,12 @@ function renderPart<A extends Axes>(
 export function createNuriComponent<A extends Axes>(
   descriptor: Descriptor<A>,
   displayName = 'NuriComponent',
+  recipe?: BakedComponentRecipe,
 ): React.FC<NuriComponentProps<A>> {
+  // The build-time-static geometry slice (Arc 2 · D11) — a closed component MUST
+  // be given its baked recipe (generated/recipes.ts). No silent fallback to the
+  // runtime resolver: a missing recipe is a build/wiring bug, thrown loudly here.
+  if (!recipe) throw new Error(`nuri-factory: createNuriComponent('${displayName}') requires a baked recipe`);
   const anatomy = resolveAnatomy(descriptor);
   const axisNames: string[] = descriptor.variants ? Object.keys(descriptor.variants) : [];
 
@@ -366,6 +377,7 @@ export function createNuriComponent<A extends Axes>(
       anatomy,
       {
         descriptor,
+        recipe,
         theme,
         selection,
         disabled: base.disabled ?? false,

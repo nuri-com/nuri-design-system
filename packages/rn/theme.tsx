@@ -16,8 +16,10 @@
  *                      for root · scope · prop-accent (SEED-4).
  *   useNuriTheme()     one useContext lookup → the ThemePayload.
  *   useRuntimeTokens() the raw (accent × mode) RuntimeTokens slice (payload.slices).
- *   resolveToken()     dereference a TokenPath → string (colour) | number
- *                      (dimension). The contract signature is (tokens, path).
+ *   resolveToken()     dereference a COLOUR TokenPath (chrome.* | accent.*) → hex
+ *                      string. The contract signature is (tokens, path). Colour-only
+ *                      now (Arc 2) — the dead dimension arm + the string|number union
+ *                      are gone; closed components read baked px, primitives the scales.
  *   useToken()         ergonomic single-arg form: resolveToken(slice, path).
  *   typeStyle()        the ONE relative→absolute type conversion (the place
  *                      a future × fontScale / Dynamic Type lands · P11).
@@ -114,21 +116,27 @@ export function useRuntimeTokens(): RuntimeTokens {
   return React.useContext(NuriThemeContext).slices;
 }
 
-// ── resolveToken · consumer-side dereference (decision 34) ────────
-// The frozen build emits TokenPath strings; this turns a path into a concrete
-// value by indexing the live slice. Returns string for colour leaves
-// (chrome/accent), number for dimension leaves (space/size/radius) — handle the
-// union at the call site (cast `as string` / `as number`).
-export function resolveToken(tokens: RuntimeTokens, path: TokenPath): string | number {
+// ── ColourTokenPath · the COLOUR half of TokenPath (chrome.* | accent.*) ──
+// resolveToken is COLOUR-ONLY now (Arc 2 · D11 ride-along): the dimension arm
+// (space/size/radius) is dead — closed components read BAKED px, open primitives
+// import the static scales. So the slice holds only colour, the path is narrowed
+// to the colour leaves, and the return is a plain hex `string` (the `string|number`
+// union + the `as string`/`as number` call-site casts are gone).
+export type ColourTokenPath = Extract<TokenPath, `chrome.${string}` | `accent.${string}`>;
+
+// ── resolveToken · consumer-side COLOUR dereference (decision 34) ──
+// The frozen build emits TokenPath strings; this turns a COLOUR path into its hex
+// by indexing the live (chrome | accent) slice.
+export function resolveToken(tokens: RuntimeTokens, path: ColourTokenPath): string {
   const [group, leaf] = path.split('.') as [keyof RuntimeTokens, string];
-  return (tokens[group] as Record<string, string | number>)[leaf];
+  return (tokens[group] as Record<string, string>)[leaf];
 }
 
 // ── useToken · ergonomic single-arg dereference ───────────────────
 // Sugar over resolveToken(useRuntimeTokens(), path) for the common case of a
-// one-off lookup in a component body. The contract primitive stays the pure
+// one-off colour lookup in a component body. The contract primitive stays the pure
 // two-arg resolveToken; this just spares the slice plumbing.
-export function useToken(path: TokenPath): string | number {
+export function useToken(path: ColourTokenPath): string {
   return resolveToken(useRuntimeTokens(), path);
 }
 

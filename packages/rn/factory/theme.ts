@@ -16,10 +16,10 @@
  *   text·border                            (the chrome text/border roles)
  *   type·space·size·radius                 (theme-invariant scales)
  *   interaction { pressScale·disabledOpacity }   (the not-colour effects)
- *   slices    the RAW orthogonal { chrome, accent, … } slices — the ADVANCED
- *             primitive surface (useToken/resolveToken · NOT the encouraged
- *             path; component semantics read `.surface`/`.chrome`, never a
- *             base token).
+ *   slices    the RAW orthogonal { chrome, accent } COLOUR slices — the ADVANCED
+ *             primitive surface (useToken/resolveToken · colour-only now · NOT the
+ *             encouraged path; component semantics read `.surface`/`.chrome`, never
+ *             a base token). space/size/radius dropped from slices (Arc 2 · D11).
  *
  * The colour half is BUILT FROM THE FROZEN palette mapping (generated/
  * palette.ts · the {variant|chrome} → colour-REF data · decision 65.1/65.2).
@@ -67,16 +67,16 @@ type ChromeSlice = typeof chrome.light;
 type AccentTable = (typeof accentTokens)[Accent];
 export type AccentSlice = { [K in keyof AccentTable]: string };
 
-// ── RuntimeTokens · the RAW orthogonal slices (the advanced primitive surface) ──
-// chrome is theme-keyed; accent is the mode-collapsed AccentSlice; space/size/
-// radius are cascade-invariant singletons. `resolveToken` dereferences a
-// TokenPath against this (string for colour leaves, number for dimension leaves).
+// ── RuntimeTokens · the RAW orthogonal COLOUR slices (the advanced primitive surface) ──
+// chrome is theme-keyed; accent is the mode-collapsed AccentSlice. `resolveToken`
+// dereferences a COLOUR TokenPath (chrome.* | accent.*) against this → a hex string.
+// space/size/radius are GONE from the slices (Arc 2 · D11 ride-along): they are
+// cascade-invariant singletons no closed path reads at runtime anymore — the closed
+// components read BAKED px (generated/recipes.ts) and the open primitives import the
+// static scales directly (contract). resolveToken narrowed to colour-only alongside.
 export type RuntimeTokens = {
   chrome: ChromeSlice;
   accent: AccentSlice;
-  space: typeof space;
-  size: typeof size;
-  radius: typeof radius;
 };
 
 // ── Resolved roles (the §11 shapes) ──────────────────────────────
@@ -209,6 +209,6 @@ export function buildNuriTheme(accent: Accent, mode: Theme): ThemePayload {
     size,
     radius,
     interaction: INTERACTION_BASELINE,
-    slices: { chrome: chromeSlice, accent: acc, space, size, radius },
+    slices: { chrome: chromeSlice, accent: acc },
   };
 }

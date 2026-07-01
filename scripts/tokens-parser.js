@@ -88,6 +88,8 @@ import {
   emitPaletteTs,
 } from './parsers/palette.js';
 
+import { emitRecipes } from './parsers/recipes.js';
+
 // (parsers/docs.js · emitDocPage / buildDocTokenInputs · MOVED to @nuri/doc at
 // N+42 · the A4 carve · convergence §5. @nuri/spec no longer transforms data → docs.)
 
@@ -184,6 +186,9 @@ const TYPOGRAPHY_SRC   = resolve(SPEC_ROOT, 'tokens/typography.ts');
 const INTERACTION_SRC  = resolve(SPEC_ROOT, 'axes/interaction.ts');
 const PALETTE_SURFACE_SRC = resolve(SPEC_ROOT, 'axes/palette-surface.ts');
 const TYPOGRAPHY_AXIS_SRC = resolve(SPEC_ROOT, 'axes/typography-axis.ts');
+const RESOLVE_MAP_SRC     = resolve(SPEC_ROOT, 'axes/resolve-map.ts');
+const PROPERTY_SPELLING_SRC = resolve(SPEC_ROOT, 'axes/property-spelling.ts');
+const INTERACTIVE_EFFECTS_SRC = resolve(SPEC_ROOT, 'axes/interactive-effects.ts');
 const DESCRIPTORS_SRC  = resolve(SPEC_ROOT, 'components');
 const ICONS_DIR        = resolve(SPEC_ROOT, 'icons');
 // ── outputs · the RN projection (committed · Movement A) ──
@@ -192,6 +197,7 @@ const INTERACTION_OUT  = resolve(RN_GENERATED, 'interaction.ts');
 const TOKEN_PATHS_OUT  = resolve(RN_GENERATED, 'token-paths.ts');
 const ICONS_OUT        = resolve(RN_GENERATED, 'icons.ts');
 const PALETTE_OUT      = resolve(RN_GENERATED, 'palette.ts');
+const RECIPES_OUT      = resolve(RN_GENERATED, 'recipes.ts');
 // ── outputs · the web projection (committed · Movement B) ──
 const JSON_OUT         = resolve(PROTO_GENERATED, 'tokens.json');
 const TOKEN_VARS_OUT   = resolve(PROTO_GENERATED, 'token-vars.ts');
@@ -507,6 +513,31 @@ async function main() {
   const paletteRowCount =
     Object.keys(paletteCells.variant).length + Object.keys(paletteCells.chrome).length;
 
+  // ── Slice 8b · baked geometry recipe emit (Arc 2 · D11 + D5 · the geometry bake) ──
+  // box/stack/typography/interactive are STATIC — resolve them ONCE here into
+  // generated/recipes.ts (per component → part) so the RN factory LOADS + composes
+  // them instead of re-resolving every render (D11). The Node applier reuses the
+  // single-sourced resolve-map/property-spelling/scale tables (the RN twin of the web
+  // namespace-CSS emit); the oracle-equivalence guard binds it to the runtime resolver.
+  // COLOUR-FREE by construction (palette skipped) — colour is the Arc-1 runtime path.
+  const { source: recipesSource, coverage } = await emitRecipes({
+    descriptorComponents: DESCRIPTOR_COMPONENTS,
+    descriptorsDir: DESCRIPTORS_SRC,
+    resolveMapPath: RESOLVE_MAP_SRC,
+    propertySpellingPath: PROPERTY_SPELLING_SRC,
+    interactivePath: INTERACTIVE_EFFECTS_SRC,
+    dims,
+    interaction,
+  });
+  // COVERAGE · every roster component MUST have a baked recipe (no silent gap · the
+  // factory throws on a missing recipe · brief §Open seams). A loud build failure here
+  // is the earliest tripwire.
+  const missing = DESCRIPTOR_COMPONENTS.map((s) => s.name).filter((n) => !coverage.includes(n));
+  if (missing.length) {
+    throw new Error(`[tokens-parser] baked recipe coverage gap — no recipe for: ${missing.join(', ')}`);
+  }
+  await writeFile(RECIPES_OUT, recipesSource, 'utf8');
+
   // (Slice 9 · the component doc page emit · MOVED to @nuri/doc at N+42 · the A4
   // carve. The doc-gen [emitDocPage / buildDocTokenInputs / docIrFromDescriptor]
   // left @nuri/spec — transforming the descriptor + token DATA → Markdown is now
@@ -529,7 +560,8 @@ async function main() {
     descriptorReports.map((r) =>
       `\n[tokens-parser] wrote descriptor '${r.name}' browser-ESM twin (.ts copy dropped · rn imports source) → ${r.out}`,
     ).join('') +
-    `\n[tokens-parser] wrote palette mapping (${paletteRowCount} rows · SoT-asserted) → ${PALETTE_OUT}`,
+    `\n[tokens-parser] wrote palette mapping (${paletteRowCount} rows · SoT-asserted) → ${PALETTE_OUT}` +
+    `\n[tokens-parser] wrote baked geometry recipes (${coverage.length} components · geometry-only · Arc 2) → ${RECIPES_OUT}`,
   );
 }
 

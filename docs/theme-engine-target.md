@@ -1,10 +1,12 @@
 # Target design — the theme / resolution engine (materialize at build · select at runtime)
 
-> **Status: COLOUR ARC (SEED-4) SETTLED + LANDED · GEOMETRY ARC (D11+D5) STILL RFC.** This note tracks
-> the debt-register's biggest finding (*the RN resolution engine doesn't match its documented design*) as
-> two arcs. **Arc 1 (colour · SEED-4) is DONE** — the RN colour path resolves ONCE at the provider
-> (Option B · below), proven a byte-identical rename. **Arc 2 (geometry · D11+D5) is the remaining RFC** —
-> box/stack/typography still resolve at runtime; their build-time bake is future work. The diagnosis is in
+> **Status: BOTH ARCS SETTLED + LANDED.** This note tracks the debt-register's biggest finding (*the RN
+> resolution engine doesn't match its documented design*) as two arcs. **Arc 1 (colour · SEED-4) is DONE**
+> — the RN colour path resolves ONCE at the provider (Option B · below), proven a byte-identical rename.
+> **Arc 2 (geometry · D11+D5) is DONE** — box/stack/typography/interactive are BAKED at build
+> (`generated/recipes.ts`) and the factory LOADS + composes them (`flattenBakedPart`), retiring
+> `flattenPart`'s per-render geometry resolution from the closed-component path; proven byte-identical by
+> the oracle-equivalence guard + unchanged render snapshots. The diagnosis is in
 > [`debt-register.md`](./debt-register.md), the principle is the handoff's PHILOSOPHY §2.
 
 ## The north star (handoff PHILOSOPHY §2)
@@ -72,32 +74,53 @@ byte-for-byte — and BINDS to the mapping (mutate one palette cell → RED). GR
 rename, safe to delete; the render-smoke + recipe snapshots stayed byte-identical (the companion
 end-to-end proof).
 
-## Arc 2 · Geometry (D11 + D5) — RFC (still runtime-resolved · future work)
+## Arc 2 · Geometry (D11 + D5) — SETTLED · Option A (build-time bake)
 
-Box/stack/typography are STATIC (a pure function of the descriptor + selection · no context input) yet are
-still resolved **at runtime** (`flattenPart`/`applyFields` per render + per press · D11), though the
-README promises "100% static · zero-runtime slice." The correct build-time form ALREADY EXISTS but is
-unused-in-production: `toUnistylesRecipe`'s `{ base, variants }` (D5 · computed and discarded). This arc
-is untouched by SEED-4 (deliberately — one seam per PR).
+Box/stack/typography/interactive are STATIC (a pure function of the descriptor + selection · no context
+input) yet were resolved **at runtime** (`flattenPart`/`applyFields` per render + per press · D11), though
+the README promises "100% static · zero-runtime slice." The correct build-time form already existed but was
+test-only and baked colour (`toUnistylesRecipe`'s `{ base, variants }` · D5). This arc BAKES the geometry at
+build and shrinks the runtime to "load the baked slice · merge colour + type + state."
 
-### Target shape (unchanged from the original RFC)
-1. **Emit the per-component precomputed recipe** — promote `toUnistylesRecipe`'s `{ base, variants }` from
-   test-only to the build emit: box/stack/typography baked to CONCRETE values (static · D11 closed);
-   colour parts as role-REFERENCES (already the runtime selection · Arc 1); interactive as the state
-   patches (runtime · state).
-2. **Repoint the factory render**: LOAD the recipe + apply the interactive patch on state, retiring
-   `flattenPart`'s per-render geometry resolution.
-3. **Keep** `typeStyle`/fontScale (typography bakes its METRICS, but the `× fontScale` Dynamic-Type
-   multiply is a genuine RUNTIME input · P11 · the ONE legit runtime composition in the static set).
+### What landed
+1. **The baked artifact** — `generated/recipes.ts` (committed · drift-gated), keyed by component → part:
+   `{ el, open?, geometry: { base, variants }, typeStep?, interactive? }`. **Geometry-only + theme-
+   INDEPENDENT + multi-channel** — box/stack baked to concrete ViewStyle, typography baked as the `{ size,
+   emphasis }` REF (not metrics · the `× fontScale` seam stays runtime · P11), interactive as static state
+   patches (`pressedStatic`/`disabledStatic` · theme-free constants) + a `pressColor` MARKER. **NO colour
+   in the artifact** — no `backgroundColor`/`fg`/`pressedBg`/hex/accent·mode variant (the no-colour guard
+   enforces it structurally: the bake runs a palette-SKIPPING resolver). This is the D5 promote, reshaped
+   colour-free.
+2. **The runtime** — `flattenBakedPart` (resolve.ts) LOADS the recipe, composes `base ⊕ variants[axis]
+   [value]`, and merges the runtime pieces: colour via the **unchanged Arc-1 path** (`resolvePalette`
+   against the theme context), the expanded type (`typeStyle`), and the interactive state patch. The
+   factory's closed render path calls this; `flattenPart`'s per-render `applyFields` geometry resolution is
+   RETIRED from it (grep-proven) — `applyFields`/`flattenPart` survive only for the open primitives + as the
+   oracle reference.
 
-### Open seams (the Arc-2 implementation brief MUST verify — don't assume)
-- The exact `{ base, variants }` shape `toUnistylesRecipe` emits + whether it cleanly covers all catalog
-  components + the primitives (the open-positional ones may differ).
-- How the colour role-refs (now the payload's `surface`) thread through the baked recipe.
-- The codegen home for the per-component recipe + the re-emit/drift gate over it.
+### The toolchain seam (resolved · the documented Node-reimpl fallback)
+The bake is emitted by a **Node applier in the codegen** (`scripts/parsers/recipes.js`) over the single-
+sourced spec MAPPING (resolve-map `STACK_FIELDS`/`BOX_FIELDS` + property-spelling `.rn` + the dimension
+scales) — the RN twin of the web geometry emit (`prototype/pipeline/parsers/namespace-css.js`, which applies
+the SAME tables in Node to emit `box.css`/`stack.css`). Node 20 cannot run the TS resolver (no tsx/esbuild ·
+the deliberate node-20 + type-strip toolchain · SEED-1b), and adding a bundler for one emit is out of grain.
+The applier interpreter (~30 lines) is per-projection; the KNOWLEDGE (field tables + spellings + scales) is
+single-sourced in spec. The **oracle-equivalence guard** binds the Node emit byte-for-byte to the TS runtime
+resolver (`flattenPart`), mutation-proven — so the two appliers cannot drift silently.
+
+### The guards (all green)
+Oracle equivalence (baked ≡ runtime · full component × part × axis-selection × state × theme product ·
+PROVEN to bind by a mutation test) · the no-colour invariant · key-order fidelity (the snapshots pretty-
+format-SORT keys, so this is the only order check) · re-emit drift (the `spec` git-diff gate over
+`generated/`) · render snapshots byte-identical (render-smoke).
+
+### The density seam (design, not built · P11)
+The pipeline stays shaped as `descriptor refs × scale table → baked geometry` (the Node applier reads px
+from the scale table · never hand-authored numbers), so a future `density` axis becomes `scale-table-
+selected-by-density → geometryByDensity` WITHOUT touching descriptors. Not implemented; not foreclosed.
 
 ## Scope discipline
 Both arcs are **architecture-fidelity + perf** changes (restore the documented design · remove a
-render-time recompute), **NOT correctness bugs** — the emitted hexes/metrics are identical today. Arc 1
-(colour) landed as one focused brief; Arc 2 (geometry) is sequenced separately (it shares the
-`resolve.ts` surface, so pulling it into Arc 1 would double the blast radius).
+render-time recompute), **NOT correctness bugs** — the emitted hexes/metrics are identical (the byte-
+identical snapshots + oracle guard are the proof). Arc 1 (colour) and Arc 2 (geometry) landed as two
+focused briefs (one seam per PR · they share the `resolve.ts` surface).

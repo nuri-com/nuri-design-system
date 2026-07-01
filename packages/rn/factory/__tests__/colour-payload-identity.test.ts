@@ -25,9 +25,6 @@ import { buildNuriTheme } from '../theme';
 import {
   accentTokens,
   chrome,
-  space,
-  size,
-  radius,
 } from '../../contract';
 import type { Accent, Theme } from '../../contract';
 
@@ -89,15 +86,12 @@ describe('SEED-4 · the provider payload is byte-identical to the pre-rework col
         // The resolved chrome slots (canvas/subtle/strong).
         expect(p.chrome).toEqual(expectedChromeSlots(mode));
 
-        // The raw orthogonal slices (chrome[mode] + the collapsed accent slice +
-        // the invariant dimension scales) — what useToken/resolveToken read. The
-        // old `runtimeTokens(accent, mode)` output, byte-for-byte.
+        // The raw orthogonal COLOUR slices (chrome[mode] + the collapsed accent
+        // slice) — what useToken/resolveToken read. space/size/radius were dropped
+        // from the slices at Arc 2 (D11 · colour-only · no closed path read them).
         expect(p.slices).toEqual({
           chrome: chrome[mode],
           accent: accentSlice(a, mode),
-          space,
-          size,
-          radius,
         });
 
         // The Address scalars ride the payload (orthogonal single-axis override).

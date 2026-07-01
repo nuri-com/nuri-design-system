@@ -18,11 +18,14 @@
  * descendant text/icon parts INHERIT that fg (never re-threaded as data).
  *
  * Two resolved views, one core (`resolveNS`):
- *   · flattenPart  — the concrete RN style for a (selection × state) cell;
- *     the render path + the parity/snapshot anchor consume this.
- *   · toUnistylesRecipe — the §11 `{ base, variants, compoundVariants }`
- *     form (+ a foreground / typeStep channel for §12), proving the frozen
- *     composition descriptor maps cleanly onto a Unistyles recipe.
+ *   · flattenPart      — the concrete RN style for a (selection × state) cell;
+ *     the OPEN primitives + the Arc-2 oracle guard consume it. NO LONGER the
+ *     closed-component render path (Arc 2 · D11 · that now LOADS the bake).
+ *   · flattenBakedPart — the Arc-2 render path: the same concrete cell, but the
+ *     STATIC geometry is LOADED from the build-time bake (generated/recipes.ts ·
+ *     box/stack/typography/interactive resolved at build · D11+D5) and only the
+ *     runtime pieces — colour (theme · Arc 1) + typeStyle expansion + the
+ *     interactive state patch — are merged on. See `BakedPartRecipe` below.
  * ══════════════════════════════════════════════════════════════════ */
 
 import type { ViewStyle } from 'react-native';
@@ -42,12 +45,9 @@ import type {
   PartMap,
   Descriptor,
   Axes,
-  Accent,
-  Theme,
   TypeSize,
 } from '../contract';
 import type { NuriTheme } from './theme';
-import { buildNuriTheme } from './theme';
 // The agnostic namespace→style mapping is DATA, now homed in @nuri/spec
 // (resolve-map.ts · N+39 · the decision-68 rn→spec DAG · decision 73 cl.2 / 74);
 // this file holds the RN applier that consumes it + the per-target resolver
@@ -383,166 +383,150 @@ export function flattenPart<A extends Axes>(
 }
 
 // ══════════════════════════════════════════════════════════════════
-// THE UNISTYLES-SHAPED RECIPE (resolver-model §11 · the compat proof)
+// THE BAKED GEOMETRY RECIPE (Arc 2 · D11 + D5 · the build-time-static slice)
 // ══════════════════════════════════════════════════════════════════
-
-export type CompoundVariant = {
-  pressed?: boolean;
-  disabled?: boolean;
-  styles: ViewStyle;
-  // axis conditions, e.g. `variant: 'solid'` (computed keys)
-  [axis: string]: string | boolean | ViewStyle | undefined;
-};
-
-export type PartRecipe = {
+// box/stack/typography/interactive are STATIC — a pure function of the descriptor
+// + selection, with ZERO theme/state input. Arc 2 BAKES them at build (the codegen
+// `scripts/parsers/recipes.js` emits `generated/recipes.ts`) so the runtime LOADS
+// concrete geometry instead of re-resolving it every render + every press (D11).
+// This PROMOTES the old test-only `toUnistylesRecipe` precompute (D5), reshaped
+// COLOUR-FREE: the artifact carries NO backgroundColor / fg / pressedBg / hex / any
+// accent·mode variant — colour stays the Arc-1 runtime path (`resolvePalette`
+// against the theme context), merged on at render (`flattenBakedPart`).
+export type BakedPartRecipe = {
   el: El;
   open?: boolean;
-  base: ViewStyle;
-  variants: Record<string, Record<string, ViewStyle>>;
-  compoundVariants: CompoundVariant[];
-  // §12 foreground — DELIVERED by surface scope, NOT a style patch (a
-  // `palette` variant's fg drops out of the patch · F-BOX-FG-1). Surfaced
-  // here as a parallel channel for the snapshot / report, never merged
-  // into `variants`.
-  foreground?: { base?: string; variants?: Record<string, Record<string, string>> };
-  // the label/icon type ref ({size, emphasis} · decision 55/77 · the two
-  // orthogonal inputs) the factory expands via typeStyle at render — mapping =
-  // data, expansion = behaviour (65.2).
+  // box ⊕ stack resolved to concrete ViewStyle (geometry ONLY · no colour). `base`
+  // + the per-axis geometry patches; the runtime composes `base ⊕ variants[axis][value]`.
+  geometry: { base: ViewStyle; variants: Record<string, Record<string, ViewStyle>> };
+  // the label/icon type REF ({ size, emphasis }); typeStyle expands it at render (the
+  // `× fontScale` Dynamic-Type multiply stays runtime · P11). Bakes the REF, not metrics.
   typeStep?: { base?: TypeRef; variants?: Record<string, Record<string, TypeRef>> };
+  // the interactive opt-in as STATIC state patches — pressScale/disabledOpacity are
+  // theme-free constants (the interaction baseline · baked); pressColor is a MARKER
+  // (the pressedBg comes from the runtime colour path · Arc 1). NO colour in the statics.
+  interactive?: {
+    pressColor?: true;
+    pressScale?: true;
+    disabledOpacity?: true;
+    pressedStatic?: ViewStyle;
+    disabledStatic?: ViewStyle;
+  };
 };
+export type BakedComponentRecipe = Record<string, BakedPartRecipe>;
 
-export type ComponentRecipe = Record<string, PartRecipe>;
-
-function hasStyle(s: ViewStyle): boolean {
-  return Object.keys(s).length > 0;
-}
-
-function buildPartRecipe<A extends Axes>(
+// mergedPaletteNSForPart · the part's merged palette NS (base ⊕ each selected axis's
+// palette patch · later wins). Colour is the ONE namespace still resolved at runtime
+// (Arc 1 · theme context), so the baked render path re-merges JUST palette — a tiny
+// object merge, NO geometry re-resolution. Mirrors mergeNS's later-wins semantics.
+function mergedPaletteNSForPart<A extends Axes>(
   descriptor: Descriptor<A>,
-  theme: NuriTheme,
-  node: AnatomyNode,
-): PartRecipe {
-  const part = node.name;
-  const baseNS = descriptor.structure.base?.[part] ?? {};
-  const baseNode = resolveNS(baseNS, theme);
-
-  const recipe: PartRecipe = {
-    el: node.el,
-    ...(node.open ? { open: true } : {}),
-    base: baseNode.view,
-    variants: {},
-    compoundVariants: [],
+  selection: Selection,
+  part: Part,
+): PaletteNS | undefined {
+  let out: PaletteNS | undefined;
+  const add = (p?: PaletteNS): void => {
+    if (p) out = { ...(out ?? {}), ...p };
   };
-
-  const fgVariants: Record<string, Record<string, string>> = {};
-  const typeVariants: Record<string, Record<string, TypeRef>> = {};
-  const paletteAxes: string[] = [];
-
+  add(descriptor.structure.base?.[part]?.palette);
   if (descriptor.variants) {
-    const axes = descriptor.variants as Record<string, Record<string, PartMap>>;
-    for (const axis of Object.keys(axes)) {
-      const valueMap = axes[axis];
-      const axisStyles: Record<string, ViewStyle> = {};
-      let axisHasPalette = false;
-      for (const value of Object.keys(valueMap)) {
-        const partNS = valueMap[value][part];
-        if (!partNS) continue;
-        const vNode = resolveNS(partNS, theme);
-        if (hasStyle(vNode.view)) axisStyles[value] = vNode.view;
-        if (vNode.fg !== undefined) {
-          if (!fgVariants[axis]) fgVariants[axis] = {};
-          fgVariants[axis][value] = vNode.fg;
-        }
-        if (vNode.type !== undefined) {
-          if (!typeVariants[axis]) typeVariants[axis] = {};
-          typeVariants[axis][value] = vNode.type;
-        }
-        if (partNS.palette?.variant !== undefined || partNS.palette?.chrome !== undefined) {
-          axisHasPalette = true;
-        }
-      }
-      if (Object.keys(axisStyles).length) recipe.variants[axis] = axisStyles;
-      if (axisHasPalette) paletteAxes.push(axis);
+    for (const axis of Object.keys(descriptor.variants)) {
+      const value = selection[axis];
+      if (value === undefined) continue;
+      const valueMap = (descriptor.variants as Record<string, Record<string, PartMap>>)[axis][value];
+      add(valueMap?.[part]?.palette);
     }
   }
-
-  // §12 channels
-  if (baseNode.fg !== undefined || Object.keys(fgVariants).length) {
-    recipe.foreground = {
-      ...(baseNode.fg !== undefined ? { base: baseNode.fg } : {}),
-      ...(Object.keys(fgVariants).length ? { variants: fgVariants } : {}),
-    };
-  }
-  if (baseNode.type !== undefined || Object.keys(typeVariants).length) {
-    recipe.typeStep = {
-      ...(baseNode.type !== undefined ? { base: baseNode.type } : {}),
-      ...(Object.keys(typeVariants).length ? { variants: typeVariants } : {}),
-    };
-  }
-
-  // compoundVariants — the `interactive` opt-in (on this part's base) realised as state
-  // patches (65.4 · values engine-derived), projected from the single `opts` SoT (N+44)
-  // in key order (pressColor → pressScale → disabledOpacity · byte-identical push order).
-  // A `from` opt (pressColor) is node-derived: its pressedBg is variant-dependent → one
-  // compound per palette-axis value (the §11 array · the per-variant flattenPart loop,
-  // PRESERVED), or a single base compound when no palette axis carries it. A `token` opt
-  // (pressScale · disabledOpacity) is one global compound. The trigger ('pressed' /
-  // 'disabled') is the compound's condition key.
-  const inter = baseNode.interactive;
-  for (const key of Object.keys(INTERACTIVE_OPTS) as OptKey[]) {
-    const opt = INTERACTIVE_OPTS[key];
-    if (!inter?.[key]) continue;
-    const cond = opt.trigger;
-    if ('from' in opt.rn) {
-      const { prop, from } = opt.rn;
-      const pushCompound = (derived: unknown, axisCond?: { axis: string; value: string }): void => {
-        if (derived === undefined) return;
-        const styles: ViewStyle = {};
-        (styles as Record<string, unknown>)[prop] = derived;
-        const compound = (axisCond ? { [axisCond.axis]: axisCond.value, [cond]: true, styles } : { [cond]: true, styles }) as CompoundVariant;
-        recipe.compoundVariants.push(compound);
-      };
-      if (paletteAxes.length && descriptor.variants) {
-        const axes = descriptor.variants as Record<string, Record<string, PartMap>>;
-        for (const axis of paletteAxes) {
-          for (const value of Object.keys(axes[axis])) {
-            const derived = (flattenPart(descriptor, theme, part, { [axis]: value }, {}).node as Record<string, unknown>)[from];
-            pushCompound(derived, { axis, value });
-          }
-        }
-      } else {
-        pushCompound((baseNode as Record<string, unknown>)[from]);
-      }
-    } else {
-      const styles: ViewStyle = {};
-      (styles as Record<string, unknown>)[opt.rn.prop] = realizeToken(opt.rn, theme);
-      recipe.compoundVariants.push({ [cond]: true, styles } as CompoundVariant);
-    }
-  }
-
-  return recipe;
-}
-
-// toUnistylesRecipe · the whole component as a per-part Unistyles recipe.
-// This IS the resolved style tree (the §11 form) — snapshotted + asserted.
-export function toUnistylesRecipe<A extends Axes>(
-  descriptor: Descriptor<A>,
-  theme: NuriTheme,
-): ComponentRecipe {
-  const out: ComponentRecipe = {};
-  const walk = (node: AnatomyNode) => {
-    out[node.name] = buildPartRecipe(descriptor, theme, node);
-    node.children.forEach(walk);
-  };
-  walk(resolveAnatomy(descriptor));
   return out;
 }
 
-// Convenience: the resolved theme for a (accent, mode) — the recipe references it.
-export function recipeFor<A extends Axes>(
+// composeGeometry · base ⊕ each selected axis's geometry patch (axis-declaration
+// order · later wins). The catalog's base + variant geometry touch DISJOINT keys
+// (base = stack · the size variant = box · verified), so the spread reproduces the
+// resolver's field-table key order — pinned by the key-order guard (geometry-bake test).
+function composeGeometry(geometry: BakedPartRecipe['geometry'], selection: Selection): ViewStyle {
+  let out: ViewStyle = { ...geometry.base };
+  for (const axis of Object.keys(geometry.variants)) {
+    const value = selection[axis];
+    const patch = value !== undefined ? geometry.variants[axis][value] : undefined;
+    if (patch) out = { ...out, ...patch };
+  }
+  return out;
+}
+
+// composeTypeRef · the label/icon type ref for a selection (base ⊕ variant · later
+// wins · field-merged, mirroring mergeNS over the typography namespace).
+function composeTypeRef(typeStep: BakedPartRecipe['typeStep'], selection: Selection): TypeRef | undefined {
+  if (!typeStep) return undefined;
+  let ref: TypeRef | undefined = typeStep.base ? { ...typeStep.base } : undefined;
+  if (typeStep.variants) {
+    for (const axis of Object.keys(typeStep.variants)) {
+      const value = selection[axis];
+      const v = value !== undefined ? typeStep.variants[axis][value] : undefined;
+      if (v) ref = { ...(ref ?? {}), ...v } as TypeRef;
+    }
+  }
+  return ref;
+}
+
+// applyBakedInteractive · the state patch, in the SAME opts key order flattenInteractive
+// walks (pressColor → pressScale → disabledOpacity), sourcing the non-colour effects
+// from the baked statics and pressColor's bg from the runtime colour path (pressedBg).
+function applyBakedInteractive(
+  view: ViewStyle,
+  interactive: BakedPartRecipe['interactive'],
+  pressedBg: string | undefined,
+  state: State,
+): ViewStyle {
+  const style: ViewStyle = { ...view };
+  if (!interactive) return style;
+  if (state.pressed && interactive.pressColor && pressedBg !== undefined) {
+    style.backgroundColor = pressedBg;
+  }
+  if (state.pressed && interactive.pressScale && interactive.pressedStatic) {
+    Object.assign(style, interactive.pressedStatic);
+  }
+  if (state.disabled && interactive.disabledOpacity && interactive.disabledStatic) {
+    Object.assign(style, interactive.disabledStatic);
+  }
+  return style;
+}
+
+// ── flattenBakedPart · the Arc-2 render cell (LOAD the bake · merge colour + state) ──
+// The closed-component render path. Composes the baked STATIC geometry, resolves ONLY
+// colour at runtime (the Arc-1 theme path · resolvePalette), and merges the interactive
+// state patch — byte-identical to flattenPart's output (the oracle guard proves it), but
+// WITHOUT re-resolving box/stack/typography every render (D11 retired for closed parts).
+export function flattenBakedPart<A extends Axes>(
+  recipePart: BakedPartRecipe,
   descriptor: Descriptor<A>,
-  accent: Accent,
-  mode: Theme,
-): ComponentRecipe {
-  return toUnistylesRecipe(descriptor, buildNuriTheme(accent, mode));
+  theme: NuriTheme,
+  part: Part,
+  selection: Selection,
+  state: State,
+): PartFlat {
+  const geometry = composeGeometry(recipePart.geometry, selection);
+  const paletteNS = mergedPaletteNSForPart(descriptor, selection, part);
+  const p = paletteNS ? resolvePalette(paletteNS, theme) : {};
+  const view: ViewStyle = { ...geometry };
+  if (p.bg !== undefined) view.backgroundColor = p.bg;
+  const typeRef = composeTypeRef(recipePart.typeStep, selection);
+  const node: ResolvedNode = {
+    view,
+    ...(p.fg !== undefined ? { fg: p.fg } : {}),
+    ...(p.fgMuted !== undefined ? { fgMuted: p.fgMuted } : {}),
+    ...(p.pressedBg !== undefined ? { pressedBg: p.pressedBg } : {}),
+    ...(typeRef !== undefined ? { type: typeRef } : {}),
+    ...(recipePart.interactive
+      ? {
+          interactive: {
+            ...(recipePart.interactive.pressColor ? { pressColor: true } : {}),
+            ...(recipePart.interactive.pressScale ? { pressScale: true } : {}),
+            ...(recipePart.interactive.disabledOpacity ? { disabledOpacity: true } : {}),
+          },
+        }
+      : {}),
+  };
+  const style = applyBakedInteractive(view, recipePart.interactive, node.pressedBg, state);
+  return { style, node };
 }
