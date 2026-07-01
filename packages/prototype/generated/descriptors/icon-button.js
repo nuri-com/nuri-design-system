@@ -1,18 +1,18 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT DESCRIPTOR · ICON-BUTTON · BROWSER ESM · GENERATED · DO NOT EDIT BY HAND
  *
- * The browser-ESM twin of build/descriptors/icon-button.ts — IDENTICAL data,
+ * The browser-ESM twin of packages/spec/components/icon-button.ts — IDENTICAL data,
  * the authored source type-stripped (no `import type`, no axes type, no
  * `: Descriptor<…>` annotation). A browser can `import { iconButtonDescriptor }`
- * from it at runtime with NO build step — the runtime web factory
- * (lib/runtime/factory.js · decision 67) consumes it to render a de-collapsed
+ * from it at runtime with NO build step — the prototype web factory
+ * (packages/prototype/factory/factory.js · decision 67) consumes it to render a de-collapsed
  * nuri-* tree, preserving the zero-build composition property (decision 66 ·
  * what Nuri IS #3).
  *
- * Source · pipeline/descriptors/icon-button.ts (the AUTHORED SoT · §9 step 1 ·
- * decision 69 · N+29 B1). Emitter · pipeline/tokens-parser.js — `npm run build`.
- * Committed (decision 35) · the `git diff --exit-code build/` gate covers it.
- * NEVER hand-edit build/ — edit the authored source above.
+ * Source · packages/spec/components/icon-button.ts (the AUTHORED SoT · §9 step 1 ·
+ * decision 69 · N+29 B1). Emitter · scripts/tokens-parser.js — `npm run build`.
+ * Committed (decision 35) · the re-emit gate covers packages/prototype/generated/.
+ * NEVER hand-edit generated/ — edit the authored source above.
  * ────────────────────────────────────────────────────────────── */
 
 export const iconButtonDescriptor = {

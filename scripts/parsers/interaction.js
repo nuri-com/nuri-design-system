@@ -3,7 +3,7 @@
  *
  * The TRANSVERSAL interaction baseline { pressScale · disabledOpacity }
  * (the decision-45 cross-component design constants). Its SoT is now
- * pipeline/interaction.ts (a tiny pure-data TS module · N+61 · Slice
+ * packages/spec/axes/interaction.ts (a tiny pure-data TS module · N+61 · Slice
  * 3b·2b·i) — the values no longer live ONLY in the hand-authored CSS.
  *
  * This module owns the family end to end from the SoT:
@@ -13,10 +13,10 @@
  *                          reversed for the family · the dimension/type-css posture)
  *   · buildInteraction   — the { leaf → literal } record the emit consumes, FROM
  *                          the SoT (no CSS read · projection model §4 · decision 80)
- *   · emitInteractionTs  — build/interaction.ts (the RN factory's reader · decision 48)
+ *   · emitInteractionTs  — packages/rn/generated/interaction.ts (the RN factory's reader · decision 48)
  *
- * ONE source (pipeline/interaction.ts), THREE faces: the web CSS primitives, the
- * RN build/interaction.ts, and the factory that reads it (the icon model · decision
+ * ONE source (packages/spec/axes/interaction.ts), THREE faces: the web CSS primitives, the
+ * RN generated/interaction.ts, and the factory that reads it (the icon model · decision
  * 48). Was CSS-sourced (the emit read --nuri-interaction-* back out · a TS→CSS→TS
  * round-trip); the SoT flip kills that last round-trip for the family (Smell-1 ·
  * decision 66 arc #0 · classified primitive.interaction in semantic.js).
@@ -57,7 +57,7 @@ export function buildInteraction(interaction) {
     if (typeof v !== 'number' || !Number.isFinite(v)) {
       throw new Error(
         `interaction leaf '${leaf}' is not a finite number (got ${v}). ` +
-        `pipeline/interaction.ts is the cross-component design-constant SoT (decision 45).`,
+        `packages/spec/axes/interaction.ts is the cross-component design-constant SoT (decision 45).`,
       );
     }
     out[leaf] = String(v);
@@ -88,11 +88,11 @@ export function rewriteInteractionDecls(cssText, interaction) {
   });
   const missingInCss = [...want.keys()].filter((p) => !seen.has(p));
   if (missingInCss.length) {
-    throw new Error(`[interaction] the SoT declares ${missingInCss.join(', ')} but the CSS has no such declaration — add it to the CSS or remove it from pipeline/interaction.ts`);
+    throw new Error(`[interaction] the SoT declares ${missingInCss.join(', ')} but the CSS has no such declaration — add it to the CSS or remove it from packages/spec/axes/interaction.ts`);
   }
   const orphanInCss = [...cssOwned].filter((p) => !want.has(p));
   if (orphanInCss.length) {
-    throw new Error(`[interaction] the CSS declares ${orphanInCss.join(', ')} but pipeline/interaction.ts does not — the SoT must own every --nuri-interaction-* declaration`);
+    throw new Error(`[interaction] the CSS declares ${orphanInCss.join(', ')} but packages/spec/axes/interaction.ts does not — the SoT must own every --nuri-interaction-* declaration`);
   }
   return root.toString();
 }
@@ -115,12 +115,12 @@ export function emitInteractionTs(interaction) {
     `/* ──────────────────────────────────────────────────────────────`,
     ` * NURI · INTERACTION BASELINE · GENERATED · DO NOT EDIT BY HAND`,
     ` *`,
-    ` * Source · pipeline/interaction.ts (the interaction baseline SoT)`,
-    ` * Emitter · pipeline/tokens-parser.js — run \`npm run build\``,
+    ` * Source · packages/spec/axes/interaction.ts (the interaction baseline SoT)`,
+    ` * Emitter · scripts/tokens-parser.js — run \`npm run build\``,
     ` *`,
     ` * The TRANSVERSAL cross-component interaction baseline (decision 45):`,
     ` * the { pressScale · disabledOpacity } design constants, flattened from`,
-    ` * the pipeline/interaction.ts SoT (the SAME values the build flips into the`,
+    ` * the packages/spec/axes/interaction.ts SoT (the SAME values the build flips into the`,
     ` * --nuri-interaction-* CSS primitives · one source, two readers · decision`,
     ` * 48). A single transversal emit — the RN factory's theme reads it directly,`,
     ` * instead of reaching into a per-component file for a non-component value`,

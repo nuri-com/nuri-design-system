@@ -1,14 +1,14 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · NAMESPACE CSS · TYPOGRAPHY · GENERATED — DO NOT EDIT BY HAND
  *
- * GENERATED from the typography AXIS (packages/spec/pipeline/typography-axis.ts) by
+ * GENERATED from the typography AXIS (packages/spec/axes/typography-axis.ts) by
  * prototype/pipeline/css-preview.js, wired into npm run build -w @nuri/prototype (its
  * own build · regenerates IN PLACE over prototype/styles/typography.css). This is the
  * LIVE typography WRAPPER CSS: the pages link it and the web factory styles
  * nuri-typography with it. decision 2 reversed for the namespace layer (decision 74 ·
  * executing decision 70 · the L3c flip · N+38 · carved to @nuri/prototype at N+41) —
  * the hand SoT retired (git-recoverable), the generator is the sole source. WRAPPER
- * ONLY — the type SCALE (packages/spec/styles/typography.css · the .nuri-type-{step}
+ * ONLY — the type SCALE (packages/spec/tokens/typography.ts · the .nuri-type-{step}
  * utilities → --nuri-type-* primitives · {size, emphasis}) stays CSS-SoT, OUT of scope
  * (a later token flip). The display order is LOAD-BEARING — the :not(:defined) shell
  * before the [align] dispatch so a pre-upgrade aligned node resolves display to block.

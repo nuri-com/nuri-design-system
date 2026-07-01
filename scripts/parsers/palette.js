@@ -1,7 +1,7 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · PARSER · PALETTE (the colour-namespace mapping · 65.3 §6 · N+19 B2b)
  *
- * Emits build/palette.ts — the {variant | chrome} → {bg · fg · fgMuted ·
+ * Emits packages/rn/generated/palette.ts — the {variant | chrome} → {bg · fg · fgMuted ·
  * pressedBg} mapping as STRUCTURAL colour REFS `{ group, leaf }` (SEED-4 · a
  * dotted path split at emit · the accent×theme-GENERIC `accent.solid`, never a
  * concrete colour · decision 34 indirection), so the RN theme builder indexes the
@@ -20,12 +20,10 @@
  *   · fgMuted (every cell)                       — typography-axis.ts's muted role
  *     (the single muted delivery · decision 53; no node-level muted).
  *
- * RE-SOURCED at N+40 (decision 74 'Next: final'): the witness was the GENERATED
- * lib/components/{palette,typography}.css (§74) — now the TS SoTs those CSS files are
- * emitted FROM, so spec's build stops reaching into the namespace CSS that the A3
- * carve moves to @nuri/prototype (one step further up the cascade · no decision
- * opened · the cells are unchanged). The recipe-CSS cross-checks (button/icon-avatar/
- * topbar) had already retired at the flip (decision 74).
+ * RE-SOURCED at N+40 (decision 74 'Next: final'): the witness is now the TS SoTs
+ * that also emit the prototype namespace CSS, so the build stops reaching into
+ * projection CSS. The recipe-CSS cross-checks (button/icon-avatar/topbar) had
+ * already retired at the flip (decision 74).
  *
  * A cell that contradicts the SoT throws here → `npm run build` fails;
  * docs-drift Guard E re-derives + pins the table → `npm test` fails.
@@ -108,7 +106,7 @@ function tokenPathFor(cssVar, classifiedGroups, where) {
 // ── derive · assert the contract against the namespace-axis TS SoTs, resolve cells ──
 // { surface, typographyAxis } = the loaded TS SoTs — palette-surface.ts's `surface`
 // (the SURFACE role table · bg/fg/pressed pairs) + typography-axis.ts's `axis` (the
-// muted role). Re-sourced at N+40 from the generated lib/components/{palette,
+// muted role). Re-sourced at N+40 from the generated prototype namespace CSS
 // typography}.css those SoTs emit (§74 'Next: final') so spec's build stops reading the
 // namespace CSS the A3 carve moves out. classifiedGroups = the classifyAll() pass over
 // tokens-semantic.css the orchestrator already holds.
@@ -226,13 +224,12 @@ export function emitPaletteTs(cells) {
     ` *`,
     ` * Source · the namespace axis TS SoTs (asserted cell-for-cell at`,
     ` * emit time — a contradiction fails the build · decision 48):`,
-    ` *   pipeline/palette-surface.ts   every variant + chrome bg/fg pair`,
+    ` *   packages/spec/axes/palette-surface.ts   every variant + chrome bg/fg pair`,
     ` *                                 (+ the pressed swap → pressedBg)`,
-    ` *   pipeline/typography-axis.ts   the muted role → the muted fg (fgMuted)`,
-    ` * (Re-sourced at N+40 from the generated lib/components/{palette,typography}.css`,
-    ` *  these SoTs emit · §74 'Next: final' — the spec build stops reading the namespace`,
-    ` *  CSS the A3 carve relocates · build/palette.ts cells unchanged.)`,
-    ` * Emitter · pipeline/parsers/palette.js — run \`npm run build\``,
+    ` *   packages/spec/axes/typography-axis.ts   the muted role → the muted fg (fgMuted)`,
+    ` * (Re-sourced at N+40 from the generated prototype namespace CSS these SoTs emit`,
+    ` *  · §74 'Next: final' — the spec build stops reading projection CSS.)`,
+    ` * Emitter · scripts/parsers/palette.js — run \`npm run build\``,
     ` *`,
     ` * The {variant | chrome} → {bg · fg · fgMuted · pressedBg} mapping as`,
     ` * STRUCTURAL colour REFS (decision 34 · SEED-4) — accent×theme-GENERIC. Each`,
@@ -243,7 +240,7 @@ export function emitPaletteTs(cells) {
     ` * platform-native, mapping = data · emitted ONCE · 65.2).`,
     ` *`,
     ` *   · ghost.bg = the literal 'transparent' (NOT a ref) — the`,
-    ` *     build/components/button.ts ghostBg convention.`,
+    ` *     retired per-component button ghostBg convention.`,
     ` *   · subtle = fg-only (no bg/pressed) · the IconAvatar role.`,
     ` *   · chrome = theme-only surfaces (no accent, no pressed).`,
     ` *   · pressedBg is DATA for the RN resolver; the web pressed`,

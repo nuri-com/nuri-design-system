@@ -25,6 +25,7 @@ import * as React from 'react';
 import { SvgXml } from 'react-native-svg';
 import { icons, size } from '../contract';
 import type { IconName } from '../contract';
+import { useNuriTheme } from '../theme';
 
 export type NuriIconProps = {
   // The TYPED register key — `keyof` the frozen register (the build-error gate).
@@ -36,6 +37,7 @@ export type NuriIconProps = {
 };
 
 export const NuriIcon: React.FC<NuriIconProps> = ({ name, color, dimension = size.sm }) => {
+  const theme = useNuriTheme();
   const xml = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor">${icons[name]}</svg>`;
-  return <SvgXml xml={xml} width={dimension} height={dimension} color={color ?? '#000'} />;
+  return <SvgXml xml={xml} width={dimension} height={dimension} color={color ?? theme.text.primary} />;
 };

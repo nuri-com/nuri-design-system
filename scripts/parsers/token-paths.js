@@ -1,16 +1,16 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · PARSER · TOKEN-PATHS UNION → build/token-paths.ts (N+60 · Slice 3b·2a · decision 80)
+ * NURI · PARSER · TOKEN-PATHS UNION → packages/rn/generated/token-paths.ts (N+60 · Slice 3b·2a · decision 80)
  * ──────────────────────────────────────────────────────────────────
  * Enumerates the TokenPath discriminated union STRAIGHT from the TS SoTs
- * (pipeline/colours.ts chrome + accent role names · pipeline/dimensions.ts
+ * (packages/spec/tokens/colours.ts chrome + accent role names · packages/spec/tokens/dimensions.ts
  * space/size/radius/ratio keys) — no longer from classifyAll(semanticRules) (the CSS).
  * This finishes the RN contract's TS-sourcing (projection model §4): the runtime-set
  * leaf paths are exactly the colour roles (camelCased) + the dimension leaf keys, in
  * the same emit order tokens.ts uses (chrome · accent · space · size · radius).
  *
- * The union is the consumer's compile-time guard: each build/components/<name>.ts
- * TokenPath string is `as const satisfies TokenPath`-checked, so adding/renaming a
- * runtime leaf without re-emitting fails the TS compile (decision 34). Because the
+ * The union is the consumer's compile-time guard: generated RN token consumers
+ * are `TokenPath`-checked, so adding/renaming a runtime leaf without re-emitting
+ * fails the TS compile (decision 34). Because the
  * SoT keys ARE the leaf names, the same edit that grows tokens.ts grows this union —
  * no CSS classify step in between (classifyAll stays only for the web token-vars · 3c).
  * ══════════════════════════════════════════════════════════════════ */
@@ -23,9 +23,9 @@ function camelCase(str) {
   return str.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
 }
 
-// Emit build/token-paths.ts as a string from the TS SoTs. `chrome`/`accent` are the
-// semantic colour roles (pipeline/colours.ts · loadSemanticColours); `dims` is the
-// dimension SoT (pipeline/dimensions.ts · loadDimensions). Order: chrome roles, then
+// Emit packages/rn/generated/token-paths.ts as a string from the TS SoTs. `chrome`/`accent` are the
+// semantic colour roles (packages/spec/tokens/colours.ts · loadSemanticColours); `dims` is the
+// dimension SoT (packages/spec/tokens/dimensions.ts · loadDimensions). Order: chrome roles, then
 // accent roles (every accent owns the same role set · read from the first), then the
 // space/size/radius leaf keys — the tokens.ts EMIT_ORDER.
 export function emitTokenPathsTsFromSoT({ chrome, accent }, dims) {
@@ -41,14 +41,13 @@ export function emitTokenPathsTsFromSoT({ chrome, accent }, dims) {
     `/* ──────────────────────────────────────────────────────────────`,
     ` * NURI · TOKEN PATHS · GENERATED · DO NOT EDIT BY HAND`,
     ` *`,
-    ` * Source · pipeline/colours.ts (chrome · accent roles) + pipeline/dimensions.ts (space · size · radius)`,
-    ` * Emitter · pipeline/tokens-parser.js — run \`npm run build\``,
+    ` * Source · packages/spec/tokens/colours.ts (chrome · accent roles) + packages/spec/tokens/dimensions.ts (space · size · radius)`,
+    ` * Emitter · scripts/tokens-parser.js — run \`npm run build\``,
     ` *`,
-    ` * Discriminated union of every runtime-set leaf path. Consumed`,
-    ` * by build/components/<name>.ts where each TokenPath string is`,
-    ` * \`as const satisfies TokenPath\`-checked, so adding or`,
-    ` * renaming a runtime leaf without re-emitting this union fails`,
-    ` * the TS compile (decision 34 · N+6.0.3).`,
+    ` * Discriminated union of every generated token leaf path. Consumed`,
+    ` * by the RN projection and checked by TypeScript, so adding or`,
+    ` * renaming a token leaf without re-emitting this union fails the`,
+    ` * compile (decision 34 · N+6.0.3).`,
     ` * ────────────────────────────────────────────────────────────── */`,
     ``,
   ];

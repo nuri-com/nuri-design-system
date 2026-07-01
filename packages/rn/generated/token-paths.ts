@@ -1,14 +1,13 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · TOKEN PATHS · GENERATED · DO NOT EDIT BY HAND
  *
- * Source · pipeline/colours.ts (chrome · accent roles) + pipeline/dimensions.ts (space · size · radius)
- * Emitter · pipeline/tokens-parser.js — run `npm run build`
+ * Source · packages/spec/tokens/colours.ts (chrome · accent roles) + packages/spec/tokens/dimensions.ts (space · size · radius)
+ * Emitter · scripts/tokens-parser.js — run `npm run build`
  *
- * Discriminated union of every runtime-set leaf path. Consumed
- * by build/components/<name>.ts where each TokenPath string is
- * `as const satisfies TokenPath`-checked, so adding or
- * renaming a runtime leaf without re-emitting this union fails
- * the TS compile (decision 34 · N+6.0.3).
+ * Discriminated union of every generated token leaf path. Consumed
+ * by the RN projection and checked by TypeScript, so adding or
+ * renaming a token leaf without re-emitting this union fails the
+ * compile (decision 34 · N+6.0.3).
  * ────────────────────────────────────────────────────────────── */
 
 export type TokenPath =

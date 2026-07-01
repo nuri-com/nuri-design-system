@@ -7,15 +7,15 @@
  * the model got lost" (docs/cascade.md · L3 step 1).
  *
  * It consumes the SAME Field table the RN applier consumes
- * (packages/spec/pipeline/resolve-map.ts · STACK_FIELDS/BOX_FIELDS) and emits the
+ * (packages/spec/axes/resolve-map.ts · STACK_FIELDS/BOX_FIELDS) and emits the
  * flat `[data-*]` dispatch CSS — the inverse-spelling of `applyFields`
  * (resolve.ts): the RN emit writes `ViewStyle[prop] = value`; this writes
  * `.nuri-<ns>[data-<kebab key>="<v>"] { <web prop>: <web value>; }`.
  *
  * REVERSIBLE SPIKE · SHADOW ONLY (decision 70 · the L3 analog of B1/B2a):
- * generates to build/css-preview/, proven ≡ the hand lib/components/<ns>/<ns>.css
- * (the parity oracle), flips/retires NOTHING. NOT wired into `npm run build`;
- * the live namespace CSS, the web factory, and the recipe layer are untouched.
+ * now emits the live namespace CSS under packages/prototype/styles/. The older
+ * shadow target build/css-preview/ and hand lib/components/<ns>/<ns>.css oracle are
+ * retired historical context.
  *
  * ── THE WEB SPELLING LAYER (the per-target delta · cascade.md "+ its own
  *    spelling") ──────────────────────────────────────────────────────────
@@ -213,7 +213,7 @@ export function emitNamespaceCss({ ns, title, fields, scaleVocab, registry }) {
     `/* ──────────────────────────────────────────────────────────────`,
     ` * NURI · NAMESPACE CSS · ${title} · GENERATED — DO NOT EDIT BY HAND`,
     ` *`,
-    ` * GENERATED from the Field table (packages/spec/pipeline/resolve-map.ts ·`,
+    ` * GENERATED from the Field table (packages/spec/axes/resolve-map.ts ·`,
     ` * ${ns === 'box' ? 'BOX_FIELDS' : 'STACK_FIELDS'}) + the web spelling layer`,
     ` * (prototype/pipeline/parsers/namespace-css.js) by prototype/pipeline/css-preview.js,`,
     ` * wired into npm run build -w @nuri/prototype (its own build · regenerates IN PLACE`,

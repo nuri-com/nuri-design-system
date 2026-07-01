@@ -1,8 +1,8 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · PARSER · COLOUR → build/tokens.ts (N+59 · Slice 3b·1 · decision 80)
+ * NURI · PARSER · COLOUR → packages/rn/generated/tokens.ts (N+59 · Slice 3b·1 · decision 80)
  * ──────────────────────────────────────────────────────────────────
- * Re-sources the COLOUR arm of build/tokens.ts (chrome + accent) STRAIGHT from
- * pipeline/colours.ts — ref→hex, no CSS round-trip. The projection model
+ * Re-sources the COLOUR arm of packages/rn/generated/tokens.ts (chrome + accent) STRAIGHT from
+ * packages/spec/tokens/colours.ts — ref→hex, no CSS round-trip. The projection model
  * (docs/projection-model.md §3): colour is LAYERED SUBSTITUTION (accent upstream
  * of mode), NOT a materialized (accent × theme) cross-product. So:
  *
@@ -15,7 +15,7 @@
  *     hex | {light,dark} }>`. A FLAT SoT role (a single bare ref · the P4-frozen
  *     brand fill) → one `hex` string; a PAIR SoT role (`{light,dark}`) → `{light:
  *     hex, dark: hex}`. The flat-vs-pair distinction is read STRAIGHT from
- *     colours.ts's authored shape (string vs object), never re-derived from CSS.
+ *     packages/spec/tokens/colours.ts's authored shape (string vs object), never re-derived from CSS.
  *     This kills the duplication the cross-product carried (solid/solid-pressed/
  *     on-solid were byte-copied across light & dark).
  *
@@ -47,7 +47,7 @@ function makeRefResolver(colours, neutral) {
   const scales = colours.neutralScales[neutral];
   if (!scales) {
     throw new Error(
-      `[colour-tokens] '${neutral}' is not a neutral scale in pipeline/colours.ts ` +
+      `[colour-tokens] '${neutral}' is not a neutral scale in packages/spec/tokens/colours.ts ` +
       `(have: ${Object.keys(colours.neutralScales).join(', ')})`,
     );
   }

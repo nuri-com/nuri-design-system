@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════════════════
  * NURI · PARSER · SEMANTIC CASCADE CSS EMIT (N+32 C2 · decision 70 · the cascade)
  * ──────────────────────────────────────────────────────────────────
- * The TS semantic matrix (pipeline/colours.ts · chrome + accent) → the accent×theme
+ * The TS semantic matrix (packages/spec/tokens/colours.ts · chrome + accent) → the accent×theme
  * cascade in styles/tokens-semantic.css. decision 2 is REVERSED for the colour
  * SEMANTIC layer (after the primitives at C1): the cascade is WRITTEN INTO the CSS,
  * not read out of it. After this the inversion is COMPLETE for colour.
@@ -14,7 +14,7 @@
  * orange → 7/8/8b · N+56 · loop the accent data) — from the matrix. The emit is NOT
  * byte-identical to the prior hand cascade (it is regenerated · terser comments);
  * the gate is structural + computed-style equivalence + a byte-identical RN
- * tokens.ts (the resolved matrix is unchanged · pipeline/colour-semantic.test.js).
+ * tokens.ts (the resolved matrix is unchanged · scripts/colour-semantic.test.js).
  *
  * ── The cascade, as the inverse of the parser ───────────────────────
  * parsers/semantic.js#findWinningDecl RESOLVES the cascade (cross-product →
@@ -175,8 +175,8 @@ export function buildSemanticCascade({ chrome, accent }) {
 // ── render the cascade region (markers + blocks) ────────────────────
 export const CASCADE_MARKER_BEGIN = [
   '/* ════════════════════════════════════════════════════════════════════',
-  ' * GENERATED · the accent×theme cascade · from pipeline/colours.ts (chrome +',
-  ' * accent) via pipeline/parsers/semantic-css.js · decision 70 / 72.',
+  ' * GENERATED · the accent×theme cascade · from packages/spec/tokens/colours.ts (chrome +',
+  ' * accent) via scripts/parsers/semantic-css.js · decision 70 / 72.',
   ' * DO NOT EDIT — `npm run build` regenerates this region IN PLACE (Slice 0,',
   ' * the colour-semantic flip). The resolution matrix IS the SoT (colours.ts);',
   ' * the cascade ORDERING + the #4b/#6b self-scope rationale (decision 63) are',
@@ -219,7 +219,7 @@ export function spliceCascade(cssText, region) {
 }
 
 // ── the flip · SoT → tokens-semantic.css, in place ──────────────────
-// Slice 0 of the build (pipeline/tokens-parser.js): regenerate the accent×theme
+// Slice 0 of the build (scripts/tokens-parser.js): regenerate the accent×theme
 // cascade from the SoT BEFORE the semantic slice reads the CSS. Returns the
 // rewritten string + the region so a caller can reuse them without re-reading.
 export async function flipSemanticCss({ semanticPath, semanticColours }) {

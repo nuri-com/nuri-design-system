@@ -15,7 +15,8 @@
 
 import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
+import { SvgXml } from 'react-native-svg';
 import { NuriThemeProvider } from '../../theme';
 import {
   Button,
@@ -99,6 +100,17 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(glyph.props.name).toBe('apple');
     expect(glyph.props.color).toBe('#222013');
     expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('NuriIcon — standalone fallback reads theme text, not raw black (D9)', () => {
+    const tr = render(
+      <NuriThemeProvider mode="dark">
+        <NuriIcon name="apple" />
+      </NuriThemeProvider>,
+    );
+    const svg = tr.root.findByType(SvgXml);
+    expect(svg.props.color).toBe('#f0eee3');
+    expect(svg.props.color).not.toBe('#000');
   });
 
   test('IconAvatar — DECORATIVE · the root host hides its subtree from AT (F-DECORATIVE-1)', () => {
@@ -258,6 +270,8 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const style = host.props.style as unknown;
     const flat = Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : style;
     expect(flat.color).toBe('#222013');
+    const scroll = tr.root.findByType(ScrollView);
+    expect(scroll.props.contentContainerStyle).toEqual({ flexGrow: 1 });
     expect(tr.toJSON()).toMatchSnapshot();
   });
 

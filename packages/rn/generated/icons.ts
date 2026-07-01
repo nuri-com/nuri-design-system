@@ -5,7 +5,7 @@
  * Emitter · pipeline/tokens-parser.js — run `npm run build`
  *
  * Typed RN reader for 30 glyphs · one markup each · NO weights
- * (decision 38 · N+51). The web inlines lib/components/icon/icons.js
+ * (decision 38 · N+51). The web inlines packages/prototype/generated/icons.js
  * directly; this file is the RN runtime's reader (react-native-svg SvgXml
  * over the same strings · decision 48). Every path string here equals the
  * folder-generated registry — enforced by the sync test in

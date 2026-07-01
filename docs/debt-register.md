@@ -215,8 +215,13 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
 - **Cause / Fix:** same as D1 — remove the fields when the oracle goes. Until then they're dead data
   that makes the registry look like it still drives a CSS derivation it doesn't.
 
-#### D3 — committed generated descriptor twins carry STALE provenance headers · **DEBT** · S2
+#### D3 — committed generated descriptor twins carry STALE provenance headers · **RESOLVED (minor-tail-cleanup)** · S2
 
+- **Status (2026-07-01):** resolved for the live generated surfaces. Descriptor twin headers,
+  RN generated token/palette/icon/interaction headers, prototype namespace CSS headers, and the
+  in-place token CSS provenance comments now point at `packages/spec/{tokens,axes,components}`,
+  `packages/{rn,prototype}/generated`, `packages/prototype/factory`, and `scripts/…` paths. The
+  fixes live in the emitters, followed by `npm run build`; generated diffs are prose-only.
 - **Location:** emitter `scripts/parsers/descriptors.js:630-673` (`passthroughHeaderTs`/`Js`); output
   e.g. `packages/prototype/generated/descriptors/composition-button.js:4,12-14`.
 - **What:** the committed twin's header says *"The browser-ESM twin of **build/descriptors/**
@@ -330,8 +335,12 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
 - **Fix (cause-level):** type it `{ [Axis in keyof A]?: A[Axis] }` (the same shape the factory's
   `defaultByAxis` expects). Low risk; tighten the frozen pin alongside.
 
-#### D9 — `NuriIcon` hardcodes a `'#000'` colour fallback in a colour-by-scope system · **minor DEBT** · S1
+#### D9 — `NuriIcon` hardcodes a `'#000'` colour fallback in a colour-by-scope system · **RESOLVED (minor-tail-cleanup)** · S1
 
+- **Status (2026-07-01):** resolved. `NuriIcon` now reads `useNuriTheme()` and falls back to
+  `theme.text.primary` only when an explicit `color` prop is absent. The render smoke suite mounts
+  standalone `<NuriIcon>` under `NuriThemeProvider mode="dark"` and asserts the rendered `SvgXml`
+  colour is `#f0eee3`, not `#000`.
 - **Location:** `packages/rn/factory/NuriIcon.tsx:40` (`color={color ?? '#000'}`).
 - **What:** when the scope foreground is undefined the production glyph paints literal black, not a
   theme token. Everywhere else colour flows from the resolved theme (§12). A raw `#000` is a small
@@ -341,8 +350,12 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
   exposure. **Confidence: medium** (didn't trace every standalone caller).
 - **Fix:** default to a chrome text token, or require `color` and let the standalone caller pass it.
 
-#### D10 — `Scroll` primitive may drop RN content-sizing · **low-confidence observation** · S1?
+#### D10 — `Scroll` primitive may drop RN content-sizing · **RESOLVED (minor-tail-cleanup)** · S1
 
+- **Status (2026-07-01):** confirmed and patched. The pre-change render snapshot for
+  `<Screen><Scroll>…</Scroll></Screen>` showed `RCTScrollView` with only `style={{ flex: 1 }}` and no
+  `contentContainerStyle`. `Scroll` now passes `contentContainerStyle={SCROLL_CONTENT_STYLE}` with
+  `{ flexGrow: 1 }`, and the RN render smoke asserts it on the `ScrollView`.
 - **Location:** `packages/rn/factory/primitives.tsx:240-244` — `Scroll` renders
   `<RNScrollView style={SCREEN_STYLE}>` (`{flex:1}`) with **no** `contentContainerStyle`.
 - **What:** `docs/RISKS.md` (R-EXPO-4) records that an RN scroll surface needs
@@ -352,6 +365,13 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
   proven architectural inconsistency, and I did not render it. Needs a device/render check before it's
   promoted to DEBT. Listed so it isn't swept under the rug, not asserted as fact.
 - **Fix (if confirmed):** add `contentContainerStyle={{ flexGrow: 1 }}` to `Scroll`.
+
+#### Tail tidy — top-level `NuriTheme.space/size/radius` · **RESOLVED (minor-tail-cleanup)** · S1
+
+- **Status (2026-07-01):** resolved. The requested grep found no live `theme.space`, `theme.size`, or
+  `theme.radius` consumers outside `packages/rn/factory/theme.ts`. The top-level fields and contract
+  imports were removed from `NuriTheme` / `ThemePayload` / `buildNuriTheme`; static scales remain
+  exported from `packages/rn/contract.ts` and are still used directly by open primitives and resolvers.
 
 #### D11 — the RN factory resolves the STATIC namespaces at runtime, contradicting the documented build-time-static design · **DEBT** · S2
 
@@ -422,7 +442,7 @@ invisible* to them.
 | **Type-surface honesty** | tsc passes — optional props that are ignored, and a `Partial<Record<string,string>>` hole, are all *type-valid*. | SEED-3, D8 | Derive the prop surface per-descriptor (then ignored props become type errors); tighten `defaults` to `keyof A`. |
 | **Dead code** | An uninvoked export breaks nothing; the re-emit path doesn't touch it. | D1, D2 | A "no unused exports" pass (e.g. `knip`/`ts-prune`) over `scripts/` + `packages/rn`. |
 | **Duplication / parallel structure** | Multiple hand-lists that *happen* to agree pass; only the cross-checked pair (D-roster ↔ EXPECTED) throws. | D5, D7 | One exported roster; assert the parallel lists are slices of it. |
-| **Generated-doc accuracy** | The re-emit gate proves committed ≡ generator output; it **cannot** see that the generator's header *strings* name dead paths. | D3 | A check that paths cited in generated headers resolve on disk. |
+| **Generated-doc accuracy** | The re-emit gate proves committed ≡ generator output; it **cannot** see that the generator's header *strings* name dead paths. | D3 (resolved 2026-07-01) | A check that paths cited in generated headers resolve on disk would prevent recurrence. |
 | **Cross-projection parity** | The render-smoke renders but asserts no a11y props; expo-demo tsc accepts an ignored optional field. | D4 | Render-smoke assertions on a11y output (`aria-hidden` web ↔ `accessibilityElementsHidden` RN) for `decorative` descriptors. |
 | **Wrong abstraction / redundant layer / resolution-at-the-wrong-time** | Redundant or mistimed resolution emits the *same output* — render-smoke renders identical pixels, the re-emit gate sees a faithful generator. No gate measures *when* resolution happens or whether the promised zero-runtime path exists. Over-engineering and runtime-vs-build placement are invisible to behaviour + drift. | SEED-4, D5, D11 | Mostly a design judgement (no clean mechanical guard). Partial signals: assert `theme.surface[v].bg === slice` deref (proves SEED-4's layer is a rename); assert the shipped static style ≡ `toUnistylesRecipe`'s `{base,variants}` (proves D11's runtime path duplicates the discarded precompute). |
 
@@ -457,16 +477,14 @@ Ordered by blast radius × independence. Each is a candidate working-session bri
    were replaced with the shared TypeScript transform, `fill` is neutral and spelled per projection,
    typography wrapper web realization moved to the prototype emitter, and the broad agnosticism lint
    landed.
-6. **D3 · fix generated-header paths** — S2, ~XS. Update `passthroughHeader*` literals; regenerate.
-   Trivial; can ride along with any spec-side brief.
-7. **D8 · tighten `defaults` typing** — S1, ~XS. `keyof A`-type it; move the frozen pin. Ride with
+6. **D8 · tighten `defaults` typing** — S1, ~XS. `keyof A`-type it; move the frozen pin. Ride with
    SEED-3.
-8. **SEED-4 · theme colour-resolution indirection** — S2, ~M, *depth decision-gated*. Factory consumes
+7. **SEED-4 · theme colour-resolution indirection** — S2, ~M, *depth decision-gated*. Factory consumes
    the resolved slice; variant→role mapping becomes a typed static index; `resolveColor` /
    `RUNTIME_GROUPS` / the `NuriTheme.surface`/`.chrome` rebuild dissolve. Operator picks **full** vs
    **minimal** depth at brief time. Touches `resolve.ts` + `theme.ts` + the palette emit; pairs with the
    render-smoke `theme.surface === slice` assertion. Independent of the others; do after the S3 fixes.
-9. **D11 + D5 · RN build-time-static resolution** — S2, ~L, *depth decision-gated*. Codegen precomputes
+8. **D11 + D5 · RN build-time-static resolution** — S2, ~L, *depth decision-gated*. Codegen precomputes
    the static box/stack/typography ViewStyle (per component · part · axis-value) into an `rn/generated/`
    artifact (source: `toUnistylesRecipe`'s `{base,variants}`); the runtime resolver shrinks to "load the
    baked slice, merge palette + interactive." Delivers the README's promised zero-runtime static slice
@@ -474,8 +492,6 @@ Ordered by blast radius × independence. Each is a candidate working-session bri
    the codegen + `resolve.ts` + the factory; keep typography's `typeStyle`/fontScale seam (P11) intact;
    the open primitives stay runtime. The largest RN-side cleanup; sequence after SEED-4 (they share
    `resolve.ts`/`theme` surface — do the colour-resolution simplification first, then the build-time bake).
-10. **D9 / D10 · minor + unconfirmed** — S1. `NuriIcon` `#000` fallback (XS, fold into any RN brief);
-    `Scroll` content-sizing (verify by render **before** writing a brief — may be a non-issue).
 
 ---
 

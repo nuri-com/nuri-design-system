@@ -5,8 +5,8 @@
  * convergence phase 4·1). Adding an icon = dropping a file: the
  * filename is the icon name (kebab-case), the file is one drawing.
  * Everything downstream is GENERATED, never hand-edited:
- *   · lib/components/icon/icons.js — the web reader (zero-build import)
- *   · build/icons.ts              — the RN reader (typed · SvgXml)
+ *   · packages/prototype/generated/icons.js — the web reader (zero-build import)
+ *   · packages/rn/generated/icons.ts        — the RN reader (typed · SvgXml)
  * ONE registry, TWO readers (decision 48), both emitted from here.
  *
  * The model SIMPLIFIED at N+51: one drawing per glyph · NO weights
@@ -81,7 +81,7 @@ export async function readIcons(dir) {
   return icons;
 }
 
-// Emit lib/components/icon/icons.js — the web reader (zero-build ES module
+// Emit packages/prototype/generated/icons.js — the web reader (zero-build ES module
 // import). GENERATED + committed + byte-identical-guarded (decision 35).
 export function emitIconsJs(icons) {
   const names = Object.keys(icons);
@@ -121,7 +121,7 @@ export function emitIconsTs(icons) {
     ` * Emitter · pipeline/tokens-parser.js — run \`npm run build\``,
     ` *`,
     ` * Typed RN reader for ${names.length} glyphs · one markup each · NO weights`,
-    ` * (decision 38 · N+51). The web inlines lib/components/icon/icons.js`,
+    ` * (decision 38 · N+51). The web inlines packages/prototype/generated/icons.js`,
     ` * directly; this file is the RN runtime's reader (react-native-svg SvgXml`,
     ` * over the same strings · decision 48). Every path string here equals the`,
     ` * folder-generated registry — enforced by the sync test in`,
