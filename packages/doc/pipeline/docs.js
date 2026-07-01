@@ -374,6 +374,8 @@ function genHeader(source) {
   ];
 }
 
+const tableCode = (value) => `\`${String(value).replace(/\|/g, '\\|')}\``;
+
 // ════════════════════════════════════════════════════════════════════
 // EMIT · the descriptor IR → the just-the-docs Markdown page string
 // ════════════════════════════════════════════════════════════════════
@@ -448,6 +450,32 @@ export function emitDocPage(ir, opts = {}) {
   }
   lines.push('');
 
+  return lines.join('\n');
+}
+
+// ════════════════════════════════════════════════════════════════════
+// EMIT · generated RN component prop type → API-only pilot page
+// ════════════════════════════════════════════════════════════════════
+export function emitComponentApiPage(ir) {
+  const title = titleFor(ir.source);
+  const lines = [];
+  lines.push(...frontMatter(title, NAV_ORDER[ir.source] ?? 1));
+  lines.push(...genHeader(ir.src));
+  lines.push('');
+  lines.push(`# ${title}`);
+  lines.push('');
+  lines.push('## API');
+  lines.push('');
+  lines.push('| Prop | Required | Type | Notes |');
+  lines.push('| --- | --- | --- | --- |');
+  for (const prop of ir.props) {
+    lines.push(`| \`${prop.name}\` | ${prop.required ? 'yes' : 'no'} | ${tableCode(prop.type)} | ${prop.note} |`);
+  }
+  lines.push('');
+  for (const prop of ir.forbidden || []) {
+    lines.push(`> \`${prop.name}\` is not accepted (${tableCode(`${prop.name}?: ${prop.type}`)}).`);
+    lines.push('');
+  }
   return lines.join('\n');
 }
 

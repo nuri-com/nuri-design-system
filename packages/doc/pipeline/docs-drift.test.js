@@ -3,9 +3,9 @@
  * moved + re-sourced N+42 · A4)
  *
  * The §35 discipline (committed build re-emits identically) applied to the
- * doc-gen: generated/components/<source>.md is RENDERED from the descriptor IR
- * (read-only · decision 2 STANDS for the doc · we EMIT docs, generate NO CSS)
- * by pipeline/docs.js. The re-emit identity is the stale-build / hand-edit guard;
+ * doc-gen: generated/components/<source>.md is RENDERED by pipeline/docs.js from
+ * either the descriptor IR (the old full page) or, for the button/icon-avatar pilot,
+ * the generated RN component prop type. The re-emit identity is the stale-build / hand-edit guard;
  * the per-page pins lock the contract — a future emitter change that drops the
  * front-matter, the authored-story include slot, a data section, or the N+23
  * VALUE enrichment breaks HERE, not only at `git diff --exit-code generated/`.
@@ -29,9 +29,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { loadSpecData, loadDataFromPath } from './strip.js';
 import { docIrFromDescriptor, exportNameFor, DOC_COMPONENTS } from './descriptor-ir.js';
+import { componentApiIrFromSource, isComponentApiPilot } from './component-api-ir.js';
 import { AXIS_DOCS } from './axis-ir.js';
 import { FOUNDATION_DOCS } from './foundations-ir.js';
-import { emitDocPage, emitAxisPage, emitFoundationPage, buildDocTokenInputs, makeRoleResolver } from './docs.js';
+import { emitDocPage, emitComponentApiPage, emitAxisPage, emitFoundationPage, buildDocTokenInputs, makeRoleResolver } from './docs.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DOC_ROOT = resolve(__dirname, '..');
@@ -43,6 +44,8 @@ const PROTO_GENERATED = resolve(__dirname, '../../prototype/generated');
 const SPEC_DESCRIPTORS = resolve(PROTO_GENERATED, 'descriptors');
 const readGenerated = (source) =>
   readFileSync(resolve(DOC_ROOT, 'generated/components', `${source}.md`), 'utf8');
+const readRnComponent = (source) =>
+  readFileSync(resolve(RN_GENERATED, 'components', `${source}.ts`), 'utf8');
 const readAxis = (source) =>
   readFileSync(resolve(DOC_ROOT, 'generated/axes', `${source}.md`), 'utf8');
 const readFoundation = (source) =>
@@ -54,40 +57,35 @@ const readFoundation = (source) =>
 // byte gate.
 const REPATHED_HEADER = 'emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc`';
 
-// Per-page contract (N+23): front-matter title/nav · the authored `## Example`
-// include · the data sections · the 2-column split (the resolved value in its
-// OWN "Resolves to" column beside the "Token" composition · operator request) ·
-// and ≥1 ENRICHED value cell exercising each format (geometry px · the type
-// composite · the live var() swatch + hex · the em-dash for a literal/flag). The
-// enriched cells are the FAITHFUL R1.5 surface — icon-avatar's `subtle` fg-only
-// variant + radius.full (the 9999px sentinel) · topbar's MIXED stack (literals →
-// em-dash, gap → px) + a region edge's all-literal `even`-flex stack (no axes now ·
-// the token map is empty). A deliberate emitter change must update these pins.
+// Per-page contract: the API pilot pages pin the generated prop table and the absence
+// of old descriptor sections; topbar still pins the authored `## Example` include, the
+// old data sections, and the enriched Token/Resolves-to cells.
 const PAGE_CONTRACT = {
   button: {
-    source: 'button', title: 'Button', nav: 1,
+    kind: 'api', source: 'button', title: 'Button', nav: 1,
     cells: [
-      // colour · the live var() swatch + the default-scope hex in the VALUE column
-      '| `variant` | `solid` | `root` | `palette` | **bg** `accent.solid`<br>**fg** `accent.onSolid`<br>**pressed** `accent.solidPressed` | <span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid)"></span> `#12110b`<br><span class="nuri-doc-swatch" style="background:var(--nuri-accent-on-solid)"></span> `#f0eee3`<br><span class="nuri-doc-swatch" style="background:var(--nuri-accent-solid-pressed)"></span> `#242319` |',
-      // geometry · the resolved px in the value column
-      '| `size` | `lg` | `root` | `box` | **minHeight** `size.xl`<br>**paddingX** `space.xl`<br>**radius** `radius.full` | `54px`<br>`24px`<br>`9999px` |',
-      // typography · the two orthogonal inputs (size + emphasis · decision 77) in the
-      // Token column, the resolved composite in the Value column (weight 600 = the
-      // emphasisWeight override · computed-equivalent with the old fused `mdEm`)
-      '| `size` | `md` | `label` | `typography` | **size** `md`<br>**emphasis** `true` | **fontSize** `17`<br>**lineHeight** `1.29`<br>**weight** `600`<br>**letterSpacing** `-0.02` |',
+      "| `variant` | no | `'solid' \\| 'soft' \\| 'ghost'` | style axis |",
+      "| `size` | no | `'sm' \\| 'md' \\| 'lg'` | style axis |",
+      '| `accent` | no | `Accent` | theme scope |',
+      '| `onPress` | no | `() => void` | pressable behaviour |',
+      '| `disabled` | no | `boolean` | pressable behaviour |',
+      '| `accessibilityLabel` | no | `string` | pressable behaviour |',
+      '| `children` | no | `React.ReactNode` | default content slot |',
     ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   'icon-avatar': {
-    source: 'icon-avatar', title: 'Icon Avatar', nav: 2,
+    kind: 'api', source: 'icon-avatar', title: 'Icon Avatar', nav: 2,
     cells: [
-      // geometry · the radius.full sentinel (9999px) in the value column
-      '| `root` | `box` | **width** `size.lg`<br>**height** `size.lg`<br>**radius** `radius.full` | `48px`<br>`48px`<br>`9999px` |',
-      // the `subtle` fg-only variant · a single swatch in the value column
-      '| `variant` | `subtle` | `root` | `palette` | **fg** `chrome.borderStrong` | <span class="nuri-doc-swatch" style="background:var(--nuri-border-strong)"></span> `#bfbcac` |',
+      "| `variant` | no | `'solid' \\| 'soft' \\| 'ghost' \\| 'subtle'` | style axis |",
+      '| `accent` | no | `Accent` | theme scope |',
+      '| `icon` | yes | `IconName` | scalar icon name |',
+      '> `children` is not accepted (`children?: never`).',
     ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`onPress`', '`disabled`', '`accessibilityLabel`'],
   },
   topbar: {
-    source: 'topbar', title: 'Topbar', nav: 3,
+    kind: 'descriptor', source: 'topbar', title: 'Topbar', nav: 3,
     cells: [
       // chrome surface · the canvas swatch + hex in the value column
       '| `root` | `palette` | **bg** `chrome.bgCanvas`<br>**fg** `chrome.textPrimary`<br>**muted** `chrome.textMuted` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-canvas)"></span> `#fffdf2`<br><span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `#222013`<br><span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `#666455` |',
@@ -101,7 +99,7 @@ const PAGE_CONTRACT = {
   },
 };
 
-test('G · each generated/components/*.md re-emits identically from its descriptor', async () => {
+test('G · each generated/components/*.md re-emits identically from its source surface', async () => {
   // The value-bearing inputs — re-sourced onto @nuri/spec DATA (the boundary):
   // @nuri/spec/tokens (the resolved cross-product + px scales + type composite) +
   // @nuri/spec/token-vars (the colour var registry) → buildDocTokenInputs; the
@@ -113,15 +111,21 @@ test('G · each generated/components/*.md re-emits identically from its descript
   const { tokens, colors } = buildDocTokenInputs(specTokens, tokenVars);
 
   // Re-emit must equal the committed page (stale-build / hand-edit guard). The doc
-  // IR is sourced from the AUTHORED descriptor (decision 69 · the SoT), via the
-  // browser-ESM twin (node cannot import the .ts SoT) — NOT re-derived from CSS.
+  // IR is sourced from the AUTHORED descriptor for the old pages, and from the generated
+  // RN component prop type for the API-only pilot pages.
   for (const spec of DOC_COMPONENTS) {
-    const twin = pathToFileURL(resolve(SPEC_DESCRIPTORS, `${spec.name}.js`)).href;
-    const descriptor = (await import(twin))[exportNameFor(spec.name)];
-    const ir = docIrFromDescriptor(spec, descriptor);
+    const emitted = isComponentApiPilot(spec.name)
+      ? emitComponentApiPage(componentApiIrFromSource(spec, readRnComponent(spec.source)))
+      : emitDocPage(
+          docIrFromDescriptor(
+            spec,
+            (await import(pathToFileURL(resolve(SPEC_DESCRIPTORS, `${spec.name}.js`)).href))[exportNameFor(spec.name)],
+          ),
+          { palette, tokens, colors },
+        );
     assert.equal(
       readGenerated(spec.source),
-      emitDocPage(ir, { palette, tokens, colors }),
+      emitted,
       `generated/components/${spec.source}.md is stale or hand-edited — run \`npm run build -w @nuri/doc\`.`,
     );
   }
@@ -140,23 +144,35 @@ test('G · each generated/components/*.md re-emits identically from its descript
       md.includes(REPATHED_HEADER),
       `${contract.source}.md: the provenance header is not re-pathed to the @nuri/doc home (the N+42 → A4b carry)`,
     );
-    assert.ok(
-      md.includes(`\n{% include demo/${contract.source}.html %}\n`),
-      `${contract.source}.md: the authored <nuri-demo> story include slot is missing (decision 57.2)`,
-    );
-    for (const h of ['## Example', '## API', '## Anatomy', '## Base', '## Token map']) {
-      assert.ok(md.includes(`\n${h}\n`), `${contract.source}.md: missing the '${h}' section`);
+    assert.ok(md.includes('\n## API\n'), `${contract.source}.md: missing the '## API' section`);
+    if (contract.kind === 'api') {
+      assert.ok(
+        md.includes('| Prop | Required | Type | Notes |'),
+        `${contract.source}.md: the API-only prop table drifted`,
+      );
+      for (const excluded of contract.excludes || []) {
+        assert.ok(
+          !md.includes(excluded),
+          `${contract.source}.md: API-only pilot page includes excluded descriptor/behaviour content '${excluded}'`,
+        );
+      }
+    } else {
+      assert.ok(
+        md.includes(`\n{% include demo/${contract.source}.html %}\n`),
+        `${contract.source}.md: the authored <nuri-demo> story include slot is missing (decision 57.2)`,
+      );
+      for (const h of ['## Example', '## Anatomy', '## Base', '## Token map']) {
+        assert.ok(md.includes(`\n${h}\n`), `${contract.source}.md: missing the '${h}' section`);
+      }
+      assert.ok(
+        md.includes('| Part | Namespace | Token | Resolves to |'),
+        `${contract.source}.md: the Base table lost the 2-column Token / Resolves-to split`,
+      );
+      assert.ok(
+        md.includes('| Axis | Value | Part | Namespace | Token | Resolves to |'),
+        `${contract.source}.md: the Token map lost the 2-column Token / Resolves-to split`,
+      );
     }
-    // The N+23 two-column split — the composition (Token) and its concrete value
-    // (Resolves to) in separate columns, in BOTH tables.
-    assert.ok(
-      md.includes('| Part | Namespace | Token | Resolves to |'),
-      `${contract.source}.md: the Base table lost the 2-column Token / Resolves-to split`,
-    );
-    assert.ok(
-      md.includes('| Axis | Value | Part | Namespace | Token | Resolves to |'),
-      `${contract.source}.md: the Token map lost the 2-column Token / Resolves-to split`,
-    );
     // ≥1 enriched cell per page — the N+23 value/swatch/composite RENDERING.
     for (const cell of contract.cells) {
       assert.ok(
