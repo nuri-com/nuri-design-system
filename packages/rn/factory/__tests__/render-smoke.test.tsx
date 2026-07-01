@@ -150,6 +150,33 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
+  // REGRESSION LOCK (#113 · taner): a lone `icon` leaf is NOT a `children` sink —
+  // the `icon` prop fills the glyph and stray children never hijack it (they were
+  // routed into the icon part before the primaryPart-gated-on-text fix, silently
+  // dropping `icon` and pushing a garbage string into the glyph).
+  test('IconButton — the `icon` prop wins · stray children do NOT hijack the glyph', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <IconButton icon="wallet" accessibilityLabel="Wallet">stray</IconButton>
+      </NuriThemeProvider>,
+    );
+    const glyph = tr.root.findByType(NuriIcon);
+    expect(glyph.props.name).toBe('wallet');
+    // the stray children string reaches no part → no Text node renders it.
+    expect(tr.root.findAllByType(Text)).toHaveLength(0);
+  });
+
+  test('IconAvatar — the `icon` prop wins · stray children do NOT hijack the glyph', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <IconAvatar icon="wallet">stray</IconAvatar>
+      </NuriThemeProvider>,
+    );
+    const glyph = tr.root.findByType(NuriIcon);
+    expect(glyph.props.name).toBe('wallet');
+    expect(tr.root.findAllByType(Text)).toHaveLength(0);
+  });
+
   test('TabBar — OPEN container renders its positional Tab children · selected + unselected items', () => {
     const tr = render(
       <NuriThemeProvider>

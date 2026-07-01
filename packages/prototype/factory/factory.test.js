@@ -145,6 +145,11 @@ test('C3 · <nuri-icon-avatar> · DECORATIVE aria-hidden comes from descriptor.d
   assert.equal(a.getAttribute('aria-hidden'), 'true', 'decorative:true in the descriptor → aria-hidden, not a hand attr');
   const view = a.querySelector('nuri-view');
   assert.equal(view.getAttribute('data-variant'), 'soft', 'the default variant resolves from data');
+  // the VALUE path (registered element · #113): the `icon` attribute routes the glyph
+  // NAME onto the inner primitive <nuri-icon name> (not just presence/aria/defaults).
+  const icon = a.querySelector('nuri-icon');
+  assert.ok(icon, 'the glyph leaf renders');
+  assert.equal(icon.getAttribute('name'), 'apple', 'the `icon` attr routes the glyph name onto <nuri-icon>');
 });
 
 // ══════════════════════════════════════════════════════════════════
@@ -214,6 +219,9 @@ test('E4 · <nuri-icon-button> · the registered element renders the glyph + ref
   assert.equal(btn.hasAttribute('disabled'), true, 'disabled reflects to the native button');
   const kids = [...btn.children];
   assert.deepEqual(kids.map((k) => k.tagName.toLowerCase()), ['nuri-icon'], 'just the glyph');
+  // the VALUE path (registered element · #113): the `icon` attribute routes the glyph
+  // NAME onto the inner primitive <nuri-icon name>, not just a bare present leaf.
+  assert.equal(kids[0].getAttribute('name'), 'apple', 'the `icon` attr routes the glyph name onto <nuri-icon>');
   assert.equal(btn.getAttribute('data-variant'), 'soft', 'the descriptor default (soft) with no variant attr');
 });
 
