@@ -10,8 +10,8 @@ const NOTE_BY_PROP = {
   onPress: 'pressable behaviour',
   disabled: 'pressable behaviour',
   accessibilityLabel: 'pressable behaviour',
-  children: 'default content slot',
   icon: 'scalar icon name',
+  name: 'scalar icon name',
 };
 
 const camel = (s) => s.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
@@ -29,16 +29,17 @@ export function componentPropTypeName(name) {
   return `${pascal(name)}Props`;
 }
 
-export function componentApiIrFromSource(spec, source) {
-  const typeName = componentPropTypeName(spec.name);
-  const match = new RegExp(`export\\s+type\\s+${typeName}\\s*=\\s*\\{([\\s\\S]*?)\\n\\};`).exec(source);
-  if (!match) {
-    throw new Error(`[docs] ${spec.name}: generated RN file does not export '${typeName}' as a narrow object type`);
-  }
+function noteForProp(name, type, isPrimaryType) {
+  if (name === 'children') return isPrimaryType ? 'default content slot' : 'slot content';
+  if (NOTE_BY_PROP[name]) return NOTE_BY_PROP[name];
+  if (type === 'IconName') return 'scalar icon name';
+  return 'component prop';
+}
 
+function parsePropObject(spec, typeName, body, isPrimaryType) {
   const props = [];
   const forbidden = [];
-  for (const rawLine of match[1].split('\n')) {
+  for (const rawLine of body.split('\n')) {
     const line = rawLine.trim();
     if (!line || line.startsWith('//')) continue;
     const prop = /^([A-Za-z_$][\w$]*)(\?)?:\s*(.+);$/.exec(line);
@@ -50,20 +51,40 @@ export function componentApiIrFromSource(spec, source) {
       name,
       required: optional !== '?',
       type,
-      note: NOTE_BY_PROP[name] || 'component prop',
+      note: noteForProp(name, type, isPrimaryType),
     };
     if (type === 'never') forbidden.push(entry);
     else props.push(entry);
   }
-  if (!props.length) throw new Error(`[docs] ${spec.name}: '${typeName}' did not expose any documentable props`);
+  if (!props.length && !forbidden.length) {
+    throw new Error(`[docs] ${spec.name}: '${typeName}' did not expose any documentable props`);
+  }
+  return { typeName, props, forbidden };
+}
+
+export function componentApiIrFromSource(spec, source) {
+  const primaryTypeName = componentPropTypeName(spec.name);
+  const publicTypePrefix = pascal(spec.name);
+  const typeRe = /export\s+type\s+([A-Za-z_$][\w$]*)\s*=\s*\{([\s\S]*?)\n\};/g;
+
+  const types = [];
+  for (const match of source.matchAll(typeRe)) {
+    const [, typeName, body] = match;
+    if (!typeName.endsWith('Props') || !typeName.startsWith(publicTypePrefix)) continue;
+    types.push(parsePropObject(spec, typeName, body, typeName === primaryTypeName));
+  }
+  if (!types.some((t) => t.typeName === primaryTypeName)) {
+    throw new Error(`[docs] ${spec.name}: generated RN file does not export '${primaryTypeName}' as a narrow object type`);
+  }
 
   return {
     name: spec.name,
     source: spec.source,
-    typeName,
+    typeName: primaryTypeName,
     src: `packages/rn/generated/components/${spec.source}.ts`,
-    props,
-    forbidden,
+    types,
+    props: types[0].props,
+    forbidden: types[0].forbidden,
   };
 }
 

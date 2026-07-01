@@ -64,6 +64,7 @@ const PAGE_CONTRACT = {
   button: {
     kind: 'api', source: 'button', title: 'Button', nav: 1,
     cells: [
+      '### ButtonProps',
       "| `variant` | no | `'solid' \\| 'soft' \\| 'ghost'` | style axis |",
       "| `size` | no | `'sm' \\| 'md' \\| 'lg'` | style axis |",
       '| `accent` | no | `Accent` | theme scope |',
@@ -71,6 +72,11 @@ const PAGE_CONTRACT = {
       '| `disabled` | no | `boolean` | pressable behaviour |',
       '| `accessibilityLabel` | no | `string` | pressable behaviour |',
       '| `children` | no | `React.ReactNode` | default content slot |',
+      '### ButtonTextProps',
+      '| `children` | no | `React.ReactNode` | slot content |',
+      '### ButtonIconProps',
+      '| `name` | yes | `IconName` | scalar icon name |',
+      '> `children` is not accepted (`children?: never`).',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },

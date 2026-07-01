@@ -20,9 +20,15 @@ import { NuriIcon } from './NuriIcon';
 // descendants (colour-from-scope · F-BOX-FG-1).
 export const NuriSurfaceContext = React.createContext<{ foreground?: string }>({});
 
-// A generated region marker component (TopbarLeading/Center/Trailing). Rendered
-// alone it yields its children; generated parent adapters harvest the marker tag.
-export type NuriSlot = React.FC<{ children?: React.ReactNode }> & { __nuriSlot: Part };
+// A generated marker component (TopbarLeading/Center/Trailing regions and ordered
+// leaves like ButtonText/ButtonIcon). Rendered alone it yields its children;
+// generated parent adapters harvest the marker tag and normalize public props.
+export type NuriSlot<P extends object = { children?: React.ReactNode }> = React.FC<P> & {
+  __nuriSlot: Part;
+  __nuriSlotContentProp: string;
+};
+
+export type NuriCompositionEntry = { part: Part; content: React.ReactNode };
 
 // part name → its PascalCase token (leading → Leading).
 const pascalPart = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
@@ -36,13 +42,22 @@ export const nuriNames = (kebab: string): { web: string; rn: string } => ({
   rn: pascalCase(kebab),
 });
 
-export function createNuriSlot(part: Part, displayName: string): NuriSlot {
-  const Slot: NuriSlot = ((slotProps: { children?: React.ReactNode }) => (
+export function createNuriSlot<P extends object = { children?: React.ReactNode }>(
+  part: Part,
+  displayName: string,
+  contentProp = 'children',
+): NuriSlot<P> {
+  const Slot: NuriSlot<P> = ((slotProps: P & { children?: React.ReactNode }) => (
     <React.Fragment>{slotProps.children}</React.Fragment>
-  )) as NuriSlot;
+  )) as NuriSlot<P>;
   Slot.__nuriSlot = part;
+  Slot.__nuriSlotContentProp = contentProp;
   Slot.displayName = displayName;
   return Slot;
+}
+
+function isRenderableChild(child: React.ReactNode): boolean {
+  return child != null && child !== false && !(typeof child === 'string' && child.trim() === '');
 }
 
 export function harvestNuriSlots(
@@ -58,9 +73,31 @@ export function harvestNuriSlots(
         return;
       }
     }
-    if (child != null && child !== false && fallbackPart) (harvested[fallbackPart] ??= []).push(child);
+    if (isRenderableChild(child) && fallbackPart) (harvested[fallbackPart] ??= []).push(child);
   });
   return harvested;
+}
+
+export function harvestNuriComposition(
+  children: React.ReactNode,
+  fallbackPart: Part | undefined,
+): { hasSlots: boolean; items: NuriCompositionEntry[] } {
+  const items: NuriCompositionEntry[] = [];
+  let hasSlots = false;
+  React.Children.forEach(children, (child) => {
+    if (React.isValidElement(child) && typeof child.type !== 'string') {
+      const slotType = child.type as Partial<NuriSlot>;
+      if (slotType.__nuriSlot) {
+        hasSlots = true;
+        const props = child.props as Record<string, React.ReactNode>;
+        const contentProp = slotType.__nuriSlotContentProp || 'children';
+        items.push({ part: slotType.__nuriSlot, content: props[contentProp] });
+        return;
+      }
+    }
+    if (isRenderableChild(child) && fallbackPart) items.push({ part: fallbackPart, content: child });
+  });
+  return { hasSlots, items };
 }
 
 export type NuriBehaviour = {
@@ -78,6 +115,7 @@ export type NuriDescriptorInstance<A extends Axes> = {
   displayName: string;
   selection: Selection;
   content: Partial<Record<Part, React.ReactNode>>;
+  composition?: Partial<Record<Part, NuriCompositionEntry[]>>;
   behaviour: NuriBehaviour;
 };
 
@@ -87,8 +125,18 @@ type RenderCtx<A extends Axes> = {
   theme: NuriTheme;
   selection: Selection;
   content: Partial<Record<Part, React.ReactNode>>;
+  composition: Partial<Record<Part, NuriCompositionEntry[]>>;
   behaviour: NuriBehaviour;
 };
+
+function findChildPart(node: AnatomyNode, part: Part): AnatomyNode | undefined {
+  for (const child of node.children) {
+    if (child.name === part) return child;
+    const nested = findChildPart(child, part);
+    if (nested) return nested;
+  }
+  return undefined;
+}
 
 function renderPart<A extends Axes>(
   node: AnatomyNode,
@@ -120,11 +168,26 @@ function renderPart<A extends Axes>(
 
   switch (node.el) {
     case 'view': {
-      const childEls = node.children.map((child) => renderPart(child, ctx, fg, false));
-      const ownContent = ctx.content[node.name];
       const kids: React.ReactNode[] = [];
-      if (ownContent != null) kids.push(<React.Fragment key="__content">{ownContent}</React.Fragment>);
-      kids.push(...childEls);
+      const composition = ctx.composition[node.name];
+      if (composition) {
+        composition.forEach((entry, index) => {
+          const childNode = findChildPart(node, entry.part);
+          if (!childNode) throw new Error(`nuri-factory: composition entry targets '${entry.part}', which is not under '${node.name}'`);
+          const rendered = renderPart(
+            childNode,
+            { ...ctx, content: { ...ctx.content, [entry.part]: entry.content } },
+            fg,
+            false,
+          );
+          if (rendered) kids.push(React.cloneElement(rendered, { key: `${entry.part}:${index}` }));
+        });
+      } else {
+        const childEls = node.children.map((child) => renderPart(child, ctx, fg, false));
+        const ownContent = ctx.content[node.name];
+        if (ownContent != null) kids.push(<React.Fragment key="__content">{ownContent}</React.Fragment>);
+        kids.push(...childEls);
+      }
 
       const body =
         flat.node.fg !== undefined ? (
@@ -201,6 +264,7 @@ export function renderDescriptorInstance<A extends Axes>({
   displayName,
   selection,
   content,
+  composition = {},
   behaviour,
 }: NuriDescriptorInstance<A>): React.ReactElement {
   if (!recipe) throw new Error(`nuri-factory: renderDescriptorInstance('${displayName}') requires a baked recipe`);
@@ -215,6 +279,7 @@ export function renderDescriptorInstance<A extends Axes>({
       theme,
       selection,
       content,
+      composition,
       behaviour,
     },
     ambient.foreground,

@@ -11,6 +11,8 @@ nav_order: 1
 
 ## API
 
+### ButtonProps
+
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `variant` | no | `'solid' \| 'soft' \| 'ghost'` | style axis |
@@ -20,3 +22,17 @@ nav_order: 1
 | `disabled` | no | `boolean` | pressable behaviour |
 | `accessibilityLabel` | no | `string` | pressable behaviour |
 | `children` | no | `React.ReactNode` | default content slot |
+
+### ButtonTextProps
+
+| Prop | Required | Type | Notes |
+| --- | --- | --- | --- |
+| `children` | no | `React.ReactNode` | slot content |
+
+### ButtonIconProps
+
+| Prop | Required | Type | Notes |
+| --- | --- | --- | --- |
+| `name` | yes | `IconName` | scalar icon name |
+
+> `children` is not accepted (`children?: never`).

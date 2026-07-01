@@ -207,6 +207,48 @@ function harvestSlots(host, slotTagToPart, defaultSlot) {
   return slots;
 }
 
+// Harvest ordered leaf composition (<nuri-button-text>, <nuri-button-icon>) into
+// a normalized sequence. No marker present means "use the legacy bare text route";
+// once a marker is present, meaningful bare nodes are preserved in order through
+// the default text sink.
+function harvestComposition(host, slotTagToSpec, fallbackPart) {
+  let hasSlot = false;
+  for (const child of [...host.childNodes]) {
+    if (child.nodeType === 1 && slotTagToSpec[child.tagName.toLowerCase()]) {
+      hasSlot = true;
+      break;
+    }
+  }
+  if (!hasSlot) return null;
+
+  const entries = [];
+  const textEntry = (part, node) => {
+    const tpl = document.createElement('template');
+    tpl.content.append(node);
+    entries.push({ part, content: tpl });
+  };
+
+  for (const child of [...host.childNodes]) {
+    if (child.nodeType === 1) {
+      const spec = slotTagToSpec[child.tagName.toLowerCase()];
+      if (spec) {
+        if (spec.kind === 'icon-name') {
+          entries.push({ part: spec.part, content: child.getAttribute('name') });
+        } else {
+          const tpl = document.createElement('template');
+          while (child.firstChild) tpl.content.append(child.firstChild);
+          entries.push({ part: spec.part, content: tpl });
+        }
+        continue;
+      }
+    }
+    if (child.nodeType === 3 && !child.textContent.trim()) continue;
+    if (fallbackPart) textEntry(fallbackPart, child);
+  }
+
+  return entries;
+}
+
 // Defer the box/stack/palette merge onto the inner <button> the pressable owns.
 // The button is created in the pressable's connectedCallback (on mount), so we
 // apply NOW if it already exists, else watch the host's childList for it (a
@@ -245,6 +287,32 @@ function renderPart(node, ctx) {
   }
 }
 
+function findChildPart(node, part) {
+  for (const child of node.children) {
+    if (child.name === part) return child;
+    const nested = findChildPart(child, part);
+    if (nested) return nested;
+  }
+  return null;
+}
+
+function appendComposition(host, node, ctx) {
+  const entries = ctx.composition && ctx.composition[node.name];
+  if (!entries) return false;
+  for (const entry of entries) {
+    const childNode = findChildPart(node, entry.part);
+    if (!childNode) throw new Error(`[nuri-factory] composition entry targets '${entry.part}', which is not under '${node.name}'`);
+    const isTemplate = entry.content && entry.content.nodeType === 1 && entry.content.tagName === 'TEMPLATE';
+    const content = {
+      ...ctx.content,
+      [entry.part]: isTemplate ? entry.content.content.cloneNode(true) : entry.content,
+    };
+    const childEl = renderPart(childNode, { ...ctx, content });
+    if (childEl) host.appendChild(childEl);
+  }
+  return true;
+}
+
 // view + interactive → <nuri-pressable> + the merged inner <button>.
 function renderInteractiveView(node, ns, ctx) {
   const host = document.createElement('nuri-pressable');
@@ -265,11 +333,13 @@ function renderInteractiveView(node, ns, ctx) {
   // children parts + this part's own routed content (appended to the host; the
   // pressable moves them INTO the inner <button> on connect).
   const own = ctx.content[node.name];
-  if (own != null) host.append(own);
-  // A leaf child may render NOTHING (an absent optional flank · renderPart → null).
-  for (const child of node.children) {
-    const childEl = renderPart(child, ctx);
-    if (childEl) host.appendChild(childEl);
+  if (!appendComposition(host, node, ctx)) {
+    if (own != null) host.append(own);
+    // A leaf child may render NOTHING (an absent optional flank · renderPart → null).
+    for (const child of node.children) {
+      const childEl = renderPart(child, ctx);
+      if (childEl) host.appendChild(childEl);
+    }
   }
 
   // box ⊕ stack ⊕ palette → merged onto the inner <button> (deferred).
@@ -301,11 +371,13 @@ function renderStaticView(node, ns, ctx) {
   // own content (an `open` host's positional children · ctx.content[root]) then
   // the child parts — the RN renderPart order (own content keyed before kids).
   const own = ctx.content[node.name];
-  if (own != null) host.append(own);
-  // A leaf child may render NOTHING (an absent optional flank · renderPart → null).
-  for (const child of node.children) {
-    const childEl = renderPart(child, ctx);
-    if (childEl) host.appendChild(childEl);
+  if (!appendComposition(host, node, ctx)) {
+    if (own != null) host.append(own);
+    // A leaf child may render NOTHING (an absent optional flank · renderPart → null).
+    for (const child of node.children) {
+      const childEl = renderPart(child, ctx);
+      if (childEl) host.appendChild(childEl);
+    }
   }
   return host;
 }
@@ -392,15 +464,14 @@ export function buildComponent(descriptor, selection = {}, props = {}) {
     sel.state = props.selected ? 'selected' : 'unselected';
   }
 
-  // `children` → a lone TEXT primary part (Button's label), unless `content` already
-  // set it (the createNuriComponent routing). An `icon` primary part (IconAvatar /
-  // IconButton) is addressed by its part NAME instead — <nuri-icon-avatar icon=X> /
-  // <nuri-icon-button icon=X> route the `icon` attribute via the ergonomic per-part
-  // loop below (the component `icon` prop · not `name`, the primitive <nuri-icon>'s attr).
+  // `children` → the declared default slot (Button's label), unless `content`
+  // already set it (the generated RN adapter routing). An `icon` primary part
+  // (IconAvatar / IconButton) is addressed by its declared scalar prop instead.
   const primary = anatomy.children.length === 1 ? anatomy.children[0] : undefined;
+  const defaultSlotSpec = Object.values(descriptor.api?.slots || {}).find((slot) => slot.default === true);
   const content = { ...props.content };
-  if (primary && primary.el === 'text' && props.children !== undefined && content[primary.name] === undefined) {
-    content[primary.name] = props.children;
+  if (defaultSlotSpec && props.children !== undefined && content[defaultSlotSpec.part] === undefined) {
+    content[defaultSlotSpec.part] = props.children;
   }
   // OPEN-POSITIONAL-CHILDREN (the TabBar · §7 · the RN createNuriComponent mirror):
   // an `open` root with no lone primary renders its POSITIONAL children directly —
@@ -420,7 +491,7 @@ export function buildComponent(descriptor, selection = {}, props = {}) {
     }
   }
 
-  return renderPart(anatomy, { descriptor, selection: sel, content, base: props });
+  return renderPart(anatomy, { descriptor, selection: sel, content, composition: props.composition || {}, base: props });
 }
 
 // ── THE DETERMINISTIC NAMING RULE (deterministic-naming · the web MIRROR) ──
@@ -461,11 +532,13 @@ export const nuriNames = (kebab) => ({ web: `nuri-${kebab}`, rn: pascalCase(keba
 export function defineNuriComponent(descriptor, tagName) {
   const axisNames = descriptor.variants ? Object.keys(descriptor.variants) : [];
   const anatomy = resolveAnatomy(descriptor);
+  const apiSlots = descriptor.api?.slots || {};
+  const defaultSlotSpec = Object.values(apiSlots).find((spec) => spec.default === true);
   // The lone non-root part receives the routed content (createNuriComponent's
   // primaryPart): a `text` el captures the label (children/textContent) · an `icon`
   // el is addressed by its part name (the `icon` attribute · the per-part path below).
   const primary = anatomy.children.length === 1 ? anatomy.children[0] : undefined;
-  const textPrimary = !!primary && primary.el === 'text';
+  const textPrimary = defaultSlotSpec?.kind === 'text';
   // COMPOUND capability (the topbar-slots slice · descriptor-driven · the web twin
   // of createNuriComponent's): a non-root `view` part is a fillable REGION (a slot)
   // → the factory generates a sub-element (<nuri-topbar-leading/center/trailing>,
@@ -477,6 +550,10 @@ export function defineNuriComponent(descriptor, tagName) {
   const defaultSlot = slotParts[slotParts.length - 1];
   const slotTagToPart = {};
   for (const part of slotParts) slotTagToPart[`${tagName}-${part}`] = part;
+  const componentSlotEntries = Object.entries(apiSlots).filter(([, spec]) => spec.component === true);
+  const componentSlotTagToSpec = {};
+  for (const [slot, spec] of componentSlotEntries) componentSlotTagToSpec[`${tagName}-${slot}`] = spec;
+  const hasComponentSlots = componentSlotEntries.length > 0;
   // OPEN-POSITIONAL HOST (the TabBar · §7 · descriptor-driven · the RN createNuriComponent
   // mirror): an `open` root with NO named regions and no lone primary renders its
   // authored POSITIONAL children directly inside the built root. Distinct from
@@ -500,7 +577,9 @@ export function defineNuriComponent(descriptor, tagName) {
   // uses `name`). A lone `text` primary is addressed by children/textContent instead,
   // so it is excluded. View REGIONS are slot-filled by sub-elements (not attrs). For a
   // text-primary component (Button) this set is empty.
-  const perPartAttrs = anatomy.children.filter((c) => c.el !== 'view' && !(c === primary && c.el === 'text')).map((c) => c.name);
+  const perPartAttrs = Object.entries(apiSlots)
+    .filter(([, spec]) => spec.kind !== 'region' && spec.default !== true && spec.component !== true)
+    .map(([slot, spec]) => spec.prop || slot);
   // Interactive iff the root opts in (the `disabled` reflection is generic to any
   // interactive component · button has it, icon-avatar does not).
   const interactive = !!(descriptor.structure.base && descriptor.structure.base.root && descriptor.structure.base.root.interactive);
@@ -525,6 +604,7 @@ export function defineNuriComponent(descriptor, tagName) {
 
     #label = null;
     #slots = null;
+    #composition = null;
     #openKids = null;
     #built = false;
 
@@ -536,9 +616,12 @@ export function defineNuriComponent(descriptor, tagName) {
       if (mountsTree) this.setAttribute('data-host-tree', '');
       // Decorative · the whole element is hidden from AT (decision 50) — from DATA.
       if (descriptor.decorative) this.setAttribute('aria-hidden', 'true');
+      // Capture ordered leaf composition before the factory tree replaces the
+      // children. With no slot marker, keep the legacy bare text-primary route.
+      if (hasComponentSlots) this.#composition = harvestComposition(this, componentSlotTagToSpec, defaultSlotSpec?.part);
       // Capture the authored label BEFORE the factory tree replaces the children
       // (buildComponent routes `children` to the lone non-root text part).
-      if (textPrimary) this.#label = this.textContent.trim();
+      if (textPrimary && !this.#composition) this.#label = this.textContent.trim();
       // COMPOUND: harvest the region sub-elements + bare children BEFORE the render
       // replaces them (cloned per render · the topbar-slots slice).
       if (isCompound) this.#slots = harvestSlots(this, slotTagToPart, defaultSlot);
@@ -575,6 +658,7 @@ export function defineNuriComponent(descriptor, tagName) {
       }
       const props = {};
       if (textPrimary) props.children = this.#label;
+      if (this.#composition) props.composition = { root: this.#composition };
       if (interactive) props.disabled = this.hasAttribute('disabled');
       // `selected` boolean attr → props.selected (buildComponent bridges it to the
       // `state` axis · present = selected · absent = unselected).
@@ -638,6 +722,11 @@ export function defineNuriComponent(descriptor, tagName) {
     for (const part of slotParts) {
       const slotTag = `${tagName}-${part}`;
       if (!customElements.get(slotTag)) customElements.define(slotTag, class extends HTMLElement {});
+    }
+  }
+  if (hasComponentSlots) {
+    for (const slot of Object.keys(componentSlotTagToSpec)) {
+      if (!customElements.get(slot)) customElements.define(slot, class extends HTMLElement {});
     }
   }
   return NuriElement;

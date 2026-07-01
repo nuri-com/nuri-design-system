@@ -1,7 +1,7 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · BUTTON · GENERATED RN API ADAPTER · DO NOT EDIT BY HAND
  *
- * The exact public export for `button` (Path C · Phase 3). `{Name}Props`
+ * The exact public export for `button` (Path C component-API). `{Name}Props`
  * is emitted from the descriptor's `api` (packages/spec/components/button.ts);
  * the component adapter normalizes public props into selection, content,
  * behaviour, and accent scope before calling the shared descriptor renderer.
@@ -12,13 +12,14 @@
  * ────────────────────────────────────────────────────────────── */
 
 import * as React from 'react';
-import { nuriNames, renderDescriptorInstance } from '../../factory/createNuriComponent';
-import type { NuriBehaviour } from '../../factory/createNuriComponent';
+import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriComposition } from '../../factory/createNuriComponent';
+import type { NuriBehaviour, NuriCompositionEntry } from '../../factory/createNuriComponent';
 import { buttonDescriptor } from '@nuri/spec/descriptors/button';
 import { recipes } from '../recipes';
 import type { Part } from '../../contract';
 import { NuriScope } from '../../theme';
 import type { Accent } from '../tokens';
+import type { IconName } from '../icons';
 
 export type ButtonProps = {
   variant?: 'solid' | 'soft' | 'ghost';
@@ -31,6 +32,15 @@ export type ButtonProps = {
 };
 
 const buttonDisplayName = nuriNames('button').rn;
+export type ButtonTextProps = {
+  children?: React.ReactNode;
+};
+export const ButtonText = createNuriSlot<ButtonTextProps>("label", `${buttonDisplayName}Text`);
+export type ButtonIconProps = {
+  name: IconName;
+  children?: never;
+};
+export const ButtonIcon = createNuriSlot<ButtonIconProps>("icon", `${buttonDisplayName}Icon`, 'name');
 
 const ButtonInner: React.FC<ButtonProps> = (props) => {
   const selection: Record<string, string> = {
@@ -38,7 +48,12 @@ const ButtonInner: React.FC<ButtonProps> = (props) => {
     "size": props.size ?? "md",
   };
   const content: Partial<Record<Part, React.ReactNode>> = {};
-  if (props.children !== undefined) content["label"] = props.children;
+  const composition: Partial<Record<Part, NuriCompositionEntry[]>> = {};
+  const harvestedComposition = harvestNuriComposition(props.children, "label");
+  if (harvestedComposition.hasSlots) {
+    composition.root = harvestedComposition.items;
+  }
+  if (!harvestedComposition.hasSlots && props.children !== undefined) content["label"] = props.children;
   const behaviour: NuriBehaviour = {};
   behaviour.pressable = {
     target: "root",
@@ -53,6 +68,7 @@ const ButtonInner: React.FC<ButtonProps> = (props) => {
     displayName: buttonDisplayName,
     selection,
     content,
+    composition,
     behaviour,
   });
 };

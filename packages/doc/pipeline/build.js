@@ -75,7 +75,11 @@ async function buildComponentDocs() {
       const ir = await componentApiIrFromFile(spec, RN_GENERATED);
       const out = resolve(COMPONENTS_OUT, `${spec.source}.md`);
       await writeFile(out, emitComponentApiPage(ir), 'utf8');
-      reports.push({ family: 'component', source: spec.source, detail: `${ir.props.length} props · API pilot`, out });
+      const propCount = (ir.types || []).reduce((sum, type) => sum + type.props.length + (type.forbidden || []).length, 0);
+      const typeCount = (ir.types || []).length || 1;
+      const typeLabel = typeCount === 1 ? 'prop type' : 'prop types';
+      const propLabel = propCount === 1 ? 'prop' : 'props';
+      reports.push({ family: 'component', source: spec.source, detail: `${typeCount} ${typeLabel} · ${propCount} ${propLabel} · API pilot`, out });
       continue;
     }
     const twin = pathToFileURL(resolve(SPEC_DESCRIPTORS, `${spec.name}.js`)).href;

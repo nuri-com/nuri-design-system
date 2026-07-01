@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · PARSER · COMPONENT-API CODEGEN (Path C · Phase 3)
+ * NURI · PARSER · COMPONENT-API CODEGEN (Path C)
  * ──────────────────────────────────────────────────────────────────
  * Emits RN projection component adapters from each descriptor's public `api`.
  * The generated `{Name}Props` types stay exact, and the generated component
@@ -58,6 +58,10 @@ function buildProps(api, variants) {
       hasDefault = true;
       continue;
     }
+    if (slot.component === true) {
+      if (slot.kind === 'icon-name') usesIcon = true;
+      continue;
+    }
     if (slot.prop) {
       usesIcon = true;
       lines.push(`  ${slot.prop}${slot.required ? '' : '?'}: IconName;`);
@@ -74,7 +78,10 @@ function buildProps(api, variants) {
   lines.push(hasDefault ? '  children?: React.ReactNode;' : '  children?: never;');
 
   const regionParts = Object.values(api.slots).filter((s) => s.kind === 'region').map((s) => s.part);
-  return { lines, usesAccent, usesIcon, regionParts };
+  const componentSlots = Object.entries(api.slots)
+    .filter(([, s]) => s.component === true)
+    .map(([slotName, slot]) => ({ slotName, ...slot }));
+  return { lines, usesAccent, usesIcon, regionParts, componentSlots };
 }
 
 function fallbackSelectionValue(descriptor, axis, values) {
@@ -109,6 +116,8 @@ function emitContent(api) {
   const lines = ['  const content: Partial<Record<Part, React.ReactNode>> = {};'];
   const regionSlots = Object.values(api.slots).filter((slot) => slot.kind === 'region');
   const fallbackRegion = Object.values(api.slots).find((slot) => slot.kind === 'region' && slot.default === true);
+  const componentSlots = Object.values(api.slots).filter((slot) => slot.component === true);
+  const fallbackSlot = Object.values(api.slots).find((slot) => slot.default === true);
 
   if (regionSlots.length) {
     lines.push(`  const harvested = harvestNuriSlots(props.children, ${fallbackRegion ? q(fallbackRegion.part) : 'undefined'});`);
@@ -117,10 +126,22 @@ function emitContent(api) {
     }
   }
 
+  if (componentSlots.length) {
+    lines.push('  const composition: Partial<Record<Part, NuriCompositionEntry[]>> = {};');
+    lines.push(`  const harvestedComposition = harvestNuriComposition(props.children, ${fallbackSlot ? q(fallbackSlot.part) : 'undefined'});`);
+    lines.push('  if (harvestedComposition.hasSlots) {');
+    lines.push('    composition.root = harvestedComposition.items;');
+    lines.push('  }');
+  }
+
   for (const [slotName, slot] of Object.entries(api.slots)) {
-    if (slot.kind === 'region') continue;
+    if (slot.kind === 'region' || slot.component === true) continue;
     if (slot.default === true) {
-      lines.push(`  if (props.children !== undefined) content[${q(slot.part)}] = props.children;`);
+      if (componentSlots.length) {
+        lines.push(`  if (!harvestedComposition.hasSlots && props.children !== undefined) content[${q(slot.part)}] = props.children;`);
+      } else {
+        lines.push(`  if (props.children !== undefined) content[${q(slot.part)}] = props.children;`);
+      }
       continue;
     }
     const prop = slot.prop || (slot.kind === 'icon-name' || slot.kind === 'text' ? slotName : null);
@@ -146,7 +167,7 @@ function fileHeader(name) {
     '/* ──────────────────────────────────────────────────────────────',
     ` * NURI · COMPONENT · ${name.toUpperCase()} · GENERATED RN API ADAPTER · DO NOT EDIT BY HAND`,
     ' *',
-    ` * The exact public export for \`${name}\` (Path C · Phase 3). \`{Name}Props\``,
+    ` * The exact public export for \`${name}\` (Path C component-API). \`{Name}Props\``,
     " * is emitted from the descriptor's `api` (packages/spec/components/" + name + '.ts);',
     ' * the component adapter normalizes public props into selection, content,',
     ' * behaviour, and accent scope before calling the shared descriptor renderer.',
@@ -164,16 +185,18 @@ export function emitComponentFile(spec, descriptor) {
   const Pascal = pascalCase(name);
   const local = lowerFirst(Pascal);
   const descId = exportNameFor(name);
-  const { lines, usesAccent, usesIcon, regionParts } = buildProps(descriptor.api, descriptor.variants || {});
+  const { lines, usesAccent, usesIcon, regionParts, componentSlots } = buildProps(descriptor.api, descriptor.variants || {});
   const hasRegions = regionParts.length > 0;
+  const hasComponentSlots = componentSlots.length > 0;
 
   const factoryImports = ['nuriNames', 'renderDescriptorInstance'];
   if (hasRegions) factoryImports.push('createNuriSlot', 'harvestNuriSlots');
+  if (hasComponentSlots) factoryImports.push('createNuriSlot', 'harvestNuriComposition');
 
   const imports = [
     "import * as React from 'react';",
     `import { ${factoryImports.join(', ')} } from '../../factory/createNuriComponent';`,
-    "import type { NuriBehaviour } from '../../factory/createNuriComponent';",
+    `import type { NuriBehaviour${hasComponentSlots ? ', NuriCompositionEntry' : ''} } from '../../factory/createNuriComponent';`,
     `import { ${descId} } from '@nuri/spec/descriptors/${name}';`,
     "import { recipes } from '../recipes';",
     "import type { Part } from '../../contract';",
@@ -199,6 +222,27 @@ export function emitComponentFile(spec, descriptor) {
       body.push(`export const ${Pascal}${pascalPart(part)} = createNuriSlot(${q(part)}, \`${'${'}${displayNameConst}}${pascalPart(part)}\`);`);
     }
   }
+  if (hasComponentSlots) {
+    for (const slot of componentSlots) {
+      const slotPascal = pascalPart(slot.slotName);
+      if (slot.kind === 'icon-name') {
+        body.push(
+          `export type ${Pascal}${slotPascal}Props = {`,
+          '  name: IconName;',
+          '  children?: never;',
+          '};',
+          `export const ${Pascal}${slotPascal} = createNuriSlot<${Pascal}${slotPascal}Props>(${q(slot.part)}, \`${'${'}${displayNameConst}}${slotPascal}\`, 'name');`,
+        );
+      } else {
+        body.push(
+          `export type ${Pascal}${slotPascal}Props = {`,
+          '  children?: React.ReactNode;',
+          '};',
+          `export const ${Pascal}${slotPascal} = createNuriSlot<${Pascal}${slotPascal}Props>(${q(slot.part)}, \`${'${'}${displayNameConst}}${slotPascal}\`);`,
+        );
+      }
+    }
+  }
 
   body.push(
     '',
@@ -213,6 +257,7 @@ export function emitComponentFile(spec, descriptor) {
     `    displayName: ${displayNameConst},`,
     '    selection,',
     '    content,',
+    ...(hasComponentSlots ? ['    composition,'] : []),
     '    behaviour,',
     '  });',
     '};',
@@ -246,10 +291,10 @@ function emitIndex(entries) {
     '',
   ].join('\n');
   const lines = [];
-  for (const { name, Pascal, regionSubs } of entries) {
-    const values = [Pascal, ...regionSubs].join(', ');
+  for (const { name, Pascal, regionSubs, componentSubs } of entries) {
+    const values = [Pascal, ...regionSubs, ...componentSubs].join(', ');
     lines.push(`export { ${values} } from './${name}';`);
-    lines.push(`export type { ${Pascal}Props } from './${name}';`);
+    lines.push(`export type { ${[`${Pascal}Props`, ...componentSubs.map((sub) => `${sub}Props`)].join(', ')} } from './${name}';`);
   }
   return header + '\n' + lines.join('\n') + '\n';
 }
@@ -265,7 +310,10 @@ export async function emitComponentApi({ descriptorComponents, descriptorsDir })
     const regionSubs = Object.values(descriptor.api.slots)
       .filter((s) => s.kind === 'region')
       .map((s) => `${Pascal}${pascalPart(s.part)}`);
-    indexEntries.push({ name: spec.name, Pascal, regionSubs });
+    const componentSubs = Object.entries(descriptor.api.slots)
+      .filter(([, s]) => s.component === true)
+      .map(([slotName]) => `${Pascal}${pascalPart(slotName)}`);
+    indexEntries.push({ name: spec.name, Pascal, regionSubs, componentSubs });
   }
   files.push({ filename: 'index.ts', source: emitIndex(indexEntries) });
   return { files, coverage: descriptorComponents.map((s) => s.name) };

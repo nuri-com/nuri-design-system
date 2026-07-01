@@ -20,9 +20,9 @@
  *   1.  every `slots[*].part` exists in the anatomy (walk `structure.anatomy`);
  *   1b. every slot `kind` is a legal literal AND matches its part's `el`
  *       (`text`→text · `icon-name`→icon · `region`/`node`→view · `children`→OPEN view);
- *   2.  every `behaviour.pressable.target` exists in the anatomy AND that part
- *       declares `interactive` (base or a variant value) — onPress must not exist
- *       independent of interactivity (review §9);
+ *   2.  every `behaviour.pressable.target` exists in the anatomy, is a `view`,
+ *       AND declares `interactive` (base or a variant value) — onPress must not
+ *       exist independent of interactivity (review §9);
  *   2b. `behaviour.pressable.props` are a non-empty, duplicate-free subset of the
  *       legal public props (`onPress`/`disabled`/`accessibilityLabel`);
  *   3.  every `api.axes` member is a real `variants` axis key;
@@ -30,7 +30,8 @@
  *       by a propMap (so no style axis silently drops from the public surface);
  *   4.  every `propMaps.selected` names a real axis + real true/false values of it;
  *   5.  AT MOST ONE slot carries `default: true`;
- *   6.  `multiple: true` only on a `kind: 'children'` slot;
+ *   6.  `multiple: true` only on a `kind: 'children'` slot OR a generated
+ *       component slot;
  *   7.  `prop` (the scalar shorthand) ONLY on a SINGULAR `kind: 'icon-name'` slot
  *       (Overrides §1a · never text/node/region/children · never a `multiple` slot);
  *   8.  `themeScope.accent` is declared `true` on every descriptor (universal · §2);
@@ -38,6 +39,8 @@
  *       slot is children-delivered, a prop slot is prop-delivered · Phase-2 codegen);
  *   10. `default: true` only on a CHILDREN-deliverable kind — text/node/region/children,
  *       never `icon-name` (Option A · §1c · the untagged-children sink is a subtree).
+ *   11. `component: true` is only used for composition slots (no `prop`/`default`)
+ *       and all generated prop/slot identifiers are safe TS identifiers.
  *
  * Sibling to docs-drift.test.js / naming.test.js — picked up by the existing
  * `node --test scripts/*.test.js` gate · zero new deps.
@@ -98,6 +101,7 @@ const KINDS = Object.keys(KIND_EL);
 // `('onPress' | 'disabled' | 'accessibilityLabel')[]` · schema.ts). Codegen emits
 // these onto the wrapper, so a bogus/missing entry must fail here.
 const PRESSABLE_PROPS = ['onPress', 'disabled', 'accessibilityLabel'];
+const SAFE_IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 
 // Every part that declares an `interactive` opt-in in ANY composition layer —
 // `structure.base` OR any `variants[axis][value]` (interactivity can be
@@ -172,15 +176,17 @@ test('component-api · every slot kind is legal and matches its part element', (
   }
 });
 
-// ── Channel 2 · every pressable target is a real, INTERACTIVE anatomy part ──
-test('component-api · every behaviour.pressable.target is an interactive anatomy part', () => {
+// ── Channel 2 · every pressable target is a real, VIEW, INTERACTIVE anatomy part ──
+test('component-api · every behaviour.pressable.target is an interactive view anatomy part', () => {
   for (const name of NAMES) {
     const d = CATALOG[name];
     const target = d.api.behaviour?.pressable?.target;
     if (target === undefined) continue; // non-interactive components declare no pressable
     const index = anatomyIndex(d.structure.anatomy);
     const interactive = interactiveParts(d);
-    assert.ok(index.has(target), `${name}: pressable.target '${target}' is not an anatomy part`);
+    const node = index.get(target);
+    assert.ok(node, `${name}: pressable.target '${target}' is not an anatomy part`);
+    assert.equal(node?.el, 'view', `${name}: pressable.target '${target}' is el '${node?.el}' — Pressable can only wrap view parts`);
     assert.ok(
       interactive.has(target),
       `${name}: pressable.target '${target}' does not declare \`interactive\` in base or any variant — ` +
@@ -258,13 +264,16 @@ test('component-api · at most one slot carries default: true', () => {
   }
 });
 
-// ── Channel 6 · multiple: true only on a children slot ──
-test('component-api · multiple: true only on a kind:children slot', () => {
+// ── Channel 6 · multiple: true only on a children slot or generated component slot ──
+test('component-api · multiple: true only on a kind:children slot or generated component slot', () => {
   for (const name of NAMES) {
     const d = CATALOG[name];
     for (const [slot, spec] of slotEntries(d)) {
       if (spec.multiple === true) {
-        assert.equal(spec.kind, 'children', `${name}: slot '${slot}' is multiple but kind '${spec.kind}' — multiple is only legal on kind:'children'`);
+        assert.ok(
+          spec.kind === 'children' || spec.component === true,
+          `${name}: slot '${slot}' is multiple but kind '${spec.kind}' and component is not true — multiple is only legal on kind:'children' or generated component slots`,
+        );
       }
     }
   }
@@ -335,5 +344,32 @@ test('component-api · themeScope.accent is declared true on every descriptor', 
       true,
       `${name}: api.themeScope.accent must be \`true\` — accent is universal-but-DECLARED (Overrides §2)`,
     );
+  }
+});
+
+// ── Channel 11 · generated identifiers stay safe and component slots are composition-only ──
+test('component-api · generated prop and component-slot identifiers are safe', () => {
+  for (const name of NAMES) {
+    const d = CATALOG[name];
+    for (const axis of d.api.axes) {
+      assert.match(axis, SAFE_IDENTIFIER, `${name}: api axis '${axis}' is not a safe generated TS prop identifier`);
+    }
+    for (const propMap of Object.keys(d.api.propMaps || {})) {
+      assert.match(propMap, SAFE_IDENTIFIER, `${name}: propMap '${propMap}' is not a safe generated TS prop identifier`);
+    }
+    for (const prop of d.api.behaviour?.pressable?.props || []) {
+      assert.match(prop, SAFE_IDENTIFIER, `${name}: pressable prop '${prop}' is not a safe generated TS prop identifier`);
+    }
+    for (const [slot, spec] of slotEntries(d)) {
+      assert.match(slot, SAFE_IDENTIFIER, `${name}: slot '${slot}' is not a safe generated TS identifier suffix`);
+      if (spec.prop !== undefined) {
+        assert.match(spec.prop, SAFE_IDENTIFIER, `${name}: slot '${slot}' prop '${spec.prop}' is not a safe generated TS prop identifier`);
+      }
+      if (spec.component === true) {
+        assert.equal(spec.prop, undefined, `${name}: component slot '${slot}' declares prop '${spec.prop}' — rich composition is not a named prop`);
+        assert.notEqual(spec.default, true, `${name}: component slot '${slot}' is default:true — default remains only the bare untagged-children sink`);
+        assert.notEqual(spec.kind, 'region', `${name}: component slot '${slot}' is a region — regions use their existing marker harvest path`);
+      }
+    }
   }
 });

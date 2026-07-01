@@ -29,6 +29,7 @@ import { buttonDescriptor } from '../generated/descriptors/button.js';
 // <script> tags.
 import '../primitives/pressable.js';
 import '../primitives/typography.js';
+import '../primitives/icon.js';
 
 // The public name is `button` (the descriptor source basename · name===public) —
 // the tag is DERIVED via nuriNames, never hand-authored.

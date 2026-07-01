@@ -27,9 +27,10 @@ export {
   pascalCase,
   createNuriSlot,
   harvestNuriSlots,
+  harvestNuriComposition,
   renderDescriptorInstance,
 } from './createNuriComponent';
-export type { NuriSlot, NuriBehaviour, NuriDescriptorInstance } from './createNuriComponent';
+export type { NuriSlot, NuriCompositionEntry, NuriBehaviour, NuriDescriptorInstance } from './createNuriComponent';
 
 // The DS-owned RN glyph renderer (the icon contract): resolves a typed `IconName`
 // → the register glyph → react-native-svg. The factory's icon part renders this;
@@ -57,12 +58,15 @@ export type {
 // renderer. The renderer receives a descriptor instance; it no longer derives a
 // consumer API from anatomy.
 //   <Button variant="solid" size="md" accent="lilac" onPress={…}>Buy</Button>
+//   <Button><ButtonText>Buy</ButtonText><ButtonIcon name="apple" /></Button>
 //   <IconAvatar variant="soft" icon="apple" />
 //   <IconButton variant="soft" icon="apple" accessibilityLabel="Buy" onPress={…} />
 //   <Topbar><TopbarLeading>…</TopbarLeading><TopbarCenter>…</TopbarCenter>…</Topbar>
 //   <TabBar><TabBarItem icon="card" label="Wallet" selected onPress={…} />…</TabBar>
 export {
   Button,
+  ButtonText,
+  ButtonIcon,
   IconAvatar,
   Topbar,
   TopbarLeading,
@@ -74,6 +78,8 @@ export {
 } from '../generated/components';
 export type {
   ButtonProps,
+  ButtonTextProps,
+  ButtonIconProps,
   IconAvatarProps,
   TopbarProps,
   IconButtonProps,

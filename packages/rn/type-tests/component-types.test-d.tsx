@@ -18,17 +18,23 @@
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';
-import { Button, IconButton, IconAvatar, TabBarItem } from '../factory';
+import { Button, ButtonIcon, ButtonText, IconButton, IconAvatar, TabBarItem } from '../factory';
 
 // ── Button — text sink · variant/size · NO icon (the soup is gone) ──
 // the real surface compiles: variant union + children text.
 export const buttonOk = <Button variant="solid" size="md" onPress={() => undefined}>Send</Button>;
 // bare children are the label sink.
 export const buttonChildrenOk = <Button>Buy</Button>;
+// composed ordered lockup: flat slot exports, icon slot uses `name`.
+export const buttonComposedOk = <Button><ButtonText>Buy</ButtonText><ButtonIcon name="apple" /></Button>;
 // @ts-expect-error Button has NO `icon` prop — it was never a slot on button (the `NuriBaseProps` soup that put `icon` on every component is what Phase 2 removes).
 export const buttonNoIcon = <Button icon="apple" />;
 // @ts-expect-error `variant` is a closed union — `plaid` is not a value.
 export const buttonBadVariant = <Button variant="plaid">Send</Button>;
+// @ts-expect-error ButtonIcon glyph names are closed over the generated icon registry.
+export const buttonIconBadName = <ButtonIcon name="made-up" />;
+// @ts-expect-error Button has no dot-notation API; flat exports are the public shape.
+export const buttonNoDotNotation = <Button.Text>Buy</Button.Text>;
 
 // ── IconButton — required scalar `icon` · children?: never · interactive ──
 // the icon-only glyph circle: `icon` is required + valid, plus the pressable props.

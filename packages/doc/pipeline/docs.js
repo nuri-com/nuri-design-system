@@ -456,9 +456,23 @@ export function emitDocPage(ir, opts = {}) {
 // ════════════════════════════════════════════════════════════════════
 // EMIT · generated RN component prop type → API-only pilot page
 // ════════════════════════════════════════════════════════════════════
+function renderApiPropTable(lines, apiType) {
+  lines.push('| Prop | Required | Type | Notes |');
+  lines.push('| --- | --- | --- | --- |');
+  for (const prop of apiType.props) {
+    lines.push(`| \`${prop.name}\` | ${prop.required ? 'yes' : 'no'} | ${tableCode(prop.type)} | ${prop.note} |`);
+  }
+  lines.push('');
+  for (const prop of apiType.forbidden || []) {
+    lines.push(`> \`${prop.name}\` is not accepted (${tableCode(`${prop.name}?: ${prop.type}`)}).`);
+    lines.push('');
+  }
+}
+
 export function emitComponentApiPage(ir) {
   const title = titleFor(ir.source);
   const lines = [];
+  const apiTypes = ir.types || [{ typeName: ir.typeName, props: ir.props, forbidden: ir.forbidden }];
   lines.push(...frontMatter(title, NAV_ORDER[ir.source] ?? 1));
   lines.push(...genHeader(ir.src));
   lines.push('');
@@ -466,15 +480,12 @@ export function emitComponentApiPage(ir) {
   lines.push('');
   lines.push('## API');
   lines.push('');
-  lines.push('| Prop | Required | Type | Notes |');
-  lines.push('| --- | --- | --- | --- |');
-  for (const prop of ir.props) {
-    lines.push(`| \`${prop.name}\` | ${prop.required ? 'yes' : 'no'} | ${tableCode(prop.type)} | ${prop.note} |`);
-  }
-  lines.push('');
-  for (const prop of ir.forbidden || []) {
-    lines.push(`> \`${prop.name}\` is not accepted (${tableCode(`${prop.name}?: ${prop.type}`)}).`);
-    lines.push('');
+  for (const apiType of apiTypes) {
+    if (apiTypes.length > 1) {
+      lines.push(`### ${apiType.typeName}`);
+      lines.push('');
+    }
+    renderApiPropTable(lines, apiType);
   }
   return lines.join('\n');
 }
