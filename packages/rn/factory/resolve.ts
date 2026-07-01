@@ -138,11 +138,12 @@ export type ResolvedPalette = {
 function resolvePalette(ns: PaletteNS, theme: NuriTheme): ResolvedPalette {
   // variant wins over chrome (schema: at most one; variant wins).
   if (ns.variant !== undefined) {
-    // Read the pre-resolved surface from the payload — NO per-node theme rebuild
-    // (the old `palette.accent` self-scope `buildNuriTheme(ns.accent, mode)` is
-    // GONE · SEED-4: a per-node accent override is a NESTED SCOPE, the ONE
-    // override mechanism, not a bespoke whole-theme rebuild · exercised by zero
-    // catalog descriptors, so its removal is behaviour-preserving).
+    // Read the pre-resolved surface from the payload — NO per-node theme rebuild.
+    // A `palette.accent` override (open primitives · <View accent=…>) is honoured
+    // UPSTREAM as a NESTED SCOPE (the factory prop-accent + primitives' scopedByAccent
+    // establish a NuriScope), so `theme` here is ALREADY the scoped payload. The old
+    // `buildNuriTheme(ns.accent, mode)` self-scope rebuild is GONE · SEED-4: one
+    // override mechanism (root · scope · prop), never a bespoke per-node rebuild.
     const role = theme.surface[ns.variant];
     return {
       bg: role.bg,

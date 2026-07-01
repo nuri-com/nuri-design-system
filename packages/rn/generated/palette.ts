@@ -33,9 +33,11 @@ import type { TokenPath } from './token-paths';
 
 // A colour cell is a structural REF — `{ group, leaf }` preserved so the theme
 // builder indexes the selected (chrome | accent) slice with ZERO parse — or a
-// verbatim literal (ghost's 'transparent'). `ColorRef` pins each ref's
-// `${group}.${leaf}` to a real runtime TokenPath (the emit-time guarantee, typed).
-export type ColorRef<P extends TokenPath = TokenPath> =
+// verbatim literal (ghost's 'transparent'). `ColorRef` is narrowed to the two
+// COLOUR groups (chrome | accent · the only groups a palette cell refs) and pins
+// each ref's `${group}.${leaf}` to a real runtime TokenPath (the emit guarantee).
+type ColorPath = Extract<TokenPath, `chrome.${string}` | `accent.${string}`>;
+export type ColorRef<P extends ColorPath = ColorPath> =
   P extends `${infer G}.${infer L}` ? { readonly group: G; readonly leaf: L } : never;
 
 export const palette = {

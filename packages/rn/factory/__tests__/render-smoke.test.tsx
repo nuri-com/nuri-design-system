@@ -239,6 +239,24 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
+  test('primitives — <View accent> establishes a scope · variant paints the SCOPED accent (not ambient · PR #111)', () => {
+    // The open-primitive twin of the factory prop-accent: a `palette.accent` on a
+    // primitive must scope its own surface. Under a lilac ambient, an orange View
+    // with variant=solid paints the ORANGE solid (#ff8c5a) — proving the accent is
+    // honoured as a nested scope, NOT silently dropped to the ambient lilac
+    // (#beaaff · the blocker the review caught: resolvePalette dropped ns.accent).
+    const tr = render(
+      <NuriThemeProvider mode="light" accent="lilac">
+        <NuriView accent="orange" variant="solid" />
+      </NuriThemeProvider>,
+    );
+    const root = tr.toJSON() as TestRenderer.ReactTestRendererJSON;
+    const style = root.props.style as unknown;
+    const flat = Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : (style as Record<string, unknown>);
+    expect(flat.backgroundColor).toBe('#ff8c5a'); // orange solid · the scoped accent
+    expect(flat.backgroundColor).not.toBe('#beaaff'); // NOT the ambient lilac solid
+  });
+
   test('accent self-scope (Tier-2) overrides ambient (F-SCOPE-2)', () => {
     // solid under a neutral self-scope inside a lilac ambient → the black solid
     // bg (#12110b · the NEUTRAL accent's solid surface) proves the prop won over

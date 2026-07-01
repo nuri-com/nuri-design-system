@@ -31,8 +31,10 @@ import {
 } from '../../contract';
 import type { Accent, Theme } from '../../contract';
 
-const ACCENTS: Accent[] = ['neutral', 'lilac', 'orange'];
-const MODES: Theme[] = ['light', 'dark'];
+// Derive the matrix from the token SoTs, so a new accent (or mode) is covered
+// automatically — the guard can never silently under-test the (accent × mode) grid.
+const ACCENTS = Object.keys(accentTokens) as Accent[];
+const MODES = Object.keys(chrome) as Theme[];
 
 // Collapse one accent role's flat-or-{light,dark} value to its mode hex — the
 // SAME collapse the builder does, RESTATED here so the oracle reads the contract
