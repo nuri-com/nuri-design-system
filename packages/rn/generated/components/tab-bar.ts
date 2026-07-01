@@ -16,7 +16,6 @@ import { nuriNames, renderDescriptorInstance } from '../../factory/createNuriCom
 import type { NuriBehaviour } from '../../factory/createNuriComponent';
 import { tabBarDescriptor } from '@nuri/spec/descriptors/tab-bar';
 import { recipes } from '../recipes';
-import type { Part } from '../../contract';
 import { NuriScope } from '../../theme';
 import type { Accent } from '../tokens';
 
@@ -25,14 +24,16 @@ export type TabBarProps = {
   children?: React.ReactNode;
 };
 
+type TabBarPart = 'root';
+
 const tabBarDisplayName = nuriNames('tab-bar').rn;
 
 const TabBarInner: React.FC<TabBarProps> = (props) => {
   const selection: Record<string, string> = {
   };
-  const content: Partial<Record<Part, React.ReactNode>> = {};
+  const content: Partial<Record<TabBarPart, React.ReactNode>> = {};
   if (props.children !== undefined) content["root"] = props.children;
-  const behaviour: NuriBehaviour = {};
+  const behaviour: NuriBehaviour<TabBarPart> = {};
 
   return renderDescriptorInstance({
     descriptor: tabBarDescriptor,

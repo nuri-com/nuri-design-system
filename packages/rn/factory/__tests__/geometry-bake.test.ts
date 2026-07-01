@@ -138,7 +138,7 @@ describe('geometry bake · guard 1 BINDS — mutation proof (a stale bake WOULD 
     // resolver now diverges from the (unmutated) bake — proving the oracle is
     // sensitive to the actual descriptor geometry, not vacuously equal.
     const mutated = JSON.parse(JSON.stringify(buttonDescriptor)) as typeof buttonDescriptor;
-    (mutated.variants as { size: Record<string, { root: { box: { minHeight: string } } }> }).size.md.root.box.minHeight = 'xl';
+    (mutated.variants as unknown as { size: Record<string, { root: { box: { minHeight: string } } }> }).size.md.root.box.minHeight = 'xl';
     expect(flattenPart(mutated, theme, 'root', selection, {}).style).not.toEqual(baked);
     // control — the unmutated runtime still matches (the divergence is the mutation's).
     expect(flattenPart(buttonDescriptor, theme, 'root', selection, {}).style).toEqual(baked);

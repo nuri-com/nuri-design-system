@@ -40,7 +40,7 @@ import type {
   PaletteNS,
   InteractiveNS,
   TypographyNS,
-  Part,
+  PartId,
   El,
   PartAnatomy,
   PartMap,
@@ -275,7 +275,7 @@ function mergeNS(list: NS[]): NS {
 function mergedNSForPart<A extends Axes>(
   descriptor: Descriptor<A>,
   selection: Selection,
-  part: Part,
+  part: PartId,
 ): NS {
   const maps: NS[] = [];
   const baseNS = descriptor.structure.base?.[part];
@@ -293,13 +293,13 @@ function mergedNSForPart<A extends Axes>(
 }
 
 // ── anatomy → a render tree (structure · un-derivable from CSS · 65.2) ──
-export type AnatomyNode = { name: Part; el: El; open: boolean; children: AnatomyNode[] };
+export type AnatomyNode<P extends PartId = PartId> = { name: P; el: El; open: boolean; children: AnatomyNode<P>[] };
 
 export function resolveAnatomy<A extends Axes>(descriptor: Descriptor<A>): AnatomyNode {
-  const walk = (name: Part, a: PartAnatomy): AnatomyNode => {
+  const walk = (name: PartId, a: PartAnatomy): AnatomyNode => {
     const children: AnatomyNode[] = [];
     if (a.parts) {
-      (Object.keys(a.parts) as Exclude<Part, 'root'>[]).forEach((childName) => {
+      Object.keys(a.parts).forEach((childName) => {
         const childAnatomy = a.parts![childName];
         if (childAnatomy) children.push(walk(childName, childAnatomy));
       });
@@ -374,7 +374,7 @@ export type PartFlat = { style: ViewStyle; node: ResolvedNode };
 export function flattenPart<A extends Axes>(
   descriptor: Descriptor<A>,
   theme: NuriTheme,
-  part: Part,
+  part: PartId,
   selection: Selection,
   state: State,
 ): PartFlat {
@@ -427,7 +427,7 @@ export type BakedComponentRecipe = Record<string, BakedPartRecipe>;
 function mergedPaletteNSForPart<A extends Axes>(
   descriptor: Descriptor<A>,
   selection: Selection,
-  part: Part,
+  part: PartId,
 ): PaletteNS | undefined {
   let out: PaletteNS | undefined;
   const add = (p?: PaletteNS): void => {
@@ -496,7 +496,7 @@ export function flattenBakedPart<A extends Axes>(
   recipePart: BakedPartRecipe,
   descriptor: Descriptor<A>,
   theme: NuriTheme,
-  part: Part,
+  part: PartId,
   selection: Selection,
   state: State,
 ): PartFlat {
