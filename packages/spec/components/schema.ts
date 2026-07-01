@@ -312,7 +312,9 @@ export type Variants<A extends Axes> = {
 // (validated to exist in the descriptor's anatomy · Phase 5 narrows it to
 // descriptor-local literals via codegen, not TS inference · the strip wall).
 // `prop` = the scalar icon-name shorthand (ONLY legal on a singular `icon-name`
-// slot); `default: true` = the default children slot (at most one per component);
+// slot); `default: true` = the component's PRIMARY slot — what a bare positional
+// child OR the scalar shorthand fills (NOT necessarily `kind:'children'` · e.g.
+// IconButton's `icon` slot is the default · at most one per component);
 // `multiple: true` = repeated children (a `children` slot · e.g. tab-bar's items).
 export type SlotSpec = {
   part: Part;

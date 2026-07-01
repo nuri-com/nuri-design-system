@@ -14,18 +14,26 @@
  * It reads the AUTHORED descriptor via its committed browser-ESM twin
  * (packages/prototype/generated/descriptors/<name>.js · node cannot import the .ts;
  * the twin is a verbatim passthrough of the source, gated fresh by Guard D), and
- * validates every api against the SAME descriptor's anatomy + variants — seven
- * channels, each its own test so a mutation lands on a NAMED subtest:
- *   1. every `slots[*].part` exists in the anatomy (walk `structure.anatomy`);
- *   2. every `behaviour.pressable.target` exists in the anatomy AND that part
- *      declares `interactive` (base or a variant value) — onPress must not exist
- *      independent of interactivity (review §9);
- *   3. every `api.axes` member is a real `variants` axis key;
- *   4. every `propMaps.selected` names a real axis + real true/false values of it;
- *   5. AT MOST ONE slot carries `default: true`;
- *   6. `multiple: true` only on a `kind: 'children'` slot;
- *   7. `prop` (the scalar shorthand) ONLY on a SINGULAR `kind: 'icon-name'` slot
- *      (Overrides §1a · never text/node/region/children · never a `multiple` slot).
+ * validates every api against the SAME descriptor's anatomy + variants — one
+ * channel per test so a mutation lands on a NAMED subtest. It covers EVERY
+ * Phase-2-codegen-critical field (not just part existence · the review's ask):
+ *   1.  every `slots[*].part` exists in the anatomy (walk `structure.anatomy`);
+ *   1b. every slot `kind` is a legal literal AND matches its part's `el`
+ *       (`text`→text · `icon-name`→icon · `region`/`node`→view · `children`→OPEN view);
+ *   2.  every `behaviour.pressable.target` exists in the anatomy AND that part
+ *       declares `interactive` (base or a variant value) — onPress must not exist
+ *       independent of interactivity (review §9);
+ *   2b. `behaviour.pressable.props` are a non-empty, duplicate-free subset of the
+ *       legal public props (`onPress`/`disabled`/`accessibilityLabel`);
+ *   3.  every `api.axes` member is a real `variants` axis key;
+ *   3b. every `variants` axis is ACCOUNTED FOR — public in `api.axes` or bridged
+ *       by a propMap (so no style axis silently drops from the public surface);
+ *   4.  every `propMaps.selected` names a real axis + real true/false values of it;
+ *   5.  AT MOST ONE slot carries `default: true`;
+ *   6.  `multiple: true` only on a `kind: 'children'` slot;
+ *   7.  `prop` (the scalar shorthand) ONLY on a SINGULAR `kind: 'icon-name'` slot
+ *       (Overrides §1a · never text/node/region/children · never a `multiple` slot);
+ *   8.  `themeScope.accent` is declared `true` on every descriptor (universal · §2).
  *
  * Sibling to docs-drift.test.js / naming.test.js — picked up by the existing
  * `node --test scripts/*.test.js` gate · zero new deps.
@@ -58,21 +66,34 @@ const NAMES = DESCRIPTOR_COMPONENTS.map((s) => s.name);
 
 // ── anatomy helpers (the descriptor's structural truth the api is checked against) ──
 
-// Every part NAME the anatomy declares — the host `root` plus every nested part,
-// walked recursively (compound regions / leaf parts). This is the universe a
-// slot/behaviour `part` must live in.
-function anatomyParts(anatomy) {
-  const names = new Set(['root']);
+// Index the anatomy by part NAME → its `PartAnatomy` node — the host `root` (the
+// anatomy object itself) plus every nested part, walked recursively (compound
+// regions / leaf parts). The universe a slot/behaviour `part` must live in, AND
+// the source of each part's `el`/`open` for the kind↔el check below.
+function anatomyIndex(anatomy) {
+  const index = new Map([['root', anatomy]]);
   const walk = (node) => {
     if (!node || !node.parts) return;
     for (const [part, child] of Object.entries(node.parts)) {
-      names.add(part);
+      index.set(part, child);
       walk(child);
     }
   };
   walk(anatomy);
-  return names;
+  return index;
 }
+
+// The legal slot `kind` vocabulary + the anatomy `el` each kind must target
+// (Phase-2 codegen branches on `kind`, so a kind that contradicts the part's
+// element would mis-generate). `text`→a text leaf · `icon-name`→the glyph leaf ·
+// `region`/`children`/`node`→a view host (a `children` sink must also be OPEN).
+const KIND_EL = { text: 'text', 'icon-name': 'icon', region: 'view', children: 'view', node: 'view' };
+const KINDS = Object.keys(KIND_EL);
+
+// The public behaviour props a `pressable` may expose (mirrors the schema union
+// `('onPress' | 'disabled' | 'accessibilityLabel')[]` · schema.ts). Codegen emits
+// these onto the wrapper, so a bogus/missing entry must fail here.
+const PRESSABLE_PROPS = ['onPress', 'disabled', 'accessibilityLabel'];
 
 // Every part that declares an `interactive` opt-in in ANY composition layer —
 // `structure.base` OR any `variants[axis][value]` (interactivity can be
@@ -113,12 +134,36 @@ test('component-api · every descriptor declares an `api` block', () => {
 test('component-api · every slot part exists in the anatomy', () => {
   for (const name of NAMES) {
     const d = CATALOG[name];
-    const parts = anatomyParts(d.structure.anatomy);
+    const index = anatomyIndex(d.structure.anatomy);
     for (const [slot, spec] of slotEntries(d)) {
       assert.ok(
-        parts.has(spec.part),
-        `${name}: slot '${slot}' targets part '${spec.part}', which is not in the anatomy (${[...parts].join(', ')})`,
+        index.has(spec.part),
+        `${name}: slot '${slot}' targets part '${spec.part}', which is not in the anatomy (${[...index.keys()].join(', ')})`,
       );
+    }
+  }
+});
+
+// ── Channel 1b · every slot `kind` is legal AND matches its part's element ──
+// Phase-2 codegen branches on `kind`; a kind that contradicts the target part's
+// `el` (`text` on a glyph · `icon-name` on a text leaf) would mis-generate. A
+// `children` sink must additionally be an OPEN view (the positional-children host).
+test('component-api · every slot kind is legal and matches its part element', () => {
+  for (const name of NAMES) {
+    const d = CATALOG[name];
+    const index = anatomyIndex(d.structure.anatomy);
+    for (const [slot, spec] of slotEntries(d)) {
+      assert.ok(KINDS.includes(spec.kind), `${name}: slot '${slot}' has illegal kind '${spec.kind}' (${KINDS.join(', ')})`);
+      const node = index.get(spec.part);
+      if (!node) continue; // part-existence is Channel 1's failure to report
+      assert.equal(
+        node.el,
+        KIND_EL[spec.kind],
+        `${name}: slot '${slot}' is kind '${spec.kind}' but its part '${spec.part}' is el '${node.el}' — expected el '${KIND_EL[spec.kind]}'`,
+      );
+      if (spec.kind === 'children') {
+        assert.equal(node.open, true, `${name}: slot '${slot}' is kind 'children' but part '${spec.part}' is not an \`open\` view (the positional-children host)`);
+      }
     }
   }
 });
@@ -129,14 +174,31 @@ test('component-api · every behaviour.pressable.target is an interactive anatom
     const d = CATALOG[name];
     const target = d.api.behaviour?.pressable?.target;
     if (target === undefined) continue; // non-interactive components declare no pressable
-    const parts = anatomyParts(d.structure.anatomy);
+    const index = anatomyIndex(d.structure.anatomy);
     const interactive = interactiveParts(d);
-    assert.ok(parts.has(target), `${name}: pressable.target '${target}' is not an anatomy part`);
+    assert.ok(index.has(target), `${name}: pressable.target '${target}' is not an anatomy part`);
     assert.ok(
       interactive.has(target),
       `${name}: pressable.target '${target}' does not declare \`interactive\` in base or any variant — ` +
         `onPress must not exist independent of interactivity (review §9)`,
     );
+  }
+});
+
+// ── Channel 2b · pressable.props exist, are an array, and are all legal ──
+// Codegen emits these onto the wrapper's public surface, so a missing/bogus prop
+// must fail now (before the wrappers exist to catch it).
+test('component-api · behaviour.pressable.props are a non-empty subset of the legal props', () => {
+  for (const name of NAMES) {
+    const d = CATALOG[name];
+    const pressable = d.api.behaviour?.pressable;
+    if (pressable === undefined) continue;
+    const props = pressable.props;
+    assert.ok(Array.isArray(props) && props.length > 0, `${name}: pressable.props must be a non-empty array (got ${JSON.stringify(props)})`);
+    for (const p of props) {
+      assert.ok(PRESSABLE_PROPS.includes(p), `${name}: pressable.props has illegal member '${p}' (${PRESSABLE_PROPS.join(', ')})`);
+    }
+    assert.equal(new Set(props).size, props.length, `${name}: pressable.props has duplicates (${props.join(', ')})`);
   }
 });
 
@@ -147,6 +209,24 @@ test('component-api · every api.axes member is a real variants axis', () => {
     const keys = axisKeys(d);
     for (const axis of d.api.axes) {
       assert.ok(keys.includes(axis), `${name}: api.axes names '${axis}', which is not a variants axis (${keys.join(', ') || 'none'})`);
+    }
+  }
+});
+
+// ── Channel 3b · every variants axis is ACCOUNTED FOR — public or bridged ──
+// The reverse of Channel 3: an axis that exists in `variants` but is neither
+// surfaced in `api.axes` nor bridged by a propMap would silently drop from the
+// generated wrapper's public surface. Every axis must be one or the other.
+test('component-api · every variants axis is public (api.axes) or bridged (propMaps)', () => {
+  for (const name of NAMES) {
+    const d = CATALOG[name];
+    const publicAxes = new Set(d.api.axes);
+    const bridgedAxes = new Set(Object.values(d.api.propMaps || {}).map((m) => m.axis));
+    for (const axis of axisKeys(d)) {
+      assert.ok(
+        publicAxes.has(axis) || bridgedAxes.has(axis),
+        `${name}: variants axis '${axis}' is neither in api.axes nor bridged by a propMap — it would drop from the public surface`,
+      );
     }
   }
 });
@@ -195,5 +275,19 @@ test('component-api · prop only on a singular kind:icon-name slot', () => {
       assert.equal(spec.kind, 'icon-name', `${name}: slot '${slot}' declares prop '${spec.prop}' but kind '${spec.kind}' — the scalar shorthand is only legal on kind:'icon-name' (Overrides §1a)`);
       assert.notEqual(spec.multiple, true, `${name}: slot '${slot}' declares prop '${spec.prop}' but is multiple — the scalar shorthand requires a SINGULAR slot`);
     }
+  }
+});
+
+// ── Channel 8 · themeScope.accent is DECLARED on every descriptor (universal) ──
+// accent is Option 1 — universal-but-DECLARED (Overrides §2 · docs/component-api-target.md):
+// every component carries the accent scope, and the honest shape is to DECLARE it
+// (not hard-code a global ThemeScopeProps). So every descriptor must set it.
+test('component-api · themeScope.accent is declared true on every descriptor', () => {
+  for (const name of NAMES) {
+    assert.equal(
+      CATALOG[name].api.themeScope?.accent,
+      true,
+      `${name}: api.themeScope.accent must be \`true\` — accent is universal-but-DECLARED (Overrides §2)`,
+    );
   }
 });

@@ -72,7 +72,7 @@ api: {
       part: PartId;
       kind: 'text' | 'icon-name' | 'node' | 'region' | 'children';
       prop?: string;          // ONLY legal on a singular `icon-name` slot (the scalar shorthand · e.g. 'icon')
-      default?: true;         // the default `children` slot
+      default?: true;         // the PRIMARY slot — a bare child OR the scalar shorthand fills it (not necessarily `children`)
       required?: boolean;
       multiple?: boolean;     // repeated children (e.g. tab-bar's items)
     };
