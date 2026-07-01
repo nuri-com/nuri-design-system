@@ -28,7 +28,7 @@
  *       exports subpath ./descriptors/<name> → components/<name>.ts, its web recipe
  *       recipes/<name>.js, and its generated twin generated/descriptors/<name>.js.
  *   (b) nuriNames(x) ⊂ the roster — every `nuriNames('…')` in the RN bindings
- *       (rn/factory/index.ts) + the web recipes (prototype/recipes/*.js) names an
+ *       (rn/generated/components/*.ts · Phase 2) + the web recipes (prototype/recipes/*.js) names an
  *       x ∈ the roster, and every roster name is bound on BOTH targets (no site
  *       missed, no orphaned roster entry).
  *   (c) the parallel rosters agree — the drift-guard's EXPECTED_DESCRIPTORS keys
@@ -52,7 +52,11 @@ const REPO_ROOT = resolve(__dirname, '..');
 const SPEC = resolve(REPO_ROOT, 'packages/spec');
 const RECIPES = resolve(REPO_ROOT, 'packages/prototype/recipes');
 const TWINS = resolve(REPO_ROOT, 'packages/prototype/generated/descriptors');
-const RN_INDEX = resolve(REPO_ROOT, 'packages/rn/factory/index.ts');
+// The RN binding's `nuriNames(...)` call sites moved from the hand-written
+// factory/index.ts to the GENERATED per-component surfaces (Path C · Phase 2 · one
+// `createNuriComponent(descriptor, nuriNames('<name>').rn, …)` per file); the barrel
+// now just re-exports them. The guard reads the generated dir (like the web recipes).
+const RN_COMPONENTS = resolve(REPO_ROOT, 'packages/rn/generated/components');
 
 const read = (p) => readFileSync(p, 'utf8');
 const ROSTER = DESCRIPTOR_COMPONENTS.map((spec) => spec.name);
@@ -131,10 +135,11 @@ test('naming · every roster name is its source basename · export · subpath ·
 
 // ── (b) every nuriNames(x) site names a roster x · both targets · no orphan ──
 test('naming · every nuriNames(x) call site names a roster component, on both targets', () => {
-  const sites = {
-    'rn/factory/index.ts': nuriNamesArgs(read(RN_INDEX)),
-  };
-  for (const name of ROSTER) sites[`prototype/recipes/${name}.js`] = nuriNamesArgs(read(resolve(RECIPES, `${name}.js`)));
+  const sites = {};
+  for (const name of ROSTER) {
+    sites[`rn/generated/components/${name}.ts`] = nuriNamesArgs(read(resolve(RN_COMPONENTS, `${name}.ts`)));
+    sites[`prototype/recipes/${name}.js`] = nuriNamesArgs(read(resolve(RECIPES, `${name}.js`)));
+  }
 
   // No unknown name at any site.
   for (const [where, args] of Object.entries(sites)) {
@@ -143,11 +148,12 @@ test('naming · every nuriNames(x) call site names a roster component, on both t
     }
   }
 
-  // Coverage — every roster name is bound on the RN side AND has a web recipe that
-  // binds the SAME name (so a rename that misses one target fails here).
-  const rnArgs = new Set(sites['rn/factory/index.ts']);
+  // Coverage — every roster name is bound on the RN side (its generated exact-surface
+  // file) AND has a web recipe that binds the SAME name (so a rename that misses one
+  // target fails here).
   for (const name of ROSTER) {
-    assert.ok(rnArgs.has(name), `${name}: no \`nuriNames('${name}')\` binding in rn/factory/index.ts (the RN component is missing or misnamed)`);
+    const rnArgs = new Set(sites[`rn/generated/components/${name}.ts`]);
+    assert.ok(rnArgs.has(name), `${name}: no \`nuriNames('${name}')\` binding in rn/generated/components/${name}.ts (the RN component is missing or misnamed)`);
     const recipeArgs = new Set(sites[`prototype/recipes/${name}.js`]);
     assert.ok(recipeArgs.has(name), `${name}: recipes/${name}.js does not \`nuriNames('${name}')\` (the web tag is missing or misnamed)`);
   }

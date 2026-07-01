@@ -89,17 +89,21 @@ export const iconButtonDescriptor: Descriptor<IconButtonAxes> = {
   // icon-button's soft default. Both factories read this; neither binding
   // hand-passes a default.
   defaults: { variant: 'soft', size: 'md' },
-  // The PUBLIC API (Path C · Phase 1). Icon-ONLY (B0 · prefix/suffix retired):
-  // the lone `icon` glyph is the whole control, exposed as the SCALAR icon-name
-  // shorthand `prop: 'icon'` (`<IconButton icon="apple" />` · Overrides §1a — a
-  // string token, kind-gated to `icon-name`, not the soup). variant × size +
-  // the pressable root (all three channels), like Button.
+  // The PUBLIC API (Path C · Phase 1 → Phase 2 Option A). Icon-ONLY (B0 ·
+  // prefix/suffix retired): the lone `icon` glyph is the whole control, exposed as
+  // the SCALAR icon-name shorthand `prop: 'icon'` (`<IconButton icon="apple" />` ·
+  // Overrides §1a — a string token, kind-gated to `icon-name`, not the soup). The
+  // glyph is PROP-delivered, NOT a children-sink, so the slot carries NO `default`
+  // (Option A · §1c — `default:true` means "the untagged-children sink", ⊥ `prop`)
+  // and is `required` (`icon` is not optional · the control has nothing else). With
+  // no `default` slot the codegen emits `children?: never`. variant × size + the
+  // pressable root (all three channels), like Button.
   api: {
     axes: ['variant', 'size'],
     themeScope: { accent: true },
     behaviour: { pressable: { target: 'root', props: ['onPress', 'disabled', 'accessibilityLabel'] } },
     slots: {
-      default: { part: 'icon', kind: 'icon-name', default: true, prop: 'icon' },
+      icon: { part: 'icon', kind: 'icon-name', prop: 'icon', required: true },
     },
   },
 };

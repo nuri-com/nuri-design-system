@@ -63,16 +63,18 @@ export const iconAvatarDescriptor: Descriptor<IconAvatarAxes> = {
   // `aria-hidden` in the registration.
   defaults: { variant: 'soft' },
   decorative: true,
-  // The PUBLIC API (Path C · Phase 1). Static glyph badge — NOT interactive, so
-  // NO `behaviour` (no onPress/disabled). Single `variant` axis; the lone `icon`
-  // glyph is the SCALAR icon-name shorthand `prop: 'icon'` (`<IconAvatar
+  // The PUBLIC API (Path C · Phase 1 → Phase 2 Option A). Static glyph badge — NOT
+  // interactive, so NO `behaviour` (no onPress/disabled). Single `variant` axis; the
+  // lone `icon` glyph is the SCALAR icon-name shorthand `prop: 'icon'` (`<IconAvatar
   // icon="user" />` · Overrides §1a), the same singular-icon ergonomics as
-  // icon-button minus the press affordance.
+  // icon-button minus the press affordance. PROP-delivered, so the slot carries NO
+  // `default` (Option A · §1c — ⊥ `prop`) and is `required`; with no `default` slot
+  // the codegen emits `children?: never` (a decorative badge has no text sink).
   api: {
     axes: ['variant'],
     themeScope: { accent: true },
     slots: {
-      default: { part: 'icon', kind: 'icon-name', default: true, prop: 'icon' },
+      icon: { part: 'icon', kind: 'icon-name', prop: 'icon', required: true },
     },
   },
 };
