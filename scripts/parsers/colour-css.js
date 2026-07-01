@@ -34,29 +34,23 @@
  * leaves (the drift guard · both directions) — a colour primitive added to one but
  * not the other fails the build loudly rather than silently diverging.
  *
- * loadColours type-strips + data:-URL imports the .ts SoT (node 20 cannot import a
- * .ts) — reusing stripTypes from dimension-css.js (one strip impl · decision 48):
- * the descriptor-twin / L3.1 / N+31 technique.
+ * loadColours imports the .ts SoT through scripts/ts-data-loader.js, the shared
+ * build-time TS→ESM data boundary.
  * ══════════════════════════════════════════════════════════════════ */
 
 import { readFile, writeFile } from 'node:fs/promises';
 import postcss from 'postcss';
 
-import { stripTypes } from './dimension-css.js';
+import { loadTsDataFromPath } from '../ts-data-loader.js';
 
 // ── load the TS SoT ────────────────────────────────────────────────
-// Strip the (deliberately trivial) TS apparatus colours.ts uses (the single-line
-// `type` aliases + the `as const` / `as const satisfies …` suffixes · named types
-// only in `satisfies`, so no inner `;` trips the stripper) and import the
-// self-contained data module (no runtime imports) via a data: URL.
 export async function loadColours(coloursTsPath) {
-  const src = await readFile(coloursTsPath, 'utf8');
-  const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypes(src)));
-  // A strip regression must fail LOUD here, not silently emit garbage: every SoT
+  const mod = await loadTsDataFromPath(coloursTsPath);
+  // A loader regression must fail LOUD here, not silently emit garbage: every SoT
   // table must survive the strip as a non-empty object.
   for (const name of ['neutralScales', 'accent', 'blackAlpha', 'whiteAlpha']) {
     if (!mod[name] || typeof mod[name] !== 'object' || !Object.keys(mod[name]).length) {
-      throw new Error(`[colour-css] loadColours: ${name} missing/empty (strip regression?)`);
+      throw new Error(`[colour-css] loadColours: ${name} missing/empty (loader regression?)`);
     }
   }
   // The accent RAMPS, data-driven (N+56 · slice 2): each non-neutral accent (the

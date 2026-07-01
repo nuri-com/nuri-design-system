@@ -17,7 +17,7 @@
  *   · EVERY variant + chrome bg/fg/pressed cell — palette-surface.ts's SURFACE role
  *     table (the complete pair + the optional pressed swap: variant solid/soft/ghost/
  *     subtle + the 3 chrome slots; an extra/missing role or channel throws).
- *   · fgMuted (every cell)                       — typography-axis.ts's muted dispatch
+ *   · fgMuted (every cell)                       — typography-axis.ts's muted role
  *     (the single muted delivery · decision 53; no node-level muted).
  *
  * RE-SOURCED at N+40 (decision 74 'Next: final'): the witness was the GENERATED
@@ -64,13 +64,6 @@ const CHANNEL_ORDER = ['bg', 'fg', 'fgMuted', 'pressedBg'];
 
 // ── SoT reading helpers ───────────────────────────────────────────────
 
-// A decl value → the referenced semantic var, or the bare literal. The muted
-// dispatch decl is `var(--nuri-text-muted)` (typography-axis.ts · the value verbatim).
-function varTarget(value) {
-  const m = value.match(/var\(\s*(--[\w-]+)/);
-  return m ? m[1] : value.trim();
-}
-
 // A surface Paint (palette-surface.ts) → the contract's semantic-var spelling, or
 // `undefined` when the channel is absent (the fg-only / no-pressed shape). Mirrors
 // palette-css.js#paintToCss (the assertNever analogue, inverted to the contract's
@@ -115,7 +108,7 @@ function tokenPathFor(cssVar, classifiedGroups, where) {
 // ── derive · assert the contract against the namespace-axis TS SoTs, resolve cells ──
 // { surface, typographyAxis } = the loaded TS SoTs — palette-surface.ts's `surface`
 // (the SURFACE role table · bg/fg/pressed pairs) + typography-axis.ts's `axis` (the
-// muted dispatch). Re-sourced at N+40 from the generated lib/components/{palette,
+// muted role). Re-sourced at N+40 from the generated lib/components/{palette,
 // typography}.css those SoTs emit (§74 'Next: final') so spec's build stops reading the
 // namespace CSS the A3 carve moves out. classifiedGroups = the classifyAll() pass over
 // tokens-semantic.css the orchestrator already holds.
@@ -126,14 +119,9 @@ export function derivePalette({ surface, typographyAxis }, { classifiedGroups })
   // witnessed in full by the two namespace-axis TS SoTs (the source the generated
   // namespace CSS is itself derived from); build/palette.ts (the cells) is unchanged.
 
-  // D · fgMuted (every cell) ← typography-axis.ts's `muted` dispatch rule. The single
-  // muted delivery (decision 53): the rule's `color` decl is `var(--nuri-text-muted)`
-  // verbatim (the value the emitter writes into typography.css unchanged).
-  const mutedRule = typographyAxis.dispatch.find((r) => r.name === 'muted');
-  if (!mutedRule) fail('typography-axis.ts', "the 'muted' dispatch rule not found");
-  const mutedColor = mutedRule.decls.find(([prop]) => prop === 'color');
-  if (!mutedColor) fail('typography-axis.ts', "the 'muted' dispatch rule declares no color");
-  const mutedVar = varTarget(mutedColor[1]);
+  // D · fgMuted (every cell) ← typography-axis.ts's `muted.role`. The single
+  // muted delivery (decision 53) resolves to the shared text-muted role.
+  const mutedVar = paintToVar(typographyAxis.muted?.role, 'typography-axis.ts muted.role');
   for (const axis of AXIS_ORDER) {
     for (const row of ROW_ORDER[axis]) {
       const cell = PALETTE_CONTRACT[axis][row].fgMuted;
@@ -240,7 +228,7 @@ export function emitPaletteTs(cells) {
     ` * emit time — a contradiction fails the build · decision 48):`,
     ` *   pipeline/palette-surface.ts   every variant + chrome bg/fg pair`,
     ` *                                 (+ the pressed swap → pressedBg)`,
-    ` *   pipeline/typography-axis.ts   the muted dispatch → the muted fg (fgMuted)`,
+    ` *   pipeline/typography-axis.ts   the muted role → the muted fg (fgMuted)`,
     ` * (Re-sourced at N+40 from the generated lib/components/{palette,typography}.css`,
     ` *  these SoTs emit · §74 'Next: final' — the spec build stops reading the namespace`,
     ` *  CSS the A3 carve relocates · build/palette.ts cells unchanged.)`,

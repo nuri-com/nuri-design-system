@@ -40,24 +40,19 @@
  * (decision 45). The only derivation is the SELECTOR ASSEMBLY: `.nuri-interactive` +
  * the attr gate + the pseudo-state, comma-joined for the multi-selector rule.
  *
- * loadInteractive type-strips + data:-URL imports the .ts SoT (node 20 cannot import a
- * .ts) — reusing strip.js#stripTypes (one strip impl · decision 48): the
- * descriptor-twin / L3.1 / palette technique. The SoT lives in @nuri/spec; this web
- * projection lives here in @nuri/prototype.
+ * loadInteractive imports the .ts SoT through the shared TS data loader. The SoT
+ * lives in @nuri/spec; this web projection lives here in @nuri/prototype.
  * ══════════════════════════════════════════════════════════════════ */
 
-import { readFile } from 'node:fs/promises';
-
-import { stripTypes } from './strip.js';
+import { loadTsDataFromPath } from './strip.js';
 
 // ── load the TS SoT (the shared agnostic opt-ins) ──
 export async function loadInteractive(effectsTsPath) {
-  const src = await readFile(effectsTsPath, 'utf8');
-  const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypes(src)));
-  // A strip regression must fail LOUD here, not silently emit garbage.
+  const mod = await loadTsDataFromPath(effectsTsPath);
+  // A loader regression must fail LOUD here, not silently emit garbage.
   const { opts } = mod;
   if (!opts || typeof opts !== 'object' || !Object.keys(opts).length) {
-    throw new Error('[interactive-css] loadInteractive: opts missing/empty (strip regression?)');
+    throw new Error('[interactive-css] loadInteractive: opts missing/empty (loader regression?)');
   }
   return { opts };
 }

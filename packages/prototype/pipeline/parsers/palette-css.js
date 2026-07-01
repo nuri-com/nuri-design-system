@@ -48,24 +48,19 @@
  * tokens-semantic.css (the decision-63 #4b/#6b self-scope · N+32) — NOT reproduced
  * here; palette only references var(--nuri-accent-*).
  *
- * loadSurface type-strips + data:-URL imports the .ts SoT (node 20 cannot import a
- * .ts) — reusing dimension-css.js#stripTypes (one strip impl · decision 48): the
- * descriptor-twin / L3.1 / N+31 / C1 / C2 technique. The L3c flip relocates the
- * table into @nuri/spec proper and retires the hand CSS.
+ * loadSurface imports the .ts SoT through the shared TS data loader. The L3c flip
+ * relocates the table into @nuri/spec proper and retires the hand CSS.
  * ══════════════════════════════════════════════════════════════════ */
 
-import { readFile } from 'node:fs/promises';
-
-import { stripTypes } from './strip.js';
+import { loadTsDataFromPath } from './strip.js';
 
 // ── load the TS SoT (the SURFACE role table) ────────────────────────
 export async function loadSurface(surfaceTsPath) {
-  const src = await readFile(surfaceTsPath, 'utf8');
-  const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypes(src)));
-  // A strip regression must fail LOUD here, not silently emit garbage.
+  const mod = await loadTsDataFromPath(surfaceTsPath);
+  // A loader regression must fail LOUD here, not silently emit garbage.
   const s = mod.surface;
   if (!s || typeof s !== 'object' || !s.variant || !s.chrome) {
-    throw new Error('[palette-css] loadSurface: surface missing/empty or lacks variant/chrome (strip regression?)');
+    throw new Error('[palette-css] loadSurface: surface missing/empty or lacks variant/chrome (loader regression?)');
   }
   return s;
 }

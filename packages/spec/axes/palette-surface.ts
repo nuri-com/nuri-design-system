@@ -48,13 +48,10 @@
  * [data-accent] scope (the decision-63 #4b/#6b self-scope already lives in
  * tokens-semantic.css · N+32 · do not reproduce it).
  *
- * Consumed by the node pipeline via a type-strip + data:-URL import (loadSurface ·
- * pipeline/parsers/palette-css.js · reusing dimension-css.js#stripTypes · one
- * strip impl · decision 48): node 20 cannot import a .ts. Authored — like
- * dimensions.ts/colours.ts — to keep the strip trivial: the only TS apparatus is
- * single-line `type` aliases and the trailing `as const satisfies` suffix, with
- * no imports. Base: decision 2 (reversed at L3c, not here) · 11 · 30 · 50 · 65.3
- * §6 · 67 · 70 · the L3.1 reversible-shadow discipline.
+ * Consumed by the node pipeline through the shared TS data loader (loadSurface ·
+ * packages/prototype/pipeline/parsers/palette-css.js). Base: decision 2 (reversed
+ * at L3c, not here) · 11 · 30 · 50 · 65.3 §6 · 67 · 70 · the L3.1
+ * reversible-shadow discipline.
  * ══════════════════════════════════════════════════════════════════ */
 
 // A paint value — the universal channel shape: EITHER a bare L2 role NAME (the

@@ -30,9 +30,9 @@
  * Only NAME-mappable properties live here. The channels whose RN↔web difference
  * is a MECHANISM, not a name, stay `via`-typed in their own axis and are NOT
  * registry entries:
- *   · fill / expand  — RN a multi-prop ViewStyle set ({flexGrow,flexShrink}) ·
- *     web the `flex` shorthand + a logical min-size. (resolve-map.ts's `expand`
- *     arm + namespace-css.js's EXPAND_WEB.)
+ *   · fill / expand  — neutral grow/shrink/basis/minInline intents in
+ *     resolve-map.ts; RN emits a multi-prop ViewStyle set and web emits the
+ *     `flex` shorthand + a logical min-size.
  *   · fg             — RN a threaded foreground channel · web `color` +
  *     currentColor inheritance. (resolve.ts's resolvePalette.)
  *   · pressed        — RN a JS state swap · web `:active`. (the interactive axis.)
@@ -50,20 +50,15 @@
  * agnostic, so re-homing changes only the exports map RHS, not the consumers.
  *
  * Consumed two ways: RN via a normal typed import (resolve.ts · `.rn` cast to
- * keyof ViewStyle at that boundary); the web emit via a type-strip + data:-URL
- * import (loadRegistry · pipeline/parsers/namespace-css.js · node 20 cannot
- * import a .ts · reusing dimension-css.js#stripTypes). Authored — like
- * palette-surface.ts — to keep the strip trivial: NO imports, single-line `type`
- * aliases, the trailing `as const satisfies <named type>` (the named target
- * keeps the strip's satisfies regex sound · an inline object type would carry a
- * `;` and break it).
+ * keyof ViewStyle at that boundary); the web emit through the shared TS data loader
+ * (loadRegistry · packages/prototype/pipeline/parsers/namespace-css.js).
  * ══════════════════════════════════════════════════════════════════ */
 
 // One concept's per-target property spelling. `rn` is a plain string (this
 // package is RN-free — no `keyof ViewStyle`); the rn consumer casts it to
 // keyof ViewStyle at its boundary (resolve.ts).
 type Spelling = { rn: string; css: string };
-// The registry shape — a named type so the `as const satisfies` strip stays sound.
+// The registry shape.
 type PropertySpelling = Record<string, Spelling>;
 
 export const PROPERTY_SPELLING = {

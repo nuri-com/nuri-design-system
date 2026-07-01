@@ -25,13 +25,10 @@
  * in tokens-primitive.css, a different family than the space/size/radius
  * SEMANTICS owned here), --nuri-border-*, the type scale, fonts, every colour.
  *
- * Consumed by the node pipeline via a type-strip + data:-URL import
- * (loadDimensions · pipeline/parsers/dimension-css.js · node 20 cannot import a
- * .ts) — the same technique the descriptor browser-ESM twins (decision 69) and
- * the L3.1 Field-table loader use. Authored to keep the strip trivial: the only
- * TS apparatus is single-line `type` aliases and the const-assertion suffixes,
- * with no imports. Base: decision 2 (reversed here) · 32 · 36 · 36.1 · 48 · 70 ·
- * the token-standards eval (the DTCG shape · move b).
+ * Consumed by the node pipeline through the shared TS data loader
+ * (loadDimensions · scripts/parsers/dimension-css.js). Base: decision 2
+ * (reversed here) · 32 · 36 · 36.1 · 48 · 70 · the token-standards eval
+ * (the DTCG shape · move b).
  * ══════════════════════════════════════════════════════════════════ */
 
 // L1 · the px primitive scale. The KEYS are the scale (no array restated);

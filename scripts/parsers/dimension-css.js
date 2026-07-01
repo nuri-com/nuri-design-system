@@ -24,34 +24,22 @@
  * families (the drift guard · both directions) — a px primitive added to one but
  * not the other fails the build loudly rather than silently diverging.
  *
- * loadDimensions type-strips + data:-URL imports the .ts SoT (node 20 cannot
- * import a .ts) — the technique the descriptor twins (decision 69) and the L3.1
- * Field-table loader (parsers/namespace-css.js) already use.
+ * loadDimensions imports the .ts SoT through scripts/ts-data-loader.js, the
+ * build-time TS→ESM boundary shared by the projections.
  * ══════════════════════════════════════════════════════════════════ */
 
 import { readFile, writeFile } from 'node:fs/promises';
 import postcss from 'postcss';
 
-// ── load the TS SoT ────────────────────────────────────────────────
-// Strip the (deliberately trivial) TS apparatus dimensions.ts uses — the
-// single-line `type` aliases (`export type Px …` AND the non-exported
-// `type Leaf …`) and the trailing `as const` / `as const satisfies …` suffixes
-// — then import the self-contained data module (no runtime imports) via a
-// data: URL. The runtime value of every const is just its object literal.
-export function stripTypes(src) {
-  return src
-    .replace(/^(?:export )?type .*;\n/gm, '')              // drop `export type` AND bare `type` aliases
-    .replace(/ as const(?: satisfies [^;\n]+)?;/g, ';');   // drop the const-assertion / `satisfies` suffixes
-}
+import { loadTsDataFromPath } from '../ts-data-loader.js';
 
 export async function loadDimensions(dimensionsTsPath) {
-  const src = await readFile(dimensionsTsPath, 'utf8');
-  const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypes(src)));
-  // A strip regression must fail LOUD here, not silently emit garbage: every
+  const mod = await loadTsDataFromPath(dimensionsTsPath);
+  // A loader regression must fail LOUD here, not silently emit garbage: every
   // SoT table must survive the strip as a non-empty object.
   for (const name of ['px', 'space', 'size', 'radius', 'ratio']) {
     if (!mod[name] || typeof mod[name] !== 'object' || !Object.keys(mod[name]).length) {
-      throw new Error(`[dimension-css] loadDimensions: ${name} missing/empty (strip regression?)`);
+      throw new Error(`[dimension-css] loadDimensions: ${name} missing/empty (loader regression?)`);
     }
   }
   return { px: mod.px, space: mod.space, size: mod.size, radius: mod.radius, ratio: mod.ratio };

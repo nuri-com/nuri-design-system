@@ -30,15 +30,8 @@
  *   · { prop, token, shape? }   — the value is the theme constant at the dotted path
  *                                 (theme.interaction.* · decision 45); `shape:'scale'`
  *                                 wraps it as RN's `[{ scale: v }]` transform.
- * The appliers interpret this; the SoT carries NO functions (strip.js-loadable).
- *
- * ── STRIP CONSTRAINTS (read before editing — two strippers load this file) ──
- * Consumed via type-strip + data:-URL import by BOTH @nuri/prototype's line-oriented
- * `stripTypes` (interactive-css.js / strip.js) AND @nuri/doc's brace-aware
- * `stripTsData` (decision 48 · 69 · node 20 cannot import a .ts). To strip cleanly
- * under both: every `type` alias is SINGLE-LINE; NO `const NAME: T =` annotations
- * (use `as const satisfies <NamedType>`); the `satisfies` target is COMMA-FREE (the
- * doc strip's regex stops at a comma — so `satisfies OptTable`, NOT `Record<…,…>`).
+ * The appliers interpret this; the SoT carries NO functions and is consumed
+ * through the shared TS data loader.
  *
  * Base: decision 2 (reversed for the namespace layer · 74) · 45 · 65.3 §6 · 65.4 ·
  * 67 · 70 · 73 · 74 · the one-SoT-two-projections invariant.
@@ -50,7 +43,6 @@ type Trigger = 'pressed' | 'disabled';
 type RnRealize = { prop: string; from: string } | { prop: string; token: string; shape?: 'scale' };
 // One agnostic opt-in: trigger · stable projection gate (`'auto'` ⇒ no author opt-in) · RN realization.
 type Opt = { trigger: Trigger; gate: string; rn: RnRealize };
-// The named satisfies targets (COMMA-FREE · the doc strip constraint).
 type OptTable = Record<string, Opt>;
 
 // ── opts · the 3 AGNOSTIC opt-ins (key order = the RN applier's

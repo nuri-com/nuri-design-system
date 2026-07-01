@@ -72,7 +72,7 @@ import {
 } from './parsers/descriptors.js';
 import { derivePalette, emitPaletteTs } from './parsers/palette.js';
 import { readSemanticRules, classifyAll } from './parsers/semantic.js';
-import { stripTypes } from './parsers/dimension-css.js';
+import { loadTsDataFromPath } from './ts-data-loader.js';
 
 // (Guard G · the doc-page re-emit pin · MOVED to @nuri/doc at N+42 · the A4 carve.
 // The doc-gen [emitDocPage / buildDocTokenInputs / docIrFromDescriptor · + the
@@ -98,13 +98,12 @@ const PROTO_GENERATED = resolve(MONOREPO_ROOT, 'packages/prototype/generated');
 const readRn = (rel) => readFileSync(resolve(RN_GENERATED, rel), 'utf8');
 const readProto = (rel) => readFileSync(resolve(PROTO_GENERATED, rel), 'utf8');
 
-// Load a namespace-axis TS SoT (palette-surface.ts / typography-axis.ts) the
-// SPEC-RESIDENT way — stripTypes (the shared one-strip impl) + a data:-URL import —
-// exactly as Slice 8 does (NOT loadSurface/loadAxis · those emitters leave spec at the
-// A3 carve). The two derivePalette guards (E + G) re-derive build/palette.ts from the
-// SAME SoTs the build reads (N+40 re-source · decision 74 'Next: final').
+// Load a namespace-axis TS SoT (palette-surface.ts / typography-axis.ts) through
+// the same TS data boundary Slice 8 uses (NOT loadSurface/loadAxis · those emitters
+// leave spec at the A3 carve). The two derivePalette guards (E + G) re-derive
+// build/palette.ts from the SAME SoTs the build reads.
 const loadAxisSoT = async (rel, exportName) =>
-  (await import('data:text/javascript,' + encodeURIComponent(stripTypes(read(rel)))))[exportName];
+  (await loadTsDataFromPath(resolve(REPO_ROOT, rel)))[exportName];
 
 // Pull the first capture group of `re` out of `text`, or fail with
 // `label` so a removed/renamed canonical phrase reads as drift, not

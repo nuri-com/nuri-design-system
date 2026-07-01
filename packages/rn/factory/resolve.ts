@@ -55,7 +55,7 @@ import type { NuriTheme } from './theme';
 // registry (RN column). The per-target property NAME comes from the property-
 // spelling registry (@nuri/spec/property-spelling · the `.rn` column).
 import { STACK_FIELDS, BOX_FIELDS } from '@nuri/spec/resolve-map';
-import type { Field, ScaleName } from '@nuri/spec/resolve-map';
+import type { Field, FillCase, ScaleName } from '@nuri/spec/resolve-map';
 import { PROPERTY_SPELLING } from '@nuri/spec/property-spelling';
 import type { CanonicalId } from '@nuri/spec/property-spelling';
 // The interactive opt-in mapping is DATA, single-sourced in @nuri/spec (N+44 · the
@@ -81,6 +81,16 @@ export type State = { pressed?: boolean; disabled?: boolean };
 // repr). The shared table says `from the space scale`; THIS says `space` = the
 // numeric scale object. ──
 const SCALES: Record<ScaleName, Record<string, number>> = { space, size, radius, ratio };
+
+function fillCaseToRn(fill: FillCase): ViewStyle {
+  const out: ViewStyle = {
+    flexGrow: fill.grow,
+    flexShrink: fill.shrink,
+  };
+  if (fill.basis !== undefined) out.flexBasis = fill.basis;
+  if (fill.minInline !== undefined) out.minWidth = fill.minInline;
+  return out;
+}
 
 // applyFields · the GENERIC RN APPLIER for the agnostic namespaces (box · stack).
 // Walks the shared mapping table (resolve-map.ts) and emits an RN ViewStyle —
@@ -117,7 +127,7 @@ function applyFields(fields: Record<string, Field>, ns: Record<string, unknown>)
         set(rnProp(f.prop), value ? f.on : f.off);
         break;
       case 'expand':
-        Object.assign(out, f.cases[value as string]);
+        Object.assign(out, fillCaseToRn(f.cases[value as string]));
         break;
       default:
         // a new Field arm without a case is a COMPILE error here (f: never) —

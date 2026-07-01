@@ -22,7 +22,7 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
 
 ### Seed re-verifications (the four coordinator-found seeds)
 
-#### SEED-1 — `@nuri/spec` carries WEB realization · **RESOLVED (SEED-1a)** · S2
+#### SEED-1 — `@nuri/spec` carries WEB realization · **RESOLVED (SEED-1a/1b)** · S2
 
 - **Status (2026-07-01):** fixed for the interactive axis. `packages/spec/axes/interactive-effects.ts`
   now carries only agnostic `opts` (`trigger` · `gate` · RN realization vocabulary). The prototype
@@ -30,9 +30,11 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
   and docs consume that projection-owned table instead of reading web data from spec. A narrow
   `interactive-css.test.js` guard now rejects `webChrome`/`webOrder`, selector fragments, CSS vars, and
   declaration strings in the spec file.
-- **Still open nearby:** SEED-1b (the type-strip/data-URL workaround), D6 (`resolve-map` `FILL` RN
-  spelling), and the broad agnosticism lint. The lint still waits until D6 is neutralized or explicitly
-  allowlisted.
+- **Status (SEED-1b follow-up):** the broad agnosticism lint now lives at
+  `scripts/spec-agnosticism.test.js`. It strips comments, scans `packages/spec/**`, skips SVG icon
+  sources, and names explicit allowlists for the property-spelling registry, the current interactive
+  RN realization vocabulary, and the public `BoxNS.minWidth` input key. `typography-axis.ts` no longer
+  carries selector/declaration data; the prototype typography emitter owns that web projection.
 - **Original location:** `packages/spec/axes/interactive-effects.ts:123-149` (`webChrome`), `:91-119`
   (`opts[*].web`), `:155` (`webOrder`).
 - **What:** The agnostic spec axis embeds literal **web CSS** as data:
@@ -58,25 +60,17 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
   emitter (`packages/prototype/pipeline/parsers/interactive-css.js`), which already walks them.
   Dependency note: touches the web emitter + the strip pipeline (SEED-1b) + the doc strip.
 
-#### SEED-1b — the type-strip / `data:`-URL import workaround · **DEBT** · S2
+#### SEED-1b — the type-strip / `data:`-URL import workaround · **RESOLVED** · S2
 
-- **Location:** header constraint at `interactive-effects.ts:50-56`; the same constraint block
-  recurs in `palette-surface.ts:51-59`, `typography-axis.ts:74-80`, `property-spelling.ts:54-59`,
-  `tokens/dimensions.ts`, `tokens/colours.ts`, `tokens/typography.ts:35-41`. **7 spec SoT files.**
-- **What:** "node 20 cannot import a `.ts`," so these files are consumed by a line-oriented
-  `stripTypes` + `data:`-URL import. To strip cleanly they must be authored under a brittle
-  discipline: **single-line `type` aliases**, **no imports**, and a **comma-free `as const satisfies
-  <NamedType>`** suffix (a `Record<…,…>` target breaks the doc strip's regex — `interactive-effects.ts:56`).
-- **Invariant violated:** none formally — but it's a workaround that *constrains how every spec axis
-  is authored* and infects 7 files, and there are **two** independent strip implementations
-  (prototype's `stripTypes`, doc's `stripTsData`).
-- **Cause:** a node-20 ergonomics limitation frozen into the authoring contract instead of solved at
-  the toolchain.
-- **Fix (cause-level):** replace the regex strip with a real transform at the consumer boundary —
-  `node --experimental-strip-types` (node 22+), an `esbuild`/`tsx` one-shot, or emit a tiny `.mjs`
-  data twin. Then the 7 files lose the single-line/no-import/comma-free constraint and the two strip
-  impls collapse to zero. Verdict: justified *today* only by the node pin; DEBT because the pin is
-  removable and the cost is spread across 7 SoTs.
+- **Status (2026-07-01):** resolved by `scripts/ts-data-loader.js`, a shared build-time helper that
+  uses the TypeScript compiler API (`transpileModule`) and imports the emitted ESM through the existing
+  `data:text/javascript` boundary. Root codegen, prototype pipeline tests/build, and doc generation now
+  load TS data through that helper; the old regex `stripTypes` / `stripTsData` / bespoke
+  `stripFieldTable` loaders are gone. The root package now declares `typescript` as a devDependency
+  because `scripts/` imports it directly.
+- **Result:** spec SoT comments no longer impose the single-line/no-import/comma-free authoring
+  contract. Runtime validation stayed at the caller boundaries (`px`, `surface`, `STACK_FIELDS`,
+  `PROPERTY_SPELLING`, etc.), so a malformed import still fails loudly.
 
 #### SEED-2 — component file / descriptor / export / type names don't derive from the public name · **DEBT** · S2
 
@@ -291,26 +285,15 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
   future-Unistyles artifact, move it out of the shipped `index.ts` surface and label it a proof. (a) is
   preferred — it resolves D5 and D11 in one stroke.
 
-#### D6 — `resolve-map.ts` `FILL` hardcodes RN property spellings in `@nuri/spec` · **DEBT** · S2
+#### D6 — `resolve-map.ts` `FILL` hardcodes RN property spellings in `@nuri/spec` · **RESOLVED** · S2
 
-- **Location:** `packages/spec/axes/resolve-map.ts:88-92` (`FILL`), wired via the `expand` arm at
-  `:107`.
-- **What:** the `fill` namespace's cases carry **RN ViewStyle property names** as data —
-  `{ flexGrow:1, flexShrink:0 }`, `{ flexGrow:1, flexShrink:1, flexBasis:0, minWidth:0 }`. Every
-  *other* box/stack field routes its per-target spelling through the `PROPERTY_SPELLING` registry
-  (`property-spelling.ts`) so spec stays name-neutral; `fill` bypasses it and bakes the RN spelling in.
-  The header admits it: *"it is RN-free here only by typing"* (`:52`).
-- **Invariant violated:** the agnosticism the property-spelling indirection was built to enforce
-  (`property-spelling.ts:29-43` explicitly lists `fill` as the channel that "stays `via`-typed in its
-  own axis and is NOT a registry entry"). So this is *documented inconsistency*, not an oversight —
-  but it's still a target-spelling living in agnostic data, the same class as SEED-1 (smaller).
-- **Cause:** `fill` is a *mechanism* divergence (multi-prop RN fragment vs the web `flex` shorthand),
-  so it was excused from the name registry — but the excused form chose to store the **RN** spelling
-  rather than a neutral one re-spelled per target.
-- **Fix (cause-level):** model `fill` cases as neutral canonical concepts (grow/shrink/basis/min-inline
-  intents) and let both the RN applier and the web emitter (`EXPAND_WEB`) spell them, the same way the
-  registry handles the single-prop fields. Or accept it and *say so in the agnosticism guard's
-  allowlist* (D-blind-spot fix below) rather than in a defending comment. Verdict: DEBT.
+- **Status (2026-07-01):** resolved. `packages/spec/axes/resolve-map.ts` now models `fill` cases as
+  neutral intents (`grow`, `shrink`, optional `basis`, optional `minInline`). RN spells those locally
+  in `packages/rn/factory/resolve.ts` and the build-time bake mirrors that in
+  `scripts/parsers/recipes.js`; web derives `flex` + `min-inline-size` in
+  `packages/prototype/pipeline/parsers/namespace-css.js`.
+- **Proof:** the generated namespace CSS, RN baked recipes, and RN snapshots remain byte-identical.
+  The stack axis doc now intentionally shows the neutral fill intent instead of RN property fragments.
 
 #### D7 — the component roster + public names are hand-restated across ≥5 sites · **DEBT** · S2
 
@@ -434,7 +417,7 @@ invisible* to them.
 
 | Blind class | Why the gates miss it | Entries | Cheap guard that would close it |
 |---|---|---|---|
-| **Spec agnosticism** | Target realization in spec is *valid data that emits correctly* — re-emit + render-smoke both stay green. | D6; SEED-1 recurrence guarded narrowly | A lint over `packages/spec/**`: no CSS-literal / selector / `var(--` / `:active` / ViewStyle-key strings, with an explicit allowlist (so the excused `fill` is *listed*, not hidden in a comment). |
+| **Spec agnosticism** | Target realization in spec is *valid data that emits correctly* — re-emit + render-smoke both stay green. | SEED-1/D6 class now guarded | **Landed:** `scripts/spec-agnosticism.test.js` scans comment-stripped `packages/spec/**` for CSS selector/var/declaration payloads and RN ViewStyle keys, with explicit allowlists for the property-spelling registry, interactive RN realization vocabulary, and the public `BoxNS.minWidth` input. |
 | **Naming coherence** | Guard D pins descriptor *shape/axes/parts*, never *names*; `nuriNames` derives correctly from whatever string it's *handed*. The hand-authored input strings are unchecked. | SEED-2, D7 | A test asserting `file basename === public`, and that every `nuriNames(x)` site's `x` ∈ the one exported roster. |
 | **Type-surface honesty** | tsc passes — optional props that are ignored, and a `Partial<Record<string,string>>` hole, are all *type-valid*. | SEED-3, D8 | Derive the prop surface per-descriptor (then ignored props become type errors); tighten `defaults` to `keyof A`. |
 | **Dead code** | An uninvoked export breaks nothing; the re-emit path doesn't touch it. | D1, D2 | A "no unused exports" pass (e.g. `knip`/`ts-prune`) over `scripts/` + `packages/rn`. |
@@ -445,8 +428,8 @@ invisible* to them.
 
 The meta-finding: the gates form a tight **behaviour + drift** net and a near-zero **consistency**
 net. Every seed and every D-entry lives in the consistency gap. The cheapest high-leverage additions
-are the **agnosticism lint** (closes SEED-1/D6 and prevents recurrence) and the **no-unused-exports
-pass** (closes D1/D2 and stops the next refactor leaving rot).
+were the **agnosticism lint** (now landed for SEED-1/D6 recurrence) and the **no-unused-exports
+pass** (landed with D1/D2 and stops the next refactor leaving rot).
 
 ---
 
@@ -470,11 +453,10 @@ Ordered by blast radius × independence. Each is a candidate working-session bri
    single-source the `nuriNames` sites. Touches spec, the RN bindings, the web recipes, all three
    roster lists, the snapshots. **Do after D1** (D1 shrinks `descriptors.js` first, making the rename
    surface smaller). Add the **naming guard**.
-5. **SEED-1b + D6 · remaining spec agnosticism** — S2, ~M/L. SEED-1a moved
-   `webChrome`/`webOrder`/`opts[*].web` out of spec into the prototype web emitter and added a narrow
-   interactive regression guard. Remaining work: retire the regex strip for a real transform, freeing
-   the 7 SoTs from the single-line/no-import/comma-free constraint; neutralize `resolve-map` `FILL` or
-   add it to an explicit allowlist; then add the broad **agnosticism lint**.
+5. **SEED-1b + D6 · remaining spec agnosticism** — **RESOLVED (2026-07-01).** Regex TS-data loaders
+   were replaced with the shared TypeScript transform, `fill` is neutral and spelled per projection,
+   typography wrapper web realization moved to the prototype emitter, and the broad agnosticism lint
+   landed.
 6. **D3 · fix generated-header paths** — S2, ~XS. Update `passthroughHeader*` literals; regenerate.
    Trivial; can ride along with any spec-side brief.
 7. **D8 · tighten `defaults` typing** — S1, ~XS. `keyof A`-type it; move the frozen pin. Ride with

@@ -95,7 +95,7 @@ import { emitComponentApi } from './parsers/components-api.js';
 // (parsers/docs.js · emitDocPage / buildDocTokenInputs · MOVED to @nuri/doc at
 // N+42 · the A4 carve · convergence §5. @nuri/spec no longer transforms data → docs.)
 
-import { loadDimensions, flipDimensionCss, stripTypes } from './parsers/dimension-css.js';
+import { loadDimensions, flipDimensionCss } from './parsers/dimension-css.js';
 
 import { loadColours, flipColourCss } from './parsers/colour-css.js';
 
@@ -108,6 +108,8 @@ import { emitTokenPathsTsFromSoT } from './parsers/token-paths.js';
 import { loadSemanticColours, flipSemanticCss } from './parsers/semantic-css.js';
 
 import { loadTypography, flipTypeCss } from './parsers/type-css.js';
+
+import { loadTsDataFromPath } from './ts-data-loader.js';
 
 // The icon registry is GENERATED from the icons/*.svg folder (the SoT · decision 38 ·
 // N+51 · convergence phase 4·1). lib/components/icon/icons.js (the web reader) is now a
@@ -239,19 +241,17 @@ export function parseArgs(argv) {
   return validateNeutral(arg.slice('--neutral='.length));
 }
 
-// Load a namespace-axis TS SoT (palette-surface.ts / typography-axis.ts) the
-// SPEC-RESIDENT way — the shared one-strip impl (stripTypes · dimension-css.js) +
-// a data:-URL import (node 20 cannot import a .ts), exactly as loadDimensions does.
+// Load a namespace-axis TS SoT (palette-surface.ts / typography-axis.ts) through
+// the shared TS data boundary, exactly as loadDimensions does.
 // Deliberately NOT loadSurface/loadAxis from parsers/{palette,typography}-css.js:
 // those are the namespace-CSS EMITTERS that leave `spec` at the A3 carve, so reading
 // the SoT through them would re-invert the rn→spec DAG this re-source (Slice 8 · §74
-// 'Next: final') exists to decouple. A strip regression fails LOUD here.
+// 'Next: final') exists to decouple. A loader regression fails LOUD here.
 async function loadAxisSoT(tsPath, exportName) {
-  const src = await readFile(tsPath, 'utf8');
-  const mod = await import('data:text/javascript,' + encodeURIComponent(stripTypes(src)));
+  const mod = await loadTsDataFromPath(tsPath);
   const value = mod[exportName];
   if (!value || typeof value !== 'object') {
-    throw new Error(`[tokens-parser] loadAxisSoT: ${tsPath} export '${exportName}' missing/empty (strip regression?)`);
+    throw new Error(`[tokens-parser] loadAxisSoT: ${tsPath} export '${exportName}' missing/empty (loader regression?)`);
   }
   return value;
 }

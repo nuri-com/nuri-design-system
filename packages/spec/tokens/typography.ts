@@ -32,13 +32,10 @@
  * emitter resolves --nuri-font-weight-semibold directly (it stays referenced by
  * typography.css's [data-type-emphasis] rule + shell.css).
  *
- * Consumed by the node pipeline via a type-strip + data:-URL import (loadTypography
- * · pipeline/parsers/type-css.js · node 20 cannot import a .ts) — the same
- * technique dimensions.ts / the descriptor twins (decision 69) use. Authored to
- * keep the strip trivial: single-line `type` aliases + the const-assertion suffix,
- * no imports. Base: decision 2 (reversed for the type composite here) · 29
- * (line-height is a unitless ratio) · 54 / 55 (the type step) · 77 (the de-fusion ·
- * this executes its deferred value flip) · 78.
+ * Consumed by the node pipeline through the shared TS data loader (loadTypography ·
+ * scripts/parsers/type-css.js). Base: decision 2 (reversed for the type composite
+ * here) · 29 (line-height is a unitless ratio) · 54 / 55 (the type step) · 77
+ * (the de-fusion · this executes its deferred value flip) · 78.
  * ══════════════════════════════════════════════════════════════════ */
 
 // The font-weight names this scale uses — resolved to the literal at emit against
