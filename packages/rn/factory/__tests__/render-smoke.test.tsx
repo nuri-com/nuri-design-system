@@ -315,6 +315,8 @@ describe('type-surface honesty (compile-time assertions · SEED-3 + D8)', () => 
     const okDefaults: Descriptor<{ state: 'selected' | 'unselected' }> = {
       structure: { anatomy: { el: 'view' } },
       defaults: { state: 'unselected' },
+      // `api` REQUIRED (Path C · Phase 1) · factory-ignored · minimal for typecheck.
+      api: { axes: [], slots: {} },
     };
     void okDefaults;
 
@@ -322,6 +324,7 @@ describe('type-surface honesty (compile-time assertions · SEED-3 + D8)', () => 
       structure: { anatomy: { el: 'view' } },
       // @ts-expect-error — 'nonsense' is not a value of the `state` axis.
       defaults: { state: 'nonsense' },
+      api: { axes: [], slots: {} },
     };
     void offAxisValue;
 
@@ -329,6 +332,7 @@ describe('type-surface honesty (compile-time assertions · SEED-3 + D8)', () => 
       structure: { anatomy: { el: 'view' } },
       // @ts-expect-error — `siez` is not an axis of this descriptor.
       defaults: { siez: 'unselected' },
+      api: { axes: [], slots: {} },
     };
     void unknownAxisKey;
 

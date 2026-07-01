@@ -514,7 +514,34 @@ const FROZEN_SCHEMA = {
   // to the per-axis mapped type — its keys/values are now constrained to the
   // descriptor's own axes (a typo'd axis or value is a type error). A type-only
   // change: the emitted twins are byte-identical (the strip drops types).
-  Descriptor: { 'structure': '{ anatomy: PartAnatomy; base?: PartMap }', 'variants?': 'Variants<A>', 'defaults?': '{ [Axis in keyof A]?: A[Axis] }', 'decorative?': 'boolean' },
+  //
+  // `api` (ComponentApi · REQUIRED) added at Path C · Phase 1 (the component-API
+  // arc · docs/component-api-target.md · the 3rd deliberate post-freeze envelope
+  // add · decision 65 "post-freeze changes are versioned"). It is the missing
+  // schema layer — the descriptor's PUBLIC API as DATA (axes / themeScope /
+  // behaviour / propMaps / slots) — so the RN factory stops INVENTING each
+  // component's surface from anatomy guesses. Pure data, renderer-ignored this
+  // phase (codegen consumes it in Phase 2), so the emitted twins carry it
+  // verbatim and every render/snapshot stays byte-identical. `ComponentApi` +
+  // `SlotSpec` are pinned as full field-maps below (like NS / PartAnatomy).
+  Descriptor: { 'structure': '{ anatomy: PartAnatomy; base?: PartMap }', 'variants?': 'Variants<A>', 'defaults?': '{ [Axis in keyof A]?: A[Axis] }', 'decorative?': 'boolean', 'api': 'ComponentApi' },
+  // The PUBLIC-API layer (Path C · Phase 1). Field-for-field pins (like NS /
+  // PartAnatomy) — a field added/removed/renamed/retyped on either breaks here.
+  ComponentApi: {
+    'axes': 'string[]',
+    'themeScope?': '{ accent: true }',
+    'behaviour?': "{ pressable?: { target: Part; props: ('onPress' | 'disabled' | 'accessibilityLabel')[] } }",
+    'propMaps?': '{ selected?: { axis: string; true: string; false: string } }',
+    'slots': 'Record<string, SlotSpec>',
+  },
+  SlotSpec: {
+    'part': 'Part',
+    'kind': "'text' | 'icon-name' | 'node' | 'region' | 'children'",
+    'prop?': 'string',
+    'default?': 'true',
+    'required?': 'boolean',
+    'multiple?': 'boolean',
+  },
   aliasForms: {
     PartMap: 'Partial<Record<Part, NS>>',
     Axes: 'Record<string, string>',
@@ -600,6 +627,10 @@ test('F · the descriptor schema shape is frozen (B3 · decision 65 step 5)', ()
   assert.deepEqual(typeFields(typeRhs(src, 'NS')), FROZEN_SCHEMA.NS, drift('the NS composition'));
   assert.deepEqual(typeFields(typeRhs(src, 'PartAnatomy')), FROZEN_SCHEMA.PartAnatomy, drift('PartAnatomy'));
   assert.deepEqual(typeFields(typeRhs(src, 'Descriptor')), FROZEN_SCHEMA.Descriptor, drift('the Descriptor envelope'));
+
+  // The PUBLIC-API layer (Path C · Phase 1 · the 3rd post-freeze envelope add).
+  assert.deepEqual(typeFields(typeRhs(src, 'ComponentApi')), FROZEN_SCHEMA.ComponentApi, drift('the ComponentApi shape'));
+  assert.deepEqual(typeFields(typeRhs(src, 'SlotSpec')), FROZEN_SCHEMA.SlotSpec, drift('the SlotSpec shape'));
 
   // The remaining structural alias forms (PartMap · Axes · Variants).
   for (const [name, pinned] of Object.entries(FROZEN_SCHEMA.aliasForms)) {

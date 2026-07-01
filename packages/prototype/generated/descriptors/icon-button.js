@@ -64,4 +64,17 @@ export const iconButtonDescriptor = {
   // icon-button's soft default. Both factories read this; neither binding
   // hand-passes a default.
   defaults: { variant: 'soft', size: 'md' },
+  // The PUBLIC API (Path C · Phase 1). Icon-ONLY (B0 · prefix/suffix retired):
+  // the lone `icon` glyph is the whole control, exposed as the SCALAR icon-name
+  // shorthand `prop: 'icon'` (`<IconButton icon="apple" />` · Overrides §1a — a
+  // string token, kind-gated to `icon-name`, not the soup). variant × size +
+  // the pressable root (all three channels), like Button.
+  api: {
+    axes: ['variant', 'size'],
+    themeScope: { accent: true },
+    behaviour: { pressable: { target: 'root', props: ['onPress', 'disabled', 'accessibilityLabel'] } },
+    slots: {
+      default: { part: 'icon', kind: 'icon-name', default: true, prop: 'icon' },
+    },
+  },
 };

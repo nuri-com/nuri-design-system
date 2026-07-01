@@ -60,4 +60,17 @@ export const buttonDescriptor: Descriptor<ButtonAxes> = {
   // (NOT the variant-order first value `solid`), md (NOT `sm`). Both factories
   // read this, so neither binding hand-passes a default (the web↔RN parity close).
   defaults: { variant: 'soft', size: 'md' },
+  // The PUBLIC API (Path C · Phase 1 · docs/component-api-target.md). variant ×
+  // size surface as style props; the root is the pressable target (all three
+  // interactive channels are opted in on `structure.base`). ONE content slot:
+  // the label text is the default children (`<Button>Buy</Button>`). Rich mid-text
+  // lockups (repeatable composed `text`/`icon` children) are a Phase-4 addition.
+  api: {
+    axes: ['variant', 'size'],
+    themeScope: { accent: true },
+    behaviour: { pressable: { target: 'root', props: ['onPress', 'disabled', 'accessibilityLabel'] } },
+    slots: {
+      default: { part: 'label', kind: 'text', default: true },
+    },
+  },
 };
