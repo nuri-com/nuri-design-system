@@ -76,4 +76,17 @@ export const topbarDescriptor: Descriptor<TopbarAxes> = {
       trailing: { stack: { direction: 'row', align: 'center', justify: 'end', fill: 'even' } },
     },
   },
+  // The PUBLIC API (Path C · Phase 1). A static layout shell — NO variant axes,
+  // NO behaviour. Three REGION slots map 1:1 to the typed sub-components
+  // (`TopbarLeading/Center/Trailing` ↔ `nuri-topbar-<slot>`); bare children
+  // default to `trailing` (the "just actions" case), so it carries `default:true`.
+  api: {
+    axes: [],
+    themeScope: { accent: true },
+    slots: {
+      leading: { part: 'leading', kind: 'region' },
+      center: { part: 'center', kind: 'region' },
+      trailing: { part: 'trailing', kind: 'region', default: true },
+    },
+  },
 };

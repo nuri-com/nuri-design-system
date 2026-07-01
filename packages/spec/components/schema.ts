@@ -288,6 +288,58 @@ export type Variants<A extends Axes> = {
   [Axis in keyof A]: { [Value in A[Axis]]: PartMap };
 };
 
+// ══════════════════════════════════════════════════════════════════
+// THE PUBLIC API · the missing schema layer (Path C · Phase 1 · the
+// component-API arc · docs/component-api-target.md · the 3rd post-freeze
+// contract bump). The descriptor already owns anatomy + style
+// (`structure`/`variants`); it did NOT own its PUBLIC API — so the RN
+// factory INVENTED each component's surface from anatomy guesses (the
+// `NuriBaseProps` policy soup). `api` closes that gap as pure DATA: which
+// style axes surface, the theme scope, the behaviour affordances, the
+// `selected`→axis bridge, and the content slots. It is REQUIRED on every
+// descriptor (no half-migrated schema · an `api?` would let a descriptor
+// skip it silently). ZERO runtime this phase — the factory keeps ignoring
+// `api`, so every render stays byte-identical; the api-validation guard
+// (scripts/component-api.test.js) is its only defence. Codegen (Phase 2) +
+// the renderer shrink (Phase 3) CONSUME it later.
+
+// A content entry point — where a value/subtree lands in the anatomy. RICH
+// content (text runs · mixed icon+text · regions · repeated children) is
+// COMPOSITION-only (a flat sub-component per slot · never a named prop · the
+// operator's 2026-07-01 rule). The ONE exception: a SCALAR ref — an
+// `icon-name` is a string token like `variant`, not a subtree — MAY declare a
+// `prop` shorthand (`icon="apple"`). `part` in Phase 1 is a global `Part`
+// (validated to exist in the descriptor's anatomy · Phase 5 narrows it to
+// descriptor-local literals via codegen, not TS inference · the strip wall).
+// `prop` = the scalar icon-name shorthand (ONLY legal on a singular `icon-name`
+// slot); `default: true` = the component's PRIMARY slot — what a bare positional
+// child OR the scalar shorthand fills (NOT necessarily `kind:'children'` · e.g.
+// IconButton's `icon` slot is the default · at most one per component);
+// `multiple: true` = repeated children (a `children` slot · e.g. tab-bar's items).
+export type SlotSpec = {
+  part: Part;
+  kind: 'text' | 'icon-name' | 'node' | 'region' | 'children';
+  prop?: string;
+  default?: true;
+  required?: boolean;
+  multiple?: boolean;
+};
+
+// The component's declared public API (v1 · docs/component-api-target.md
+// §"The canonical `api` shape"). `axes` = which VARIANT axes surface as public
+// style props (the default already lives in `defaults`); `themeScope.accent` =
+// the universal-but-DECLARED accent scope (Option 1); `behaviour.pressable` =
+// the press affordance, ONLY where declared and the target part is `interactive`;
+// `propMaps.selected` = the `selected`→state-axis bridge as DATA (kills the
+// `'state' extends keyof A` factory magic); `slots` = the content entry points.
+export type ComponentApi = {
+  axes: string[];
+  themeScope?: { accent: true };
+  behaviour?: { pressable?: { target: Part; props: ('onPress' | 'disabled' | 'accessibilityLabel')[] } };
+  propMaps?: { selected?: { axis: string; true: string; false: string } };
+  slots: Record<string, SlotSpec>;
+};
+
 // The per-component descriptor — PURE DATA (no theme thunk). `structure`
 // = the anatomy (invariant parts/slots + the open flag) + `base` (the
 // per-part invariant / locked-default composition); `variants` = the
@@ -304,10 +356,14 @@ export type Variants<A extends Axes> = {
 // Closes the web↔RN parity gap the recipes patched at the binding (Button
 // soft · not solid). `decorative` — the component is hidden from AT
 // (aria-hidden · decision 50 · IconAvatar): honest descriptor data the web
-// factory reads instead of a hand `aria-hidden` at the binding.
+// factory reads instead of a hand `aria-hidden` at the binding. `api` — the
+// PUBLIC-API contract (Path C · Phase 1 · above): REQUIRED, pure data, ignored
+// by the renderer this phase (codegen consumes it later). A deliberate,
+// versioned post-freeze envelope add (the Guard-F pin moves with it).
 export type Descriptor<A extends Axes> = {
   structure: { anatomy: PartAnatomy; base?: PartMap };
   variants?: Variants<A>;
   defaults?: { [Axis in keyof A]?: A[Axis] };
   decorative?: boolean;
+  api: ComponentApi;
 };

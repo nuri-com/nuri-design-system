@@ -94,4 +94,22 @@ export const tabBarItemDescriptor: Descriptor<TabBarItemAxes> = {
   // computes `selected`). Both factories read this (createNuriComponent's
   // defaultByAxis · the web buildComponent fallback) — neither hand-knows a default.
   defaults: { state: 'unselected' },
+  // The PUBLIC API (Path C · Phase 1). NO public style axes — the `state` axis is
+  // NOT surfaced raw; it is the target of the `selected`→state bridge as DATA
+  // (`propMaps.selected` · true→'selected' · false→'unselected'), which retires
+  // the `'state' extends keyof A` factory magic. The root is pressable (onPress +
+  // a11y label · NO `disabled` — an unselected item stays tappable, the DS never
+  // blocks it · matching the pressScale-only `interactive` opt-in). TWO composed
+  // slots (icon-over-label · NOT scalar `prop` shorthands — this icon is a lockup
+  // member, not a single-glyph control).
+  api: {
+    axes: [],
+    themeScope: { accent: true },
+    behaviour: { pressable: { target: 'root', props: ['onPress', 'accessibilityLabel'] } },
+    propMaps: { selected: { axis: 'state', true: 'selected', false: 'unselected' } },
+    slots: {
+      icon: { part: 'icon', kind: 'icon-name' },
+      label: { part: 'label', kind: 'text' },
+    },
+  },
 };

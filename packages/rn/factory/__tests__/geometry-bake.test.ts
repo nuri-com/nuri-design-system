@@ -198,6 +198,9 @@ describe('geometry bake · consumer — SELECTION-DEPENDENT interactivity surviv
         inactive: { root: {} },
       },
     },
+    // `api` is REQUIRED (Path C · Phase 1) but the factory ignores it — a minimal
+    // block keeps this synthetic bake fixture typechecking without affecting resolve.
+    api: { axes: [], slots: {} },
   };
   const recipe: BakedComponentRecipe = {
     root: {
@@ -234,6 +237,8 @@ describe('geometry bake · consumer — EMPHASIS-ONLY typography variants compos
         loud: { label: { typography: { emphasis: true } } },
       },
     },
+    // `api` REQUIRED (Path C · Phase 1) · factory-ignored · minimal for typecheck.
+    api: { axes: [], slots: {} },
   };
   const recipe: BakedComponentRecipe = {
     root: { el: 'view', geometry: { base: {}, variants: {} } },

@@ -1,6 +1,7 @@
 # Target design — the component-API layer (the descriptor declares its public API · codegen makes it exact · the renderer just renders)
 
-> **Status: DECIDED · NOT STARTED (Path C · the next major arc · operator-confirmed 2026-07-01).** This is
+> **Status: IN PROGRESS · Phase 1 DONE (the `api` DATA layer + guard · ZERO runtime · shipped) · Phase 2
+> (codegen) NEXT (Path C · operator-confirmed 2026-07-01).** This is
 > the design SoT for Path C, mirroring [`theme-engine-target.md`](./theme-engine-target.md)'s role for the
 > theme rework. It DISTILLS + RECONCILES the external architecture review
 > ([`consumer-feedback/COMPONENT-API-REVIEW-2026-07-01.md`](./consumer-feedback/COMPONENT-API-REVIEW-2026-07-01.md)),
@@ -71,7 +72,7 @@ api: {
       part: PartId;
       kind: 'text' | 'icon-name' | 'node' | 'region' | 'children';
       prop?: string;          // ONLY legal on a singular `icon-name` slot (the scalar shorthand · e.g. 'icon')
-      default?: true;         // the default `children` slot
+      default?: true;         // the PRIMARY slot — a bare child OR the scalar shorthand fills it (not necessarily `children`)
       required?: boolean;
       multiple?: boolean;     // repeated children (e.g. tab-bar's items)
     };
@@ -157,13 +158,22 @@ geneous children are a RICHER render than Topbar's one-shot region routing — n
   uniform, so `defineNuriComponent` now addresses a lone `icon`-el primary by its part name (`icon`). This
   is generic, so **icon-avatar also flips** `name`→`icon` on web (its live consumers + tests migrated). The
   unification the review assigned to Phase 2 codegen thus lands early for the singular-icon case. Its own small PR.
-- **Phase 1 — declare `api` as DATA + a guard · ZERO runtime change.** Add the `api` section to all six
-  (now-settled) descriptors (the table above) + a validation guard: every slot/behaviour target is a real
-  anatomy part · `prop` only on a singular `icon-name` slot · every `api.axes` member exists in `variants` ·
-  every propMap axis/value exists · every `pressable.target` part is `interactive`. The renderer STILL
-  ignores `api` — so all 5 gates + snapshots stay byte-identical (the green-means-safe proof). **Contract
-  bump:** `api` joins the FROZEN Descriptor schema → move the Guard-F `FROZEN_SCHEMA` pin + log a
-  decision-65 amendment · cheap ([[contract-bump-mechanism]]). `api` is REQUIRED so all six land together.
+- **Phase 1 — declare `api` as DATA + a guard · ZERO runtime change · ✅ DONE.** Added the `api` section to
+  all six (now-settled) descriptors (the table above) + the validation guard `scripts/component-api.test.js`:
+  every slot/behaviour target is a real anatomy part · `prop` only on a singular `icon-name` slot · every
+  `api.axes` member exists in `variants` · every propMap axis/value exists · every `pressable.target` part is
+  `interactive`. Seven channels, each its own test, each PROVEN to bind by a per-channel mutation. The
+  renderer STILL ignores `api` — all 5 gates + the 8 RN render snapshots stayed byte-identical (the
+  green-means-safe proof); a grep confirmed no runtime reads `descriptor.api`. **Contract bump:** `api`
+  (REQUIRED) joined the FROZEN Descriptor schema — the Guard-F `FROZEN_SCHEMA.Descriptor` pin moved + gained
+  `ComponentApi`/`SlotSpec` field-map pins (the 3rd deliberate post-freeze envelope add · cheap ·
+  [[contract-bump-mechanism]]). **Two open seams resolved:** (1) *web passthrough* — the additive `api`
+  breaks NO web gate: the doc IR + web factory read specific descriptor fields (`structure`/`variants`/
+  `defaults`), never iterate top-level keys, so the emitted twins carry `api` verbatim and `npm run build`
+  stays clean. (2) *pin encoding* — `ComponentApi`/`SlotSpec` are pinned as full **field-maps** (via
+  `typeFields`, like `NS`/`PartAnatomy`), NOT `aliasForms` whole-RHS strings — object types with fields read
+  cleanly field-for-field that way. The synthetic RN test-fixture descriptors gained a minimal
+  `api: { axes: [], slots: {} }` to satisfy the now-required field (factory-ignored · no behaviour change).
 - **Phase 2 — codegen exact wrappers/types** → `packages/rn/generated/components/*`. `ButtonProps` (no
   `icon`/`prefix`/`suffix`), `IconButtonProps` with the declared scalar `icon` prop; each component's real
   surface. Shares the Arc-2 codegen pass; output committed + drift-gated.

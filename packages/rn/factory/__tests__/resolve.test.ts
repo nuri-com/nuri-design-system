@@ -281,6 +281,8 @@ describe('genericity + the resolved geometry (three descriptors, ONE resolver)',
     const theme = buildNuriTheme('neutral', 'light');
     const ratioBox: Descriptor<Record<string, never>> = {
       structure: { anatomy: { el: 'view' }, base: { root: { box: { aspectRatio: 'card' } } } },
+      // `api` REQUIRED (Path C · Phase 1) · factory-ignored · minimal for typecheck.
+      api: { axes: [], slots: {} },
     };
     const style = flattenPart(ratioBox, theme, 'root', {}, {}).style;
     expect(style).toEqual({ aspectRatio: ratio.card });
