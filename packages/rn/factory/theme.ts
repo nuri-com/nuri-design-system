@@ -33,7 +33,6 @@
  * ══════════════════════════════════════════════════════════════════ */
 
 import {
-  palette,
   chrome,
   accentTokens,
   space,
@@ -48,6 +47,10 @@ import type {
   PaletteVariant,
   PaletteChrome,
 } from '../contract';
+// The palette MAPPING is an INTERNAL engine detail (not part of the public
+// contract seam · SEED-4) — imported straight from generated/, so it never
+// reaches the public barrel via contract.ts.
+import { palette } from '../generated/palette';
 
 // ── ChromeSlice · the raw chrome roles for ONE mode (chrome[mode]) ──
 type ChromeSlice = typeof chrome.light;
