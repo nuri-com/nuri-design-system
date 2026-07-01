@@ -44,7 +44,6 @@ import {
 import type { ViewStyle, TextStyle } from 'react-native';
 import type { StackNS, BoxNS, TypographyNS, PaletteNS, InteractiveNS, NS } from '../contract';
 import { useNuriTheme, typeStyle } from '../theme';
-import { buildNuriTheme } from './theme';
 import type { NuriTheme } from './theme';
 import { resolveNS, flattenInteractive } from './resolve';
 import type { ResolvedNode } from './resolve';
@@ -85,18 +84,18 @@ function pickNS(props: Record<string, unknown>): NS {
 }
 
 // useResolvedNode · the one resolution path every painting primitive shares.
-// Reads the ambient (accent, mode) + surface fg, builds the theme, and resolves
-// the bucketed namespaces through resolveNS (palette.accent self-scopes INSIDE
-// resolvePalette · decision 27/62 · so the base theme uses the ambient accent).
+// Reads the RESOLVED payload from context (Option B · SEED-4 · no per-primitive
+// `buildNuriTheme` rebuild) + the ambient surface fg, and resolves the bucketed
+// namespaces through resolveNS. A per-scope accent override rides the SAME
+// NuriScope path (the payload is already the scoped theme).
 function useResolvedNode(nsProps: Record<string, unknown>): {
   node: ResolvedNode;
   fg: string | undefined;
   theme: NuriTheme;
 } {
-  const { mode, accent } = useNuriTheme();
+  const theme = useNuriTheme();
   const ambient = React.useContext(NuriSurfaceContext);
-  const theme = React.useMemo(() => buildNuriTheme(accent, mode), [accent, mode]);
-  const node = resolveNS(pickNS(nsProps), theme, mode);
+  const node = resolveNS(pickNS(nsProps), theme);
   return { node, fg: node.fg ?? ambient.foreground, theme };
 }
 

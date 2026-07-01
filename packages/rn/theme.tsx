@@ -1,82 +1,48 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · THEME RUNTIME · the consumer-side theming model
+ * NURI · THEME RUNTIME · the consumer-side theming model (Option B · SEED-4)
  * ──────────────────────────────────────────────────────────────────
- * Productionized from the migration-test reference (_shared.tsx). The
- * CONTRACT is preserved 1:1 (the mirror is the answer-key on the
- * contract); only the public surface is rounded out for a real app:
+ * The context now carries the RESOLVED THEME PAYLOAD (Option B · the debt-
+ * register SEED-4 rework): the provider builds it ONCE per address and hands
+ * it down, instead of every component/every render re-resolving the theme.
  *
- *   NuriThemeContext   the single orthogonal theming context · ONE entry
- *                      per live dimension { mode, accent } (decision
- *                      27/62). NOT two contexts; NOT a (∏ dims) registry.
- *   NuriThemeProvider  the ROOT provider — establishes the base value
- *                      (defaults mirror the web <html data-*>: light/lilac).
- *   NuriScope          the Tier-3 subtree scope — MERGE-ON-OVERRIDE, so a
- *                      child can flip `accent` without redeclaring `mode`.
- *   useNuriTheme()     one useContext lookup → { mode, accent }.
- *   useRuntimeTokens() the render-time (accent × mode) RuntimeTokens slice.
+ *   NuriThemeContext   the single orthogonal theming context · ONE entry per
+ *                      live tree, holding the ThemePayload (Address {mode,accent}
+ *                      + the resolved surface/chrome + the raw slices).
+ *   NuriThemeProvider  the ROOT provider — builds the base payload (defaults
+ *                      mirror the web <html data-*>: light/lilac).
+ *   NuriScope          the Tier-3 subtree scope — MERGE-ON-OVERRIDE on the
+ *                      ADDRESS (flip `accent`, inherit `mode`), then rebuild the
+ *                      payload for the merged address. The ONE override mechanism
+ *                      for root · scope · prop-accent (SEED-4).
+ *   useNuriTheme()     one useContext lookup → the ThemePayload.
+ *   useRuntimeTokens() the raw (accent × mode) RuntimeTokens slice (payload.slices).
  *   resolveToken()     dereference a TokenPath → string (colour) | number
  *                      (dimension). The contract signature is (tokens, path).
  *   useToken()         ergonomic single-arg form: resolveToken(slice, path).
  *   typeStyle()        the ONE relative→absolute type conversion (the place
  *                      a future × fontScale / Dynamic Type lands · P11).
  *
- * Why no `tokens` in the context (decision 27/62 · the framing rule):
- * the context carries only { mode, accent }; the token slice is DERIVED
- * via useRuntimeTokens(). Storing the slice in context would couple every
- * consumer to a recompute and lose the orthogonal-dimensions property.
+ * Why the payload lives in context now (SEED-4 · reversing decision 27/62's
+ * "no tokens in context"): the resolution is a PURE function of the address
+ * (chrome[mode] ⊕ accent[accent][mode] · orthogonal · no cross-product), so
+ * building it once at the provider and reading it downstream is strictly
+ * cheaper than re-collapsing per component — while the Address scalars stay in
+ * the payload so a nested scope can flip ONE axis and inherit the other.
  *
- * `density` / `neutral` are RESERVED by the spec but are NOT context
- * entries until their web tokens exist (P11). `font` is web-only
- * (amendment 27.1) and never migrates — RN uses the platform system font.
+ * `density` / `neutral` are RESERVED by the spec but are NOT context entries
+ * until their web tokens exist (P11). `font` is web-only (amendment 27.1) and
+ * never migrates — RN uses the platform system font.
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';
 
-import {
-  chrome,
-  accentTokens,
-  space,
-  size,
-  radius,
-  typeScale,
-  emphasisWeight,
-} from './contract';
+import { typeScale, emphasisWeight } from './contract';
 import type { Accent, Theme, TokenPath, TypeSize } from './contract';
+import { buildNuriTheme } from './factory/theme';
+import type { ThemePayload, RuntimeTokens } from './factory/theme';
 
-// ── AccentSlice · the accent roles resolved for ONE mode ──────────
-// The colour SoT is now accent-MAJOR two-layer (N+59 · Slice 3b·1 · projection
-// model §3): `accentTokens[accent]` is a role table whose every role is a flat hex
-// (theme-invariant · the P4-frozen brand fill) OR a `{light,dark}` pair
-// (theme-adapting). The live slice collapses each role to its mode-concrete hex —
-// so AccentSlice is the role set mapped to `string`, BYTE-IDENTICAL to the value the
-// old `accentTokens[accent][mode]` cross-product cell carried.
-type AccentTable = (typeof accentTokens)[Accent];
-export type AccentSlice = { [K in keyof AccentTable]: string };
-
-// Collapse the two-layer accent table to the single-mode slice: a flat role is used
-// as-is (theme-invariant); a pair picks `mode`. The layered-substitution composition
-// (chrome[mode] ⊕ accent[accent][mode]) the projection model §3 specifies.
-function resolveAccentSlice(table: AccentTable, mode: Theme): AccentSlice {
-  const out = {} as Record<string, string>;
-  for (const role in table) {
-    const v = table[role as keyof AccentTable] as string | { light: string; dark: string };
-    out[role] = typeof v === 'string' ? v : v[mode];
-  }
-  return out as AccentSlice;
-}
-
-// ── RuntimeTokens · the live (accent × theme) slice resolveToken reads ──
-// chrome is theme-keyed; accent is the mode-resolved AccentSlice (composed from the
-// accent-major two-layer table · above); space/size/radius are cascade-invariant
-// singletons. resolveToken returns string for colour leaves (chrome/accent) and
-// number for dimension leaves.
-export type RuntimeTokens = {
-  chrome: typeof chrome.light;
-  accent: AccentSlice;
-  space: typeof space;
-  size: typeof size;
-  radius: typeof radius;
-};
+// Re-export the payload/slice types on the public barrel (index.ts `export *`).
+export type { ThemePayload, RuntimeTokens, AccentSlice } from './factory/theme';
 
 // ── SpaceLeaf · the 5-leaf semantic space subset the layout primitives
 // expose (Stack gap, Box padding*, Spacer size · decision 36/37). ──
@@ -90,6 +56,8 @@ export type TypeKey = TypeSize;
 // ══════════════════════════════════════════════════════════════════
 // The single orthogonal theming context.
 // ══════════════════════════════════════════════════════════════════
+// NuriThemeValue · the ADDRESS (the two live dimensions). The Provider/Scope
+// take it as their prop surface; the resolved payload is DERIVED from it.
 export type NuriThemeValue = {
   mode: Theme;
   accent: Accent;
@@ -98,82 +66,68 @@ export type NuriThemeValue = {
 };
 
 // Default mirrors the web <html data-*> defaults: mode 'light', accent 'lilac'.
-export const NuriThemeContext = React.createContext<NuriThemeValue>({
-  mode: 'light',
-  accent: 'lilac',
-});
-
-// NuriThemeProvider · the ROOT. Sets the base value for the tree. Both
-// props default to the web defaults, so <NuriThemeProvider> with no props
-// === the spec's default surface. An app that drives mode/accent (e.g. a
-// light/dark toggle, or useColorScheme) passes them here.
-export const NuriThemeProvider: React.FC<
-  Partial<NuriThemeValue> & { children: React.ReactNode }
-> = ({ mode = 'light', accent = 'lilac', children }) => (
-  <NuriThemeContext.Provider value={{ mode, accent }}>
-    {children}
-  </NuriThemeContext.Provider>
+export const NuriThemeContext = React.createContext<ThemePayload>(
+  buildNuriTheme('lilac', 'light'),
 );
 
-// NuriScope · the Tier-3 subtree-scope analogue (RN twin of web
-// <nuri-scope mode=… accent=…>). MERGE-ON-OVERRIDE: reads the ambient
-// context and emits { ...ambient, ...overrides } — unspecified dimensions
-// inherit, specified ones win. ONE composite Provider, not one-per-dim
-// (F-SCOPE-1 closed · decision 62). The single-context model is immune to
-// the web cascade accent×theme self-scope edge (F-SCOPE-3 is web-only).
-export const NuriScope: React.FC<
+// NuriThemeProvider · the ROOT. Builds the base payload for the tree. Both props
+// default to the web defaults, so <NuriThemeProvider> with no props === the
+// spec's default surface. An app that drives mode/accent (a light/dark toggle,
+// useColorScheme) passes them here; the payload rebuilds only when the address
+// changes (memoised per address · the resolution runs ONCE).
+export const NuriThemeProvider: React.FC<
   Partial<NuriThemeValue> & { children: React.ReactNode }
-> = ({ children, ...overrides }) => {
-  const ambient = React.useContext(NuriThemeContext);
-  return (
-    <NuriThemeContext.Provider value={{ ...ambient, ...overrides }}>
-      {children}
-    </NuriThemeContext.Provider>
-  );
+> = ({ mode = 'light', accent = 'lilac', children }) => {
+  const payload = React.useMemo(() => buildNuriTheme(accent, mode), [accent, mode]);
+  return <NuriThemeContext.Provider value={payload}>{children}</NuriThemeContext.Provider>;
 };
 
-// ── useNuriTheme · the one useContext lookup ──────────────────────
-export function useNuriTheme(): NuriThemeValue {
+// NuriScope · the Tier-3 subtree-scope analogue (RN twin of web
+// <nuri-scope mode=… accent=…>). MERGE-ON-OVERRIDE on the ADDRESS: reads the
+// ambient payload's { mode, accent }, applies the overrides, and rebuilds the
+// payload for the merged address — so an unspecified dimension inherits, a
+// specified one wins. ONE composite Provider, not one-per-dim (F-SCOPE-1 closed
+// · decision 62). This is the SINGLE override path (SEED-4): the prop-accent
+// case (<Button accent="orange">) is just a NuriScope the factory establishes.
+export const NuriScope: React.FC<
+  Partial<NuriThemeValue> & { children: React.ReactNode }
+> = ({ mode, accent, children }) => {
+  const ambient = React.useContext(NuriThemeContext);
+  const nextMode = mode ?? ambient.mode;
+  const nextAccent = accent ?? ambient.accent;
+  const payload = React.useMemo(
+    () => buildNuriTheme(nextAccent, nextMode),
+    [nextAccent, nextMode],
+  );
+  return <NuriThemeContext.Provider value={payload}>{children}</NuriThemeContext.Provider>;
+};
+
+// ── useNuriTheme · the one useContext lookup → the resolved payload ──
+export function useNuriTheme(): ThemePayload {
   return React.useContext(NuriThemeContext);
 }
 
-// ── useRuntimeTokens · render-time (accent × mode) slice ──────────
-// The RuntimeTokens resolveToken dereferences against. Reads the ambient
-// (accent, mode) pair from the single NuriThemeContext.
+// ── useRuntimeTokens · the raw (accent × mode) slice ──────────────
+// The RuntimeTokens `resolveToken` dereferences against — read straight off the
+// payload the provider already resolved (no per-render recompute · SEED-4).
 export function useRuntimeTokens(): RuntimeTokens {
-  const { mode, accent } = React.useContext(NuriThemeContext);
-  return runtimeTokens(accent, mode);
-}
-
-// Pure (accent, mode) → RuntimeTokens. Exposed so a component that already
-// resolved its self-scoped accent (Button/IconButton, prop-wins-ambient)
-// can build the slice without a second context read.
-export function runtimeTokens(accent: Accent, mode: Theme): RuntimeTokens {
-  return {
-    chrome: chrome[mode],
-    accent: resolveAccentSlice(accentTokens[accent], mode),
-    space,
-    size,
-    radius,
-  };
+  return React.useContext(NuriThemeContext).slices;
 }
 
 // ── resolveToken · consumer-side dereference (decision 34) ────────
-// The frozen build emits TokenPath strings (e.g. build/palette.ts's
-// `solid.bg = 'accent.solid' as const satisfies TokenPath`); this turns
-// that path into a concrete value by indexing the live slice. Returns
-// string for colour leaves (chrome/accent), number for dimension leaves
-// (space/size/radius) — handle the union at the call site (cast `as
-// string` / `as number`).
+// The frozen build emits TokenPath strings; this turns a path into a concrete
+// value by indexing the live slice. Returns string for colour leaves
+// (chrome/accent), number for dimension leaves (space/size/radius) — handle the
+// union at the call site (cast `as string` / `as number`).
 export function resolveToken(tokens: RuntimeTokens, path: TokenPath): string | number {
   const [group, leaf] = path.split('.') as [keyof RuntimeTokens, string];
   return (tokens[group] as Record<string, string | number>)[leaf];
 }
 
 // ── useToken · ergonomic single-arg dereference ───────────────────
-// Sugar over resolveToken(useRuntimeTokens(), path) for the common case of
-// a one-off lookup in a component body. The contract primitive stays the
-// pure two-arg resolveToken; this just spares the slice plumbing.
+// Sugar over resolveToken(useRuntimeTokens(), path) for the common case of a
+// one-off lookup in a component body. The contract primitive stays the pure
+// two-arg resolveToken; this just spares the slice plumbing.
 export function useToken(path: TokenPath): string | number {
   return resolveToken(useRuntimeTokens(), path);
 }
@@ -183,12 +137,12 @@ export function useToken(path: TokenPath): string | number {
 // ──────────────────────────────────────────────────────────────────
 // Two ORTHOGONAL inputs (decision 77 · the N+45 de-fusion): `size` is the
 // type-scale step; `emphasis` swaps the regular weight to the single semibold
-// override (emphasisWeight · uniform across every size · P11). Was one fused
-// `key` arg (`mdEm`). The emit keeps lineHeight (unitless ratio) and
-// letterSpacing (em number) RELATIVE; RN's are absolute dp, so the
-// relative→absolute multiply lives in ONE place — here. Never raw-spread
-// type[size] (lineHeight 1.29 would read as ~1px). This is also where a
-// `* fontScale` lands when Dynamic Type ships (P11).
+// override (emphasisWeight · uniform across every size · P11). The emit keeps
+// lineHeight (unitless ratio) and letterSpacing (em number) RELATIVE; RN's are
+// absolute dp, so the relative→absolute multiply lives in ONE place — here.
+// Never raw-spread type[size] (lineHeight 1.29 would read as ~1px). This is also
+// where a `* fontScale` lands when Dynamic Type ships (P11) — the ONE legit
+// runtime multiply that survives the SEED-4 collapse.
 export function typeStyle(size: TypeSize, emphasis?: boolean) {
   const t = typeScale[size];
   return {

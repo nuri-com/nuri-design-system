@@ -31,8 +31,7 @@
 import * as React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { Accent, Descriptor, Axes, Part, IconName } from '../contract';
-import { typeStyle, useNuriTheme } from '../theme';
-import { buildNuriTheme } from './theme';
+import { typeStyle, useNuriTheme, NuriScope } from '../theme';
 import type { NuriTheme } from './theme';
 import { resolveAnatomy, flattenPart, assertNever } from './resolve';
 import type { AnatomyNode, Selection } from './resolve';
@@ -122,7 +121,6 @@ export function compoundSlots(component: unknown): Record<string, NuriSlot> {
 type RenderCtx<A extends Axes> = {
   descriptor: Descriptor<A>;
   theme: NuriTheme;
-  mode: 'light' | 'dark';
   selection: Selection;
   disabled: boolean;
   onPress?: () => void;
@@ -142,7 +140,7 @@ function renderPart<A extends Axes>(
   // (it may be an open host / pivot with no own content · Topbar).
   if (node.el !== 'view' && ctx.content[node.name] == null) return null;
 
-  const flat = flattenPart(ctx.descriptor, ctx.theme, ctx.mode, node.name, ctx.selection, {
+  const flat = flattenPart(ctx.descriptor, ctx.theme, node.name, ctx.selection, {
     pressed: false,
     disabled: ctx.disabled,
   });
@@ -190,7 +188,7 @@ function renderPart<A extends Axes>(
             accessibilityLabel={ctx.accessibilityLabel}
             {...a11yHide}
             style={({ pressed }) =>
-              flattenPart(ctx.descriptor, ctx.theme, ctx.mode, node.name, ctx.selection, {
+              flattenPart(ctx.descriptor, ctx.theme, node.name, ctx.selection, {
                 pressed,
                 disabled: ctx.disabled,
               }).style
@@ -289,12 +287,14 @@ export function createNuriComponent<A extends Axes>(
   const isCompound = slotParts.length > 0;
   const defaultSlot: Part | undefined = slotParts[slotParts.length - 1];
 
-  const Component: React.FC<NuriComponentProps<A>> = (props) => {
+  // Inner · the actual render. Reads the RESOLVED payload straight from context
+  // (Option B · SEED-4) — NO per-component `buildNuriTheme` rebuild. The Tier-2
+  // prop-accent is handled OUTSIDE, as a nested scope (Component, below), so the
+  // payload here is already the correctly-scoped theme.
+  const Inner: React.FC<NuriComponentProps<A>> = (props) => {
     const base = props as NuriBaseProps;
     const axisBag = props as Record<string, unknown>;
-    const { mode, accent: ambientAccent } = useNuriTheme();
-    const accent: Accent = base.accent ?? ambientAccent; // Tier-2 self-scope
-    const theme = React.useMemo(() => buildNuriTheme(accent, mode), [accent, mode]);
+    const theme = useNuriTheme(); // the scoped ThemePayload (root · scope · prop-accent)
     const ambient = React.useContext(NuriSurfaceContext);
 
     // named axis props → the engine selection (first-value fallback when unset).
@@ -367,7 +367,6 @@ export function createNuriComponent<A extends Axes>(
       {
         descriptor,
         theme,
-        mode,
         selection,
         disabled: base.disabled ?? false,
         onPress: base.onPress,
@@ -376,6 +375,24 @@ export function createNuriComponent<A extends Axes>(
       },
       ambient.foreground,
       true,
+    );
+  };
+  Inner.displayName = displayName;
+
+  // Component · the public shell. PROP-ACCENT = A NESTED SCOPE (SEED-4): a
+  // `<Button accent="orange">` is exactly `<NuriScope accent="orange"><Button/>
+  // </NuriScope>` — the outer establishes the scoped payload, the Inner reads it
+  // (+ publishes the scoped surface fg by §12). ONE override mechanism for root ·
+  // scope · prop — no bespoke `if (props.accent) buildNuriTheme(...)` mini-path
+  // ("SEED-4 in miniature"). No accent prop → no wrapper (the Inner reads ambient).
+  const Component: React.FC<NuriComponentProps<A>> = (props) => {
+    const { accent } = props as NuriBaseProps;
+    return accent !== undefined ? (
+      <NuriScope accent={accent}>
+        <Inner {...props} />
+      </NuriScope>
+    ) : (
+      <Inner {...props} />
     );
   };
 

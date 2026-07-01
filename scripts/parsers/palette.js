@@ -203,15 +203,32 @@ export function derivePalette({ surface, typographyAxis }, { classifiedGroups })
 }
 
 // ── emit · build/palette.ts source ────────────────────────────────────
+// The mapping emits each colour cell as a STRUCTURAL ref `{ group, leaf }` (a
+// dotted TokenPath split at emit) or a verbatim literal (ghost's 'transparent').
+// Preserving (group, leaf) structurally lets the RN theme builder index the
+// selected slice with ZERO parse — the old stringly `resolveColor` dot-sniff +
+// `RUNTIME_GROUPS` restatement dissolve (SEED-4). `as const satisfies ColorRef`
+// pins each ref's `${group}.${leaf}` back to a real runtime TokenPath.
 export function emitPaletteTs(cells) {
-  // Global column alignment across every row (the button.ts look).
+  // Split a dotted TokenPath into its (group, leaf); a literal has no dot.
+  const refOf = (value) => {
+    const dot = value.indexOf('.');
+    return dot > 0 ? { group: value.slice(0, dot), leaf: value.slice(dot + 1) } : null;
+  };
+  // Global column alignment across every row (the button.ts look): the label, the
+  // quoted group, and the quoted leaf each align to their widest occurrence.
   let labelWidth = 0;
-  let exprWidth = 0;
+  let groupWidth = 0;
+  let leafWidth = 0;
   for (const axis of AXIS_ORDER) {
     for (const row of Object.keys(cells[axis])) {
       for (const [channel, value] of Object.entries(cells[axis][row])) {
         labelWidth = Math.max(labelWidth, channel.length + 1);
-        exprWidth = Math.max(exprWidth, value.length + 2);
+        const ref = refOf(value);
+        if (ref) {
+          groupWidth = Math.max(groupWidth, ref.group.length + 2);
+          leafWidth = Math.max(leafWidth, ref.leaf.length + 2);
+        }
       }
     }
   }
@@ -229,13 +246,15 @@ export function emitPaletteTs(cells) {
     ` *  CSS the A3 carve relocates · build/palette.ts cells unchanged.)`,
     ` * Emitter · pipeline/parsers/palette.js — run \`npm run build\``,
     ` *`,
-    ` * The {variant | chrome} → {bg · fg · fgMuted · pressedBg} mapping`,
-    ` * as TokenPath data (decision 34) — accent×theme-GENERIC; the`,
-    ` * consumer dereferences each path against the live (accent × theme)`,
-    ` * slice via resolveToken at render time (decision 65.1: engine =`,
+    ` * The {variant | chrome} → {bg · fg · fgMuted · pressedBg} mapping as`,
+    ` * STRUCTURAL colour REFS (decision 34 · SEED-4) — accent×theme-GENERIC. Each`,
+    ` * cell is \`{ group, leaf }\` preserving the (group, leaf) so the RN theme`,
+    ` * builder (generated → factory/theme.ts) indexes the selected chrome | accent`,
+    ` * slice with ZERO parse (the old dotted-string + resolveColor dot-sniff is`,
+    ` * gone). The mapping is applied ONCE at the provider (Option B · 65.1: engine =`,
     ` * platform-native, mapping = data · emitted ONCE · 65.2).`,
     ` *`,
-    ` *   · ghost.bg = the literal 'transparent' (NOT a TokenPath) — the`,
+    ` *   · ghost.bg = the literal 'transparent' (NOT a ref) — the`,
     ` *     build/components/button.ts ghostBg convention.`,
     ` *   · subtle = fg-only (no bg/pressed) · the IconAvatar role.`,
     ` *   · chrome = theme-only surfaces (no accent, no pressed).`,
@@ -247,6 +266,13 @@ export function emitPaletteTs(cells) {
     ``,
     `import type { TokenPath } from './token-paths';`,
     ``,
+    `// A colour cell is a structural REF — \`{ group, leaf }\` preserved so the theme`,
+    `// builder indexes the selected (chrome | accent) slice with ZERO parse — or a`,
+    `// verbatim literal (ghost's 'transparent'). \`ColorRef\` pins each ref's`,
+    `// \`\${group}.\${leaf}\` to a real runtime TokenPath (the emit-time guarantee, typed).`,
+    `export type ColorRef<P extends TokenPath = TokenPath> =`,
+    `  P extends \`\${infer G}.\${infer L}\` ? { readonly group: G; readonly leaf: L } : never;`,
+    ``,
     `export const palette = {`,
   ];
   for (const axis of AXIS_ORDER) {
@@ -255,11 +281,13 @@ export function emitPaletteTs(cells) {
       lines.push(`    ${row}: {`);
       for (const [channel, value] of Object.entries(cells[axis][row])) {
         const label = `${channel}:`.padEnd(labelWidth + 1);
-        const head = `'${value}'`;
-        if (value.includes('.')) {
-          lines.push(`      ${label} ${head.padEnd(exprWidth)} as const satisfies TokenPath,`);
+        const ref = refOf(value);
+        if (ref) {
+          const group = `'${ref.group}',`.padEnd(groupWidth + 1);
+          const leaf = `'${ref.leaf}'`.padEnd(leafWidth);
+          lines.push(`      ${label} { group: ${group} leaf: ${leaf} } as const satisfies ColorRef,`);
         } else {
-          lines.push(`      ${label} ${head},`); // the transparent literal
+          lines.push(`      ${label} '${value}',`); // the transparent literal
         }
       }
       lines.push(`    },`);

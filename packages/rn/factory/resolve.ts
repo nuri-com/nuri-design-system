@@ -135,14 +135,15 @@ export type ResolvedPalette = {
   pressedBg?: string;
 };
 
-function resolvePalette(ns: PaletteNS, theme: NuriTheme, mode: Theme): ResolvedPalette {
+function resolvePalette(ns: PaletteNS, theme: NuriTheme): ResolvedPalette {
   // variant wins over chrome (schema: at most one; variant wins).
   if (ns.variant !== undefined) {
-    // `palette.accent` is a per-node self-scope (re-resolve the surface under
-    // that accent · decision 27/62). None of the three frozen descriptors use
-    // it, but the engine handles it for completeness.
-    const t = ns.accent !== undefined ? buildNuriTheme(ns.accent, mode) : theme;
-    const role = t.surface[ns.variant];
+    // Read the pre-resolved surface from the payload — NO per-node theme rebuild
+    // (the old `palette.accent` self-scope `buildNuriTheme(ns.accent, mode)` is
+    // GONE · SEED-4: a per-node accent override is a NESTED SCOPE, the ONE
+    // override mechanism, not a bespoke whole-theme rebuild · exercised by zero
+    // catalog descriptors, so its removal is behaviour-preserving).
+    const role = theme.surface[ns.variant];
     return {
       bg: role.bg,
       fg: ns.muted && role.fgMuted !== undefined ? role.fgMuted : role.fg,
@@ -179,7 +180,7 @@ export type ResolvedNode = {
 // never data · decision 65). Typed TOTAL over `keyof NS`, so a sixth namespace
 // without a resolver is a COMPILE error — the `assertNever` exhaustiveness of
 // old, now per target (the consumability proof · R7).
-type ResolveCtx = { node: ResolvedNode; theme: NuriTheme; mode: Theme };
+type ResolveCtx = { node: ResolvedNode; theme: NuriTheme };
 type NSResolver<K extends keyof NS> = (value: NonNullable<NS[K]>, ctx: ResolveCtx) => void;
 // `-?` STRIPS the optional modifier NS's keys carry (the mapped type is
 // homomorphic — without `-?` every resolver would be optional and the totality
@@ -206,8 +207,8 @@ const RN_RESOLVERS: TargetResolvers = {
   // currentColor / RN threads fg / CSS cascade vars). Logic VERBATIM from the old
   // `palette` case: bg lands on the view, fg/fgMuted/pressedBg are sibling
   // channels (fg flows by SCOPE · §12 · F-BOX-FG-1).
-  palette: (v, { node, theme, mode }) => {
-    const p = resolvePalette(v, theme, mode);
+  palette: (v, { node, theme }) => {
+    const p = resolvePalette(v, theme);
     if (p.bg !== undefined) node.view.backgroundColor = p.bg;
     if (p.fg !== undefined) node.fg = p.fg;
     if (p.fgMuted !== undefined) node.fgMuted = p.fgMuted;
@@ -228,9 +229,9 @@ const RN_RESOLVERS: TargetResolvers = {
 type Target = 'rn' | 'web' | 'css';
 const RESOLVERS = { rn: RN_RESOLVERS } satisfies Partial<Record<Target, TargetResolvers>>;
 
-export function resolveNS(ns: NS, theme: NuriTheme, mode: Theme): ResolvedNode {
+export function resolveNS(ns: NS, theme: NuriTheme): ResolvedNode {
   const node: ResolvedNode = { view: {} };
-  const ctx: ResolveCtx = { node, theme, mode };
+  const ctx: ResolveCtx = { node, theme };
   // Dispatch each PRESENT namespace through the RN column (authored key order ·
   // unchanged from the old forEach, so node.view's key order is byte-identical).
   // The registry is a total map → every schema key has a resolver; a key OUTSIDE
@@ -371,13 +372,12 @@ export type PartFlat = { style: ViewStyle; node: ResolvedNode };
 export function flattenPart<A extends Axes>(
   descriptor: Descriptor<A>,
   theme: NuriTheme,
-  mode: Theme,
   part: Part,
   selection: Selection,
   state: State,
 ): PartFlat {
   const ns = mergedNSForPart(descriptor, selection, part);
-  const node = resolveNS(ns, theme, mode);
+  const node = resolveNS(ns, theme);
   return { style: flattenInteractive(node, theme, state), node };
 }
 
@@ -419,12 +419,11 @@ function hasStyle(s: ViewStyle): boolean {
 function buildPartRecipe<A extends Axes>(
   descriptor: Descriptor<A>,
   theme: NuriTheme,
-  mode: Theme,
   node: AnatomyNode,
 ): PartRecipe {
   const part = node.name;
   const baseNS = descriptor.structure.base?.[part] ?? {};
-  const baseNode = resolveNS(baseNS, theme, mode);
+  const baseNode = resolveNS(baseNS, theme);
 
   const recipe: PartRecipe = {
     el: node.el,
@@ -447,7 +446,7 @@ function buildPartRecipe<A extends Axes>(
       for (const value of Object.keys(valueMap)) {
         const partNS = valueMap[value][part];
         if (!partNS) continue;
-        const vNode = resolveNS(partNS, theme, mode);
+        const vNode = resolveNS(partNS, theme);
         if (hasStyle(vNode.view)) axisStyles[value] = vNode.view;
         if (vNode.fg !== undefined) {
           if (!fgVariants[axis]) fgVariants[axis] = {};
@@ -506,7 +505,7 @@ function buildPartRecipe<A extends Axes>(
         const axes = descriptor.variants as Record<string, Record<string, PartMap>>;
         for (const axis of paletteAxes) {
           for (const value of Object.keys(axes[axis])) {
-            const derived = (flattenPart(descriptor, theme, mode, part, { [axis]: value }, {}).node as Record<string, unknown>)[from];
+            const derived = (flattenPart(descriptor, theme, part, { [axis]: value }, {}).node as Record<string, unknown>)[from];
             pushCompound(derived, { axis, value });
           }
         }
@@ -528,11 +527,10 @@ function buildPartRecipe<A extends Axes>(
 export function toUnistylesRecipe<A extends Axes>(
   descriptor: Descriptor<A>,
   theme: NuriTheme,
-  mode: Theme,
 ): ComponentRecipe {
   const out: ComponentRecipe = {};
   const walk = (node: AnatomyNode) => {
-    out[node.name] = buildPartRecipe(descriptor, theme, mode, node);
+    out[node.name] = buildPartRecipe(descriptor, theme, node);
     node.children.forEach(walk);
   };
   walk(resolveAnatomy(descriptor));
@@ -545,5 +543,5 @@ export function recipeFor<A extends Axes>(
   accent: Accent,
   mode: Theme,
 ): ComponentRecipe {
-  return toUnistylesRecipe(descriptor, buildNuriTheme(accent, mode), mode);
+  return toUnistylesRecipe(descriptor, buildNuriTheme(accent, mode));
 }

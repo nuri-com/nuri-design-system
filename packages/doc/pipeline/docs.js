@@ -262,11 +262,16 @@ function renderPalette(ns, palette, colors, where) {
 // (decision 30 · the ghostBg literal): the swatch is the bordered empty square,
 // no hex.
 function renderChannel(label, value, colors) {
-  if (value === 'transparent') {
-    return { token: attr(label, value), value: swatch('transparent') };
+  // A palette cell is a STRUCTURAL colour ref `{ group, leaf }` (SEED-4 · the RN
+  // mapping retyped) or a verbatim literal (ghost's 'transparent'). Normalize a
+  // ref back to its dotted path for the token column + the resolver, so the doc
+  // output stays byte-identical to the old TokenPath-string emit.
+  const path = value && typeof value === 'object' ? `${value.group}.${value.leaf}` : value;
+  if (path === 'transparent') {
+    return { token: attr(label, path), value: swatch('transparent') };
   }
-  const { var: cssVar, hex } = colors(value);
-  return { token: attr(label, value), value: `${swatch(`var(${cssVar})`)} \`${hex}\`` };
+  const { var: cssVar, hex } = colors(path);
+  return { token: attr(label, path), value: `${swatch(`var(${cssVar})`)} \`${hex}\`` };
 }
 
 // one namespace → { token, value } — the two parallel cell strings (the Token
