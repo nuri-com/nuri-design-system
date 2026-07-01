@@ -7,12 +7,12 @@
  *
  * ── GENERATED · the accent×theme cascade (N+32 C2 · decision 70 / 72) ──
  * The cascade BLOCKS below (the marked region · #1 … #6b) are GENERATED
- * from the TS SoT (pipeline/colours.ts · the chrome + accent matrix) by
- * Slice 0 of pipeline/tokens-parser.js (parsers/semantic-css.js · dec-2
+ * from the TS SoT (packages/spec/tokens/colours.ts · the chrome + accent matrix) by
+ * Slice 0 of scripts/tokens-parser.js (parsers/semantic-css.js · dec-2
  * reversed for the colour SEMANTIC layer — colour is now fully flipped).
  * Edit the SoT, not the marked region — `npm run build` regenerates it in
  * place. The SPACING / SIZING / RADIUS blocks (below the marked region)
- * are likewise generated, from the dimension SoT (pipeline/dimensions.ts ·
+ * are likewise generated, from the dimension SoT (packages/spec/tokens/dimensions.ts ·
  * decision 71). This header + the prose below are hand-maintained
  * documentation of the generated structure.
  *
@@ -103,7 +103,7 @@
  * ── The resolution matrix · Format B → the SoT (decision 33 · 70) ────
  * Format B (decision 33) put each context-dependent token's full
  * resolution matrix in an inline comment at its CANONICAL block. With the
- * C2 flip that matrix moved to its SOURCE — pipeline/colours.ts (the
+ * C2 flip that matrix moved to its SOURCE — packages/spec/tokens/colours.ts (the
  * chrome + accent objects · each cell a { ref } · the INVERSE / FROZEN-P4
  * patterns documented there). The generated blocks below carry only a
  * terse per-block role comment; the matrix is one indirection away, in the
@@ -113,8 +113,8 @@
 
 
 /* ════════════════════════════════════════════════════════════════════
- * GENERATED · the accent×theme cascade · from pipeline/colours.ts (chrome +
- * accent) via pipeline/parsers/semantic-css.js · decision 70 / 72.
+ * GENERATED · the accent×theme cascade · from packages/spec/tokens/colours.ts (chrome +
+ * accent) via scripts/parsers/semantic-css.js · decision 70 / 72.
  * DO NOT EDIT — `npm run build` regenerates this region IN PLACE (Slice 0,
  * the colour-semantic flip). The resolution matrix IS the SoT (colours.ts);
  * the cascade ORDERING + the #4b/#6b self-scope rationale (decision 63) are
@@ -271,7 +271,7 @@
  * ══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* N+31 · GENERATED from the TS SoT (pipeline/dimensions.ts · decision 70 ·
+  /* N+31 · GENERATED from the TS SoT (packages/spec/tokens/dimensions.ts · decision 70 ·
    * dec-2 reversed for the dimension layer). Edit the SoT, not these values —
    * `npm run build` regenerates them in place (Slice 0). */
   /* space.none · the zero leaf · a flush hairline (Separator y-space="none"),
@@ -308,7 +308,7 @@
  * ══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* N+31 · GENERATED from the TS SoT (pipeline/dimensions.ts · decision 70 ·
+  /* N+31 · GENERATED from the TS SoT (packages/spec/tokens/dimensions.ts · decision 70 ·
    * dec-2 reversed for the dimension layer). Edit the SoT, not these values —
    * `npm run build` regenerates them in place (Slice 0). */
   /* size.xs  · smallest element · inline tag / chip height */
@@ -345,7 +345,7 @@
  * ══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* N+31 · sm/md/lg GENERATED from the TS SoT (pipeline/dimensions.ts ·
+  /* N+31 · sm/md/lg GENERATED from the TS SoT (packages/spec/tokens/dimensions.ts ·
    * decision 70 · dec-2 reversed for the dimension layer · `full` is the 9999px
    * literal sentinel). Edit the SoT, not these values — `npm run build`
    * regenerates them in place (Slice 0). */
@@ -374,7 +374,7 @@
  * ══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* GENERATED from the TS SoT (pipeline/dimensions.ts · decision 70 · dec-2
+  /* GENERATED from the TS SoT (packages/spec/tokens/dimensions.ts · decision 70 · dec-2
    * reversed for the dimension layer · UNITLESS · the bare-number ratio). Edit the
    * SoT, not these values — `npm run build` regenerates them in place (Slice 0). */
   /* ratio.square · 1:1 · a square surface (avatar tile, icon plate) */

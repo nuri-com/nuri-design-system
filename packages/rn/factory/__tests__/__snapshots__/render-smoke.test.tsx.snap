@@ -1015,6 +1015,11 @@ exports[`render-smoke — the ergonomic components mount headless primitives —
   }
 >
   <RCTScrollView
+    contentContainerStyle={
+      {
+        "flexGrow": 1,
+      }
+    }
     style={
       {
         "flex": 1,

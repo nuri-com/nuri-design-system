@@ -3,13 +3,12 @@
  *
  * Source · the namespace axis TS SoTs (asserted cell-for-cell at
  * emit time — a contradiction fails the build · decision 48):
- *   pipeline/palette-surface.ts   every variant + chrome bg/fg pair
+ *   packages/spec/axes/palette-surface.ts   every variant + chrome bg/fg pair
  *                                 (+ the pressed swap → pressedBg)
- *   pipeline/typography-axis.ts   the muted role → the muted fg (fgMuted)
- * (Re-sourced at N+40 from the generated lib/components/{palette,typography}.css
- *  these SoTs emit · §74 'Next: final' — the spec build stops reading the namespace
- *  CSS the A3 carve relocates · build/palette.ts cells unchanged.)
- * Emitter · pipeline/parsers/palette.js — run `npm run build`
+ *   packages/spec/axes/typography-axis.ts   the muted role → the muted fg (fgMuted)
+ * (Re-sourced at N+40 from the generated prototype namespace CSS these SoTs emit
+ *  · §74 'Next: final' — the spec build stops reading projection CSS.)
+ * Emitter · scripts/parsers/palette.js — run `npm run build`
  *
  * The {variant | chrome} → {bg · fg · fgMuted · pressedBg} mapping as
  * STRUCTURAL colour REFS (decision 34 · SEED-4) — accent×theme-GENERIC. Each
@@ -20,7 +19,7 @@
  * platform-native, mapping = data · emitted ONCE · 65.2).
  *
  *   · ghost.bg = the literal 'transparent' (NOT a ref) — the
- *     build/components/button.ts ghostBg convention.
+ *     retired per-component button ghostBg convention.
  *   · subtle = fg-only (no bg/pressed) · the IconAvatar role.
  *   · chrome = theme-only surfaces (no accent, no pressed).
  *   · pressedBg is DATA for the RN resolver; the web pressed

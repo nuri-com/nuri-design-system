@@ -187,7 +187,7 @@ export function emitInteractiveCss({ opts }) {
     `/* ──────────────────────────────────────────────────────────────`,
     ` * NURI · NAMESPACE CSS · INTERACTIVE · GENERATED — DO NOT EDIT BY HAND`,
     ` *`,
-    ` * GENERATED from the interactive EFFECT set (packages/spec/pipeline/interactive-`,
+    ` * GENERATED from the interactive EFFECT set (packages/spec/axes/interactive-`,
     ` * effects.ts) by prototype/pipeline/css-preview.js — the inverse-spelling of`,
     ` * flattenPart (packages/rn/factory/resolve.ts) — wired into npm run build -w`,
     ` * @nuri/prototype (its own build · regenerates IN PLACE over prototype/styles/`,

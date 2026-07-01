@@ -14,7 +14,7 @@
  *   surface   { solid·soft·ghost·subtle } → { bg?·fg·fgMuted?·pressedBg? }
  *   chrome    { canvas·subtle·strong }     → { bg·fg·fgMuted }  (theme-only slot)
  *   text·border                            (the chrome text/border roles)
- *   type·space·size·radius                 (theme-invariant scales)
+ *   type                                  (theme-invariant type scale)
  *   interaction { pressScale·disabledOpacity }   (the not-colour effects)
  *   slices    the RAW orthogonal { chrome, accent } COLOUR slices — the ADVANCED
  *             primitive surface (useToken/resolveToken · colour-only now · NOT the
@@ -35,9 +35,6 @@
 import {
   chrome,
   accentTokens,
-  space,
-  size,
-  radius,
   typeScale,
   interaction,
 } from '../contract';
@@ -101,9 +98,6 @@ export type NuriTheme = {
   text: { primary: string; muted: string; onInverse: string };
   border: { subtle: string; default: string; strong: string };
   type: typeof typeScale;
-  space: typeof space;
-  size: typeof size;
-  radius: typeof radius;
   interaction: { pressScale: number; disabledOpacity: number };
 };
 
@@ -205,9 +199,6 @@ export function buildNuriTheme(accent: Accent, mode: Theme): ThemePayload {
       strong: chromeSlice.borderStrong,
     },
     type: typeScale,
-    space,
-    size,
-    radius,
     interaction: INTERACTION_BASELINE,
     slices: { chrome: chromeSlice, accent: acc },
   };

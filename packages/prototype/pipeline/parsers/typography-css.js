@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════════════════
  * NURI · PARSER · TYPOGRAPHY NAMESPACE CSS EMIT (the L3.1b reversible shadow · decision 70 / 67 / 73)
  * ──────────────────────────────────────────────────────────────────
- * The typography AXIS (pipeline/typography-axis.ts) → the web typography namespace
+ * The typography AXIS (packages/spec/axes/typography-axis.ts) → the web typography namespace
  * CSS. typography is the THIRD and LAST bespoke axis (decision 73 corrected dec 70:
  * bespoke, not agnostic): a thin <nuri-typography> WRAPPER for declarative muted/align
  * authoring, single-sourced but NOT a Field-table member (box/stack rode the generic
@@ -10,11 +10,9 @@
  * owns selector/declaration spelling.
  *
  * REVERSIBLE SHADOW (the L3.1 / palette / interactive discipline · roadmap/N+33 / N+34):
- * generates to build/css-preview/typography.css, proven ≡ the hand
- * lib/components/typography/typography.css (the parity oracle · pipeline/
- * typography-css.test.js). NOT wired into `npm run build`; the live web factory, the
- * pages, the recipe layer, and the RN factory (typeStyle) are untouched. decision 2
- * STANDS for the namespace layer until L3c.
+ * now emits the live typography namespace CSS under packages/prototype/styles/.
+ * The older shadow target and hand lib/components/typography/typography.css oracle
+ * are retired historical context.
  *
  * ── THE SCOPE LINE · the WRAPPER only (the type SCALE is OUT · the critical sub-decision) ──
  * The typography axis splits on web: {muted, align} → THIS wrapper; {size, emphasis} →
@@ -139,14 +137,14 @@ export function emitTypographyCss(axis) {
     `/* ──────────────────────────────────────────────────────────────`,
     ` * NURI · NAMESPACE CSS · TYPOGRAPHY · GENERATED — DO NOT EDIT BY HAND`,
     ` *`,
-    ` * GENERATED from the typography AXIS (packages/spec/pipeline/typography-axis.ts) by`,
+    ` * GENERATED from the typography AXIS (packages/spec/axes/typography-axis.ts) by`,
     ` * prototype/pipeline/css-preview.js, wired into npm run build -w @nuri/prototype (its`,
     ` * own build · regenerates IN PLACE over prototype/styles/typography.css). This is the`,
     ` * LIVE typography WRAPPER CSS: the pages link it and the web factory styles`,
     ` * nuri-typography with it. decision 2 reversed for the namespace layer (decision 74 ·`,
     ` * executing decision 70 · the L3c flip · N+38 · carved to @nuri/prototype at N+41) —`,
     ` * the hand SoT retired (git-recoverable), the generator is the sole source. WRAPPER`,
-    ` * ONLY — the type SCALE (packages/spec/styles/typography.css · the .nuri-type-{step}`,
+    ` * ONLY — the type SCALE (packages/spec/tokens/typography.ts · the .nuri-type-{step}`,
     ` * utilities → --nuri-type-* primitives · {size, emphasis}) stays CSS-SoT, OUT of scope`,
     ` * (a later token flip). The display order is LOAD-BEARING — the :not(:defined) shell`,
     ` * before the [align] dispatch so a pre-upgrade aligned node resolves display to block.`,

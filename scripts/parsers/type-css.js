@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════════════════
  * NURI · PARSER · TYPE-SCALE CSS EMIT (N+52 · decision 78 · the type composite)
  * ──────────────────────────────────────────────────────────────────
- * The TS type SoT (pipeline/typography.ts) → the --nuri-type-* declarations in
+ * The TS type SoT (packages/spec/tokens/typography.ts) → the --nuri-type-* declarations in
  * styles/tokens-primitive.css. decision 2 is REVERSED for the type COMPOSITE: the
  * six step composites are WRITTEN INTO the CSS, not read out of it.
  *
@@ -20,7 +20,7 @@
  * So the --nuri-font-size-* / --nuri-font-weight-* PRIMITIVES go back to being a
  * foundational hand-CSS layer (shell.css's concern · NOT touched here · a Phase 4·3
  * residue) — the fake type↔shell coupling dissolves. The resolved VALUES are
- * unchanged, so build/tokens.ts (the RN reader · re-sourced onto this SoT) +
+ * unchanged, so packages/rn/generated/tokens.ts (the RN reader · re-sourced onto this SoT) +
  * everything downstream stays byte-identical; only the --nuri-type-* block's
  * spelling changes (var→inline · computed-equivalent · the N+45 gate posture).
  *
@@ -105,17 +105,17 @@ export function rewriteTypeDecls(cssText, declMap) {
   });
   const missingInCss = [...declMap.keys()].filter((p) => !seen.has(p));
   if (missingInCss.length) {
-    throw new Error(`[type-css] the SoT declares ${missingInCss.join(', ')} but the CSS has no such declaration — add it to the CSS or remove it from pipeline/typography.ts`);
+    throw new Error(`[type-css] the SoT declares ${missingInCss.join(', ')} but the CSS has no such declaration — add it to the CSS or remove it from packages/spec/tokens/typography.ts`);
   }
   const orphanInCss = [...cssOwned].filter((p) => !declMap.has(p));
   if (orphanInCss.length) {
-    throw new Error(`[type-css] the CSS declares ${orphanInCss.join(', ')} but pipeline/typography.ts does not — the SoT must own every --nuri-type-* declaration`);
+    throw new Error(`[type-css] the CSS declares ${orphanInCss.join(', ')} but packages/spec/tokens/typography.ts does not — the SoT must own every --nuri-type-* declaration`);
   }
   return root.toString();
 }
 
 // ── the flip · SoT → tokens-primitive.css, in place ─────────────────
-// Slice 0 of the build (pipeline/tokens-parser.js): regenerate the --nuri-type-*
+// Slice 0 of the build (scripts/tokens-parser.js): regenerate the --nuri-type-*
 // declarations (de-referenced to inline) from the SoT BEFORE Slice 2 reads the
 // CSS. The weight names resolve against the font-weight primitives read from the
 // same file. Returns the rewritten string so a caller can reuse it.

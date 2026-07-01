@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════════════════
  * NURI · PARSER · DIMENSION CSS EMIT (N+31 · decision 70 · the first flip)
  * ──────────────────────────────────────────────────────────────────
- * The TS dimension SoT (pipeline/dimensions.ts) → the dimension declarations in
+ * The TS dimension SoT (packages/spec/tokens/dimensions.ts) → the dimension declarations in
  * styles/tokens-{primitive,semantic}.css. decision 2 is REVERSED for the
  * dimension layer: these values are WRITTEN INTO the CSS, not read out of it.
  *
@@ -32,6 +32,15 @@ import { readFile, writeFile } from 'node:fs/promises';
 import postcss from 'postcss';
 
 import { loadTsDataFromPath } from '../ts-data-loader.js';
+
+function refreshTokenCssProvenance(cssText) {
+  return cssText
+    .replaceAll('pipeline/colours.ts', 'packages/spec/tokens/colours.ts')
+    .replaceAll('pipeline/dimensions.ts', 'packages/spec/tokens/dimensions.ts')
+    .replaceAll('pipeline/typography.ts', 'packages/spec/tokens/typography.ts')
+    .replaceAll('pipeline/tokens-parser.js', 'scripts/tokens-parser.js')
+    .replaceAll('pipeline/parsers/semantic-css.js', 'scripts/parsers/semantic-css.js');
+}
 
 export async function loadDimensions(dimensionsTsPath) {
   const mod = await loadTsDataFromPath(dimensionsTsPath);
@@ -99,28 +108,28 @@ export function rewriteDimensionDecls(cssText, declMap, ownedRe) {
   });
   const missingInCss = [...declMap.keys()].filter((p) => !seen.has(p));
   if (missingInCss.length) {
-    throw new Error(`[dimension-css] the SoT declares ${missingInCss.join(', ')} but the CSS has no such declaration — add it to the CSS or remove it from pipeline/dimensions.ts`);
+    throw new Error(`[dimension-css] the SoT declares ${missingInCss.join(', ')} but the CSS has no such declaration — add it to the CSS or remove it from packages/spec/tokens/dimensions.ts`);
   }
   const orphanInCss = [...cssOwned].filter((p) => !declMap.has(p));
   if (orphanInCss.length) {
-    throw new Error(`[dimension-css] the CSS declares ${orphanInCss.join(', ')} but pipeline/dimensions.ts does not — the SoT must own every dimension declaration in its families`);
+    throw new Error(`[dimension-css] the CSS declares ${orphanInCss.join(', ')} but packages/spec/tokens/dimensions.ts does not — the SoT must own every dimension declaration in its families`);
   }
   return root.toString();
 }
 
 // ── the flip · SoT → both token CSS files, in place ─────────────────
-// Slice 0 of the build (pipeline/tokens-parser.js): regenerate the dimension
+// Slice 0 of the build (scripts/tokens-parser.js): regenerate the dimension
 // declarations from the SoT BEFORE every downstream slice reads the CSS. Writes
 // into styles/ (the S1 passthrough-hybrid trade · muddier provenance for zero
 // repointing); byte-identical while values are unchanged. Returns the rewritten
 // strings so a caller can reuse them without re-reading.
 export async function flipDimensionCss({ primitivePath, semanticPath, dims }) {
   const primitive = rewriteDimensionDecls(
-    await readFile(primitivePath, 'utf8'), primitiveDimMap(dims), /^--nuri-px-/,
+    refreshTokenCssProvenance(await readFile(primitivePath, 'utf8')), primitiveDimMap(dims), /^--nuri-px-/,
   );
   await writeFile(primitivePath, primitive, 'utf8');
   const semantic = rewriteDimensionDecls(
-    await readFile(semanticPath, 'utf8'), semanticDimMap(dims), /^--nuri-(space|size|radius|ratio)-/,
+    refreshTokenCssProvenance(await readFile(semanticPath, 'utf8')), semanticDimMap(dims), /^--nuri-(space|size|radius|ratio)-/,
   );
   await writeFile(semanticPath, semantic, 'utf8');
   return { primitive, semantic };

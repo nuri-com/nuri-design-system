@@ -258,7 +258,8 @@ const SCREEN_STYLE: ViewStyle = { flex: 1 };
 export type ScrollProps = { children?: React.ReactNode };
 
 const ScrollImpl: React.FC<ScrollProps> = ({ children }) => (
-  <RNScrollView style={SCREEN_STYLE}>{children}</RNScrollView>
+  <RNScrollView style={SCREEN_STYLE} contentContainerStyle={SCROLL_CONTENT_STYLE}>{children}</RNScrollView>
 );
 ScrollImpl.displayName = 'Scroll';
 export const Scroll = withKeys(ScrollImpl, []);
+const SCROLL_CONTENT_STYLE: ViewStyle = { flexGrow: 1 };

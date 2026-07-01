@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════════════════
  * NURI · PARSER · COLOUR CSS EMIT (N+32 C1 · decision 70 · the second flip)
  * ──────────────────────────────────────────────────────────────────
- * The TS colour-primitive SoT (pipeline/colours.ts) → the colour declarations in
+ * The TS colour-primitive SoT (packages/spec/tokens/colours.ts) → the colour declarations in
  * styles/tokens-primitive.css. decision 2 is REVERSED for the colour-PRIMITIVE
  * layer: these values are WRITTEN INTO the CSS, not read out of it. The dimension
  * vertical (N+31 · parsers/dimension-css.js) is the template; this is its colour
@@ -112,7 +112,7 @@ export function primitiveColourMap({ neutralScales, accentScales, blackAlpha, wh
 export function neutralResolutionMap(neutralScales, neutral) {
   const steps = neutralScales[neutral];
   if (!steps) {
-    throw new Error(`[colour-css] neutralResolutionMap: '${neutral}' is not a neutral scale in pipeline/colours.ts (have: ${Object.keys(neutralScales).join(', ')})`);
+    throw new Error(`[colour-css] neutralResolutionMap: '${neutral}' is not a neutral scale in packages/spec/tokens/colours.ts (have: ${Object.keys(neutralScales).join(', ')})`);
   }
   const map = new Map();
   for (const step of Object.keys(steps)) {
@@ -154,17 +154,17 @@ export function rewriteColourDecls(cssText, declMap, ownedRe) {
   });
   const missingInCss = [...declMap.keys()].filter((p) => !seen.has(p));
   if (missingInCss.length) {
-    throw new Error(`[colour-css] the SoT declares ${missingInCss.join(', ')} but the CSS has no such declaration — add it to the CSS or remove it from pipeline/colours.ts`);
+    throw new Error(`[colour-css] the SoT declares ${missingInCss.join(', ')} but the CSS has no such declaration — add it to the CSS or remove it from packages/spec/tokens/colours.ts`);
   }
   const orphanInCss = [...cssOwned].filter((p) => !declMap.has(p));
   if (orphanInCss.length) {
-    throw new Error(`[colour-css] the CSS declares ${orphanInCss.join(', ')} but pipeline/colours.ts does not — the SoT must own every colour declaration in tokens-primitive.css`);
+    throw new Error(`[colour-css] the CSS declares ${orphanInCss.join(', ')} but packages/spec/tokens/colours.ts does not — the SoT must own every colour declaration in tokens-primitive.css`);
   }
   return root.toString();
 }
 
 // ── the flip · SoT → tokens-primitive.css, in place ─────────────────
-// Slice 0 of the build (pipeline/tokens-parser.js): regenerate the colour
+// Slice 0 of the build (scripts/tokens-parser.js): regenerate the colour
 // declarations from the SoT BEFORE every downstream slice reads the CSS. Writes
 // into styles/ (the dimension S1 passthrough-hybrid trade · muddier provenance for
 // zero repointing); byte-identical at the default neutral. Returns the rewritten

@@ -1,15 +1,13 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · TOKENS · GENERATED · DO NOT EDIT BY HAND
  *
- * Source · pipeline/colours.ts (chrome · accent · ref→hex) + pipeline/dimensions.ts (space · size · radius · ref→px)
- * Emitter · pipeline/tokens-parser.js — run `npm run build`
+ * Source · packages/spec/tokens/colours.ts (chrome · accent · ref→hex) + packages/spec/tokens/dimensions.ts (space · size · radius · ref→px)
+ * Emitter · scripts/tokens-parser.js — run `npm run build`
  *
- * Contains ONLY runtime sets (decision 34 · N+6.0.3): every set
- * whose value depends on consumer context (theme · accent · …)
- * lives here. Context-invariant primitive vocabulary is
- * pipeline-inlined into per-component files at
- * build/components/<name>.ts; the discriminated union of every
- * runtime-set leaf path lives at build/token-paths.ts.
+ * Contains the RN projection's generated token tables: runtime-capable
+ * colour slices (chrome · accent), static dimensions (space · size · radius
+ * · ratio), and the direct type scale. The discriminated union of generated
+ * token leaf paths lives beside this file in generated/token-paths.ts.
  *
  * Shape is classify-by-cascade (decision 28 · N+5.5): each
  * export's nesting depth = the dimensions its source CSS var
@@ -21,17 +19,17 @@
  *  · radius (singleton): sm, md, lg, full
  *  · ratio (singleton): square, card
  *
- * COLOUR is re-sourced from pipeline/colours.ts (N+59 · Slice 3b·1 ·
+ * COLOUR is re-sourced from packages/spec/tokens/colours.ts (N+59 · Slice 3b·1 ·
  * projection model §3 · decision 80): chrome + accent are flattened
  * ref→hex straight from the SoT (NO CSS round-trip). Colour is LAYERED
  * SUBSTITUTION — accent is accent-MAJOR two-layer (a role is a flat hex
  * or a {light,dark} pair · the runtime composes chrome[mode] ⊕
  * accent[accent][mode]), NOT a materialized (accent × theme) cross-
  * product. space/size/radius are flattened ref→px straight from
- * pipeline/dimensions.ts (N+60 · Slice 3b·2a) — the RN value arm reads
+ * packages/spec/tokens/dimensions.ts (N+60 · Slice 3b·2a) — the RN value arm reads
  * no CSS now. Colour refs resolve through the build's selected --neutral
  * scope (decision 31 · default cream; pass --neutral=<scale> to
- * pipeline/tokens-parser.js to switch).
+ * scripts/tokens-parser.js to switch).
  * ────────────────────────────────────────────────────────────── */
 
 export type Accent = 'neutral' | 'lilac' | 'orange';

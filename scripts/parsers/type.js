@@ -1,10 +1,10 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · TYPE SCALE EMITTER (Node)
  *
- * Emits the `type` namespace into build/tokens.ts — a TYPED, per-step
+ * Emits the `type` namespace into packages/rn/generated/tokens.ts — a TYPED, per-step
  * composite of the type scale. RE-SOURCED at N+52 (decision 78 · the
  * type-composite flip): the scale comes from the TS SoT
- * (pipeline/typography.ts · decision 2 reversed for the type composite),
+ * (packages/spec/tokens/typography.ts · decision 2 reversed for the type composite),
  * a self-contained INLINE table of text styles — fontSize px · lineHeight
  * ratio · letterSpacing em are taken STRAIGHT from it; only the weight
  * NAME ('regular') is resolved to its literal ('400') against the primitive
@@ -58,7 +58,7 @@ function round3(n) {
 // Resolve the type scale from the TS SoT + the primitive map → { sizes,
 // emphasisWeight }: the 6 size composites (regular weight) keyed by step, plus
 // the single orthogonal emphasis weight override (decision 77 · uniform 400→600).
-// The SoT (pipeline/typography.ts · loaded by the orchestrator) is the readable
+// The SoT (packages/spec/tokens/typography.ts · loaded by the orchestrator) is the readable
 // inline table — fontSize px · lineHeight ratio · letterSpacing em are taken
 // STRAIGHT from it (no CSS read); only the weight NAME is resolved to its literal
 // against `primitiveMap` (--nuri-font-weight-* stays a hand-CSS primitive · the
@@ -70,7 +70,7 @@ export function buildTypeScale(typeSoT, primitiveMap) {
   for (const step of TYPE_SIZES) {
     const def = typeSoT[step];
     if (def == null) {
-      throw new Error(`type scale: step '${step}' is missing from the TS SoT (pipeline/typography.ts)`);
+      throw new Error(`type scale: step '${step}' is missing from the TS SoT (packages/spec/tokens/typography.ts)`);
     }
     const wRaw = resolveValue(primitiveMap.get(`--nuri-font-weight-${def.weight}`), primitiveMap);
     if (wRaw == null) {
@@ -95,7 +95,7 @@ export function buildTypeScale(typeSoT, primitiveMap) {
 }
 
 // Emit the `type` namespace + the `emphasisWeight` override (string) appended
-// into build/tokens.ts. Mirrors the icon emit: a typed, directly-accessed
+// into packages/rn/generated/tokens.ts. Mirrors the icon emit: a typed, directly-accessed
 // namespace whose values are a machine-checkable function of the single source.
 export function emitTypeTs({ sizes, emphasisWeight }) {
   const weights = [...new Set([...Object.values(sizes).map((s) => s.fontWeight), emphasisWeight])]

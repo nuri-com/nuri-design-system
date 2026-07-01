@@ -72,7 +72,7 @@
  *
  * ── Neutral resolution · build-time (N+32 C1) ─────────────────
  * --nuri-color-neutral-N-{light|dark} resolve to ONE active scale,
- * GENERATED from the TS colour SoT (pipeline/colours.ts) at the build's
+ * GENERATED from the TS colour SoT (packages/spec/tokens/colours.ts) at the build's
  * --neutral (DEFAULT_NEUTRAL = cream · decision 31). The runtime
  * [data-neutral] switcher (8 per-scale blocks) is RETIRED — build-time
  * selection only; the other six scales stay raw primitives, reserved as
@@ -80,7 +80,7 @@
  *
  * ── Generated regions (decision 70 · dec-2 reversed for these layers) ─
  * The --nuri-color-* values + the --nuri-px-* scale are WRITTEN by
- * `npm run build` from their TS SoTs (pipeline/colours.ts · dimensions.ts)
+ * `npm run build` from their TS SoTs (packages/spec/tokens/colours.ts · dimensions.ts)
  * via the Slice-0 in-place passthrough. Edit the SoT, not these values.
  * ────────────────────────────────────────────────────────────── */
 
@@ -90,7 +90,7 @@
  * Candidate neutrals × 12 steps × 2 themes + lilac brand + alpha scales.
  * Pure leaves — never overridden by [data-theme].
  *
- * N+32 C1 · GENERATED from the TS SoT (pipeline/colours.ts · decision 70 ·
+ * N+32 C1 · GENERATED from the TS SoT (packages/spec/tokens/colours.ts · decision 70 ·
  * dec-2 reversed for the colour-primitive layer). Edit the SoT, not here —
  * `npm run build` regenerates these values in place (Slice 0 · the
  * dimension-css.js twin). The semantic accent×theme cascade
@@ -376,7 +376,7 @@
  * --nuri-color-neutral-N-{light|dark} resolve to the ACTIVE neutral scale.
  * The active scale is the build's --neutral (DEFAULT_NEUTRAL = cream ·
  * pipeline/parsers/semantic.js); these 24 aliases are GENERATED from the
- * TS colour SoT (pipeline/colours.ts) by the Slice-0 in-place passthrough
+ * TS colour SoT (packages/spec/tokens/colours.ts) by the Slice-0 in-place passthrough
  * (pipeline/parsers/colour-css.js · the dimension-css.js twin · dec-2
  * reversed for the colour-primitive layer). Edit the SoT / pass --neutral=
  * <scale>, not here — `npm run build` regenerates them (sage rebuilds the
@@ -434,7 +434,7 @@
    * indexed scale.
    *
    * N+31 · these --nuri-px-* values are GENERATED from the TS SoT
-   * (pipeline/dimensions.ts · decision 70 · dec-2 reversed for the dimension
+   * (packages/spec/tokens/dimensions.ts · decision 70 · dec-2 reversed for the dimension
    * layer). Edit the SoT, not here — `npm run build` regenerates them in place
    * (Slice 0). The --nuri-radius-* primitives below stay hand-authored. */
   --nuri-px-2:    2px;

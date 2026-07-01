@@ -1,8 +1,8 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · PARSER · DIMENSION → build/tokens.ts (N+60 · Slice 3b·2a · decision 80)
+ * NURI · PARSER · DIMENSION → packages/rn/generated/tokens.ts (N+60 · Slice 3b·2a · decision 80)
  * ──────────────────────────────────────────────────────────────────
- * Re-sources the DIMENSION arm of build/tokens.ts (space · size · radius) STRAIGHT
- * from pipeline/dimensions.ts — ref→px literal, no CSS round-trip. The N+59 colour
+ * Re-sources the DIMENSION arm of packages/rn/generated/tokens.ts (space · size · radius) STRAIGHT
+ * from packages/spec/tokens/dimensions.ts — ref→px literal, no CSS round-trip. The N+59 colour
  * twin (parsers/colour-tokens.js) did this for chrome + accent; this finishes the
  * RN contract's value arm (projection model §4 · no TS→CSS→TS round-trip).
  *
@@ -24,7 +24,7 @@
 
 import { ACCENTS, THEMES } from './semantic.js';
 
-// The scales build/tokens.ts exposes as singleton dimension namespaces (decision 36 ·
+// The scales packages/rn/generated/tokens.ts exposes as singleton dimension namespaces (decision 36 ·
 // amendment 36.1). Their KEYS are the leaf names (the DTCG shape · no array restated).
 const DIMENSION_SCALES = ['space', 'size', 'radius', 'ratio'];
 
@@ -49,7 +49,7 @@ export function resolveDimLeaf(leaf, px) {
   throw new Error(`[dimension-tokens] leaf is neither { ref } nor { value, unit }: ${JSON.stringify(leaf)}`);
 }
 
-// The dimension arm of build/tokens.ts, resolved from the TS SoT. Returns the
+// The dimension arm of packages/rn/generated/tokens.ts, resolved from the TS SoT. Returns the
 // cross-product node map (the resolveSemanticCrossProduct shape) so the orchestrator
 // merges it into `resolved` exactly as it merges the colour chrome arm — every
 // (accent, theme) cell of a leaf holds the identical literal (dimensions don't vary
@@ -59,7 +59,7 @@ export function resolveDimensionTokens(dims) {
   for (const scale of DIMENSION_SCALES) {
     const table = dims[scale];
     if (!table || typeof table !== 'object') {
-      throw new Error(`[dimension-tokens] pipeline/dimensions.ts has no '${scale}' table`);
+      throw new Error(`[dimension-tokens] packages/spec/tokens/dimensions.ts has no '${scale}' table`);
     }
     for (const [leaf, def] of Object.entries(table)) {
       const literal = resolveDimLeaf(def, dims.px);
