@@ -45,6 +45,7 @@ import { componentApiIrFromFile, isComponentApiPilot } from './component-api-ir.
 import { AXIS_DOCS } from './axis-ir.js';
 import { FOUNDATION_DOCS } from './foundations-ir.js';
 import { emitDocPage, emitComponentApiPage, emitAxisPage, emitFoundationPage, buildDocTokenInputs, makeRoleResolver } from './docs.js';
+import { interactiveWebProjection } from '../../prototype/pipeline/parsers/interactive-css.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DOC_ROOT = resolve(__dirname, '..');
@@ -101,7 +102,8 @@ async function buildAxisDocs() {
   const { STACK_FIELDS, BOX_FIELDS } = await loadSpecData('resolve-map');
   const { PROPERTY_SPELLING } = await loadSpecData('property-spelling');
   const { surface } = await loadSpecData('palette-surface');
-  const { opts, webChrome, webOrder } = await loadSpecData('interactive-effects');
+  const { opts } = await loadSpecData('interactive-effects');
+  const interactiveWeb = interactiveWebProjection(opts);
   const { axis } = await loadSpecData('typography-axis');
   const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'tokens.ts'));
   const { tokenVars } = await loadDataFromPath(resolve(PROTO_GENERATED, 'token-vars.ts'));
@@ -111,8 +113,7 @@ async function buildAxisDocs() {
     registry: PROPERTY_SPELLING,
     surface,
     opts,
-    webChrome,
-    webOrder,
+    interactiveWeb,
     axis,
     typeSizes: Object.keys(specTokens.type), // the 6 type-step sizes (the `size` axis rows · decision 77)
     roleColor: makeRoleResolver(specTokens, tokenVars),

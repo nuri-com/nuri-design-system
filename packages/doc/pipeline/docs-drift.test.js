@@ -33,6 +33,7 @@ import { componentApiIrFromSource, isComponentApiPilot } from './component-api-i
 import { AXIS_DOCS } from './axis-ir.js';
 import { FOUNDATION_DOCS } from './foundations-ir.js';
 import { emitDocPage, emitComponentApiPage, emitAxisPage, emitFoundationPage, buildDocTokenInputs, makeRoleResolver } from './docs.js';
+import { interactiveWebProjection } from '../../prototype/pipeline/parsers/interactive-css.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DOC_ROOT = resolve(__dirname, '..');
@@ -231,9 +232,8 @@ const AXIS_CONTRACT = {
     includes: ['## Chrome'], // the second dispatch table (variant XOR chrome)
   },
   interactive: {
-    // RE-SOURCED (§76 · the fan-out) off the deleted `effects` bridge onto opts/webChrome/
-    // webOrder — the agnostic `## Effects` opt-in table (the locked grammar) + the demoted
-    // web-only `## Chrome` section. The load-bearing order note demoted to a chrome caption.
+    // SEED-1a: agnostic opts come from spec; web selector/chrome/order facts come from
+    // the prototype-owned web projection.
     nav: 4, title: 'Interactive', section: '## Effects',
     cells: [
       // the agnostic opt-in: assembled web selector → decl · the RN realization · the gate
@@ -283,7 +283,8 @@ test('G · each generated/axes/*.md re-emits identically from its axis SoT', asy
   const { STACK_FIELDS, BOX_FIELDS } = await loadSpecData('resolve-map');
   const { PROPERTY_SPELLING } = await loadSpecData('property-spelling');
   const { surface } = await loadSpecData('palette-surface');
-  const { opts, webChrome, webOrder } = await loadSpecData('interactive-effects');
+  const { opts } = await loadSpecData('interactive-effects');
+  const interactiveWeb = interactiveWebProjection(opts);
   const { axis } = await loadSpecData('typography-axis');
   const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'tokens.ts'));
   const { tokenVars } = await loadDataFromPath(resolve(PROTO_GENERATED, 'token-vars.ts'));
@@ -293,8 +294,7 @@ test('G · each generated/axes/*.md re-emits identically from its axis SoT', asy
     registry: PROPERTY_SPELLING,
     surface,
     opts,
-    webChrome,
-    webOrder,
+    interactiveWeb,
     axis,
     typeSizes: Object.keys(specTokens.type), // the 6 type-step sizes (the `size` axis · decision 77)
     roleColor: makeRoleResolver(specTokens, tokenVars),

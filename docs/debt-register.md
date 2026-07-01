@@ -22,9 +22,18 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
 
 ### Seed re-verifications (the four coordinator-found seeds)
 
-#### SEED-1 — `@nuri/spec` carries WEB realization · **DEBT** · S2
+#### SEED-1 — `@nuri/spec` carries WEB realization · **RESOLVED (SEED-1a)** · S2
 
-- **Location:** `packages/spec/axes/interactive-effects.ts:123-149` (`webChrome`), `:91-119`
+- **Status (2026-07-01):** fixed for the interactive axis. `packages/spec/axes/interactive-effects.ts`
+  now carries only agnostic `opts` (`trigger` · `gate` · RN realization vocabulary). The prototype
+  projection owns the browser rules/chrome/order in `packages/prototype/pipeline/parsers/interactive-css.js`,
+  and docs consume that projection-owned table instead of reading web data from spec. A narrow
+  `interactive-css.test.js` guard now rejects `webChrome`/`webOrder`, selector fragments, CSS vars, and
+  declaration strings in the spec file.
+- **Still open nearby:** SEED-1b (the type-strip/data-URL workaround), D6 (`resolve-map` `FILL` RN
+  spelling), and the broad agnosticism lint. The lint still waits until D6 is neutralized or explicitly
+  allowlisted.
+- **Original location:** `packages/spec/axes/interactive-effects.ts:123-149` (`webChrome`), `:91-119`
   (`opts[*].web`), `:155` (`webOrder`).
 - **What:** The agnostic spec axis embeds literal **web CSS** as data:
   `['cursor','pointer']` (:130), `['transition','background-color var(--nuri-duration-fast) ease, transform …']`
@@ -425,7 +434,7 @@ invisible* to them.
 
 | Blind class | Why the gates miss it | Entries | Cheap guard that would close it |
 |---|---|---|---|
-| **Spec agnosticism** | Web CSS in spec is *valid data that emits correctly* — re-emit + render-smoke both stay green. | SEED-1, D6 | A lint over `packages/spec/**`: no CSS-literal / selector / `var(--` / `:active` / ViewStyle-key strings, with an explicit allowlist (so the excused `fill` is *listed*, not hidden in a comment). |
+| **Spec agnosticism** | Target realization in spec is *valid data that emits correctly* — re-emit + render-smoke both stay green. | D6; SEED-1 recurrence guarded narrowly | A lint over `packages/spec/**`: no CSS-literal / selector / `var(--` / `:active` / ViewStyle-key strings, with an explicit allowlist (so the excused `fill` is *listed*, not hidden in a comment). |
 | **Naming coherence** | Guard D pins descriptor *shape/axes/parts*, never *names*; `nuriNames` derives correctly from whatever string it's *handed*. The hand-authored input strings are unchecked. | SEED-2, D7 | A test asserting `file basename === public`, and that every `nuriNames(x)` site's `x` ∈ the one exported roster. |
 | **Type-surface honesty** | tsc passes — optional props that are ignored, and a `Partial<Record<string,string>>` hole, are all *type-valid*. | SEED-3, D8 | Derive the prop surface per-descriptor (then ignored props become type errors); tighten `defaults` to `keyof A`. |
 | **Dead code** | An uninvoked export breaks nothing; the re-emit path doesn't touch it. | D1, D2 | A "no unused exports" pass (e.g. `knip`/`ts-prune`) over `scripts/` + `packages/rn`. |
@@ -461,12 +470,11 @@ Ordered by blast radius × independence. Each is a candidate working-session bri
    single-source the `nuriNames` sites. Touches spec, the RN bindings, the web recipes, all three
    roster lists, the snapshots. **Do after D1** (D1 shrinks `descriptors.js` first, making the rename
    surface smaller). Add the **naming guard**.
-5. **SEED-1 + SEED-1b · spec agnosticism** — S2, ~L. Move `webChrome`/`webOrder`/`opts[*].web` out of
-   spec into the prototype web emitter; (separately) retire the regex strip for a real transform,
-   freeing the 7 SoTs from the single-line/no-import/comma-free constraint. Add the **agnosticism
-   lint** (which also catches D6). The biggest blast radius (web emitter + strip pipeline + doc strip)
-   — sequence last among the structural fixes. **D6 folds in here** (either re-spell `fill` neutrally
-   or add it to the lint allowlist explicitly).
+5. **SEED-1b + D6 · remaining spec agnosticism** — S2, ~M/L. SEED-1a moved
+   `webChrome`/`webOrder`/`opts[*].web` out of spec into the prototype web emitter and added a narrow
+   interactive regression guard. Remaining work: retire the regex strip for a real transform, freeing
+   the 7 SoTs from the single-line/no-import/comma-free constraint; neutralize `resolve-map` `FILL` or
+   add it to an explicit allowlist; then add the broad **agnosticism lint**.
 6. **D3 · fix generated-header paths** — S2, ~XS. Update `passthroughHeader*` literals; regenerate.
    Trivial; can ride along with any spec-side brief.
 7. **D8 · tighten `defaults` typing** — S1, ~XS. `keyof A`-type it; move the frozen pin. Ride with

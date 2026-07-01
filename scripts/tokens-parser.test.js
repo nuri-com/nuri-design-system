@@ -72,6 +72,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT       = resolve(__dirname, '../packages/spec');
 const RN_GENERATED    = resolve(__dirname, '../packages/rn/generated');
 const PROTO_GENERATED = resolve(__dirname, '../packages/prototype/generated');
+const PROTO_ROOT      = resolve(__dirname, '../packages/prototype');
 const CSS_PATH = resolve(PROTO_GENERATED, 'styles/tokens-primitive.css');
 const SEMANTIC_CSS_PATH = resolve(PROTO_GENERATED, 'styles/tokens-semantic.css');
 const JSON_PATH = resolve(PROTO_GENERATED, 'tokens.json');
@@ -1119,13 +1120,13 @@ test('every primitive token is consumed or explicitly reserved', async () => {
     }
   }
   const directlyConsumed = new Set();
-  // Two roots (N+62 · decision 80): the web projection's generated token CSS
+  // Three roots (N+62 · decision 80 + SEED-1a): the web projection's generated token CSS
   // (@nuri/prototype/generated/styles/ · the semantic cascade consuming the colour
-  // primitives) AND the spec DATA tree (@nuri/spec · the axis SoTs that author the
-  // var() references — e.g. axes/interactive-effects.ts consumes the interaction
-  // primitives, exactly as it did when both lived under spec pre-exit). The union is
-  // the faithful equivalent of the pre-move single-spec walk.
-  for (const root of [PROTO_GENERATED, REPO_ROOT]) {
+  // primitives), the spec DATA tree (@nuri/spec · the remaining SoTs that may author
+  // var() references), AND the prototype projection source that now owns web-only
+  // interactive realization. The union is the faithful equivalent of the pre-move
+  // single-spec walk.
+  for (const root of [PROTO_GENERATED, REPO_ROOT, PROTO_ROOT]) {
     for await (const file of walk(root)) {
       if (file === CSS_PATH) continue;
       const text = await readFile(file, 'utf8');

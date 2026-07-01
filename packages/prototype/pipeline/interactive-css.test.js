@@ -2,8 +2,8 @@
  * NURI · INTERACTIVE NAMESPACE CSS FRESHNESS + VALUE HARNESS (the LIVE generated CSS · decision 74)
  *
  * The interactive namespace CSS (styles/interactive.css) is GENERATED in place from the
- * interactive AXIS SoT (pipeline/interactive-effects.ts · the N+44 single source: `opts`
- * + `webChrome` + `webOrder`) via pipeline/parsers/interactive-css.js · run by `npm run
+ * interactive AXIS SoT (pipeline/interactive-effects.ts · agnostic `opts`) plus the
+ * prototype-owned web projection in pipeline/parsers/interactive-css.js · run by `npm run
  * build` — decision 2 reversed for the namespace layer (the L3c flip · N+38). The hand
  * parity oracle RETIRED; this harness keeps the GENERATED output honest (freshness ·
  * value · order-soundness) AND pins the web factory's gate convention to the same SoT
@@ -348,5 +348,27 @@ test('Guard E · the web factory gate convention is single-sourced from the SoT'
   for (const key of Object.keys(opts)) {
     if (INTERACTIVE_GATES.includes(key)) continue;
     assert.equal(opts[key].gate, 'auto', `opt '${key}' is not a factory gate, so its SoT gate must be 'auto' (got '${opts[key].gate}')`);
+  }
+});
+
+// ══════════════════════════════════════════════════════════════════
+// Guard F · SPEC AGNOSTICISM (SEED-1a regression guard)
+// ══════════════════════════════════════════════════════════════════
+test('Guard F · interactive-effects.ts does not carry web CSS realization', () => {
+  const src = readFileSync(EFFECTS_TS, 'utf8');
+  const forbidden = [
+    ['webChrome export', /\bwebChrome\b/],
+    ['webOrder export', /\bwebOrder\b/],
+    ['CSS variable reference', /var\(--/],
+    ['active selector state', /:active/],
+    ['focus-visible selector state', /:focus-visible/],
+    ['data selector fragment', /\[data-/],
+    ['aria selector fragment', /\[aria-/],
+    ['cursor declaration', /\bcursor\b/],
+    ['transition declaration', /\btransition\b/],
+    ['outline declaration', /\boutline\b/],
+  ];
+  for (const [label, pattern] of forbidden) {
+    assert.doesNotMatch(src, pattern, `interactive-effects.ts still contains ${label}; web realization belongs in @nuri/prototype`);
   }
 });

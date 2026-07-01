@@ -10,7 +10,7 @@
  *   · palette      ← palette-surface.ts (surface) → the role table (variant XOR
  *                    chrome → bg/fg/pressed, each resolved to a swatch + hex via
  *                    the N+42 colour resolver · the ONLY axis that resolves tokens).
- *   · interactive  ← interactive-effects.ts (opts · webChrome · webOrder · §76) → the
+ *   · interactive  ← interactive-effects.ts (opts) + prototype's web projection → the
  *                    agnostic opt-in set (web realization · RN realization · gate · the
  *                    Input|Web|RN|Value grammar) + the demoted web-only chrome section.
  *   · typography   ← tokens.type (the 6 type-sizes) + typography-axis.ts → THREE
@@ -86,14 +86,12 @@ function channel(paint, roleColor) {
   return { role: paint, var: cssVar, hex };
 }
 
-// ── interactive ← the SINGLE SOURCE (interactive-effects.ts · §76): `opts` (the 3
-// AGNOSTIC opt-ins) + `webChrome` (web-only realization support) + `webOrder` (the
-// load-bearing emit order). Re-sourced off the now-deleted `effects` bridge onto the
-// real SoT (§76 · this session) → the page splits into the agnostic axis (the opts, on
-// the locked `| Input | Web | RN | Value |` grammar) + the demoted web-only chrome:
+// ── interactive ← the agnostic spec opts + prototype-owned web projection. The page
+// splits into the agnostic axis (the opts, on the locked `| Input | Web | RN | Value |`
+// grammar) + the demoted web-only chrome:
 //   · opts   — per opt-in: the input key · the WEB realization (the assembled selector
 //              + decls · `{ palette: true }` where the rule lives in palette ·
-//              pressColor's :active bg-swap) · the RN realization spelled from the pure
+//              pressColor's pressed bg-swap) · the RN realization spelled from the pure
 //              `rn` data (the documented convention · NOT re-derived) · the gate
 //              (`'auto'` ⇒ automatic · else the `[data-<gate>]` opt-in).
 //   · chrome — the webChrome rows (affordance · focus · disabledGuard): assembled
@@ -116,11 +114,12 @@ function rnSpelling(rn) {
   return `${rn.prop} ← ${rn.from}`;
 }
 
-export function interactiveAxisIr(opts, webChrome, webOrder) {
+export function interactiveAxisIr(opts, interactiveWeb) {
+  const { optRules, webChrome, webOrder } = interactiveWeb;
   const optRows = Object.entries(opts).map(([input, opt]) => ({
     input,
-    web: opt.web
-      ? { selector: assembleSelector(opt.web.on), decls: opt.web.decls.map(([prop, value]) => [prop, value]) }
+    web: optRules[input]
+      ? { selector: assembleSelector(optRules[input].on), decls: optRules[input].decls.map(([prop, value]) => [prop, value]) }
       : { palette: true },
     rn: rnSpelling(opt.rn),
     gate: opt.gate === 'auto' ? { kind: 'automatic' } : { kind: 'opt-in', attr: `[data-${opt.gate}]` },
@@ -133,8 +132,8 @@ export function interactiveAxisIr(opts, webChrome, webOrder) {
   // The order-sensitive collision (the centerpiece · demoted to a chrome caption): the
   // webOrder entries that BOTH set `transform` at equal specificity, in emit order. ≥2 ⇒
   // source order is load-bearing (pressScale before disabledGuard · a disabled control
-  // never scales). Resolved from webChrome (chrome rule) or opts[name].web (opt rule).
-  const ruleFor = (name) => webChrome[name] ?? (opts[name] && opts[name].web);
+  // never scales). Resolved from webChrome (chrome rule) or optRules[name] (opt rule).
+  const ruleFor = (name) => webChrome[name] ?? optRules[name];
   const order = webOrder.filter((name) => {
     const rule = ruleFor(name);
     return rule && rule.decls.some(([prop]) => prop === 'transform');
@@ -211,7 +210,7 @@ export const AXIS_DOCS = [
     nav: 4,
     src: 'packages/spec/axes/interactive-effects.ts',
     lead: 'The bespoke **interactive** axis — interaction decomposed into independent opt-ins (`pressColor` · `pressScale` · `disabledOpacity`), each one source realized on both targets: RN in production, web for prototyping and these docs. The `nuri-interactive` **chrome** below (affordance · focus · the disabled guard) is web-only realization support, not part of the axis.',
-    build: (d) => interactiveAxisIr(d.opts, d.webChrome, d.webOrder),
+    build: (d) => interactiveAxisIr(d.opts, d.interactiveWeb),
   },
   {
     source: 'typography',
