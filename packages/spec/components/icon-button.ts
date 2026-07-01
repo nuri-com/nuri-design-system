@@ -15,7 +15,7 @@
  * accessible name (aria-label / accessibilityLabel); flanked, the visible text
  * IS the name (behaviour is the factory's · decision 65).
  *
- * SIZE keeps minHeight + radius coherent with composition-button (sm/md/lg → the
+ * SIZE keeps minHeight + radius coherent with button (sm/md/lg → the
  * SAME minHeight · radius `full`), pinned by the size-coherence guard
  * (pipeline/docs-drift.test.js) so a Button and an icon-button at one size share a
  * height + corner and sit coherently in a row. paddingX INTENTIONALLY DIVERGES —
@@ -31,7 +31,7 @@
  *
  * The bare circle's SURFACES (solid/soft/ghost bg·fg·pressed) + the pressed/
  * scale/disabled interaction hold parity with the legacy icon-button via the
- * SAME palette funnel + interaction baseline composition-button uses (the legacy
+ * SAME palette funnel + interaction baseline button uses (the legacy
  * CSS is the oracle for the bare circle only · the flanked layout is new design,
  * validated by render). PURE DATA (no theme thunk · 65.3 §7): structure
  * { anatomy, base } + variants in SEMANTIC names; the platform-native engine
@@ -75,7 +75,7 @@ export const iconButtonDescriptor: Descriptor<IconButtonAxes> = {
       soft: { root: { palette: { variant: 'soft' } } },
       ghost: { root: { palette: { variant: 'ghost' } } },
     },
-    // SIZE · minHeight + radius stay coherent with composition-button; minWidth =
+    // SIZE · minHeight + radius stay coherent with button; minWidth =
     // minHeight floors the bare control to a SQUARE (the root paddingX is the icon
     // edge ring — sm 6 · md/lg 12 — absorbed by the border-box floor, so the bare
     // form stays square while the icon-at-an-edge in the single-flank forms gets a

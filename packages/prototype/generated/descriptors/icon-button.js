@@ -45,7 +45,7 @@ export const iconButtonDescriptor = {
       soft: { root: { palette: { variant: 'soft' } } },
       ghost: { root: { palette: { variant: 'ghost' } } },
     },
-    // SIZE · minHeight + radius stay coherent with composition-button; minWidth =
+    // SIZE · minHeight + radius stay coherent with button; minWidth =
     // minHeight floors the bare control to a SQUARE (the root paddingX is the icon
     // edge ring — sm 6 · md/lg 12 — absorbed by the border-box floor, so the bare
     // form stays square while the icon-at-an-edge in the single-flank forms gets a

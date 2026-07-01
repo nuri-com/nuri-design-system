@@ -57,11 +57,11 @@ import { interaction } from './generated/interaction';
 // build/palette.ts), and the three per-component descriptors (PURE DATA ·
 // no theme thunk · 65.3 §7).
 import { palette } from './generated/palette';
-import { compositionButtonDescriptor } from '@nuri/spec/descriptors/composition-button';
+import { buttonDescriptor } from '@nuri/spec/descriptors/button';
 import { iconAvatarDescriptor } from '@nuri/spec/descriptors/icon-avatar';
 import { topbarDescriptor } from '@nuri/spec/descriptors/topbar';
 import { iconButtonDescriptor } from '@nuri/spec/descriptors/icon-button';
-import { tabDescriptor } from '@nuri/spec/descriptors/tab';
+import { tabBarItemDescriptor } from '@nuri/spec/descriptors/tab-bar-item';
 import { tabBarDescriptor } from '@nuri/spec/descriptors/tab-bar';
 import type {
   SizeLeaf,
@@ -97,11 +97,11 @@ export {
   interaction,
   // descriptor contract
   palette,
-  compositionButtonDescriptor,
+  buttonDescriptor,
   iconAvatarDescriptor,
   topbarDescriptor,
   iconButtonDescriptor,
-  tabDescriptor,
+  tabBarItemDescriptor,
   tabBarDescriptor,
 };
 

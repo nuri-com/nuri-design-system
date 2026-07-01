@@ -64,7 +64,7 @@ const REPATHED_HEADER = 'emitter: packages/doc/pipeline/docs.js · re-emit: `npm
 // em-dash, gap → px) + a region edge's all-literal `even`-flex stack (no axes now ·
 // the token map is empty). A deliberate emitter change must update these pins.
 const PAGE_CONTRACT = {
-  'composition-button': {
+  button: {
     source: 'button', title: 'Button', nav: 1,
     cells: [
       // colour · the live var() swatch + the default-scope hex in the VALUE column

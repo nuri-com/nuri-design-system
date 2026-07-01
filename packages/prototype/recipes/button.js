@@ -5,8 +5,8 @@
  * thing — observedAttributes (variant · size · accent · disabled), the attr →
  * selection read, the label capture, the public defaults (variant=soft · size=md
  * · from the descriptor · R1.5), the de-collapsed `nuri-*` mount — is DERIVED
- * by defineNuriComponent from the FROZEN composition-button descriptor (build/
- * descriptors/composition-button.js · the authored SoT · decision 69). The hand
+ * by defineNuriComponent from the FROZEN button descriptor (build/
+ * descriptors/button.js · the authored SoT · decision 69). The hand
  * `HTMLElement` wrapper class RETIRED at N+50 (the web twin of RN's
  * createNuriComponent · "adding a component = adding data in spec").
  *
@@ -22,7 +22,7 @@
  * ────────────────────────────────────────────────────────────── */
 
 import { defineNuriComponent, nuriNames } from '../factory/factory.js';
-import { compositionButtonDescriptor } from '../generated/descriptors/composition-button.js';
+import { buttonDescriptor } from '../generated/descriptors/button.js';
 // Self-import the primitive element defs the factory tree upgrades into (idempotent ·
 // each primitive guards its own define · a page's classic <script> tag coexists). So a
 // page only needs to load THIS module + link the namespace CSS — no separate primitive
@@ -30,6 +30,6 @@ import { compositionButtonDescriptor } from '../generated/descriptors/compositio
 import '../primitives/pressable.js';
 import '../primitives/typography.js';
 
-// The public name is `button` (the descriptor SOURCE is `composition-button` ·
-// DESCRIPTOR_COMPONENTS.public) — the tag is DERIVED, never hand-authored.
-defineNuriComponent(compositionButtonDescriptor, nuriNames('button').web);
+// The public name is `button` (the descriptor source basename · name===public) —
+// the tag is DERIVED via nuriNames, never hand-authored.
+defineNuriComponent(buttonDescriptor, nuriNames('button').web);

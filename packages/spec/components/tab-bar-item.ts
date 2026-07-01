@@ -1,5 +1,5 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · COMPONENT DESCRIPTOR · TAB · AUTHORED SOURCE (hand-maintained)
+ * NURI · COMPONENT DESCRIPTOR · TAB-BAR-ITEM · AUTHORED SOURCE (hand-maintained)
  *
  * The bottom-bar ITEM (TabBarItem · web nuri-tab-bar-item) — icon-over-label,
  * presentation only. The DS
@@ -49,11 +49,11 @@
 
 import type { Descriptor } from './schema';
 
-type TabAxes = {
+type TabBarItemAxes = {
   state: 'selected' | 'unselected';
 };
 
-export const tabDescriptor: Descriptor<TabAxes> = {
+export const tabBarItemDescriptor: Descriptor<TabBarItemAxes> = {
   structure: {
     anatomy: {
       el: 'view',

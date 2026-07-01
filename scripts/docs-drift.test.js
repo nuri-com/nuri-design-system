@@ -170,7 +170,7 @@ test('C · doc-stated emitted counts match the live build', () => {
 // `interactive` opt-in) breaks this test even if the build re-emitted
 // clean. The validated shapes (B1.5 · the three composed recipes).
 const EXPECTED_DESCRIPTORS = {
-  'composition-button': {
+  button: {
     axes: { variant: ['solid', 'soft', 'ghost'], size: ['sm', 'md', 'lg'] },
     parts: ['label'], // the anatomy's non-root parts
     interactive: ['pressColor', 'pressScale', 'disabledOpacity'], // the collapsed root opt-in (§8 · no compound)
@@ -198,12 +198,12 @@ const EXPECTED_DESCRIPTORS = {
     parts: ['prefix', 'icon', 'suffix'],
     interactive: ['pressColor', 'pressScale', 'disabledOpacity'],
   },
-  // tab (the tab-bar slice · the bottom-bar ITEM · presentation only) — icon-over-
-  // label, the `state` 2-value appearance axis (selected ghost / unselected subtle ·
-  // the colour-only muted treatment · icon weights dropped at decision 38), pressScale
+  // tab-bar-item (the bottom-bar ITEM · presentation only) — icon-over-label, the
+  // `state` 2-value appearance axis (selected ghost / unselected subtle · the
+  // colour-only muted treatment · icon weights dropped at decision 38), pressScale
   // ONLY (the legacy tab-item baseline · no bg change). The `selected` boolean bridges
   // onto `state` in both factories.
-  tab: {
+  'tab-bar-item': {
     axes: { state: ['selected', 'unselected'] },
     parts: ['icon', 'label'],
     interactive: ['pressScale'],
@@ -326,10 +326,10 @@ test('D · build/descriptors/* re-emits from the authored SoT + the composition-
 // the row's own minHeight (the square invariant). The shared-fragment extraction
 // (a `_button-family-sizing` slice) is a deliberate FOLLOW-UP; until then THIS
 // guard is the seam. Reads the browser-ESM twins (node cannot import the .ts).
-test('icon-button stays size-coherent with composition-button (height + corner + the square floor · P11)', async () => {
+test('icon-button stays size-coherent with button (height + corner + the square floor · P11)', async () => {
   const loadTwin = async (name) =>
     (await import(pathToFileURL(resolve(PROTO_GENERATED, `descriptors/${name}.js`)).href))[exportNameFor(name)];
-  const button = await loadTwin('composition-button');
+  const button = await loadTwin('button');
   const iconButton = await loadTwin('icon-button');
 
   for (const sizeKey of ['sm', 'md', 'lg']) {

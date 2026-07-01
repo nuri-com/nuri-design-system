@@ -1,9 +1,9 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · COMPONENT DESCRIPTOR · COMPOSITION-BUTTON · AUTHORED SOURCE (hand-maintained)
+ * NURI · COMPONENT DESCRIPTOR · BUTTON · AUTHORED SOURCE (hand-maintained)
  *
  * The descriptor LAYER's source of truth (decision 69 · §9 step 1 · N+29 B1):
  * decision 2 (CSS is SoT) is reversed FOR THE DESCRIPTOR LAYER — this hand-
- * authored TS is the producer; build/descriptors/composition-button.{ts,js} are
+ * authored TS is the producer; the browser-ESM twin build/descriptors/button.js is
  * emitted FROM it (a verbatim passthrough · pipeline/tokens-parser.js · run
  * `npm run build`). The token vocabulary stays CSS-SoT (decision 63 · ring-fenced
  * · NOT inverted) — this session is the descriptor layer only.
@@ -29,12 +29,12 @@
 
 import type { Descriptor } from './schema';
 
-type CompositionButtonAxes = {
+type ButtonAxes = {
   variant: 'solid' | 'soft' | 'ghost';
   size: 'sm' | 'md' | 'lg';
 };
 
-export const compositionButtonDescriptor: Descriptor<CompositionButtonAxes> = {
+export const buttonDescriptor: Descriptor<ButtonAxes> = {
   structure: {
     anatomy: { el: 'view', parts: { label: { el: 'text' } } },
     base: {
