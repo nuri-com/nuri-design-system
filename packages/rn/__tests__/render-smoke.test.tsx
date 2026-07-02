@@ -32,6 +32,7 @@ import {
   TabBarItem,
   NuriIcon,
 } from '../index';
+import { icons } from '../contract';
 import type { Descriptor } from '../contract';
 // The hand-authorable primitives (step ①) — aliased so the DS names don't clash
 // with the raw react-native View/Text imported above for the catalog tests.
@@ -129,6 +130,23 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const svg = tr.root.findByType(SvgXml);
     expect(svg.props.color).toBe('#f0eee3');
     expect(svg.props.color).not.toBe('#000');
+  });
+
+  test('NuriIcon — the new glyphs (arrow-up · arrow-down · list-bullets) render register markup', () => {
+    // The suite renders named glyphs but never sweeps the register, so each new
+    // SoT drawing gets a targeted mount: the register markup reaches SvgXml
+    // inside the constant viewBox wrapper, colour normalized to currentColor.
+    for (const name of ['arrow-up', 'arrow-down', 'list-bullets'] as const) {
+      const tr = render(
+        <NuriThemeProvider>
+          <NuriIcon name={name} />
+        </NuriThemeProvider>,
+      );
+      const svg = tr.root.findByType(SvgXml);
+      expect(svg.props.xml).toContain(icons[name]);
+      expect(svg.props.xml).toContain('viewBox="0 0 32 32"');
+      expect(icons[name]).not.toMatch(/fill="(?!currentColor)/);
+    }
   });
 
   test('IconAvatar — DECORATIVE · the root host hides its subtree from AT (F-DECORATIVE-1)', () => {
