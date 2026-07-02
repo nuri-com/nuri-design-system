@@ -22,7 +22,7 @@ const DENY = [
   { name: 'web-data-selector', re: /\[data-/g, reason: 'CSS selector fragments are web projection realization.' },
   { name: 'web-cursor-decl', re: /\bcursor\b/g, reason: 'CSS declaration payloads live in the web projection.' },
   { name: 'web-transition-decl', re: /\btransition\b/g, reason: 'CSS declaration payloads live in the web projection.' },
-  { name: 'web-outline-decl', re: /\boutline\s*:/g, reason: 'CSS declaration payloads live in the web projection.' },
+  { name: 'web-outline-decl', re: /\boutline\b/g, reason: 'CSS declaration payloads live in the web projection.' },
   { name: 'rn-flex-grow', re: /\bflexGrow\b/g, reason: 'RN ViewStyle keys live at the RN boundary.' },
   { name: 'rn-flex-shrink', re: /\bflexShrink\b/g, reason: 'RN ViewStyle keys live at the RN boundary.' },
   { name: 'rn-flex-basis', re: /\bflexBasis\b/g, reason: 'RN ViewStyle keys live at the RN boundary.' },
@@ -59,9 +59,14 @@ const ALLOW = [
     why: 'minWidth is the public BoxNS input key before per-target spelling',
   },
   {
-    files: new Set(['components/schema.ts', 'components/icon-avatar.ts', 'axes/palette-surface.ts']),
+    files: new Set(['components/icon-avatar.ts', 'axes/palette-surface.ts']),
     names: new Set(['web-outline-decl']),
     why: 'outline is a semantic palette value here, not a CSS declaration',
+  },
+  {
+    file: 'components/schema.ts',
+    names: new Set(['web-outline-decl']),
+    why: "the PaletteVariant union member 'outline' — the frozen contract's value vocab, no CSS payload",
   },
 ];
 
