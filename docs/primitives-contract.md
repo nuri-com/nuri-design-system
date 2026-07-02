@@ -110,7 +110,7 @@ namespace composition. On RN they map to react-native directly, per their own he
 | **Box** (`<nuri-box>` standalone element) | [box.js](packages/prototype/primitives/box.js) | **FOLD → View.** Retire the standalone custom element; the **box *namespace* stays** (see below). |
 | **Separator** | [separator.js](packages/prototype/primitives/separator.js) | **Web helper + trivial RN.** Header: "it does NOT port to RN (the RN consumer is a thin `<View>` with marginVertical from the space scale)" ([separator.js:17-18](packages/prototype/primitives/separator.js:17)). Keep web-only; RN is a one-liner, not a contracted parity primitive. |
 | **Spacer** | [spacer.js](packages/prototype/primitives/spacer.js) | **Web helper + trivial RN.** Header: "grow → `<View style={{flex:1}} />`; size → a `<View>` with fixed width/height" ([spacer.js:15-16](packages/prototype/primitives/spacer.js:15)). Same as Separator. |
-| **Scope** | [scope.js](packages/prototype/primitives/scope.js) | **WEB-ONLY mechanism — keep, not a parity primitive.** It is a CSS-cascade scope (`display:contents`, mirrors props → `data-*`). Its own header: "web-only … In RN the same semantic is expressed via React Context (e.g. `<AccentProvider>`), not via Unistyles … the pipeline does NOT translate `<nuri-scope>` 1:1" ([scope.js:11-14,36-38](packages/prototype/primitives/scope.js:11)). The RN equivalent already exists — `NuriThemeProvider` / `NuriScope` ([rn theme + Demo.tsx:27](packages/expo-demo/src/screens/Demo.tsx:27)). |
+| **Scope** | [scope.js](packages/prototype/primitives/scope.js) | **WEB-ONLY mechanism — keep, not a parity primitive.** It is a CSS-cascade scope (`display:contents`, mirrors props → `data-*`). Its own header: "web-only … In RN the same semantic is expressed via React Context (e.g. `<AccentProvider>`), not via Unistyles … the pipeline does NOT translate `<nuri-scope>` 1:1" ([scope.js:11-14,36-38](packages/prototype/primitives/scope.js:11)). The RN equivalent already exists — `NuriThemeProvider` / `NuriScope` ([theme.tsx](packages/rn/theme.tsx)). |
 
 #### The Box fold — work-list (the namespace stays; only the standalone *element* retires)
 
@@ -187,7 +187,8 @@ re-exports `./contract` (descriptors + schema types) + `./theme` (the provider +
 ([index.ts](packages/rn/index.ts)). **No `View` / `Stack` / `Text` /
 `Box` is exported** (grep over `@nuri/rn` = none). The evidence the gap forces in practice: the demo
 screen does its layout with **raw react-native** — `import { ScrollView, StyleSheet, View } from
-'react-native'` and a `StyleSheet.create` ([Demo.tsx:18](packages/expo-demo/src/screens/Demo.tsx:18)),
+'react-native'` and a `StyleSheet.create` (the audit-era R1.5 `src/screens/Demo.tsx`, since
+superseded by the pure-DS wallet/coin/cash screens and deleted — git history),
 **not** DS primitives. So the playground demo screens are **not yet 1:1 syntax-translatable** to RN.
 
 The RN render path each wrapper reuses already exists: `resolve.ts`'s `resolveNS` / `flattenPart` /
@@ -296,8 +297,8 @@ web-only mockups, not DS components, so they don't translate 1:1 to RN. Re-autho
   ([renderer.tsx:165-189](packages/rn/runtime/renderer.tsx:165)).
 - **RN has no hand-authorable primitive:** the factory barrel exports only catalog components +
   helpers + `NuriIcon` ([index.ts](packages/rn/index.ts)); the demo lays
-  out with raw `react-native` `View`/`ScrollView`/`StyleSheet`
-  ([Demo.tsx:18](packages/expo-demo/src/screens/Demo.tsx:18)).
+  out with raw `react-native` `View`/`ScrollView`/`StyleSheet` (the audit-era R1.5
+  `src/screens/Demo.tsx`, since superseded and deleted — git history).
 - **The Box-fold work-list:** the box *namespace* (`.nuri-box`) is applied by the factory
   ([factory.js:160](packages/prototype/factory/factory.js:160)) + the icon
   ([icon.js:72](packages/prototype/primitives/icon.js:72)) and already lives on `View`

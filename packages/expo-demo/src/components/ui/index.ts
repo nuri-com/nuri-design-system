@@ -1,0 +1,24 @@
+/* ──────────────────────────────────────────────────────────────
+ * UI · the DS MANIFEST — the one file that answers "what @nuri/rn
+ * surface does this app consume". Import-and-re-export ONLY: no
+ * wrapping, no default-filling, no styling here — a wrapper that owns
+ * behaviour lives in components/ (BottomBar). Screens and App import
+ * every DS piece from this manifest, never from '@nuri/rn' directly.
+ * ────────────────────────────────────────────────────────────── */
+
+export {
+  Button,
+  IconButton,
+  NuriIcon,
+  NuriThemeProvider,
+  TabBar,
+  TabBarItem,
+  Text,
+  Topbar,
+  TopbarCenter,
+  TopbarLeading,
+  TopbarTrailing,
+  useNuriTheme,
+  View,
+} from '@nuri/rn';
+export type { IconName, Theme } from '@nuri/rn';
