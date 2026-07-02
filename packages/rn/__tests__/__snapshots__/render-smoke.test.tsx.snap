@@ -46,6 +46,8 @@ exports[`render-smoke — the ergonomic components mount headless Button — ord
   }
 >
   <Text
+    ellipsizeMode="tail"
+    numberOfLines={1}
     style={
       [
         {
@@ -56,6 +58,10 @@ exports[`render-smoke — the ergonomic components mount headless Button — ord
         },
         {
           "color": "#381b6a",
+        },
+        {
+          "flexShrink": 1,
+          "textAlign": "center",
         },
         {},
       ]
@@ -121,6 +127,8 @@ exports[`render-smoke — the ergonomic components mount headless Button — ord
     </RNSVGGroup>
   </RNSVGSvgView>
   <Text
+    ellipsizeMode="tail"
+    numberOfLines={1}
     style={
       [
         {
@@ -131,6 +139,10 @@ exports[`render-smoke — the ergonomic components mount headless Button — ord
         },
         {
           "color": "#381b6a",
+        },
+        {
+          "flexShrink": 1,
+          "textAlign": "center",
         },
         {},
       ]
@@ -186,6 +198,8 @@ exports[`render-smoke — the ergonomic components mount headless Button — typ
   }
 >
   <Text
+    ellipsizeMode="tail"
+    numberOfLines={1}
     style={
       [
         {
@@ -196,6 +210,10 @@ exports[`render-smoke — the ergonomic components mount headless Button — typ
         },
         {
           "color": "#381b6a",
+        },
+        {
+          "flexShrink": 1,
+          "textAlign": "center",
         },
         {},
       ]
@@ -554,6 +572,8 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
       </RNSVGGroup>
     </RNSVGSvgView>
     <Text
+      ellipsizeMode="tail"
+      numberOfLines={1}
       style={
         [
           {
@@ -564,6 +584,10 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
           },
           {
             "color": "#222013",
+          },
+          {
+            "flexShrink": 1,
+            "textAlign": "center",
           },
           {
             "paddingEnd": 6,
@@ -679,6 +703,8 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
       </RNSVGGroup>
     </RNSVGSvgView>
     <Text
+      ellipsizeMode="tail"
+      numberOfLines={1}
       style={
         [
           {
@@ -689,6 +715,10 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
           },
           {
             "color": "#bfbcac",
+          },
+          {
+            "flexShrink": 1,
+            "textAlign": "center",
           },
           {
             "paddingEnd": 6,
@@ -804,6 +834,8 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
       </RNSVGGroup>
     </RNSVGSvgView>
     <Text
+      ellipsizeMode="tail"
+      numberOfLines={1}
       style={
         [
           {
@@ -814,6 +846,10 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
           },
           {
             "color": "#bfbcac",
+          },
+          {
+            "flexShrink": 1,
+            "textAlign": "center",
           },
           {
             "paddingEnd": 6,

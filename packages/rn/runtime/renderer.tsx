@@ -228,7 +228,14 @@ function renderPart<A extends Axes>(
       return (
         <Text
           key={node.name}
-          style={[flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis) : null, fg ? { color: fg } : null, flat.style]}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          style={[
+            flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis) : null,
+            fg ? { color: fg } : null,
+            { flexShrink: 1, textAlign: 'center' },
+            flat.style,
+          ]}
         >
           {ctx.content[node.name]}
         </Text>
