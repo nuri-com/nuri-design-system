@@ -340,8 +340,8 @@ export type ComponentApi<P extends PartId = PartId> = {
 // it (the anatomy-vs-base load-bearing marker is deferred · B1.5 §4.1 · P11).
 //
 // `defaults` — the per-axis PUBLIC default (R1.5 · N+50). The value an
-// unset axis resolves to; BOTH factories read it (createNuriComponent's
-// defaultByAxis · the web buildComponent fallback), so neither binding
+// unset axis resolves to; BOTH projections read it (the RN component-API
+// codegen's default bake · the web buildComponent fallback), so neither binding
 // hand-knows a default. Absent a `defaults[axis]` the factory falls back to
 // the axis's FIRST value (the prior behaviour · the first-value heuristic).
 // Closes the web↔RN parity gap the recipes patched at the binding (Button

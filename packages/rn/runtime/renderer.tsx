@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · FACTORY · normalized RN descriptor renderer
+ * NURI · RUNTIME · normalized RN descriptor renderer
  * ──────────────────────────────────────────────────────────────────
  * The shared RN renderer consumes a normalized descriptor instance:
  * selection, routed content, and declared behaviour have already been computed
@@ -11,10 +11,10 @@ import * as React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { Accent, Descriptor, Axes, IconName, PartId } from '../contract';
 import { typeStyle, useNuriTheme, NuriScope } from '../theme';
-import type { NuriTheme } from './theme';
+import type { NuriTheme } from './theme-payload';
 import { resolveAnatomy, flattenBakedPart, assertNever } from './resolve';
 import type { AnatomyNode, Selection, BakedComponentRecipe } from './resolve';
-import { NuriIcon } from './NuriIcon';
+import { NuriIcon } from '../primitives/NuriIcon';
 
 // §12 surface context — the resolved foreground a surface provides to propless
 // descendants (colour-from-scope · F-BOX-FG-1).

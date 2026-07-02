@@ -20,7 +20,7 @@
  * So the --nuri-font-size-* / --nuri-font-weight-* PRIMITIVES go back to being a
  * foundational hand-CSS layer (shell.css's concern · NOT touched here · a Phase 4·3
  * residue) — the fake type↔shell coupling dissolves. The resolved VALUES are
- * unchanged, so packages/rn/generated/tokens.ts (the RN reader · re-sourced onto this SoT) +
+ * unchanged, so packages/rn/generated/data/tokens.ts (the RN reader · re-sourced onto this SoT) +
  * everything downstream stays byte-identical; only the --nuri-type-* block's
  * spelling changes (var→inline · computed-equivalent · the N+45 gate posture).
  *

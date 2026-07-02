@@ -30,10 +30,14 @@ target's output is *generated* from it.
   icons/            *.svg                                     (the icon SoT)
 
 @nuri/rn            PRODUCTION — the RN projection
-  generated/        the resolved contract (hex values · type scales · descriptors),
-                    flattened from spec at build · committed
-  contract.ts       imports ./generated/*
-  factory/ theme.tsx  the runtime: NuriThemeProvider / NuriScope / resolved theme payload
+  generated/        the resolved contract, flattened from spec at build · committed
+    data/           the six data tables (tokens · palette · recipes · icons ·
+                    interaction · token-paths)
+    components/     the per-descriptor API adapters (Path C)
+  contract.ts       imports ./generated/data/*
+  runtime/          the INTERNAL engine: resolve · renderer · theme-payload builder
+  primitives/       the open primitive layer (View/Stack/Text/Pressable/Screen/Scroll · NuriIcon)
+  theme.tsx         NuriThemeProvider / NuriScope / the resolved theme payload
 
 @nuri/prototype     the WEB projection (prototyping + the doc surface's components)
   generated/        the token CSS · descriptor .js twins · token-vars · icon registry

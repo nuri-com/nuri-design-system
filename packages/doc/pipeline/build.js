@@ -15,7 +15,7 @@
  * Sources are read as DATA, never by importing spec's pipeline functions:
  *   · API-only props      — from @nuri/rn generated component adapters and factory
  *                           public primitive prop types.
- *   · palette · tokens    — from @nuri/rn/generated/{palette,tokens}.ts.
+ *   · palette · tokens    — from @nuri/rn/generated/data/{palette,tokens}.ts.
  *   · token-vars          — from @nuri/prototype/generated/token-vars.ts.
  *   · the 5 axis SoTs     — from @nuri/spec/{resolve-map, property-spelling,
  *                           palette-surface, interactive-effects, typography-axis}.
@@ -86,7 +86,7 @@ async function buildAxisDocs() {
   const interactiveWeb = interactiveWebProjection(opts);
   const { axis } = await loadSpecData('typography-axis');
   const typographyWeb = typographyWebProjection(axis);
-  const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'tokens.ts'));
+  const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'data/tokens.ts'));
   const { tokenVars } = await loadDataFromPath(resolve(PROTO_GENERATED, 'token-vars.ts'));
   const d = {
     stackFields: STACK_FIELDS,
@@ -120,7 +120,7 @@ async function buildAxisDocs() {
 async function buildFoundationDocs() {
   const dimensions = await loadSpecData('dimensions');
   const colours = await loadSpecData('colours');
-  const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'tokens.ts'));
+  const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'data/tokens.ts'));
   const { tokenVars } = await loadDataFromPath(resolve(PROTO_GENERATED, 'token-vars.ts'));
   const { tokens } = buildDocTokenInputs(specTokens, tokenVars);
   const d = {

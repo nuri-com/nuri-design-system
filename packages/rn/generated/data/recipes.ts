@@ -9,15 +9,15 @@
  * The build-time-STATIC geometry slice (Arc 2 · D11 + D5): box/stack resolved to
  * concrete ViewStyle ONCE, keyed by component → part; typography + interactive as
  * the RAW mergeable namespace partials (merged + realized at runtime by the same
- * appliers the runtime resolver uses). The RN factory LOADS + composes this
- * (flattenBakedPart · resolve.ts) instead of re-resolving every render. COLOUR-FREE
+ * appliers the runtime resolver uses). The RN runtime LOADS + composes this
+ * (flattenBakedPart · runtime/resolve.ts) instead of re-resolving every render. COLOUR-FREE
  * by construction — NO backgroundColor / fg / pressedBg / hex / accent·mode variant;
  * colour is the Arc-1 runtime theme path, merged on at render. Bound byte-for-byte
  * to the TS runtime resolver by the oracle-equivalence guard (full node + style ·
- * factory/__tests__/geometry-bake.test.ts).
+ * __tests__/geometry-bake.test.ts).
  * ────────────────────────────────────────────────────────────── */
 
-import type { BakedComponentRecipe } from '../factory/resolve';
+import type { BakedComponentRecipe } from '../../runtime/resolve';
 
 export const recipes: Record<string, BakedComponentRecipe> = {
   "button": {

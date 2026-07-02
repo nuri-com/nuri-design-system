@@ -1,7 +1,7 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · TYPE SCALE EMITTER (Node)
  *
- * Emits the `type` namespace into packages/rn/generated/tokens.ts — a TYPED, per-step
+ * Emits the `type` namespace into packages/rn/generated/data/tokens.ts — a TYPED, per-step
  * composite of the type scale. RE-SOURCED at N+52 (decision 78 · the
  * type-composite flip): the scale comes from the TS SoT
  * (packages/spec/tokens/typography.ts · decision 2 reversed for the type composite),
@@ -95,7 +95,7 @@ export function buildTypeScale(typeSoT, primitiveMap) {
 }
 
 // Emit the `type` namespace + the `emphasisWeight` override (string) appended
-// into packages/rn/generated/tokens.ts. Mirrors the icon emit: a typed, directly-accessed
+// into packages/rn/generated/data/tokens.ts. Mirrors the icon emit: a typed, directly-accessed
 // namespace whose values are a machine-checkable function of the single source.
 export function emitTypeTs({ sizes, emphasisWeight }) {
   const weights = [...new Set([...Object.values(sizes).map((s) => s.fontWeight), emphasisWeight])]

@@ -195,12 +195,14 @@ const PROPERTY_SPELLING_SRC = resolve(SPEC_ROOT, 'axes/property-spelling.ts');
 const DESCRIPTORS_SRC  = resolve(SPEC_ROOT, 'components');
 const ICONS_DIR        = resolve(SPEC_ROOT, 'icons');
 // ── outputs · the RN projection (committed · Movement A) ──
-const TS_OUT           = resolve(RN_GENERATED, 'tokens.ts');
-const INTERACTION_OUT  = resolve(RN_GENERATED, 'interaction.ts');
-const TOKEN_PATHS_OUT  = resolve(RN_GENERATED, 'token-paths.ts');
-const ICONS_OUT        = resolve(RN_GENERATED, 'icons.ts');
-const PALETTE_OUT      = resolve(RN_GENERATED, 'palette.ts');
-const RECIPES_OUT      = resolve(RN_GENERATED, 'recipes.ts');
+// The six DATA tables land under generated/data/; the per-component API
+// adapters under generated/components/ (the structure-clarity split).
+const TS_OUT           = resolve(RN_GENERATED, 'data/tokens.ts');
+const INTERACTION_OUT  = resolve(RN_GENERATED, 'data/interaction.ts');
+const TOKEN_PATHS_OUT  = resolve(RN_GENERATED, 'data/token-paths.ts');
+const ICONS_OUT        = resolve(RN_GENERATED, 'data/icons.ts');
+const PALETTE_OUT      = resolve(RN_GENERATED, 'data/palette.ts');
+const RECIPES_OUT      = resolve(RN_GENERATED, 'data/recipes.ts');
 const COMPONENTS_OUT   = resolve(RN_GENERATED, 'components');
 // ── outputs · the web projection (committed · Movement B) ──
 const JSON_OUT         = resolve(PROTO_GENERATED, 'tokens.json');
@@ -409,6 +411,7 @@ async function main() {
   const tsSource =
     emitTokensTs(resolved, semanticRules, { accentTwoLayer: colourTokens.accent }) +
     '\n' + emitTypeTs(typeScale);
+  await mkdir(dirname(TS_OUT), { recursive: true });
   await writeFile(TS_OUT, tsSource, 'utf8');
   const classifiedGroups = classifyAll(semanticRules);
   const semanticCount = Object.keys(resolved).length;
@@ -417,7 +420,7 @@ async function main() {
   // The decision-45 cross-component constants (pressScale · disabledOpacity),
   // flattened STRAIGHT from the TS SoT (interactionSoT · pipeline/interaction.ts ·
   // Slice 0 above) — NO CSS read (projection model §4 · decision 80). Emitted to
-  // their OWN transversal artifact at build/interaction.ts. The RN factory's theme
+  // their OWN transversal artifact at generated/data/interaction.ts. The RN runtime's theme
   // reads this directly — it no longer reaches into a per-component file for a
   // non-component value (resolves the R1 "no transversal interaction artifact"
   // finding). NOT a runtime/TokenPath set; the values are context-invariant.
@@ -517,7 +520,7 @@ async function main() {
 
   // ── Slice 8b · baked geometry recipe emit (Arc 2 · D11 + D5 · the geometry bake) ──
   // box/stack/typography/interactive are STATIC — resolve them ONCE here into
-  // generated/recipes.ts (per component → part) so the RN factory LOADS + composes
+  // generated/data/recipes.ts (per component → part) so the RN runtime LOADS + composes
   // them instead of re-resolving every render (D11). The Node applier reuses the
   // single-sourced resolve-map/property-spelling/scale tables (the RN twin of the web
   // namespace-CSS emit); the oracle-equivalence guard binds it to the runtime resolver.
@@ -544,7 +547,7 @@ async function main() {
   // normalizes public props into selection/content/behaviour and wraps declared
   // accent scopes before calling the shared renderer. Reads the `api`/`variants`
   // off the authored source via the SAME browser-ESM strip the recipe emit uses.
-  // Committed + drift-gated (the re-emit-clean gate). The RN factory barrel
+  // Committed + drift-gated (the re-emit-clean gate). The RN public barrel
   // re-exports the index.
   await mkdir(COMPONENTS_OUT, { recursive: true });
   const { files: componentFiles, coverage: componentCoverage } = await emitComponentApi({

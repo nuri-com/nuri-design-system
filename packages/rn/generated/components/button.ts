@@ -12,13 +12,13 @@
  * ────────────────────────────────────────────────────────────── */
 
 import * as React from 'react';
-import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriComposition } from '../../factory/createNuriComponent';
-import type { NuriBehaviour, NuriCompositionEntry } from '../../factory/createNuriComponent';
+import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriComposition } from '../../runtime/renderer';
+import type { NuriBehaviour, NuriCompositionEntry } from '../../runtime/renderer';
 import { buttonDescriptor } from '@nuri/spec/descriptors/button';
-import { recipes } from '../recipes';
+import { recipes } from '../data/recipes';
 import { NuriScope } from '../../theme';
-import type { Accent } from '../tokens';
-import type { IconName } from '../icons';
+import type { Accent } from '../data/tokens';
+import type { IconName } from '../data/icons';
 
 export type ButtonProps = {
   variant?: 'solid' | 'soft' | 'ghost';

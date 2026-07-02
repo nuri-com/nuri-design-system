@@ -13,10 +13,10 @@
  *                          reversed for the family · the dimension/type-css posture)
  *   · buildInteraction   — the { leaf → literal } record the emit consumes, FROM
  *                          the SoT (no CSS read · projection model §4 · decision 80)
- *   · emitInteractionTs  — packages/rn/generated/interaction.ts (the RN factory's reader · decision 48)
+ *   · emitInteractionTs  — packages/rn/generated/data/interaction.ts (the RN runtime's reader · decision 48)
  *
  * ONE source (packages/spec/axes/interaction.ts), THREE faces: the web CSS primitives, the
- * RN generated/interaction.ts, and the factory that reads it (the icon model · decision
+ * RN generated/data/interaction.ts, and the runtime that reads it (the icon model · decision
  * 48). Was CSS-sourced (the emit read --nuri-interaction-* back out · a TS→CSS→TS
  * round-trip); the SoT flip kills that last round-trip for the family (Smell-1 ·
  * decision 66 arc #0 · classified primitive.interaction in semantic.js).
@@ -122,7 +122,7 @@ export function emitInteractionTs(interaction) {
     ` * the { pressScale · disabledOpacity } design constants, flattened from`,
     ` * the packages/spec/axes/interaction.ts SoT (the SAME values the build flips into the`,
     ` * --nuri-interaction-* CSS primitives · one source, two readers · decision`,
-    ` * 48). A single transversal emit — the RN factory's theme reads it directly,`,
+    ` * 48). A single transversal emit — the RN runtime's theme reads it directly,`,
     ` * instead of reaching into a per-component file for a non-component value`,
     ` * (Smell-1 · decision 66 arc #0). NOT a runtime/TokenPath set; the values`,
     ` * are context-invariant.`,

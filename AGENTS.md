@@ -25,7 +25,7 @@ If something here conflicts with the code, the code wins — fix this file, don'
 
 Every other package is a **projection** that owns its resolution:
 
-- `@nuri/rn` — **production** (the RN projection · `generated/` = the resolved contract · `factory/` + the provider runtime).
+- `@nuri/rn` — **production** (the RN projection · `generated/` = the resolved contract (`data/` + `components/`) · `runtime/` engine + `primitives/` + the provider).
 - `@nuri/prototype` — the **web** projection (prototyping + the doc-surface components · `generated/` token CSS + descriptor twins).
 - `@nuri/doc` — the documentation site (generates Markdown from spec data + the projections).
 - `@nuri/playground` — the local bench.

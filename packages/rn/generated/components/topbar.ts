@@ -12,12 +12,12 @@
  * ────────────────────────────────────────────────────────────── */
 
 import * as React from 'react';
-import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriSlots } from '../../factory/createNuriComponent';
-import type { NuriBehaviour } from '../../factory/createNuriComponent';
+import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriSlots } from '../../runtime/renderer';
+import type { NuriBehaviour } from '../../runtime/renderer';
 import { topbarDescriptor } from '@nuri/spec/descriptors/topbar';
-import { recipes } from '../recipes';
+import { recipes } from '../data/recipes';
 import { NuriScope } from '../../theme';
-import type { Accent } from '../tokens';
+import type { Accent } from '../data/tokens';
 
 export type TopbarProps = {
   accent?: Accent;

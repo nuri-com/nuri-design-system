@@ -247,22 +247,22 @@ export function emitComponentFile(spec, descriptor) {
   const hasRegions = regionParts.length > 0;
   const hasComponentSlots = componentSlots.length > 0;
 
-  const factoryImports = ['nuriNames', 'renderDescriptorInstance'];
-  if (hasRegions) factoryImports.push('createNuriSlot', 'harvestNuriSlots');
-  if (hasComponentSlots) factoryImports.push('createNuriSlot', 'harvestNuriComposition');
+  const rendererImports = ['nuriNames', 'renderDescriptorInstance'];
+  if (hasRegions) rendererImports.push('createNuriSlot', 'harvestNuriSlots');
+  if (hasComponentSlots) rendererImports.push('createNuriSlot', 'harvestNuriComposition');
 
   const imports = [
     "import * as React from 'react';",
-    `import { ${factoryImports.join(', ')} } from '../../factory/createNuriComponent';`,
-    `import type { NuriBehaviour${hasComponentSlots ? ', NuriCompositionEntry' : ''} } from '../../factory/createNuriComponent';`,
+    `import { ${rendererImports.join(', ')} } from '../../runtime/renderer';`,
+    `import type { NuriBehaviour${hasComponentSlots ? ', NuriCompositionEntry' : ''} } from '../../runtime/renderer';`,
     `import { ${descId} } from '@nuri/spec/descriptors/${name}';`,
-    "import { recipes } from '../recipes';",
+    "import { recipes } from '../data/recipes';",
   ];
   if (usesAccent) {
     imports.push("import { NuriScope } from '../../theme';");
-    imports.push("import type { Accent } from '../tokens';");
+    imports.push("import type { Accent } from '../data/tokens';");
   }
-  if (usesIcon) imports.push("import type { IconName } from '../icons';");
+  if (usesIcon) imports.push("import type { IconName } from '../data/icons';");
 
   const displayNameConst = `${local}DisplayName`;
   const innerName = `${Pascal}Inner`;

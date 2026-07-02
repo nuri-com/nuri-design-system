@@ -11,7 +11,7 @@ const TARGETS = [
   'packages/rn/index.ts',
   'packages/rn/theme.tsx',
   'packages/rn/contract.ts',
-  'packages/rn/factory/theme.ts',
+  'packages/rn/runtime/theme-payload.ts',
   'packages/expo-demo/App.tsx',
   'packages/expo-demo/src',
 ];
@@ -100,7 +100,7 @@ test('RN public/demo code does not regrow the token escape hatch', () => {
 });
 
 test('ThemePayload does not carry raw token slices', () => {
-  const file = resolve(REPO_ROOT, 'packages/rn/factory/theme.ts');
+  const file = resolve(REPO_ROOT, 'packages/rn/runtime/theme-payload.ts');
   const code = stripCommentsAndStrings(readFileSync(file, 'utf8'));
   assert.doesNotMatch(code, THEME_PAYLOAD_SLICES, 'ThemePayload must stay resolved-role-only');
 });

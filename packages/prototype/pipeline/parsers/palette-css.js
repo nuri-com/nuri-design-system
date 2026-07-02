@@ -5,7 +5,7 @@
  * namespace CSS. palette is the FIRST bespoke axis (decision 67): the colour
  * funnel, single-sourced but NOT a Field-table member (box/stack rode the generic
  * resolve-map.ts table at L3.1; palette has its own bespoke shape). This is the
- * inverse-spelling of resolvePalette (packages/rn/factory/resolve.ts): the RN
+ * inverse-spelling of resolvePalette (packages/rn/runtime/resolve.ts): the RN
  * resolver maps `surface[variant] → { bg, fg, pressedBg }` onto a node; this
  * writes the `.nuri-palette[data-*]` dispatch the CSS cascade resolves.
  *
@@ -138,12 +138,12 @@ export function emitPaletteCss(surface) {
     ` *`,
     ` * GENERATED from the SURFACE role table (packages/spec/axes/palette-surface.ts)`,
     ` * by prototype/pipeline/css-preview.js — the inverse-spelling of resolvePalette`,
-    ` * (packages/rn/factory/resolve.ts) — wired into npm run build -w @nuri/prototype (its`,
+    ` * (packages/rn/runtime/resolve.ts) — wired into npm run build -w @nuri/prototype (its`,
     ` * own build · regenerates IN PLACE over prototype/styles/palette.css). This is the LIVE`,
     ` * palette namespace CSS: the pages link it and the web factory styles nuri-palette`,
     ` * nodes with it. decision 2 reversed for the namespace layer (decision 74 · executing`,
     ` * decision 70 · the L3c flip · N+38 · carved to @nuri/prototype at N+41) — the hand SoT`,
-    ` * retired (git-recoverable), the generator is the sole source, and packages/rn/generated/`,
+    ` * retired (git-recoverable), the generator is the sole source, and packages/rn/generated/data/`,
     ` * palette.ts asserts its contract against the same SURFACE SoT (re-sourced at N+40 · the`,
     ` * recipe-CSS cross-checks retired with the recipes · scripts/parsers/palette.js).`,
     ` * Re-run npm run build -w @nuri/prototype; freshness gated by`,

@@ -5,8 +5,8 @@
  * are STATIC — a pure function of the descriptor + selection, ZERO theme/state
  * input — yet the RN factory re-resolved them every render (`flattenPart` per
  * part + per press · D11). This emitter resolves the box/stack GEOMETRY ONCE at
- * build into `packages/rn/generated/recipes.ts`; the factory LOADS + composes it
- * (`flattenBakedPart` · resolve.ts). It PROMOTES the old test-only
+ * build into `packages/rn/generated/data/recipes.ts`; the runtime LOADS + composes it
+ * (`flattenBakedPart` · runtime/resolve.ts). It PROMOTES the old test-only
  * `toUnistylesRecipe` precompute (D5), reshaped COLOUR-FREE.
  *
  * ── WHAT IS BAKED (per part · base + per axis/value) ───────────────
@@ -33,7 +33,7 @@
  * Node 20 cannot run the TS resolver (no tsx/esbuild · the deliberate node-20 +
  * TS-data loader. The applier interpreter is ~30 lines; the KNOWLEDGE (the field
  * tables + spellings + scales) is single-sourced in spec. The oracle-equivalence
- * guard (packages/rn/factory/__tests__/geometry-bake.test.ts · full node + style)
+ * guard (packages/rn/__tests__/geometry-bake.test.ts · full node + style)
  * binds this emit byte-for-byte to the TS runtime resolver, mutation-proven — so a
  * drift between the two appliers fails CI, not silently ships. The generator's own
  * generality (variant-level interactive · emphasis-only typography) is pinned by
@@ -291,15 +291,15 @@ export function emitRecipesTs(recipesByComponent) {
     ' * The build-time-STATIC geometry slice (Arc 2 · D11 + D5): box/stack resolved to',
     ' * concrete ViewStyle ONCE, keyed by component → part; typography + interactive as',
     ' * the RAW mergeable namespace partials (merged + realized at runtime by the same',
-    ' * appliers the runtime resolver uses). The RN factory LOADS + composes this',
-    ' * (flattenBakedPart · resolve.ts) instead of re-resolving every render. COLOUR-FREE',
+    ' * appliers the runtime resolver uses). The RN runtime LOADS + composes this',
+    ' * (flattenBakedPart · runtime/resolve.ts) instead of re-resolving every render. COLOUR-FREE',
     ' * by construction — NO backgroundColor / fg / pressedBg / hex / accent·mode variant;',
     ' * colour is the Arc-1 runtime theme path, merged on at render. Bound byte-for-byte',
     ' * to the TS runtime resolver by the oracle-equivalence guard (full node + style ·',
-    ' * factory/__tests__/geometry-bake.test.ts).',
+    ' * __tests__/geometry-bake.test.ts).',
     ' * ────────────────────────────────────────────────────────────── */',
     '',
-    "import type { BakedComponentRecipe } from '../factory/resolve';",
+    "import type { BakedComponentRecipe } from '../../runtime/resolve';",
     '',
   ].join('\n');
   const body = 'export const recipes: Record<string, BakedComponentRecipe> = ' +

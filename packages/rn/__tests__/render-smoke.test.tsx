@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · FACTORY · RENDER SMOKE (react-test-renderer · headless · R1/R1.5)
+ * NURI · RENDER SMOKE (react-test-renderer · headless · R1/R1.5)
  * ──────────────────────────────────────────────────────────────────
  * Mount each of the three frozen descriptors through the SAME factory, via
  * the ERGONOMIC 1:1 API (typed named props + children) → no-throw + a
@@ -17,7 +17,7 @@ import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { ScrollView, Text, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
-import { NuriThemeProvider } from '../../theme';
+import { NuriThemeProvider } from '../theme';
 import {
   Button,
   ButtonText,
@@ -32,7 +32,7 @@ import {
   TabBarItem,
   NuriIcon,
 } from '../index';
-import type { Descriptor } from '../../contract';
+import type { Descriptor } from '../contract';
 // The hand-authorable primitives (step ①) — aliased so the DS names don't clash
 // with the raw react-native View/Text imported above for the catalog tests.
 import {

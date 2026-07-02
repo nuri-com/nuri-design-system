@@ -4,7 +4,7 @@
  *
  * <nuri-pressable> is the generic INTERACTIVE host — the web mirror of
  * RN <Pressable> (the el:'view'+interactive case in
- * createNuriComponent.tsx). It is the bare extraction of the native
+ * rn/runtime/renderer.tsx). It is the bare extraction of the native
  * <button> that the Button recipe (button.js) hard-codes inline, MINUS
  * the .nuri-button recipe CSS: it applies the generic `.nuri-interactive`
  * namespace (interactive.css · decision 65.3 §6 / 65.4) and exposes the

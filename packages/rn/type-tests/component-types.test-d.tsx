@@ -9,7 +9,7 @@
  * `@ts-expect-error` makes tsc FAIL (an unused directive · TS2578). That proves the
  * generated exports are still exact and have not widened back into the old soup.
  *
- * It is NOT a jest suite (jest is scoped to `factory/`; this lives OUTSIDE that root)
+ * It is NOT a jest suite (jest is scoped to `__tests__/`; this lives OUTSIDE that root)
  * — it is pure `tsc` fodder, checked by `npm run typecheck -w @nuri/rn`. The fixtures
  * are `export const` so they are not unused-locals; none is rendered at runtime.
  *
@@ -18,7 +18,7 @@
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';
-import { Button, ButtonIcon, ButtonText, IconButton, IconAvatar, TabBarItem } from '../factory';
+import { Button, ButtonIcon, ButtonText, IconButton, IconAvatar, TabBarItem } from '../index';
 
 // ── Button — text sink · variant/size · NO icon (the soup is gone) ──
 // the real surface compiles: variant union + children text.

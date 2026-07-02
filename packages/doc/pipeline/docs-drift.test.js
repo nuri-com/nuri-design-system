@@ -310,7 +310,7 @@ test('G · each generated/axes/*.md re-emits identically from its axis SoT', asy
   const interactiveWeb = interactiveWebProjection(opts);
   const { axis } = await loadSpecData('typography-axis');
   const typographyWeb = typographyWebProjection(axis);
-  const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'tokens.ts'));
+  const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'data/tokens.ts'));
   const { tokenVars } = await loadDataFromPath(resolve(PROTO_GENERATED, 'token-vars.ts'));
   const d = {
     stackFields: STACK_FIELDS,
@@ -434,7 +434,7 @@ test('G · each generated/foundations/*.md re-emits identically from its token S
   // come from the SAME buildDocTokenInputs / makeRoleResolver the component/axis pages use.
   const dimensions = await loadSpecData('dimensions');
   const colours = await loadSpecData('colours');
-  const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'tokens.ts'));
+  const specTokens = await loadDataFromPath(resolve(RN_GENERATED, 'data/tokens.ts'));
   const { tokenVars } = await loadDataFromPath(resolve(PROTO_GENERATED, 'token-vars.ts'));
   const { tokens } = buildDocTokenInputs(specTokens, tokenVars);
   const d = {

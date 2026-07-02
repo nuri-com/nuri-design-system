@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · FACTORY · THE GENERIC DESCRIPTOR ENGINE
+ * NURI · RUNTIME · THE GENERIC DESCRIPTOR ENGINE
  * ──────────────────────────────────────────────────────────────────
  * ONE engine, schema-driven (decision 65 · 65.3) — NOT per-component.
  * It interprets the frozen descriptor `{ structure:{anatomy,base}, variants }`
@@ -13,7 +13,7 @@
  *
  * Behaviour stays the FACTORY's, the descriptor stays DATA (65): the
  * `interactive` opt-in says WHICH effects; HOW (Pressable, the pressed
- * render-prop) is in createNuriComponent. Colour flows by SCOPE (§12 ·
+ * render-prop) is in the renderer (renderer.tsx). Colour flows by SCOPE (§12 ·
  * F-BOX-FG-1): a `palette` patch touches the node's bg + provides an fg;
  * descendant text/icon parts INHERIT that fg (never re-threaded as data).
  *
@@ -22,7 +22,7 @@
  *     the OPEN primitives + the Arc-2 oracle guard consume it. NO LONGER the
  *     closed-component render path (Arc 2 · D11 · that now LOADS the bake).
  *   · flattenBakedPart — the Arc-2 render path: the same concrete cell, but the
- *     STATIC geometry is LOADED from the build-time bake (generated/recipes.ts ·
+ *     STATIC geometry is LOADED from the build-time bake (generated/data/recipes.ts ·
  *     box/stack/typography/interactive resolved at build · D11+D5) and only the
  *     runtime pieces — colour (theme · Arc 1) + typeStyle expansion + the
  *     interactive state patch — are merged on. See `BakedPartRecipe` below.
@@ -48,7 +48,7 @@ import type {
   Axes,
   TypeSize,
 } from '../contract';
-import type { NuriTheme } from './theme';
+import type { NuriTheme } from './theme-payload';
 // The agnostic namespace→style mapping is DATA, now homed in @nuri/spec
 // (resolve-map.ts · N+39 · the decision-68 rn→spec DAG · decision 73 cl.2 / 74);
 // this file holds the RN applier that consumes it + the per-target resolver
@@ -174,7 +174,7 @@ function resolvePalette(ns: PaletteNS, theme: NuriTheme): ResolvedPalette {
 
 // ── the resolved typography ref · two ORTHOGONAL inputs (decision 77 · the N+45
 // de-fusion): the `size` step + the `emphasis` boolean. Was a single fused TypeKey
-// (`mdEm`); createNuriComponent expands it via typeStyle(size, emphasis) at render. ──
+// (`mdEm`); the renderer expands it via typeStyle(size, emphasis) at render. ──
 export type TypeRef = { size: TypeSize; emphasis?: boolean };
 
 // ── the core · resolve a merged NS into the structured node ──────
@@ -229,7 +229,7 @@ const RN_RESOLVERS: TargetResolvers = {
     if (p.pressedBg !== undefined) node.pressedBg = p.pressedBg;
   },
   // interactive → BESPOKE (decision 65/65.4): the opt-in is config; HOW
-  // (Pressable, the pressed render-prop) is createNuriComponent's. Carry the
+  // (Pressable, the pressed render-prop) is the renderer's. Carry the
   // opt-in onto the node; flattenPart (the test oracle) / flattenBakedPart (the
   // render path) realise it as state.
   interactive: (v, { node }) => {
@@ -402,7 +402,7 @@ export function flattenPart<A extends Axes>(
 // ══════════════════════════════════════════════════════════════════
 // box/stack/typography/interactive are STATIC — a pure function of the descriptor
 // + selection, with ZERO theme/state input. Arc 2 BAKES them at build (the codegen
-// `scripts/parsers/recipes.js` emits `generated/recipes.ts`) so the runtime LOADS
+// `scripts/parsers/recipes.js` emits `generated/data/recipes.ts`) so the runtime LOADS
 // concrete geometry instead of re-resolving it every render + every press (D11).
 // This PROMOTES the old test-only `toUnistylesRecipe` precompute (D5), reshaped
 // COLOUR-FREE: the artifact carries NO backgroundColor / fg / pressedBg / hex / any

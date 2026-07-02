@@ -143,7 +143,7 @@ export const FOUNDATION_DOCS = [
   {
     source: 'typography',
     nav: 4,
-    src: 'packages/rn/generated/tokens.ts · packages/prototype/generated/styles/typography.css · packages/prototype/generated/styles/tokens-primitive.css',
+    src: 'packages/rn/generated/data/tokens.ts · packages/prototype/generated/styles/typography.css · packages/prototype/generated/styles/tokens-primitive.css',
     lead: 'The typography foundation — the six type-scale steps (`xs`…`3xl`), each a composite of font-size · line-height · weight · letter-spacing, plus the orthogonal **emphasis** weight override (decision 77). The scale stays **CSS-authored** (`styles/typography.css` · the honest asymmetry vs colour/dimension); this page reads the resolved composite from `@nuri/spec`. RN realizes a step via `typeStyle` (production); web via the `[data-type-style]` attribute (prototyping and these docs).',
     build: (d) => foundationsTypographyIr(d.tokens),
   },

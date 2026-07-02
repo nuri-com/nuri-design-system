@@ -189,7 +189,7 @@ export function emitInteractiveCss({ opts }) {
     ` *`,
     ` * GENERATED from the interactive EFFECT set (packages/spec/axes/interactive-`,
     ` * effects.ts) by prototype/pipeline/css-preview.js — the inverse-spelling of`,
-    ` * flattenPart (packages/rn/factory/resolve.ts) — wired into npm run build -w`,
+    ` * flattenPart (packages/rn/runtime/resolve.ts) — wired into npm run build -w`,
     ` * @nuri/prototype (its own build · regenerates IN PLACE over prototype/styles/`,
     ` * interactive.css). This is the LIVE interactive namespace CSS: the pages link it and`,
     ` * the web factory styles the nuri-interactive merged node with it. decision 2 reversed`,

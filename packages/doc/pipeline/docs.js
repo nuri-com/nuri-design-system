@@ -23,11 +23,11 @@
  *                axes · anatomy · structure.base · variants), reshaped by
  *                descriptor-ir.js#docIrFromDescriptor.
  *   · palette  — the {variant|chrome} → {bg·fg·fgMuted·pressedBg} mapping
- *                (@nuri/rn/generated/palette.ts · the RN projection). The token-map
+ *                (@nuri/rn/generated/data/palette.ts · the RN projection). The token-map
  *                table dereferences each `palette:{variant}` node through it to the
  *                resolved TokenPaths.
  *   · tokens   — the size · space · radius · type VALUE maps, derived from
- *                @nuri/rn/generated/tokens.ts (the px scales + the type composite)
+ *                @nuri/rn/generated/data/tokens.ts (the px scales + the type composite)
  *                by buildDocTokenInputs. TWO uses (N+23 · one map): the leaf-
  *                VALIDATION sets (a box/typography leaf the descriptor references but
  *                absent from its scale throws · faithfulness · decision 48) AND the
@@ -36,7 +36,7 @@
  *                a palette TokenPath → { var, hex }. The `var` (the live CSS custom
  *                property) comes from @nuri/prototype/generated/token-vars.ts (the
  *                web projection's colour var registry · N+42); the `hex` from
- *                @nuri/rn/generated/tokens.ts at the default scope. The swatch reads
+ *                @nuri/rn/generated/data/tokens.ts at the default scope. The swatch reads
  *                `var` LIVE (re-themes with scope); `hex` is the literal at :root.
  *
  *   Output is a pure function of (ir · palette · tokens · colors) — all
@@ -126,7 +126,7 @@ const swatch = (background) => `<span class="nuri-doc-swatch" style="background:
 // scope hex for colour. Re-sourced at N+42 (A4) onto the resolved DATA artifacts
 // instead of the classifier internals; the artifacts moved to the two projections at
 // N+62 (decision 80):
-//   · @nuri/rn/generated/tokens.ts        — { chrome, accent, size, space, radius, type }
+//   · @nuri/rn/generated/data/tokens.ts        — { chrome, accent, size, space, radius, type }
 //                             (the resolved cross-product + px scales + type composite).
 //   · @nuri/prototype/generated/token-vars.ts — { chrome, accent } leaf → CSS var name
 //                             (the web projection's colour var registry · swatch reads live).

@@ -91,8 +91,8 @@ export const tabBarItemDescriptor: Descriptor<TabBarItemAxes> = {
     },
   },
   // An unconfigured item reads as INACTIVE (the safe default · the consumer always
-  // computes `selected`). Both factories read this (createNuriComponent's
-  // defaultByAxis · the web buildComponent fallback) — neither hand-knows a default.
+  // computes `selected`). Both projections read this (the RN component-API
+  // codegen's default bake · the web buildComponent fallback) — neither hand-knows a default.
   defaults: { state: 'unselected' },
   // The PUBLIC API (Path C · Phase 1). NO public style axes — the `state` axis is
   // NOT surfaced raw; it is the target of the `selected`→state bridge as DATA

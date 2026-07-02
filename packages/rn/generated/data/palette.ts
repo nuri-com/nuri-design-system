@@ -13,7 +13,7 @@
  * The {variant | chrome} → {bg · fg · fgMuted · pressedBg} mapping as
  * STRUCTURAL colour REFS (decision 34 · SEED-4) — accent×theme-GENERIC. Each
  * cell is `{ group, leaf }` preserving the (group, leaf) so the RN theme
- * builder (generated → factory/theme.ts) indexes the selected chrome | accent
+ * builder (generated → runtime/theme-payload.ts) indexes the selected chrome | accent
  * slice with ZERO parse (the old dotted-string + resolveColor dot-sniff is
  * gone). The mapping is applied ONCE at the provider (Option B · 65.1: engine =
  * platform-native, mapping = data · emitted ONCE · 65.2).

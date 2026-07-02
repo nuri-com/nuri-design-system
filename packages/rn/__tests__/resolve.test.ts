@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · FACTORY · RESOLUTION TESTS (pure · no RN runtime)
+ * NURI · RUNTIME · RESOLUTION TESTS (pure · no RN runtime)
  * ──────────────────────────────────────────────────────────────────
  * Proves the generic RUNTIME resolver consumes the frozen contract correctly:
  *   · the baseline theme resolves to the §11 shape from the live tokens;
@@ -11,14 +11,14 @@
  * space / radius / interactionTokens) — never hardcoded — so a token change
  * re-derives instead of silently passing.
  *
- * The build-time BAKE of the same geometry (generated/recipes.ts · Arc 2) and
+ * The build-time BAKE of the same geometry (generated/data/recipes.ts · Arc 2) and
  * its byte-for-byte equivalence to this runtime resolver live in the sibling
  * geometry-bake.test.ts (the oracle guard). flattenPart is the oracle's reference.
  * ══════════════════════════════════════════════════════════════════ */
 
-import { buildNuriTheme, INTERACTION_BASELINE } from '../theme';
-import { typeStyle } from '../../theme';
-import { flattenPart, resolveAnatomy } from '../resolve';
+import { buildNuriTheme, INTERACTION_BASELINE } from '../runtime/theme-payload';
+import { typeStyle } from '../theme';
+import { flattenPart, resolveAnatomy } from '../runtime/resolve';
 import {
   buttonDescriptor,
   iconAvatarDescriptor,
@@ -30,9 +30,9 @@ import {
   typeScale,
   emphasisWeight,
   interaction as interactionTokens,
-} from '../../contract';
-import { accent as accentTokens, chrome } from '../../generated/tokens';
-import type { Accent, Theme, Descriptor, Part } from '../../contract';
+} from '../contract';
+import { accent as accentTokens, chrome } from '../generated/data/tokens';
+import type { Accent, Theme, Descriptor, Part } from '../contract';
 
 // accentTokens is now accent-MAJOR two-layer (N+59 · Slice 3b·1 · projection model
 // §3): a role is a flat hex (theme-invariant · the P4-frozen brand) or a {light,dark}

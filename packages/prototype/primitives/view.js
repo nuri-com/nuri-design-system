@@ -3,7 +3,7 @@
  *   (the merged-node host · factory-rewrite S4 · decision 67 · hand-authorable @③)
  *
  * <nuri-view> is the generic view host — the web mirror of RN <View>
- * (the el:'view' NON-interactive case in createNuriComponent.tsx · the
+ * (the el:'view' NON-interactive case in rn/runtime/renderer.tsx · the
  * N+26 el→primitive lock). It is the static counterpart of
  * <nuri-pressable>: where the pressable owns an inner interactive
  * <button>, the view IS the painting node itself.

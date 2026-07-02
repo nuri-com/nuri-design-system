@@ -9,7 +9,7 @@
  * not a hand attr), and the de-collapsed mount — all DERIVED by defineNuriComponent
  * from the FROZEN icon-avatar descriptor (build/descriptors/icon-avatar.js · the
  * authored SoT · decision 69). The hand `HTMLElement` wrapper class RETIRED at
- * N+50 (the web twin of RN's createNuriComponent).
+ * N+50 (the web twin of RN's descriptor renderer).
  *
  * The page MUST also load the primitive element scripts the factory tree upgrades
  * into — view.js (the static <nuri-view> host) + icon.js (the glyph) — and link
