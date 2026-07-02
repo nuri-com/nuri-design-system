@@ -103,64 +103,29 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
 - **Former issue:** the old shared base prop type allowed props like `icon`, `prefix`, `suffix`,
   `label`, and `selected` on components that ignored them at runtime.
 
-#### SEED-4 — the RN theme colour-resolution indirection · **DEBT** · S2
+#### SEED-4 — the RN theme colour-resolution indirection · **RESOLVED** · S2
 
-> Re-scoped after operator review. The original seed framed `theme.ts` as "least-bad — a hand-written
-> type mirror" (S1). Tracing the *runtime* path shows the real defect is deeper: a redundant
-> colour-resolution layer on top of an already-resolved token slice. Upgraded S1 → S2. The type-mirror
-> observation survives as sub-point (d).
-
-- **Location:** `packages/rn/factory/theme.ts:83` (`RUNTIME_GROUPS`), `:85-91` (`resolveColor`),
-  `:97-122` (`buildSurface`/`buildChrome`), `:126-147` (`buildNuriTheme`); the runtime slice it sits
-  on top of, `packages/rn/theme.tsx:151-159` (`runtimeTokens`) + `:168-171` (`resolveToken`); the
-  generated mapping it consumes, `packages/rn/generated/palette.ts:32-72`; the consumer,
-  `packages/rn/factory/resolve.ts:138-158` (`resolvePalette`) + the per-component rebuild at
-  `createNuriComponent.tsx:279`.
-- **What (traced end-to-end):** `runtimeTokens(accent, mode)` already returns a fully-resolved slice —
-  `slice.accent.solid` and `slice.chrome.bgCanvas` are concrete hexes (`theme.tsx:151-159`). On top of
-  that, `buildNuriTheme` runs a **second pass**: it reads the generated `palette.variant`/`palette.chrome`
-  mapping (TokenPath **strings** like `'accent.solid'`, `palette.ts:35`) and dereferences each via
-  `resolveColor` → `resolveToken` (`'accent.solid'.split('.')` → `slice.accent.solid`) into a parallel
-  structured `NuriTheme.surface`/`.chrome`. Net: `theme.surface.solid.bg` **is** `slice.accent.solid`;
-  `theme.chrome.canvas.bg` **is** `slice.chrome.bgCanvas` (a pure rename). The consumer could read the
-  slice directly.
-- **What is genuinely load-bearing (NOT debt):** (i) `runtimeTokens` — resolving `(accent × mode) →
-  hex` *at render* is the runtime-switchable layered-substitution design, can't be baked; (ii) the
-  **variant→role mapping** in `palette.ts` (`solid → {accent.solid, accent.onSolid, accent.solidPressed}`)
-  — real knowledge, since the descriptor only says `palette.variant:'solid'`. The defect is the
-  *resolution layer*, not these.
-- **The DEBT, precisely:**
-  - **(a) stringly runtime dereference for statically-known paths.** `resolveColor`/`resolveToken`
-    parse `'accent.solid'` at render (`indexOf('.')`, `RUNTIME_GROUPS.has`, `split('.')`); the codegen
-    already knows each path's `(group, leaf)` and could emit a typed structure indexed with zero parsing.
-  - **(b) lossy emit, reconstructed by heuristic.** Spec models paint structurally
-    (`Paint = string | {literal}`, `palette-surface.ts:64`); the codegen flattens it to plain strings,
-    and `resolveColor` re-derives the ref-vs-literal split by sniffing for a dot + a known prefix. A
-    literal containing a dot, or a role group absent from the hand-maintained `RUNTIME_GROUPS` set
-    (`theme.ts:83`), breaks silently. `RUNTIME_GROUPS` is a *third* restatement of the group vocabulary
-    (slice keys · TokenPath grammar · this set).
-  - **(c) parallel structure rebuilt per component.** `NuriTheme.surface`/`.chrome` is the slice
-    re-walked, memoized per component per (accent,mode) (`createNuriComponent.tsx:279`); `resolvePalette`
-    rebuilds the **entire** theme just to read one variant for an accent self-scope (`resolve.ts:144`).
-  - **(d) the original type-mirror (now a sub-point).** `SurfaceRole`/`ChromeRole`/`NuriTheme`
-    (`theme.ts:46-64`) are hand-declared shapes mirroring the contract; `INTERACTION_BASELINE` is
-    correctly pinned, not duplicated (`:75-78`). No *value* duplication — but the shape relies on a human
-    keeping it in step. Largely dissolves if (a)-(c) are fixed.
-- **Invariant violated:** single-resolution-path + "data lives once." The colour resolution exists
-  twice (the slice, then the rebuilt theme), the ref/literal distinction is destroyed at emit and
-  reconstructed at runtime, and the group vocabulary is restated three times.
-- **Cause:** `resolveToken`/TokenPath is a deliberately *general* consumer-dereference primitive
-  (decision 34, good for `useToken`); `buildNuriTheme` re-used it as the *internal engine* to rebuild a
-  structured theme, instead of the factory consuming the slice + a typed mapping. The web side gets this
-  for free (the CSS cascade resolves `var(--nuri-accent-solid)`); RN has no cascade, so it
-  reimplemented resolution — but with one layer too many.
-- **Fix direction (depth deferred to the fix-brief · operator-directed):** the factory consumes the
-  resolved slice directly; the variant→role mapping becomes a **typed static index** (group+leaf known
-  at build, ref/literal preserved structurally from spec); `resolveColor` + `RUNTIME_GROUPS` + the
-  `NuriTheme.surface`/`.chrome` parallel structure largely dissolve. `resolveToken` stays as the public
-  `useToken` primitive. Two viable depths — **full** (dissolve `buildNuriTheme`, factory reads the slice)
-  vs **minimal** (keep `NuriTheme.surface` but emit the mapping typed so the string-parse/`RUNTIME_GROUPS`
-  go away) — are a sizing call for the brief, not pre-decided here.
+- **Status (2026-07-02):** resolved in two steps. First, the colour provider/path had already landed in
+  the settled Option-B shape: `packages/rn/generated/palette.ts` emits structural refs `{ group, leaf }`,
+  `packages/rn/factory/theme.ts` builds one resolved `ThemePayload` per `(accent, mode)`, and
+  `packages/rn/factory/resolve.ts` reads semantic roles from `theme.surface[...]` / `theme.chrome[...]`.
+  The old `resolveColor`, `RUNTIME_GROUPS`, `resolveAccentSlice`, and per-node
+  `buildNuriTheme(ns.accent, mode)` paths were gone before this register entry was closed.
+- **This slice:** removed the remaining public RN token escape hatch: `ThemePayload.slices`,
+  `RuntimeTokens`, `useRuntimeTokens()`, `resolveToken()`, `useToken()`, `ColourTokenPath`, and the public
+  `TokenPath` export. It also closed the raw colour-table leak by removing public `chrome` and
+  `accentTokens` exports from the RN barrel. The Expo demo now consumes semantic resolved roles
+  (`useNuriTheme().text.muted`, `useNuriTheme().chrome.canvas.bg`) instead of raw token paths or raw
+  colour token tables.
+- **Proof:** `packages/rn/factory/__tests__/colour-payload-identity.test.ts` still binds
+  `surface`, `chrome`, `mode`, `accent`, `text`, and `border` to an independent oracle derived from the
+  token SoTs and settled variant-to-role mapping. `scripts/rn-token-escape-hatch.test.js` fails if the
+  public RN/demo code regrows `useToken`, `resolveToken`, `useRuntimeTokens`, `RuntimeTokens`, or
+  `ColourTokenPath`; if the RN barrel exports raw `chrome`/`accentTokens`; if the Expo demo imports those
+  raw colour tables from `@nuri/rn`; and separately asserts `ThemePayload` stays free of raw slices.
+- **Residual intentional shape:** generated `packages/rn/generated/palette.ts` may still import the
+  generated `TokenPath` type internally to prove each structural colour ref corresponds to a real
+  colour token path. That type no longer leaves the public RN barrel.
 
 ---
 
@@ -397,7 +362,7 @@ invisible* to them.
 | **Duplication / parallel structure** | Multiple hand-lists that *happen* to agree pass; only explicit cross-checks catch drift. | D5; D7 resolved 2026-07-01 | **Partly landed:** the descriptor roster is one build-side list with naming/doc/drift guards. Remaining duplication debt is D5's RN precompute/runtime duplication. |
 | **Generated-doc accuracy** | The re-emit gate proves committed ≡ generator output; it **cannot** see that the generator's header *strings* name dead paths. | D3 (resolved 2026-07-01) | A check that paths cited in generated headers resolve on disk would prevent recurrence. |
 | **Cross-projection parity** | The render-smoke renders but asserts no a11y props; expo-demo tsc accepts an ignored optional field. | D4 (resolved 2026-07-01) | **Landed:** RN renderer applies the decorative hide pair on root hosts and render-smoke asserts both the positive `IconAvatar` case and the non-decorative `Button` case. |
-| **Wrong abstraction / redundant layer / resolution-at-the-wrong-time** | Redundant or mistimed resolution emits the *same output* — render-smoke renders identical pixels, the re-emit gate sees a faithful generator. No gate measures *when* resolution happens or whether the promised zero-runtime path exists. Over-engineering and runtime-vs-build placement are invisible to behaviour + drift. | SEED-4, D5, D11 | Mostly a design judgement (no clean mechanical guard). Partial signals: assert `theme.surface[v].bg === slice` deref (proves SEED-4's layer is a rename); assert the shipped static style ≡ `toUnistylesRecipe`'s `{base,variants}` (proves D11's runtime path duplicates the discarded precompute). |
+| **Wrong abstraction / redundant layer / resolution-at-the-wrong-time** | Redundant or mistimed resolution emits the *same output* — render-smoke renders identical pixels, the re-emit gate sees a faithful generator. No gate measures *when* resolution happens or whether the promised zero-runtime path exists. Over-engineering and runtime-vs-build placement are invisible to behaviour + drift. | SEED-4 resolved 2026-07-02; D5, D11 remain | **Partly landed:** the RN colour payload identity guard binds the resolved semantic payload, and `scripts/rn-token-escape-hatch.test.js` prevents the public token hatch from regrowing. Remaining D5/D11 needs a shipped static-style artifact check against `toUnistylesRecipe`'s `{base,variants}`. |
 
 The meta-finding: the gates form a tight **behaviour + drift** net and a near-zero **consistency**
 net. Every seed and every D-entry lives in the consistency gap. The cheapest high-leverage additions
@@ -425,19 +390,17 @@ Ordered by blast radius × independence. Each is a candidate working-session bri
    were replaced with the shared TypeScript transform, `fill` is neutral and spelled per projection,
    typography wrapper web realization moved to the prototype emitter, and the broad agnosticism lint
    landed.
-6. **SEED-4 · theme colour-resolution indirection** — **NEXT LIVE ITEM** · S2, ~M, *depth decision-gated*. Factory consumes
-   the resolved slice; variant→role mapping becomes a typed static index; `resolveColor` /
-   `RUNTIME_GROUPS` / the `NuriTheme.surface`/`.chrome` rebuild dissolve. Operator picks **full** vs
-   **minimal** depth at brief time. Touches `resolve.ts` + `theme.ts` + the palette emit; pairs with the
-   render-smoke `theme.surface === slice` assertion. Independent of the others; do after the S3 fixes.
-7. **D11 + D5 · RN build-time-static resolution** — S2, ~L, *depth decision-gated*. Codegen precomputes
+6. **SEED-4 · theme colour-resolution indirection** — **RESOLVED (2026-07-02).** The provider/path had
+   already moved to structural palette refs + one resolved payload per `(accent, mode)`; this slice
+   removed the remaining public token escape hatch and added a regrowth guard.
+7. **D11 + D5 · RN build-time-static resolution** — **NEXT LIKELY LIVE ITEM** · S2, ~L, *depth decision-gated*. Codegen precomputes
    the static box/stack/typography ViewStyle (per component · part · axis-value) into an `rn/generated/`
    artifact (source: `toUnistylesRecipe`'s `{base,variants}`); the runtime resolver shrinks to "load the
    baked slice, merge palette + interactive." Delivers the README's promised zero-runtime static slice
    and **resolves D5 in the same stroke** (the discarded precompute becomes the shipped artifact). Touches
    the codegen + `resolve.ts` + the factory; keep typography's `typeStyle`/fontScale seam (P11) intact;
-   the open primitives stay runtime. The largest RN-side cleanup; sequence after SEED-4 (they share
-   `resolve.ts`/`theme` surface — do the colour-resolution simplification first, then the build-time bake).
+   the open primitives stay runtime. The largest RN-side cleanup; with SEED-4 closed, this is now the
+   likely next architecture item unless fresh verification says otherwise.
 
 ---
 

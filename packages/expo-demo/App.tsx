@@ -16,16 +16,17 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { NuriThemeProvider, chrome, type Theme } from '@nuri/rn';
+import { NuriThemeProvider, useNuriTheme, type Theme } from '@nuri/rn';
 import { Demo } from './src/screens/Demo';
 
-function Root() {
-  const [mode, setMode] = React.useState<Theme>('light');
-  const toggleTheme = React.useCallback(
-    () => setMode((m) => (m === 'light' ? 'dark' : 'light')),
-    [],
-  );
-
+function ThemedRoot({
+  mode,
+  onToggleTheme,
+}: {
+  mode: Theme;
+  onToggleTheme: () => void;
+}) {
+  const theme = useNuriTheme();
   // The ONE place safe-area is owned (decision 58 · navigator role).
   const insets = useSafeAreaInsets();
 
@@ -34,17 +35,29 @@ function Root() {
       style={[
         styles.root,
         {
-          backgroundColor: chrome[mode].bgCanvas,
+          backgroundColor: theme.chrome.canvas.bg,
           paddingTop: insets.top,
           paddingBottom: insets.bottom,
         },
       ]}
     >
       <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
-      <NuriThemeProvider mode={mode} accent="lilac">
-        <Demo onToggleTheme={toggleTheme} />
-      </NuriThemeProvider>
+      <Demo onToggleTheme={onToggleTheme} />
     </View>
+  );
+}
+
+function Root() {
+  const [mode, setMode] = React.useState<Theme>('light');
+  const toggleTheme = React.useCallback(
+    () => setMode((m) => (m === 'light' ? 'dark' : 'light')),
+    [],
+  );
+
+  return (
+    <NuriThemeProvider mode={mode} accent="lilac">
+      <ThemedRoot mode={mode} onToggleTheme={toggleTheme} />
+    </NuriThemeProvider>
   );
 }
 

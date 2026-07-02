@@ -25,16 +25,18 @@ import {
   NuriScope,
   NuriIcon,
   typeStyle,
-  useToken,
+  useNuriTheme,
 } from '@nuri/rn';
 
 const SectionLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const muted = useToken('chrome.textMuted') as string;
+  const { text } = useNuriTheme();
+  const muted = text.muted;
   return <Text style={[typeStyle('sm', true), { color: muted }, styles.label]}>{children}</Text>;
 };
 
 export const Demo: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme }) => {
-  const canvas = useToken('chrome.bgCanvas') as string;
+  const { chrome } = useNuriTheme();
+  const canvas = chrome.canvas.bg;
 
   return (
     <View style={[styles.root, { backgroundColor: canvas }]}>

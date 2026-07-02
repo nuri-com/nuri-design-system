@@ -4,8 +4,8 @@
  * The load-bearing proof that the Option-B colour rework (resolve ONCE at the
  * provider · debt-register SEED-4) is a FAITHFUL RENAME, not a behaviour change:
  * the provider payload `buildNuriTheme(accent, mode)` — its `surface`, resolved
- * `chrome` slots, and the raw `slices` (chrome + the collapsed accent slice) —
- * must equal, byte-for-byte across EVERY (accent × mode) pair, the value the old
+ * `chrome` slots, `text`, `border`, and address fields — must equal,
+ * byte-for-byte across EVERY (accent × mode) pair, the value the old
  * per-render `buildNuriTheme` + `runtimeTokens` ceremony produced.
  *
  * The old builders are DELETED, so the reference here is an INDEPENDENT oracle:
@@ -22,10 +22,7 @@
  * ══════════════════════════════════════════════════════════════════ */
 
 import { buildNuriTheme } from '../theme';
-import {
-  accentTokens,
-  chrome,
-} from '../../contract';
+import { accent as accentTokens, chrome } from '../../generated/tokens';
 import type { Accent, Theme } from '../../contract';
 
 // Derive the matrix from the token SoTs, so a new accent (or mode) is covered
@@ -39,16 +36,6 @@ const MODES = Object.keys(chrome) as Theme[];
 const acc = (a: Accent, role: keyof (typeof accentTokens)[Accent], mode: Theme): string => {
   const v = accentTokens[a][role] as string | { light: string; dark: string };
   return typeof v === 'string' ? v : v[mode];
-};
-
-// The FULL collapsed accent slice (every role) — the raw slice `useToken`/
-// `resolveToken` read (payload.slices.accent).
-const accentSlice = (a: Accent, mode: Theme): Record<string, string> => {
-  const out: Record<string, string> = {};
-  for (const role of Object.keys(accentTokens[a]) as (keyof (typeof accentTokens)[Accent])[]) {
-    out[role] = acc(a, role, mode);
-  }
-  return out;
 };
 
 // The settled variant→role mapping (the global theme POLICY · generated/
@@ -76,7 +63,7 @@ const expectedChromeSlots = (mode: Theme) => {
 describe('SEED-4 · the provider payload is byte-identical to the pre-rework colour resolution', () => {
   for (const a of ACCENTS) {
     for (const mode of MODES) {
-      test(`payload(${a}, ${mode}) · surface + chrome slots + raw slices`, () => {
+      test(`payload(${a}, ${mode}) · resolved semantic roles`, () => {
         const p = buildNuriTheme(a, mode);
 
         // The resolved surface (the variant→role mapping applied ONCE) === the
@@ -85,14 +72,6 @@ describe('SEED-4 · the provider payload is byte-identical to the pre-rework col
 
         // The resolved chrome slots (canvas/subtle/strong).
         expect(p.chrome).toEqual(expectedChromeSlots(mode));
-
-        // The raw orthogonal COLOUR slices (chrome[mode] + the collapsed accent
-        // slice) — what useToken/resolveToken read. space/size/radius were dropped
-        // from the slices at Arc 2 (D11 · colour-only · no closed path read them).
-        expect(p.slices).toEqual({
-          chrome: chrome[mode],
-          accent: accentSlice(a, mode),
-        });
 
         // The Address scalars ride the payload (orthogonal single-axis override).
         expect(p.mode).toBe(mode);
