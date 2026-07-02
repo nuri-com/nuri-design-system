@@ -146,6 +146,7 @@ export type ResolvedPalette = {
   fg?: string;
   fgMuted?: string;
   pressedBg?: string;
+  border?: string;
 };
 
 function resolvePalette(ns: PaletteNS, theme: NuriTheme): ResolvedPalette {
@@ -163,6 +164,7 @@ function resolvePalette(ns: PaletteNS, theme: NuriTheme): ResolvedPalette {
       fg: ns.muted && role.fgMuted !== undefined ? role.fgMuted : role.fg,
       fgMuted: role.fgMuted,
       pressedBg: role.pressedBg,
+      border: role.border,
     };
   }
   if (ns.chrome !== undefined) {
@@ -224,6 +226,10 @@ const RN_RESOLVERS: TargetResolvers = {
   palette: (v, { node, theme }) => {
     const p = resolvePalette(v, theme);
     if (p.bg !== undefined) node.view.backgroundColor = p.bg;
+    if (p.border !== undefined) {
+      node.view.borderColor = p.border;
+      node.view.borderWidth = 1;
+    }
     if (p.fg !== undefined) node.fg = p.fg;
     if (p.fgMuted !== undefined) node.fgMuted = p.fgMuted;
     if (p.pressedBg !== undefined) node.pressedBg = p.pressedBg;
@@ -519,6 +525,10 @@ export function flattenBakedPart<A extends Axes>(
   const p = paletteNS ? resolvePalette(paletteNS, theme) : {};
   const view: ViewStyle = { ...geometry };
   if (p.bg !== undefined) view.backgroundColor = p.bg;
+  if (p.border !== undefined) {
+    view.borderColor = p.border;
+    view.borderWidth = 1;
+  }
   const type = resolveTypeRef(composeChannel<TypographyNS>(recipePart.typography, selection));
   const interactive = composeChannel<InteractiveNS>(recipePart.interactive, selection);
   const node: ResolvedNode = {

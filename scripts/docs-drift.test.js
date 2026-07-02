@@ -175,7 +175,7 @@ const EXPECTED_DESCRIPTORS = {
     interactive: ['pressColor', 'pressScale', 'disabledOpacity'], // the collapsed root opt-in (§8 · no compound)
   },
   'icon-avatar': {
-    axes: { variant: ['solid', 'soft', 'ghost', 'subtle'] },
+    axes: { variant: ['solid', 'soft', 'ghost', 'subtle', 'outline'] },
     parts: ['icon'],
     interactive: [], // static · no `interactive` (65.3 · the IconAvatar story)
   },
@@ -345,7 +345,7 @@ test('icon-button stays size-coherent with button (height + corner + the square 
 
 // ── Guard E · the palette mapping ⊂ its TS SoT (N+19 B2b · decision 65.3 §6 · re-sourced N+40) ──
 // The decision-48 discipline applied to the colour namespace: the
-// {variant | chrome} → {bg, fg, fgMuted, pressedBg} mapping at
+// {variant | chrome} → {bg, fg, fgMuted, pressedBg, border} mapping at
 // build/palette.ts must always re-derive from the namespace-axis TS SoTs —
 // palette-surface.ts (the SURFACE pairs · every variant + chrome bg/fg + the pressed
 // swap) + typography-axis.ts (the muted fg). RE-SOURCED at N+40 from the generated
@@ -366,6 +366,7 @@ const EXPECTED_PALETTE = {
     soft:   { bg: 'chrome.bgStrong', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted', pressedBg: 'chrome.bgPressed' },
     ghost:  { bg: 'transparent',     fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted', pressedBg: 'chrome.bgSubtle' },
     subtle: { fg: 'chrome.borderStrong' },
+    outline:{ bg: 'transparent',     fg: 'chrome.textMuted', fgMuted: 'chrome.textMuted', border: 'chrome.borderSubtle' },
   },
   chrome: {
     canvas: { bg: 'chrome.bgCanvas', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
@@ -474,7 +475,7 @@ const FROZEN_SCHEMA = {
   leafUnions: {
     SpaceLeaf: ['xs', 'sm', 'md', 'lg', 'xl'],
     RadiusLeaf: ['sm', 'md', 'lg', 'full'],
-    PaletteVariant: ['solid', 'soft', 'ghost', 'subtle'],
+    PaletteVariant: ['solid', 'soft', 'ghost', 'subtle', 'outline'],
     PaletteChrome: ['canvas', 'subtle', 'strong'],
   },
   // The scale-derived leaves are pinned by DECLARATION FORM. Re-homed at N+61

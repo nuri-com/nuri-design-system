@@ -90,7 +90,7 @@ const PAGE_CONTRACT = {
   'icon-avatar': {
     kind: 'api', source: 'icon-avatar', title: 'Icon Avatar', nav: 3,
     cells: [
-      "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle'` | style axis |",
+      "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
       '| `icon` | yes | `IconName` | scalar icon name |',
       '> `children` is not accepted (`children?: never`).',
@@ -137,7 +137,7 @@ const PAGE_CONTRACT = {
     cells: [
       "| `width` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |",
       "| `aspectRatio` | no | `'square' | 'card'` | style axis |",
-      "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle'` | style axis |",
+      "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
@@ -147,6 +147,7 @@ const PAGE_CONTRACT = {
     cells: [
       "| `size` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '3xl'` | style axis |",
       '| `emphasis` | no | `boolean` | style axis |',
+      "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |",
       "| `chrome` | no | `'canvas' | 'subtle' | 'strong'` | style axis |",
       '| `children` | no | `React.ReactNode` | default content slot |',
     ],
@@ -251,6 +252,7 @@ const AXIS_CONTRACT = {
       '| `soft` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-strong)"></span> `bg-strong` `#f3f1e2` | <span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `text-primary` `#222013` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-pressed)"></span> `bg-pressed` `#ece9da` |',
       // the fg-only `subtle` (absent bg + pressed → the em-dash)
       '| `subtle` | — | <span class="nuri-doc-swatch" style="background:var(--nuri-border-strong)"></span> `border-strong` `#bfbcac` | — |',
+      '| `outline` | <span class="nuri-doc-swatch" style="background:transparent"></span> `transparent` | <span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `text-muted` `#666455` | — | <span class="nuri-doc-swatch" style="background:var(--nuri-border-subtle)"></span> `border-subtle` `#dddac9` |',
     ],
     includes: ['## Chrome'], // the second dispatch table (variant XOR chrome)
   },

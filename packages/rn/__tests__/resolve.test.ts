@@ -65,6 +65,10 @@ describe('baseline theme (resolver-model §11)', () => {
     // §11's sketch wrote `bg:'transparent'`; the frozen palette.ts does not.
     expect(theme.surface.subtle.bg).toBeUndefined();
     expect(theme.surface.subtle.fg).toBe(chrome.light.borderStrong);
+
+    expect(theme.surface.outline.bg).toBe('transparent');
+    expect(theme.surface.outline.fg).toBe(chrome.light.textMuted);
+    expect(theme.surface.outline.border).toBe(chrome.light.borderSubtle);
   });
 
   test('chrome slot resolves (topbar canvas)', () => {
@@ -194,13 +198,19 @@ describe('IconAvatar — same resolver, static, the subtle role (via flattenPart
     expect(style.borderRadius).toBe(radius.full);
   });
 
-  test('variant fills (solid/soft/ghost) + the FG-ONLY subtle finding', () => {
+  test('variant fills (solid/soft/ghost) + the FG-ONLY subtle finding + outline border', () => {
     expect(root('solid').style.backgroundColor).toBe(acc('lilac', 'solid', 'light'));
     expect(root('soft').style.backgroundColor).toBe(chrome.light.bgStrong);
     expect(root('ghost').style.backgroundColor).toBe('transparent');
     // subtle contributes NO background patch (fg-only) — its fg comes by scope.
     expect(root('subtle').style.backgroundColor).toBeUndefined();
     expect(root('subtle').node.fg).toBe(chrome.light.borderStrong);
+    expect(root('outline').style).toMatchObject({
+      backgroundColor: 'transparent',
+      borderColor: chrome.light.borderSubtle,
+      borderWidth: 1,
+    });
+    expect(root('outline').node.fg).toBe(chrome.light.textMuted);
   });
 
   test('static — no interactive transients (pressed cell === resting geometry + colour)', () => {

@@ -13,7 +13,7 @@ nav_order: 3
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
-| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle'` | style axis |
+| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `icon` | yes | `IconName` | scalar icon name |
 

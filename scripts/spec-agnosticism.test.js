@@ -22,7 +22,7 @@ const DENY = [
   { name: 'web-data-selector', re: /\[data-/g, reason: 'CSS selector fragments are web projection realization.' },
   { name: 'web-cursor-decl', re: /\bcursor\b/g, reason: 'CSS declaration payloads live in the web projection.' },
   { name: 'web-transition-decl', re: /\btransition\b/g, reason: 'CSS declaration payloads live in the web projection.' },
-  { name: 'web-outline-decl', re: /\boutline\b/g, reason: 'CSS declaration payloads live in the web projection.' },
+  { name: 'web-outline-decl', re: /\boutline\s*:/g, reason: 'CSS declaration payloads live in the web projection.' },
   { name: 'rn-flex-grow', re: /\bflexGrow\b/g, reason: 'RN ViewStyle keys live at the RN boundary.' },
   { name: 'rn-flex-shrink', re: /\bflexShrink\b/g, reason: 'RN ViewStyle keys live at the RN boundary.' },
   { name: 'rn-flex-basis', re: /\bflexBasis\b/g, reason: 'RN ViewStyle keys live at the RN boundary.' },
@@ -40,6 +40,8 @@ const DENY = [
 //   prop map as the cross-target interaction contract.
 // - minWidth is also an authored BoxNS input key used by icon-button; it is not a
 //   resolved ViewStyle fragment in those files.
+// - outline is now a semantic PaletteVariant / surface row, not a CSS outline
+//   declaration, in the named spec files below.
 const ALLOW = [
   {
     file: 'axes/property-spelling.ts',
@@ -55,6 +57,11 @@ const ALLOW = [
     files: new Set(['components/schema.ts', 'components/icon-button.ts', 'axes/resolve-map.ts']),
     names: new Set(['rn-min-width']),
     why: 'minWidth is the public BoxNS input key before per-target spelling',
+  },
+  {
+    files: new Set(['components/schema.ts', 'components/icon-avatar.ts', 'axes/palette-surface.ts']),
+    names: new Set(['web-outline-decl']),
+    why: 'outline is a semantic palette value here, not a CSS declaration',
   },
 ];
 

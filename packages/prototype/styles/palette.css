@@ -27,6 +27,7 @@
   .nuri-palette[data-variant="soft"] { background: var(--nuri-bg-strong); color: var(--nuri-text-primary); }
   .nuri-palette[data-variant="ghost"] { background: transparent; color: var(--nuri-text-primary); }
   .nuri-palette[data-variant="subtle"] { color: var(--nuri-border-strong); }
+  .nuri-palette[data-variant="outline"] { background: transparent; color: var(--nuri-text-muted); border: var(--nuri-border-1) solid var(--nuri-border-subtle); }
   .nuri-palette[data-chrome="canvas"] { background: var(--nuri-bg-canvas); color: var(--nuri-text-primary); }
   .nuri-palette[data-chrome="subtle"] { background: var(--nuri-bg-subtle); color: var(--nuri-text-primary); }
   .nuri-palette[data-chrome="strong"] { background: var(--nuri-bg-strong); color: var(--nuri-text-primary); }

@@ -60,7 +60,7 @@ function fieldRow(source, input, field, registry) {
 }
 
 // ── palette ← the SURFACE role table (palette-surface.ts). variant XOR chrome →
-// { bg?, fg, pressed? }, each paint resolved to a swatch. `roleColor` is the N+42
+// { bg?, fg, pressed?, border? }, each paint resolved to a swatch. `roleColor` is the N+42
 // colour resolver, re-keyed by the L2 role NAME (the SoT's `bg-strong` ≡ the var
 // `--nuri-bg-strong` · docs.js#makeRoleResolver) → { var, hex }. The ONLY axis that
 // resolves tokens to values (box/stack reference scale NAMES · resolved at A4c). ──
@@ -71,6 +71,7 @@ export function paletteAxisIr(surface, roleColor) {
       bg: channel(role.bg, roleColor),
       fg: channel(role.fg, roleColor),
       pressed: channel(role.pressed, roleColor),
+      border: channel(role.border, roleColor),
     }));
   return { source: 'palette', kind: 'palette', variant: dispatch(surface.variant), chrome: dispatch(surface.chrome) };
 }
