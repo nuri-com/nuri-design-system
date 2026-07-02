@@ -7,7 +7,7 @@
  *     (flattenPart · geometry + the §12 fg-by-scope + interactive transients);
  *   · load-bearing values are spot-asserted against the token emit;
  *   · typeStyle's size × emphasis de-fusion is computed-equivalent.
- * All values are re-derived from the contract (accentTokens / chrome / size /
+ * All values are re-derived from the token emit (accentTokens / chrome / size /
  * space / radius / interactionTokens) — never hardcoded — so a token change
  * re-derives instead of silently passing.
  *
@@ -23,8 +23,6 @@ import {
   buttonDescriptor,
   iconAvatarDescriptor,
   topbarDescriptor,
-  accentTokens,
-  chrome,
   size,
   space,
   radius,
@@ -33,12 +31,13 @@ import {
   emphasisWeight,
   interaction as interactionTokens,
 } from '../../contract';
+import { accent as accentTokens, chrome } from '../../generated/tokens';
 import type { Accent, Theme, Descriptor, Part } from '../../contract';
 
 // accentTokens is now accent-MAJOR two-layer (N+59 · Slice 3b·1 · projection model
 // §3): a role is a flat hex (theme-invariant · the P4-frozen brand) or a {light,dark}
 // pair (theme-adapting). Resolve a role for a mode — the SAME collapse buildNuriTheme
-// does, RESTATED here so the spot-asserts read the contract (accentTokens) directly,
+// does, RESTATED here so the spot-asserts read the token emit (accentTokens) directly,
 // not the factory's own resolution. The resolved value is byte-identical to the old
 // accentTokens[accent][mode].role cross-product cell.
 const acc = (a: Accent, role: keyof (typeof accentTokens)[Accent], mode: Theme): string => {

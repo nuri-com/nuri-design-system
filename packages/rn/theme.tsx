@@ -7,7 +7,7 @@
  *
  *   NuriThemeContext   the single orthogonal theming context · ONE entry per
  *                      live tree, holding the ThemePayload (Address {mode,accent}
- *                      + the resolved surface/chrome + the raw slices).
+ *                      + the resolved surface/chrome roles).
  *   NuriThemeProvider  the ROOT provider — builds the base payload (defaults
  *                      mirror the web <html data-*>: light/lilac).
  *   NuriScope          the Tier-3 subtree scope — MERGE-ON-OVERRIDE on the
@@ -15,12 +15,6 @@
  *                      payload for the merged address. The ONE override mechanism
  *                      for root · scope · prop-accent (SEED-4).
  *   useNuriTheme()     one useContext lookup → the ThemePayload.
- *   useRuntimeTokens() the raw (accent × mode) RuntimeTokens slice (payload.slices).
- *   resolveToken()     dereference a COLOUR TokenPath (chrome.* | accent.*) → hex
- *                      string. The contract signature is (tokens, path). Colour-only
- *                      now (Arc 2) — the dead dimension arm + the string|number union
- *                      are gone; closed components read baked px, primitives the scales.
- *   useToken()         ergonomic single-arg form: resolveToken(slice, path).
  *   typeStyle()        the ONE relative→absolute type conversion (the place
  *                      a future × fontScale / Dynamic Type lands · P11).
  *
@@ -39,12 +33,12 @@
 import * as React from 'react';
 
 import { typeScale, emphasisWeight } from './contract';
-import type { Accent, Theme, TokenPath, TypeSize } from './contract';
+import type { Accent, Theme, TypeSize } from './contract';
 import { buildNuriTheme } from './factory/theme';
-import type { ThemePayload, RuntimeTokens } from './factory/theme';
+import type { ThemePayload } from './factory/theme';
 
-// Re-export the payload/slice types on the public barrel (index.ts `export *`).
-export type { ThemePayload, RuntimeTokens, AccentSlice } from './factory/theme';
+// Re-export the resolved payload type on the public barrel (index.ts `export *`).
+export type { ThemePayload } from './factory/theme';
 
 // ── SpaceLeaf · the 5-leaf semantic space subset the layout primitives
 // expose (Stack gap, Box padding*, Spacer size · decision 36/37). ──
@@ -107,37 +101,6 @@ export const NuriScope: React.FC<
 // ── useNuriTheme · the one useContext lookup → the resolved payload ──
 export function useNuriTheme(): ThemePayload {
   return React.useContext(NuriThemeContext);
-}
-
-// ── useRuntimeTokens · the raw (accent × mode) slice ──────────────
-// The RuntimeTokens `resolveToken` dereferences against — read straight off the
-// payload the provider already resolved (no per-render recompute · SEED-4).
-export function useRuntimeTokens(): RuntimeTokens {
-  return React.useContext(NuriThemeContext).slices;
-}
-
-// ── ColourTokenPath · the COLOUR half of TokenPath (chrome.* | accent.*) ──
-// resolveToken is COLOUR-ONLY now (Arc 2 · D11 ride-along): the dimension arm
-// (space/size/radius) is dead — closed components read BAKED px, open primitives
-// import the static scales. So the slice holds only colour, the path is narrowed
-// to the colour leaves, and the return is a plain hex `string` (the `string|number`
-// union + the `as string`/`as number` call-site casts are gone).
-export type ColourTokenPath = Extract<TokenPath, `chrome.${string}` | `accent.${string}`>;
-
-// ── resolveToken · consumer-side COLOUR dereference (decision 34) ──
-// The frozen build emits TokenPath strings; this turns a COLOUR path into its hex
-// by indexing the live (chrome | accent) slice.
-export function resolveToken(tokens: RuntimeTokens, path: ColourTokenPath): string {
-  const [group, leaf] = path.split('.') as [keyof RuntimeTokens, string];
-  return (tokens[group] as Record<string, string>)[leaf];
-}
-
-// ── useToken · ergonomic single-arg dereference ───────────────────
-// Sugar over resolveToken(useRuntimeTokens(), path) for the common case of a
-// one-off colour lookup in a component body. The contract primitive stays the pure
-// two-arg resolveToken; this just spares the slice plumbing.
-export function useToken(path: ColourTokenPath): string {
-  return resolveToken(useRuntimeTokens(), path);
 }
 
 // ══════════════════════════════════════════════════════════════════

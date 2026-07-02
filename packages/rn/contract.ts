@@ -1,11 +1,11 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · DS CONTRACT · the single seam into the read-only spec
  * ──────────────────────────────────────────────────────────────
- * This is the ONLY file in @nuri/rn that wires the RN PROJECTION's
- * resolved contract to the package surface — everything else imports
- * the contract from here, so if a source moves, exactly one path
- * changes. (N+19 · M2 · decision 65.7/65.8: the vendored
- * `DesignSystemSpec/` snapshot is GONE.)
+ * This is the file in @nuri/rn that wires the RN PROJECTION's public
+ * resolved contract to the package surface. Raw colour token tables stay
+ * internal to the provider builder, so consumers read resolved semantic
+ * roles instead of token leaves. (N+19 · M2 · decision 65.7/65.8: the
+ * vendored `DesignSystemSpec/` snapshot is GONE.)
  *
  * The projection model (decision 80 · N+62 · the infra exit): @nuri/spec
  * is PURE DATA; this RN projection GENERATES + OWNS its resolved contract
@@ -15,9 +15,8 @@
  * authored DATA — the descriptors + their schema — is read from @nuri/spec
  * (the `./descriptors/<name>` subpaths · pure data · source only):
  *
- *   ./generated/tokens         runtime sets: chrome · accent · space
- *                              · size · radius · ratio · type (+ Accent/Theme)
- *   ./generated/token-paths    the TokenPath discriminated union
+ *   ./generated/tokens         static scales: space · size · radius · ratio
+ *                              · type (+ Accent/Theme)
  *   ./generated/interaction    the transversal interaction baseline
  *                              ({ pressScale · disabledOpacity } · decision 45)
  *   ./generated/icons          IconName → SVG markup registry (one drawing
@@ -27,8 +26,6 @@
  * ────────────────────────────────────────────────────────────── */
 
 import {
-  chrome,
-  accent as accentTokens,
   space,
   size,
   radius,
@@ -37,7 +34,6 @@ import {
   emphasisWeight,
 } from './generated/tokens';
 import type { Accent, Theme, TypeSize, TypeWeight, TypeStep } from './generated/tokens';
-import type { TokenPath } from './generated/token-paths';
 import { icons } from './generated/icons';
 import type { IconName } from './generated/icons';
 
@@ -87,8 +83,6 @@ import type {
 } from '@nuri/spec/descriptors/schema';
 
 export {
-  chrome,
-  accentTokens,
   space,
   size,
   radius,
@@ -106,7 +100,7 @@ export {
   tabBarDescriptor,
 };
 
-export type { Accent, Theme, TypeSize, TypeWeight, TypeStep, TokenPath, IconName };
+export type { Accent, Theme, TypeSize, TypeWeight, TypeStep, IconName };
 
 // The frozen descriptor schema types (decision 65.6 · Guard F). `SpaceLeaf`
 // and `TypeKey` are intentionally NOT re-exported here — `theme.tsx` already

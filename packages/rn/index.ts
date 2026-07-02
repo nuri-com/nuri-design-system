@@ -6,8 +6,8 @@
  * generated descriptor adapters (Button / IconAvatar / Topbar / ...) over a
  * shared normalized renderer. The hand-written migration mirrors are retired.
  *
- * PUBLIC SURFACE (SEED-4 · Arc 1): the theming API (NuriThemeProvider · NuriScope ·
- * useNuriTheme · resolveToken · useToken · typeStyle · the ThemePayload types), the
+ * PUBLIC SURFACE (SEED-4 · completion): the theming API (NuriThemeProvider · NuriScope ·
+ * useNuriTheme · typeStyle · the ThemePayload type), the
  * components + renderer helpers (nuriNames · NuriSurfaceContext · the
  * Button/IconAvatar/Topbar/… instances), NuriIcon, and the
  * hand-authorable primitives (View/Stack/Text/Pressable/Screen/Scroll). The generic
