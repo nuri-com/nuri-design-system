@@ -72,30 +72,21 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
   contract. Runtime validation stayed at the caller boundaries (`px`, `surface`, `STACK_FIELDS`,
   `PROPERTY_SPELLING`, etc.), so a malformed import still fails loudly.
 
-#### SEED-2 — component file / descriptor / export / type names don't derive from the public name · **DEBT** · S2
+#### SEED-2 — component file / descriptor / export / type names derive from the public name · **RESOLVED** · S2
 
-- **Location:** `packages/spec/components/composition-button.ts` (export
-  `compositionButtonDescriptor`, type `CompositionButtonAxes`) → public component **`button`**;
-  `packages/spec/components/tab.ts` (export `tabDescriptor`, type `TabAxes`) → public component
-  **`tab-bar-item`**. Registry: `scripts/parsers/descriptors.js:60` (`name:'composition-button' …
-  public:'button'`), `:78` (`name:'tab' … public:'tab-bar-item'`).
-- **What:** the system's stated rule is *one public kebab name → web `nuri-{kebab}` · RN
-  `Pascal({kebab})`, mechanically derived* (`nuriNames`, `createNuriComponent.tsx:103-107`). But the
-  **file name, the export name (`exportNameFor = camel(name)+'Descriptor'`, `descriptors.js:285`),
-  and the type name (`typeNameFor`, `:288`)** all derive from the **source** name, not the public
-  name. So two components carry vestigial qualifiers: `composition-` (a retired
-  open-primitive-vs-recipe distinction, `descriptors.js:46-50`) and bare `tab` (should be
-  `tab-bar-item`). The other five components match.
-- **Invariant violated:** the mechanical-kebab↔Pascal naming rule the rest of the system enforces
-  ([[ds-boundary-and-naming]]). For these two, `name ≠ public`, and nothing downstream is derived
-  from `public` except `nuriNames`.
-- **Cause:** `public` was bolted onto the registry as an *override* when the names diverged
-  (`descriptors.js:52-58`), rather than renaming the source so `name === public` and the whole chain
-  (file · export · type · web tag · RN class) derives from one string.
-- **Fix (cause-level):** rename the SoT files/exports/types so `name === public`:
-  `composition-button.ts → button.ts` (`buttonDescriptor` / `ButtonAxes`), `tab.ts → tab-bar-item.ts`
-  (`tabBarItemDescriptor` / `TabBarItemAxes`); drop the `public` override and `source` field; update
-  the RN bindings + web recipes + the three roster lists (see D7). One name, one derivation.
+- **Status (2026-07-01):** resolved by PR #110 (`dc70fb0`). The old source/public split was removed:
+  `composition-button` is now `button`, `tab` is now `tab-bar-item`, and every descriptor roster entry
+  is the public kebab name.
+- **Proof:** `packages/spec/components/button.ts` and `packages/spec/components/tab-bar-item.ts` exist;
+  `DESCRIPTOR_COMPONENTS` carries one-column `{ name }` entries; the authored files export the
+  derived descriptor identifiers (`buttonDescriptor`, `tabBarItemDescriptor`); RN generated bindings
+  and web recipes call `nuriNames('<roster-name>')`; and `scripts/naming.test.js` passes.
+- **Guard:** `scripts/naming.test.js` pins basename/export/subpath/twin/recipe coherence, asserts every
+  `nuriNames(x)` site names a roster component on both targets, and keeps the drift/doc rosters aligned
+  with `DESCRIPTOR_COMPONENTS`.
+- **Former issue:** two descriptors used source names that differed from their public component names
+  (`composition-button` → `button`, `tab` → `tab-bar-item`), with `source`/`public` overrides and
+  parallel hand-restated names hiding drift.
 
 #### SEED-3 — per-descriptor prop surface replaces the old universal `NuriBaseProps` soup · **RESOLVED (Path C component API)** · S3
 
@@ -175,40 +166,29 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
 
 ### Beyond the seeds
 
-#### D1 — the entire CSS-parity-oracle apparatus in `descriptors.js` is DEAD · **DEBT** · S2
+#### D1 — the entire CSS-parity-oracle apparatus in `descriptors.js` is dead · **RESOLVED** · S2
 
-- **Location:** `scripts/parsers/descriptors.js` — `deriveDescriptor` (:449), `deriveButton` (:304),
-  `deriveIconAvatar` (:389), `DERIVERS` (:441), `emitDescriptorTs` (:588), plus the render block
-  `:478-602` (`renderVal`/`renderNsBlock`/`renderNsInline`/`renderPartMapInline`/`renderAnatomy`/
-  `renderStructureLines`/`renderVariantsLines`/`renderAxesType`/`descriptorHeader`) and the CSS-reading
-  helpers `rulesInLayer`/`aliasMap`/`resolveSemantic`/`scaleLeaf`/`assertSurface`/`assertInteraction`/
-  `typeStepFrom`/`stackFromRule`/`presentValues`/`pageParts` (:114-301) and the `SURFACE`/`VARIANT_ORDER`/
-  `SIZE_ORDER`/`ALIGN_IN`/`JUSTIFY_IN` tables (:91-106).
-- **What / PROOF of death:** `deriveDescriptor`/`emitDescriptorTs`/`deriveButton`/`deriveIconAvatar`
-  are **never invoked** anywhere (grep for `(`-with-args across `scripts/`+`packages/` returns only
-  the definitions and comments). The inputs they read — `lib/components/<name>/<name>.css` and
-  `pages/components/<name>.html` — **no longer exist** in the tree (the infra-exit removed `lib/`,
-  `pages/`, `build/`). Guard D itself confirms it: *"The B1 PARITY ORACLE … RETIRED with the recipe
-  CSS at the L3c flip (decision 74)"* (`scripts/docs-drift.test.js:269-273`); Guard D now re-emits via
-  `emitDescriptorJsFromSource` + pins the shape (`docs-drift.test.js:264-301`). `tokens-parser.js:82-83,
-  166-167` still **imports and re-exports** the dead functions, but never calls them.
-- **Invariant violated:** dead/vestigial — retired machinery the refactor left behind, in a file
-  whose header (`descriptors.js:9-12`) still bills it as *"THE PARITY ORACLE"* reading source files
-  that are gone. Exactly the "rot where no one looks" the audit targets.
-- **Cause:** the L3c flip (descriptor became the SoT) and the infra-exit (paths relocated) retired
-  the oracle's *role* and deleted its *inputs*, but never deleted the *code*.
-- **Fix (cause-level):** delete the dead oracle block + its now-orphaned imports/re-exports in
-  `tokens-parser.js`. Keep only the live passthrough path (`emitDescriptorTsFromSource`/
-  `emitDescriptorJsFromSource`/`descriptorBody`/`exportNameFor`/`DESCRIPTOR_COMPONENTS`). ~300 lines.
+- **Status (2026-07-01):** resolved by PR #109 (`75c313e`). The dead CSS-parity oracle was pruned and
+  `scripts/no-unused-exports.test.js` was added so unused codegen-surface exports cannot silently
+  regrow.
+- **Proof:** the old oracle symbols (`deriveDescriptor`, `deriveButton`, `deriveIconAvatar`,
+  `emitDescriptorTs`) are absent from live code except comments/test prose; `scripts/parsers/descriptors.js`
+  is now the authored-source passthrough surface only (`DESCRIPTOR_COMPONENTS`, `exportNameFor`,
+  `descriptorBody`, `emitDescriptorJsFromSource`); and `scripts/tokens-parser.js` no longer imports or
+  re-exports dead descriptor functions.
+- **Guard:** `node --test scripts/no-unused-exports.test.js` passes, and the guard is included in the
+  root `node --test scripts/*.test.js` drift suite.
+- **Former issue:** the retired oracle re-derived descriptors from CSS/HTML inputs that no longer
+  existed, while its exports remained reachable enough to look alive.
 
-#### D2 — orphaned registry fields `kind` / `fgPart` · **DEBT** · S1 (folds into D1)
+#### D2 — orphaned registry fields `kind` / `fgPart` · **RESOLVED** · S1
 
-- **Location:** `scripts/parsers/descriptors.js:60-61` (`kind:'button', fgPart:'label'` /
-  `kind:'iconAvatar', fgPart:'icon'`).
-- **What:** `kind` is read only at `:450` (`DERIVERS[spec.kind]`) and `fgPart` only at `:374,382,427`
-  — all **inside the dead derivers** (D1). No live consumer.
-- **Cause / Fix:** same as D1 — remove the fields when the oracle goes. Until then they're dead data
-  that makes the registry look like it still drives a CSS derivation it doesn't.
+- **Status (2026-07-01):** resolved with D1 in PR #109 (`75c313e`).
+- **Proof:** `DESCRIPTOR_COMPONENTS` now carries only `{ name }`; the `kind`/`fgPart` fields were
+  removed with the oracle, and the only remaining mentions are explanatory comments/test prose and this
+  historical register text.
+- **Former issue:** `kind` and `fgPart` were read only by the dead derivers, making the registry look
+  like it still drove a CSS derivation.
 
 #### D3 — committed generated descriptor twins carry STALE provenance headers · **RESOLVED (minor-tail-cleanup)** · S2
 
@@ -285,26 +265,17 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
 - **Proof:** the generated namespace CSS, RN baked recipes, and RN snapshots remain byte-identical.
   The stack axis doc now intentionally shows the neutral fill intent instead of RN property fragments.
 
-#### D7 — the component roster + public names are hand-restated across ≥5 sites · **DEBT** · S2
+#### D7 — the component roster + public names are coherently guarded · **RESOLVED** · S2
 
-- **Location:** `scripts/parsers/descriptors.js:59-80` (`DESCRIPTOR_COMPONENTS`, incl. `public:`);
-  `scripts/tokens-parser.js:218` (`BROWSER_DESCRIPTOR_COMPONENTS` — a second flat list of the same 6
-  names); `scripts/docs-drift.test.js:174` (`EXPECTED_DESCRIPTORS` — a third); `packages/rn/factory/index.ts:83-119`
-  (six `nuriNames('button'|'tab-bar-item'|…)` calls hand-restating the public kebab);
-  `packages/prototype/recipes/*.js` (six `nuriNames('…').web` calls, a fourth restatement).
-- **What:** the set of components and each component's public name live in no single place. The
-  `descriptors.js` comment (`:52-58`) openly concedes the runtime bindings *"restate the same kebab …
-  they cannot import this build-time registry across the zero-build web boundary — and mirror this
-  table."* So a new component or a renamed public name must be edited in ~5 spots, cross-checked only
-  partially (Guard D iterates `DESCRIPTOR_COMPONENTS` and throws if `EXPECTED_DESCRIPTORS[name]` is
-  missing; `BROWSER_DESCRIPTOR_COMPONENTS` and the recipe/binding strings are not cross-asserted).
-- **Invariant violated:** single-source-of-truth / no parallel structures.
-- **Cause:** the zero-build web boundary (recipes can't import a build-time JS registry) plus the
-  test/codegen split forced hand-mirroring instead of one exported roster.
-- **Fix (cause-level):** export ONE roster (name + public) from a single module the codegen, the test,
-  and the RN bindings all import; for the zero-build web recipes, **generate** their `nuriNames(...)`
-  call (or a roster JSON) so the public name is never hand-typed twice. Folds naturally into SEED-2's
-  rename (make `name === public`, then the roster is one column).
+- **Status (2026-07-01):** resolved with SEED-2 in PR #110 (`dc70fb0`). The registry is now one-column
+  `{ name }`, so there is no source/public split, and `BROWSER_DESCRIPTOR_COMPONENTS` derives from
+  `DESCRIPTOR_COMPONENTS` instead of restating the list.
+- **Proof:** `scripts/naming.test.js` exists and passes. It asserts source basenames, exports subpaths,
+  generated descriptor twins, web recipes, RN generated bindings, `nuriNames(...)` call sites, the
+  drift-guard roster, and the doc roster all agree with `DESCRIPTOR_COMPONENTS`.
+- **Former issue:** component names and public names were hand-restated across the descriptor registry,
+  codegen/browser rosters, drift/doc rosters, RN bindings, and web recipes, with only partial
+  cross-checking.
 
 #### D8 — descriptor `defaults` typing · **RESOLVED (Path C component API)** · S1
 
@@ -420,10 +391,10 @@ invisible* to them.
 | Blind class | Why the gates miss it | Entries | Cheap guard that would close it |
 |---|---|---|---|
 | **Spec agnosticism** | Target realization in spec is *valid data that emits correctly* — re-emit + render-smoke both stay green. | SEED-1/D6 class now guarded | **Landed:** `scripts/spec-agnosticism.test.js` scans comment-stripped `packages/spec/**` for CSS selector/var/declaration payloads and RN ViewStyle keys, with explicit allowlists for the property-spelling registry, interactive RN realization vocabulary, and the public `BoxNS.minWidth` input. |
-| **Naming coherence** | Guard D pins descriptor *shape/axes/parts*, never *names*; `nuriNames` derives correctly from whatever string it's *handed*. The hand-authored input strings are unchecked. | SEED-2, D7 | A test asserting `file basename === public`, and that every `nuriNames(x)` site's `x` ∈ the one exported roster. |
+| **Naming coherence** | Guard D pins descriptor *shape/axes/parts*, never *names*; `nuriNames` derives correctly from whatever string it's *handed*. The hand-authored input strings are now guarded separately. | SEED-2/D7 (resolved 2026-07-01) | **Landed:** `scripts/naming.test.js` asserts file basename/export/subpath/twin/recipe coherence, every `nuriNames(x)` site names a roster entry on both targets, and drift/doc rosters agree with `DESCRIPTOR_COMPONENTS`. |
 | **Type-surface honesty** | tsc passes — optional props that are ignored, and a `Partial<Record<string,string>>` hole, are all *type-valid*. | SEED-3 / D8 (resolved 2026-07-01) | **Landed:** generated per-descriptor RN adapters emit exact prop types from descriptor `api`; `Descriptor.defaults` is keyed/value-constrained by the descriptor axes; `@ts-expect-error` type fixtures pin both. |
-| **Dead code** | An uninvoked export breaks nothing; the re-emit path doesn't touch it. | D1, D2 | A "no unused exports" pass (e.g. `knip`/`ts-prune`) over `scripts/` + `packages/rn`. |
-| **Duplication / parallel structure** | Multiple hand-lists that *happen* to agree pass; only the cross-checked pair (D-roster ↔ EXPECTED) throws. | D5, D7 | One exported roster; assert the parallel lists are slices of it. |
+| **Dead code** | An uninvoked export breaks nothing; the re-emit path doesn't touch it. | D1/D2 (resolved 2026-07-01) | **Landed:** `scripts/no-unused-exports.test.js` roots the live codegen surfaces and fails unrooted exports/dead closures. |
+| **Duplication / parallel structure** | Multiple hand-lists that *happen* to agree pass; only explicit cross-checks catch drift. | D5; D7 resolved 2026-07-01 | **Partly landed:** the descriptor roster is one build-side list with naming/doc/drift guards. Remaining duplication debt is D5's RN precompute/runtime duplication. |
 | **Generated-doc accuracy** | The re-emit gate proves committed ≡ generator output; it **cannot** see that the generator's header *strings* name dead paths. | D3 (resolved 2026-07-01) | A check that paths cited in generated headers resolve on disk would prevent recurrence. |
 | **Cross-projection parity** | The render-smoke renders but asserts no a11y props; expo-demo tsc accepts an ignored optional field. | D4 (resolved 2026-07-01) | **Landed:** RN renderer applies the decorative hide pair on root hosts and render-smoke asserts both the positive `IconAvatar` case and the non-decorative `Button` case. |
 | **Wrong abstraction / redundant layer / resolution-at-the-wrong-time** | Redundant or mistimed resolution emits the *same output* — render-smoke renders identical pixels, the re-emit gate sees a faithful generator. No gate measures *when* resolution happens or whether the promised zero-runtime path exists. Over-engineering and runtime-vs-build placement are invisible to behaviour + drift. | SEED-4, D5, D11 | Mostly a design judgement (no clean mechanical guard). Partial signals: assert `theme.surface[v].bg === slice` deref (proves SEED-4's layer is a rename); assert the shipped static style ≡ `toUnistylesRecipe`'s `{base,variants}` (proves D11's runtime path duplicates the discarded precompute). |
@@ -444,20 +415,17 @@ Ordered by blast radius × independence. Each is a candidate working-session bri
 2. **SEED-3 + D8 · per-descriptor prop surface + typed defaults** — **RESOLVED (2026-07-01).**
    Generated RN adapters expose exact descriptor-declared props, type fixtures prevent regressions,
    and `defaults` is keyed/value-constrained by descriptor axes.
-3. **D1 + D2 · delete the dead oracle** — S2, ~M (mechanical, ~300 lines). Remove the oracle block +
-   `kind`/`fgPart` + the orphan re-exports in `tokens-parser.js`. Re-run the `spec` gate (the live
-   passthrough path is untouched → byte-identical emit). Add the **no-unused-exports** guard in the
-   same brief so it can't regrow. **Independent.**
-4. **SEED-2 + D7 · the naming/roster unification** — S2, ~M. Rename `composition-button`→`button`,
-   `tab`→`tab-bar-item` (file · export · type), drop `public`/`source`, export one roster, generate or
-   single-source the `nuriNames` sites. Touches spec, the RN bindings, the web recipes, all three
-   roster lists, the snapshots. **Do after D1** (D1 shrinks `descriptors.js` first, making the rename
-   surface smaller). Add the **naming guard**.
+3. **D1 + D2 · delete the dead oracle** — **RESOLVED (2026-07-01).** PR #109 (`75c313e`) pruned the
+   CSS-parity oracle, removed `kind`/`fgPart`, dropped the orphan descriptor imports/re-exports, and
+   added the no-unused-exports guard.
+4. **SEED-2 + D7 · the naming/roster unification** — **RESOLVED (2026-07-01).** PR #110 (`dc70fb0`)
+   renamed the source descriptors to the public kebab names, removed `public`/`source`, made the roster
+   one-column, and added the naming guard.
 5. **SEED-1b + D6 · remaining spec agnosticism** — **RESOLVED (2026-07-01).** Regex TS-data loaders
    were replaced with the shared TypeScript transform, `fill` is neutral and spelled per projection,
    typography wrapper web realization moved to the prototype emitter, and the broad agnosticism lint
    landed.
-6. **SEED-4 · theme colour-resolution indirection** — S2, ~M, *depth decision-gated*. Factory consumes
+6. **SEED-4 · theme colour-resolution indirection** — **NEXT LIVE ITEM** · S2, ~M, *depth decision-gated*. Factory consumes
    the resolved slice; variant→role mapping becomes a typed static index; `resolveColor` /
    `RUNTIME_GROUPS` / the `NuriTheme.surface`/`.chrome` rebuild dissolve. Operator picks **full** vs
    **minimal** depth at brief time. Touches `resolve.ts` + `theme.ts` + the palette emit; pairs with the
