@@ -16,9 +16,11 @@
  * geometry-bake.test.ts (the oracle guard). flattenPart is the oracle's reference.
  * ══════════════════════════════════════════════════════════════════ */
 
+import * as fs from 'fs';
+import * as path from 'path';
 import { buildNuriTheme, INTERACTION_BASELINE } from '../runtime/theme-payload';
 import { typeStyle } from '../theme';
-import { flattenPart, resolveAnatomy } from '../runtime/resolve';
+import { flattenPart, PALETTE_BORDER_WIDTH, resolveAnatomy } from '../runtime/resolve';
 import {
   buttonDescriptor,
   iconAvatarDescriptor,
@@ -43,6 +45,16 @@ import type { Accent, Theme, Descriptor, Part } from '../contract';
 const acc = (a: Accent, role: keyof (typeof accentTokens)[Accent], mode: Theme): string => {
   const v = accentTokens[a][role] as string | { light: string; dark: string };
   return typeof v === 'string' ? v : v[mode];
+};
+
+const webBorder1 = (): number => {
+  const css = fs.readFileSync(
+    path.resolve(__dirname, '../../prototype/generated/styles/tokens-primitive.css'),
+    'utf8',
+  );
+  const match = css.match(/--nuri-border-1:\s*([0-9.]+)px;/);
+  if (!match) throw new Error('missing --nuri-border-1 in generated web token CSS');
+  return Number(match[1]);
 };
 
 describe('baseline theme (resolver-model §11)', () => {
@@ -86,6 +98,10 @@ describe('baseline theme (resolver-model §11)', () => {
     // Smell-1 · decision 66 arc #0); the factory reads it directly and pins to it.
     expect(INTERACTION_BASELINE.pressScale).toBe(interactionTokens.pressScale); // 0.97
     expect(INTERACTION_BASELINE.disabledOpacity).toBe(interactionTokens.disabledOpacity); // 0.4
+  });
+
+  test('palette border width matches the web --nuri-border-1 primitive', () => {
+    expect(PALETTE_BORDER_WIDTH).toBe(webBorder1());
   });
 });
 
