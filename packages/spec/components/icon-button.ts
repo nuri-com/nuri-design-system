@@ -6,7 +6,7 @@
  * the round pressable action (`<IconButton icon="apple" />`) — `<nuri-button>`
  * stays text-only. The anchored mid-text lockup (`Buy Bitcoin 🍎 Pay`) that this
  * descriptor once carried has RELOCATED to composable Button (ordered
- * `ButtonText`/`ButtonIcon` children · Path C Phase 4 · docs/component-api-target.md);
+ * `ButtonText`/`ButtonIcon` children · Path C Phase 4 · docs/archive/component-api-target.md);
  * rich content is composition, never a flank prop.
  *
  * The anatomy declares ONE non-root part (`icon`) — the lone primary: the factory

@@ -509,7 +509,7 @@ const FROZEN_SCHEMA = {
   // change: the emitted twins are byte-identical (the strip drops types).
   //
   // `api` (ComponentApi · REQUIRED) added at Path C · Phase 1 (the component-API
-  // arc · docs/component-api-target.md · the 3rd deliberate post-freeze envelope
+  // arc · docs/archive/component-api-target.md · the 3rd deliberate post-freeze envelope
   // add · decision 65 "post-freeze changes are versioned"). It is the missing
   // schema layer — the descriptor's PUBLIC API as DATA (axes / themeScope /
   // behaviour / propMaps / slots) — so the RN factory stops INVENTING each

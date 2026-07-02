@@ -1,3 +1,5 @@
+> ARCHIVED — settled, shipped in #114–#119 (Path C · Phases 1–5).
+
 # Target design — the component-API layer (the descriptor declares its public API · codegen makes it exact · the renderer just renders)
 
 > **Status: IN PROGRESS · Phase 1 DONE (the `api` DATA layer + guard · ZERO runtime · shipped) · Phase 2

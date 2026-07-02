@@ -18,7 +18,7 @@
  * Companion to the browser parser at lib/docs/tokens.js — same shape,
  * different read environment (postcss vs document.styleSheets).
  *
- * See skills/pipeline-dtcg-export.md and docs/RISKS.md R2 for the
+ * See docs/archive/RISKS-2026-06.md R2 (historical) for the
  * workstream context.
  * ────────────────────────────────────────────────────────────── */
 

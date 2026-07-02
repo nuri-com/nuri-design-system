@@ -1,3 +1,5 @@
+> ARCHIVED — external review input, fully acted on (the R-EXPO queue landed · N+16/N+18).
+
 > **Coordinator provenance note — imported evidence, read this first.**
 >
 > **What.** A verbatim, frozen snapshot of the Expo consumer's feedback log — the

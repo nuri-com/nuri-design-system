@@ -2,7 +2,7 @@
  * NURI · COMPONENT-API GUARD · the api layer's ONLY defence (Path C · Phase 1)
  *
  * Path C makes the descriptor DECLARE its public API (`api` section · pure DATA ·
- * docs/component-api-target.md). Phase 1 adds that data + THIS guard and NOTHING
+ * docs/archive/component-api-target.md). Phase 1 adds that data + THIS guard and NOTHING
  * else: the renderer still ignores `api`, so the 5 behaviour/drift gates + the RN
  * render snapshots stay byte-identical — they CANNOT see `api` drift (handoff
  * PHILOSOPHY §4 · the gates catch behaviour, never api-shape). So this guard is
@@ -388,7 +388,7 @@ test('component-api · default:true only on a text/node/region/children slot', (
 });
 
 // ── Channel 8 · themeScope.accent is DECLARED on every descriptor (universal) ──
-// accent is Option 1 — universal-but-DECLARED (Overrides §2 · docs/component-api-target.md):
+// accent is Option 1 — universal-but-DECLARED (Overrides §2 · docs/archive/component-api-target.md):
 // every component carries the accent scope, and the honest shape is to DECLARE it
 // (not hard-code a global ThemeScopeProps). So every descriptor must set it.
 test('component-api · themeScope.accent is declared true on every descriptor', () => {

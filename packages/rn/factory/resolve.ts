@@ -61,8 +61,10 @@ import type { CanonicalId } from '@nuri/spec/property-spelling';
 // The interactive opt-in mapping is DATA, single-sourced in @nuri/spec (N+44 · the
 // one-SoT-two-projections invariant · decision 70/73): the SAME `opts` table the web
 // CSS emit + the web factory gate project from. This RN applier projects it into the
-// transient state patches (flattenPart) + the §11 compoundVariants (buildPartRecipe) —
-// no hand-written third copy of which opt → which prop / trigger / value.
+// transient state patches (flattenPart · the test oracle · flattenBakedPart · the
+// render path) + the baked opt-in partials (buildGeometryRecipe ·
+// scripts/parsers/recipes.js) — no hand-written third copy of which opt → which
+// prop / trigger / value.
 import { opts as INTERACTIVE_OPTS } from '@nuri/spec/interactive-effects';
 
 // Exhaustiveness guard — a new schema namespace / element / fill value that
@@ -228,7 +230,8 @@ const RN_RESOLVERS: TargetResolvers = {
   },
   // interactive → BESPOKE (decision 65/65.4): the opt-in is config; HOW
   // (Pressable, the pressed render-prop) is createNuriComponent's. Carry the
-  // opt-in onto the node; flattenPart/buildPartRecipe realise it as state.
+  // opt-in onto the node; flattenPart (the test oracle) / flattenBakedPart (the
+  // render path) realise it as state.
   interactive: (v, { node }) => {
     node.interactive = v;
   },
@@ -327,8 +330,9 @@ export function resolveAnatomy<A extends Axes>(descriptor: Descriptor<A>): Anato
 // realization is pure data the appliers interpret (no closures in the SoT):
 //   · { prop, from }          → node-derived (pressColor → node.pressedBg · per-variant)
 //   · { prop, token, shape? } → the theme constant (decision 45 · scale-wrapped if asked)
-// flattenPart applies it as a (selection × state) cell patch; buildPartRecipe lifts it
-// into the §11 compoundVariants (pressColor's per-palette-variant loop preserved).
+// flattenPart (the test oracle) and flattenBakedPart (the render path) apply it as a
+// (selection × state) cell patch; the bake (buildGeometryRecipe ·
+// scripts/parsers/recipes.js) carries the raw opt-ins through, colour-free.
 type OptKey = keyof typeof INTERACTIVE_OPTS;
 type InteractiveOpt = (typeof INTERACTIVE_OPTS)[OptKey];
 

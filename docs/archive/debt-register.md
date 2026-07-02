@@ -1,5 +1,8 @@
 # Nuri · the architectural-debt register
 
+> **CLOSED 2026-07-02 — every entry resolved (#107–#126). Archived; the durable lesson lives in
+> AGENTS.md.**
+
 > An honest, adversarial inventory of the inconsistencies, leaks, workarounds and rot the **5 CI
 > gates cannot catch**. The gates check *behaviour* (render-smoke, tsc) and *drift* (re-emit ≡
 > committed); they do **not** check architectural consistency — agnosticism, naming coherence,
@@ -193,32 +196,24 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
 - **Former issue:** `IconAvatar` was `decorative:true`, web applied `aria-hidden`, but the production
   RN projection ignored the descriptor field.
 
-#### D5 — a parallel, test-only descriptor→style resolution path · **DEBT (justified-but-costly)** · S2
+#### D5 — a parallel, test-only descriptor→style resolution path · **RESOLVED (2026-07-01 · #112)** · S2
 
-- **Location:** `packages/rn/factory/resolve.ts:526-549` (`toUnistylesRecipe`/`recipeFor`), `:419-524`
-  (`buildPartRecipe`), and the types `PartRecipe`/`ComponentRecipe`/`CompoundVariant` (:388-413).
-- **What:** the **render path** uses `flattenPart` (`createNuriComponent.tsx:139,175`). The
-  Unistyles-shaped recipe path (`toUnistylesRecipe`/`recipeFor`/`buildPartRecipe`) is a **second**
-  full descriptor→style engine — and its only callers are the snapshot tests
-  (`packages/rn/factory/__tests__/resolve.test.ts:86,179,210,269-281`). It is re-exported from
-  `index.ts:21-22` but no production consumer imports it.
-- **Invariant violated:** "one resolution path." Two engines resolve the same descriptors; they share
-  primitives (`resolveNS`, `INTERACTIVE_OPTS`) but `buildPartRecipe` re-implements the variant /
-  foreground / typeStep / compound-interactive assembly independently of `flattenPart`.
-- **Verdict:** *justified* as a stated "Unistyles-compat proof" (`resolve.ts:23-26,384-386`), but it
-  is a maintained parallel structure with its own drift surface — exercised only by snapshots, so a
-  divergence from the real render path would never fail a *behaviour* gate. Not dead (snapshots run),
-  but carrying its weight only as a proof.
-- **Cause:** the §11 Unistyles recipe shape was built as a compat demonstration alongside the render
-  engine rather than as a transform *of* it.
-- **Connection to D11:** this isn't only dead-ish weight — `toUnistylesRecipe`'s `{base, variants}` IS
-  the build-time-static resolved form the README promises and the runtime path re-derives every render
-  (D11). The highest-value resolution is to **promote** it (codegen emits it, the factory loads it)
-  rather than delete it — D5 and D11 close together.
-- **Fix (cause-level):** either (a) promote it to the shipped build-time-static artifact (the D11 fix),
-  making it the single resolved form both the snapshot and the render path read; or (b) if it's purely a
-  future-Unistyles artifact, move it out of the shipped `index.ts` surface and label it a proof. (a) is
-  preferred — it resolves D5 and D11 in one stroke.
+- **Status (2026-07-01 · #112):** resolved by PROMOTION, exactly the register's preferred fix (a).
+  The test-only Unistyles-shaped engine (`toUnistylesRecipe`/`recipeFor`/`buildPartRecipe` and the
+  `PartRecipe`/`ComponentRecipe`/`CompoundVariant` types) was DELETED; its precompute was PROMOTED
+  into the build-time geometry bake `scripts/parsers/recipes.js` (`buildGeometryRecipe`), reshaped
+  COLOUR-FREE — the baked artifact carries no backgroundColor/fg/pressedBg/hex; colour stays the
+  Arc-1 runtime path (`resolvePalette` against the theme context). There is no parallel engine left:
+  the bake emits `packages/rn/generated/recipes.ts` and the factory loads it (D11).
+- **Proof:** `rg "buildPartRecipe|recipeFor|toUnistylesRecipe" packages scripts` finds only
+  historical comments; `packages/rn/factory/__tests__/geometry-bake.test.ts` binds the baked emit to
+  the TS runtime resolver (full style + node oracle over the catalog) and `scripts/recipes.test.js`
+  pins the generator's generality on synthetic descriptor shapes.
+- **Former issue:** the render path used `flattenPart` while the Unistyles-shaped recipe path was a
+  **second** full descriptor→style engine whose only callers were the snapshot tests — a maintained
+  parallel structure with its own drift surface, exercised only by snapshots, whose `{base, variants}`
+  form was simultaneously the build-time-static slice the README promised and the runtime path
+  re-derived every render (D11's other half).
 
 #### D6 — `resolve-map.ts` `FILL` hardcodes RN property spellings in `@nuri/spec` · **RESOLVED** · S2
 
@@ -291,56 +286,32 @@ authors or hides drift surface · **S1** = cosmetic / low-blast-radius.
   imports were removed from `NuriTheme` / `ThemePayload` / `buildNuriTheme`; static scales remain
   exported from `packages/rn/contract.ts` and are still used directly by open primitives and resolvers.
 
-#### D11 — the RN factory resolves the STATIC namespaces at runtime, contradicting the documented build-time-static design · **DEBT** · S2
+#### D11 — the RN factory resolves the STATIC namespaces at runtime, contradicting the documented build-time-static design · **RESOLVED (2026-07-01 · #112)** · S2
 
 > Surfaced by operator review (the resolver-architecture question), alongside SEED-4. Where SEED-4 is
 > about *colour* resolution doing too much, D11 is about *everything else* being resolved at the wrong
 > time. They're the two halves of the same "the RN resolution architecture doesn't match the documented
 > design" picture.
 
-- **The documented design:** README:50-51 — *"Build-time resolves everything resolvable; runtime selects
-  only the context-variant. Box, stack, typography, interactive are 100% static. Only colour varies by
-  context."* README:57-58 — the RN provider's *"Default = a static resolved slice (zero runtime, max
-  perf)."* README:61-62 — web composes via the CSS cascade (the browser resolves prebuilt classes).
-- **What the code actually does:** the factory resolves **every** namespace at **runtime, on every
-  render**. `flattenPart` (`resolve.ts:371-382`) → `resolveNS` (`:231-245`) → `applyFields`
-  (`:90-128`) walks `STACK_FIELDS`/`BOX_FIELDS` and re-derives the ViewStyle each render;
-  `createNuriComponent.tsx:139` calls it per part, and the Pressable style render-prop (`:174-179`)
-  calls it **again on every press**. `box`/`stack`/`typography` touch **neither theme nor state** — they
-  resolve to a constant — yet they're recomputed every time. There is **no** "static resolved slice,
-  zero runtime" path; the implementation has only the full runtime resolver.
-- **The asymmetry (the load-bearing point):** **web honours the design** — `box.css`/`stack.css` are
-  *generated CSS* (build-time), the browser just applies classes, zero runtime resolution. **RN does
-  not** — it re-resolves the same static geometry/layout at render. The two projections diverge on
-  *when* resolution happens, despite the README claiming build-time-static for both. Only `palette`
-  (theme · accent×mode) and `interactive` (transient pressed/disabled) are *genuinely* runtime — exactly
-  the two the README says "vary by context." The other three are misplaced in time.
-- **The kicker — the build-time form already exists and is discarded:** `buildPartRecipe`/
-  `toUnistylesRecipe` (`resolve.ts:419-540`) already compute the resolved `{ base, variants }` ViewStyle
-  matrix per part — *that is the build-time-static slice the README promises* — but it's **test-only**
-  (D5). The codebase literally contains the precompute and throws it away, shipping the runtime resolver
-  instead. D11 and D5 are the same waste seen from two sides.
-- **Invariant violated:** the README's own "build-time resolves everything resolvable · runtime selects
-  only colour · zero-runtime static slice" design. The implementation resolves everything at runtime.
-- **Cause:** the RN factory was built as a single generic runtime interpreter (one `flattenPart` path
-  for all five namespaces · genericity was the goal · `resolve.ts:1-26`) without splitting the
-  build-static portion (box/stack/typography) out to codegen, the way the web projection's CSS emit
-  already does.
-- **Caveats (honest scoping):** (i) **box + stack** are cleanly build-time-bakeable. (ii)
-  **typography** is static *today* but `typeStyle` (`theme.tsx:192`) does the relative→absolute multiply
-  and is the reserved seam for `× fontScale` / Dynamic Type (P11) — so its *metrics* bake but the final
-  multiply stays runtime; bake with that seam intact. (iii) the **open primitive layer**
-  (`primitives.tsx` · View/Stack/Text) is *inherently* runtime (open props, not closed descriptors) —
-  the bake applies to the **closed descriptor factory components**, not the primitives. (iv) this is an
-  **architecture-fidelity + perf** finding, not a correctness bug — the runtime path produces correct
-  output; it just does build-knowable work at render and doesn't deliver the promised zero-runtime slice.
-- **Fix direction (depth deferred to the fix-brief):** codegen precomputes the static `box`/`stack`/
-  `typography` ViewStyle per (component · part · axis-selection) into an `rn/generated/` artifact (the
-  same projection-output stance as `palette.ts` — RN-shaped via the `.rn` spelling column, no
-  agnosticism cost); runtime merges only the theme colour (`palette`) + state transients
-  (`interactive`) on top. `toUnistylesRecipe`'s existing `{base, variants}` computation is the natural
-  emit source (resolving D5 in the same stroke — promote the precompute from test-only to shipped). The
-  factory's runtime path shrinks to "load the baked static slice, merge colour + state."
+- **Status (2026-07-01 · #112):** resolved along the register's fix direction. Codegen bakes the
+  static namespaces at build: `scripts/parsers/recipes.js` emits
+  `packages/rn/generated/recipes.ts` (box/stack as concrete ViewStyle · typography/interactive as
+  raw mergeable partials, colour-free), and closed descriptors render through
+  `flattenBakedPart` — `createNuriComponent.tsx` requires `recipe` at the type level AND throws at
+  runtime without one. `flattenPart` survives as the test-only oracle, excluded from the public
+  barrel; the open primitives intentionally stay runtime-resolved (open props · shared appliers).
+  Runtime merges only the theme colour (`palette`) + state transients (`interactive`) on top, with
+  typography's `typeStyle`/fontScale seam (P11) kept intact — the README's promised zero-runtime
+  static slice, delivered.
+- **Proof:** `packages/rn/factory/__tests__/geometry-bake.test.ts` (the full-surface style + node
+  oracle over the catalog, binding the baked emit to the TS runtime resolver) +
+  `scripts/recipes.test.js` (the synthetic-shape generator guard, pinning variant-level interactive
+  and emphasis-only typography generality the catalog doesn't exercise).
+- **Former issue:** the factory resolved **every** namespace at runtime, on every render (and again
+  on every press via the Pressable render-prop), while web honoured the design with generated
+  build-time CSS — the two projections diverged on *when* resolution happens, and the build-time
+  `{base, variants}` form already existed as the test-only `toUnistylesRecipe` precompute (D5) and
+  was discarded. An architecture-fidelity + perf finding, not a correctness bug.
 
 ---
 
@@ -359,10 +330,10 @@ invisible* to them.
 | **Naming coherence** | Guard D pins descriptor *shape/axes/parts*, never *names*; `nuriNames` derives correctly from whatever string it's *handed*. The hand-authored input strings are now guarded separately. | SEED-2/D7 (resolved 2026-07-01) | **Landed:** `scripts/naming.test.js` asserts file basename/export/subpath/twin/recipe coherence, every `nuriNames(x)` site names a roster entry on both targets, and drift/doc rosters agree with `DESCRIPTOR_COMPONENTS`. |
 | **Type-surface honesty** | tsc passes — optional props that are ignored, and a `Partial<Record<string,string>>` hole, are all *type-valid*. | SEED-3 / D8 (resolved 2026-07-01) | **Landed:** generated per-descriptor RN adapters emit exact prop types from descriptor `api`; `Descriptor.defaults` is keyed/value-constrained by the descriptor axes; `@ts-expect-error` type fixtures pin both. |
 | **Dead code** | An uninvoked export breaks nothing; the re-emit path doesn't touch it. | D1/D2 (resolved 2026-07-01) | **Landed:** `scripts/no-unused-exports.test.js` roots the live codegen surfaces and fails unrooted exports/dead closures. |
-| **Duplication / parallel structure** | Multiple hand-lists that *happen* to agree pass; only explicit cross-checks catch drift. | D5; D7 resolved 2026-07-01 | **Partly landed:** the descriptor roster is one build-side list with naming/doc/drift guards. Remaining duplication debt is D5's RN precompute/runtime duplication. |
+| **Duplication / parallel structure** | Multiple hand-lists that *happen* to agree pass; only explicit cross-checks catch drift. | D5 resolved 2026-07-01 (#112); D7 resolved 2026-07-01 | **Landed:** the descriptor roster is one build-side list with naming/doc/drift guards, and D5's RN precompute/runtime duplication closed at #112 — the precompute was promoted to the single shipped artifact. |
 | **Generated-doc accuracy** | The re-emit gate proves committed ≡ generator output; it **cannot** see that the generator's header *strings* name dead paths. | D3 (resolved 2026-07-01) | A check that paths cited in generated headers resolve on disk would prevent recurrence. |
 | **Cross-projection parity** | The render-smoke renders but asserts no a11y props; expo-demo tsc accepts an ignored optional field. | D4 (resolved 2026-07-01) | **Landed:** RN renderer applies the decorative hide pair on root hosts and render-smoke asserts both the positive `IconAvatar` case and the non-decorative `Button` case. |
-| **Wrong abstraction / redundant layer / resolution-at-the-wrong-time** | Redundant or mistimed resolution emits the *same output* — render-smoke renders identical pixels, the re-emit gate sees a faithful generator. No gate measures *when* resolution happens or whether the promised zero-runtime path exists. Over-engineering and runtime-vs-build placement are invisible to behaviour + drift. | SEED-4 resolved 2026-07-02; D5, D11 remain | **Partly landed:** the RN colour payload identity guard binds the resolved semantic payload, and `scripts/rn-token-escape-hatch.test.js` prevents the public token hatch from regrowing. Remaining D5/D11 needs a shipped static-style artifact check against `toUnistylesRecipe`'s `{base,variants}`. |
+| **Wrong abstraction / redundant layer / resolution-at-the-wrong-time** | Redundant or mistimed resolution emits the *same output* — render-smoke renders identical pixels, the re-emit gate sees a faithful generator. No gate measures *when* resolution happens or whether the promised zero-runtime path exists. Over-engineering and runtime-vs-build placement are invisible to behaviour + drift. | SEED-4 resolved 2026-07-02; D5 + D11 resolved 2026-07-01 (#112) | **Landed:** the RN colour payload identity guard binds the resolved semantic payload, `scripts/rn-token-escape-hatch.test.js` prevents the public token hatch from regrowing, and the shipped static-style artifact check exists — `geometry-bake.test.ts` binds `generated/recipes.ts` to the runtime resolver (full style + node oracle) with the spec gate's re-emit covering the artifact, and `scripts/recipes.test.js` pins generator generality. |
 
 The meta-finding: the gates form a tight **behaviour + drift** net and a near-zero **consistency**
 net. Every seed and every D-entry lives in the consistency gap. The cheapest high-leverage additions
@@ -393,14 +364,13 @@ Ordered by blast radius × independence. Each is a candidate working-session bri
 6. **SEED-4 · theme colour-resolution indirection** — **RESOLVED (2026-07-02).** The provider/path had
    already moved to structural palette refs + one resolved payload per `(accent, mode)`; this slice
    removed the remaining public token escape hatch and added a regrowth guard.
-7. **D11 + D5 · RN build-time-static resolution** — **NEXT LIKELY LIVE ITEM** · S2, ~L, *depth decision-gated*. Codegen precomputes
-   the static box/stack/typography ViewStyle (per component · part · axis-value) into an `rn/generated/`
-   artifact (source: `toUnistylesRecipe`'s `{base,variants}`); the runtime resolver shrinks to "load the
-   baked slice, merge palette + interactive." Delivers the README's promised zero-runtime static slice
-   and **resolves D5 in the same stroke** (the discarded precompute becomes the shipped artifact). Touches
-   the codegen + `resolve.ts` + the factory; keep typography's `typeStyle`/fontScale seam (P11) intact;
-   the open primitives stay runtime. The largest RN-side cleanup; with SEED-4 closed, this is now the
-   likely next architecture item unless fresh verification says otherwise.
+7. **D11 + D5 · RN build-time-static resolution** — **RESOLVED (2026-07-01 · #112).** Codegen bakes
+   the static box/stack/typography/interactive namespaces into `packages/rn/generated/recipes.ts`
+   (`scripts/parsers/recipes.js` · the PROMOTED `toUnistylesRecipe` precompute, reshaped colour-free);
+   the factory renders closed descriptors through `flattenBakedPart` (recipe required at type level +
+   runtime throw), `flattenPart` survives as the test-only oracle, typography's `typeStyle`/fontScale
+   seam (P11) stays intact, and the open primitives stay runtime. Byte-identical render proven by the
+   geometry-bake oracle + unchanged snapshots; generator generality pinned by `scripts/recipes.test.js`.
 
 ---
 

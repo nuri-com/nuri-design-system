@@ -279,7 +279,7 @@ export type Variants<A extends Axes, P extends PartId = PartId> = {
 
 // ══════════════════════════════════════════════════════════════════
 // THE PUBLIC API · the missing schema layer (Path C · Phase 1 · the
-// component-API arc · docs/component-api-target.md · the 3rd post-freeze
+// component-API arc · docs/archive/component-api-target.md · the 3rd post-freeze
 // contract bump). The descriptor already owns anatomy + style
 // (`structure`/`variants`); it did NOT own its PUBLIC API — so the RN
 // factory INVENTED each component's surface from anatomy guesses (the
@@ -316,7 +316,7 @@ export type SlotSpec<P extends PartId = PartId> = {
   multiple?: boolean;
 };
 
-// The component's declared public API (v1 · docs/component-api-target.md
+// The component's declared public API (v1 · docs/archive/component-api-target.md
 // §"The canonical `api` shape"). `axes` = which VARIANT axes surface as public
 // style props (the default already lives in `defaults`); `themeScope.accent` =
 // the universal-but-DECLARED accent scope (Option 1); `behaviour.pressable` =

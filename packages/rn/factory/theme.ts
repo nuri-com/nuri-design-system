@@ -147,8 +147,9 @@ function buildChrome(chromeSlice: ChromeSlice, accentSlice: AccentSlice): Record
 }
 
 // buildNuriTheme · (accent × mode) → the resolved ThemePayload. PURE; the
-// provider/scope memoise it per address (theme.tsx), and `recipeFor` calls it
-// for the resolution tests. The two orthogonal slices are SELECTED here
+// provider/scope memoise it per address (theme.tsx), and the resolution tests
+// (resolve.test.ts · geometry-bake.test.ts) call it directly. The two
+// orthogonal slices are SELECTED here
 // (chrome[mode] + the collapsed accent slice), then the global variant→role
 // mapping is applied ONCE — the whole colour ceremony, run a single time per
 // address instead of per component / per render.

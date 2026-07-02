@@ -13,7 +13,7 @@
  *      decision 31). The parser's resolveSemanticCrossProduct must
  *      agree.
  *
- * R2 mitigation per docs/RISKS.md. Run with:
+ * R2 mitigation per docs/archive/RISKS-2026-06.md (R2 closed 2026-07-02). Run with:
  *   node --test pipeline/tokens-parser.test.js
  * ────────────────────────────────────────────────────────────── */
 

@@ -1,3 +1,5 @@
+> ARCHIVED — settled, shipped in #111 + #112 (colour Arc 1 · geometry-bake Arc 2).
+
 # Target design — the theme / resolution engine (materialize at build · select at runtime)
 
 > **Status: BOTH ARCS SETTLED + LANDED.** This note tracks the debt-register's biggest finding (*the RN
