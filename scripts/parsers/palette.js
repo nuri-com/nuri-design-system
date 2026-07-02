@@ -45,7 +45,10 @@ export const PALETTE_CONTRACT = {
     soft:   { bg: '--nuri-bg-strong',    fg: '--nuri-text-primary',    fgMuted: '--nuri-text-muted', pressedBg: '--nuri-bg-pressed' },
     ghost:  { bg: 'transparent',         fg: '--nuri-text-primary',    fgMuted: '--nuri-text-muted', pressedBg: '--nuri-bg-subtle' },
     subtle: { fg: '--nuri-border-strong' },
-    outline: { bg: 'transparent', fg: '--nuri-text-muted', fgMuted: '--nuri-text-muted', border: '--nuri-border-subtle' },
+    // outline carries NO fgMuted cell: its fg IS text-muted, so the muted swap
+    // would substitute text-muted for text-muted — a no-op channel. Absent-by-
+    // omission is the subtle/solid precedent; the RN resolver falls back to fg.
+    outline: { bg: 'transparent', fg: '--nuri-text-muted', border: '--nuri-border-subtle' },
   },
   chrome: {
     canvas: { bg: '--nuri-bg-canvas', fg: '--nuri-text-primary', fgMuted: '--nuri-text-muted' },

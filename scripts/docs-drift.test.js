@@ -366,7 +366,7 @@ const EXPECTED_PALETTE = {
     soft:   { bg: 'chrome.bgStrong', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted', pressedBg: 'chrome.bgPressed' },
     ghost:  { bg: 'transparent',     fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted', pressedBg: 'chrome.bgSubtle' },
     subtle: { fg: 'chrome.borderStrong' },
-    outline:{ bg: 'transparent',     fg: 'chrome.textMuted', fgMuted: 'chrome.textMuted', border: 'chrome.borderSubtle' },
+    outline:{ bg: 'transparent',     fg: 'chrome.textMuted', border: 'chrome.borderSubtle' },
   },
   chrome: {
     canvas: { bg: 'chrome.bgCanvas', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
