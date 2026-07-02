@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · PARSER · COLOUR → packages/rn/generated/tokens.ts (N+59 · Slice 3b·1 · decision 80)
+ * NURI · PARSER · COLOUR → packages/rn/generated/data/tokens.ts (N+59 · Slice 3b·1 · decision 80)
  * ──────────────────────────────────────────────────────────────────
- * Re-sources the COLOUR arm of packages/rn/generated/tokens.ts (chrome + accent) STRAIGHT from
+ * Re-sources the COLOUR arm of packages/rn/generated/data/tokens.ts (chrome + accent) STRAIGHT from
  * packages/spec/tokens/colours.ts — ref→hex, no CSS round-trip. The projection model
  * (docs/projection-model.md §3): colour is LAYERED SUBSTITUTION (accent upstream
  * of mode), NOT a materialized (accent × theme) cross-product. So:

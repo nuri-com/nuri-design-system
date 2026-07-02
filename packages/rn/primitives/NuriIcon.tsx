@@ -1,8 +1,8 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · FACTORY · NuriIcon (the DS owns RN glyph rendering)
+ * NURI · PRIMITIVES · NuriIcon (the DS owns RN glyph rendering)
  * ──────────────────────────────────────────────────────────────────
  * The RN twin of web's `<nuri-icon name>`: resolve a TYPED `IconName` →
- * the frozen registry markup (`icons[name]` · rn/generated/icons.ts · one
+ * the frozen registry markup (`icons[name]` · rn/generated/data/icons.ts · one
  * drawing per glyph · decision 38 · N+51) → render the SVG through
  * react-native-svg's `SvgXml` (one registry, two readers · decision 48).
  *

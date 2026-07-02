@@ -16,7 +16,7 @@ const path = require('path');
 //     not set`).
 // Redirect every react / react-native specifier (incl. the ones inside
 // react-test-renderer and the jest-expo setup) to THIS package's copies so the
-// whole run shares ONE react and ONE react-native. Factory-LOCAL — it leaves
+// whole run shares ONE react and ONE react-native. Package-LOCAL — it leaves
 // @nuri/spec's resolution untouched.
 //
 // WHY THIS SURVIVES M4 (§65.11): the root's react@19.2.6 / react-native@0.80.3
@@ -46,9 +46,10 @@ const reactNativeDir = path.dirname(require.resolve('react-native/package.json')
 /** @type {import('jest').Config} */
 module.exports = {
   preset: 'jest-expo',
-  // The factory smoke is self-contained under ./factory; scope Jest to it so
-  // the suite stays the descriptor-consumption proof (not the whole package).
-  roots: ['<rootDir>/factory'],
+  // The render/resolution suite is self-contained under ./__tests__ (the tests
+  // span runtime/ + primitives/, so they live at the package root); scope Jest
+  // to it so the suite stays the descriptor-consumption proof (not the whole package).
+  roots: ['<rootDir>/__tests__'],
   moduleNameMapper: {
     '^react$': react,
     '^react/jsx-runtime$': require.resolve('react/jsx-runtime'),
@@ -58,7 +59,7 @@ module.exports = {
   },
   // Don't let this package's Jest scan the sibling @nuri/expo-demo workspace —
   // it nests a duplicate react-native@0.81.5 that collides in jest-expo's haste
-  // map. The factory's tests never import from expo-demo. (@nuri/spec is NOT
+  // map. This package's tests never import from expo-demo. (@nuri/spec is NOT
   // ignored — the render-smoke imports the frozen contract from it.)
   modulePathIgnorePatterns: ['/packages/expo-demo/'],
   // @nuri/spec ships RAW .ts (no dist · §65.8) and now resolves UNDER

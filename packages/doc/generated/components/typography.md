@@ -4,7 +4,7 @@ layout: default
 nav_order: 9
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/factory/primitives.tsx
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/primitives/Text.tsx
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
 # Typography

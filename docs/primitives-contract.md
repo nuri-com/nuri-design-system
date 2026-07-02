@@ -44,7 +44,7 @@ El = 'view' | 'text' | 'icon'
 
 **Pressable is not a 4th `El` — it is the `interactive`-flagged `view`.** The factory renders a
 node as `<Pressable>` when `flat.node.interactive` is set, otherwise as `<View>`
-([createNuriComponent.tsx:165-189](packages/rn/factory/createNuriComponent.tsx:165)); the
+([renderer.tsx:165-189](packages/rn/runtime/renderer.tsx:165)); the
 `interactive` opt-in is the `InteractiveNS` namespace
 ([schema.ts:191-195](packages/spec/components/schema.ts:191)). The web mirror is identical:
 `<nuri-view>` is the static host, `<nuri-pressable>` is "the static counterpart … the el:'view'+
@@ -69,16 +69,16 @@ consumer can write).
 
 | Primitive | Web element / file | Web? | RN hand-authorable? | Namespace / prop surface (schema SoT) |
 |---|---|---|---|---|
-| **View** | `<nuri-view>` · [view.js](packages/prototype/primitives/view.js) + [view.css](packages/prototype/primitives/view.css) | ✅ the merged box⊕stack⊕palette host | ❌ — only the factory's internal `el:'view'` render ([createNuriComponent.tsx:185](packages/rn/factory/createNuriComponent.tsx:185)) | `box` + `stack` + `palette` ([schema.ts:135,109,173](packages/spec/components/schema.ts:135)) |
+| **View** | `<nuri-view>` · [view.js](packages/prototype/primitives/view.js) + [view.css](packages/prototype/primitives/view.css) | ✅ the merged box⊕stack⊕palette host | ❌ — only the factory's internal `el:'view'` render ([renderer.tsx:185](packages/rn/runtime/renderer.tsx:185)) | `box` + `stack` + `palette` ([schema.ts:135,109,173](packages/spec/components/schema.ts:135)) |
 | **Stack** | `<nuri-stack>` · [stack.js](packages/prototype/primitives/stack.js) + [styles/stack.css](packages/prototype/styles/stack.css) | ✅ | ❌ | `stack` (`StackNS`: direction·align·justify·gap·wrap·fill · [schema.ts:109-116](packages/spec/components/schema.ts:109)) |
-| **Text** (Typography) | `<nuri-typography>` · [typography.js](packages/prototype/primitives/typography.js) + [styles/typography.css](packages/prototype/styles/typography.css) | ✅ | ❌ — only the factory's internal `el:'text'` render ([createNuriComponent.tsx:192](packages/rn/factory/createNuriComponent.tsx:192)) | `typography` (`size`·`emphasis` · [schema.ts:158-161](packages/spec/components/schema.ts:158)) + colour via `palette` |
-| **Icon** | `<nuri-icon>` · [icon.js](packages/prototype/primitives/icon.js) + [icon.css](packages/prototype/primitives/icon.css) | ✅ | ✅ **`NuriIcon`** ([factory/NuriIcon.tsx](packages/rn/factory/NuriIcon.tsx), exported [index.ts:43](packages/rn/factory/index.ts:43)) | typed `IconName` + `dimension` (shared `size` axis) + `color` (scope fg) |
-| **Pressable** | `<nuri-pressable>` · [pressable.js](packages/prototype/primitives/pressable.js) + [pressable.css](packages/prototype/primitives/pressable.css) | ✅ | ❌ — only the factory's internal interactive-view render ([createNuriComponent.tsx:165](packages/rn/factory/createNuriComponent.tsx:165)) | `interactive` (`pressColor`·`pressScale`·`disabledOpacity` · [schema.ts:191-195](packages/spec/components/schema.ts:191)) + box⊕stack⊕palette |
+| **Text** (Typography) | `<nuri-typography>` · [typography.js](packages/prototype/primitives/typography.js) + [styles/typography.css](packages/prototype/styles/typography.css) | ✅ | ❌ — only the factory's internal `el:'text'` render ([renderer.tsx:192](packages/rn/runtime/renderer.tsx:192)) | `typography` (`size`·`emphasis` · [schema.ts:158-161](packages/spec/components/schema.ts:158)) + colour via `palette` |
+| **Icon** | `<nuri-icon>` · [icon.js](packages/prototype/primitives/icon.js) + [icon.css](packages/prototype/primitives/icon.css) | ✅ | ✅ **`NuriIcon`** ([primitives/NuriIcon.tsx](packages/rn/primitives/NuriIcon.tsx), exported on the public barrel [index.ts](packages/rn/index.ts)) | typed `IconName` + `dimension` (shared `size` axis) + `color` (scope fg) |
+| **Pressable** | `<nuri-pressable>` · [pressable.js](packages/prototype/primitives/pressable.js) + [pressable.css](packages/prototype/primitives/pressable.css) | ✅ | ❌ — only the factory's internal interactive-view render ([renderer.tsx:165](packages/rn/runtime/renderer.tsx:165)) | `interactive` (`pressColor`·`pressScale`·`disabledOpacity` · [schema.ts:191-195](packages/spec/components/schema.ts:191)) + box⊕stack⊕palette |
 | **Screen** (structural) | `<nuri-screen>` · [screen.js](packages/prototype/primitives/screen.js) + [screen.css](packages/prototype/primitives/screen.css) | ✅ flex-column fill | ❌ | none — pure structural fill |
 | **Scroll** (structural) | `<nuri-scroll>` · [scroll.js](packages/prototype/primitives/scroll.js) + [scroll.css](packages/prototype/primitives/scroll.css) | ✅ flex-fill + overflow | ❌ | none — pure structural fill + overflow |
 
 **Icon is the only contracted primitive with both targets done today** (the icon contract · the DS
-owns RN glyph rendering · [NuriIcon.tsx:1-16](packages/rn/factory/NuriIcon.tsx:1)). View, Stack,
+owns RN glyph rendering · [NuriIcon.tsx:1-16](packages/rn/primitives/NuriIcon.tsx:1)). View, Stack,
 Text, Pressable, Screen, Scroll are **web-only** — the §2 gap.
 
 **Screen / Scroll do NOT map to the descriptor factory.** They are structural containers with no
@@ -146,8 +146,8 @@ not gated, not doc-genned, not a dependency, not live
 
 | Legacy component | Rebuilt? | Verdict |
 |---|---|---|
-| `icon-button` | ✅ **#92** — `iconButtonDescriptor` ([index.ts:87](packages/rn/factory/index.ts:87)) | **PRUNE candidate** — oracle spent |
-| `tab-bar` | ✅ **#96** — `tabBarDescriptor` / `tabDescriptor` ([index.ts:104-105](packages/rn/factory/index.ts:104)) | **PRUNE candidate** — oracle spent |
+| `icon-button` | ✅ **#92** — `iconButtonDescriptor` ([contract.ts](packages/rn/contract.ts)) | **PRUNE candidate** — oracle spent |
+| `tab-bar` | ✅ **#96** — `tabBarDescriptor` / `tabDescriptor` ([contract.ts](packages/rn/contract.ts)) | **PRUNE candidate** — oracle spent |
 | `list` · `list-item` · `list-interactive-item` | ❌ | **KEEP** until rebuilt as descriptor |
 | `nav-item` | ❌ | **KEEP** until rebuilt |
 | `switch` | ❌ | **KEEP** until rebuilt |
@@ -184,7 +184,7 @@ re-exports `./contract` (descriptors + schema types) + `./theme` (the provider +
 `useNuriTheme`) + `./factory` ([rn/index.ts](packages/rn/index.ts)). The factory's public surface is the
 **seven catalog components** (`Button`, `IconAvatar`, `Topbar` + 3 slots, `IconButton`,
 `TabBarItem`, `TabBar`) + `createNuriComponent` + resolver helpers + `NuriIcon`
-([factory/index.ts:69-105](packages/rn/factory/index.ts:69)). **No `View` / `Stack` / `Text` /
+([index.ts](packages/rn/index.ts)). **No `View` / `Stack` / `Text` /
 `Box` is exported** (grep over `@nuri/rn` = none). The evidence the gap forces in practice: the demo
 screen does its layout with **raw react-native** — `import { ScrollView, StyleSheet, View } from
 'react-native'` and a `StyleSheet.create` ([Demo.tsx:18](packages/expo-demo/src/screens/Demo.tsx:18)),
@@ -232,7 +232,7 @@ Source the schema keys from `keyof StackNS` / `keyof BoxNS` (or the Field-table 
 agreement check ([docs-drift.test.js:293-312](scripts/docs-drift.test.js:293)).
 
 **(b) The per-primitive RN render-smoke** — extend the existing
-[render-smoke.test.tsx](packages/rn/factory/__tests__/render-smoke.test.tsx) (today it mounts the
+[render-smoke.test.tsx](packages/rn/__tests__/render-smoke.test.tsx) (today it mounts the
 seven catalog descriptors headless via `react-test-renderer` and snapshots) with one mount per
 primitive wrapper (`<View>`, `<Stack>`, `<Text>`, `<Pressable>`, `<Screen>`, `<Scroll>`): no-throw +
 a committed snapshot. This is the standing consumability guard, primitive-side — the same construct
@@ -293,9 +293,9 @@ web-only mockups, not DS components, so they don't translate 1:1 to RN. Re-autho
 - **The `el`-type set is 3, frozen:** `El = 'view' | 'text' | 'icon'`
   ([schema.ts:237](packages/spec/components/schema.ts:237)) · pinned `El: ['view','text','icon']`
   ([docs-drift.test.js:507](scripts/docs-drift.test.js:507)). Pressable = interactive-flagged view
-  ([createNuriComponent.tsx:165-189](packages/rn/factory/createNuriComponent.tsx:165)).
+  ([renderer.tsx:165-189](packages/rn/runtime/renderer.tsx:165)).
 - **RN has no hand-authorable primitive:** the factory barrel exports only catalog components +
-  helpers + `NuriIcon` ([factory/index.ts:69-105](packages/rn/factory/index.ts:69)); the demo lays
+  helpers + `NuriIcon` ([index.ts](packages/rn/index.ts)); the demo lays
   out with raw `react-native` `View`/`ScrollView`/`StyleSheet`
   ([Demo.tsx:18](packages/expo-demo/src/screens/Demo.tsx:18)).
 - **The Box-fold work-list:** the box *namespace* (`.nuri-box`) is applied by the factory
@@ -310,4 +310,4 @@ web-only mockups, not DS components, so they don't translate 1:1 to RN. Re-autho
 - **The contract is already a single-SoT, gated machine:** resolve-map Field tables
   ([resolve-map.ts:101,121](packages/spec/axes/resolve-map.ts:101)) · Guard-F `FROZEN_SCHEMA`
   ([docs-drift.test.js:438](scripts/docs-drift.test.js:438)) · the RN render-smoke
-  ([render-smoke.test.tsx](packages/rn/factory/__tests__/render-smoke.test.tsx)).
+  ([render-smoke.test.tsx](packages/rn/__tests__/render-smoke.test.tsx)).

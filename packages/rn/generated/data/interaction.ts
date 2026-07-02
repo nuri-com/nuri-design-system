@@ -8,7 +8,7 @@
  * the { pressScale · disabledOpacity } design constants, flattened from
  * the packages/spec/axes/interaction.ts SoT (the SAME values the build flips into the
  * --nuri-interaction-* CSS primitives · one source, two readers · decision
- * 48). A single transversal emit — the RN factory's theme reads it directly,
+ * 48). A single transversal emit — the RN runtime's theme reads it directly,
  * instead of reaching into a per-component file for a non-component value
  * (Smell-1 · decision 66 arc #0). NOT a runtime/TokenPath set; the values
  * are context-invariant.

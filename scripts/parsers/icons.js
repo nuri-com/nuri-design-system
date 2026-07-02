@@ -6,7 +6,7 @@
  * filename is the icon name (kebab-case), the file is one drawing.
  * Everything downstream is GENERATED, never hand-edited:
  *   · packages/prototype/generated/icons.js — the web reader (zero-build import)
- *   · packages/rn/generated/icons.ts        — the RN reader (typed · SvgXml)
+ *   · packages/rn/generated/data/icons.ts        — the RN reader (typed · SvgXml)
  * ONE registry, TWO readers (decision 48), both emitted from here.
  *
  * The model SIMPLIFIED at N+51: one drawing per glyph · NO weights

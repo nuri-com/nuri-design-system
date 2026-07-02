@@ -4,7 +4,7 @@ layout: default
 nav_order: 7
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/factory/primitives.tsx
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/primitives/Stack.tsx
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
 # Stack

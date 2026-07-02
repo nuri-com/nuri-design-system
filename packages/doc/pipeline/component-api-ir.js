@@ -60,28 +60,28 @@ export const COMPONENT_API_DOCS = [
     source: 'stack',
     title: 'Stack',
     nav: 7,
-    file: 'packages/rn/factory/primitives.tsx',
+    file: 'packages/rn/primitives/Stack.tsx',
     type: 'StackProps',
   },
   {
     source: 'view',
     title: 'View',
     nav: 8,
-    file: 'packages/rn/factory/primitives.tsx',
+    file: 'packages/rn/primitives/View.tsx',
     type: 'ViewProps',
   },
   {
     source: 'typography',
     title: 'Typography',
     nav: 9,
-    file: 'packages/rn/factory/primitives.tsx',
+    file: 'packages/rn/primitives/Text.tsx',
     type: 'TextProps',
   },
   {
     source: 'icon',
     title: 'Icon',
     nav: 10,
-    file: 'packages/rn/factory/NuriIcon.tsx',
+    file: 'packages/rn/primitives/NuriIcon.tsx',
     type: 'NuriIconProps',
   },
 ];
@@ -330,7 +330,7 @@ export async function componentApiIrFromFile(spec, repoRoot) {
   const source = await readFile(resolve(repoRoot, spec.file), 'utf8');
   const extraSources = await Promise.all([
     readFile(resolve(repoRoot, 'packages/spec/components/schema.ts'), 'utf8'),
-    readFile(resolve(repoRoot, 'packages/rn/generated/tokens.ts'), 'utf8'),
+    readFile(resolve(repoRoot, 'packages/rn/generated/data/tokens.ts'), 'utf8'),
   ]);
   return componentApiIrFromSource(spec, source, extraSources);
 }

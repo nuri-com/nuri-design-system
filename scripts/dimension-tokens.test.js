@@ -56,8 +56,8 @@ const DIMENSIONS_SRC = resolve(REPO_ROOT, 'tokens/dimensions.ts');
 const COLOURS_SRC = resolve(REPO_ROOT, 'tokens/colours.ts');
 const PRIMITIVE_CSS = resolve(PROTO_GENERATED, 'styles/tokens-primitive.css');
 const SEMANTIC_CSS = resolve(PROTO_GENERATED, 'styles/tokens-semantic.css');
-const TOKENS_TS = resolve(RN_GENERATED, 'tokens.ts');
-const TOKEN_PATHS_TS = resolve(RN_GENERATED, 'token-paths.ts');
+const TOKENS_TS = resolve(RN_GENERATED, 'data/tokens.ts');
+const TOKEN_PATHS_TS = resolve(RN_GENERATED, 'data/token-paths.ts');
 
 const dims = await loadDimensions(DIMENSIONS_SRC);
 const { chrome, accent } = await loadSemanticColours(COLOURS_SRC);

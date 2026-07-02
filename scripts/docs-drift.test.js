@@ -128,7 +128,7 @@ const extractCount = (text, re, label) => {
 // ── Guard C · doc-stated counts == live build ────────────────────
 test('C · doc-stated emitted counts match the live build', () => {
   // Live truths derived from the emitted artefacts.
-  const tokenPathMembers = (readRn('token-paths.ts').match(/^\s+\| '/gm) || []).length;
+  const tokenPathMembers = (readRn('data/token-paths.ts').match(/^\s+\| '/gm) || []).length;
 
   const llms = readRoot('llms.txt');
 
@@ -391,9 +391,9 @@ test('E · build/palette.ts re-derives from the TS SoT and matches the pinned co
 
   // Re-emit must equal the committed build (stale-build / hand-edit guard).
   assert.equal(
-    readRn('palette.ts'),
+    readRn('data/palette.ts'),
     emitPaletteTs(cells),
-    'packages/rn/generated/palette.ts is stale or hand-edited — run `node scripts/tokens-parser.js`.',
+    'packages/rn/generated/data/palette.ts is stale or hand-edited — run `node scripts/tokens-parser.js`.',
   );
 
   // The operator-settled contract pin (B2b): a SoT change that flows

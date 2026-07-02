@@ -2,7 +2,7 @@
  * NURI · BAKED GEOMETRY RECIPE · GENERATOR GUARD (Arc 2 · D11 + D5)
  *
  * The Node side of the Arc-2 equivalence proof. The RN jest oracle
- * (packages/rn/factory/__tests__/geometry-bake.test.ts) binds the COMMITTED
+ * (packages/rn/__tests__/geometry-bake.test.ts) binds the COMMITTED
  * recipes to the runtime resolver over the catalog; THIS pins the GENERATOR's
  * generality for the two schema-valid cases the catalog does not exercise, so a
  * regression in buildGeometryRecipe cannot silently ship them:

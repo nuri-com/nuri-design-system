@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · FACTORY · PRIMITIVE PARITY GATE (contract §3.3a · step ①)
+ * NURI · PRIMITIVES · PRIMITIVE PARITY GATE (contract §3.3a · step ①)
  * ──────────────────────────────────────────────────────────────────
  * Assert, per hand-authorable primitive:
  *
@@ -9,7 +9,7 @@
  * (STACK_FIELDS/BOX_FIELDS · total over keyof StackNS/BoxNS by construction) +
  * the interactive `opts` table, plus a `satisfies Record<keyof …NS, …>` pin for
  * the bespoke palette/typography namespaces (a new schema key is a COMPILE error
- * in BOTH this file and primitives.tsx → they cannot silently diverge). The web
+ * in BOTH this file and primitives/ → they cannot silently diverge). The web
  * `ATTRS` arrays become a CHECKED projection, not a trusted hand list — the
  * analogue of the descriptor anatomy-vs-addressed-parts agreement check.
  *
@@ -37,7 +37,7 @@ import { opts as INTERACTIVE_OPTS } from '@nuri/spec/interactive-effects';
 import { PALETTE_KEYS, TYPOGRAPHY_KEYS } from '@nuri/spec/descriptors/schema';
 
 // ── schema namespace keys · ONE runtime SoT per namespace, read from @nuri/spec
-// (independent of primitives.tsx · the gate must read the SCHEMA, not the wrapper
+// (independent of primitives/ · the gate must read the SCHEMA, not the wrapper
 // it checks). box/stack/interactive from the shared Field/opts tables;
 // palette/typography from the schema's totality-pinned runtime key lists. ──
 const STACK_KEYS = Object.keys(STACK_FIELDS);
@@ -55,7 +55,7 @@ const kebab = (s: string): string => s.replace(/[A-Z]/g, (m) => `-${m.toLowerCas
 // the IIFE custom-element files reference `document`/`HTMLElement`, unloadable here).
 function webAttrs(file: string): string[] {
   const src = fs.readFileSync(
-    path.resolve(__dirname, '../../../prototype/primitives', file),
+    path.resolve(__dirname, '../../prototype/primitives', file),
     'utf8',
   );
   const m = src.match(/const ATTRS = \[([\s\S]*?)\]/);
@@ -72,7 +72,7 @@ function webAttrs(file: string): string[] {
 // idea as webAttrs, one regex per bucket.
 function viewAttrs(): string[] {
   const src = fs.readFileSync(
-    path.resolve(__dirname, '../../../prototype/primitives/view.js'),
+    path.resolve(__dirname, '../../prototype/primitives/view.js'),
     'utf8',
   );
   const grab = (name: string): string[] => {

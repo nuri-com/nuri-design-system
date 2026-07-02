@@ -36,7 +36,7 @@
 // components that carried them — `composition-button`→`button`, `tab`→`tab-bar-item`
 // — were renamed at the source so `name === public` for every component, and the
 // oracle that read `source`/`kind`/`fgPart` was pruned (debt-register D1/D2). The
-// runtime bindings (rn/factory/index.ts + the web recipes) restate the same kebab —
+// runtime bindings (rn/generated/components/*.ts + the web recipes) restate the same kebab —
 // they cannot import this build-time registry across the zero-build web boundary —
 // and the naming guard (scripts/naming.test.js · D7 §2) pins that every restated
 // name ∈ this ONE roster, so a rename that misses a site fails CI. This is the sole

@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · PARSER · TOKEN-PATHS UNION → packages/rn/generated/token-paths.ts (N+60 · Slice 3b·2a · decision 80)
+ * NURI · PARSER · TOKEN-PATHS UNION → packages/rn/generated/data/token-paths.ts (N+60 · Slice 3b·2a · decision 80)
  * ──────────────────────────────────────────────────────────────────
  * Enumerates the TokenPath discriminated union STRAIGHT from the TS SoTs
  * (packages/spec/tokens/colours.ts chrome + accent role names · packages/spec/tokens/dimensions.ts
@@ -23,7 +23,7 @@ function camelCase(str) {
   return str.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
 }
 
-// Emit packages/rn/generated/token-paths.ts as a string from the TS SoTs. `chrome`/`accent` are the
+// Emit packages/rn/generated/data/token-paths.ts as a string from the TS SoTs. `chrome`/`accent` are the
 // semantic colour roles (packages/spec/tokens/colours.ts · loadSemanticColours); `dims` is the
 // dimension SoT (packages/spec/tokens/dimensions.ts · loadDimensions). Order: chrome roles, then
 // accent roles (every accent owns the same role set · read from the first), then the

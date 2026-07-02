@@ -7,7 +7,7 @@
  * Contains the RN projection's generated token tables: runtime-capable
  * colour slices (chrome · accent), static dimensions (space · size · radius
  * · ratio), and the direct type scale. The discriminated union of generated
- * token leaf paths lives beside this file in generated/token-paths.ts.
+ * token leaf paths lives beside this file in generated/data/token-paths.ts.
  *
  * Shape is classify-by-cascade (decision 28 · N+5.5): each
  * export's nesting depth = the dimensions its source CSS var

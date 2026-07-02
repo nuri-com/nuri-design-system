@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · FACTORY · THE BYTE-IDENTICAL COLOUR GUARD (SEED-4 · the named signal)
+ * NURI · RUNTIME · THE BYTE-IDENTICAL COLOUR GUARD (SEED-4 · the named signal)
  * ──────────────────────────────────────────────────────────────────
  * The load-bearing proof that the Option-B colour rework (resolve ONCE at the
  * provider · debt-register SEED-4) is a FAITHFUL RENAME, not a behaviour change:
@@ -11,7 +11,7 @@
  * The old builders are DELETED, so the reference here is an INDEPENDENT oracle:
  * the expected hexes are re-derived straight from the raw token SoTs (accentTokens
  * / chrome / space / size / radius) with the settled variant→role mapping inlined
- * — NOT from generated/palette.ts and NOT from factory/theme.ts's builder. That
+ * — NOT from generated/data/palette.ts and NOT from runtime/theme-payload.ts's builder. That
  * independence is what makes this guard BIND: mutate one cell of the palette
  * mapping (e.g. solid.bg → a different ref) and the payload diverges from this
  * oracle → RED. GREEN ⇒ the mapping-once collapse reproduces the pre-SEED-4 hexes
@@ -21,9 +21,9 @@
  * end-to-end proof.)
  * ══════════════════════════════════════════════════════════════════ */
 
-import { buildNuriTheme } from '../theme';
-import { accent as accentTokens, chrome } from '../../generated/tokens';
-import type { Accent, Theme } from '../../contract';
+import { buildNuriTheme } from '../runtime/theme-payload';
+import { accent as accentTokens, chrome } from '../generated/data/tokens';
+import type { Accent, Theme } from '../contract';
 
 // Derive the matrix from the token SoTs, so a new accent (or mode) is covered
 // automatically — the guard can never silently under-test the (accent × mode) grid.

@@ -15,14 +15,14 @@
  * authored DATA — the descriptors + their schema — is read from @nuri/spec
  * (the `./descriptors/<name>` subpaths · pure data · source only):
  *
- *   ./generated/tokens         static scales: space · size · radius · ratio
- *                              · type (+ Accent/Theme)
- *   ./generated/interaction    the transversal interaction baseline
- *                              ({ pressScale · disabledOpacity } · decision 45)
- *   ./generated/icons          IconName → SVG markup registry (one drawing
- *                              per glyph · no weights · decision 38 · N+51)
- *   ./generated/palette        {variant|chrome} → {bg·fg·fgMuted·pressedBg}
- *   @nuri/spec/descriptors/*   the FROZEN descriptors + schema (DATA · source)
+ *   ./generated/data/tokens       static scales: space · size · radius · ratio
+ *                                 · type (+ Accent/Theme)
+ *   ./generated/data/interaction  the transversal interaction baseline
+ *                                 ({ pressScale · disabledOpacity } · decision 45)
+ *   ./generated/data/icons        IconName → SVG markup registry (one drawing
+ *                                 per glyph · no weights · decision 38 · N+51)
+ *   ./generated/data/palette      {variant|chrome} → {bg·fg·fgMuted·pressedBg}
+ *   @nuri/spec/descriptors/*      the FROZEN descriptors + schema (DATA · source)
  * ────────────────────────────────────────────────────────────── */
 
 import {
@@ -32,28 +32,28 @@ import {
   ratio,
   type as typeScale,
   emphasisWeight,
-} from './generated/tokens';
-import type { Accent, Theme, TypeSize, TypeWeight, TypeStep } from './generated/tokens';
-import { icons } from './generated/icons';
-import type { IconName } from './generated/icons';
+} from './generated/data/tokens';
+import type { Accent, Theme, TypeSize, TypeWeight, TypeStep } from './generated/data/tokens';
+import { icons } from './generated/data/icons';
+import type { IconName } from './generated/data/icons';
 
 // The transversal interaction baseline consumed by the factory:
 // `interaction` carries the decision-45 cross-component constants
 // (pressScale/disabledOpacity) the factory theme pins against. It now
-// ships as its OWN transversal emit (build/interaction.ts · Smell-1 ·
+// ships as its OWN transversal emit (generated/data/interaction.ts · Smell-1 ·
 // decision 66 arc #0), so the factory no longer reaches into a
 // per-component file for a non-component value (the retired
 // build/components/button.ts · the R1 finding resolved).
-import { interaction } from './generated/interaction';
+import { interaction } from './generated/data/interaction';
 
 // ── The FROZEN descriptor contract (decision 65 · 65.3 · 65.6 · Guard F) ──
 // The cross-repo authoring language the generic factory consumes: the
 // composition schema (the five disjoint namespaces · 65.3 §6) and the three
 // per-component descriptors (PURE DATA · no theme thunk · 65.3 §7).
-// NOTE: the palette MAPPING ({variant|chrome} → colour refs · generated/palette.ts)
+// NOTE: the palette MAPPING ({variant|chrome} → colour refs · generated/data/palette.ts)
 // is an INTERNAL engine detail, NOT part of the public contract seam (SEED-4 · Arc
-// 1) — factory/theme.ts imports it directly from generated/, so it never reaches
-// the public barrel.
+// 1) — runtime/theme-payload.ts imports it directly from generated/data/, so it
+// never reaches the public barrel.
 import { buttonDescriptor } from '@nuri/spec/descriptors/button';
 import { iconAvatarDescriptor } from '@nuri/spec/descriptors/icon-avatar';
 import { topbarDescriptor } from '@nuri/spec/descriptors/topbar';

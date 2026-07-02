@@ -1,7 +1,7 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · PARSER · PALETTE (the colour-namespace mapping · 65.3 §6 · N+19 B2b)
  *
- * Emits packages/rn/generated/palette.ts — the {variant | chrome} → {bg · fg · fgMuted ·
+ * Emits packages/rn/generated/data/palette.ts — the {variant | chrome} → {bg · fg · fgMuted ·
  * pressedBg} mapping as STRUCTURAL colour REFS `{ group, leaf }` (SEED-4 · a
  * dotted path split at emit · the accent×theme-GENERIC `accent.solid`, never a
  * concrete colour · decision 34 indirection), so the RN theme builder indexes the
@@ -234,7 +234,7 @@ export function emitPaletteTs(cells) {
     ` * The {variant | chrome} → {bg · fg · fgMuted · pressedBg} mapping as`,
     ` * STRUCTURAL colour REFS (decision 34 · SEED-4) — accent×theme-GENERIC. Each`,
     ` * cell is \`{ group, leaf }\` preserving the (group, leaf) so the RN theme`,
-    ` * builder (generated → factory/theme.ts) indexes the selected chrome | accent`,
+    ` * builder (generated → runtime/theme-payload.ts) indexes the selected chrome | accent`,
     ` * slice with ZERO parse (the old dotted-string + resolveColor dot-sniff is`,
     ` * gone). The mapping is applied ONCE at the provider (Option B · 65.1: engine =`,
     ` * platform-native, mapping = data · emitted ONCE · 65.2).`,

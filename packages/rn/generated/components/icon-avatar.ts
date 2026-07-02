@@ -12,13 +12,13 @@
  * ────────────────────────────────────────────────────────────── */
 
 import * as React from 'react';
-import { nuriNames, renderDescriptorInstance } from '../../factory/createNuriComponent';
-import type { NuriBehaviour } from '../../factory/createNuriComponent';
+import { nuriNames, renderDescriptorInstance } from '../../runtime/renderer';
+import type { NuriBehaviour } from '../../runtime/renderer';
 import { iconAvatarDescriptor } from '@nuri/spec/descriptors/icon-avatar';
-import { recipes } from '../recipes';
+import { recipes } from '../data/recipes';
 import { NuriScope } from '../../theme';
-import type { Accent } from '../tokens';
-import type { IconName } from '../icons';
+import type { Accent } from '../data/tokens';
+import type { IconName } from '../data/icons';
 
 export type IconAvatarProps = {
   variant?: 'solid' | 'soft' | 'ghost' | 'subtle';

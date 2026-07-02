@@ -34,11 +34,11 @@ import * as React from 'react';
 
 import { typeScale, emphasisWeight } from './contract';
 import type { Accent, Theme, TypeSize } from './contract';
-import { buildNuriTheme } from './factory/theme';
-import type { ThemePayload } from './factory/theme';
+import { buildNuriTheme } from './runtime/theme-payload';
+import type { ThemePayload } from './runtime/theme-payload';
 
 // Re-export the resolved payload type on the public barrel (index.ts `export *`).
-export type { ThemePayload } from './factory/theme';
+export type { ThemePayload } from './runtime/theme-payload';
 
 // ── SpaceLeaf · the 5-leaf semantic space subset the layout primitives
 // expose (Stack gap, Box padding*, Spacer size · decision 36/37). ──

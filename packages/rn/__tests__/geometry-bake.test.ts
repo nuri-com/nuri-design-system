@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · FACTORY · THE GEOMETRY-BAKE GUARDS (Arc 2 · D11 + D5)
+ * NURI · RUNTIME · THE GEOMETRY-BAKE GUARDS (Arc 2 · D11 + D5)
  * ──────────────────────────────────────────────────────────────────
- * The load-bearing proof that the build-time geometry bake (generated/recipes.ts,
+ * The load-bearing proof that the build-time geometry bake (generated/data/recipes.ts,
  * consumed by flattenBakedPart) is a FAITHFUL rename of WHEN geometry resolves —
  * byte-identical to the runtime resolver (flattenPart). Three of the brief's five
  * guards live here (the other two — re-emit drift + render snapshots — are the
@@ -24,10 +24,10 @@
  * generator's side of those is pinned in scripts/recipes.test.js).
  * ══════════════════════════════════════════════════════════════════ */
 
-import { buildNuriTheme } from '../theme';
-import { flattenPart, flattenBakedPart, resolveAnatomy } from '../resolve';
-import type { AnatomyNode, BakedComponentRecipe } from '../resolve';
-import { recipes } from '../../generated/recipes';
+import { buildNuriTheme } from '../runtime/theme-payload';
+import { flattenPart, flattenBakedPart, resolveAnatomy } from '../runtime/resolve';
+import type { AnatomyNode, BakedComponentRecipe } from '../runtime/resolve';
+import { recipes } from '../generated/data/recipes';
 import {
   buttonDescriptor,
   iconAvatarDescriptor,
@@ -35,8 +35,8 @@ import {
   iconButtonDescriptor,
   tabBarItemDescriptor,
   tabBarDescriptor,
-} from '../../contract';
-import type { Descriptor, Axes, Part } from '../../contract';
+} from '../contract';
+import type { Descriptor, Axes, Part } from '../contract';
 
 const CATALOG: { name: string; descriptor: Descriptor<Axes> }[] = [
   { name: 'button', descriptor: buttonDescriptor as Descriptor<Axes> },
@@ -146,7 +146,7 @@ describe('geometry bake · guard 1 BINDS — mutation proof (a stale bake WOULD 
 });
 
 describe('geometry bake · guard 2 — NO-COLOUR INVARIANT (the artifact is colour-free)', () => {
-  test('no colour key appears anywhere in generated/recipes.ts', () => {
+  test('no colour key appears anywhere in generated/data/recipes.ts', () => {
     const offenders: string[] = [];
     const walk = (value: unknown, path: string): void => {
       if (Array.isArray(value)) {
