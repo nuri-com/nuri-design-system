@@ -40,7 +40,7 @@
  *       (decision 65 step 5 · "an enforced freeze, not honorary"). The
  *       five namespace field vocabularies, the leaf/structural unions, and
  *       the Descriptor/PartAnatomy/PartMap envelope are pinned EXACTLY as
- *       pipeline/descriptors/schema.ts declares them; a field added /
+ *       packages/spec/components/schema.ts declares them; a field added /
  *       removed / renamed / retyped, or a union member moved, breaks here.
  *       Distinct from D: D keeps the INSTANCES faithful to live CSS (the
  *       per-component axes/values stay free); F freezes the schema shape.
@@ -412,7 +412,7 @@ test('E · build/palette.ts re-derives from the TS SoT and matches the pinned co
 // The cross-repo contract IS the schema shape (decision 65 · 65.1 · the
 // source-agnostic freeze). B2c·2 (#28) landed it in its final composition form;
 // B3 LOCKS it. This guard pins the schema's field vocabularies, leaf/structural
-// unions, and the descriptor envelope EXACTLY as pipeline/descriptors/schema.ts
+// unions, and the descriptor envelope EXACTLY as packages/spec/components/schema.ts
 // declares them, then asserts the source still declares precisely that — "a
 // schema-shape test · an enforced freeze, not honorary" (decision 65 step 5).
 //

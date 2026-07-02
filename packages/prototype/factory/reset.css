@@ -12,7 +12,7 @@
  * into interactive.css would pollute a to-be-generated file with hand-authored
  * cruft and lose it at generation (operator-directed · 2026-06-22).
  *
- * Lives under lib/runtime/ — the runtime web mechanism (beside the web
+ * Lives under factory/ — the runtime web mechanism (beside the web
  * factory). This file is the SEED of the plumbing layer; the full design-SoT /
  * plumbing separation (collecting the scattered wrappers / skeletons /
  * box-sizing / min-width / resets under this roof · a decision in the family
