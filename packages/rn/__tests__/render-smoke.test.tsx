@@ -65,6 +65,24 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
+  test('Button — label text is a single-line shrinkable control label', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <Button variant="solid" size="lg">
+          Add Money
+        </Button>
+      </NuriThemeProvider>,
+    );
+    const label = tr.root.findByType(Text);
+    expect(label.props.children).toBe('Add Money');
+    expect(label.props.numberOfLines).toBe(1);
+    expect(label.props.ellipsizeMode).toBe('tail');
+    expect(Object.assign({}, ...label.props.style.filter(Boolean))).toMatchObject({
+      flexShrink: 1,
+      textAlign: 'center',
+    });
+  });
+
   test('Button — ordered composition renders text/icon/text through the root Pressable', () => {
     const tr = render(
       <NuriThemeProvider>

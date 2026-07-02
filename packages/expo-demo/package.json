@@ -2,7 +2,7 @@
   "name": "@nuri/expo-demo",
   "version": "1.0.0",
   "private": true,
-  "description": "Nuri expo-demo · the consumable EXAMPLE app (R1.5) — a small Expo screen built ONLY on @nuri/rn's ergonomic components. The RN team's reference for how the spec is consumed · decision 65.7/65.8.",
+  "description": "Nuri expo-demo · the consumable EXAMPLE app — three real screens (wallet · coin · cash · the playground tab-bar boards) built ONLY on @nuri/rn via a ui/ DS manifest + an app-owned BottomBar. The RN team's reference for how the spec is consumed · decision 65.7/65.8.",
   "main": "index.ts",
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
