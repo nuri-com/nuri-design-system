@@ -32,7 +32,7 @@ target's output is *generated* from it.
   generated/        the resolved contract (hex values · type scales · descriptors),
                     flattened from spec at build · committed
   contract.ts       imports ./generated/*
-  factory/ theme.tsx  the runtime: NuriThemeProvider / NuriScope / runtimeTokens
+  factory/ theme.tsx  the runtime: NuriThemeProvider / NuriScope / resolved theme payload
 
 @nuri/prototype     the WEB projection (prototyping + the doc surface's components)
   generated/        the token CSS · descriptor .js twins · token-vars · icon registry

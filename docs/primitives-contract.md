@@ -181,7 +181,7 @@ copy of `box.js` etc.); they are not the active projection and are out of scope 
 
 **Confirmed: RN exposes only catalog components + raw react-native today.** The `@nuri/rn` barrel
 re-exports `./contract` (descriptors + schema types) + `./theme` (the provider + `typeStyle` /
-`useToken`) + `./factory` ([rn/index.ts](packages/rn/index.ts)). The factory's public surface is the
+`useNuriTheme`) + `./factory` ([rn/index.ts](packages/rn/index.ts)). The factory's public surface is the
 **seven catalog components** (`Button`, `IconAvatar`, `Topbar` + 3 slots, `IconButton`,
 `TabBarItem`, `TabBar`) + `createNuriComponent` + resolver helpers + `NuriIcon`
 ([factory/index.ts:69-105](packages/rn/factory/index.ts:69)). **No `View` / `Stack` / `Text` /

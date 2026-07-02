@@ -39,9 +39,9 @@ building it once at the provider and reading it downstream is strictly cheaper t
   overrides (a nested scope flips one axis, inherits the other; without the scalars you'd reverse-engineer
   them or cross-product).
 - **Payload** — the RESOLVED theme, built ONCE by the provider: `surface` (the variant→role mapping
-  applied → concrete hex), the resolved `chrome` slots (canvas/subtle/strong), `text`/`border`/`type`/
-  `space`/`size`/`radius`/`interaction`, and the raw `slices` (`chrome[mode]` + the collapsed accent
-  slice) for the advanced primitive surface (`useToken`/`resolveToken` · NOT the encouraged path).
+  applied → concrete hex), the resolved `chrome` slots (canvas/subtle/strong), `text`/`border`/`type`,
+  and `interaction`. Raw colour token slices are not part of the payload or public RN surface; consumers
+  read semantic roles (`theme.surface`, `theme.chrome`, `theme.text`, `theme.border`).
 
 ### The provider builds the payload ONCE (memoised per address)
 `buildNuriTheme(accent, mode)` (`rn/factory/theme.ts`) SELECTS the two orthogonal slices — `chrome[mode]`
@@ -63,13 +63,14 @@ self-scope whole-theme rebuild (exercised by zero catalog descriptors) and the p
 
 ### What the collapse removed (grep-proven gone)
 `resolveColor`, `RUNTIME_GROUPS`, `resolveAccentSlice`, `runtimeTokens`, the per-component
-`buildNuriTheme` memo, and the `resolvePalette` self-scope rebuild. `resolveToken`/`useToken` (the public
-consumer primitive · read the raw slices off the payload) and the `typeStyle`/fontScale seam (the ONE
-legit runtime multiply · P11) STAY.
+`buildNuriTheme` memo, and the `resolvePalette` self-scope rebuild. The public token escape hatch
+(`ThemePayload.slices`, `RuntimeTokens`, `resolveToken`, `useToken`, `useRuntimeTokens`, and raw
+`chrome`/`accentTokens` exports) is also removed. `typeStyle`/fontScale remains the ONE legit runtime
+multiply seam (P11).
 
 ### Validation (the named signal · landed)
-`rn/factory/__tests__/colour-payload-identity.test.ts` asserts the provider payload (`surface` + resolved
-`chrome` slots + the raw `slices`) === an INDEPENDENT token-derived oracle for EVERY (accent × mode) pair,
+`rn/factory/__tests__/colour-payload-identity.test.ts` asserts the provider payload (`surface`, resolved
+`chrome` slots, `mode`, `accent`, `text`, and `border`) === an INDEPENDENT token-derived oracle for EVERY (accent × mode) pair,
 byte-for-byte — and BINDS to the mapping (mutate one palette cell → RED). GREEN ⇒ the ceremony was a pure
 rename, safe to delete; the render-smoke + recipe snapshots stayed byte-identical (the companion
 end-to-end proof).
