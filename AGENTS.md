@@ -18,7 +18,8 @@ If something here conflicts with the code, the code wins — fix this file, don'
   tokens/       dimensions · colours · typography      (the token SoTs)
   axes/         resolve-map · palette-surface · interactive-effects ·
                 typography-axis · property-spelling · interaction
-  components/   composition-button · icon-avatar · topbar · schema  (the descriptors + the frozen schema)
+  components/   button · icon-avatar · icon-button · tab-bar · tab-bar-item ·
+                topbar · schema                         (the descriptors + the frozen schema)
   icons/        *.svg                                   (the icon SoT)
 ```
 
@@ -48,6 +49,18 @@ Every other package is a **projection** that owns its resolution:
   `doc` · `rn` (render-smoke + tsc) · `expo-demo` (tsc). The `rn` render-smoke renders the contract, so a
   contract change that breaks RN fails CI by construction.
 - Every change ships on a branch via PR into protected `main`.
+
+## What the gates do NOT prove (the register's durable lesson)
+
+The 5 gates prove **behaviour** (render-smoke · tsc) and **drift** (re-emit ≡ committed) — **never
+architecture**. Agnosticism, naming coherence, type-surface honesty, resolution timing, and guard
+completeness are gate-invisible: code violating all five still renders correctly and re-emits
+faithfully. They are defended by the landed anti-rot guards (spec-agnosticism · naming ·
+no-unused-exports · rn-token-escape-hatch · the recipes/geometry-bake oracle) plus adversarial
+review — a guard proves only what it COMPARES, so review the comparison surface, not just the
+guard's existence. Ledger hygiene is a process rule, not a gate: the PR that ships a fix flips the
+corresponding register/status line in the SAME PR (a stale ledger manufactures phantom work). The
+full gate-blind-spot map lives in [`docs/archive/debt-register.md`](./docs/archive/debt-register.md) §2.
 
 ---
 

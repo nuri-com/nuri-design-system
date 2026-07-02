@@ -5,14 +5,14 @@
  * thing — observedAttributes (variant · size · accent · disabled), the attr →
  * selection read, the label capture, the public defaults (variant=soft · size=md
  * · from the descriptor · R1.5), the de-collapsed `nuri-*` mount — is DERIVED
- * by defineNuriComponent from the FROZEN button descriptor (build/
+ * by defineNuriComponent from the FROZEN button descriptor (generated/
  * descriptors/button.js · the authored SoT · decision 69). The hand
  * `HTMLElement` wrapper class RETIRED at N+50 (the web twin of RN's
  * createNuriComponent · "adding a component = adding data in spec").
  *
  * The page MUST also load the primitive element scripts the factory tree upgrades
  * into (pressable.js + typography.js · self-imported below · idempotent define-
- * guards) and link lib/runtime/reset.css (the native-<button> UA normalization).
+ * guards) and link factory/reset.css (the native-<button> UA normalization).
  * factory.js + the descriptor twin arrive via this module's imports.
  *
  * Public API UNCHANGED — <nuri-button variant size accent disabled>Label</nuri-button>:

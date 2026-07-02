@@ -25,7 +25,8 @@ target's output is *generated* from it.
   tokens/           dimensions · colours · typography        (the token SoTs)
   axes/             resolve-map · palette-surface · interactive-effects ·
                     typography-axis · property-spelling · interaction
-  components/        composition-button · icon-avatar · topbar · schema  (descriptors)
+  components/       button · icon-avatar · icon-button · tab-bar ·
+                    tab-bar-item · topbar · schema             (descriptors)
   icons/            *.svg                                     (the icon SoT)
 
 @nuri/rn            PRODUCTION — the RN projection
@@ -83,13 +84,18 @@ scripts/            the codegen — reads spec's TS SoTs, writes each projection
 
 ## State
 
-The infrastructure refactor is **complete** — `@nuri/spec` is pure data, the two projections own their
-generated output, the colour system is data-driven end-to-end. **The current work is the product: the
-catalog** — descriptors for the components still living in `@nuri/prototype/legacy/`, on the principle
-that *everything is axis composition*.
+The infrastructure refactor is **complete** (#105–#126) — `@nuri/spec` is pure data, the two
+projections own their generated output, the colour system is data-driven end-to-end, the
+component-API arc landed (#114–#119 · each descriptor declares its public API and codegen emits
+exact per-component adapters), and the debt register closed with every entry resolved. **The
+current work is the product: the catalog** — descriptors for the components still living in
+`@nuri/prototype/legacy/`, built on that clean foundation, on the principle that *everything is
+axis composition*.
 
 ## Where history lives (you rarely need it)
 
 [`decisionlog.md`](./decisionlog.md) and [`roadmap/`](./roadmap/) are the **immutable historical
-record** — the *why* behind how things got here. They are archived: do not cite them operationally
-(this doc + the code are current). [`docs/RISKS.md`](./docs/RISKS.md) is the live risk register.
+record** — the *why* behind how things got here. Settled design docs and closed registers (the debt
+register · the target designs · the consumer feedback · the 2026-06 risk snapshot) live in
+[`docs/archive/`](./docs/archive/). They are archived: do not cite them operationally (this doc +
+the code are current). [`docs/RISKS.md`](./docs/RISKS.md) is the live risk register.

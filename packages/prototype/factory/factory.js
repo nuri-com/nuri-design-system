@@ -56,9 +56,9 @@
  *
  * USAGE (the smoke mounts the output · the factory is a function · paths from a recipe):
  *   import { buildComponent } from '../factory/factory.js';
- *   import { compositionButtonDescriptor } from '../../spec/build/descriptors/composition-button.js';
+ *   import { buttonDescriptor } from '../generated/descriptors/button.js';
  *   container.appendChild(
- *     buildComponent(compositionButtonDescriptor, { variant: 'solid', size: 'md' }, { children: 'Pay' }),
+ *     buildComponent(buttonDescriptor, { variant: 'solid', size: 'md' }, { children: 'Pay' }),
  *   );
  *
  * An unset axis resolves to descriptor.defaults[axis] (R1.5 · N+50 · now IN the

@@ -8,7 +8,7 @@
  * disabled) and the aria-label a11y name — all from the FROZEN icon-button
  * descriptor (generated/descriptors/icon-button.js · the authored SoT · decision
  * 69). Zero hand code. (The anchored mid-text lockup relocated to composable
- * Button · Path C Phase 4 · docs/component-api-target.md.)
+ * Button · Path C Phase 4 · docs/archive/component-api-target.md.)
  *
  * The page MUST also load the primitive element scripts the factory tree upgrades
  * into — pressable.js (the interactive host) + icon.js (the glyph) — and link the

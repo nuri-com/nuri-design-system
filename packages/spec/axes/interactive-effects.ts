@@ -21,8 +21,9 @@
  * The prototype projection owns browser selectors, declarations, affordance chrome,
  * and source order in `packages/prototype/pipeline/parsers/interactive-css.js`. The
  * web factory still derives gated host attributes from `opts[key].gate`, and the RN
- * applier (packages/rn/factory/resolve.ts · flattenPart + buildPartRecipe) walks
- * `opts` in key order → the same state patches.
+ * applier (packages/rn/factory/resolve.ts · flattenInteractive · shared by the
+ * flattenPart test oracle + the flattenBakedPart render path) walks `opts` in key
+ * order → the same state patches.
  *
  * ── THE RN REALIZATION VOCABULARY (`opts[key].rn` · pure data) ──
  *   · { prop, from }            — the value is READ from the resolved node

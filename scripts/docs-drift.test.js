@@ -40,7 +40,7 @@
  *       (decision 65 step 5 · "an enforced freeze, not honorary"). The
  *       five namespace field vocabularies, the leaf/structural unions, and
  *       the Descriptor/PartAnatomy/PartMap envelope are pinned EXACTLY as
- *       pipeline/descriptors/schema.ts declares them; a field added /
+ *       packages/spec/components/schema.ts declares them; a field added /
  *       removed / renamed / retyped, or a union member moved, breaks here.
  *       Distinct from D: D keeps the INSTANCES faithful to live CSS (the
  *       per-component axes/values stay free); F freezes the schema shape.
@@ -412,7 +412,7 @@ test('E · build/palette.ts re-derives from the TS SoT and matches the pinned co
 // The cross-repo contract IS the schema shape (decision 65 · 65.1 · the
 // source-agnostic freeze). B2c·2 (#28) landed it in its final composition form;
 // B3 LOCKS it. This guard pins the schema's field vocabularies, leaf/structural
-// unions, and the descriptor envelope EXACTLY as pipeline/descriptors/schema.ts
+// unions, and the descriptor envelope EXACTLY as packages/spec/components/schema.ts
 // declares them, then asserts the source still declares precisely that — "a
 // schema-shape test · an enforced freeze, not honorary" (decision 65 step 5).
 //
@@ -509,7 +509,7 @@ const FROZEN_SCHEMA = {
   // change: the emitted twins are byte-identical (the strip drops types).
   //
   // `api` (ComponentApi · REQUIRED) added at Path C · Phase 1 (the component-API
-  // arc · docs/component-api-target.md · the 3rd deliberate post-freeze envelope
+  // arc · docs/archive/component-api-target.md · the 3rd deliberate post-freeze envelope
   // add · decision 65 "post-freeze changes are versioned"). It is the missing
   // schema layer — the descriptor's PUBLIC API as DATA (axes / themeScope /
   // behaviour / propMaps / slots) — so the RN factory stops INVENTING each

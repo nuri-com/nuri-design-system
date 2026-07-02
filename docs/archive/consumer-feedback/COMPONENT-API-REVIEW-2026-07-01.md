@@ -1,3 +1,5 @@
+> ARCHIVED — external review input, fully acted on (distilled + reconciled into `component-api-target.md` · shipped #114–#119).
+
 # Nuri RN component API / factory architecture review
 
 **Scope:** `nuri-com/nuri-design-system` at `main` `f8a7bfd2e296418e5926e731e5b45f3df52f0bca`  

@@ -72,7 +72,7 @@ export const buttonDescriptor: Descriptor<ButtonAxes> = {
   // (NOT the variant-order first value `solid`), md (NOT `sm`). Both factories
   // read this, so neither binding hand-passes a default (the web↔RN parity close).
   defaults: { variant: 'soft', size: 'md' },
-  // The PUBLIC API (Path C · Phase 1 · docs/component-api-target.md). variant ×
+  // The PUBLIC API (Path C · Phase 1 · docs/archive/component-api-target.md). variant ×
   // size surface as style props; the root is the pressable target (all three
   // interactive channels are opted in on `structure.base`). Bare untagged
   // children still sink to the label (`<Button>Buy</Button>`). The composed

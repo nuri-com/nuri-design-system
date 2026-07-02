@@ -32,7 +32,7 @@ const PROTOTYPE = resolve(REPO_ROOT, 'packages/prototype');
 
 // Whole-directory copies (src → dst under @nuri/doc). The dst layout mirrors the
 // package layout so the recipes' relative imports (../factory · ../primitives ·
-// ../../spec/build/descriptors · ../../spec/lib/components/icon/icons.js) resolve
+// ../generated/descriptors · ../generated/icons.js) resolve
 // inside assets/nuri/. The staged dir is gitignored (.gitignore: /assets/nuri/).
 const DIRS = [
   // @nuri/prototype — the web mechanism + nuri-demo + the GENERATED web projection

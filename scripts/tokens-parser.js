@@ -18,7 +18,7 @@
  * Companion to the browser parser at lib/docs/tokens.js — same shape,
  * different read environment (postcss vs document.styleSheets).
  *
- * See skills/pipeline-dtcg-export.md and docs/RISKS.md R2 for the
+ * See docs/archive/RISKS-2026-06.md R2 (historical) for the
  * workstream context.
  * ────────────────────────────────────────────────────────────── */
 
@@ -467,9 +467,9 @@ async function main() {
   await writeFile(ACCENTS_JS_OUT, emitAccentsJs(ACCENTS), 'utf8');
 
   // ── Slice 7 · per-component descriptor emit (N+19 · decision 65 · §9 step 1 · decision 69) ──
-  // Under build/descriptors/ (a separate dir · independent of every other slice).
+  // Under packages/prototype/generated/descriptors/ (a separate dir · independent of every other slice).
   // §9 step 1 INVERTED the source: each descriptor is HAND-AUTHORED at
-  // pipeline/descriptors/<name>.ts (the SoT · decision 2 reversed for the layer ·
+  // packages/spec/components/<name>.ts (the SoT · decision 2 reversed for the layer ·
   // decision 69). The verbatim .ts COPY is NO LONGER emitted (Slice 3a ·
   // projection-model §4 · decision 80): @nuri/rn now imports the authored source
   // directly via its `./descriptors/<name>` exports subpath — the data it sees is
