@@ -9,7 +9,7 @@ nav_order: 3
 
 # Palette
 
-The bespoke **palette** axis — the colour funnel: a surface role resolves a node’s complete pair (background + foreground) plus the optional pressed swap.
+The bespoke **palette** axis — the colour funnel: a surface role resolves a node’s complete pair (background + foreground) plus the optional pressed swap and the optional border stroke.
 
 ## Variant
 

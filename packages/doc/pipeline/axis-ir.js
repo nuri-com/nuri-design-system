@@ -203,7 +203,7 @@ export const AXIS_DOCS = [
     source: 'palette',
     nav: 3,
     src: 'packages/spec/axes/palette-surface.ts',
-    lead: 'The bespoke **palette** axis — the colour funnel: a surface role resolves a node’s complete pair (background + foreground) plus the optional pressed swap.',
+    lead: 'The bespoke **palette** axis — the colour funnel: a surface role resolves a node’s complete pair (background + foreground) plus the optional pressed swap and the optional border stroke.',
     build: (d) => paletteAxisIr(d.surface, d.roleColor),
   },
   {

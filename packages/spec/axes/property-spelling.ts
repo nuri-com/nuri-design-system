@@ -36,9 +36,15 @@
  *   · fg             — RN a threaded foreground channel · web `color` +
  *     currentColor inheritance. (resolve.ts's resolvePalette.)
  *   · pressed        — RN a JS state swap · web `:active`. (the interactive axis.)
- * Reserved `border` / `outline` (decision 30 · mapped-not-built) will join here
- * as the registry's first NEW consumer when an axis needs them — not pre-added
- * (P11 · no consumer yet). A `web` runtime column can join `{ rn, css }` if a
+ * The palette BORDER channel (the `outline` variant's stroke) shipped BESPOKE,
+ * not through this registry: RN spells it `borderWidth`/`borderColor` via the
+ * resolver's PALETTE_BORDER_WIDTH and the web emit writes the `border`
+ * shorthand off `--nuri-border-1` (mechanism-divergent like `fg`/`pressed`,
+ * not a name map). Promoting the width into the dimension SoT is deliberately
+ * DEFERRED to the catalog-arc gap batch (it lands with the Separator
+ * primitive, which wants the same token). `outline` — the focus affordance
+ * property — remains reserved (decision 30 · mapped-not-built · no consumer).
+ * A `web` runtime column can join `{ rn, css }` if a
  * future axis applies inline web styles; box/stack need only `{ rn, css }` (the
  * web factory dispatches by data-attr, the namespace CSS supplies the property).
  *

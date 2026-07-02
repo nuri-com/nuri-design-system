@@ -19,7 +19,7 @@
  * Public API — <nuri-icon-avatar icon variant accent></nuri-icon-avatar>:
  *   icon    → the glyph NAME routed into the lone `icon` part (the component prop · the
  *             primitive <nuri-icon> leaf carries `name` · aligned across RN + web)
- *   variant → "soft" (default) | "solid" | "ghost" | "subtle"   · size LOCKED (lg circle / md glyph)
+ *   variant → "soft" (default) | "solid" | "ghost" | "subtle" | "outline"   · size LOCKED (lg circle / md glyph)
  *   accent  → Tier-2 self-scope (threaded as a prop · data-accent on the merged node)
  *   the host is aria-hidden (decorative · decision 50), not focusable, carries no role.
  *

@@ -21,8 +21,8 @@
  *   · REST state · one rule per (axis, input): `.nuri-palette[data-<axis>="<v>"]`
  *     paints the COMPLETE pair — `background` (when the role has a bg) + `color`
  *     + optional border stroke.
- *     `variant` (solid/soft/ghost/subtle) carries accent identity; `chrome`
- *     (canvas/subtle/strong) is the theme-only slot. variant XOR chrome.
+ *     `variant` (solid/soft/ghost/subtle/outline) carries accent identity;
+ *     `chrome` (canvas/subtle/strong) is the theme-only slot. variant XOR chrome.
  *   · PRESSED · `.nuri-palette[data-variant="<v>"][data-press-color]:active`
  *     swaps `background` (background-only · the scale/opacity transients are
  *     interactive's). Gated on `[data-press-color]` so a STATIC surface never

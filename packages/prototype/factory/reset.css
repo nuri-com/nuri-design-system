@@ -53,7 +53,7 @@
      * appearance:none alone does NOT clear it cross-browser) — normalized to
      * transparent so a fg-ONLY palette variant (`subtle` · used for an unselected
      * tab item) reveals the canvas behind it, matching RN's Pressable (no UA
-     * chrome). A variant that PAINTS a bg (solid/soft/ghost) still wins: its
+     * chrome). A variant that PAINTS a bg (solid/soft/ghost/outline) still wins: its
      * `.nuri-palette[data-variant]` (0,2,0) outranks this `.nuri-interactive`
      * (0,1,0) in the same @layer, so only the no-bg `subtle` falls through here. */
     background: transparent;

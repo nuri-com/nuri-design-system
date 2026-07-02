@@ -14,9 +14,10 @@
  * wiring, and derivePalette() asserts EVERY cell against the namespace
  * axis TS SoTs before anything emits:
  *
- *   · EVERY variant + chrome bg/fg/pressed cell — palette-surface.ts's SURFACE role
- *     table (the complete pair + the optional pressed swap: variant solid/soft/ghost/
- *     subtle + the 3 chrome slots; an extra/missing role or channel throws).
+ *   · EVERY variant + chrome bg/fg/pressed/border cell — palette-surface.ts's SURFACE
+ *     role table (the complete pair + the optional pressed swap + the optional border:
+ *     variant solid/soft/ghost/subtle/outline + the 3 chrome slots; an extra/missing
+ *     role or channel throws).
  *   · fgMuted (every cell)                       — typography-axis.ts's muted role
  *     (the single muted delivery · decision 53; no node-level muted).
  *
@@ -130,8 +131,9 @@ export function derivePalette({ surface, typographyAxis }, { classifiedGroups })
     }
   }
 
-  // E · bg/fg/pressedBg (every cell) ← palette-surface.ts's SURFACE role table. The
-  // contract's {bg, fg, pressedBg} restates the SoT's {bg, fg, pressed} pair, modulo
+  // E · bg/fg/pressedBg/border (every cell) ← palette-surface.ts's SURFACE role table.
+  // The contract's {bg, fg, pressedBg, border} restates the SoT's {bg, fg, pressed,
+  // border}, modulo
   // the role-name → `--nuri-<role>` prefix (paintToVar) and the `transparent` literal.
   // The SoT's shape is honored, not special-cased: subtle is fg-only (no bg/pressed),
   // the chrome slot has no pressed. fgMuted is typography's (section D), NOT a surface

@@ -72,8 +72,8 @@ type Surface = { bg?: Paint; fg: Paint; pressed?: Paint; border?: Paint };
 type SurfaceTable = { variant: Record<string, Surface>; chrome: Record<string, Surface> };
 
 // ── The SURFACE role table (the bespoke single source · key order = the emit /
-// hand-CSS order: variant solid→soft→ghost→subtle, then chrome canvas→subtle→
-// strong) ──
+// hand-CSS order: variant solid→soft→ghost→subtle→outline, then chrome canvas→
+// subtle→strong) ──
 export const surface = {
   variant: {
     solid:  { bg: 'accent-solid',            fg: 'accent-on-solid', pressed: 'accent-solid-pressed' },
