@@ -165,36 +165,33 @@ copy of `box.js` etc.); they are not the active projection and are out of scope 
 
 ---
 
-## 2. The web↔RN parity gap (the layer to build)
+## 2. The web↔RN parity gap (closed for the hand-authorable primitive layer)
 
-**Contracted primitives with a web impl but NO hand-authorable RN impl:**
+The audit-era gap was: web had hand-authorable primitives, while RN exposed only
+catalog components plus raw `react-native` hosts. That is no longer true. `@nuri/rn`
+now exports the open primitive layer (`View`, `Stack`, `Text`, `Pressable`, `Screen`,
+`Scroll`) alongside `NuriIcon` and the generated catalog components
+([index.ts](packages/rn/index.ts); [primitives/index.ts](packages/rn/primitives/index.ts)).
 
-| Primitive | Web | RN today | To build |
-|---|---|---|---|
-| **View** | `<nuri-view>` | factory-internal `el:'view'` only | hand-authorable `<View variant="soft" padding="md" direction="row" gap="sm">` wrapper (flat box ⊕ stack ⊕ palette props · the #102 decision · buckets disjoint) → `<View style={resolve(ns)}>` |
-| **Stack** | `<nuri-stack>` | — | `<Stack direction gap …>` wrapper |
-| **Text** | `<nuri-typography>` | factory-internal `el:'text'` only | `<Text size emphasis>` wrapper |
-| **Pressable** | `<nuri-pressable>` | factory-internal interactive-view only | `<Pressable …>` wrapper (View + interactive) |
-| **Screen** | `<nuri-screen>` | — | thin `<View style={{flex:1}}>` |
-| **Scroll** | `<nuri-scroll>` | — | thin wrapper over `<ScrollView>` |
-| **Icon** | `<nuri-icon>` | ✅ `NuriIcon` | — (done) |
+| Primitive | Web | RN today |
+|---|---|---|
+| **View** | `<nuri-view>` | `View` — flat box ⊕ stack ⊕ palette props |
+| **Stack** | `<nuri-stack>` | `Stack` — stack namespace props |
+| **Text** | `<nuri-typography>` | `Text` — typography + palette colour |
+| **Pressable** | `<nuri-pressable>` | `Pressable` — View + interactive opt-ins |
+| **Screen** | `<nuri-screen>` | `Screen` — structural full-screen wrapper |
+| **Scroll** | `<nuri-scroll>` | `Scroll` — structural scroll wrapper |
+| **Icon** | `<nuri-icon>` | `NuriIcon` |
 
-**Confirmed: RN exposes only catalog components + raw react-native today.** The `@nuri/rn` barrel
-re-exports `./contract` (descriptors + schema types) + `./theme` (the provider + `typeStyle` /
-`useNuriTheme`) + `./factory` ([rn/index.ts](packages/rn/index.ts)). The factory's public surface is the
-**seven catalog components** (`Button`, `IconAvatar`, `Topbar` + 3 slots, `IconButton`,
-`TabBarItem`, `TabBar`) + `createNuriComponent` + resolver helpers + `NuriIcon`
-([index.ts](packages/rn/index.ts)). **No `View` / `Stack` / `Text` /
-`Box` is exported** (grep over `@nuri/rn` = none). The evidence the gap forces in practice: the demo
-screen does its layout with **raw react-native** — `import { ScrollView, StyleSheet, View } from
-'react-native'` and a `StyleSheet.create` (the audit-era R1.5 `src/screens/Demo.tsx`, since
-superseded by the pure-DS wallet/coin/cash screens and deleted — git history),
-**not** DS primitives. So the playground demo screens are **not yet 1:1 syntax-translatable** to RN.
+The RN wrappers reuse the existing runtime appliers: `resolveNS` / `flattenInteractive`
+drive the **same** `BOX_FIELDS` / `STACK_FIELDS` resolve-map the web CSS is generated
+from ([resolve-map.ts](packages/spec/axes/resolve-map.ts)). **The wrappers call into
+those appliers — never a second hand-written prop→style mapping** (the drift rule).
 
-The RN render path each wrapper reuses already exists: `resolve.ts`'s `resolveNS` / `flattenPart` /
-`applyFields` apply the **same** `BOX_FIELDS` / `STACK_FIELDS` resolve-map the web CSS is generated
-from ([resolve-map.ts:8-12](packages/spec/axes/resolve-map.ts:8)). **The wrappers must call into
-that existing applier — never a second hand-written mapping** (the drift rule).
+The Expo demo no longer demonstrates the old gap: the audit-era raw-RN
+`src/screens/Demo.tsx` was superseded by the wallet/coin/cash screens, which compose
+through the `src/components/ui` DS manifest and keep raw `react-native` usage in the
+app harness only.
 
 ---
 
@@ -252,19 +249,12 @@ version-negotiation — there is no external consumer to negotiate with.
 
 ---
 
-## 4. Recommended sequencing (the follow-up briefs this audit unlocks)
+## 4. Recommended sequencing (current tail)
 
-Ordered. Each sized, with its named risk.
+The original first step — build the RN primitive layer + parity/render gates — is
+done. The remaining primitive-contract tail starts after that closed layer.
 
-**① Build the RN primitive layer + the parity gate** — *medium.*
-Hand-authorable `Stack` + `View` first (the dominant layout pair), then `Text` + `Pressable`, as
-thin wrappers forwarding namespace props through the **existing** `resolve.ts` appliers → `<View
-style>` / `<Text style>` / `<Pressable>`. Land gates 3.3(a) + 3.3(b) with them.
-> **Risk:** the wrappers must reuse `resolveNS`/`flattenPart`/`applyFields` (the same resolve-map the
-> web CSS is generated from) — a *second* hand-written mapping would reintroduce exactly the drift
-> the single-SoT contract exists to prevent.
-
-**② Fold Box → View + prune the spent legacy** — *small.*
+**① Fold Box → View + prune the spent legacy** — *small.*
 Retire the `<nuri-box>` standalone element (box.js + its host rules) per the §1.B work-list; prune
 the rebuilt `legacy/icon-button` + `legacy/tab-bar` pairs (#92 / #96).
 > **Risk:** **keep the box *namespace*** (`.nuri-box[...]` rules / box.css / `BOX_FIELDS` / the
@@ -272,20 +262,18 @@ the rebuilt `legacy/icon-button` + `legacy/tab-bar` pairs (#92 / #96).
 > depends on `<nuri-box>` markup (audit: only `doc/archive` + `legacy`). Leave archived surfaces
 > frozen.
 
-**③ The card as `<View>` composition** — *small–medium.*
+**② The card as `<View>` composition** — *small–medium.*
 A real `card.ts` surface built from the new `View` primitive (box⊕stack⊕palette), so a card is a DS
 component, not a page-local mockup `<div>`.
 > **Risk:** a card *surface* must be a genuine `View` composition, not a standalone box — the moment
 > a layout can't be expressed in DS props it is a real gap, not a CSS patch.
 
-**④ Re-author the 3 playground screens as pure-DS / RN-translatable + the harness height fix** —
-*medium.*
-The active playground screens use page-local CSS classes — `.screen` and `.screen__body { flex: 1 }`
-on `<nuri-stack>` ([tab-bar.html:91,102,115](packages/playground/pages/tab-bar.html:91)) — which are
-web-only mockups, not DS components, so they don't translate 1:1 to RN. Re-author them on the new
-`Screen` / `Stack` / `View` primitives; move device-fill into the **harness**, not the screen.
-> **Risk:** a screen built from pure DS components must be syntax-translatable to RN with zero
-> page-local CSS; the harness owns device-fill height, the screen owns only DS composition.
+**③ Keep playground/demo screens pure DS** — *ongoing.*
+The Expo demo's wallet/coin/cash screens now demonstrate the target shape: screen
+composition through DS primitives and generated catalog components, with raw RN
+reserved for app harness responsibilities (safe-area, theme toggle, root surface).
+> **Risk:** a layout that cannot be expressed in DS props is a real DS gap, not a
+> page-local CSS/style patch.
 
 ---
 
@@ -295,10 +283,10 @@ web-only mockups, not DS components, so they don't translate 1:1 to RN. Re-autho
   ([schema.ts:237](packages/spec/components/schema.ts:237)) · pinned `El: ['view','text','icon']`
   ([docs-drift.test.js:507](scripts/docs-drift.test.js:507)). Pressable = interactive-flagged view
   ([renderer.tsx:165-189](packages/rn/runtime/renderer.tsx:165)).
-- **RN has no hand-authorable primitive:** the factory barrel exports only catalog components +
-  helpers + `NuriIcon` ([index.ts](packages/rn/index.ts)); the demo lays
-  out with raw `react-native` `View`/`ScrollView`/`StyleSheet` (the audit-era R1.5
-  `src/screens/Demo.tsx`, since superseded and deleted — git history).
+- **RN hand-authorable primitives exist:** the public barrel exports
+  `View`/`Stack`/`Text`/`Pressable`/`Screen`/`Scroll` from
+  [primitives/index.ts](packages/rn/primitives/index.ts), and the Expo demo screens
+  consume them through `src/components/ui`.
 - **The Box-fold work-list:** the box *namespace* (`.nuri-box`) is applied by the factory
   ([factory.js:160](packages/prototype/factory/factory.js:160)) + the icon
   ([icon.js:72](packages/prototype/primitives/icon.js:72)) and already lives on `View`

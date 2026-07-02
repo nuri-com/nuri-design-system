@@ -42,14 +42,17 @@ config.resolver.nodeModulesPaths = [
 // the only mechanism — a from-scratch regen — refreshes the whole tree and
 // breaks the RN toolchain, and a non-RN carve-add is conservative anyway, so
 // the multi-instance hazard (and this redirect) persists by design.)
-// `react-native` is left to Metro's platform-aware resolution (web aliases it
-// to the single react-native-web).
+// Keep the React Native runtime single too. Even when the nested workspace copies
+// are version-identical, bundling two `react-native` module instances on Android
+// can double-run global exception/devtools setup before the app paints.
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   if (
     moduleName === 'react' ||
     moduleName === 'react-dom' ||
+    moduleName === 'react-native' ||
     moduleName.startsWith('react/') ||
-    moduleName.startsWith('react-dom/')
+    moduleName.startsWith('react-dom/') ||
+    moduleName.startsWith('react-native/')
   ) {
     return context.resolveRequest(
       { ...context, originModulePath: path.join(projectRoot, 'index.ts') },
