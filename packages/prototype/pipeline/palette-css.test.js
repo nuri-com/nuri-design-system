@@ -170,20 +170,26 @@ test('Guard C · every generated paint bottoms out in the default (neutral/light
   let checked = 0;
   for (const [sel, decls] of gen) {
     for (const [prop, value] of decls) {
-      const name = varName(value);
-      if (name) {
-        const hex = resolved[name]?.neutral?.light;
-        assert.ok(
-          hex && HEX.test(hex),
-          `${sel} { ${prop}: ${value} } does not resolve to a hex via the colour cascade (dangling role var?) — got ${hex}`,
-        );
-      } else if (prop === 'border') {
+      // `border` FIRST — a border emit degraded to a bare colour var would
+      // otherwise classify as generic paint and pass while the browser renders
+      // no stroke (border-style defaults to none); the shorthand shape is the guard.
+      if (prop === 'border') {
         const borderRole = borderValue(value);
         assert.ok(borderRole, `${sel} { border: ${value} } is not the palette border shorthand`);
         const hex = resolved[borderRole]?.neutral?.light;
         assert.ok(
           hex && HEX.test(hex),
           `${sel} { border: ${value} } border colour does not resolve to a hex via the colour cascade — got ${hex}`,
+        );
+        checked++;
+        continue;
+      }
+      const name = varName(value);
+      if (name) {
+        const hex = resolved[name]?.neutral?.light;
+        assert.ok(
+          hex && HEX.test(hex),
+          `${sel} { ${prop}: ${value} } does not resolve to a hex via the colour cascade (dangling role var?) — got ${hex}`,
         );
       } else {
         assert.equal(
