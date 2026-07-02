@@ -248,13 +248,17 @@ const AXIS_CONTRACT = {
   palette: {
     nav: 3, title: 'Palette', section: '## Variant',
     cells: [
-      // a resolving swatch (live var() + role NAME + default-scope hex · all 3 channels)
-      '| `soft` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-strong)"></span> `bg-strong` `#f3f1e2` | <span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `text-primary` `#222013` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-pressed)"></span> `bg-pressed` `#ece9da` |',
-      // the fg-only `subtle` (absent bg + pressed → the em-dash)
-      '| `subtle` | — | <span class="nuri-doc-swatch" style="background:var(--nuri-border-strong)"></span> `border-strong` `#bfbcac` | — |',
+      // a resolving swatch (live var() + role NAME + default-scope hex · all 4 channels
+      // incl. the trailing Border em-dash — pinned to the row END so the Border cell
+      // of a pre-outline row cannot silently drift behind a substring-prefix pass)
+      '| `soft` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-strong)"></span> `bg-strong` `#f3f1e2` | <span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `text-primary` `#222013` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-pressed)"></span> `bg-pressed` `#ece9da` | — |',
+      // the fg-only `subtle` (absent bg + pressed + border → the em-dashes)
+      '| `subtle` | — | <span class="nuri-doc-swatch" style="background:var(--nuri-border-strong)"></span> `border-strong` `#bfbcac` | — | — |',
       '| `outline` | <span class="nuri-doc-swatch" style="background:transparent"></span> `transparent` | <span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `text-muted` `#666455` | — | <span class="nuri-doc-swatch" style="background:var(--nuri-border-subtle)"></span> `border-subtle` `#dddac9` |',
     ],
-    includes: ['## Chrome'], // the second dispatch table (variant XOR chrome)
+    // the 5-column header (a ragged-table regression fails here) + the second
+    // dispatch table (variant XOR chrome)
+    includes: ['| Variant | Background | Foreground | Pressed | Border |', '## Chrome'],
   },
   interactive: {
     // SEED-1a: agnostic opts come from spec; web selector/chrome/order facts come from
