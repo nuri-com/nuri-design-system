@@ -475,6 +475,11 @@ const FROZEN_SCHEMA = {
   leafUnions: {
     SpaceLeaf: ['xs', 'sm', 'md', 'lg', 'xl'],
     RadiusLeaf: ['sm', 'md', 'lg', 'full'],
+    // `outline` ADDED at the icon-avatar outline slice (PR #130 · the 1st deliberate
+    // post-freeze PaletteVariant add · decision 65 "post-freeze changes are versioned"
+    // · logged as amendment 65.12): the palette's first BORDER channel (transparent
+    // bg · text-muted fg · 1px border-subtle stroke) — closes decision 30's
+    // "palette outline = reserved, mapped-not-built".
     PaletteVariant: ['solid', 'soft', 'ghost', 'subtle', 'outline'],
     PaletteChrome: ['canvas', 'subtle', 'strong'],
   },
