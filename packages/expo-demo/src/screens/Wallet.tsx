@@ -11,8 +11,6 @@
  *     bare Text reads the themed fg by scope (§12).
  *   · `gap="none"` dropped (no 'none' space leaf · the flex default IS no gap).
  *   · bare `fill` → fill="grow" (the web bare-attr back-compat value).
- *   · typography `align="center"` has no RN/schema axis (DS GAP) — the
- *     centring is approximated with a DS align wrapper.
  * ────────────────────────────────────────────────────────────── */
 
 import * as React from 'react';
@@ -44,9 +42,7 @@ export const Wallet: React.FC = () => (
 
     <View direction="column" align="stretch" justify="start" gap="lg" paddingX="lg" paddingY="md" fill="grow">
       <View aspectRatio="card" radius="lg" />
-      <View align="center">
-        <Text size="3xl" emphasis>€ 25.87</Text>
-      </View>
+      <Text size="3xl" emphasis align="center">€ 25.87</Text>
       <View direction="row" align="center" gap="sm">
         <View fill="even">
           <Button size="lg" variant="soft">Receive</Button>

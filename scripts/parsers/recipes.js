@@ -11,10 +11,11 @@
  *
  * ── WHAT IS BAKED (per part · base + per axis/value) ───────────────
  *   · geometry     box ⊕ stack resolved to CONCRETE ViewStyle (colour SKIPPED).
- *   · typography   the RAW { size?, emphasis? } namespace PARTIAL (NOT a resolved
+ *   · typography   the RAW { size?, emphasis?, align? } namespace PARTIAL (NOT a resolved
  *                  ref) — merged at runtime (mergeNS semantics · base ⊕ variants,
- *                  field-level, later wins) THEN resolved to the type ref, so an
- *                  emphasis-only variant over a base `size` composes faithfully.
+ *                  field-level, later wins) THEN resolved to type/text style, so
+ *                  emphasis-only or align-only variants over a base `size` compose
+ *                  faithfully.
  *   · interactive  the RAW { pressColor?, pressScale?, disabledOpacity? } opt-in
  *                  (booleans · colour-free) — carried through the SAME base/variant
  *                  channel so SELECTION-DEPENDENT interactivity is preserved (a
@@ -149,7 +150,7 @@ function resolveGeometryNode(ns, deps) {
         Object.assign(node.view, applyFieldsNode(deps.BOX_FIELDS, v, deps.spelling, deps.scales));
         break;
       case 'typography':
-        node.typography = v; // the raw { size?, emphasis? } partial — merged at runtime
+        node.typography = v; // the raw { size?, emphasis?, align? } partial — merged at runtime
         break;
       case 'palette':
         break; // colour is the Arc-1 runtime path — NEVER baked (the no-colour invariant)

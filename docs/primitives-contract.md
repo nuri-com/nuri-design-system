@@ -73,7 +73,7 @@ consumer can write).
 |---|---|---|---|---|
 | **View** | `<nuri-view>` · [view.js](packages/prototype/primitives/view.js) + [view.css](packages/prototype/primitives/view.css) | ✅ the merged box⊕stack⊕palette host | ✅ **`View`** ([primitives/View.tsx](packages/rn/primitives/View.tsx)) | `box` + `stack` + `palette` ([schema.ts:135,109,173](packages/spec/components/schema.ts:135)) |
 | **Stack** | `<nuri-stack>` · [stack.js](packages/prototype/primitives/stack.js) + [styles/stack.css](packages/prototype/styles/stack.css) | ✅ | ✅ **`Stack`** ([primitives/Stack.tsx](packages/rn/primitives/Stack.tsx)) | `stack` (`StackNS`: direction·align·justify·gap·wrap·fill · [schema.ts:109-116](packages/spec/components/schema.ts:109)) |
-| **Text** (Typography) | `<nuri-typography>` · [typography.js](packages/prototype/primitives/typography.js) + [styles/typography.css](packages/prototype/styles/typography.css) | ✅ | ✅ **`Text`** ([primitives/Text.tsx](packages/rn/primitives/Text.tsx)) | `typography` (`size`·`emphasis` · [schema.ts:158-161](packages/spec/components/schema.ts:158)) + colour via `palette` |
+| **Text** (Typography) | `<nuri-typography>` · [typography.js](packages/prototype/primitives/typography.js) + [styles/typography.css](packages/prototype/styles/typography.css) | ✅ | ✅ **`Text`** ([primitives/Text.tsx](packages/rn/primitives/Text.tsx)) | `typography` (`size`·`emphasis`·`align` · [schema.ts](packages/spec/components/schema.ts)) + colour via `palette` |
 | **Icon** | `<nuri-icon>` · [icon.js](packages/prototype/primitives/icon.js) + [icon.css](packages/prototype/primitives/icon.css) | ✅ | ✅ **`NuriIcon`** ([primitives/NuriIcon.tsx](packages/rn/primitives/NuriIcon.tsx), exported on the public barrel [index.ts](packages/rn/index.ts)) | typed `IconName` + `dimension` (shared `size` axis) + `color` (scope fg) |
 | **Pressable** | `<nuri-pressable>` · [pressable.js](packages/prototype/primitives/pressable.js) + [pressable.css](packages/prototype/primitives/pressable.css) | ✅ | ✅ **`Pressable`** ([primitives/Pressable.tsx](packages/rn/primitives/Pressable.tsx)) | `interactive` (`pressColor`·`pressScale`·`disabledOpacity` · [schema.ts:191-195](packages/spec/components/schema.ts:191)) + box⊕stack⊕palette |
 | **Screen** (structural) | `<nuri-screen>` · [screen.js](packages/prototype/primitives/screen.js) + [screen.css](packages/prototype/primitives/screen.css) | ✅ flex-column fill | ✅ **`Screen`** ([primitives/Screen.tsx](packages/rn/primitives/Screen.tsx)) | none — pure structural fill |
@@ -104,7 +104,7 @@ namespace composition. On RN they map to react-native directly, per their own he
 | [styles/stack.css](packages/prototype/styles/stack.css) | `StackNS` | `STACK_FIELDS` ([resolve-map.ts:101-108](packages/spec/axes/resolve-map.ts:101)) |
 | [styles/palette.css](packages/prototype/styles/palette.css) | `PaletteNS` | palette resolver (RN) / cascade (web) |
 | [styles/interactive.css](packages/prototype/styles/interactive.css) | `InteractiveNS` | the interaction baseline |
-| [styles/typography.css](packages/prototype/styles/typography.css) | `TypographyNS` | the type-scale |
+| [styles/typography.css](packages/prototype/styles/typography.css) | `TypographyNS` | text wrapper dispatch (`muted` · `align`) + type-scale hooks |
 
 ### 1.B — FOLD / RETIRE
 

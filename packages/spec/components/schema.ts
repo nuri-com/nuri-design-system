@@ -151,16 +151,20 @@ export type BoxNS = {
   aspectRatio?: RatioLeaf;
 };
 
-// `typography` — font only, NO colour (decision 64 · the single text-style
+// `typography` — text presentation only, NO colour (decision 64 · the single text-style
 // owner; colour is palette's). TWO orthogonal inputs (decision 77 · the N+45
 // de-fusion · P11): `size` is the type-scale step; `emphasis` is the regular→
 // semibold weight override (a uniform 400→600 across every size · the box/stack
 // `flag` precedent). The factory expands the step via typeStyle (54/55); the
 // engine applies the weight override when `emphasis` (web `[data-type-emphasis]`
-// · RN typeStyle's 2nd arg). Was a single fused `TypeKey` (`mdEm`) — de-fused.
+// · RN typeStyle's 2nd arg). `align` is TEXT alignment (start/center/end), not
+// StackNS layout alignment; web had the raw wrapper dispatch, and RN maps it to
+// TextStyle.textAlign at the resolver boundary. Was a single fused `TypeKey`
+// (`mdEm`) — de-fused.
 export type TypographyNS = {
   size?: TypeSize;
   emphasis?: boolean;
+  align?: 'start' | 'center' | 'end';
 };
 
 // `palette` — ALL colour, from the semantic inputs (65.3 §6 · mirrors the
@@ -227,7 +231,7 @@ export const PALETTE_KEYS = Object.keys(
   { variant: 0, accent: 0, muted: 0, chrome: 0 } satisfies Record<keyof PaletteNS, 0>,
 );
 export const TYPOGRAPHY_KEYS = Object.keys(
-  { size: 0, emphasis: 0 } satisfies Record<keyof TypographyNS, 0>,
+  { size: 0, emphasis: 0, align: 0 } satisfies Record<keyof TypographyNS, 0>,
 );
 
 // ══════════════════════════════════════════════════════════════════

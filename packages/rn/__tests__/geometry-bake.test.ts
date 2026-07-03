@@ -20,7 +20,7 @@
  *
  * Plus: an ARTIFACT-SHAPE guard (recipe parts === the anatomy parts) and CONSUMER
  * generality guards for the two schema-valid cases the catalog does not exercise —
- * SELECTION-DEPENDENT interactivity + EMPHASIS-ONLY typography variants (the
+ * SELECTION-DEPENDENT interactivity + EMPHASIS/ALIGN-ONLY typography variants (the
  * generator's side of those is pinned in scripts/recipes.test.js).
  * ══════════════════════════════════════════════════════════════════ */
 
@@ -225,16 +225,16 @@ describe('geometry bake · consumer — SELECTION-DEPENDENT interactivity surviv
   });
 });
 
-describe('geometry bake · consumer — EMPHASIS-ONLY typography variants compose over a base size', () => {
+describe('geometry bake · consumer — EMPHASIS/ALIGN-ONLY typography variants compose over a base size', () => {
   const descriptor: Descriptor<{ tone: string }> = {
     structure: {
-      anatomy: { el: 'view', parts: { label: { el: 'text' } } },
+      anatomy: { el: 'view', parts: { label: { el: 'text' }, value: { el: 'text' } } },
       base: { label: { typography: { size: 'md', emphasis: true } } },
     },
     variants: {
       tone: {
-        normal: { label: { typography: { emphasis: false } } },
-        loud: { label: { typography: { emphasis: true } } },
+        normal: { label: { typography: { emphasis: false } }, value: { typography: { align: 'start' } } },
+        loud: { label: { typography: { emphasis: true } }, value: { typography: { align: 'end' } } },
       },
     },
     // `api` REQUIRED (Path C · Phase 1) · factory-ignored · minimal for typecheck.
@@ -250,16 +250,30 @@ describe('geometry bake · consumer — EMPHASIS-ONLY typography variants compos
         variants: { tone: { normal: { emphasis: false }, loud: { emphasis: true } } },
       },
     },
+    value: {
+      el: 'text',
+      geometry: { base: {}, variants: {} },
+      typography: {
+        variants: { tone: { normal: { align: 'start' }, loud: { align: 'end' } } },
+      },
+    },
   };
-  test('normal (emphasis-only override) resolves to { size: md } — baked ≡ runtime type ref', () => {
+  test('typography-only overrides resolve — baked ≡ runtime type/text refs', () => {
     const theme = buildNuriTheme('lilac', 'light');
     for (const tone of ['normal', 'loud']) {
-      const runtime = flattenPart(descriptor, theme, 'label', { tone }, {});
-      const baked = flattenBakedPart(recipe.label, descriptor, theme, 'label', { tone }, {});
-      expect(baked.node.type).toEqual(runtime.node.type);
+      const labelRuntime = flattenPart(descriptor, theme, 'label', { tone }, {});
+      const labelBaked = flattenBakedPart(recipe.label, descriptor, theme, 'label', { tone }, {});
+      expect(labelBaked.node.type).toEqual(labelRuntime.node.type);
+
+      const valueRuntime = flattenPart(descriptor, theme, 'value', { tone }, {});
+      const valueBaked = flattenBakedPart(recipe.value, descriptor, theme, 'value', { tone }, {});
+      expect(valueBaked.node.text).toEqual(valueRuntime.node.text);
+      expect(valueBaked.style).toEqual(valueRuntime.style);
     }
     // the concrete divergence: normal drops emphasis over the emphasized base.
     expect(flattenPart(descriptor, theme, 'label', { tone: 'normal' }, {}).node.type).toEqual({ size: 'md' });
     expect(flattenPart(descriptor, theme, 'label', { tone: 'loud' }, {}).node.type).toEqual({ size: 'md', emphasis: true });
+    expect(flattenPart(descriptor, theme, 'value', { tone: 'normal' }, {}).style).toEqual({ textAlign: 'left' });
+    expect(flattenPart(descriptor, theme, 'value', { tone: 'loud' }, {}).style).toEqual({ textAlign: 'right' });
   });
 });

@@ -35,9 +35,7 @@ export const Cash: React.FC = () => (
 
     <View direction="column" align="stretch" justify="start" gap="lg" paddingX="lg" paddingY="md" fill="grow">
       <View aspectRatio="card" radius="lg" variant="soft" />
-      <View align="center">
-        <Text size="3xl" emphasis>€ 1 240.00</Text>
-      </View>
+      <Text size="3xl" emphasis align="center">€ 1 240.00</Text>
       <View direction="row" align="center" gap="sm">
         <View fill="even">
           <Button size="lg" variant="soft">Details</Button>

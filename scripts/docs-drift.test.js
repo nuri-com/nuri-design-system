@@ -464,7 +464,11 @@ const FROZEN_SCHEMA = {
     },
     // DE-FUSED at N+45 (decision 77 · the versioned post-freeze change): two
     // ORTHOGONAL inputs (the fused `${TypeSize}Em` arm of TypeKey is gone · P11).
-    TypographyNS: { 'size?': 'TypeSize', 'emphasis?': 'boolean' },
+    // `align` ADDED at the W3 typography-align slice (a deliberate, versioned
+    // post-freeze TypographyNS add · decision 65 "post-freeze changes are
+    // versioned"): text-axis alignment (`start`/`center`/`end`), distinct from
+    // StackNS layout alignment, projected as raw web `[align]` and RN `textAlign`.
+    TypographyNS: { 'size?': 'TypeSize', 'emphasis?': 'boolean', 'align?': "'start' | 'center' | 'end'" },
     PaletteNS: { 'variant?': 'PaletteVariant', 'accent?': 'Accent', 'muted?': 'boolean', 'chrome?': 'PaletteChrome' },
     InteractiveNS: { 'pressColor?': 'boolean', 'pressScale?': 'boolean', 'disabledOpacity?': 'boolean' },
   },

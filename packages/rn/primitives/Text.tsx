@@ -23,6 +23,7 @@ const TextImpl: React.FC<TextProps> = (props) => {
       style={[
         node.type ? typeStyle(node.type.size, node.type.emphasis) : null,
         fg ? { color: fg } : null,
+        ...(node.text ? [node.text] : []),
         node.view as TextStyle,
       ]}
     >

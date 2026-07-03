@@ -28,7 +28,7 @@
  *     interactive state patch — are merged on. See `BakedPartRecipe` below.
  * ══════════════════════════════════════════════════════════════════ */
 
-import type { ViewStyle } from 'react-native';
+import type { TextStyle, ViewStyle } from 'react-native';
 import {
   space,
   size,
@@ -180,14 +180,40 @@ function resolvePalette(ns: PaletteNS, theme: NuriTheme): ResolvedPalette {
   return {}; // palette present but neither variant nor chrome → no colour
 }
 
-// ── the resolved typography ref · two ORTHOGONAL inputs (decision 77 · the N+45
-// de-fusion): the `size` step + the `emphasis` boolean. Was a single fused TypeKey
-// (`mdEm`); the renderer expands it via typeStyle(size, emphasis) at render. ──
+// ── the resolved typography ref · orthogonal inputs (decision 77 · the N+45
+// de-fusion): the `size` step + the `emphasis` boolean become a type ref. `align`
+// is text-axis style, mapped explicitly for the current LTR RN runtime. Was a single
+// fused TypeKey (`mdEm`); the renderer expands type via typeStyle(size, emphasis). ──
 export type TypeRef = { size: TypeSize; emphasis?: boolean };
+export type ResolvedStyle = ViewStyle & TextStyle;
+
+const TEXT_ALIGN = {
+  center: 'center',
+  start: 'left',
+  end: 'right',
+} satisfies Record<NonNullable<TypographyNS['align']>, NonNullable<TextStyle['textAlign']>>;
+
+function resolveTypography(typography: TypographyNS | undefined): {
+  type?: TypeRef;
+  text?: TextStyle;
+} {
+  if (!typography) return {};
+  const type = typography.size === undefined
+    ? undefined
+    : typography.emphasis
+      ? { size: typography.size, emphasis: true }
+      : { size: typography.size };
+  const text = typography.align === undefined ? undefined : { textAlign: TEXT_ALIGN[typography.align] };
+  return {
+    ...(type !== undefined ? { type } : {}),
+    ...(text !== undefined ? { text } : {}),
+  };
+}
 
 // ── the core · resolve a merged NS into the structured node ──────
 export type ResolvedNode = {
   view: ViewStyle; // stack + box + palette.bg (NO fg — fg flows by scope)
+  text?: TextStyle;
   fg?: string;
   fgMuted?: string;
   pressedBg?: string;
@@ -218,12 +244,11 @@ const RN_RESOLVERS: TargetResolvers = {
   box: (v, { node }) => {
     Object.assign(node.view, applyFields(BOX_FIELDS, v));
   },
-  // typography → the one agnostic identity that is NOT a ViewStyle prop: a type
-  // ref ({size, emphasis} · decision 55/77 · the two orthogonal inputs); the
-  // factory expands it via typeStyle at render (mapping = data · expansion =
-  // behaviour · 65.2).
+  // typography → bespoke text style: a type ref ({size, emphasis} · decision
+  // 55/77 · the two orthogonal type inputs) plus optional text alignment. The
+  // factory expands typeStyle at render; align resolves here to RN TextStyle.
   typography: (v, { node }) => {
-    if (v.size !== undefined) node.type = v.emphasis ? { size: v.size, emphasis: true } : { size: v.size };
+    Object.assign(node, resolveTypography(v));
   },
   // palette → BESPOKE (decision 65 · the platform-divergence point: web
   // currentColor / RN threads fg / CSS cascade vars). Logic VERBATIM from the old
@@ -380,8 +405,8 @@ function realizeToken(rn: { token: string; shape?: 'scale' }, theme: NuriTheme):
 // when absent, the old `pressedBg !== undefined` guard), `token` reads the theme
 // baseline. opts key order (pressColor → pressScale → disabledOpacity) reproduces the
 // old if-sequence → byte-identical style key order (the snapshot anchor).
-export function flattenInteractive(node: ResolvedNode, theme: NuriTheme, state: State): ViewStyle {
-  const style: ViewStyle = { ...node.view };
+export function flattenInteractive(node: ResolvedNode, theme: NuriTheme, state: State): ResolvedStyle {
+  const style: ResolvedStyle = { ...node.view, ...node.text };
   for (const key of Object.keys(INTERACTIVE_OPTS) as OptKey[]) {
     const opt = INTERACTIVE_OPTS[key];
     if (!state[opt.trigger]) continue;
@@ -395,7 +420,7 @@ export function flattenInteractive(node: ResolvedNode, theme: NuriTheme, state: 
 }
 
 // ── flattenPart · the concrete RN style for a (selection × state) cell ──
-export type PartFlat = { style: ViewStyle; node: ResolvedNode };
+export type PartFlat = { style: ResolvedStyle; node: ResolvedNode };
 
 export function flattenPart<A extends Axes>(
   descriptor: Descriptor<A>,
@@ -433,10 +458,11 @@ export type BakedPartRecipe = {
   // box ⊕ stack resolved to concrete ViewStyle (geometry ONLY · no colour). `base`
   // + the per-axis geometry patches; the runtime composes `base ⊕ variants[axis][value]`.
   geometry: { base: ViewStyle; variants: Record<string, Record<string, ViewStyle>> };
-  // the RAW typography namespace partial ({ size?, emphasis? }) · base + per-axis/value.
-  // Merged at runtime (field-level · later wins) THEN resolved to the type ref (via
-  // typeStyle · the `× fontScale` seam stays runtime · P11) — so a variant that changes
-  // ONLY `emphasis` over a base `size` composes correctly (not dropped).
+  // the RAW typography namespace partial ({ size?, emphasis?, align? }) · base +
+  // per-axis/value. Merged at runtime (field-level · later wins) THEN resolved to
+  // type/text style (via typeStyle + textAlign · the `× fontScale` seam stays runtime
+  // · P11) — so a variant that changes ONLY `emphasis` or `align` over a base `size`
+  // composes correctly (not dropped).
   typography?: { base?: TypographyNS; variants?: Record<string, Record<string, TypographyNS>> };
   // the RAW interactive opt-in ({ pressColor?, pressScale?, disabledOpacity? } booleans ·
   // colour-free) · base + per-axis/value. Merged at runtime then realized by the SHARED
@@ -504,13 +530,6 @@ function composeChannel<T extends Record<string, unknown>>(
   return Object.keys(ns).length ? ns : undefined;
 }
 
-// resolveTypeRef · the merged typography partial → the type ref (mirrors resolveNS's
-// typography arm: a ref only when `size` is present; emphasis rides as the boolean).
-function resolveTypeRef(typography: TypographyNS | undefined): TypeRef | undefined {
-  if (!typography || typography.size === undefined) return undefined;
-  return typography.emphasis ? { size: typography.size, emphasis: true } : { size: typography.size };
-}
-
 // ── flattenBakedPart · the Arc-2 render cell (LOAD the bake · merge colour + state) ──
 // The closed-component render path. Composes the baked STATIC geometry, resolves ONLY
 // colour at runtime (the Arc-1 theme path · resolvePalette), merges the typography +
@@ -535,14 +554,14 @@ export function flattenBakedPart<A extends Axes>(
     view.borderColor = p.border;
     view.borderWidth = PALETTE_BORDER_WIDTH;
   }
-  const type = resolveTypeRef(composeChannel<TypographyNS>(recipePart.typography, selection));
+  const typography = resolveTypography(composeChannel<TypographyNS>(recipePart.typography, selection));
   const interactive = composeChannel<InteractiveNS>(recipePart.interactive, selection);
   const node: ResolvedNode = {
     view,
     ...(p.fg !== undefined ? { fg: p.fg } : {}),
     ...(p.fgMuted !== undefined ? { fgMuted: p.fgMuted } : {}),
     ...(p.pressedBg !== undefined ? { pressedBg: p.pressedBg } : {}),
-    ...(type !== undefined ? { type } : {}),
+    ...typography,
     ...(interactive !== undefined ? { interactive } : {}),
   };
   // Realize the interactive state patch through the SHARED runtime applier (single
