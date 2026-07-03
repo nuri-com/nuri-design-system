@@ -258,7 +258,8 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       "geometry": {
         "base": {
           "flexDirection": "column",
-          "alignItems": "stretch"
+          "alignItems": "stretch",
+          "paddingHorizontal": 6
         },
         "variants": {}
       }

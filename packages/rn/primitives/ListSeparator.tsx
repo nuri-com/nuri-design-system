@@ -13,7 +13,7 @@ export type ListSeparatorProps = Record<string, never>;
 const ListSeparatorImpl: React.FC<ListSeparatorProps> = () => (
   // Keep the row-alignment coupling in one preset: list-action root padding is md.
   <View paddingX="md">
-    <Separator ySpace="none" />
+    <Separator ySpace="sm" />
   </View>
 );
 ListSeparatorImpl.displayName = 'ListSeparator';

@@ -5449,7 +5449,8 @@ inside `list`; they are not anatomy parts of it, matching the `tab-bar` / `tab-b
   should be revisited only when a second row type is a real consumer; until then it would widen the
   contract ahead of need and blur the owner-scoping proof.
 - **Separators remain explicit.** Decision 49 still stands: no auto-inserted dividers. The list-family
-  preset only fixes the row-aligned inset while delegating the hairline paint to Separator.
+  preset fixes the row-aligned inset and the `sm` vertical rhythm while delegating the hairline paint
+  to Separator.
 
 **Base**: decision 49 (author-placed separators) · decision 65 (composition is descriptor data, not
 behaviour) · decision 83 (owner-scoped nested composition). **Realizes**:

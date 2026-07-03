@@ -24,6 +24,7 @@ export const listDescriptor = {
     base: {
       root: {
         stack: { direction: 'column', align: 'stretch' },
+        box: { paddingX: 'sm' },
       },
     },
   },

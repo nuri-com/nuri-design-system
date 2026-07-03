@@ -302,6 +302,7 @@ test('B5c · <nuri-list> preserves list-action children with shared nuri-list-* 
     '<nuri-list-action-leading-avatar name="bank"></nuri-list-action-leading-avatar>',
     '<nuri-list-action-text>Bank account</nuri-list-action-text>',
     '</nuri-list-action>',
+    '<nuri-list-separator></nuri-list-separator>',
     '<nuri-list-action aria-label="Card">',
     '<nuri-list-action-leading-avatar name="card"></nuri-list-action-leading-avatar>',
     '<nuri-list-action-text>Credit card</nuri-list-action-text>',
@@ -311,8 +312,11 @@ test('B5c · <nuri-list> preserves list-action children with shared nuri-list-* 
   await tick();
 
   assert.equal(list.classList.contains('nuri-stack'), true, 'the open list host is its own painting node');
+  assert.equal(list.getAttribute('data-padding-x'), 'sm', 'the list owns sm horizontal breathing room');
+  assert.equal(list.hasAttribute('data-padding-y'), false, 'the list does not add vertical padding');
   const rows = [...list.children].filter((child) => child.tagName.toLowerCase() === 'nuri-list-action');
   assert.equal(rows.length, 2, 'list keeps the row elements as positional children');
+  assert.equal(list.querySelector('nuri-list-separator nuri-separator')?.getAttribute('y-space'), 'sm', 'list separator owns sm vertical rhythm');
   assert.deepEqual([...list.querySelectorAll('nuri-typography')].map((el) => el.textContent), ['Bank account', 'Credit card']);
   assert.deepEqual([...list.querySelectorAll('nuri-icon')].map((el) => el.getAttribute('name')), ['bank', 'card']);
 });

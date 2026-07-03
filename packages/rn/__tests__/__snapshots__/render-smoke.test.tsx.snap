@@ -537,6 +537,7 @@ exports[`render-smoke — the ergonomic components mount headless List — open 
     {
       "alignItems": "stretch",
       "flexDirection": "column",
+      "paddingHorizontal": 6,
     }
   }
 >
@@ -774,7 +775,7 @@ exports[`render-smoke — the ergonomic components mount headless List — open 
         {
           "backgroundColor": "#dddac9",
           "height": 1,
-          "marginVertical": 0,
+          "marginVertical": 6,
           "width": "100%",
         }
       }

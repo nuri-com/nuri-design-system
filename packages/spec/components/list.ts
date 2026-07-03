@@ -4,7 +4,8 @@
  * The open host for the LIST FAMILY (`list` · `list-action` ·
  * `list-separator`). It names no row parts: rows and separators are positional
  * siblings authored by the consumer, matching the tab-bar/tab-bar-item family
- * shape. The screen content column owns page padding; this host only stacks.
+ * shape. The screen content column owns page layout; the list owns the small
+ * horizontal breathing room around its rows.
  * ────────────────────────────────────────────────────────────── */
 
 import type { Descriptor } from './schema';
@@ -20,6 +21,7 @@ export const listDescriptor: Descriptor<ListAxes> = {
     base: {
       root: {
         stack: { direction: 'column', align: 'stretch' },
+        box: { paddingX: 'sm' },
       },
     },
   },

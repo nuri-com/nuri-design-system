@@ -374,6 +374,12 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     );
     expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toEqual(['Bank account', 'Credit card']);
     expect(tr.root.findAllByType(NuriIcon).map((g) => g.props.name)).toEqual(['bank', 'card']);
+    const root = tr.toJSON() as TestRenderer.ReactTestRendererJSON;
+    const rootStyle = Array.isArray(root.props.style)
+      ? Object.assign({}, ...root.props.style.filter(Boolean))
+      : root.props.style;
+    expect(rootStyle.paddingHorizontal).toBe(6);
+    expect(rootStyle.paddingVertical).toBeUndefined();
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
@@ -399,8 +405,20 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       const flat = Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : (style as Record<string, unknown>);
       return flat.backgroundColor;
     };
+    const lineMargin = (tr: TestRenderer.ReactTestRenderer) => {
+      const line = tr.root.findAllByType(View).find((node) => {
+        const style = node.props.style as unknown;
+        const flat = Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : (style as Record<string, unknown>);
+        return flat.height === 1 && flat.width === '100%';
+      });
+      expect(line).toBeTruthy();
+      const style = line!.props.style as unknown;
+      const flat = Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : (style as Record<string, unknown>);
+      return flat.marginVertical;
+    };
     expect(lineColor(light)).toBe('#dddac9');
     expect(lineColor(dark)).toBe('#3d3b2e');
+    expect(lineMargin(light)).toBe(6);
   });
 
   // ── The mixed-content / repetition contract (decision 83) — PAIRED with the
