@@ -8,8 +8,9 @@
  * palette classes + data-* directly ONTO this element (the merged-node
  * model · palette.css · B1.5 §4.2), so there is no inner element and
  * no attribute sync (view.js is a bare registration). It is the web
- * analogue of RN's static <View> (the el:'view' non-interactive case in
- * rn/runtime/renderer.tsx · the N+26 el→primitive lock) and is
+ * analogue of RN's static <View> (the el:'view' case in
+ * rn/runtime/renderer.tsx — static by structure since amendment 65.13,
+ * pressable being its own El · the N+26 el→primitive lock) and is
  * DEDICATED — distinct from <nuri-box> (geometry-only): a `view` part
  * carries the FULL box+stack+palette merge on one node.
  *

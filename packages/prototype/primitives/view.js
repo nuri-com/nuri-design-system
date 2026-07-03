@@ -3,10 +3,12 @@
  *   (the merged-node host · factory-rewrite S4 · decision 67 · hand-authorable @③)
  *
  * <nuri-view> is the generic view host — the web mirror of RN <View>
- * (the el:'view' NON-interactive case in rn/runtime/renderer.tsx · the
- * N+26 el→primitive lock). It is the static counterpart of
- * <nuri-pressable>: where the pressable owns an inner interactive
- * <button>, the view IS the painting node itself.
+ * (the el:'view' case in rn/runtime/renderer.tsx · the N+26 el→primitive
+ * lock · STATIC by structure since amendment 65.13: the pressable host is
+ * its own El, so el:'view' is always the static case, no interactive
+ * derivation). It is the static counterpart of <nuri-pressable>: where
+ * the pressable owns an inner interactive <button>, the view IS the
+ * painting node itself.
  *
  * THE ELEMENT IS THE MERGED NODE (B1.5 §4.2 · palette.css). It carries
  * the resolved box ⊕ stack ⊕ palette classes + geometry/colour data-*
