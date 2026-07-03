@@ -33,6 +33,7 @@
  *   chrome=canvas    bg-canvas           text-primary       —
  *   chrome=subtle    bg-subtle           text-primary       —
  *   chrome=strong    bg-strong           text-primary       —
+ *   chrome=transparent <transparent>     text-primary       —
  *
  * THE THREE IRREGULARITIES, modelled by SHAPE (not special-cased downstream):
  *   · fg-only (subtle)   → `bg` is OPTIONAL (absent ⇒ no background channel · the
@@ -77,7 +78,7 @@ type SurfaceTable = { variant: Record<string, Surface>; chrome: Record<string, S
 
 // ── The SURFACE role table (the bespoke single source · key order = the emit /
 // hand-CSS order: variant solid→soft→ghost→subtle→outline, then chrome canvas→
-// subtle→strong) ──
+// subtle→strong→transparent) ──
 export const surface = {
   variant: {
     solid:  { bg: 'accent-solid',            fg: 'accent-on-solid', pressed: 'accent-solid-pressed' },
@@ -90,5 +91,6 @@ export const surface = {
     canvas: { bg: 'bg-canvas', fg: 'text-primary' },
     subtle: { bg: 'bg-subtle', fg: 'text-primary' },
     strong: { bg: 'bg-strong', fg: 'text-primary' },
+    transparent: { bg: { literal: 'transparent' }, fg: 'text-primary' },
   },
 } as const satisfies SurfaceTable;

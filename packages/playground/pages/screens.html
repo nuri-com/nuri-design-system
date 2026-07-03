@@ -45,6 +45,11 @@
   <!-- Active components — the screen recipes' primitives + the shared demo layer. -->
   <link rel="stylesheet" href="../../prototype/primitives/icon.css" />
   <link rel="stylesheet" href="../../prototype/primitives/pressable.css" />
+  <link rel="stylesheet" href="../../prototype/primitives/screen.css" />
+  <link rel="stylesheet" href="../../prototype/primitives/scroll.css" />
+  <link rel="stylesheet" href="../../prototype/primitives/dock.css" />
+  <link rel="stylesheet" href="../../prototype/primitives/separator.css" />
+  <link rel="stylesheet" href="../../prototype/primitives/list-separator.css" />
   <link rel="stylesheet" href="../../prototype/styles/typography.css" />
   <link rel="stylesheet" href="../../prototype/styles/stack.css" />
   <link rel="stylesheet" href="../../prototype/styles/box.css" />
@@ -70,10 +75,16 @@
   <script src="../../prototype/primitives/icon.js" type="module"></script>
   <script src="../../prototype/primitives/typography.js" defer></script>
   <script src="../../prototype/primitives/stack.js" defer></script>
+  <script src="../../prototype/primitives/screen.js" defer></script>
+  <script src="../../prototype/primitives/scroll.js" defer></script>
+  <script src="../../prototype/primitives/dock.js" defer></script>
+  <script src="../../prototype/primitives/separator.js" defer></script>
+  <script src="../../prototype/primitives/list-separator.js" defer></script>
   <script src="../../prototype/primitives/view.js" type="module"></script>
   <script src="../../prototype/recipes/button.js" type="module"></script>
   <script src="../../prototype/recipes/icon-button.js" type="module"></script>
   <script src="../../prototype/recipes/topbar.js" type="module"></script>
+  <script src="../../prototype/recipes/list.js" type="module"></script>
   <script src="../../prototype/recipes/tab-bar.js" type="module"></script>
   <script src="../../prototype/demo/demo.js" defer></script>
 
@@ -92,7 +103,7 @@
   <nuri-demo layout="board" controls="device,theme,accent" label="bitcoin">
     <template>
       <nuri-stack direction="column" align="stretch" justify="start" gap="none" fill>
-        <nuri-topbar>
+        <nuri-topbar surface="transparent">
           <nuri-topbar-leading>
             <nuri-icon name="nuri"></nuri-icon>
           </nuri-topbar-leading>
@@ -181,6 +192,127 @@
           <nuri-tab-bar-item icon="euro-wallet" label="€ 25.70" selected></nuri-tab-bar-item>
         </nuri-tab-bar>
       </nuri-stack>
+    </template>
+  </nuri-demo>
+
+  <!-- ACTIVITY screen · proves screen-local Dock + Scroll dock inset. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="activity">
+    <template>
+      <nuri-screen>
+        <nuri-dock edge="top">
+          <nuri-topbar surface="transparent">
+            <nuri-icon-button icon="download" variant="soft" size="lg" aria-label="Download"></nuri-icon-button>
+            <nuri-icon-button icon="cross" variant="soft" size="lg" aria-label="Close"></nuri-icon-button>
+          </nuri-topbar>
+        </nuri-dock>
+
+        <nuri-scroll inset-top="dock" inset-bottom="dock">
+          <nuri-view direction="column" align="stretch" justify="start" gap="md" padding-y="md">
+            <nuri-list>
+              <nuri-list-action variant="soft" aria-label="Bank account">
+                <nuri-list-action-leading-avatar name="bank"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Bank account</nuri-list-action-text>
+                <nuri-list-action-text-muted>€ 18.90 available</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-separator></nuri-list-separator>
+              <nuri-list-action variant="solid" accent="orange" aria-label="Sent bitcoin">
+                <nuri-list-action-leading-avatar name="arrow-up"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Sent bitcoin</nuri-list-action-text>
+                <nuri-list-action-text-muted>Today, 09:41</nuri-list-action-text-muted>
+                <nuri-list-action-trailing-text>- € 8.20</nuri-list-action-trailing-text>
+                <nuri-list-action-trailing-text-muted>0.00009 BTC</nuri-list-action-trailing-text-muted>
+              </nuri-list-action>
+              <nuri-list-separator></nuri-list-separator>
+              <nuri-list-action variant="outline" aria-label="Euro wallet">
+                <nuri-list-action-leading-avatar name="euro-wallet"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Euro wallet</nuri-list-action-text>
+                <nuri-list-action-text-muted>€ 25.70 balance</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-separator></nuri-list-separator>
+              <nuri-list-action variant="soft" aria-label="Card top up">
+                <nuri-list-action-leading-avatar name="card"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Card top up</nuri-list-action-text>
+                <nuri-list-action-text-muted>Yesterday</nuri-list-action-text-muted>
+                <nuri-list-action-trailing-text>+ € 40.00</nuri-list-action-trailing-text>
+              </nuri-list-action>
+              <nuri-list-separator></nuri-list-separator>
+              <nuri-list-action variant="solid" aria-label="Received bitcoin">
+                <nuri-list-action-leading-avatar name="arrow-down"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Received bitcoin</nuri-list-action-text>
+                <nuri-list-action-text-muted>Mon, 14:12</nuri-list-action-text-muted>
+                <nuri-list-action-trailing-text>+ € 16.42</nuri-list-action-trailing-text>
+                <nuri-list-action-trailing-text-muted>0.00018 BTC</nuri-list-action-trailing-text-muted>
+              </nuri-list-action>
+              <nuri-list-separator></nuri-list-separator>
+              <nuri-list-action variant="outline" aria-label="Apple Pay">
+                <nuri-list-action-leading-avatar name="apple"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Apple Pay</nuri-list-action-text>
+                <nuri-list-action-text-muted>Connected</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-separator></nuri-list-separator>
+              <nuri-list-action variant="soft" aria-label="Convert">
+                <nuri-list-action-leading-avatar name="transfer-horizontal"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Convert</nuri-list-action-text>
+                <nuri-list-action-text-muted>BTC to EUR</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-separator></nuri-list-separator>
+              <nuri-list-action variant="outline" aria-label="Monthly statement">
+                <nuri-list-action-leading-avatar name="list-bullets"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Monthly statement</nuri-list-action-text>
+                <nuri-list-action-text-muted>June 2026</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-separator></nuri-list-separator>
+              <nuri-list-action variant="soft" aria-label="Download receipt">
+                <nuri-list-action-leading-avatar name="download"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Download receipt</nuri-list-action-text>
+                <nuri-list-action-text-muted>PDF ready</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-separator></nuri-list-separator>
+              <nuri-list-action variant="outline" aria-label="Share payment link">
+                <nuri-list-action-leading-avatar name="share"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Share payment link</nuri-list-action-text>
+                <nuri-list-action-text-muted>Expires tomorrow</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-separator></nuri-list-separator>
+              <nuri-list-action variant="solid" accent="lilac" aria-label="QR scan">
+                <nuri-list-action-leading-avatar name="qr-scan"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>QR scan</nuri-list-action-text>
+                <nuri-list-action-text-muted>Received request</nuri-list-action-text-muted>
+                <nuri-list-action-trailing-text>€ 12.00</nuri-list-action-trailing-text>
+              </nuri-list-action>
+              <nuri-list-separator></nuri-list-separator>
+              <nuri-list-action variant="outline" aria-label="Security check">
+                <nuri-list-action-leading-avatar name="warning-circle"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Security check</nuri-list-action-text>
+                <nuri-list-action-text-muted>Review device access</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-separator></nuri-list-separator>
+              <nuri-list-action variant="soft" aria-label="Completed setup">
+                <nuri-list-action-leading-avatar name="check-circle"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Completed setup</nuri-list-action-text>
+                <nuri-list-action-text-muted>All checks passed</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+          </nuri-view>
+        </nuri-scroll>
+
+        <nuri-dock edge="bottom">
+          <nuri-tab-bar surface="transparent">
+            <nuri-tab-bar-item icon="bitcoin-wallet" label="€ 36.50" selected></nuri-tab-bar-item>
+            <nuri-tab-bar-item icon="bank" label="€ 18.90"></nuri-tab-bar-item>
+            <nuri-tab-bar-item icon="euro-wallet" label="€ 25.70"></nuri-tab-bar-item>
+          </nuri-tab-bar>
+        </nuri-dock>
+      </nuri-screen>
     </template>
   </nuri-demo>
 

@@ -20,6 +20,7 @@ import { NuriScope } from '../../theme';
 import type { Accent } from '../data/tokens';
 
 export type TopbarProps = {
+  surface?: 'canvas' | 'transparent';
   accent?: Accent;
   children?: React.ReactNode;
 };
@@ -33,6 +34,7 @@ export const TopbarTrailing = createNuriSlot("trailing", `${topbarDisplayName}Tr
 
 const TopbarInner: React.FC<TopbarProps> = (props) => {
   const selection: Record<string, string> = {
+    "surface": props.surface ?? "canvas",
   };
   const content: Partial<Record<TopbarPart, React.ReactNode>> = {};
   const harvested = harvestNuriSlots<TopbarPart>(props.children, "trailing");

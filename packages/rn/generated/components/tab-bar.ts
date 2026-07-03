@@ -20,6 +20,7 @@ import { NuriScope } from '../../theme';
 import type { Accent } from '../data/tokens';
 
 export type TabBarProps = {
+  surface?: 'canvas' | 'transparent';
   accent?: Accent;
   children?: React.ReactNode;
 };
@@ -30,6 +31,7 @@ const tabBarDisplayName = nuriNames('tab-bar').rn;
 
 const TabBarInner: React.FC<TabBarProps> = (props) => {
   const selection: Record<string, string> = {
+    "surface": props.surface ?? "canvas",
   };
   const content: Partial<Record<TabBarPart, React.ReactNode>> = {};
   if (props.children !== undefined) content["root"] = props.children;

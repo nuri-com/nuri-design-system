@@ -12,6 +12,8 @@
  *
  * API
  *   as?: string                                       host-resolved (default <div>)
+ *   inset-top?: "none" | "dock"                       content padding source
+ *   inset-bottom?: "none" | "dock"                    content padding source
  *
  * RN mapping (R1): a thin component over `ScrollView`
  * (style={{flex:1}}). This is the ONLY clean RN home for "scroll" —
@@ -71,5 +73,21 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+  }
+
+  .nuri-scroll__content {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    min-block-size: 100%;
+  }
+
+  .nuri-scroll[data-inset-top="dock"] > .nuri-scroll__content {
+    padding-block-start: var(--nuri-screen-dock-top, 0px);
+  }
+
+  .nuri-scroll[data-inset-bottom="dock"] > .nuri-scroll__content {
+    padding-block-end: var(--nuri-screen-dock-bottom, 0px);
   }
 }

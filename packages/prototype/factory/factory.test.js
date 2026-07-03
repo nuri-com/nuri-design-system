@@ -35,6 +35,7 @@ await import('../recipes/icon-avatar.js');
 await import('../recipes/icon-button.js');
 await import('../recipes/list.js');
 await import('../recipes/list-action.js');
+await import('../primitives/scroll.js');
 // The factory + the descriptor twins, for the buildComponent-direct assertions
 // (same cached module instances the recipes use).
 const { buildComponent, defineNuriComponent } = await import('../factory/factory.js');
@@ -51,6 +52,24 @@ function mount(el) {
   return el;
 }
 const classesOf = (el) => [...el.classList].sort();
+
+test('primitive Scroll · dock insets reflect onto the content-inset path', () => {
+  const scroll = document.createElement('nuri-scroll');
+  scroll.setAttribute('inset-top', 'dock');
+  scroll.setAttribute('inset-bottom', 'dock');
+  const child = document.createElement('span');
+  child.textContent = 'Last row';
+  scroll.append(child);
+
+  mount(scroll);
+
+  const inner = scroll.querySelector(':scope > .nuri-scroll');
+  assert.equal(inner.dataset.insetTop, 'dock');
+  assert.equal(inner.dataset.insetBottom, 'dock');
+  const content = inner.querySelector(':scope > .nuri-scroll__content');
+  assert.ok(content);
+  assert.equal(content.firstElementChild, child);
+});
 
 // jsdom reports a connectedCallback exception on the window `error` event
 // instead of propagating it out of appendChild — capture it and assert the
@@ -466,6 +485,8 @@ test('E · buildComponent(icon-button) · the icon-only circle — just the glyp
   assert.equal(btn.getAttribute('data-padding-x'), 'md', 'the icon edge ring (md/lg → md · paddingX diverges from Button by design)');
   assert.equal(btn.getAttribute('data-radius'), 'full');
   assert.equal(btn.getAttribute('data-variant'), 'solid');
+  assert.equal(btn.hasAttribute('data-press-scale'), true, 'icon-button opts into the tactile press scale');
+  assert.equal(btn.hasAttribute('data-press-color'), true, 'icon-button opts into the pressed colour wash');
 
   // ONLY the glyph renders — the lone `icon` part, no text nodes at all.
   const kids = [...btn.children];
@@ -513,6 +534,7 @@ test('E4 · <nuri-icon-button> · the registered element renders the glyph + ref
   const btn = ib.querySelector('button.nuri-interactive');
   assert.ok(btn, 'the registered element mounts the factory tree');
   assert.equal(btn.hasAttribute('disabled'), true, 'disabled reflects to the native button');
+  assert.equal(btn.hasAttribute('data-press-scale'), true, 'the registered icon-button keeps the press-scale gate on the native button');
   const kids = [...btn.children];
   assert.deepEqual(kids.map((k) => k.tagName.toLowerCase()), ['nuri-icon'], 'just the glyph');
   // the VALUE path (registered element · #113): the `icon` attribute routes the glyph

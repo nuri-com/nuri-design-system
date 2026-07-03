@@ -1940,6 +1940,8 @@ exports[`render-smoke — the ergonomic components mount headless primitives —
   style={
     {
       "flex": 1,
+      "overflow": "hidden",
+      "position": "relative",
     }
   }
 >

@@ -31,6 +31,7 @@
   .nuri-palette[data-chrome="canvas"] { background: var(--nuri-bg-canvas); color: var(--nuri-text-primary); }
   .nuri-palette[data-chrome="subtle"] { background: var(--nuri-bg-subtle); color: var(--nuri-text-primary); }
   .nuri-palette[data-chrome="strong"] { background: var(--nuri-bg-strong); color: var(--nuri-text-primary); }
+  .nuri-palette[data-chrome="transparent"] { background: transparent; color: var(--nuri-text-primary); }
   .nuri-palette[data-variant="solid"][data-press-color]:active { background: var(--nuri-accent-solid-pressed); }
   .nuri-palette[data-variant="soft"][data-press-color]:active { background: var(--nuri-bg-pressed); }
   .nuri-palette[data-variant="ghost"][data-press-color]:active { background: var(--nuri-bg-subtle); }

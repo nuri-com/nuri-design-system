@@ -40,12 +40,19 @@ export const tabBarDescriptor = {
       },
     },
   },
-  // The PUBLIC API (Path C · Phase 1). A DUMB open container — NO variant axes,
-  // NO behaviour. ONE slot: its repeated `TabBarItem` children render as the
+  variants: {
+    surface: {
+      canvas: { root: { palette: { chrome: 'canvas' } } },
+      transparent: { root: { palette: { chrome: 'transparent' } } },
+    },
+  },
+  defaults: { surface: 'canvas' },
+  // The PUBLIC API (Path C · Phase 1). A DUMB open container — one semantic
+  // surface axis, NO behaviour. ONE slot: its repeated `TabBarItem` children render as the
   // open root's positional content (`kind: 'children'` · `multiple: true`), so
   // `default: true` on the `root` container part.
   api: {
-    axes: [],
+    axes: ['surface'],
     themeScope: { accent: true },
     slots: {
       default: { part: 'root', kind: 'children', default: true, multiple: true },

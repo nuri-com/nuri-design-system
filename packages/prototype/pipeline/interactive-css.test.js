@@ -296,26 +296,36 @@ test('Guard D · order-soundness (per-property order ≡ committed + the transfo
   }
   assert.ok(multiSetProps >= 1, 'expected ≥1 property set by >1 selector (transform) — the order argument assumes it');
 
-  // (b) The transform pair specifically — the load-bearing equal-specificity conflict.
+  // (b) The transform selectors specifically — the load-bearing equal-specificity conflict.
   const transforms = orderedDecls(generated).filter((d) => d.prop === 'transform');
-  assert.equal(transforms.length, 2, 'expected exactly two transform-setting rules (pressScale + disabledGuard)');
-  const [first, second] = transforms;
-  // scale() FIRST, none SECOND → for a node matching both, `none` (later) wins.
-  assert.match(first.value, /^scale\(/, `the FIRST transform rule must be the pressScale scale() (got ${first.value})`);
-  assert.equal(second.value, 'none', `the SECOND transform rule must be the disabledGuard none (got ${second.value})`);
-  // EQUAL specificity ⇒ source order (not specificity) decides ⇒ order is LOAD-BEARING.
-  assert.equal(
-    specificityB(first.sel), specificityB(second.sel),
-    `the two transform selectors must be equal-specificity (else order would not be load-bearing)\n  ${first.sel} (b=${specificityB(first.sel)}) vs ${second.sel} (b=${specificityB(second.sel)})`,
-  );
-  // Both co-match a `[data-press-scale][aria-disabled="true"]:active` node: same base +
-  // same :active state, distinct gate attrs → a both-gated :active node matches both, so
-  // the conflict the order resolves is REAL (not vacuous).
-  for (const t of transforms) {
-    assert.ok(t.sel.startsWith('.nuri-interactive') && t.sel.endsWith(':active'), `transform rule '${t.sel}' is not a .nuri-interactive…:active selector`);
+  assert.equal(transforms.length, 4, 'expected four transform-setting selectors (:active + data-pressed for pressScale and disabledGuard)');
+  const scaleRules = transforms.filter((t) => /^scale\(/.test(t.value));
+  const noneRules = transforms.filter((t) => t.value === 'none');
+  assert.equal(scaleRules.length, 2, 'expected two pressScale transform selectors');
+  assert.equal(noneRules.length, 2, 'expected two disabledGuard transform selectors');
+  assert.deepEqual(transforms.map((t) => t.value), [
+    scaleRules[0].value,
+    scaleRules[1].value,
+    'none',
+    'none',
+  ], 'all pressScale selectors must emit before disabledGuard selectors');
+  assert.ok(scaleRules.some((t) => t.sel.endsWith(':active')), 'pressScale must include a :active selector');
+  assert.ok(scaleRules.some((t) => t.sel.includes('[data-pressed]')), 'pressScale must include a data-pressed selector');
+  assert.ok(noneRules.some((t) => t.sel.endsWith(':active')), 'disabledGuard must include a :active selector');
+  assert.ok(noneRules.some((t) => t.sel.includes('[data-pressed]')), 'disabledGuard must include a data-pressed selector');
+  for (const scaleRule of scaleRules) {
+    assert.match(scaleRule.sel, /\[data-press-scale\]/, 'the scale rule must gate on [data-press-scale]');
+    const matchingNone = noneRules.find((rule) =>
+      scaleRule.sel.endsWith(':active') ? rule.sel.endsWith(':active') : rule.sel.includes('[data-pressed]'));
+    assert.ok(matchingNone, `no matching disabledGuard selector for ${scaleRule.sel}`);
+    assert.equal(
+      specificityB(scaleRule.sel), specificityB(matchingNone.sel),
+      `matching transform selectors must be equal-specificity (else order would not be load-bearing)\n  ${scaleRule.sel} (b=${specificityB(scaleRule.sel)}) vs ${matchingNone.sel} (b=${specificityB(matchingNone.sel)})`,
+    );
   }
-  assert.match(first.sel, /\[data-press-scale\]/, 'the scale rule must gate on [data-press-scale]');
-  assert.match(second.sel, /\[aria-disabled="true"\]/, 'the none rule must gate on [aria-disabled="true"]');
+  for (const noneRule of noneRules) {
+    assert.match(noneRule.sel, /\[aria-disabled="true"\]/, 'the none rule must gate on [aria-disabled="true"]');
+  }
 });
 
 // ══════════════════════════════════════════════════════════════════

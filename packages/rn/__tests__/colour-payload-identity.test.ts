@@ -60,6 +60,7 @@ const expectedChromeSlots = (mode: Theme) => {
     canvas: { bg: c.bgCanvas, fg: c.textPrimary, fgMuted: c.textMuted },
     subtle: { bg: c.bgSubtle, fg: c.textPrimary, fgMuted: c.textMuted },
     strong: { bg: c.bgStrong, fg: c.textPrimary, fgMuted: c.textMuted },
+    transparent: { bg: 'transparent', fg: c.textPrimary, fgMuted: c.textMuted },
   };
 };
 
@@ -73,7 +74,7 @@ describe('SEED-4 · the provider payload is byte-identical to the pre-rework col
         // independent oracle. `toEqual` compares undefined bg/fgMuted verbatim.
         expect(p.surface).toEqual(expectedSurface(a, mode));
 
-        // The resolved chrome slots (canvas/subtle/strong).
+        // The resolved chrome slots (canvas/subtle/strong/transparent).
         expect(p.chrome).toEqual(expectedChromeSlots(mode));
 
         // The Address scalars ride the payload (orthogonal single-axis override).

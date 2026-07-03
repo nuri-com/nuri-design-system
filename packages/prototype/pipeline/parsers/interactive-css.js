@@ -17,11 +17,11 @@
  * webOrder). Each rule is `{ on: [{attr?,state?}], decls: [[prop,value]] }`:
  *   · affordance · `.nuri-interactive` — cursor + the press transition (automatic).
  *   · focus · `.nuri-interactive:focus-visible` — the brand outline ring (automatic).
- *   · pressScale · `.nuri-interactive[data-press-scale]:active` — the :active scale,
- *     gated so a static surface never matches :active.
- *   · disabledGuard · `.nuri-interactive[aria-disabled="true"]:active` — reverts the
- *     scale to none when disabled. EQUAL specificity to pressScale (0,3,0), so it wins
- *     ONLY by SOURCE ORDER (emitted later · LOAD-BEARING · webOrder · the order guard).
+ *   · pressScale · `.nuri-interactive[data-press-scale]:active` / `[data-pressed]` —
+ *     the pressed scale, gated so a static surface never matches pressed state.
+ *   · disabledGuard · `.nuri-interactive[aria-disabled="true"]:active` / `[data-pressed]`
+ *     — reverts the scale to none when disabled. EQUAL specificity to pressScale (0,3,0),
+ *     so it wins ONLY by SOURCE ORDER (emitted later · LOAD-BEARING · webOrder · the order guard).
  *   · disabledOpacity · `.nuri-interactive:disabled, .nuri-interactive[aria-disabled=
  *     "true"]` — the shared dim (a multi-selector / comma rule · automatic).
  *
@@ -75,7 +75,10 @@ const WEB_CHROME = {
     ],
   },
   disabledGuard: {
-    on: [{ attr: '[aria-disabled="true"]', state: ':active' }],
+    on: [
+      { attr: '[aria-disabled="true"]', state: ':active' },
+      { attr: '[aria-disabled="true"][data-pressed]' },
+    ],
     decls: [['transform', 'none']],
   },
 };
@@ -106,7 +109,10 @@ function optWebRule(opts, key) {
       return null;
     case 'pressScale':
       return {
-        on: [{ attr: gatedAttr(opts, 'pressScale'), state: ':active' }],
+        on: [
+          { attr: gatedAttr(opts, 'pressScale'), state: ':active' },
+          { attr: `${gatedAttr(opts, 'pressScale')}[data-pressed]` },
+        ],
         decls: [['transform', 'scale(var(--nuri-interaction-press-scale))']],
       };
     case 'disabledOpacity':

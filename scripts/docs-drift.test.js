@@ -180,12 +180,12 @@ const EXPECTED_DESCRIPTORS = {
     interactive: [], // static · no `interactive` (65.3 · the IconAvatar story)
   },
   // topbar (the topbar-slots slice · the catalog's first
-  // COMPOUND component) — a slot-based action bar with NO variant axes (a static
-  // layout shell): three descriptor-local typed regions, the edges carrying the
-  // `even` flex so the centre lands dead-centre.
+  // COMPOUND component) — a slot-based action bar with one semantic surface axis:
+  // three descriptor-local typed regions, the edges carrying the `even` flex so
+  // the centre lands dead-centre.
   // The stringly-boolean `center` axis is GONE (true centring is structural now).
   topbar: {
-    axes: {},
+    axes: { surface: ['canvas', 'transparent'] },
     parts: ['leading', 'center', 'trailing'],
     interactive: [],
   },
@@ -233,12 +233,11 @@ const EXPECTED_DESCRIPTORS = {
     parts: ['icon', 'label'],
     interactive: ['pressScale'],
   },
-  // tab-bar (the DUMB layout container) — an OPEN row of equal columns, NO variant
-  // axes (a static layout shell · like topbar), NO named parts (the open-positional
-  // children are the Tab items · not slots), NO interactive (the items are, the bar
-  // is not).
+  // tab-bar (the DUMB layout container) — an OPEN row of equal columns, one
+  // semantic surface axis, NO named parts (the open-positional children are the
+  // Tab items · not slots), NO interactive (the items are, the bar is not).
   'tab-bar': {
-    axes: {},
+    axes: { surface: ['canvas', 'transparent'] },
     parts: [],
     interactive: [],
   },
@@ -405,6 +404,7 @@ const EXPECTED_PALETTE = {
     canvas: { bg: 'chrome.bgCanvas', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
     subtle: { bg: 'chrome.bgSubtle', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
     strong: { bg: 'chrome.bgStrong', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
+    transparent: { bg: 'transparent', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
   },
 };
 
@@ -518,7 +518,7 @@ const FROZEN_SCHEMA = {
     // bg · text-muted fg · 1px border-subtle stroke) — closes decision 30's
     // "palette outline = reserved, mapped-not-built".
     PaletteVariant: ['solid', 'soft', 'ghost', 'subtle', 'outline'],
-    PaletteChrome: ['canvas', 'subtle', 'strong'],
+    PaletteChrome: ['canvas', 'subtle', 'strong', 'transparent'],
   },
   // The scale-derived leaves are pinned by DECLARATION FORM. Re-homed at N+61
   // (Slice 3b·2b·i) off build/tokens onto the TS SoTs (../dimensions · ../colours

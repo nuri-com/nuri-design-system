@@ -12,7 +12,7 @@
  * rebuild; NO per-render re-collapse.
  *
  *   surface   { solid·soft·ghost·subtle·outline } → { bg?·fg·fgMuted?·pressedBg?·border? }
- *   chrome    { canvas·subtle·strong }     → { bg·fg·fgMuted }  (theme-only slot)
+ *   chrome    { canvas·subtle·strong·transparent } → { bg·fg·fgMuted }  (theme-only slot)
  *   text·border                            (the chrome text/border roles)
  *   type                                  (theme-invariant type scale)
  *   interaction { pressScale·disabledOpacity }   (the not-colour effects)
