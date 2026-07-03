@@ -274,6 +274,21 @@ test('C · observedAttributes are DERIVED from the descriptor (axes ∪ accent �
   );
 });
 
+test('C1b · <nuri-button>Go</nuri-button> · a BARE label survives the composition harvest (the pre-scan)', async () => {
+  // The registered-element route (NOT buildComponent-direct): the element has
+  // component slots, so harvestComposition runs first — with no marker present
+  // it must return null WITHOUT consuming the bare text node, so the legacy
+  // `#label = textContent` capture still sees 'Go'.
+  const b = dom.window.document.createElement('nuri-button');
+  b.textContent = 'Go';
+  mount(b);
+  await tick();
+
+  const label = b.querySelector('nuri-typography');
+  assert.ok(label, 'the bare label renders a nuri-typography');
+  assert.equal(label.textContent, 'Go', 'the bare text label is captured, not destroyed by the harvest');
+});
+
 test('C2 · <nuri-button disabled> · disabled reflects to the interactive host · default variant from data', async () => {
   const b = dom.window.document.createElement('nuri-button');
   b.textContent = 'Go';

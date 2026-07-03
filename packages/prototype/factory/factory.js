@@ -214,7 +214,23 @@ function harvestSlots(host, slotTagToPart, defaultSlot) {
 // once a marker is present, meaningful bare nodes are preserved in order through
 // the default text sink.
 function harvestComposition(host, slotTagToSpec, fallbackPart, regionTagToPart = {}) {
+  // PRE-SCAN before any DOM mutation: a marker is only meaningful as a DIRECT
+  // child of the host (component slots and region slots alike), so one shallow
+  // pass decides the route. Without it, bare text nodes were moved into
+  // detached templates before "no marker" was known, and the legacy
+  // `#label = textContent` capture read an already-emptied host (the
+  // <nuri-button>Go</nuri-button> blank-label regression).
   let hasSlot = false;
+  for (const child of host.childNodes) {
+    if (child.nodeType !== 1) continue;
+    const tag = child.tagName.toLowerCase();
+    if (slotTagToSpec[tag] || regionTagToPart[tag]) {
+      hasSlot = true;
+      break;
+    }
+  }
+  if (!hasSlot) return null;
+
   const entries = [];
   const textEntry = (part, node) => {
     const tpl = document.createElement('template');
