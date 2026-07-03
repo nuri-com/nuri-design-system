@@ -3,7 +3,6 @@
  * packages/playground/pages/screens.html, translated. Pure DS
  * composition via the ui/ manifest; the tab bar renders ONCE in App.
  * Same hand-finish deltas as Wallet.tsx (documented there + in the PR).
- * The one board delta: the card surface carries variant="soft".
  * ────────────────────────────────────────────────────────────── */
 
 import * as React from 'react';
@@ -34,7 +33,7 @@ export const Cash: React.FC = () => (
     </Topbar>
 
     <View direction="column" align="stretch" justify="start" gap="lg" paddingX="lg" paddingY="md" fill="grow">
-      <View aspectRatio="card" radius="lg" variant="soft" />
+      <View aspectRatio="card" radius="lg" />
       <Text size="3xl" emphasis align="center">€ 1 240.00</Text>
       <View direction="row" align="center" gap="sm">
         <View fill="even">
