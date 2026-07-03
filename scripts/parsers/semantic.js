@@ -135,6 +135,8 @@ export const GROUP_NAMES = {
     // scale (square · card). UNITLESS (a bare number, not a px dimension) but the
     // CLASSIFY shape is identical — a cascade-invariant singleton at signature ''.
     { name: 'ratio', cssPrefix: '--nuri-ratio-', namingPrefix: '--nuri-ratio-' },
+    // Border width hairlines live with the dimension SoT. Only consumed leaves ship.
+    { name: 'border', cssPrefix: '--nuri-border-', namingPrefix: '--nuri-border-1' },
   ],
 };
 
@@ -195,7 +197,6 @@ function pickGroupMeta(cssVar, sig) {
 export const SET_POLICY = {
   // Primitive layer · all internal vocab · pipeline-inlined
   'primitive.colour':   { runtime: false, pipelineInline: true },
-  'primitive.px':       { runtime: false, pipelineInline: true },
   'primitive.radius':   { runtime: false, pipelineInline: true },
   'primitive.type':     { runtime: false, pipelineInline: true },
   'primitive.font':     { runtime: false, pipelineInline: true },
@@ -209,16 +210,15 @@ export const SET_POLICY = {
   // Semantic dimension vocabulary · cascade-invariant · runtime
   // exposed for layout consumers (decision 36 · N+6.1; amendment
   // 36.1 added radius at N+6.1.1). Space + size + radius ship as
-  // T-shirt scales aliasing the primitive --nuri-px-N layer (radius
-  // additionally has a literal `full: 100%` leaf without primitive
-  // backing — handled identically by the runtime emit via the
-  // string/number union the dimension namespace already supports).
+  // T-shirt scales and hairline widths are direct values from the
+  // dimension SoT; radius additionally has the `full: 9999px` sentinel.
   'semantic.space':     { runtime: true, pipelineInline: false },
   'semantic.size':      { runtime: true, pipelineInline: false },
   'semantic.radius':    { runtime: true, pipelineInline: false },
   // Ratio · the aspect-ratio scale (box-aspect-ratio slice) · cascade-invariant ·
   // runtime exposed for the box `aspectRatio` field. Unitless (bare number).
   'semantic.ratio':     { runtime: true, pipelineInline: false },
+  'semantic.border':    { runtime: true, pipelineInline: false },
 };
 
 // Primitive-prefix → set-name lookup. The order does not matter (the
@@ -227,7 +227,6 @@ export const SET_POLICY = {
 // at the set granularity (one set per family, not per token type).
 const PRIMITIVE_SET_PREFIXES = [
   ['--nuri-color-',       'primitive.colour'],
-  ['--nuri-px-',          'primitive.px'],
   ['--nuri-radius-',      'primitive.radius'],
   ['--nuri-font-size-',   'primitive.font'],
   ['--nuri-font-family-', 'primitive.font'],
@@ -838,7 +837,7 @@ export function emitTokensTs(resolved, rules, opts = {}) {
   // ordering keeps the diff small when adding a new group; the
   // explicit prefix matches the consumer mental model — colour
   // comes first, dimensions second.
-  const EMIT_ORDER = ['chrome', 'accent', 'space', 'size', 'radius', 'ratio'];
+  const EMIT_ORDER = ['chrome', 'accent', 'space', 'size', 'radius', 'ratio', 'border'];
   const sortedNames = [...groups.keys()].sort((a, b) => {
     const ai = EMIT_ORDER.indexOf(a);
     const bi = EMIT_ORDER.indexOf(b);
@@ -866,7 +865,7 @@ export function emitTokensTs(resolved, rules, opts = {}) {
     .join('\n');
 
   const sourceLine = accentTwoLayer
-    ? ` * Source · packages/spec/tokens/colours.ts (chrome · accent · ref→hex) + packages/spec/tokens/dimensions.ts (space · size · radius · ref→px)`
+    ? ` * Source · packages/spec/tokens/colours.ts (chrome · accent · ref→hex) + packages/spec/tokens/dimensions.ts (space · size · radius · ratio · border)`
     : ` * Source · styles/tokens-primitive.css + styles/tokens-semantic.css`;
 
   const header = [
@@ -878,7 +877,7 @@ export function emitTokensTs(resolved, rules, opts = {}) {
     ` *`,
     ` * Contains the RN projection's generated token tables: runtime-capable`,
     ` * colour slices (chrome · accent), static dimensions (space · size · radius`,
-    ` * · ratio), and the direct type scale. The discriminated union of generated`,
+    ` * · ratio · border), and the direct type scale. The discriminated union of generated`,
     ` * token leaf paths lives beside this file in generated/data/token-paths.ts.`,
     ` *`,
     ` * Shape is classify-by-cascade (decision 28 · N+5.5): each`,
@@ -894,7 +893,7 @@ export function emitTokensTs(resolved, rules, opts = {}) {
           ` * SUBSTITUTION — accent is accent-MAJOR two-layer (a role is a flat hex`,
           ` * or a {light,dark} pair · the runtime composes chrome[mode] ⊕`,
           ` * accent[accent][mode]), NOT a materialized (accent × theme) cross-`,
-          ` * product. space/size/radius are flattened ref→px straight from`,
+          ` * product. space/size/radius/ratio/border are flattened straight from`,
           ` * packages/spec/tokens/dimensions.ts (N+60 · Slice 3b·2a) — the RN value arm reads`,
           ` * no CSS now. Colour refs resolve through the build's selected --neutral`,
           ` * scope (decision 31 · default cream; pass --neutral=<scale> to`,

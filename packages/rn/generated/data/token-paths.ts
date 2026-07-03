@@ -1,7 +1,7 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · TOKEN PATHS · GENERATED · DO NOT EDIT BY HAND
  *
- * Source · packages/spec/tokens/colours.ts (chrome · accent roles) + packages/spec/tokens/dimensions.ts (space · size · radius)
+ * Source · packages/spec/tokens/colours.ts (chrome · accent roles) + packages/spec/tokens/dimensions.ts (space · size · radius · ratio · border)
  * Emitter · scripts/tokens-parser.js — run `npm run build`
  *
  * Discriminated union of every generated token leaf path. Consumed
@@ -50,4 +50,5 @@ export type TokenPath =
   | 'radius.lg'
   | 'radius.full'
   | 'ratio.square'
-  | 'ratio.card';
+  | 'ratio.card'
+  | 'border.1';

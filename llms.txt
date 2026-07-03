@@ -7,7 +7,7 @@ Spec pages (HTML · served via gh-pages):
   /packages/spec/pages/foundations/colour/semantic.html       colour tokens · semantic (mode × accent)
   /packages/spec/pages/foundations/colour/exploration.html    colour tokens · exploration
   /packages/spec/pages/foundations/typography.html                  type scale
-  /packages/spec/pages/foundations/dimension/primitive.html         dimension tokens · primitive (--nuri-px-N · 12 leaves)
+  /packages/spec/pages/foundations/dimension/primitive.html         dimension tokens · historical primitive page (px scale retired)
   /packages/spec/pages/foundations/dimension/spacing.html           dimension tokens · semantic spacing (T-shirt scale)
   /packages/spec/pages/foundations/dimension/sizing.html            dimension tokens · semantic sizing (T-shirt scale)
   /packages/spec/pages/foundations/dimension/radius.html            dimension tokens · semantic radius (T-shirt scale + 9999px sentinel full)
@@ -32,9 +32,9 @@ Spec pages (HTML · served via gh-pages):
 
 Build assets (dist · fetchable · 6 kinds · all emitted by `npm run build`):
   /packages/spec/build/tokens.json                 DTCG primitives (W3C standard · 216 colour tokens)
-  /packages/spec/build/tokens.ts                   RN-ready · runtime sets · chrome + accent + space + size + radius + ratio (40 leaves) + type scale
+  /packages/spec/build/tokens.ts                   RN-ready · runtime sets · chrome + accent + space + size + radius + ratio (41 leaves) + border hairline + type scale
   /packages/spec/build/interaction.ts              transversal interaction baseline · { pressScale · disabledOpacity } · the dec-45 cross-component constants (read from --nuri-interaction-* · Smell-1 · dec 66)
-  /packages/spec/build/token-paths.ts              discriminated union of every runtime-set leaf (40 members)
+  /packages/spec/build/token-paths.ts              discriminated union of every runtime-set leaf (41 members)
   /packages/spec/build/icons.ts                    typed glyph registry · IconName union + icons[name] SVG markup · GENERATED from icons/*.svg (one drawing per glyph · currentColor · no weights)
   /packages/spec/build/descriptors/<name>.ts       per-component DESCRIPTOR · the frozen R-EXPO-6 contract (theme thunk · variants / compoundVariants · part-addressable $parts) · schema.ts + 3: composition-button · icon-avatar · topbar (N+19 · decision 65.2)
 

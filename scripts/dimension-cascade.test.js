@@ -72,17 +72,14 @@ const sortedEntries = (map) => [...map.entries()].sort(([a], [b]) => a.localeCom
 // ══════════════════════════════════════════════════════════════════
 // Guard A · STRUCTURAL ≡ (the SoT map ≡ the committed CSS map)
 // ══════════════════════════════════════════════════════════════════
-test('Guard A · px scale: SoT ≡ committed tokens-primitive.css', () => {
-  assert.deepEqual(
-    sortedEntries(primitiveDimMap(dims)),
-    sortedEntries(declMapFromCss(primCss, /^--nuri-px-/)),
-  );
+test('Guard A · the retired px scale is absent from committed tokens-primitive.css', () => {
+  assert.deepEqual(sortedEntries(declMapFromCss(primCss, /^--nuri-px-/)), []);
 });
 
-test('Guard A · space/size/radius semantics: SoT ≡ committed tokens-semantic.css', () => {
+test('Guard A · space/size/radius/ratio/border semantics: SoT ≡ committed tokens-semantic.css', () => {
   assert.deepEqual(
     sortedEntries(semanticDimMap(dims)),
-    sortedEntries(declMapFromCss(semCss, /^--nuri-(space|size|radius|ratio)-/)),
+    sortedEntries(declMapFromCss(semCss, /^--nuri-(space|size|radius|ratio|border-\d)/)),
   );
 });
 
@@ -99,7 +96,7 @@ test('Guard B · tokens-primitive.css is fresh (re-emit byte-identical)', () => 
 
 test('Guard B · tokens-semantic.css is fresh (re-emit byte-identical)', () => {
   assert.equal(
-    rewriteDimensionDecls(semCss, semanticDimMap(dims), /^--nuri-(space|size|radius|ratio)-/),
+    rewriteDimensionDecls(semCss, semanticDimMap(dims), /^--nuri-(space|size|radius|ratio|border-\d)/),
     semCss,
     'tokens-semantic.css dimension decls are stale — run `npm run build -w @nuri/spec`',
   );
@@ -111,41 +108,30 @@ test('Guard B · tokens-semantic.css is fresh (re-emit byte-identical)', () => {
 // The design scale, RESTATED by hand — the independent oracle. NOT read from the
 // CSS or the SoT module; if a value here disagrees with either, one is wrong.
 // These are the FINAL resolved strings (space.none + radius.full are the literal
-// sentinels outside the px scale by design · decision 32 / 36.1).
-const PX_ORACLE = [2, 4, 6, 12, 18, 24, 28, 36, 48, 54, 72, 90];
+// sentinels direct-authored by design.
 const SPACE_FINAL = { none: '0', '2xs': '2px', xs: '4px', sm: '6px', md: '12px', lg: '18px', xl: '24px', '2xl': '36px' };
 const SIZE_FINAL = { xs: '18px', sm: '24px', md: '36px', lg: '48px', xl: '54px', '2xl': '72px', '3xl': '90px' };
 const RADIUS_FINAL = { sm: '6px', md: '12px', lg: '18px', full: '9999px' };
 // The ratio scale is UNITLESS — the final strings carry NO `px` (the named-risk
 // oracle: a px leak on the aspect-ratio emit fails HERE, in both resolution paths).
 const RATIO_FINAL = { square: '1', card: '1.586' };
+const BORDER_FINAL = { 1: '1px' };
 
-test('Guard C · the px scale equals the restated design oracle', () => {
-  // The KEYS of `px` are the scale (the DTCG shape · value == name · decision 32).
-  assert.deepEqual(Object.keys(dims.px).map(Number), PX_ORACLE);
+test('Guard C · the px scale is not present in the dimension SoT', () => {
+  assert.equal('px' in dims, false);
 });
 
 test('Guard C · every semantic leaf resolves to the design value — through the SoT', () => {
-  // SoT resolution: leaf → leafRhs → (a px ref resolves via value==name) → final.
-  const sotResolve = (def) => {
-    const rhs = leafRhs(def);
-    const m = rhs.match(/^var\(--nuri-px-(\d+)\)$/);
-    if (!m) return rhs; // a literal (0 · 9999px)
-    const n = Number(m[1]);
-    assert.ok(Object.hasOwn(dims.px, n), `--nuri-px-${n} referenced but absent from px`);
-    return `${n}px`; // decision 32 · value == name
-  };
-  for (const [scale, table, final] of [['space', dims.space, SPACE_FINAL], ['size', dims.size, SIZE_FINAL], ['radius', dims.radius, RADIUS_FINAL], ['ratio', dims.ratio, RATIO_FINAL]]) {
+  for (const [scale, table, final] of [['space', dims.space, SPACE_FINAL], ['size', dims.size, SIZE_FINAL], ['radius', dims.radius, RADIUS_FINAL], ['ratio', dims.ratio, RATIO_FINAL], ['border', dims.border, BORDER_FINAL]]) {
     for (const [leaf, def] of Object.entries(table)) {
-      assert.equal(sotResolve(def), final[leaf], `${scale}.${leaf} resolved through the SoT`);
+      assert.equal(leafRhs(def), final[leaf], `${scale}.${leaf} resolved through the SoT`);
     }
     assert.deepEqual(Object.keys(table).sort(), Object.keys(final).sort(), `${scale} leaf set`);
   }
 });
 
 test('Guard C · every semantic leaf resolves to the design value — through the live CSS var() chain', () => {
-  // Build a var map from the COMMITTED CSS and chase the generated chain end to
-  // end (the actual --nuri-{scale}-leaf → var(--nuri-px-N) → Npx the browser sees).
+  // Build a var map from the COMMITTED CSS and chase any generated var() chain.
   const varMap = new Map();
   for (const css of [primCss, semCss]) {
     postcss.parse(css).walkDecls((d) => {
@@ -160,7 +146,7 @@ test('Guard C · every semantic leaf resolves to the design value — through th
     assert.ok(next !== undefined, `unresolved ${m[1]}`);
     return resolveRhs(next, depth + 1);
   };
-  for (const [scale, final] of [['space', SPACE_FINAL], ['size', SIZE_FINAL], ['radius', RADIUS_FINAL], ['ratio', RATIO_FINAL]]) {
+  for (const [scale, final] of [['space', SPACE_FINAL], ['size', SIZE_FINAL], ['radius', RADIUS_FINAL], ['ratio', RATIO_FINAL], ['border', BORDER_FINAL]]) {
     for (const [leaf, expected] of Object.entries(final)) {
       const rhs = varMap.get(`--nuri-${scale}-${leaf}`);
       assert.ok(rhs !== undefined, `--nuri-${scale}-${leaf} missing from the CSS`);

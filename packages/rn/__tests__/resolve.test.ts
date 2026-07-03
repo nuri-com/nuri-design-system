@@ -20,7 +20,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { buildNuriTheme, INTERACTION_BASELINE } from '../runtime/theme-payload';
 import { typeStyle } from '../theme';
-import { flattenPart, PALETTE_BORDER_WIDTH, resolveAnatomy } from '../runtime/resolve';
+import { flattenPart, PALETTE_BORDER_WIDTH, resolveAnatomy, resolveNS } from '../runtime/resolve';
 import {
   buttonDescriptor,
   iconAvatarDescriptor,
@@ -49,7 +49,7 @@ const acc = (a: Accent, role: keyof (typeof accentTokens)[Accent], mode: Theme):
 
 const webBorder1 = (): number => {
   const css = fs.readFileSync(
-    path.resolve(__dirname, '../../prototype/generated/styles/tokens-primitive.css'),
+    path.resolve(__dirname, '../../prototype/generated/styles/tokens-semantic.css'),
     'utf8',
   );
   const match = css.match(/--nuri-border-1:\s*([0-9.]+)px;/);
@@ -102,6 +102,11 @@ describe('baseline theme (resolver-model §11)', () => {
 
   test('palette border width matches the web --nuri-border-1 primitive', () => {
     expect(PALETTE_BORDER_WIDTH).toBe(webBorder1());
+  });
+
+  test('bare muted palette resolves to scoped muted text colour', () => {
+    const dark = buildNuriTheme('lilac', 'dark');
+    expect(resolveNS({ palette: { muted: true } }, dark).fg).toBe(chrome.dark.textMuted);
   });
 });
 
@@ -224,7 +229,7 @@ describe('IconAvatar — same resolver, static, the subtle role (via flattenPart
     expect(root('outline').style).toMatchObject({
       backgroundColor: 'transparent',
       borderColor: chrome.light.borderSubtle,
-      borderWidth: 1,
+      borderWidth: PALETTE_BORDER_WIDTH,
     });
     expect(root('outline').node.fg).toBe(chrome.light.textMuted);
   });

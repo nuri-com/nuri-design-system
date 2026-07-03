@@ -53,7 +53,7 @@
   nuri-separator,
   nuri-separator:not(:defined) {
     display: block;
-    block-size: 1px;
+    block-size: var(--nuri-border-1);
     inline-size: 100%;
     margin-block: var(--nuri-space-sm);
     background: var(--nuri-border-subtle);

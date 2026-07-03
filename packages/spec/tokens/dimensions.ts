@@ -1,92 +1,66 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · DIMENSION CASCADE · SOURCE OF TRUTH (TS) · N+31 · decision 70
+ * NURI · DIMENSION SOURCE OF TRUTH (TS)
  * ──────────────────────────────────────────────────────────────────
- * The dimension layer of the cascade (docs/cascade.md · L1 px primitives +
- * the L2 space/size/radius semantics), authored ONCE in TS. This is the FIRST
- * real flip: decision 2 (CSS is the source of truth) is REVERSED for the
- * dimension layer ONLY — these values are no longer read out of the CSS, they
- * are WRITTEN INTO it. styles/tokens-{primitive,semantic}.css become a
- * projection of this module (pipeline/tokens-parser.js Slice 0 · the in-place
- * passthrough emit). The colour layer's CSS stays the SoT (the next slice).
+ * The dimension layer is authored ONCE here and projected into web CSS
+ * and RN generated tokens. Semantic leaves own their direct values:
+ * space/size/radius/border are pixel dimensions, ratio is unitless.
  *
- * The shape is the DTCG model — `name → value | reference` (the token-standards
- * eval · roadmap/token-standards-eval.md §5): a leaf is EITHER a reference to a
- * px primitive (the cascade) OR a structured literal. The reference structure
- * px←semantic IS the cascade: a semantic leaf names a px primitive
- * ({ ref: 36 } → var(--nuri-px-36)), it does not restate a value. The two
- * literals sit OUTSIDE the px scale by design — space.none = { value: 0 } (a
- * collapsed gutter · decision 32 retired --nuri-px-0 · emitted unitless `0`) and
- * radius.full = { value: 9999 } (the sentinel border-radius clamps to
- * min(w/2,h/2) → pill/circle · amendment 36.1). Adding a token here grows the
- * CSS on the next build; no parser edit.
- *
- * NOT in scope (LOCKED · hand · passed through verbatim by the emitter): the
- * reserved radius PRIMITIVES (--nuri-radius-{none,xs,xl,2xl} · P11 · they live
- * in tokens-primitive.css, a different family than the space/size/radius
- * SEMANTICS owned here), --nuri-border-*, the type scale, fonts, every colour.
- *
- * Consumed by the node pipeline through the shared TS data loader
- * (loadDimensions · scripts/parsers/dimension-css.js). Base: decision 2
- * (reversed here) · 32 · 36 · 36.1 · 48 · 70 · the token-standards eval
- * (the DTCG shape · move b).
+ * Emit rules:
+ *   · pixel dimensions emit Npx
+ *   · 0 emits 0
+ *   · ratios emit bare numbers
+ *   · radius.full remains the 9999px pill sentinel
  * ══════════════════════════════════════════════════════════════════ */
 
-// L1 · the px primitive scale. The KEYS are the scale (no array restated);
-// value == name (decision 32): --nuri-px-N is literally N pixels. `Px` derives
-// from the keys (no union restated). Ordered ascending = the CSS emit order.
-export const px = { 2: 2, 4: 4, 6: 6, 12: 12, 18: 18, 24: 24, 28: 28, 36: 36, 48: 48, 54: 54, 72: 72, 90: 90 } as const;
-export type Px = keyof typeof px;
-
-// A semantic leaf is the universal token shape — `value | reference`: EITHER a
-// reference to a px primitive (the cascade) OR a structured literal. The literal's
-// `unit` discriminates the emit: `px` is a pixel dimension (the 0 / 9999 sentinels
-// that have no px backing by design · emitted `Npx`, 0 unitless), `none` is a BARE
-// number (the `ratio` scale · an aspect-ratio is unit-FREE on both targets — CSS
-// `aspect-ratio: 1.586`, RN `aspectRatio: 1.586` · the emit must NOT append `px`).
-// The axis vocab derives via `keyof typeof space` etc.
-type Leaf = { ref: Px } | { value: number; unit: 'px' | 'none' };
+type Leaf = { value: number; unit: 'px' | 'none' };
 
 // L2 · space · the T-shirt gap/margin/padding scale between siblings
 // (decision 36). Anchors smaller than size by design.
 export const space = {
   none:  { value: 0, unit: 'px' },
-  '2xs': { ref: 2 },
-  xs:    { ref: 4 },
-  sm:    { ref: 6 },
-  md:    { ref: 12 },
-  lg:    { ref: 18 },
-  xl:    { ref: 24 },
-  '2xl': { ref: 36 },
+  '2xs': { value: 2, unit: 'px' },
+  xs:    { value: 4, unit: 'px' },
+  sm:    { value: 6, unit: 'px' },
+  md:    { value: 12, unit: 'px' },
+  lg:    { value: 18, unit: 'px' },
+  xl:    { value: 24, unit: 'px' },
+  '2xl': { value: 36, unit: 'px' },
 } as const satisfies Record<string, Leaf>;
 
 // L2 · size · element dimensions (min-height / width of an element itself ·
 // decision 36). Anchors larger than space (touch targets, control heights).
 export const size = {
-  xs:    { ref: 18 },
-  sm:    { ref: 24 },
-  md:    { ref: 36 },
-  lg:    { ref: 48 },
-  xl:    { ref: 54 },
-  '2xl': { ref: 72 },
-  '3xl': { ref: 90 },
+  xs:    { value: 18, unit: 'px' },
+  sm:    { value: 24, unit: 'px' },
+  md:    { value: 36, unit: 'px' },
+  lg:    { value: 48, unit: 'px' },
+  xl:    { value: 54, unit: 'px' },
+  '2xl': { value: 72, unit: 'px' },
+  '3xl': { value: 90, unit: 'px' },
 } as const satisfies Record<string, Leaf>;
 
 // L2 · radius · corner softness (amendment 36.1). sm/md/lg chain to px; full is
 // the literal 9999px sentinel (a pill for rectangles, a circle when w=h).
 export const radius = {
-  sm:   { ref: 6 },
-  md:   { ref: 12 },
-  lg:   { ref: 18 },
+  sm:   { value: 6, unit: 'px' },
+  md:   { value: 12, unit: 'px' },
+  lg:   { value: 18, unit: 'px' },
   full: { value: 9999, unit: 'px' },
 } as const satisfies Record<string, Leaf>;
 
 // L2 · ratio · aspect-ratio for a box (width:height). UNITLESS by design — every
-// other scale chains to the px scale (a dimension); a ratio is a BARE number that
-// ports verbatim across targets (CSS `aspect-ratio: 1.586`, RN `aspectRatio: 1.586`
-// · the value is identical, no unit divergence). `square` = 1:1; `card` = 1.586:1
+// ratio is a BARE number that ports verbatim across targets (CSS
+// `aspect-ratio: 1.586`, RN `aspectRatio: 1.586` · the value is identical, no
+// unit divergence). `square` = 1:1; `card` = 1.586:1
 // (ISO/IEC 7810 ID-1, the credit-card ratio · a payment-card surface). The `none`
-// unit makes the emit drop the `px` the px scales carry (the named risk).
+// unit makes the emit drop `px` (the named risk).
 export const ratio = {
   square: { value: 1, unit: 'none' },
   card:   { value: 1.586, unit: 'none' },
+} as const satisfies Record<string, Leaf>;
+
+// Border widths promoted only when consumed. Current DS contract usage is the
+// shared hairline for palette outlines and Separator.
+export const border = {
+  1: { value: 1, unit: 'px' },
 } as const satisfies Record<string, Leaf>;

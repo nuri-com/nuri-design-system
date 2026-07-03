@@ -74,14 +74,15 @@ const litToNum = (lit) => Number(lit.replace('px', ''));
 // ══════════════════════════════════════════════════════════════════
 // The design scale, RESTATED by hand — the independent oracle. NOT read from the CSS
 // or the SoT module. These are the FINAL resolved numbers (space.none + radius.full
-// are the literal sentinels outside the px scale by design · decision 32 / 36.1).
+// are the direct-authored sentinels · decision 32 / 36.1).
 const SPACE_FINAL = { none: 0, '2xs': 2, xs: 4, sm: 6, md: 12, lg: 18, xl: 24, '2xl': 36 };
 const SIZE_FINAL = { xs: 18, sm: 24, md: 36, lg: 48, xl: 54, '2xl': 72, '3xl': 90 };
 const RADIUS_FINAL = { sm: 6, md: 12, lg: 18, full: 9999 };
 // The ratio scale is UNITLESS — the RN values are BARE numbers (no `px` · the named
 // risk surfaces here: a px leak makes litToNum mis-read or the value carry a unit).
 const RATIO_FINAL = { square: 1, card: 1.586 };
-const DIM_ORACLE = { space: SPACE_FINAL, size: SIZE_FINAL, radius: RADIUS_FINAL, ratio: RATIO_FINAL };
+const BORDER_FINAL = { 1: 1 };
+const DIM_ORACLE = { space: SPACE_FINAL, size: SIZE_FINAL, radius: RADIUS_FINAL, ratio: RATIO_FINAL, border: BORDER_FINAL };
 
 test('Guard A · resolveDimensionTokens(dims) ≡ the restated design oracle', () => {
   const tokens = resolveDimensionTokens(dims);
@@ -111,14 +112,14 @@ test('Guard A · the dimensions are context-invariant (identical in every accent
   }
 });
 
-test('Guard A · resolveDimLeaf is exhaustive over the Leaf union (ref · 0-sentinel · px-literal · unitless ratio)', () => {
-  assert.equal(resolveDimLeaf({ ref: 12 }, dims.px), '12px');   // value == name (decision 32)
-  assert.equal(resolveDimLeaf({ value: 0, unit: 'px' }, dims.px), '0');       // unitless collapse
-  assert.equal(resolveDimLeaf({ value: 9999, unit: 'px' }, dims.px), '9999px'); // pill sentinel
-  assert.equal(resolveDimLeaf({ value: 1.586, unit: 'none' }, dims.px), '1.586'); // BARE ratio · NO px (named risk)
-  assert.equal(resolveDimLeaf({ value: 1, unit: 'none' }, dims.px), '1');          // square · still no px
-  assert.throws(() => resolveDimLeaf({ ref: 7 }, dims.px), /not in the px scale/); // 7 ∉ px
-  assert.throws(() => resolveDimLeaf({ junk: 1 }, dims.px), /neither/);
+test('Guard A · resolveDimLeaf is exhaustive over the Leaf union (0-sentinel · px-literal · unitless ratio)', () => {
+  assert.equal(resolveDimLeaf({ value: 12, unit: 'px' }), '12px');
+  assert.equal(resolveDimLeaf({ value: 0, unit: 'px' }), '0');       // unitless collapse
+  assert.equal(resolveDimLeaf({ value: 9999, unit: 'px' }), '9999px'); // pill sentinel
+  assert.equal(resolveDimLeaf({ value: 1.586, unit: 'none' }), '1.586'); // BARE ratio · NO px (named risk)
+  assert.equal(resolveDimLeaf({ value: 1, unit: 'none' }), '1');          // square · still no px
+  assert.throws(() => resolveDimLeaf({ ref: 7 }), /not \{ value, unit \}/);
+  assert.throws(() => resolveDimLeaf({ junk: 1 }), /not \{ value, unit \}/);
 });
 
 // ══════════════════════════════════════════════════════════════════
@@ -133,7 +134,7 @@ function committedDimBlock(scale) {
   const obj = {};
   for (const line of m[1].split('\n')) {
     // decimal-aware: the ratio scale emits bare fractionals (card: 1.586) alongside
-    // the integer px scales — match either (NO trailing `px`, the unitless invariant).
+    // the integer dimension scales — match either (NO trailing `px`, the unitless invariant).
     const lm = line.match(/^\s*'?([\w-]+)'?:\s*(\d+(?:\.\d+)?),/);
     if (lm) obj[lm[1]] = Number(lm[2]);
   }
@@ -142,7 +143,7 @@ function committedDimBlock(scale) {
 
 test('Guard B · the committed build/tokens.ts dimension values ≡ resolveDimensionTokens(dims)', () => {
   const tokens = resolveDimensionTokens(dims);
-  for (const scale of ['space', 'size', 'radius', 'ratio']) {
+  for (const scale of ['space', 'size', 'radius', 'ratio', 'border']) {
     const committed = committedDimBlock(scale);
     const fromSoT = Object.fromEntries(
       Object.entries(tokens)
@@ -169,6 +170,7 @@ const UNION_ORACLE = [
   'size.xs', 'size.sm', 'size.md', 'size.lg', 'size.xl', 'size.2xl', 'size.3xl',
   'radius.sm', 'radius.md', 'radius.lg', 'radius.full',
   'ratio.square', 'ratio.card',
+  'border.1',
 ];
 
 // Extract the `| 'x.y'` members from a token-paths.ts source string, in order.
@@ -190,7 +192,7 @@ test('Guard D · the dimension arm ignores the cascade CSS (corrupt it · the So
   // The OLD path (resolveSemanticCrossProduct over the cascade) would track a CSS edit;
   // the SoT path does not. Corrupt --nuri-space-md in the committed semantic CSS and walk
   // it the old way — then assert resolveDimensionTokens(dims) is unaffected.
-  const corrupted = semCss.replace(/--nuri-space-md:[^;]+;/, '--nuri-space-md: var(--nuri-px-90);');
+  const corrupted = semCss.replace(/--nuri-space-md:[^;]+;/, '--nuri-space-md: 90px;');
   assert.notEqual(corrupted, semCss, 'sanity: the corruption pattern must match a real decl');
   const cssWalk = resolveSemanticCrossProduct(readSemanticRules(corrupted), buildPrimitiveMap(primCss));
   assert.equal(cssWalk['--nuri-space-md'][ACCENTS[0]][THEMES[0]], '90px', 'sanity: the CSS walk took the corruption');

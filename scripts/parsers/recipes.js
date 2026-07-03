@@ -59,14 +59,11 @@ import { loadTsDataFromPath } from '../ts-data-loader.js';
 const NS_ORDER = ['stack', 'box', 'typography', 'palette', 'interactive'];
 
 // ── resolve a dimension SoT leaf → its concrete number ──────────────
-// A `{ ref: N }` leaf points at the px primitive whose value == its name (decision
-// 32 · `--nuri-px-N` == Npx), so the number IS the ref; a `{ value }` literal (the
-// space.none / radius.full / ratio.* leaves outside the px scale) is verbatim. This
-// is the SAME resolution leafRhs (dimension-css.js) does for CSS, in numeric form.
+// A `{ value }` leaf is verbatim. This is the SAME resolution leafRhs
+// (dimension-css.js) does for CSS, in numeric form.
 function resolveLeaf(leaf) {
-  if (leaf && 'ref' in leaf) return leaf.ref;
   if (leaf && typeof leaf.value === 'number') return leaf.value;
-  throw new Error(`[recipes] dimension leaf is neither { ref } nor { value }: ${JSON.stringify(leaf)}`);
+  throw new Error(`[recipes] dimension leaf is not { value }: ${JSON.stringify(leaf)}`);
 }
 
 // dims (loadDimensions output) → the numeric scale table applyFieldsNode reads.

@@ -381,8 +381,7 @@ test('G · each generated/axes/*.md re-emits identically from its axis SoT', asy
 // ════════════════════════════════════════════════════════════════════
 // Per-page contract (the load-bearing surface a deliberate emitter change must update):
 // front-matter title/nav · the re-pathed header · each subject's natural shape —
-// the dimension cascade (leaf → the `px-N` primitive → the resolved px · the literal
-// sentinel for the off-scale 0 / 9999) · the colour PRIMITIVE literal swatches (theme-
+// the dimension tables (direct literal leaves → resolved value) · the colour PRIMITIVE literal swatches (theme-
 // fixed · light/dark · incl. lilac's frozen step + an alpha overlay) · the colour
 // SEMANTIC role matrix (the `{ref}` cascade pointer + a live var() swatch + the default-
 // scope hex · incl. the INVERSE accent-solid) · the typography composite (the de-fused
@@ -411,16 +410,18 @@ const FOUNDATION_CONTRACT = {
     includes: ['## Accent', '| Role | Cascade | Resolves to |'],
   },
   dimension: {
-    title: 'Dimension', nav: 3, section: '## Primitives',
+    title: 'Dimension', nav: 3, section: '## Space',
     cells: [
-      // a px primitive (key == px · decision 32)
-      '| `px-12` | `12px` |',
-      // the cascade row: a leaf → the px-N primitive it references → the resolved px
-      '| `space.md` | `px-12` | `12px` |',
+      // direct authored leaves render as literal rows.
+      '| `space.md` | `literal` | `12px` |',
+      // unitless ratio stays bare.
+      '| `ratio.card` | `literal` | `1.586` |',
+      // border.1 is the lone shipped hairline token.
+      '| `border.1` | `literal` | `1px` |',
       // the off-scale literal sentinel (radius.full · 9999 · no px backing by design)
       '| `radius.full` | `literal` | `9999px` |',
     ],
-    includes: ['## Space', '## Size', '## Radius', '| Token | Cascade | Value |'],
+    includes: ['## Size', '## Radius', '## Ratio', '## Border', '| Token | Cascade | Value |'],
   },
   typography: {
     title: 'Typography', nav: 4, section: '## Scale',

@@ -7,12 +7,10 @@
  *
  * ── Naming → DTCG $type inference (RN sync pipeline) ──────────
  *   --nuri-color-*         → color
- *   --nuri-px-*            → dimension (direct-pixel scale · N = px)
  *   --nuri-radius-*        → dimension (corner radii)
  *   --nuri-font-size-*     → dimension
  *   --nuri-font-family-*   → fontFamily
  *   --nuri-font-weight-*   → fontWeight
- *   --nuri-border-*        → dimension (px — never scales)
  *   --nuri-duration-*      → duration
  *
  * ── Deliberately absent token families ───────────────────────
@@ -27,10 +25,6 @@
  *                          (Jade / Amber / Red / Blue) with the
  *                          first status-using component (Toast,
  *                          Alert, StatusPill) — N+5.7 cleanup.
- *   --nuri-px-{8,16,20,32,40,64,80}
- *                          consolidated out by the N+6.0
- *                          rename (8→6, 16/20→18, 32→28, 40→36,
- *                          64→60, 80→72) · see decision 32.
  *   --nuri-size-*          retired in N+6.0 · primitive layer
  *                          uses direct-pixel naming. The
  *                          --nuri-size-* prefix is reserved for
@@ -39,8 +33,8 @@
  *                          3xl).
  *
  * ── Hardcoded escapes retired ────────────────────────────────
- *   44px in shell.css (3×)    → var(--nuri-px-48)  (N+6.0)
- *   56px in button.css (1×)   → var(--nuri-px-60)  (N+6.0)
+ *   Historical primitive px escapes were retired; shell/archive/demo
+ *   surfaces are not DS contract surfaces for this layer.
  *
  * ── Unit rule ─────────────────────────────────────────────────
  *   rem  → font-size ONLY (mirrors RN allowFontScaling)
@@ -79,8 +73,8 @@
  * --neutral= options. See the NEUTRAL RESOLUTION block below.
  *
  * ── Generated regions (decision 70 · dec-2 reversed for these layers) ─
- * The --nuri-color-* values + the --nuri-px-* scale are WRITTEN by
- * `npm run build` from their TS SoTs (packages/spec/tokens/colours.ts · dimensions.ts)
+ * The --nuri-color-* values are WRITTEN by
+ * `npm run build` from their TS SoT (packages/spec/tokens/colours.ts)
  * via the Slice-0 in-place passthrough. Edit the SoT, not these values.
  * ────────────────────────────────────────────────────────────── */
 
@@ -426,34 +420,10 @@
  * ══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Dimension scale · direct-pixel naming (px — doesn't scale)
-   * Each token's value equals its name: --nuri-px-N is literally
-   * N pixels. No indexed scale; future additions arrive only when
-   * a semantic or component consumer materialises (P11 parsimony,
-   * decision 32). N+6.0 retires the prior --nuri-size-{0..12}
-   * indexed scale.
-   *
-   * N+31 · these --nuri-px-* values are GENERATED from the TS SoT
-   * (packages/spec/tokens/dimensions.ts · decision 70 · dec-2 reversed for the dimension
-   * layer). Edit the SoT, not here — `npm run build` regenerates them in place
-   * (Slice 0). The --nuri-radius-* primitives below stay hand-authored. */
-  --nuri-px-2:    2px;
-  --nuri-px-4:    4px;
-  --nuri-px-6:    6px;
-  --nuri-px-12:  12px;
-  --nuri-px-18:  18px;
-  --nuri-px-24:  24px;
-  --nuri-px-28:  28px;
-  --nuri-px-36:  36px;
-  --nuri-px-48:  48px;
-  --nuri-px-54:  54px;
-  --nuri-px-72:  72px;
-  --nuri-px-90:  90px;
-
   /* ── Radius (px) ───────────────────────────────────────────────
    * sm / md / lg / full moved to the semantic layer at N+6.1.1
-   * (amendment 36.1) — sm/md/lg chain to --nuri-px-N like space +
-   * size (decision 36); full is a literal 9999px sentinel held in
+   * (amendment 36.1) — sm/md/lg are semantic direct values like space +
+   * size; full is a literal 9999px sentinel held in
    * the semantic layer (post-close polish: the 100% experiment
    * ellipsed rectangular `.nuri-tag` boxes since 100% interprets
    * relative to box dimensions; 9999px sentinel saturates correctly
@@ -467,12 +437,6 @@
   --nuri-radius-xs:   2px;
   --nuri-radius-xl:   16px;
   --nuri-radius-2xl:  24px;
-
-  /* ── Border width (px — never scales) ──────────────────────── */
-  --nuri-border-0:  0;
-  --nuri-border-1:  1px;
-  --nuri-border-2:  2px;
-  --nuri-border-4:  4px;
 
   /* ── Typography · families ─────────────────────────────────── */
   /* Production default: system stack — each platform renders its own

@@ -1,12 +1,12 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · TOKENS · GENERATED · DO NOT EDIT BY HAND
  *
- * Source · packages/spec/tokens/colours.ts (chrome · accent · ref→hex) + packages/spec/tokens/dimensions.ts (space · size · radius · ref→px)
+ * Source · packages/spec/tokens/colours.ts (chrome · accent · ref→hex) + packages/spec/tokens/dimensions.ts (space · size · radius · ratio · border)
  * Emitter · scripts/tokens-parser.js — run `npm run build`
  *
  * Contains the RN projection's generated token tables: runtime-capable
  * colour slices (chrome · accent), static dimensions (space · size · radius
- * · ratio), and the direct type scale. The discriminated union of generated
+ * · ratio · border), and the direct type scale. The discriminated union of generated
  * token leaf paths lives beside this file in generated/data/token-paths.ts.
  *
  * Shape is classify-by-cascade (decision 28 · N+5.5): each
@@ -18,6 +18,7 @@
  *  · size (singleton): xs, sm, md, lg, xl, 2xl, 3xl
  *  · radius (singleton): sm, md, lg, full
  *  · ratio (singleton): square, card
+ *  · border (singleton): 1
  *
  * COLOUR is re-sourced from packages/spec/tokens/colours.ts (N+59 · Slice 3b·1 ·
  * projection model §3 · decision 80): chrome + accent are flattened
@@ -25,7 +26,7 @@
  * SUBSTITUTION — accent is accent-MAJOR two-layer (a role is a flat hex
  * or a {light,dark} pair · the runtime composes chrome[mode] ⊕
  * accent[accent][mode]), NOT a materialized (accent × theme) cross-
- * product. space/size/radius are flattened ref→px straight from
+ * product. space/size/radius/ratio/border are flattened straight from
  * packages/spec/tokens/dimensions.ts (N+60 · Slice 3b·2a) — the RN value arm reads
  * no CSS now. Colour refs resolve through the build's selected --neutral
  * scope (decision 31 · default cream; pass --neutral=<scale> to
@@ -178,6 +179,13 @@ export const ratio: {
 } = {
   square:  1,
   card:    1.586,
+};
+
+// ── border · singleton ──
+export const border: {
+  '1': number;
+} = {
+  '1':  1,
 };
 
 /* ── type · 6 size composites + emphasisWeight · directly-accessed namespace (decision 54 · de-fused 77) ──

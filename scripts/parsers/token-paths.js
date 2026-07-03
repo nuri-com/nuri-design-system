@@ -3,10 +3,10 @@
  * ──────────────────────────────────────────────────────────────────
  * Enumerates the TokenPath discriminated union STRAIGHT from the TS SoTs
  * (packages/spec/tokens/colours.ts chrome + accent role names · packages/spec/tokens/dimensions.ts
- * space/size/radius/ratio keys) — no longer from classifyAll(semanticRules) (the CSS).
+ * space/size/radius/ratio/border keys) — no longer from classifyAll(semanticRules) (the CSS).
  * This finishes the RN contract's TS-sourcing (projection model §4): the runtime-set
  * leaf paths are exactly the colour roles (camelCased) + the dimension leaf keys, in
- * the same emit order tokens.ts uses (chrome · accent · space · size · radius).
+ * the same emit order tokens.ts uses (chrome · accent · space · size · radius · ratio · border).
  *
  * The union is the consumer's compile-time guard: generated RN token consumers
  * are `TokenPath`-checked, so adding/renaming a runtime leaf without re-emitting
@@ -27,13 +27,13 @@ function camelCase(str) {
 // semantic colour roles (packages/spec/tokens/colours.ts · loadSemanticColours); `dims` is the
 // dimension SoT (packages/spec/tokens/dimensions.ts · loadDimensions). Order: chrome roles, then
 // accent roles (every accent owns the same role set · read from the first), then the
-// space/size/radius leaf keys — the tokens.ts EMIT_ORDER.
+// space/size/radius/ratio/border leaf keys — the tokens.ts EMIT_ORDER.
 export function emitTokenPathsTsFromSoT({ chrome, accent }, dims) {
   const paths = [];
   for (const role of Object.keys(chrome)) paths.push(`chrome.${camelCase(role)}`);
   const firstAccent = Object.keys(accent)[0];
   for (const role of Object.keys(accent[firstAccent])) paths.push(`accent.${camelCase(role)}`);
-  for (const scale of ['space', 'size', 'radius', 'ratio']) {
+  for (const scale of ['space', 'size', 'radius', 'ratio', 'border']) {
     for (const leaf of Object.keys(dims[scale])) paths.push(`${scale}.${leaf}`);
   }
 
@@ -41,7 +41,7 @@ export function emitTokenPathsTsFromSoT({ chrome, accent }, dims) {
     `/* ──────────────────────────────────────────────────────────────`,
     ` * NURI · TOKEN PATHS · GENERATED · DO NOT EDIT BY HAND`,
     ` *`,
-    ` * Source · packages/spec/tokens/colours.ts (chrome · accent roles) + packages/spec/tokens/dimensions.ts (space · size · radius)`,
+    ` * Source · packages/spec/tokens/colours.ts (chrome · accent roles) + packages/spec/tokens/dimensions.ts (space · size · radius · ratio · border)`,
     ` * Emitter · scripts/tokens-parser.js — run \`npm run build\``,
     ` *`,
     ` * Discriminated union of every generated token leaf path. Consumed`,

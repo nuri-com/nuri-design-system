@@ -15,8 +15,8 @@
  * THREE subjects, THREE shapes (each builder a PURE function of its loaded-SoT data ·
  * read by build.js / Guard G via the strip.js loader · NEVER spec's pipeline code ·
  * decision 75):
- *   · dimension ← dimensions.ts + tokens — the L1 px primitives + the L2
- *                 space/size/radius scales, each leaf's `{ref}` cascade + resolved px.
+ *   · dimension ← dimensions.ts + tokens — the direct space/size/radius/ratio/border
+ *                 scales, each leaf's authored literal + resolved value.
  *   · colour    ← colours.ts + the role resolver — L1 primitive ramps (theme-fixed
  *                 literal swatches) + L2 semantic roles (live `var()` swatches).
  *   · typography ← tokens.type + tokens.emphasisWeight — the 6 type-step composites
@@ -25,24 +25,20 @@
  *                 the resolved DATA, the provenance header cites the CSS source).
  * ────────────────────────────────────────────────────────────── */
 
-// ── dimension ← dimensions.ts (px L1 + space/size/radius L2) + the resolved px
-// (tokens · already px-suffixed by buildDocTokenInputs). The px scale: key == px
-// (decision 32 · --nuri-px-N is N pixels). Each L2 leaf is `{ ref: Px }` (the
-// cascade — names a primitive) OR a `{ value, unit }` literal sentinel (space.none ·
-// radius.full · outside the px scale by design). Show the pointer + its resolution. ──
-const DIM_SCALES = ['space', 'size', 'radius'];
+// ── dimension ← dimensions.ts direct leaves + the resolved token values.
+// Ratios are unitless; 0 stays unitless; pixel dimensions render as Npx. ──
+const DIM_SCALES = ['space', 'size', 'radius', 'ratio', 'border'];
 
 export function foundationsDimensionIr(dims, tokens) {
-  const primitives = Object.keys(dims.px).map((k) => ({ token: `px-${k}`, value: `${k}px` }));
   const scales = DIM_SCALES.map((name) => ({
     name,
     rows: Object.entries(dims[name]).map(([leaf, def]) => ({
       token: `${name}.${leaf}`,
-      cascade: 'ref' in def ? { ref: `px-${def.ref}` } : { literal: true },
-      value: tokens[name][leaf], // the resolved px (string · e.g. '12px' · buildDocTokenInputs)
+      cascade: { literal: true },
+      value: tokens[name][leaf],
     })),
   }));
-  return { source: 'dimension', kind: 'dimension', primitives, scales };
+  return { source: 'dimension', kind: 'dimension', primitives: [], scales };
 }
 
 // ── colour · TWO pages (the operator's granularity call · the archived hand split):
@@ -137,7 +133,7 @@ export const FOUNDATION_DOCS = [
     source: 'dimension',
     nav: 3,
     src: 'packages/spec/tokens/dimensions.ts',
-    lead: 'The dimension foundation — the L1 direct-pixel primitives (`px-N` is N pixels · decision 32) and the L2 `space` · `size` · `radius` scales that reference them. Each semantic leaf names a primitive (the cascade) or sits outside it as a literal sentinel (`space.none` · `radius.full`). One px value, both targets.',
+    lead: 'The dimension foundation — direct `space` · `size` · `radius` · `ratio` · `border` leaves authored in the dimension SoT. Pixel dimensions emit `Npx` (with `0` unitless), ratios emit bare numbers, and `radius.full` remains the 9999px pill sentinel. One value, both targets.',
     build: (d) => foundationsDimensionIr(d.dimensions, d.tokens),
   },
   {
