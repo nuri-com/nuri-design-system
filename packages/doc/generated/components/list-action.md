@@ -1,27 +1,28 @@
 ---
-title: Pressable Item
+title: List Action
 layout: default
-nav_order: 4
+nav_order: 5
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/generated/components/pressable-item.ts
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/generated/components/list-action.ts
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
-# Pressable Item
+# List Action
 
 ## API
 
-### PressableItemProps
+### ListActionProps
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
+| `variant` | no | `'outline' | 'solid' | 'soft' | 'ghost' | 'subtle'` | style axis |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `onPress` | no | `() => void` | pressable behaviour |
 | `disabled` | no | `boolean` | pressable behaviour |
 | `accessibilityLabel` | no | `string` | pressable behaviour |
 | `children` | no | `React.ReactNode` | composition children |
 
-### PressableItemLeadingAvatarProps
+### ListActionLeadingAvatarProps
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
@@ -29,31 +30,31 @@ nav_order: 4
 
 > `children` is not accepted (`children?: never`).
 
-### PressableItemTextProps
+### ListActionTextProps
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `children` | no | `React.ReactNode` | slot content |
 
-### PressableItemTextMutedProps
+### ListActionTextMutedProps
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `children` | no | `React.ReactNode` | slot content |
 
-### PressableItemTrailingTextProps
+### ListActionTrailingTextProps
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `children` | no | `React.ReactNode` | slot content |
 
-### PressableItemTrailingTextMutedProps
+### ListActionTrailingTextMutedProps
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `children` | no | `React.ReactNode` | slot content |
 
-### PressableItemTrailIconProps
+### ListActionTrailIconProps
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |

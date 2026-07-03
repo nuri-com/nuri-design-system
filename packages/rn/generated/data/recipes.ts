@@ -251,7 +251,21 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       }
     }
   },
-  "pressable-item": {
+  "list": {
+    "root": {
+      "el": "view",
+      "open": true,
+      "geometry": {
+        "base": {
+          "flexDirection": "column",
+          "alignItems": "stretch",
+          "paddingHorizontal": 6
+        },
+        "variants": {}
+      }
+    }
+  },
+  "list-action": {
     "root": {
       "el": "pressable",
       "geometry": {

@@ -64,7 +64,7 @@ export type { NuriIconProps } from './primitives';
 // `<nuri-stack/view/typography/pressable/screen/scroll>` (primitives-contract §1.A ·
 // the §2 parity gap · step ①). Thin wrappers forwarding namespace props through the
 // SAME runtime/resolve.ts appliers (no second mapping · the drift rule). NOT descriptors.
-export { View, Stack, Text, Pressable, Screen, Scroll, Separator } from './primitives';
+export { View, Stack, Text, Pressable, Screen, Scroll, Separator, ListSeparator } from './primitives';
 export type {
   ViewProps,
   StackProps,
@@ -74,6 +74,7 @@ export type {
   ScrollProps,
   SeparatorProps,
   SeparatorYSpace,
+  ListSeparatorProps,
 } from './primitives';
 
 // Generated component adapters (Path C · Phase 3). Each descriptor's `api` emits
@@ -85,7 +86,7 @@ export type {
 //   <Button><ButtonText>Buy</ButtonText><ButtonIcon name="apple" /></Button>
 //   <IconAvatar variant="soft" icon="apple" />
 //   <IconButton variant="soft" icon="apple" accessibilityLabel="Buy" onPress={…} />
-//   <PressableItem><PressableItemLeadingAvatar name="bank" />…</PressableItem>
+//   <List><ListAction><ListActionLeadingAvatar name="bank" />…</ListAction></List>
 //   <Topbar><TopbarLeading>…</TopbarLeading><TopbarCenter>…</TopbarCenter>…</Topbar>
 //   <TabBar><TabBarItem icon="card" label="Wallet" selected onPress={…} />…</TabBar>
 export {
@@ -98,15 +99,16 @@ export {
   TopbarCenter,
   TopbarTrailing,
   IconButton,
-  PressableItem,
-  PressableItemContent,
-  PressableItemLeadingAvatar,
-  PressableItemText,
-  PressableItemTextMuted,
-  PressableItemTrailing,
-  PressableItemTrailingText,
-  PressableItemTrailingTextMuted,
-  PressableItemTrailIcon,
+  List,
+  ListAction,
+  ListActionContent,
+  ListActionLeadingAvatar,
+  ListActionText,
+  ListActionTextMuted,
+  ListActionTrailing,
+  ListActionTrailingText,
+  ListActionTrailingTextMuted,
+  ListActionTrailIcon,
   TabBarItem,
   TabBar,
 } from './generated/components';
@@ -117,13 +119,14 @@ export type {
   IconAvatarProps,
   TopbarProps,
   IconButtonProps,
-  PressableItemProps,
-  PressableItemLeadingAvatarProps,
-  PressableItemTextProps,
-  PressableItemTextMutedProps,
-  PressableItemTrailingTextProps,
-  PressableItemTrailingTextMutedProps,
-  PressableItemTrailIconProps,
+  ListProps,
+  ListActionProps,
+  ListActionLeadingAvatarProps,
+  ListActionTextProps,
+  ListActionTextMutedProps,
+  ListActionTrailingTextProps,
+  ListActionTrailingTextMutedProps,
+  ListActionTrailIconProps,
   TabBarItemProps,
   TabBarProps,
 } from './generated/components';

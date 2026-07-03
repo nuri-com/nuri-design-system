@@ -18,7 +18,19 @@
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';
-import { Button, ButtonIcon, ButtonText, IconButton, IconAvatar, TabBarItem } from '../index';
+import {
+  Button,
+  ButtonIcon,
+  ButtonText,
+  IconButton,
+  IconAvatar,
+  List,
+  ListAction,
+  ListActionLeadingAvatar,
+  ListActionText,
+  ListSeparator,
+  TabBarItem,
+} from '../index';
 
 // ── Button — text sink · variant/size · NO icon (the soup is gone) ──
 // the real surface compiles: variant union + children text.
@@ -51,6 +63,21 @@ export const iconAvatarOutlineOk = <IconAvatar variant="outline" icon="settings"
 export const iconAvatarNoPress = <IconAvatar icon="settings" onPress={() => undefined} />;
 // @ts-expect-error IconAvatar forbids children (`children?: never`).
 export const iconAvatarNoChildren = <IconAvatar icon="settings">x</IconAvatar>;
+
+// ── List family — open host + pressable row + preset separator ──
+export const listOk = (
+  <List>
+    <ListAction variant="solid" accent="orange" accessibilityLabel="Bank" onPress={() => undefined}>
+      <ListActionLeadingAvatar name="bank" />
+      <ListActionText>Bank account</ListActionText>
+    </ListAction>
+    <ListSeparator />
+  </List>
+);
+// @ts-expect-error ListAction variant is the closed PaletteVariant set.
+export const listActionBadVariant = <ListAction variant="plaid" />;
+// @ts-expect-error ListSeparator v1 has no knobs; it is the preset.
+export const listSeparatorNoProps = <ListSeparator ySpace="sm" />;
 
 // ── TabBarItem — selected bridge + onPress/a11yLabel · icon/label · no disabled ──
 export const tabItemOk = <TabBarItem icon="card" label="Wallet" selected onPress={() => undefined} />;

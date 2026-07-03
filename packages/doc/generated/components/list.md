@@ -1,13 +1,13 @@
 ---
-title: Tab Bar
+title: List
 layout: default
-nav_order: 6
+nav_order: 4
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/generated/components/tab-bar.ts
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/generated/components/list.ts
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
-# Tab Bar
+# List
 
 ## API
 

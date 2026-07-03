@@ -1,17 +1,22 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · COMPONENT DESCRIPTOR · PRESSABLE-ITEM · AUTHORED SOURCE
+ * NURI · COMPONENT DESCRIPTOR · LIST-ACTION · AUTHORED SOURCE
  *
- * The row-action foundation for home/list screens. It is one pressable row with
- * typed composition slots for leading glyph avatar, content text, optional
- * trailing value stack, and a trailing glyph. Grouping, separators, first/last
- * corners, and pressed bleed belong to a future List/ListGroup structure.
+ * The pressable row of the LIST FAMILY (`list` · `list-action` ·
+ * `list-separator` — the home/settings screens' row vocabulary · decision 84;
+ * `list-item` is RESERVED for the future non-pressable row). One pressable row
+ * with typed composition slots for leading glyph avatar, content text, optional
+ * trailing value stack, and a trailing glyph. Grouping, first/last corners, and
+ * pressed bleed belong to a future list-group structure; separators are
+ * author-placed `list-separator` siblings (decision 49 — never auto-inserted).
  * ────────────────────────────────────────────────────────────── */
 
 import type { Descriptor } from './schema';
 
-type PressableItemAxes = {};
+type ListActionAxes = {
+  variant: 'outline' | 'solid' | 'soft' | 'ghost' | 'subtle';
+};
 
-export const pressableItemDescriptor: Descriptor<PressableItemAxes> = {
+export const listActionDescriptor: Descriptor<ListActionAxes> = {
   structure: {
     anatomy: {
       el: 'pressable',
@@ -32,7 +37,6 @@ export const pressableItemDescriptor: Descriptor<PressableItemAxes> = {
       leadingAvatar: {
         stack: { align: 'center', justify: 'center' },
         box: { width: 'lg', height: 'lg', radius: 'full' },
-        palette: { variant: 'outline' },
       },
       leadingIcon: { box: { width: 'xs', height: 'xs' } },
       content: {
@@ -48,8 +52,20 @@ export const pressableItemDescriptor: Descriptor<PressableItemAxes> = {
       trailIcon: { box: { width: 'xs', height: 'xs' }, palette: { variant: 'subtle' } },
     },
   },
+  variants: {
+    // The row stays a ghost surface; variant is routed deliberately to the
+    // leading avatar so grouped row surfaces can belong to a future list-group.
+    variant: {
+      outline: { leadingAvatar: { palette: { variant: 'outline' } } },
+      solid: { leadingAvatar: { palette: { variant: 'solid' } } },
+      soft: { leadingAvatar: { palette: { variant: 'soft' } } },
+      ghost: { leadingAvatar: { palette: { variant: 'ghost' } } },
+      subtle: { leadingAvatar: { palette: { variant: 'subtle' } } },
+    },
+  },
+  defaults: { variant: 'outline' },
   api: {
-    axes: [],
+    axes: ['variant'],
     themeScope: { accent: true },
     behaviour: { pressable: { target: 'root', props: ['onPress', 'disabled', 'accessibilityLabel'] } },
     slots: {

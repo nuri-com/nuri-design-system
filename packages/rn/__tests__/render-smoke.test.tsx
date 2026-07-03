@@ -28,17 +28,19 @@ import {
   TopbarLeading,
   TopbarCenter,
   TopbarTrailing,
-  PressableItem,
-  PressableItemContent,
-  PressableItemLeadingAvatar,
-  PressableItemText,
-  PressableItemTextMuted,
-  PressableItemTrailingText,
-  PressableItemTrailingTextMuted,
-  PressableItemTrailIcon,
+  List,
+  ListAction,
+  ListActionContent,
+  ListActionLeadingAvatar,
+  ListActionText,
+  ListActionTextMuted,
+  ListActionTrailingText,
+  ListActionTrailingTextMuted,
+  ListActionTrailIcon,
   TabBar,
   TabBarItem,
   NuriIcon,
+  ListSeparator,
 } from '../index';
 import { icons } from '../contract';
 import type { Descriptor, Axes } from '../contract';
@@ -306,17 +308,17 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
-  test('PressableItem — direct row slots render avatar, content, trailing value, and trail icon', () => {
+  test('ListAction — direct row slots render avatar, content, trailing value, and trail icon', () => {
     const tr = render(
       <NuriThemeProvider>
-        <PressableItem accessibilityLabel="Transaction" onPress={() => undefined}>
-          <PressableItemLeadingAvatar name="arrow-up" />
-          <PressableItemText>To Emin Mahrt</PressableItemText>
-          <PressableItemTextMuted>Sent • Wed, 16 May</PressableItemTextMuted>
-          <PressableItemTrailingText>- 12.00 €</PressableItemTrailingText>
-          <PressableItemTrailingTextMuted>3433 Sats</PressableItemTrailingTextMuted>
-          <PressableItemTrailIcon name="chevron-right" />
-        </PressableItem>
+        <ListAction accessibilityLabel="Transaction" onPress={() => undefined}>
+          <ListActionLeadingAvatar name="arrow-up" />
+          <ListActionText>To Emin Mahrt</ListActionText>
+          <ListActionTextMuted>Sent • Wed, 16 May</ListActionTextMuted>
+          <ListActionTrailingText>- 12.00 €</ListActionTrailingText>
+          <ListActionTrailingTextMuted>3433 Sats</ListActionTrailingTextMuted>
+          <ListActionTrailIcon name="chevron-right" />
+        </ListAction>
       </NuriThemeProvider>,
     );
     expect(tr.toJSON()).toBeTruthy();
@@ -330,20 +332,109 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
+  test('ListAction — default outline avatar and solid orange avatar scope the glyph', () => {
+    const outline = render(
+      <NuriThemeProvider>
+        <ListAction accessibilityLabel="Default" onPress={() => undefined}>
+          <ListActionLeadingAvatar name="bank" />
+          <ListActionText>Bank account</ListActionText>
+        </ListAction>
+      </NuriThemeProvider>,
+    );
+    expect(JSON.stringify(outline.toJSON())).toContain('#dddac9');
+    expect(outline.root.findByType(NuriIcon).props.color).toBe('#666455');
+
+    const solidOrange = render(
+      <NuriThemeProvider>
+        <ListAction variant="solid" accent="orange" accessibilityLabel="Solid" onPress={() => undefined}>
+          <ListActionLeadingAvatar name="arrow-up" />
+          <ListActionText>Orange solid</ListActionText>
+        </ListAction>
+      </NuriThemeProvider>,
+    );
+    expect(JSON.stringify(solidOrange.toJSON())).toContain('#ff8c5a');
+    expect(solidOrange.root.findByType(NuriIcon).props.color).toBe('#5e280f');
+  });
+
+  test('List — open container preserves positional rows and separators', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <List>
+          <ListAction accessibilityLabel="Bank" onPress={() => undefined}>
+            <ListActionLeadingAvatar name="bank" />
+            <ListActionText>Bank account</ListActionText>
+          </ListAction>
+          <ListSeparator />
+          <ListAction accessibilityLabel="Card" onPress={() => undefined}>
+            <ListActionLeadingAvatar name="card" />
+            <ListActionText>Credit card</ListActionText>
+          </ListAction>
+        </List>
+      </NuriThemeProvider>,
+    );
+    expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toEqual(['Bank account', 'Credit card']);
+    expect(tr.root.findAllByType(NuriIcon).map((g) => g.props.name)).toEqual(['bank', 'card']);
+    const root = tr.toJSON() as TestRenderer.ReactTestRendererJSON;
+    const rootStyle = Array.isArray(root.props.style)
+      ? Object.assign({}, ...root.props.style.filter(Boolean))
+      : root.props.style;
+    expect(rootStyle.paddingHorizontal).toBe(6);
+    expect(rootStyle.paddingVertical).toBeUndefined();
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('ListSeparator — inset wrapper keeps Separator hairline scoped in light and dark', () => {
+    const light = render(
+      <NuriThemeProvider mode="light">
+        <ListSeparator />
+      </NuriThemeProvider>,
+    );
+    const dark = render(
+      <NuriThemeProvider mode="dark">
+        <ListSeparator />
+      </NuriThemeProvider>,
+    );
+    const lineColor = (tr: TestRenderer.ReactTestRenderer) => {
+      const line = tr.root.findAllByType(View).find((node) => {
+        const style = node.props.style as unknown;
+        const flat = Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : (style as Record<string, unknown>);
+        return flat.height === 1 && flat.width === '100%';
+      });
+      expect(line).toBeTruthy();
+      const style = line!.props.style as unknown;
+      const flat = Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : (style as Record<string, unknown>);
+      return flat.backgroundColor;
+    };
+    const lineMargin = (tr: TestRenderer.ReactTestRenderer) => {
+      const line = tr.root.findAllByType(View).find((node) => {
+        const style = node.props.style as unknown;
+        const flat = Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : (style as Record<string, unknown>);
+        return flat.height === 1 && flat.width === '100%';
+      });
+      expect(line).toBeTruthy();
+      const style = line!.props.style as unknown;
+      const flat = Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : (style as Record<string, unknown>);
+      return flat.marginVertical;
+    };
+    expect(lineColor(light)).toBe('#dddac9');
+    expect(lineColor(dark)).toBe('#3d3b2e');
+    expect(lineMargin(light)).toBe(6);
+  });
+
   // ── The mixed-content / repetition contract (decision 83) — PAIRED with the
   // web factory tests (packages/prototype/factory/factory.test.js B6–B11):
   // both engines resolve the same authored composition to the same structure,
   // or fail with the same named error.
-  test('PressableItem — bare children inside a region stay that region\'s own content, order preserved', () => {
+  test('ListAction — bare children inside a region stay that region\'s own content, order preserved', () => {
     const tr = render(
       <NuriThemeProvider>
-        <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
-          <PressableItemContent>
+        <ListAction accessibilityLabel="Row" onPress={() => undefined}>
+          <ListActionContent>
             before
-            <PressableItemText>Bank account</PressableItemText>
+            <ListActionText>Bank account</ListActionText>
             after
-          </PressableItemContent>
-        </PressableItem>
+          </ListActionContent>
+        </ListAction>
       </NuriThemeProvider>,
     );
     const text = tr.root.findByType(Text);
@@ -356,17 +447,17 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(region.children[2]).toBe('after');
   });
 
-  test('PressableItem — a typed slot targeting a part outside its region fails named', () => {
+  test('ListAction — a typed slot targeting a part outside its region fails named', () => {
     const quiet = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     try {
       expect(() =>
         render(
           <NuriThemeProvider>
-            <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
-              <PressableItemContent>
-                <PressableItemTrailingText>Wrong</PressableItemTrailingText>
-              </PressableItemContent>
-            </PressableItem>
+            <ListAction accessibilityLabel="Row" onPress={() => undefined}>
+              <ListActionContent>
+                <ListActionTrailingText>Wrong</ListActionTrailingText>
+              </ListActionContent>
+            </ListAction>
           </NuriThemeProvider>,
         ),
       ).toThrow("nuri-factory: composition entry targets 'trailingText', which is not under 'content'");
@@ -375,13 +466,13 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     }
   });
 
-  test('PressableItem — a multiple:true slot repeats as a SEQUENCE of leaf instances', () => {
+  test('ListAction — a multiple:true slot repeats as a SEQUENCE of leaf instances', () => {
     const tr = render(
       <NuriThemeProvider>
-        <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
-          <PressableItemText>First line</PressableItemText>
-          <PressableItemText>Second line</PressableItemText>
-        </PressableItem>
+        <ListAction accessibilityLabel="Row" onPress={() => undefined}>
+          <ListActionText>First line</ListActionText>
+          <ListActionText>Second line</ListActionText>
+        </ListAction>
       </NuriThemeProvider>,
     );
     const texts = tr.root.findAllByType(Text);
@@ -391,16 +482,16 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(texts[0].parent).toBe(texts[1].parent);
   });
 
-  test('PressableItem — a repeated SINGULAR icon slot fails named', () => {
+  test('ListAction — a repeated SINGULAR icon slot fails named', () => {
     const quiet = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     try {
       expect(() =>
         render(
           <NuriThemeProvider>
-            <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
-              <PressableItemLeadingAvatar name="arrow-up" />
-              <PressableItemLeadingAvatar name="arrow-down" />
-            </PressableItem>
+            <ListAction accessibilityLabel="Row" onPress={() => undefined}>
+              <ListActionLeadingAvatar name="arrow-up" />
+              <ListActionLeadingAvatar name="arrow-down" />
+            </ListAction>
           </NuriThemeProvider>,
         ),
       ).toThrow("nuri-factory: slot targeting part 'leadingIcon' is singular — it appears 2 times under 'leadingAvatar'");
@@ -409,37 +500,37 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     }
   });
 
-  test('PressableItem — bare children with no default sink fail named', () => {
+  test('ListAction — bare children with no default sink fail named', () => {
     const quiet = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     try {
       expect(() =>
         render(
           <NuriThemeProvider>
-            <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
+            <ListAction accessibilityLabel="Row" onPress={() => undefined}>
               Send money
-            </PressableItem>
+            </ListAction>
           </NuriThemeProvider>,
         ),
-      ).toThrow("nuri-factory: 'PressableItem' has no default content slot");
+      ).toThrow("nuri-factory: 'ListAction' has no default content slot");
     } finally {
       quiet.mockRestore();
     }
   });
 
-  test('PressableItem — a foreign component\'s slot marker fails named', () => {
+  test('ListAction — a foreign component\'s slot marker fails named', () => {
     const quiet = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     try {
       expect(() =>
         render(
           <NuriThemeProvider>
-            <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
-              <PressableItemContent>
+            <ListAction accessibilityLabel="Row" onPress={() => undefined}>
+              <ListActionContent>
                 <ButtonText>Wrong</ButtonText>
-              </PressableItemContent>
-            </PressableItem>
+              </ListActionContent>
+            </ListAction>
           </NuriThemeProvider>,
         ),
-      ).toThrow("nuri-factory: foreign slot marker 'ButtonText' — not a 'PressableItem' slot");
+      ).toThrow("nuri-factory: foreign slot marker 'ButtonText' — not a 'ListAction' slot");
     } finally {
       quiet.mockRestore();
     }

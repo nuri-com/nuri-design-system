@@ -5430,3 +5430,29 @@ no dead region harvest beside component slots) · `packages/doc/pipeline/compone
 data-derived children note) · the paired contract tests + the two `composition-envelope` suites ·
 regenerated adapters/docs. **Next** (named follow-ups, not this pass): region-mechanism unification on
 web (compound harvest vs composition regions) · grouping-walker dedup across engines.
+
+## 84. List-family names are `list` · `list-action` · `list-separator`; `list-item` is reserved · N+58
+
+**Operator-ratified · catalog naming slice.** The home/settings row vocabulary ships as a family by
+name, not by compound ownership: `list` is the open positional host, `list-action` is the pressable
+row, and `list-separator` is the author-placed inset hairline preset. Rows and separators are siblings
+inside `list`; they are not anatomy parts of it, matching the `tab-bar` / `tab-bar-item` family shape.
+
+- **`pressable-item` is renamed directly to `list-action` with no shim.** `@nuri/rn` has no external
+  consumer surface to preserve here, so the public names move mechanically to `ListAction` and
+  `nuri-list-action`.
+- **`list-item` is RESERVED** for a future non-pressable row. Do not backfill the name onto
+  `list-action`; the reserved name records a real product distinction, not an omission.
+- **Family-scoped shared slots were considered and deliberately deferred.** The current slot contract
+  is mechanically per-component (`nuri-list-action-text`, owner-scoped RN markers), and PR #135 proved
+  that owner scoping is the safety rail for nested composition. A shared `nuri-list-*` slot vocabulary
+  should be revisited only when a second row type is a real consumer; until then it would widen the
+  contract ahead of need and blur the owner-scoping proof.
+- **Separators remain explicit.** Decision 49 still stands: no auto-inserted dividers. The list-family
+  preset fixes the row-aligned inset and the `sm` vertical rhythm while delegating the hairline paint
+  to Separator.
+
+**Base**: decision 49 (author-placed separators) · decision 65 (composition is descriptor data, not
+behaviour) · decision 83 (owner-scoped nested composition). **Realizes**:
+`packages/spec/components/list.ts` · `packages/spec/components/list-action.ts` ·
+`packages/rn/primitives/ListSeparator.tsx` · `packages/prototype/primitives/list-separator.{js,css}`.
