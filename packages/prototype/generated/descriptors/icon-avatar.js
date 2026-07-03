@@ -38,6 +38,7 @@ export const iconAvatarDescriptor = {
       soft: { root: { palette: { variant: 'soft' } } },
       ghost: { root: { palette: { variant: 'ghost' } } },
       subtle: { root: { palette: { variant: 'subtle' } } },
+      outline: { root: { palette: { variant: 'outline' } } },
     },
   },
   // The PUBLIC default (R1.5 · N+50): an unset `variant` resolves to soft (NOT

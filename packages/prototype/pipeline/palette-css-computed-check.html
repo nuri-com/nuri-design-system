@@ -39,6 +39,7 @@
     cream-12-light #222013 = rgb(34, 32, 19)       on-solid L   #f0eee3 = rgb(240, 238, 227)
     bg-strong L    #f3f1e2 = rgb(243, 241, 226)    border-strong#bfbcac = rgb(191, 188, 172)
     lilac-9        #beaaff = rgb(190, 170, 255)    lilac-on-solid#381b6a= rgb(56, 27, 106)
+    text-muted L   #666455 = rgb(102, 100, 85)     border-subtle#dddac9 = rgb(221, 218, 201)
     transparent            = rgba(0, 0, 0, 0)
 
   Served by the repo-root http-server (the preview tooling); paths are relative to
@@ -80,6 +81,12 @@ const CELLS = [
     oracle: { 'background-color': 'rgba(0, 0, 0, 0)', 'color': 'rgb(34, 32, 19)' } },
   { id: 'subtle · default (fg-only · no bg channel)', ancestors: [], el: { 'data-variant': 'subtle' },
     oracle: { 'background-color': 'rgba(0, 0, 0, 0)', 'color': 'rgb(191, 188, 172)' } },
+  // outline · the first BORDER channel — the `border` SHORTHAND the node parser's
+  // "no shorthand/longhand overlap" premise excluded; the browser's longhand
+  // expansion (width+style+colour) is what this cell uniquely proves.
+  { id: 'outline · default (border shorthand → longhand expansion)', ancestors: [], el: { 'data-variant': 'outline' },
+    oracle: { 'background-color': 'rgba(0, 0, 0, 0)', 'color': 'rgb(102, 100, 85)',
+              'border-top-width': '1px', 'border-top-style': 'solid', 'border-top-color': 'rgb(221, 218, 201)' } },
   { id: 'chrome=canvas · default', ancestors: [], el: { 'data-chrome': 'canvas' },
     oracle: { 'background-color': 'rgb(255, 253, 242)', 'color': 'rgb(34, 32, 19)' } },
   { id: 'chrome=strong · default', ancestors: [], el: { 'data-chrome': 'strong' },
@@ -125,8 +132,10 @@ function measure(nodes) {
 
 async function run() {
   const files = await Promise.all([
-    fetch('../../spec/styles/tokens-primitive.css').then((r) => r.text()),
-    fetch('../../spec/styles/tokens-semantic.css').then((r) => r.text()),
+    // the token CSS is the prototype projection's OWN generated output (N+62 ·
+    // decision 80 · was ../../spec/styles/ before the spec went pure-data)
+    fetch('../generated/styles/tokens-primitive.css').then((r) => r.text()),
+    fetch('../generated/styles/tokens-semantic.css').then((r) => r.text()),
     fetch('../styles/palette.css').then((r) => r.text()), // LIVE (was build/css-preview · decision 74)
     fetch('../styles/palette.css').then((r) => r.text()),
   ]);

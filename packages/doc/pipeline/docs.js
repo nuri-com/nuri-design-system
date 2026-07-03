@@ -22,7 +22,7 @@
  *                the browser-ESM twin from @nuri/prototype/generated/descriptors/ ·
  *                axes · anatomy · structure.base · variants), reshaped by
  *                descriptor-ir.js#docIrFromDescriptor.
- *   · palette  — the {variant|chrome} → {bg·fg·fgMuted·pressedBg} mapping
+ *   · palette  — the {variant|chrome} → {bg·fg·fgMuted·pressedBg·border} mapping
  *                (@nuri/rn/generated/data/palette.ts · the RN projection). The token-map
  *                table dereferences each `palette:{variant}` node through it to the
  *                resolved TokenPaths.
@@ -94,8 +94,8 @@ const PROP_SCALE = {
 };
 
 // palette cell channel → its short doc label, in canonical render order
-// (mirrors build/palette.ts cell order: bg · fg · fgMuted · pressedBg).
-const PALETTE_CHANNELS = [['bg', 'bg'], ['fg', 'fg'], ['fgMuted', 'muted'], ['pressedBg', 'pressed']];
+// (mirrors build/palette.ts cell order: bg · fg · fgMuted · pressedBg · border).
+const PALETTE_CHANNELS = [['bg', 'bg'], ['fg', 'fg'], ['fgMuted', 'muted'], ['pressedBg', 'pressed'], ['border', 'border']];
 
 // ONE LINE PER ATTRIBUTE in a "Resolves to" cell (operator readability · N+22):
 // a `<br>` between attributes, each rendered dt/dd-style — a bold term (the
@@ -586,10 +586,10 @@ function renderPaletteAxis(ir, lines) {
   for (const [heading, rows] of [['Variant', ir.variant], ['Chrome', ir.chrome]]) {
     lines.push(`## ${heading}`);
     lines.push('');
-    lines.push(`| ${heading} | Background | Foreground | Pressed |`);
-    lines.push('| --- | --- | --- | --- |');
+    lines.push(`| ${heading} | Background | Foreground | Pressed | Border |`);
+    lines.push('| --- | --- | --- | --- | --- |');
     for (const row of rows) {
-      lines.push(`| \`${row.input}\` | ${channelCell(row.bg)} | ${channelCell(row.fg)} | ${channelCell(row.pressed)} |`);
+      lines.push(`| \`${row.input}\` | ${channelCell(row.bg)} | ${channelCell(row.fg)} | ${channelCell(row.pressed)} | ${channelCell(row.border)} |`);
     }
     lines.push('');
   }

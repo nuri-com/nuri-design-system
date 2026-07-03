@@ -84,6 +84,12 @@ export type State = { pressed?: boolean; disabled?: boolean };
 // numeric scale object. ──
 const SCALES: Record<ScaleName, Record<string, number>> = { space, size, radius, ratio };
 
+// Web emits palette strokes as `var(--nuri-border-1) solid <colour>`.
+// RN needs the numeric projection of that same primitive; resolve.test.ts pins
+// this value against the generated web token so the two projections cannot drift
+// silently.
+export const PALETTE_BORDER_WIDTH = 1;
+
 function fillCaseToRn(fill: FillCase): ViewStyle {
   const out: ViewStyle = {
     flexGrow: fill.grow,
@@ -146,6 +152,7 @@ export type ResolvedPalette = {
   fg?: string;
   fgMuted?: string;
   pressedBg?: string;
+  border?: string;
 };
 
 function resolvePalette(ns: PaletteNS, theme: NuriTheme): ResolvedPalette {
@@ -163,6 +170,7 @@ function resolvePalette(ns: PaletteNS, theme: NuriTheme): ResolvedPalette {
       fg: ns.muted && role.fgMuted !== undefined ? role.fgMuted : role.fg,
       fgMuted: role.fgMuted,
       pressedBg: role.pressedBg,
+      border: role.border,
     };
   }
   if (ns.chrome !== undefined) {
@@ -224,6 +232,10 @@ const RN_RESOLVERS: TargetResolvers = {
   palette: (v, { node, theme }) => {
     const p = resolvePalette(v, theme);
     if (p.bg !== undefined) node.view.backgroundColor = p.bg;
+    if (p.border !== undefined) {
+      node.view.borderColor = p.border;
+      node.view.borderWidth = PALETTE_BORDER_WIDTH;
+    }
     if (p.fg !== undefined) node.fg = p.fg;
     if (p.fgMuted !== undefined) node.fgMuted = p.fgMuted;
     if (p.pressedBg !== undefined) node.pressedBg = p.pressedBg;
@@ -519,6 +531,10 @@ export function flattenBakedPart<A extends Axes>(
   const p = paletteNS ? resolvePalette(paletteNS, theme) : {};
   const view: ViewStyle = { ...geometry };
   if (p.bg !== undefined) view.backgroundColor = p.bg;
+  if (p.border !== undefined) {
+    view.borderColor = p.border;
+    view.borderWidth = PALETTE_BORDER_WIDTH;
+  }
   const type = resolveTypeRef(composeChannel<TypographyNS>(recipePart.typography, selection));
   const interactive = composeChannel<InteractiveNS>(recipePart.interactive, selection);
   const node: ResolvedNode = {

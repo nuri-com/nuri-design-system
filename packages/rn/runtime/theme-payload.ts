@@ -11,7 +11,7 @@
  * slice" restored for colour · debt-register SEED-4). NO per-component
  * rebuild; NO per-render re-collapse.
  *
- *   surface   { solid·soft·ghost·subtle } → { bg?·fg·fgMuted?·pressedBg? }
+ *   surface   { solid·soft·ghost·subtle·outline } → { bg?·fg·fgMuted?·pressedBg?·border? }
  *   chrome    { canvas·subtle·strong }     → { bg·fg·fgMuted }  (theme-only slot)
  *   text·border                            (the chrome text/border roles)
  *   type                                  (theme-invariant type scale)
@@ -68,6 +68,7 @@ export type SurfaceRole = {
   fg: string;
   fgMuted?: string;
   pressedBg?: string;
+  border?: string;
 };
 export type ChromeRole = { bg: string; fg: string; fgMuted: string };
 
@@ -128,6 +129,7 @@ function buildSurface(chromeSlice: ChromeSlice, accentSlice: AccentSlice): Recor
       fg: bindColor(cell.fg, chromeSlice, accentSlice) as string,
       fgMuted: bindColor(cell.fgMuted, chromeSlice, accentSlice),
       pressedBg: bindColor(cell.pressedBg, chromeSlice, accentSlice),
+      border: bindColor(cell.border, chromeSlice, accentSlice),
     };
   });
   return out;

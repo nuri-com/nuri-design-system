@@ -501,7 +501,7 @@ async function main() {
 
   // ── Slice 8 · palette mapping emit (N+19 B2b · decision 65.3 §6 · re-sourced N+40) ──
   // ADDITIVE at build/palette.ts: the {variant | chrome} → {bg, fg,
-  // fgMuted, pressedBg} table as TokenPath data, emitted ONCE in the
+  // fgMuted, pressedBg, border} table as TokenPath data, emitted ONCE in the
   // baseline (decision 65.2). derivePalette asserts every contract cell
   // against the namespace-axis TS SoTs — palette-surface.ts's `surface`
   // (variant+chrome bg/fg/pressed pairs) + typography-axis.ts's `axis` (the muted

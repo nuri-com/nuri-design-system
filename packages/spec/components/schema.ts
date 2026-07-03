@@ -166,9 +166,10 @@ export type TypographyNS = {
 // theme-only surface slot (the `subtle` ROLE name is taken). At most one
 // of variant|chrome per node (variant wins · not encoded in the type). The
 // label/icon FG drops out of a variant patch — it follows by SCOPE
-// (F-BOX-FG-1 · the factory threads the role-fg · B2c·3). `outline` /
-// `border` / the onSolid.muted token = mapped-not-built (decision 30).
-export type PaletteVariant = 'solid' | 'soft' | 'ghost' | 'subtle';
+// (F-BOX-FG-1 · the factory threads the role-fg · B2c·3). `outline`
+// adds the first border-colour channel; solid.fgMuted stays mapped-not-built
+// (decision 30).
+export type PaletteVariant = 'solid' | 'soft' | 'ghost' | 'subtle' | 'outline';
 export type PaletteChrome = 'canvas' | 'subtle' | 'strong';
 export type PaletteNS = {
   variant?: PaletteVariant;

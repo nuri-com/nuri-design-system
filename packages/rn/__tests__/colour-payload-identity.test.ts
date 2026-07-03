@@ -44,10 +44,13 @@ const acc = (a: Accent, role: keyof (typeof accentTokens)[Accent], mode: Theme):
 const expectedSurface = (a: Accent, mode: Theme) => {
   const c = chrome[mode];
   return {
-    solid: { bg: acc(a, 'solid', mode), fg: acc(a, 'onSolid', mode), fgMuted: undefined, pressedBg: acc(a, 'solidPressed', mode) },
-    soft: { bg: c.bgStrong, fg: c.textPrimary, fgMuted: c.textMuted, pressedBg: c.bgPressed },
-    ghost: { bg: 'transparent', fg: c.textPrimary, fgMuted: c.textMuted, pressedBg: c.bgSubtle },
-    subtle: { bg: undefined, fg: c.borderStrong, fgMuted: undefined, pressedBg: undefined },
+    solid: { bg: acc(a, 'solid', mode), fg: acc(a, 'onSolid', mode), fgMuted: undefined, pressedBg: acc(a, 'solidPressed', mode), border: undefined },
+    soft: { bg: c.bgStrong, fg: c.textPrimary, fgMuted: c.textMuted, pressedBg: c.bgPressed, border: undefined },
+    ghost: { bg: 'transparent', fg: c.textPrimary, fgMuted: c.textMuted, pressedBg: c.bgSubtle, border: undefined },
+    subtle: { bg: undefined, fg: c.borderStrong, fgMuted: undefined, pressedBg: undefined, border: undefined },
+    // outline has NO fgMuted cell (its fg IS text-muted · the muted swap would be
+    // a no-op) — the resolver's fg fallback covers a muted outline node.
+    outline: { bg: 'transparent', fg: c.textMuted, fgMuted: undefined, pressedBg: undefined, border: c.borderSubtle },
   };
 };
 

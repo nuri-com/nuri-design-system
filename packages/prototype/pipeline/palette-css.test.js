@@ -163,12 +163,27 @@ const resolved = resolveSemanticCrossProduct(
 );
 const HEX = /^#[0-9a-f]{6}$/;
 const varName = (value) => value.match(/^var\((--[\w-]+)\)$/)?.[1];
+const borderValue = (value) => value.match(/^var\(--nuri-border-1\) solid var\((--[\w-]+)\)$/)?.[1];
 
 test('Guard C · every generated paint bottoms out in the default (neutral/light) scope', () => {
   const gen = layerRuleMap(generated);
   let checked = 0;
   for (const [sel, decls] of gen) {
     for (const [prop, value] of decls) {
+      // `border` FIRST — a border emit degraded to a bare colour var would
+      // otherwise classify as generic paint and pass while the browser renders
+      // no stroke (border-style defaults to none); the shorthand shape is the guard.
+      if (prop === 'border') {
+        const borderRole = borderValue(value);
+        assert.ok(borderRole, `${sel} { border: ${value} } is not the palette border shorthand`);
+        const hex = resolved[borderRole]?.neutral?.light;
+        assert.ok(
+          hex && HEX.test(hex),
+          `${sel} { border: ${value} } border colour does not resolve to a hex via the colour cascade — got ${hex}`,
+        );
+        checked++;
+        continue;
+      }
       const name = varName(value);
       if (name) {
         const hex = resolved[name]?.neutral?.light;
@@ -198,6 +213,7 @@ const ORACLE = [
   ['.nuri-palette[data-variant="soft"]',   'color',      '#222013'],     // text-primary @ neutral/light
   ['.nuri-palette[data-chrome="canvas"]',  'background', '#fffdf2'],     // bg-canvas @ neutral/light
   ['.nuri-palette[data-variant="ghost"]',  'background', 'transparent'], // the literal · no var, no resolution
+  ['.nuri-palette[data-variant="outline"]','border',     '#dddac9'],     // border-subtle @ neutral/light
 ];
 
 test('Guard C · the curated cells resolve to the restated design oracle (default scope)', () => {
@@ -205,7 +221,7 @@ test('Guard C · the curated cells resolve to the restated design oracle (defaul
   for (const [sel, prop, expected] of ORACLE) {
     const value = gen.get(sel)?.get(prop);
     assert.ok(value !== undefined, `no generated '${prop}' for '${sel}'`);
-    const name = varName(value);
+    const name = prop === 'border' ? borderValue(value) : varName(value);
     const got = name ? resolved[name]?.neutral?.light : value;
     assert.equal(got, expected, `${sel} { ${prop} } resolves @ neutral/light`);
   }

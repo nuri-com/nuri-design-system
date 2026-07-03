@@ -21,7 +21,7 @@ import type { Accent } from '../data/tokens';
 import type { IconName } from '../data/icons';
 
 export type IconAvatarProps = {
-  variant?: 'solid' | 'soft' | 'ghost' | 'subtle';
+  variant?: 'solid' | 'soft' | 'ghost' | 'subtle' | 'outline';
   accent?: Accent;
   icon: IconName;
   children?: never;

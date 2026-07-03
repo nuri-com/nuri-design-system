@@ -16,9 +16,11 @@
  * geometry-bake.test.ts (the oracle guard). flattenPart is the oracle's reference.
  * ══════════════════════════════════════════════════════════════════ */
 
+import * as fs from 'fs';
+import * as path from 'path';
 import { buildNuriTheme, INTERACTION_BASELINE } from '../runtime/theme-payload';
 import { typeStyle } from '../theme';
-import { flattenPart, resolveAnatomy } from '../runtime/resolve';
+import { flattenPart, PALETTE_BORDER_WIDTH, resolveAnatomy } from '../runtime/resolve';
 import {
   buttonDescriptor,
   iconAvatarDescriptor,
@@ -45,6 +47,16 @@ const acc = (a: Accent, role: keyof (typeof accentTokens)[Accent], mode: Theme):
   return typeof v === 'string' ? v : v[mode];
 };
 
+const webBorder1 = (): number => {
+  const css = fs.readFileSync(
+    path.resolve(__dirname, '../../prototype/generated/styles/tokens-primitive.css'),
+    'utf8',
+  );
+  const match = css.match(/--nuri-border-1:\s*([0-9.]+)px;/);
+  if (!match) throw new Error('missing --nuri-border-1 in generated web token CSS');
+  return Number(match[1]);
+};
+
 describe('baseline theme (resolver-model §11)', () => {
   const theme = buildNuriTheme('lilac', 'light');
 
@@ -65,6 +77,10 @@ describe('baseline theme (resolver-model §11)', () => {
     // §11's sketch wrote `bg:'transparent'`; the frozen palette.ts does not.
     expect(theme.surface.subtle.bg).toBeUndefined();
     expect(theme.surface.subtle.fg).toBe(chrome.light.borderStrong);
+
+    expect(theme.surface.outline.bg).toBe('transparent');
+    expect(theme.surface.outline.fg).toBe(chrome.light.textMuted);
+    expect(theme.surface.outline.border).toBe(chrome.light.borderSubtle);
   });
 
   test('chrome slot resolves (topbar canvas)', () => {
@@ -82,6 +98,10 @@ describe('baseline theme (resolver-model §11)', () => {
     // Smell-1 · decision 66 arc #0); the factory reads it directly and pins to it.
     expect(INTERACTION_BASELINE.pressScale).toBe(interactionTokens.pressScale); // 0.97
     expect(INTERACTION_BASELINE.disabledOpacity).toBe(interactionTokens.disabledOpacity); // 0.4
+  });
+
+  test('palette border width matches the web --nuri-border-1 primitive', () => {
+    expect(PALETTE_BORDER_WIDTH).toBe(webBorder1());
   });
 });
 
@@ -194,13 +214,19 @@ describe('IconAvatar — same resolver, static, the subtle role (via flattenPart
     expect(style.borderRadius).toBe(radius.full);
   });
 
-  test('variant fills (solid/soft/ghost) + the FG-ONLY subtle finding', () => {
+  test('variant fills (solid/soft/ghost) + the FG-ONLY subtle finding + outline border', () => {
     expect(root('solid').style.backgroundColor).toBe(acc('lilac', 'solid', 'light'));
     expect(root('soft').style.backgroundColor).toBe(chrome.light.bgStrong);
     expect(root('ghost').style.backgroundColor).toBe('transparent');
     // subtle contributes NO background patch (fg-only) — its fg comes by scope.
     expect(root('subtle').style.backgroundColor).toBeUndefined();
     expect(root('subtle').node.fg).toBe(chrome.light.borderStrong);
+    expect(root('outline').style).toMatchObject({
+      backgroundColor: 'transparent',
+      borderColor: chrome.light.borderSubtle,
+      borderWidth: 1,
+    });
+    expect(root('outline').node.fg).toBe(chrome.light.textMuted);
   });
 
   test('static — no interactive transients (pressed cell === resting geometry + colour)', () => {

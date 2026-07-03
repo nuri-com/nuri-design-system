@@ -175,7 +175,7 @@ const EXPECTED_DESCRIPTORS = {
     interactive: ['pressColor', 'pressScale', 'disabledOpacity'], // the collapsed root opt-in (§8 · no compound)
   },
   'icon-avatar': {
-    axes: { variant: ['solid', 'soft', 'ghost', 'subtle'] },
+    axes: { variant: ['solid', 'soft', 'ghost', 'subtle', 'outline'] },
     parts: ['icon'],
     interactive: [], // static · no `interactive` (65.3 · the IconAvatar story)
   },
@@ -345,7 +345,7 @@ test('icon-button stays size-coherent with button (height + corner + the square 
 
 // ── Guard E · the palette mapping ⊂ its TS SoT (N+19 B2b · decision 65.3 §6 · re-sourced N+40) ──
 // The decision-48 discipline applied to the colour namespace: the
-// {variant | chrome} → {bg, fg, fgMuted, pressedBg} mapping at
+// {variant | chrome} → {bg, fg, fgMuted, pressedBg, border} mapping at
 // build/palette.ts must always re-derive from the namespace-axis TS SoTs —
 // palette-surface.ts (the SURFACE pairs · every variant + chrome bg/fg + the pressed
 // swap) + typography-axis.ts (the muted fg). RE-SOURCED at N+40 from the generated
@@ -366,6 +366,7 @@ const EXPECTED_PALETTE = {
     soft:   { bg: 'chrome.bgStrong', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted', pressedBg: 'chrome.bgPressed' },
     ghost:  { bg: 'transparent',     fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted', pressedBg: 'chrome.bgSubtle' },
     subtle: { fg: 'chrome.borderStrong' },
+    outline:{ bg: 'transparent',     fg: 'chrome.textMuted', border: 'chrome.borderSubtle' },
   },
   chrome: {
     canvas: { bg: 'chrome.bgCanvas', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
@@ -474,7 +475,12 @@ const FROZEN_SCHEMA = {
   leafUnions: {
     SpaceLeaf: ['xs', 'sm', 'md', 'lg', 'xl'],
     RadiusLeaf: ['sm', 'md', 'lg', 'full'],
-    PaletteVariant: ['solid', 'soft', 'ghost', 'subtle'],
+    // `outline` ADDED at the icon-avatar outline slice (PR #130 · the 1st deliberate
+    // post-freeze PaletteVariant add · decision 65 "post-freeze changes are versioned"
+    // · logged as amendment 65.12): the palette's first BORDER channel (transparent
+    // bg · text-muted fg · 1px border-subtle stroke) — closes decision 30's
+    // "palette outline = reserved, mapped-not-built".
+    PaletteVariant: ['solid', 'soft', 'ghost', 'subtle', 'outline'],
     PaletteChrome: ['canvas', 'subtle', 'strong'],
   },
   // The scale-derived leaves are pinned by DECLARATION FORM. Re-homed at N+61

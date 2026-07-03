@@ -46,6 +46,7 @@ export const iconButtonNoChildren = <IconButton icon="apple">child</IconButton>;
 
 // ── IconAvatar — required `icon` · NOT interactive (no behaviour) · no children ──
 export const iconAvatarOk = <IconAvatar variant="soft" icon="settings" />;
+export const iconAvatarOutlineOk = <IconAvatar variant="outline" icon="settings" />;
 // @ts-expect-error IconAvatar is NOT interactive — it declares no `behaviour`, so `onPress` is not on its surface.
 export const iconAvatarNoPress = <IconAvatar icon="settings" onPress={() => undefined} />;
 // @ts-expect-error IconAvatar forbids children (`children?: never`).

@@ -10,7 +10,7 @@
  *  · §74 'Next: final' — the spec build stops reading projection CSS.)
  * Emitter · scripts/parsers/palette.js — run `npm run build`
  *
- * The {variant | chrome} → {bg · fg · fgMuted · pressedBg} mapping as
+ * The {variant | chrome} → {bg · fg · fgMuted · pressedBg · border} mapping as
  * STRUCTURAL colour REFS (decision 34 · SEED-4) — accent×theme-GENERIC. Each
  * cell is `{ group, leaf }` preserving the (group, leaf) so the RN theme
  * builder (generated → runtime/theme-payload.ts) indexes the selected chrome | accent
@@ -24,8 +24,9 @@
  *   · chrome = theme-only surfaces (no accent, no pressed).
  *   · pressedBg is DATA for the RN resolver; the web pressed
  *     dispatch is gated on the `interactive` flag (B2c).
- *   · RESERVED — mapped, not built (decision 30): variant 'outline'
- *     · the border channel · solid.fgMuted (the onSolid.muted token).
+ *   · outline.border carries the border-colour role for outlined surfaces.
+ *   · RESERVED — mapped, not built (decision 30): solid.fgMuted
+ *     (the onSolid.muted token).
  * ────────────────────────────────────────────────────────────── */
 
 import type { TokenPath } from './token-paths';
@@ -60,6 +61,11 @@ export const palette = {
     },
     subtle: {
       fg:         { group: 'chrome', leaf: 'borderStrong' } as const satisfies ColorRef,
+    },
+    outline: {
+      bg:         'transparent',
+      fg:         { group: 'chrome', leaf: 'textMuted'    } as const satisfies ColorRef,
+      border:     { group: 'chrome', leaf: 'borderSubtle' } as const satisfies ColorRef,
     },
   },
   chrome: {

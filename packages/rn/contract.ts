@@ -21,7 +21,7 @@
  *                                 ({ pressScale · disabledOpacity } · decision 45)
  *   ./generated/data/icons        IconName → SVG markup registry (one drawing
  *                                 per glyph · no weights · decision 38 · N+51)
- *   ./generated/data/palette      {variant|chrome} → {bg·fg·fgMuted·pressedBg}
+ *   ./generated/data/palette      {variant|chrome} → {bg·fg·fgMuted·pressedBg·border}
  *   @nuri/spec/descriptors/*      the FROZEN descriptors + schema (DATA · source)
  * ────────────────────────────────────────────────────────────── */
 

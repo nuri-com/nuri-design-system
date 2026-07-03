@@ -6,7 +6,7 @@
  * funnel, single-sourced but NOT a Field-table member (box/stack rode the generic
  * resolve-map.ts table at L3.1; palette has its own bespoke shape). This is the
  * inverse-spelling of resolvePalette (packages/rn/runtime/resolve.ts): the RN
- * resolver maps `surface[variant] → { bg, fg, pressedBg }` onto a node; this
+ * resolver maps `surface[variant] → { bg, fg, pressedBg, border }` onto a node; this
  * writes the `.nuri-palette[data-*]` dispatch the CSS cascade resolves.
  *
  * REVERSIBLE SHADOW (the L3.1 discipline · roadmap/N+30-L3.1.md): generates to
@@ -19,9 +19,10 @@
  *
  * ── The dispatch, precisely (the inverse of resolvePalette) ─────────
  *   · REST state · one rule per (axis, input): `.nuri-palette[data-<axis>="<v>"]`
- *     paints the COMPLETE pair — `background` (when the role has a bg) + `color`.
- *     `variant` (solid/soft/ghost/subtle) carries accent identity; `chrome`
- *     (canvas/subtle/strong) is the theme-only slot. variant XOR chrome.
+ *     paints the COMPLETE pair — `background` (when the role has a bg) + `color`
+ *     + optional border stroke.
+ *     `variant` (solid/soft/ghost/subtle/outline) carries accent identity;
+ *     `chrome` (canvas/subtle/strong) is the theme-only slot. variant XOR chrome.
  *   · PRESSED · `.nuri-palette[data-variant="<v>"][data-press-color]:active`
  *     swaps `background` (background-only · the scale/opacity transients are
  *     interactive's). Gated on `[data-press-color]` so a STATIC surface never
@@ -101,6 +102,7 @@ export function rulesForSurface(surface) {
       // present (incl. the explicit transparent) it paints first, then color.
       if (role.bg !== undefined) decls.push(['background', paintToCss(role.bg)]);
       decls.push(['color', paintToCss(role.fg)]);
+      if (role.border !== undefined) decls.push(['border', `var(--nuri-border-1) solid ${paintToCss(role.border)}`]);
       rest.push({ sel: restSel(axis, input), decls });
     }
   }

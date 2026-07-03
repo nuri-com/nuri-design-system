@@ -2,7 +2,7 @@
  * NURI · PARSER · PALETTE (the colour-namespace mapping · 65.3 §6 · N+19 B2b)
  *
  * Emits packages/rn/generated/data/palette.ts — the {variant | chrome} → {bg · fg · fgMuted ·
- * pressedBg} mapping as STRUCTURAL colour REFS `{ group, leaf }` (SEED-4 · a
+ * pressedBg · border} mapping as STRUCTURAL colour REFS `{ group, leaf }` (SEED-4 · a
  * dotted path split at emit · the accent×theme-GENERIC `accent.solid`, never a
  * concrete colour · decision 34 indirection), so the RN theme builder indexes the
  * selected slice with ZERO parse. Emitted ONCE in the baseline (decision 65.2:
@@ -14,9 +14,10 @@
  * wiring, and derivePalette() asserts EVERY cell against the namespace
  * axis TS SoTs before anything emits:
  *
- *   · EVERY variant + chrome bg/fg/pressed cell — palette-surface.ts's SURFACE role
- *     table (the complete pair + the optional pressed swap: variant solid/soft/ghost/
- *     subtle + the 3 chrome slots; an extra/missing role or channel throws).
+ *   · EVERY variant + chrome bg/fg/pressed/border cell — palette-surface.ts's SURFACE
+ *     role table (the complete pair + the optional pressed swap + the optional border:
+ *     variant solid/soft/ghost/subtle/outline + the 3 chrome slots; an extra/missing
+ *     role or channel throws).
  *   · fgMuted (every cell)                       — typography-axis.ts's muted role
  *     (the single muted delivery · decision 53; no node-level muted).
  *
@@ -28,9 +29,8 @@
  * A cell that contradicts the SoT throws here → `npm run build` fails;
  * docs-drift Guard E re-derives + pins the table → `npm test` fails.
  *
- * RESERVED — mapped, not built (decision 30): variant `outline` · the
- * `border` channel · solid.fgMuted (the onSolid.muted token). Present
- * in this comment as the reservation; NO values emit.
+ * RESERVED — mapped, not built (decision 30): solid.fgMuted (the
+ * onSolid.muted token). Present in this comment as the reservation; NO value emits.
  * ────────────────────────────────────────────────────────────── */
 
 // ── The operator-settled contract wiring (B2b) ────────────────────────
@@ -46,6 +46,10 @@ export const PALETTE_CONTRACT = {
     soft:   { bg: '--nuri-bg-strong',    fg: '--nuri-text-primary',    fgMuted: '--nuri-text-muted', pressedBg: '--nuri-bg-pressed' },
     ghost:  { bg: 'transparent',         fg: '--nuri-text-primary',    fgMuted: '--nuri-text-muted', pressedBg: '--nuri-bg-subtle' },
     subtle: { fg: '--nuri-border-strong' },
+    // outline carries NO fgMuted cell: its fg IS text-muted, so the muted swap
+    // would substitute text-muted for text-muted — a no-op channel. Absent-by-
+    // omission is the subtle/solid precedent; the RN resolver falls back to fg.
+    outline: { bg: 'transparent', fg: '--nuri-text-muted', border: '--nuri-border-subtle' },
   },
   chrome: {
     canvas: { bg: '--nuri-bg-canvas', fg: '--nuri-text-primary', fgMuted: '--nuri-text-muted' },
@@ -57,8 +61,8 @@ export const PALETTE_CONTRACT = {
 // Canonical orderings — the emit is deterministic regardless of the SoT's
 // source declaration order (the descriptors.js convention).
 const AXIS_ORDER    = ['variant', 'chrome'];
-const ROW_ORDER     = { variant: ['solid', 'soft', 'ghost', 'subtle'], chrome: ['canvas', 'subtle', 'strong'] };
-const CHANNEL_ORDER = ['bg', 'fg', 'fgMuted', 'pressedBg'];
+const ROW_ORDER     = { variant: ['solid', 'soft', 'ghost', 'subtle', 'outline'], chrome: ['canvas', 'subtle', 'strong'] };
+const CHANNEL_ORDER = ['bg', 'fg', 'fgMuted', 'pressedBg', 'border'];
 
 // ── SoT reading helpers ───────────────────────────────────────────────
 
@@ -127,14 +131,15 @@ export function derivePalette({ surface, typographyAxis }, { classifiedGroups })
     }
   }
 
-  // E · bg/fg/pressedBg (every cell) ← palette-surface.ts's SURFACE role table. The
-  // contract's {bg, fg, pressedBg} restates the SoT's {bg, fg, pressed} pair, modulo
+  // E · bg/fg/pressedBg/border (every cell) ← palette-surface.ts's SURFACE role table.
+  // The contract's {bg, fg, pressedBg, border} restates the SoT's {bg, fg, pressed,
+  // border}, modulo
   // the role-name → `--nuri-<role>` prefix (paintToVar) and the `transparent` literal.
   // The SoT's shape is honored, not special-cased: subtle is fg-only (no bg/pressed),
   // the chrome slot has no pressed. fgMuted is typography's (section D), NOT a surface
   // channel. Both directions are checked — a contract cell with no SoT channel, an SoT
   // channel with no contract cell, a stray role/channel, all throw.
-  const SURFACE_CHANNELS = [['bg', 'bg'], ['fg', 'fg'], ['pressedBg', 'pressed']];
+  const SURFACE_CHANNELS = [['bg', 'bg'], ['fg', 'fg'], ['pressedBg', 'pressed'], ['border', 'border']];
   for (const axis of AXIS_ORDER) {
     for (const row of ROW_ORDER[axis]) {
       const role = surface[axis] && surface[axis][row];
@@ -152,10 +157,10 @@ export function derivePalette({ surface, typographyAxis }, { classifiedGroups })
         if (actual === undefined) fail(`palette-surface.ts ${axis}.${row}`, `missing ${surfaceKey} (the contract expects ${contractKey} '${cell}')`);
         assertCell(actual, cell, `palette-surface.ts ${axis}=${row} ${surfaceKey}`);
       }
-      // The surface role carries ONLY bg/fg/pressed (muted is typography's · decision 53).
-      const extra = Object.keys(role).filter((k) => k !== 'bg' && k !== 'fg' && k !== 'pressed');
+      // The surface role carries ONLY bg/fg/pressed/border (muted is typography's · decision 53).
+      const extra = Object.keys(role).filter((k) => k !== 'bg' && k !== 'fg' && k !== 'pressed' && k !== 'border');
       if (extra.length) {
-        fail(`palette-surface.ts ${axis}.${row}`, `unexpected channel(s) ${extra.join(', ')} — surface owns bg/fg/pressed only`);
+        fail(`palette-surface.ts ${axis}.${row}`, `unexpected channel(s) ${extra.join(', ')} — surface owns bg/fg/pressed/border only`);
       }
     }
   }
@@ -231,7 +236,7 @@ export function emitPaletteTs(cells) {
     ` *  · §74 'Next: final' — the spec build stops reading projection CSS.)`,
     ` * Emitter · scripts/parsers/palette.js — run \`npm run build\``,
     ` *`,
-    ` * The {variant | chrome} → {bg · fg · fgMuted · pressedBg} mapping as`,
+    ` * The {variant | chrome} → {bg · fg · fgMuted · pressedBg · border} mapping as`,
     ` * STRUCTURAL colour REFS (decision 34 · SEED-4) — accent×theme-GENERIC. Each`,
     ` * cell is \`{ group, leaf }\` preserving the (group, leaf) so the RN theme`,
     ` * builder (generated → runtime/theme-payload.ts) indexes the selected chrome | accent`,
@@ -245,8 +250,9 @@ export function emitPaletteTs(cells) {
     ` *   · chrome = theme-only surfaces (no accent, no pressed).`,
     ` *   · pressedBg is DATA for the RN resolver; the web pressed`,
     ` *     dispatch is gated on the \`interactive\` flag (B2c).`,
-    ` *   · RESERVED — mapped, not built (decision 30): variant 'outline'`,
-    ` *     · the border channel · solid.fgMuted (the onSolid.muted token).`,
+    ` *   · outline.border carries the border-colour role for outlined surfaces.`,
+    ` *   · RESERVED — mapped, not built (decision 30): solid.fgMuted`,
+    ` *     (the onSolid.muted token).`,
     ` * ────────────────────────────────────────────────────────────── */`,
     ``,
     `import type { TokenPath } from './token-paths';`,

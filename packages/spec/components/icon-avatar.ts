@@ -28,7 +28,7 @@
 import type { Descriptor } from './schema';
 
 type IconAvatarAxes = {
-  variant: 'solid' | 'soft' | 'ghost' | 'subtle';
+  variant: 'solid' | 'soft' | 'ghost' | 'subtle' | 'outline';
 };
 
 export const iconAvatarDescriptor: Descriptor<IconAvatarAxes> = {
@@ -54,6 +54,7 @@ export const iconAvatarDescriptor: Descriptor<IconAvatarAxes> = {
       soft: { root: { palette: { variant: 'soft' } } },
       ghost: { root: { palette: { variant: 'ghost' } } },
       subtle: { root: { palette: { variant: 'subtle' } } },
+      outline: { root: { palette: { variant: 'outline' } } },
     },
   },
   // The PUBLIC default (R1.5 · N+50): an unset `variant` resolves to soft (NOT

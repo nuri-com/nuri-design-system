@@ -120,6 +120,25 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
+  test('IconAvatar — outline variant paints a transparent border affordance with muted glyph', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <IconAvatar variant="outline" icon="wallet" />
+      </NuriThemeProvider>,
+    );
+    const root = tr.toJSON() as TestRenderer.ReactTestRendererJSON;
+    const style = Array.isArray(root.props.style)
+      ? Object.assign({}, ...root.props.style.filter(Boolean))
+      : root.props.style;
+    expect(style).toMatchObject({
+      backgroundColor: 'transparent',
+      borderColor: '#dddac9',
+      borderWidth: 1,
+    });
+    expect(tr.root.findByType(NuriIcon).props.color).toBe('#666455');
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
   test('NuriIcon — standalone fallback reads theme text, not raw black (D9)', () => {
     const tr = render(
       <NuriThemeProvider mode="dark">

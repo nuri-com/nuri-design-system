@@ -4,7 +4,7 @@
  * The `palette` axis of the cascade (docs/cascade.md · L3 · the FIRST bespoke
  * axis · decision 67), authored ONCE in TS. palette is the colour funnel: a
  * SURFACE role table that resolves a node's COMPLETE pair — background AND
- * foreground — plus the optional pressed swap. It is BESPOKE-but-single-sourced
+ * foreground — plus the optional pressed swap and optional border colour. It is BESPOKE-but-single-sourced
  * (decision 67): NOT a member of the agnostic Field table (resolve-map.ts ·
  * box/stack/typography), and deliberately NOT forced into that generic shape —
  * "single-sourcing is the rule, not uniformity" (the kitchen-sink anti-goal).
@@ -25,6 +25,7 @@
  *   variant=soft     bg-strong           text-primary       bg-pressed
  *   variant=ghost    <transparent>       text-primary       bg-subtle
  *   variant=subtle   — (fg-only)         border-strong      —
+ *   variant=outline  <transparent>       text-muted         —         border-subtle
  *   chrome=canvas    bg-canvas           text-primary       —
  *   chrome=subtle    bg-subtle           text-primary       —
  *   chrome=strong    bg-strong           text-primary       —
@@ -32,6 +33,7 @@
  * THE THREE IRREGULARITIES, modelled by SHAPE (not special-cased downstream):
  *   · fg-only (subtle)   → `bg` is OPTIONAL (absent ⇒ no background channel · the
  *     one near-invisible glyph role · decision 50).
+ *   · border colour (outline) → `border` is OPTIONAL (absent ⇒ no outline stroke).
  *   · no-pressed (chrome
  *     slot + subtle)      → `pressed` is OPTIONAL (absent ⇒ no :active swap). The
  *     chrome slot is theme-only (no accent identity, no press).
@@ -62,22 +64,23 @@ type Paint = string | { literal: string };
 
 // A surface role — the complete pair. `fg` is ALWAYS present (every row paints a
 // foreground, incl. the fg-only `subtle`); `bg` absent ⇒ fg-only; `pressed`
-// absent ⇒ no :active swap (the chrome slot + subtle).
-type Surface = { bg?: Paint; fg: Paint; pressed?: Paint };
+// absent ⇒ no :active swap (the chrome slot + subtle); `border` absent ⇒ no stroke.
+type Surface = { bg?: Paint; fg: Paint; pressed?: Paint; border?: Paint };
 
 // The table is split by the two mutually-exclusive INPUT axes (variant XOR
 // chrome) — the shape the dispatch keys on.
 type SurfaceTable = { variant: Record<string, Surface>; chrome: Record<string, Surface> };
 
 // ── The SURFACE role table (the bespoke single source · key order = the emit /
-// hand-CSS order: variant solid→soft→ghost→subtle, then chrome canvas→subtle→
-// strong) ──
+// hand-CSS order: variant solid→soft→ghost→subtle→outline, then chrome canvas→
+// subtle→strong) ──
 export const surface = {
   variant: {
     solid:  { bg: 'accent-solid',            fg: 'accent-on-solid', pressed: 'accent-solid-pressed' },
     soft:   { bg: 'bg-strong',               fg: 'text-primary',    pressed: 'bg-pressed' },
     ghost:  { bg: { literal: 'transparent' }, fg: 'text-primary',   pressed: 'bg-subtle' },
     subtle: { fg: 'border-strong' },
+    outline: { bg: { literal: 'transparent' }, fg: 'text-muted', border: 'border-subtle' },
   },
   chrome: {
     canvas: { bg: 'bg-canvas', fg: 'text-primary' },
