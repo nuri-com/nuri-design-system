@@ -5382,3 +5382,51 @@ decision 81 (W3 was separate from the hairline slice). **Realizes**:
 `packages/prototype/primitives/typography.js` · `packages/rn/runtime/resolve.ts` ·
 `packages/rn/primitives/Text.tsx` · the Expo wallet/coin/cash consumer proof and
 focused resolver/parity/bake guards.
+
+## 83. Nested composition preserves the ancestor path — the mixed-content/repetition contract · N+57
+
+**The PR-#135 engine capability, contract-settled at its review pass.** `pressable-item` is the first
+descriptor with depth-2 parts, and composition targeting a nested part must route THROUGH its ancestor
+containers (`text` must not skip `content`; `leadingIcon` must not skip `leadingAvatar`) or the
+descriptor cannot express the design. The mechanism is **generic engine capability, not
+PressableItem-specific**: both walkers classify entries purely against the descriptor's anatomy + `api`
+data (own / direct / group), so the next deep descriptor — view-root or pressable-root — is a data-only
+add. The typed-slots design (typography baked into descriptor parts, addressed by generated slot
+components) is operator-settled; this entry records the machinery contract underneath it.
+
+- **The grouping walker, mirrored across engines** (RN `renderer.tsx#appendCompositionEntries` · web
+  `factory.js#appendComposition` · cross-referenced in code, full dedup a named follow-up). An entry
+  targeting the host itself is that host's OWN content in place; a direct child part renders one
+  instance per entry in authored order; a deeper part routes through its ancestor ONCE, the entries
+  re-scoped to that ancestor via the composition map — recursion handles any depth, and sequences
+  survive at every level.
+- **The mixed-content contract (identical on both engines).** A typed slot must target a part under its
+  enclosing scope (the root, or its region marker) — outside fails named. Bare meaningful children
+  inside a region stay that region's own content, order preserved among typed siblings. Bare children
+  at ROOT scope route to the declared `default: true` sink; a component without one fails named — never
+  a silently dropped child or an empty skeleton render (and its docs say `composition children`, not
+  `default content slot` — the note derives from `api.slots`).
+- **The repetition contract.** `multiple: true` means SEQUENCE — repeated slots render as repeated leaf
+  instances. A singular part targeted more than once (including a region marker mixed with loose slots
+  for the same region) fails named. Silent concatenation and silent last-wins are both rejected.
+- **Foreign markers fail named.** Slot part ids are descriptor-local strings, so a marker is scoped to
+  its owning component: RN markers carry `__nuriSlotOwner`, the web factory keeps a registry of every
+  registered slot tag; a cross-component marker inside another component's scope is a deterministic
+  named error, not part-name luck.
+- **The regression protections.** The web harvest PRE-SCANS (shallow, non-destructive) before moving
+  any node — the `<nuri-button>Go</nuri-button>` blank-label regression class is pinned by a
+  registered-element test. Web slot routing is `api.slots`-driven (compound = region slots WITHOUT
+  component slots — Topbar preserved; TabBar's open host untouched), never root-element special-cased.
+  The RN render-time nested harvest is gated on `ownContent != null` AND the static api fact that the
+  descriptor declares component slots, so pre-existing components pay nothing. The whole contract is
+  pinned cell-for-cell by the SYNTHETIC `composition-envelope` suites on both engines (22 cells each ·
+  identical structure/named-error assertions · mutation-checked one layer per engine).
+
+**Base**: [decision 65](../decisionlog.md) (the composition model · behaviour ≠ data) · [decision 80](../decisionlog.md)
+(projection-owned resolution) · the Path-C component-API arc (#114–#119 · `api` as pure data — the slot
+declarations this contract validates against). **Realizes**: `packages/rn/runtime/renderer.tsx` ·
+`packages/prototype/factory/factory.js` · `scripts/parsers/components-api.js` (owner-carrying markers ·
+no dead region harvest beside component slots) · `packages/doc/pipeline/component-api-ir.js` (the
+data-derived children note) · the paired contract tests + the two `composition-envelope` suites ·
+regenerated adapters/docs. **Next** (named follow-ups, not this pass): region-mechanism unification on
+web (compound harvest vs composition regions) · grouping-walker dedup across engines.
