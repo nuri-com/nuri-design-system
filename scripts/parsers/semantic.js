@@ -136,7 +136,7 @@ export const GROUP_NAMES = {
     // CLASSIFY shape is identical — a cascade-invariant singleton at signature ''.
     { name: 'ratio', cssPrefix: '--nuri-ratio-', namingPrefix: '--nuri-ratio-' },
     // Border width hairlines live with the dimension SoT. Only consumed leaves ship.
-    { name: 'border', cssPrefix: '--nuri-border-', namingPrefix: '--nuri-border-1' },
+    { name: 'border', cssPrefix: '--nuri-border-', namingPrefix: '--nuri-border-', namingLeafRe: /^\d+$/ },
   ],
 };
 
@@ -156,6 +156,13 @@ function groupNameEntries() {
   return out;
 }
 
+function matchesNaming(meta, cssVar) {
+  if (!meta.namingPrefix || !cssVar.startsWith(meta.namingPrefix)) return false;
+  if (!meta.namingLeafRe) return true;
+  const leaf = cssVar.slice(meta.cssPrefix.length);
+  return meta.namingLeafRe.test(leaf);
+}
+
 // Pick the group meta for a (cssVar, sig) pair. For single-entry
 // signatures the lookup is direct; for array-valued signatures the
 // var must match exactly one entry's namingPrefix (zero matches →
@@ -164,7 +171,7 @@ function pickGroupMeta(cssVar, sig) {
   const entry = GROUP_NAMES[sig];
   if (entry == null) return null;
   if (!Array.isArray(entry)) return entry;
-  const matches = entry.filter((m) => m.namingPrefix && cssVar.startsWith(m.namingPrefix));
+  const matches = entry.filter((m) => matchesNaming(m, cssVar));
   if (matches.length === 0) return null;
   if (matches.length > 1) {
     throw new Error(
@@ -488,7 +495,7 @@ export function classifyAll(rules) {
     // the prefix.
     for (const { sig: otherSig, meta: otherMeta } of groupNameEntries()) {
       if (!otherMeta.namingPrefix) continue;
-      const named = cssVar.startsWith(otherMeta.namingPrefix);
+      const named = matchesNaming(otherMeta, cssVar);
       const classifiedHere = sig === otherSig && meta === otherMeta;
       if (named !== classifiedHere) {
         throw new Error(

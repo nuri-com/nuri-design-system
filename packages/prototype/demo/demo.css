@@ -64,7 +64,7 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
   block-size: calc(100% - 48px);
   min-block-size: 0;
   align-items: safe center;
-  padding-block: var(--nuri-px-18);
+  padding-block: 18px;
   padding-inline: 0;
   overflow: auto;
   resize: vertical;
@@ -90,8 +90,8 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--nuri-px-6);
-  padding: var(--nuri-px-6) var(--nuri-px-12);
+  gap: 6px;
+  padding: 6px 12px;
   background: var(--nuri-bg-subtle);
   border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
   min-height: 48px;
@@ -100,7 +100,7 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
 .nuri-demo-card__title {
   display: flex;
   align-items: baseline;
-  gap: var(--nuri-px-6);
+  gap: 6px;
   min-width: 0;
 }
 .nuri-demo-card__title-label {
@@ -123,7 +123,7 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
  * lib/docs/control/control.css (N+3.5). */
 .nuri-demo-card__controls {
   display: flex;
-  gap: var(--nuri-px-4);
+  gap: 4px;
   margin-left: auto;
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -134,7 +134,7 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--nuri-px-28) var(--nuri-px-18);
+  padding: 28px 18px;
   min-height: 120px;
   background: var(--nuri-bg-canvas);
 }
@@ -145,7 +145,7 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
 }
 .nuri-demo-card__preview--stack {
   flex-direction: column;
-  gap: var(--nuri-px-6);
+  gap: 6px;
   align-items: stretch;
 }
 .nuri-demo-card__preview--stack > nuri-button,
@@ -154,13 +154,13 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
 .nuri-demo-card__preview--stack nuri-scope {
   display: flex;
   flex-direction: column;
-  gap: var(--nuri-px-6);
+  gap: 6px;
 }
 
 /* ── Code · auto-derived from the <template> child ────────────── */
 .nuri-demo-card__code {
   margin: 0;
-  padding: var(--nuri-px-12) var(--nuri-px-18);
+  padding: 12px 18px;
   background: var(--nuri-bg-subtle);
   border-top: var(--nuri-border-1) solid var(--nuri-border-subtle);
   overflow-x: auto;
@@ -196,7 +196,7 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
 .nuri-demo-card__preview--device {
   /* The phone stands in a roomy, neutral stage so the bezel reads as a
    * device rather than another card. The backdrop is theme-independent. */
-  padding: var(--nuri-px-28) var(--nuri-px-18);
+  padding: 28px 18px;
   background: var(--nuri-bg-subtle);
   align-items: flex-start;
 }
@@ -373,7 +373,7 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 0 var(--nuri-px-28);
+  padding: 0 28px;
 }
 .nuri-device__navglyph {
   display: block;
@@ -391,6 +391,6 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
 .nuri-demo-row {
   display: flex;
   flex-direction: column;
-  gap: var(--nuri-px-12);
-  margin: var(--nuri-px-12) 0 var(--nuri-px-4);
+  gap: 12px;
+  margin: 12px 0 4px;
 }
