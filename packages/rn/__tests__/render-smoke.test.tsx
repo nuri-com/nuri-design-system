@@ -28,6 +28,14 @@ import {
   TopbarLeading,
   TopbarCenter,
   TopbarTrailing,
+  PressableItem,
+  PressableItemContent,
+  PressableItemLeadingAvatar,
+  PressableItemText,
+  PressableItemTextMuted,
+  PressableItemTrailingText,
+  PressableItemTrailingTextMuted,
+  PressableItemTrailIcon,
   TabBar,
   TabBarItem,
   NuriIcon,
@@ -298,6 +306,145 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
+  test('PressableItem — direct row slots render avatar, content, trailing value, and trail icon', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <PressableItem accessibilityLabel="Transaction" onPress={() => undefined}>
+          <PressableItemLeadingAvatar name="arrow-up" />
+          <PressableItemText>To Emin Mahrt</PressableItemText>
+          <PressableItemTextMuted>Sent • Wed, 16 May</PressableItemTextMuted>
+          <PressableItemTrailingText>- 12.00 €</PressableItemTrailingText>
+          <PressableItemTrailingTextMuted>3433 Sats</PressableItemTrailingTextMuted>
+          <PressableItemTrailIcon name="chevron-right" />
+        </PressableItem>
+      </NuriThemeProvider>,
+    );
+    expect(tr.toJSON()).toBeTruthy();
+    expect(tr.root.findAllByType(NuriIcon).map((g) => g.props.name)).toEqual(['arrow-up', 'chevron-right']);
+    expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toEqual([
+      'To Emin Mahrt',
+      'Sent • Wed, 16 May',
+      '- 12.00 €',
+      '3433 Sats',
+    ]);
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  // ── The mixed-content / repetition contract (decision 83) — PAIRED with the
+  // web factory tests (packages/prototype/factory/factory.test.js B6–B11):
+  // both engines resolve the same authored composition to the same structure,
+  // or fail with the same named error.
+  test('PressableItem — bare children inside a region stay that region\'s own content, order preserved', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
+          <PressableItemContent>
+            before
+            <PressableItemText>Bank account</PressableItemText>
+            after
+          </PressableItemContent>
+        </PressableItem>
+      </NuriThemeProvider>,
+    );
+    const text = tr.root.findByType(Text);
+    expect(text.props.children).toBe('Bank account');
+    const region = text.parent as NonNullable<typeof text.parent>;
+    expect(region.type).toBe('View');
+    expect(region.children.length).toBe(3);
+    expect(region.children[0]).toBe('before');
+    expect((region.children[1] as { type: unknown }).type).toBe(Text);
+    expect(region.children[2]).toBe('after');
+  });
+
+  test('PressableItem — a typed slot targeting a part outside its region fails named', () => {
+    const quiet = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      expect(() =>
+        render(
+          <NuriThemeProvider>
+            <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
+              <PressableItemContent>
+                <PressableItemTrailingText>Wrong</PressableItemTrailingText>
+              </PressableItemContent>
+            </PressableItem>
+          </NuriThemeProvider>,
+        ),
+      ).toThrow("nuri-factory: composition entry targets 'trailingText', which is not under 'content'");
+    } finally {
+      quiet.mockRestore();
+    }
+  });
+
+  test('PressableItem — a multiple:true slot repeats as a SEQUENCE of leaf instances', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
+          <PressableItemText>First line</PressableItemText>
+          <PressableItemText>Second line</PressableItemText>
+        </PressableItem>
+      </NuriThemeProvider>,
+    );
+    const texts = tr.root.findAllByType(Text);
+    expect(texts.map((t) => t.props.children)).toEqual(['First line', 'Second line']);
+    // TWO leaf instances inside ONE content region — never one concatenated leaf.
+    expect(texts).toHaveLength(2);
+    expect(texts[0].parent).toBe(texts[1].parent);
+  });
+
+  test('PressableItem — a repeated SINGULAR icon slot fails named', () => {
+    const quiet = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      expect(() =>
+        render(
+          <NuriThemeProvider>
+            <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
+              <PressableItemLeadingAvatar name="arrow-up" />
+              <PressableItemLeadingAvatar name="arrow-down" />
+            </PressableItem>
+          </NuriThemeProvider>,
+        ),
+      ).toThrow("nuri-factory: slot targeting part 'leadingIcon' is singular — it appears 2 times under 'leadingAvatar'");
+    } finally {
+      quiet.mockRestore();
+    }
+  });
+
+  test('PressableItem — bare children with no default sink fail named', () => {
+    const quiet = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      expect(() =>
+        render(
+          <NuriThemeProvider>
+            <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
+              Send money
+            </PressableItem>
+          </NuriThemeProvider>,
+        ),
+      ).toThrow("nuri-factory: 'PressableItem' has no default content slot");
+    } finally {
+      quiet.mockRestore();
+    }
+  });
+
+  test('PressableItem — a foreign component\'s slot marker fails named', () => {
+    const quiet = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      expect(() =>
+        render(
+          <NuriThemeProvider>
+            <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
+              <PressableItemContent>
+                <ButtonText>Wrong</ButtonText>
+              </PressableItemContent>
+            </PressableItem>
+          </NuriThemeProvider>,
+        ),
+      ).toThrow("nuri-factory: foreign slot marker 'ButtonText' — not a 'PressableItem' slot");
+    } finally {
+      quiet.mockRestore();
+    }
+  });
+
   // ── the hand-authorable primitive layer (step ①) — one headless mount per
   // primitive · no-throw + a committed snapshot (the consumability guard,
   // primitive-side · contract §3.3b). A View carrying a palette delivers its fg
@@ -497,5 +644,94 @@ describe('renderDescriptorInstance — the pressable trust boundary', () => {
     } finally {
       quiet.mockRestore();
     }
+  });
+});
+
+describe('renderDescriptorInstance — nested composition', () => {
+  const nestedDescriptor: Descriptor<Axes> = {
+    structure: {
+      anatomy: {
+        el: 'pressable',
+        parts: {
+          leading: { el: 'view', parts: { glyph: { el: 'icon' } } },
+          content: { el: 'view', parts: { label: { el: 'text' }, detail: { el: 'text' } } },
+        },
+      },
+      base: {
+        root: {
+          stack: { direction: 'row', align: 'center', gap: 'md' },
+          palette: { variant: 'ghost' },
+          interactive: { pressColor: true },
+        },
+        leading: { stack: { align: 'center', justify: 'center' }, box: { width: 'lg', height: 'lg' } },
+        content: { stack: { direction: 'column', fill: 'grow' } },
+        label: { typography: { size: 'md', emphasis: true } },
+        detail: { typography: { size: 'sm' }, palette: { muted: true } },
+      },
+    },
+    api: {
+      axes: [],
+      themeScope: { accent: true },
+      behaviour: { pressable: { target: 'root', props: ['onPress'] } },
+      slots: {},
+    },
+  };
+  const nestedRecipe: BakedComponentRecipe = {
+    root: {
+      el: 'pressable',
+      geometry: { base: { flexDirection: 'row', alignItems: 'center', gap: 12 }, variants: {} },
+      interactive: { base: { pressColor: true } },
+    },
+    leading: {
+      el: 'view',
+      geometry: { base: { alignItems: 'center', justifyContent: 'center', width: 48, height: 48 }, variants: {} },
+    },
+    glyph: { el: 'icon', geometry: { base: {}, variants: {} } },
+    content: {
+      el: 'view',
+      geometry: { base: { flexDirection: 'column', flexGrow: 1, flexShrink: 1 }, variants: {} },
+    },
+    label: { el: 'text', geometry: { base: {}, variants: {} }, typography: { base: { size: 'md', emphasis: true } } },
+    detail: { el: 'text', geometry: { base: {}, variants: {} }, typography: { base: { size: 'sm' } } },
+  };
+
+  test('composition entries targeting nested leaves render their ancestor hosts', () => {
+    const Nested: React.FC = () =>
+      renderDescriptorInstance({
+        descriptor: nestedDescriptor,
+        recipe: nestedRecipe,
+        displayName: 'Nested',
+        selection: {},
+        content: {},
+        composition: {
+          root: [
+            { part: 'glyph', content: 'bank' },
+            { part: 'label', content: 'Bank account' },
+            { part: 'detail', content: 'Personal' },
+          ],
+        },
+        behaviour: { pressable: { target: 'root', onPress: () => undefined } },
+      });
+    const tr = render(
+      <NuriThemeProvider>
+        <Nested />
+      </NuriThemeProvider>,
+    );
+
+    const glyph = tr.root.findByType(NuriIcon);
+    expect(glyph.props.name).toBe('bank');
+    const leading = glyph.parent;
+    expect(leading?.type).toBe('View');
+    const leadingStyle = Array.isArray(leading?.props.style)
+      ? Object.assign({}, ...leading.props.style.filter(Boolean))
+      : leading?.props.style;
+    expect(leadingStyle).toMatchObject({ width: 48, height: 48 });
+
+    const texts = tr.root.findAllByType(Text);
+    expect(texts.map((t) => t.props.children)).toEqual(['Bank account', 'Personal']);
+    const contentHosts = texts.map((text) => text.parent);
+    expect(contentHosts[0]?.type).toBe('View');
+    expect(contentHosts[1]?.type).toBe('View');
+    expect(contentHosts[0]).toBe(contentHosts[1]);
   });
 });

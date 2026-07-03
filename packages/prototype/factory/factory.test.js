@@ -33,6 +33,7 @@ for (const key of ['window', 'document', 'customElements', 'HTMLElement', 'Mutat
 await import('../recipes/button.js');
 await import('../recipes/icon-avatar.js');
 await import('../recipes/icon-button.js');
+await import('../recipes/pressable-item.js');
 // The factory + the descriptor twins, for the buildComponent-direct assertions
 // (same cached module instances the recipes use).
 const { buildComponent, defineNuriComponent } = await import('../factory/factory.js');
@@ -49,6 +50,25 @@ function mount(el) {
   return el;
 }
 const classesOf = (el) => [...el.classList].sort();
+
+// jsdom reports a connectedCallback exception on the window `error` event
+// instead of propagating it out of appendChild — capture it and assert the
+// NAMED message (the web half of the paired mixed-content contract tests).
+function mountExpectingNamedError(el, pattern) {
+  let caught = null;
+  const onError = (event) => {
+    caught = event.error ?? new Error(event.message);
+    event.preventDefault();
+  };
+  dom.window.addEventListener('error', onError);
+  try {
+    dom.window.document.body.appendChild(el);
+  } finally {
+    dom.window.removeEventListener('error', onError);
+  }
+  assert.ok(caught, 'an invalid composition must fail with a named error');
+  assert.match(caught.message, pattern);
+}
 
 // ══════════════════════════════════════════════════════════════════
 // A · buildComponent · IconAvatar — static merged node + DEFAULT from data
@@ -125,6 +145,200 @@ test('B2 · <nuri-button> composed slots · text/icon/text render in authored or
   assert.equal(btn.hasAttribute('disabled'), false, 'disabled remains on the root Button only when declared, never on slot leaves');
 });
 
+test('B3 · nested composition preserves the ancestor containers', async () => {
+  const nestedDescriptor = {
+    structure: {
+      anatomy: {
+        el: 'pressable',
+        parts: {
+          leading: { el: 'view', parts: { glyph: { el: 'icon' } } },
+          content: { el: 'view', parts: { label: { el: 'text' }, detail: { el: 'text' } } },
+        },
+      },
+      base: {
+        root: {
+          stack: { direction: 'row', align: 'center', gap: 'md' },
+          palette: { variant: 'ghost' },
+          interactive: { pressColor: true },
+        },
+        leading: { stack: { align: 'center', justify: 'center' }, box: { width: 'lg', height: 'lg' } },
+        content: { stack: { direction: 'column', fill: 'grow' } },
+        label: { typography: { size: 'md', emphasis: true } },
+        detail: { typography: { size: 'sm' }, palette: { muted: true } },
+      },
+    },
+    api: { axes: [], themeScope: { accent: true }, behaviour: { pressable: { target: 'root', props: ['onPress'] } }, slots: {} },
+  };
+
+  const el = mount(buildComponent(nestedDescriptor, {}, {
+    composition: {
+      root: [
+        { part: 'glyph', content: 'bank' },
+        { part: 'label', content: 'Bank account' },
+        { part: 'detail', content: 'Personal' },
+      ],
+    },
+  }));
+  await tick();
+
+  const btn = el.querySelector('button.nuri-interactive');
+  assert.ok(btn, 'the nested synthetic renders an interactive button');
+  const topLevel = [...btn.children].map((child) => child.tagName.toLowerCase());
+  assert.deepEqual(topLevel, ['nuri-view', 'nuri-view'], 'nested leaves sharing an ancestor route through that ancestor once');
+
+  const [leading, content] = btn.children;
+  assert.equal(leading.getAttribute('data-width'), 'lg', 'the leading ancestor container is preserved');
+  assert.equal(leading.querySelector('nuri-icon')?.getAttribute('name'), 'bank', 'the glyph renders inside leading');
+  const texts = [...content.querySelectorAll('nuri-typography')];
+  assert.equal(texts[0]?.textContent, 'Bank account', 'the label renders inside content');
+  const detail = texts.find((el) => el.textContent === 'Personal');
+  assert.equal(detail?.textContent, 'Personal', 'the detail renders inside content');
+  assert.equal(detail?.hasAttribute('data-muted'), true, 'muted text projects to typography data-muted');
+});
+
+test('B4 · defineNuriComponent harvests component slots nested inside region slots', async () => {
+  const nestedDescriptor = {
+    structure: {
+      anatomy: {
+        el: 'pressable',
+        parts: {
+          leading: { el: 'view', parts: { glyph: { el: 'icon' } } },
+          content: { el: 'view', parts: { label: { el: 'text' }, detail: { el: 'text' } } },
+        },
+      },
+      base: {
+        root: {
+          stack: { direction: 'row', align: 'center', gap: 'md' },
+          palette: { variant: 'ghost' },
+          interactive: { pressColor: true },
+        },
+        leading: { stack: { align: 'center', justify: 'center' }, box: { width: 'lg', height: 'lg' } },
+        content: { stack: { direction: 'column', fill: 'grow' } },
+        label: { typography: { size: 'md', emphasis: true } },
+        detail: { typography: { size: 'sm' }, palette: { muted: true } },
+      },
+    },
+    api: {
+      axes: [],
+      themeScope: { accent: true },
+      behaviour: { pressable: { target: 'root', props: ['onPress', 'accessibilityLabel'] } },
+      slots: {
+        leading: { part: 'glyph', kind: 'icon-name', component: true },
+        content: { part: 'content', kind: 'region' },
+        text: { part: 'label', kind: 'text', component: true },
+        detail: { part: 'detail', kind: 'text', component: true },
+      },
+    },
+  };
+  defineNuriComponent(nestedDescriptor, 'nuri-nested-region-x');
+
+  const row = dom.window.document.createElement('nuri-nested-region-x');
+  row.innerHTML = [
+    '<nuri-nested-region-x-leading name="bank"></nuri-nested-region-x-leading>',
+    '<nuri-nested-region-x-content>',
+    '<nuri-nested-region-x-text>Bank account</nuri-nested-region-x-text>',
+    '<nuri-nested-region-x-detail>Personal</nuri-nested-region-x-detail>',
+    '</nuri-nested-region-x-content>',
+  ].join('');
+  mount(row);
+  await tick();
+
+  const btn = row.querySelector('button.nuri-interactive');
+  assert.ok(btn, 'the registered element mounts the pressable tree');
+  assert.deepEqual([...btn.children].map((child) => child.tagName.toLowerCase()), ['nuri-view', 'nuri-view']);
+  assert.equal(btn.querySelector('nuri-icon')?.getAttribute('name'), 'bank');
+  assert.deepEqual([...btn.querySelectorAll('nuri-typography')].map((el) => el.textContent), ['Bank account', 'Personal']);
+});
+
+test('B5 · <nuri-pressable-item> direct typed slots route through their ancestor regions', async () => {
+  assert.ok(customElements.get('nuri-pressable-item'), 'PressableItem web twin is registered');
+
+  const row = dom.window.document.createElement('nuri-pressable-item');
+  row.innerHTML = [
+    '<nuri-pressable-item-leading-avatar name="bank"></nuri-pressable-item-leading-avatar>',
+    '<nuri-pressable-item-text>Bank account</nuri-pressable-item-text>',
+    '<nuri-pressable-item-text-muted>Personal</nuri-pressable-item-text-muted>',
+    '<nuri-pressable-item-trailing-text>12.00 €</nuri-pressable-item-trailing-text>',
+    '<nuri-pressable-item-trailing-text-muted>3433 Sats</nuri-pressable-item-trailing-text-muted>',
+    '<nuri-pressable-item-trail-icon name="chevron-right"></nuri-pressable-item-trail-icon>',
+  ].join('');
+  mount(row);
+  await tick();
+
+  const btn = row.querySelector('button.nuri-interactive');
+  assert.ok(btn, 'the registered element mounts the pressable tree');
+  assert.deepEqual([...btn.children].map((child) => child.tagName.toLowerCase()), ['nuri-view', 'nuri-view', 'nuri-view', 'nuri-icon']);
+  assert.equal(btn.children[0].querySelector('nuri-icon')?.getAttribute('name'), 'bank', 'leading avatar wraps the glyph');
+  assert.deepEqual([...btn.children[1].querySelectorAll('nuri-typography')].map((el) => el.textContent), ['Bank account', 'Personal']);
+  assert.deepEqual([...btn.children[2].querySelectorAll('nuri-typography')].map((el) => el.textContent), ['12.00 €', '3433 Sats']);
+  assert.equal(btn.children[3].getAttribute('name'), 'chevron-right');
+});
+
+// ── The mixed-content / repetition contract (decision 83) — PAIRED with the RN
+// render-smoke tests (packages/rn/__tests__/render-smoke.test.tsx · the
+// PressableItem contract block): both engines resolve the same authored
+// composition to the same structure, or fail with the same named error.
+test('B6 · <nuri-pressable-item> · bare region children stay the region\'s own content, order preserved', async () => {
+  const row = dom.window.document.createElement('nuri-pressable-item');
+  row.innerHTML = '<nuri-pressable-item-content>before<nuri-pressable-item-text>Bank account</nuri-pressable-item-text>after</nuri-pressable-item-content>';
+  mount(row);
+  await tick();
+
+  const btn = row.querySelector('button.nuri-interactive');
+  assert.ok(btn, 'the row mounts');
+  assert.equal(btn.children.length, 1, 'the content region renders exactly ONCE');
+  const region = btn.children[0];
+  assert.equal(region.tagName.toLowerCase(), 'nuri-view');
+  const sequence = [...region.childNodes].map((n) =>
+    n.nodeType === 3 ? `#text:${n.textContent}` : `${n.tagName.toLowerCase()}:${n.textContent}`,
+  );
+  assert.deepEqual(
+    sequence,
+    ['#text:before', 'nuri-typography:Bank account', '#text:after'],
+    'bare children mix with typed slots in authored order, inside the region',
+  );
+});
+
+test('B7 · a typed slot targeting a part OUTSIDE its region fails named', () => {
+  const row = dom.window.document.createElement('nuri-pressable-item');
+  row.innerHTML = '<nuri-pressable-item-content><nuri-pressable-item-trailing-text>Wrong</nuri-pressable-item-trailing-text></nuri-pressable-item-content>';
+  mountExpectingNamedError(row, /composition entry targets 'trailingText', which is not under 'content'/);
+});
+
+test('B8 · a multiple:true slot repeats as a SEQUENCE of leaf instances', async () => {
+  const row = dom.window.document.createElement('nuri-pressable-item');
+  row.innerHTML = '<nuri-pressable-item-text>First line</nuri-pressable-item-text><nuri-pressable-item-text>Second line</nuri-pressable-item-text>';
+  mount(row);
+  await tick();
+
+  const btn = row.querySelector('button.nuri-interactive');
+  assert.equal(btn.children.length, 1, 'ONE content region hosts the sequence');
+  const texts = [...btn.children[0].querySelectorAll('nuri-typography')];
+  assert.deepEqual(
+    texts.map((el) => el.textContent),
+    ['First line', 'Second line'],
+    'TWO leaf instances — never one concatenated leaf',
+  );
+});
+
+test('B9 · a repeated SINGULAR icon slot fails named', () => {
+  const row = dom.window.document.createElement('nuri-pressable-item');
+  row.innerHTML = '<nuri-pressable-item-leading-avatar name="arrow-up"></nuri-pressable-item-leading-avatar><nuri-pressable-item-leading-avatar name="arrow-down"></nuri-pressable-item-leading-avatar>';
+  mountExpectingNamedError(row, /slot targeting part 'leadingIcon' is singular — it appears 2 times under 'leadingAvatar'/);
+});
+
+test('B10 · bare children with NO default sink fail named', () => {
+  const row = dom.window.document.createElement('nuri-pressable-item');
+  row.textContent = 'Send money';
+  mountExpectingNamedError(row, /'nuri-pressable-item' has no default content slot/);
+});
+
+test('B11 · a FOREIGN component\'s slot marker fails named', () => {
+  const row = dom.window.document.createElement('nuri-pressable-item');
+  row.innerHTML = '<nuri-pressable-item-content><nuri-button-text>Wrong</nuri-button-text></nuri-pressable-item-content>';
+  mountExpectingNamedError(row, /foreign slot marker '<nuri-button-text>' — not a 'nuri-pressable-item' slot/);
+});
+
 // ══════════════════════════════════════════════════════════════════
 // C · defineNuriComponent · the registered elements (API derivation · reflection)
 // ══════════════════════════════════════════════════════════════════
@@ -142,6 +356,21 @@ test('C · observedAttributes are DERIVED from the descriptor (axes ∪ accent �
     ['accent', 'icon', 'variant'],
     'icon-avatar observes its axis + accent + icon (the glyph part), not disabled',
   );
+});
+
+test('C1b · <nuri-button>Go</nuri-button> · a BARE label survives the composition harvest (the pre-scan)', async () => {
+  // The registered-element route (NOT buildComponent-direct): the element has
+  // component slots, so harvestComposition runs first — with no marker present
+  // it must return null WITHOUT consuming the bare text node, so the legacy
+  // `#label = textContent` capture still sees 'Go'.
+  const b = dom.window.document.createElement('nuri-button');
+  b.textContent = 'Go';
+  mount(b);
+  await tick();
+
+  const label = b.querySelector('nuri-typography');
+  assert.ok(label, 'the bare label renders a nuri-typography');
+  assert.equal(label.textContent, 'Go', 'the bare text label is captured, not destroyed by the harvest');
 });
 
 test('C2 · <nuri-button disabled> · disabled reflects to the interactive host · default variant from data', async () => {

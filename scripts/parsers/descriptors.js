@@ -46,6 +46,7 @@ export const DESCRIPTOR_COMPONENTS = [
   { name: 'icon-avatar' },
   { name: 'topbar' },
   { name: 'icon-button' },
+  { name: 'pressable-item' },
   { name: 'tab-bar-item' },
   { name: 'tab-bar' },
 ];

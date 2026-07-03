@@ -24,9 +24,15 @@ export const NuriSurfaceContext = React.createContext<{ foreground?: string }>({
 // A generated marker component (TopbarLeading/Center/Trailing regions and ordered
 // leaves like ButtonText/ButtonIcon). Rendered alone it yields its children;
 // generated parent adapters harvest the marker tag and normalize public props.
+// `__nuriSlotOwner` names the owning component (its displayName): part ids are
+// descriptor-LOCAL strings, so an owner check is what keeps another component's
+// marker from being interpreted against the wrong anatomy (the harvest fails
+// named on a mismatch — the web mirror keys the same policy off its global
+// registered-slot-tag registry).
 export type NuriSlot<P extends object = { children?: React.ReactNode }, PId extends PartId = PartId> = React.FC<P> & {
   __nuriSlot: PId;
   __nuriSlotContentProp: string;
+  __nuriSlotOwner?: string;
 };
 
 export type NuriCompositionEntry<PId extends PartId = PartId> = { part: PId; content: React.ReactNode };
@@ -47,12 +53,14 @@ export function createNuriSlot<P extends object = { children?: React.ReactNode }
   part: PId,
   displayName: string,
   contentProp = 'children',
+  owner?: string,
 ): NuriSlot<P, PId> {
   const Slot: NuriSlot<P, PId> = ((slotProps: P & { children?: React.ReactNode }) => (
     <React.Fragment>{slotProps.children}</React.Fragment>
   )) as NuriSlot<P, PId>;
   Slot.__nuriSlot = part;
   Slot.__nuriSlotContentProp = contentProp;
+  Slot.__nuriSlotOwner = owner;
   Slot.displayName = displayName;
   return Slot;
 }
@@ -79,9 +87,17 @@ export function harvestNuriSlots<PId extends PartId = PartId>(
   return harvested;
 }
 
+// Harvest one composition scope (the component root, or a region's own content
+// at render time). The mixed-content contract (decision 83 · identical on web):
+// typed slot markers become entries; bare meaningful children route to
+// `fallbackPart` (the declared default sink at root scope · the region itself
+// inside a region); a bare child with NO fallback is unroutable and fails
+// named — never a silently dropped child or an empty skeleton render. A marker
+// owned by ANOTHER component (`__nuriSlotOwner` ≠ `owner`) fails named.
 export function harvestNuriComposition<PId extends PartId = PartId>(
   children: React.ReactNode,
   fallbackPart: PId | undefined,
+  owner?: string,
 ): { hasSlots: boolean; items: NuriCompositionEntry<PId>[] } {
   const items: NuriCompositionEntry<PId>[] = [];
   let hasSlots = false;
@@ -89,6 +105,10 @@ export function harvestNuriComposition<PId extends PartId = PartId>(
     if (React.isValidElement(child) && typeof child.type !== 'string') {
       const slotType = child.type as Partial<NuriSlot<object, PId>>;
       if (slotType.__nuriSlot) {
+        if (owner !== undefined && slotType.__nuriSlotOwner !== owner) {
+          const markerName = (child.type as { displayName?: string }).displayName ?? String(slotType.__nuriSlot);
+          throw new Error(`nuri-factory: foreign slot marker '${markerName}' — not a '${owner}' slot`);
+        }
         hasSlots = true;
         const props = child.props as Record<string, React.ReactNode>;
         const contentProp = slotType.__nuriSlotContentProp || 'children';
@@ -96,7 +116,15 @@ export function harvestNuriComposition<PId extends PartId = PartId>(
         return;
       }
     }
-    if (isRenderableChild(child) && fallbackPart) items.push({ part: fallbackPart, content: child });
+    if (isRenderableChild(child)) {
+      if (fallbackPart) {
+        items.push({ part: fallbackPart, content: child });
+      } else {
+        throw new Error(
+          `nuri-factory: '${owner ?? 'this component'}' has no default content slot — bare children must use its typed slot components`,
+        );
+      }
+    }
   });
   return { hasSlots, items };
 }
@@ -128,15 +156,28 @@ type RenderCtx<A extends Axes> = {
   content: Partial<Record<string, React.ReactNode>>;
   composition: Partial<Record<string, NuriCompositionEntry<string>[]>>;
   behaviour: NuriBehaviour<string>;
+  // STATIC api facts, computed once per instance render: `slotted` = the
+  // descriptor declares component slots at all (the render-time nested-harvest
+  // gate — an unslotted component never pays a per-host children walk);
+  // `owner` = the component displayName the slot markers carry.
+  slotted: boolean;
+  owner: string;
 };
 
-function findChildPart(node: AnatomyNode, part: PartId): AnatomyNode | undefined {
+function findChildPath(node: AnatomyNode, part: PartId): AnatomyNode[] | undefined {
   for (const child of node.children) {
-    if (child.name === part) return child;
-    const nested = findChildPart(child, part);
-    if (nested) return nested;
+    if (child.name === part) return [child];
+    const nested = findChildPath(child, part);
+    if (nested) return [child, ...nested];
   }
   return undefined;
+}
+
+// A part accepts REPEATED composition entries only where the descriptor's api
+// declares a slot targeting it `multiple: true` (the sequence contract —
+// repeats render as a sequence of instances, never a concatenated leaf).
+function isMultiPart<A extends Axes>(descriptor: Descriptor<A>, part: PartId): boolean {
+  return Object.values(descriptor.api?.slots ?? {}).some((slot) => slot.part === part && slot.multiple === true);
 }
 
 function renderPart<A extends Axes>(
@@ -173,24 +214,107 @@ function renderPart<A extends Axes>(
   // ELEMENT differs, and that is the switch's decision (el is structure data).
   const renderHostBody = (): React.ReactNode => {
     const kids: React.ReactNode[] = [];
+    // ── THE GROUPING WALKER · mirrored across engines — edit in LOCKSTEP with
+    // packages/prototype/factory/factory.js#appendComposition (full dedup is a
+    // named follow-up). The shared contract is pinned per-cell by the
+    // composition-envelope suites (packages/rn/__tests__/composition-envelope
+    // .test.tsx · packages/prototype/factory/composition-envelope.test.js).
+    // Entry classification against THIS host:
+    //   · own    — entry.part === this host: bare content of a region scope,
+    //     rendered in place (bare children inside a region stay that region's
+    //     own content · the mixed-content contract);
+    //   · direct — a direct child part: ONE rendered instance per entry, in
+    //     authored order (repeated entries = a SEQUENCE of instances);
+    //   · group  — a part nested deeper: routed through its ancestor container
+    //     ONCE, the entries re-scoped to that ancestor via ctx.composition (the
+    //     ancestor's own walker re-classifies them one level down).
+    // Repetition policy: a part may be targeted more than once only where a
+    // declared slot marks it `multiple: true`; a singular part targeted twice
+    // (including a region marker mixed with loose slots for the same region)
+    // fails named — never silent concatenation, never last-wins.
+    const appendCompositionEntries = (composition: NuriCompositionEntry<string>[]): void => {
+      const grouped = new Map<string, { child: AnatomyNode; entries: NuriCompositionEntry<string>[] }>();
+      const targets = new Map<string, number>();
+      const ordered: Array<
+        | { kind: 'own'; entry: NuriCompositionEntry<string>; index: number }
+        | { kind: 'direct'; child: AnatomyNode; entry: NuriCompositionEntry<string>; index: number }
+        | { kind: 'group'; part: string }
+      > = [];
+      composition.forEach((entry, index) => {
+        if (entry.part === node.name) {
+          ordered.push({ kind: 'own', entry, index });
+          return;
+        }
+        const path = findChildPath(node, entry.part);
+        if (!path) throw new Error(`nuri-factory: composition entry targets '${entry.part}', which is not under '${node.name}'`);
+        const childNode = path[0];
+        if (path.length > 1 && !LEAF_ELS.includes(childNode.el)) {
+          let group = grouped.get(childNode.name);
+          if (!group) {
+            group = { child: childNode, entries: [] };
+            grouped.set(childNode.name, group);
+            ordered.push({ kind: 'group', part: childNode.name });
+            targets.set(childNode.name, (targets.get(childNode.name) ?? 0) + 1);
+          }
+          group.entries.push(entry);
+          return;
+        }
+        ordered.push({ kind: 'direct', child: childNode, entry, index });
+        targets.set(entry.part, (targets.get(entry.part) ?? 0) + 1);
+      });
+      for (const [part, count] of targets) {
+        if (count > 1 && !isMultiPart(ctx.descriptor, part)) {
+          throw new Error(`nuri-factory: slot targeting part '${part}' is singular — it appears ${count} times under '${node.name}'`);
+        }
+      }
+      for (const item of ordered) {
+        if (item.kind === 'own') {
+          kids.push(<React.Fragment key={`own:${item.index}`}>{item.entry.content}</React.Fragment>);
+          continue;
+        }
+        const group = item.kind === 'group' ? grouped.get(item.part) : undefined;
+        const rendered = item.kind === 'group' && group
+          ? renderPart(
+            group.child,
+            { ...ctx, composition: { ...ctx.composition, [item.part]: group.entries } },
+            fg,
+            false,
+          )
+          : item.kind === 'direct'
+            ? renderPart(
+              item.child,
+              { ...ctx, content: { ...ctx.content, [item.entry.part]: item.entry.content } },
+              fg,
+              false,
+            )
+            : null;
+        if (rendered) {
+          const key = item.kind === 'group' ? item.part : `${item.entry.part}:${item.index}`;
+          kids.push(React.cloneElement(rendered, { key }));
+        }
+      }
+    };
+
     const composition = ctx.composition[node.name];
     if (composition) {
-      composition.forEach((entry, index) => {
-        const childNode = findChildPart(node, entry.part);
-        if (!childNode) throw new Error(`nuri-factory: composition entry targets '${entry.part}', which is not under '${node.name}'`);
-        const rendered = renderPart(
-          childNode,
-          { ...ctx, content: { ...ctx.content, [entry.part]: entry.content } },
-          fg,
-          false,
-        );
-        if (rendered) kids.push(React.cloneElement(rendered, { key: `${entry.part}:${index}` }));
-      });
+      appendCompositionEntries(composition);
     } else {
-      const childEls = node.children.map((child) => renderPart(child, ctx, fg, false));
       const ownContent = ctx.content[node.name];
-      if (ownContent != null) kids.push(<React.Fragment key="__content">{ownContent}</React.Fragment>);
-      kids.push(...childEls);
+      // The render-time nested harvest is GATED twice: `ownContent != null`
+      // (cheap per-host check) AND the STATIC api fact that this descriptor
+      // declares component slots at all (ctx.slotted) — so an unslotted
+      // component never pays a children walk for a feature only slotted
+      // components use. Bare children harvested here keep THIS host as their
+      // own content (fallback = node.name · the region mixed-content contract).
+      const nestedComposition =
+        ownContent != null && ctx.slotted ? harvestNuriComposition<string>(ownContent, node.name, ctx.owner) : null;
+      if (nestedComposition && nestedComposition.hasSlots) {
+        appendCompositionEntries(nestedComposition.items);
+      } else {
+        const childEls = node.children.map((child) => renderPart(child, ctx, fg, false));
+        if (ownContent != null) kids.push(<React.Fragment key="__content">{ownContent}</React.Fragment>);
+        kids.push(...childEls);
+      }
     }
 
     return flat.node.fg !== undefined ? (
@@ -295,6 +419,9 @@ export function renderDescriptorInstance<A extends Axes, PId extends PartId = Pa
   const anatomy = resolveAnatomy(descriptor);
   const theme = useNuriTheme();
   const ambient = React.useContext(NuriSurfaceContext);
+  // The static api fact gating the render-time nested harvest — only a
+  // descriptor that declares component slots can carry nested composition.
+  const slotted = Object.values(descriptor.api?.slots ?? {}).some((slot) => slot.component === true);
   return renderPart(
     anatomy,
     {
@@ -305,6 +432,8 @@ export function renderDescriptorInstance<A extends Axes, PId extends PartId = Pa
       content,
       composition,
       behaviour,
+      slotted,
+      owner: displayName,
     } as RenderCtx<A>,
     ambient.foreground,
     true,

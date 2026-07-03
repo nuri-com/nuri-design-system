@@ -224,13 +224,14 @@ const NAV_ORDER = {
   button: 1,
   'icon-button': 2,
   'icon-avatar': 3,
-  'tab-bar': 4,
-  'tab-bar-item': 5,
-  topbar: 6,
-  stack: 7,
-  view: 8,
-  typography: 9,
-  icon: 10,
+  'pressable-item': 4,
+  'tab-bar': 5,
+  'tab-bar-item': 6,
+  topbar: 7,
+  stack: 8,
+  view: 9,
+  typography: 10,
+  icon: 11,
 };
 
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);

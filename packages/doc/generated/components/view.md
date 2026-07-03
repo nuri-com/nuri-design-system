@@ -1,7 +1,7 @@
 ---
 title: View
 layout: default
-nav_order: 8
+nav_order: 9
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/primitives/View.tsx

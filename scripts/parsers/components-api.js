@@ -99,6 +99,10 @@ function buildProps(api, variants) {
   let usesAccent = false;
   let usesIcon = false;
   let hasDefault = false;
+  const regionParts = Object.values(api.slots).filter((s) => s.kind === 'region').map((s) => s.part);
+  const componentSlots = Object.entries(api.slots)
+    .filter(([, s]) => s.component === true)
+    .map(([slotName, slot]) => ({ slotName, ...slot }));
 
   for (const axis of api.axes) {
     const values = Object.keys(variants[axis] || {});
@@ -138,12 +142,9 @@ function buildProps(api, variants) {
     }
   }
 
-  lines.push(hasDefault ? '  children?: React.ReactNode;' : '  children?: never;');
+  const acceptsChildren = hasDefault || regionParts.length > 0 || componentSlots.length > 0;
+  lines.push(acceptsChildren ? '  children?: React.ReactNode;' : '  children?: never;');
 
-  const regionParts = Object.values(api.slots).filter((s) => s.kind === 'region').map((s) => s.part);
-  const componentSlots = Object.entries(api.slots)
-    .filter(([, s]) => s.component === true)
-    .map(([slotName, slot]) => ({ slotName, ...slot }));
   return { lines, usesAccent, usesIcon, regionParts, componentSlots };
 }
 
@@ -175,14 +176,18 @@ function emitSelection(descriptor) {
   return lines;
 }
 
-function emitContent(api, partTypeName) {
+function emitContent(api, partTypeName, displayNameConst) {
   const lines = [`  const content: Partial<Record<${partTypeName}, React.ReactNode>> = {};`];
   const regionSlots = Object.values(api.slots).filter((slot) => slot.kind === 'region');
   const fallbackRegion = Object.values(api.slots).find((slot) => slot.kind === 'region' && slot.default === true);
   const componentSlots = Object.values(api.slots).filter((slot) => slot.component === true);
   const fallbackSlot = Object.values(api.slots).find((slot) => slot.default === true);
 
-  if (regionSlots.length) {
+  // Regions WITHOUT component slots (Topbar) use the wholesale per-region
+  // harvest. With component slots declared, region markers are composition
+  // entries themselves (the walker routes + validates them per scope), so the
+  // separate region harvest would be a dead second walk.
+  if (regionSlots.length && !componentSlots.length) {
     lines.push(`  const harvested = harvestNuriSlots<${partTypeName}>(props.children, ${fallbackRegion ? q(fallbackRegion.part) : 'undefined'});`);
     for (const slot of regionSlots) {
       lines.push(`  if (harvested[${q(slot.part)}] !== undefined) content[${q(slot.part)}] = harvested[${q(slot.part)}];`);
@@ -191,7 +196,7 @@ function emitContent(api, partTypeName) {
 
   if (componentSlots.length) {
     lines.push(`  const composition: Partial<Record<${partTypeName}, NuriCompositionEntry<${partTypeName}>[]>> = {};`);
-    lines.push(`  const harvestedComposition = harvestNuriComposition<${partTypeName}>(props.children, ${fallbackSlot ? q(fallbackSlot.part) : 'undefined'});`);
+    lines.push(`  const harvestedComposition = harvestNuriComposition<${partTypeName}>(props.children, ${fallbackSlot ? q(fallbackSlot.part) : 'undefined'}, ${displayNameConst});`);
     lines.push('  if (harvestedComposition.hasSlots) {');
     lines.push('    composition.root = harvestedComposition.items;');
     lines.push('  }');
@@ -255,12 +260,14 @@ export function emitComponentFile(spec, descriptor) {
   const hasComponentSlots = componentSlots.length > 0;
 
   const rendererImports = ['nuriNames', 'renderDescriptorInstance'];
-  if (hasRegions) rendererImports.push('createNuriSlot', 'harvestNuriSlots');
+  if (hasRegions) rendererImports.push('createNuriSlot');
+  if (hasRegions && !hasComponentSlots) rendererImports.push('harvestNuriSlots');
   if (hasComponentSlots) rendererImports.push('createNuriSlot', 'harvestNuriComposition');
+  const uniqueRendererImports = [...new Set(rendererImports)];
 
   const imports = [
     "import * as React from 'react';",
-    `import { ${rendererImports.join(', ')} } from '../../runtime/renderer';`,
+    `import { ${uniqueRendererImports.join(', ')} } from '../../runtime/renderer';`,
     `import type { NuriBehaviour${hasComponentSlots ? ', NuriCompositionEntry' : ''} } from '../../runtime/renderer';`,
     `import { ${descId} } from '@nuri/spec/descriptors/${name}';`,
     "import { recipes } from '../data/recipes';",
@@ -285,7 +292,7 @@ export function emitComponentFile(spec, descriptor) {
 
   if (hasRegions) {
     for (const part of regionParts) {
-      body.push(`export const ${Pascal}${pascalPart(part)} = createNuriSlot(${q(part)}, \`${'${'}${displayNameConst}}${pascalPart(part)}\`);`);
+      body.push(`export const ${Pascal}${pascalPart(part)} = createNuriSlot(${q(part)}, \`${'${'}${displayNameConst}}${pascalPart(part)}\`, 'children', ${displayNameConst});`);
     }
   }
   if (hasComponentSlots) {
@@ -297,14 +304,14 @@ export function emitComponentFile(spec, descriptor) {
           '  name: IconName;',
           '  children?: never;',
           '};',
-          `export const ${Pascal}${slotPascal} = createNuriSlot<${Pascal}${slotPascal}Props>(${q(slot.part)}, \`${'${'}${displayNameConst}}${slotPascal}\`, 'name');`,
+          `export const ${Pascal}${slotPascal} = createNuriSlot<${Pascal}${slotPascal}Props>(${q(slot.part)}, \`${'${'}${displayNameConst}}${slotPascal}\`, 'name', ${displayNameConst});`,
         );
       } else {
         body.push(
           `export type ${Pascal}${slotPascal}Props = {`,
           '  children?: React.ReactNode;',
           '};',
-          `export const ${Pascal}${slotPascal} = createNuriSlot<${Pascal}${slotPascal}Props>(${q(slot.part)}, \`${'${'}${displayNameConst}}${slotPascal}\`);`,
+          `export const ${Pascal}${slotPascal} = createNuriSlot<${Pascal}${slotPascal}Props>(${q(slot.part)}, \`${'${'}${displayNameConst}}${slotPascal}\`, 'children', ${displayNameConst});`,
         );
       }
     }
@@ -314,7 +321,7 @@ export function emitComponentFile(spec, descriptor) {
     '',
     `const ${innerName}: React.FC<${Pascal}Props> = (props) => {`,
     ...emitSelection(descriptor),
-    ...emitContent(descriptor.api, partTypeName),
+    ...emitContent(descriptor.api, partTypeName, displayNameConst),
     ...emitBehaviour(descriptor.api, partTypeName),
     '',
     '  return renderDescriptorInstance({',

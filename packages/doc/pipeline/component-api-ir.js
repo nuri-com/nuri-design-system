@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 export const COMPONENT_API_DOCS = [
   {
@@ -33,16 +34,25 @@ export const COMPONENT_API_DOCS = [
     source: 'tab-bar',
     name: 'tab-bar',
     title: 'Tab Bar',
-    nav: 4,
+    nav: 5,
     file: 'packages/rn/generated/components/tab-bar.ts',
     type: 'TabBarProps',
     relatedPrefix: 'TabBar',
   },
   {
+    source: 'pressable-item',
+    name: 'pressable-item',
+    title: 'Pressable Item',
+    nav: 4,
+    file: 'packages/rn/generated/components/pressable-item.ts',
+    type: 'PressableItemProps',
+    relatedPrefix: 'PressableItem',
+  },
+  {
     source: 'tab-bar-item',
     name: 'tab-bar-item',
     title: 'Tab Bar Item',
-    nav: 5,
+    nav: 6,
     file: 'packages/rn/generated/components/tab-bar-item.ts',
     type: 'TabBarItemProps',
     relatedPrefix: 'TabBarItem',
@@ -51,7 +61,7 @@ export const COMPONENT_API_DOCS = [
     source: 'topbar',
     name: 'topbar',
     title: 'Topbar',
-    nav: 6,
+    nav: 7,
     file: 'packages/rn/generated/components/topbar.ts',
     type: 'TopbarProps',
     relatedPrefix: 'Topbar',
@@ -59,28 +69,28 @@ export const COMPONENT_API_DOCS = [
   {
     source: 'stack',
     title: 'Stack',
-    nav: 7,
+    nav: 8,
     file: 'packages/rn/primitives/Stack.tsx',
     type: 'StackProps',
   },
   {
     source: 'view',
     title: 'View',
-    nav: 8,
+    nav: 9,
     file: 'packages/rn/primitives/View.tsx',
     type: 'ViewProps',
   },
   {
     source: 'typography',
     title: 'Typography',
-    nav: 9,
+    nav: 10,
     file: 'packages/rn/primitives/Text.tsx',
     type: 'TextProps',
   },
   {
     source: 'icon',
     title: 'Icon',
-    nav: 10,
+    nav: 11,
     file: 'packages/rn/primitives/NuriIcon.tsx',
     type: 'NuriIconProps',
   },
@@ -134,8 +144,13 @@ export function componentPropTypeName(name) {
   return `${pascal(name)}Props`;
 }
 
-function noteForProp(name, type, isPrimaryType) {
-  if (name === 'children') return isPrimaryType ? 'default content slot' : 'slot content';
+function noteForProp(name, type, isPrimaryType, childrenNote) {
+  // The primary type's `children` note is DATA-derived (componentApiIrFromFile
+  // reads the descriptor's api.slots): a declared `default: true` sink is a
+  // 'default content slot'; children accepted only for typed slot/region
+  // composition are 'composition children' — the docs never promise a bare-
+  // children sink the engine does not have.
+  if (name === 'children') return isPrimaryType ? (childrenNote ?? 'default content slot') : 'slot content';
   if (NOTE_BY_PROP[name]) return NOTE_BY_PROP[name];
   if (type === 'IconName') return 'scalar icon name';
   return 'component prop';
@@ -239,7 +254,7 @@ function parsePropObject(spec, typeName, body, isPrimaryType, aliases) {
       name,
       required: optional !== '?',
       type,
-      note: noteForProp(name, type, isPrimaryType),
+      note: noteForProp(name, type, isPrimaryType, spec.childrenNote),
     };
     if (type === 'never') forbidden.push(entry);
     else props.push(entry);
@@ -332,5 +347,18 @@ export async function componentApiIrFromFile(spec, repoRoot) {
     readFile(resolve(repoRoot, 'packages/spec/components/schema.ts'), 'utf8'),
     readFile(resolve(repoRoot, 'packages/rn/generated/data/tokens.ts'), 'utf8'),
   ]);
-  return componentApiIrFromSource(spec, source, extraSources);
+  // Descriptor-backed pages derive the primary `children` note from the api
+  // DATA (the browser-ESM descriptor twin — the same read docs.js uses): a
+  // `default: true` slot is a real bare-children sink; slots without one accept
+  // children for typed composition only.
+  let childrenNote;
+  if (spec.name) {
+    const twin = pathToFileURL(resolve(repoRoot, `packages/prototype/generated/descriptors/${spec.name}.js`)).href;
+    const descriptor = (await import(twin))[`${camel(spec.name)}Descriptor`];
+    const slots = Object.values(descriptor?.api?.slots ?? {});
+    if (slots.length) {
+      childrenNote = slots.some((slot) => slot.default === true) ? 'default content slot' : 'composition children';
+    }
+  }
+  return componentApiIrFromSource({ ...spec, childrenNote }, source, extraSources);
 }

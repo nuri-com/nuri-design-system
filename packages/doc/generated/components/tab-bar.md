@@ -1,7 +1,7 @@
 ---
 title: Tab Bar
 layout: default
-nav_order: 4
+nav_order: 5
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/generated/components/tab-bar.ts

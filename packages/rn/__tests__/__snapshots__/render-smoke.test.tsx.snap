@@ -531,6 +531,314 @@ exports[`render-smoke — the ergonomic components mount headless IconButton —
 </View>
 `;
 
+exports[`render-smoke — the ergonomic components mount headless PressableItem — direct row slots render avatar, content, trailing value, and trail icon 1`] = `
+<View
+  accessibilityLabel="Transaction"
+  accessibilityRole="button"
+  accessibilityState={
+    {
+      "busy": undefined,
+      "checked": undefined,
+      "disabled": false,
+      "expanded": undefined,
+      "selected": undefined,
+    }
+  }
+  accessibilityValue={
+    {
+      "max": undefined,
+      "min": undefined,
+      "now": undefined,
+      "text": undefined,
+    }
+  }
+  accessible={true}
+  collapsable={false}
+  focusable={true}
+  onBlur={[Function]}
+  onClick={[Function]}
+  onFocus={[Function]}
+  onResponderGrant={[Function]}
+  onResponderMove={[Function]}
+  onResponderRelease={[Function]}
+  onResponderTerminate={[Function]}
+  onResponderTerminationRequest={[Function]}
+  onStartShouldSetResponder={[Function]}
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "transparent",
+      "borderRadius": 18,
+      "flexDirection": "row",
+      "gap": 12,
+      "padding": 12,
+    }
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "transparent",
+        "borderColor": "#dddac9",
+        "borderRadius": 9999,
+        "borderWidth": 1,
+        "height": 48,
+        "justifyContent": "center",
+        "width": 48,
+      }
+    }
+  >
+    <RNSVGSvgView
+      align="xMidYMid"
+      bbHeight={18}
+      bbWidth={18}
+      color="#666455"
+      fill="currentColor"
+      focusable={false}
+      height={18}
+      meetOrSlice={0}
+      minX={0}
+      minY={0}
+      style={
+        [
+          {
+            "backgroundColor": "transparent",
+            "borderWidth": 0,
+          },
+          {
+            "flex": 0,
+            "height": 18,
+            "width": 18,
+          },
+        ]
+      }
+      vbHeight={32}
+      vbWidth={32}
+      width={18}
+      xml="<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M15.29293 4.29289C15.68347 3.90237 16.31653 3.90237 16.70707 4.29289L20.70707 8.29289C21.0976 8.68341 21.0976 9.31659 20.70707 9.70711C20.31653 10.09763 19.68347 10.09763 19.29293 9.70711L17 7.41421L17 27C17 27.55227 16.55227 28 16 28C15.44773 28 15 27.55227 15 27L15 7.41421L12.70711 9.70711C12.31659 10.09763 11.68343 10.09763 11.29289 9.70711C10.90237 9.31659 10.90237 8.68341 11.29289 8.29289L15.29293 4.29289Z" fill="currentColor"/></svg>"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <RNSVGGroup
+        fill={
+          {
+            "type": 2,
+          }
+        }
+        propList={
+          [
+            "fill",
+          ]
+        }
+      >
+        <RNSVGPath
+          clipRule={0}
+          d="M15.29293 4.29289C15.68347 3.90237 16.31653 3.90237 16.70707 4.29289L20.70707 8.29289C21.0976 8.68341 21.0976 9.31659 20.70707 9.70711C20.31653 10.09763 19.68347 10.09763 19.29293 9.70711L17 7.41421L17 27C17 27.55227 16.55227 28 16 28C15.44773 28 15 27.55227 15 27L15 7.41421L12.70711 9.70711C12.31659 10.09763 11.68343 10.09763 11.29289 9.70711C10.90237 9.31659 10.90237 8.68341 11.29289 8.29289L15.29293 4.29289Z"
+          fill={
+            {
+              "type": 2,
+            }
+          }
+          fillRule={0}
+          propList={
+            [
+              "fill",
+              "fillRule",
+            ]
+          }
+        />
+      </RNSVGGroup>
+    </RNSVGSvgView>
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "flex-start",
+        "flexDirection": "column",
+        "flexGrow": 1,
+        "flexShrink": 0,
+        "justifyContent": "center",
+      }
+    }
+  >
+    <Text
+      ellipsizeMode="tail"
+      numberOfLines={1}
+      style={
+        [
+          {
+            "fontSize": 17,
+            "fontWeight": "600",
+            "letterSpacing": -0.34,
+            "lineHeight": 21.93,
+          },
+          {
+            "color": "#222013",
+          },
+          {
+            "flexShrink": 1,
+            "textAlign": "center",
+          },
+          {
+            "textAlign": "left",
+          },
+        ]
+      }
+    >
+      To Emin Mahrt
+    </Text>
+    <Text
+      ellipsizeMode="tail"
+      numberOfLines={1}
+      style={
+        [
+          {
+            "fontSize": 14.5,
+            "fontWeight": "400",
+            "letterSpacing": -0.145,
+            "lineHeight": 19.285,
+          },
+          {
+            "color": "#666455",
+          },
+          {
+            "flexShrink": 1,
+            "textAlign": "center",
+          },
+          {
+            "textAlign": "left",
+          },
+        ]
+      }
+    >
+      Sent • Wed, 16 May
+    </Text>
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "flex-end",
+        "flexDirection": "column",
+        "justifyContent": "center",
+      }
+    }
+  >
+    <Text
+      ellipsizeMode="tail"
+      numberOfLines={1}
+      style={
+        [
+          {
+            "fontSize": 17,
+            "fontWeight": "600",
+            "letterSpacing": -0.34,
+            "lineHeight": 21.93,
+          },
+          {
+            "color": "#222013",
+          },
+          {
+            "flexShrink": 1,
+            "textAlign": "center",
+          },
+          {
+            "textAlign": "right",
+          },
+        ]
+      }
+    >
+      - 12.00 €
+    </Text>
+    <Text
+      ellipsizeMode="tail"
+      numberOfLines={1}
+      style={
+        [
+          {
+            "fontSize": 14.5,
+            "fontWeight": "400",
+            "letterSpacing": -0.145,
+            "lineHeight": 19.285,
+          },
+          {
+            "color": "#666455",
+          },
+          {
+            "flexShrink": 1,
+            "textAlign": "center",
+          },
+          {
+            "textAlign": "right",
+          },
+        ]
+      }
+    >
+      3433 Sats
+    </Text>
+  </View>
+  <RNSVGSvgView
+    align="xMidYMid"
+    bbHeight={18}
+    bbWidth={18}
+    color="#bfbcac"
+    fill="currentColor"
+    focusable={false}
+    height={18}
+    meetOrSlice={0}
+    minX={0}
+    minY={0}
+    style={
+      [
+        {
+          "backgroundColor": "transparent",
+          "borderWidth": 0,
+        },
+        {
+          "flex": 0,
+          "height": 18,
+          "width": 18,
+        },
+      ]
+    }
+    vbHeight={32}
+    vbWidth={32}
+    width={18}
+    xml="<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.2826 4.30337C9.89783 4.6996 9.90715 5.3327 10.3034 5.71743L20.893 16L10.3034 26.2826C9.90714 26.6673 9.89783 27.3004 10.2826 27.6966C10.6673 28.0929 11.3004 28.1022 11.6966 27.7174L22.4914 17.2357C22.5003 17.227 22.509 17.2183 22.5176 17.2093C22.6733 17.0465 22.7945 16.8556 22.8764 16.6486C22.9584 16.4417 23 16.2215 23 16C23 15.7785 22.9584 15.5583 22.8764 15.3514C22.7945 15.1444 22.6733 14.9535 22.5176 14.7907C22.509 14.7817 22.5003 14.773 22.4914 14.7643L11.6966 4.28257C11.3004 3.89783 10.6673 3.90714 10.2826 4.30337Z" fill="currentColor"/></svg>"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <RNSVGGroup
+      fill={
+        {
+          "type": 2,
+        }
+      }
+      propList={
+        [
+          "fill",
+        ]
+      }
+    >
+      <RNSVGPath
+        clipRule={0}
+        d="M10.2826 4.30337C9.89783 4.6996 9.90715 5.3327 10.3034 5.71743L20.893 16L10.3034 26.2826C9.90714 26.6673 9.89783 27.3004 10.2826 27.6966C10.6673 28.0929 11.3004 28.1022 11.6966 27.7174L22.4914 17.2357C22.5003 17.227 22.509 17.2183 22.5176 17.2093C22.6733 17.0465 22.7945 16.8556 22.8764 16.6486C22.9584 16.4417 23 16.2215 23 16C23 15.7785 22.9584 15.5583 22.8764 15.3514C22.7945 15.1444 22.6733 14.9535 22.5176 14.7907C22.509 14.7817 22.5003 14.773 22.4914 14.7643L11.6966 4.28257C11.3004 3.89783 10.6673 3.90714 10.2826 4.30337Z"
+        fill={
+          {
+            "type": 2,
+          }
+        }
+        fillRule={0}
+        propList={
+          [
+            "fill",
+            "fillRule",
+          ]
+        }
+      />
+    </RNSVGGroup>
+  </RNSVGSvgView>
+</View>
+`;
+
 exports[`render-smoke — the ergonomic components mount headless TabBar — OPEN container renders its positional Tab children · selected + unselected items 1`] = `
 <View
   style={
