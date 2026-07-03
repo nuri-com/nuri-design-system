@@ -198,6 +198,23 @@ const EXPECTED_DESCRIPTORS = {
     parts: ['icon'],
     interactive: ['pressColor', 'pressScale', 'disabledOpacity'],
   },
+  // pressable-item (the row-action foundation) — a pressColor-only row with nested
+  // containers for leading avatar, content, trailing value stack, and trailing icon.
+  'pressable-item': {
+    axes: {},
+    parts: [
+      'leadingAvatar',
+      'leadingIcon',
+      'content',
+      'text',
+      'textMuted',
+      'trailing',
+      'trailingText',
+      'trailingTextMuted',
+      'trailIcon',
+    ],
+    interactive: ['pressColor', 'disabledOpacity'],
+  },
   // tab-bar-item (the bottom-bar ITEM · presentation only) — icon-over-label, the
   // `state` 2-value appearance axis (selected ghost / unselected subtle · the
   // colour-only muted treatment · icon weights dropped at decision 38), pressScale
@@ -221,7 +238,15 @@ const EXPECTED_DESCRIPTORS = {
 
 // The anatomy's non-root parts (the structural declaration).
 function anatomyParts(ir) {
-  return Object.keys((ir.anatomy && ir.anatomy.parts) || {});
+  const parts = [];
+  const walk = (node) => {
+    for (const [part, child] of Object.entries((node && node.parts) || {})) {
+      parts.push(part);
+      walk(child);
+    }
+  };
+  walk(ir.anatomy);
+  return parts;
 }
 
 // Every non-root part a namespace composition ADDRESSES (base + variants).

@@ -11,6 +11,7 @@
     "./descriptors/icon-avatar": "./components/icon-avatar.ts",
     "./descriptors/topbar": "./components/topbar.ts",
     "./descriptors/icon-button": "./components/icon-button.ts",
+    "./descriptors/pressable-item": "./components/pressable-item.ts",
     "./descriptors/tab-bar-item": "./components/tab-bar-item.ts",
     "./descriptors/tab-bar": "./components/tab-bar.ts",
     "./resolve-map": "./axes/resolve-map.ts",

@@ -13,6 +13,8 @@ export { Topbar, TopbarLeading, TopbarCenter, TopbarTrailing } from './topbar';
 export type { TopbarProps } from './topbar';
 export { IconButton } from './icon-button';
 export type { IconButtonProps } from './icon-button';
+export { PressableItem, PressableItemContent, PressableItemTrailing, PressableItemLeadingAvatar, PressableItemText, PressableItemTextMuted, PressableItemTrailingText, PressableItemTrailingTextMuted, PressableItemTrailIcon } from './pressable-item';
+export type { PressableItemProps, PressableItemLeadingAvatarProps, PressableItemTextProps, PressableItemTextMutedProps, PressableItemTrailingTextProps, PressableItemTrailingTextMutedProps, PressableItemTrailIconProps } from './pressable-item';
 export { TabBarItem } from './tab-bar-item';
 export type { TabBarItemProps } from './tab-bar-item';
 export { TabBar } from './tab-bar';

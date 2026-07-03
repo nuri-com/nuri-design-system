@@ -213,16 +213,8 @@ function harvestSlots(host, slotTagToPart, defaultSlot) {
 // a normalized sequence. No marker present means "use the legacy bare text route";
 // once a marker is present, meaningful bare nodes are preserved in order through
 // the default text sink.
-function harvestComposition(host, slotTagToSpec, fallbackPart) {
+function harvestComposition(host, slotTagToSpec, fallbackPart, regionTagToPart = {}) {
   let hasSlot = false;
-  for (const child of [...host.childNodes]) {
-    if (child.nodeType === 1 && slotTagToSpec[child.tagName.toLowerCase()]) {
-      hasSlot = true;
-      break;
-    }
-  }
-  if (!hasSlot) return null;
-
   const entries = [];
   const textEntry = (part, node) => {
     const tpl = document.createElement('template');
@@ -230,25 +222,36 @@ function harvestComposition(host, slotTagToSpec, fallbackPart) {
     entries.push({ part, content: tpl });
   };
 
-  for (const child of [...host.childNodes]) {
-    if (child.nodeType === 1) {
-      const spec = slotTagToSpec[child.tagName.toLowerCase()];
-      if (spec) {
-        if (spec.kind === 'icon-name') {
-          entries.push({ part: spec.part, content: child.getAttribute('name') });
-        } else {
-          const tpl = document.createElement('template');
-          while (child.firstChild) tpl.content.append(child.firstChild);
-          entries.push({ part: spec.part, content: tpl });
+  const collect = (nodes, fallback) => {
+    for (const child of [...nodes]) {
+      if (child.nodeType === 1) {
+        const tag = child.tagName.toLowerCase();
+        const spec = slotTagToSpec[tag];
+        if (spec) {
+          hasSlot = true;
+          if (spec.kind === 'icon-name') {
+            entries.push({ part: spec.part, content: child.getAttribute('name') });
+          } else {
+            const tpl = document.createElement('template');
+            while (child.firstChild) tpl.content.append(child.firstChild);
+            entries.push({ part: spec.part, content: tpl });
+          }
+          continue;
         }
-        continue;
+        const regionPart = regionTagToPart[tag];
+        if (regionPart) {
+          hasSlot = true;
+          collect(child.childNodes, regionPart);
+          continue;
+        }
       }
+      if (child.nodeType === 3 && !child.textContent.trim()) continue;
+      if (fallback) textEntry(fallback, child);
     }
-    if (child.nodeType === 3 && !child.textContent.trim()) continue;
-    if (fallbackPart) textEntry(fallbackPart, child);
-  }
+  };
 
-  return entries;
+  collect(host.childNodes, fallbackPart);
+  return hasSlot ? entries : null;
 }
 
 // Defer the box/stack/palette merge onto the inner <button> the pressable owns.
@@ -294,27 +297,60 @@ function renderPart(node, ctx) {
   }
 }
 
-function findChildPart(node, part) {
+function findChildPath(node, part) {
   for (const child of node.children) {
-    if (child.name === part) return child;
-    const nested = findChildPart(child, part);
-    if (nested) return nested;
+    if (child.name === part) return [child];
+    const nested = findChildPath(child, part);
+    if (nested) return [child, ...nested];
   }
   return null;
+}
+
+function appendContent(content, part, value) {
+  const existing = content[part];
+  if (existing === undefined) content[part] = value;
+  else if (Array.isArray(existing)) content[part] = [...existing, value];
+  else content[part] = [existing, value];
+}
+
+function cloneEntryContent(value) {
+  const isTemplate = value && value.nodeType === 1 && value.tagName === 'TEMPLATE';
+  return isTemplate ? value.content.cloneNode(true) : value;
+}
+
+function appendValue(host, value) {
+  if (Array.isArray(value)) host.append(...value);
+  else host.append(value);
 }
 
 function appendComposition(host, node, ctx) {
   const entries = ctx.composition && ctx.composition[node.name];
   if (!entries) return false;
-  for (const entry of entries) {
-    const childNode = findChildPart(node, entry.part);
-    if (!childNode) throw new Error(`[nuri-factory] composition entry targets '${entry.part}', which is not under '${node.name}'`);
-    const isTemplate = entry.content && entry.content.nodeType === 1 && entry.content.tagName === 'TEMPLATE';
-    const content = {
-      ...ctx.content,
-      [entry.part]: isTemplate ? entry.content.content.cloneNode(true) : entry.content,
-    };
-    const childEl = renderPart(childNode, { ...ctx, content });
+  const grouped = new Map();
+  const ordered = [];
+  for (const [index, entry] of entries.entries()) {
+    const path = findChildPath(node, entry.part);
+    if (!path) throw new Error(`[nuri-factory] composition entry targets '${entry.part}', which is not under '${node.name}'`);
+    const childNode = path[0];
+    if (path.length > 1 && childNode.el !== 'text' && childNode.el !== 'icon') {
+      let group = grouped.get(childNode.name);
+      if (!group) {
+        group = { child: childNode, content: {} };
+        grouped.set(childNode.name, group);
+        ordered.push({ kind: 'group', part: childNode.name });
+      }
+      appendContent(group.content, entry.part, cloneEntryContent(entry.content));
+      continue;
+    }
+    ordered.push({ kind: 'direct', child: childNode, entry, index });
+  }
+  for (const item of ordered) {
+    const group = item.kind === 'group' ? grouped.get(item.part) : null;
+    const childEl = item.kind === 'group' && group
+      ? renderPart(group.child, { ...ctx, content: { ...ctx.content, ...group.content } })
+      : item.kind === 'direct'
+        ? renderPart(item.child, { ...ctx, content: { ...ctx.content, [item.entry.part]: cloneEntryContent(item.entry.content) } })
+        : null;
     if (childEl) host.appendChild(childEl);
   }
   return true;
@@ -345,7 +381,7 @@ function renderInteractiveView(node, ns, ctx) {
   // pressable moves them INTO the inner <button> on connect).
   const own = ctx.content[node.name];
   if (!appendComposition(host, node, ctx)) {
-    if (own != null) host.append(own);
+    if (own != null) appendValue(host, own);
     // A leaf child may render NOTHING (an absent optional flank · renderPart → null).
     for (const child of node.children) {
       const childEl = renderPart(child, ctx);
@@ -383,7 +419,7 @@ function renderStaticView(node, ns, ctx) {
   // the child parts — the RN renderPart order (own content keyed before kids).
   const own = ctx.content[node.name];
   if (!appendComposition(host, node, ctx)) {
-    if (own != null) host.append(own);
+    if (own != null) appendValue(host, own);
     // A leaf child may render NOTHING (an absent optional flank · renderPart → null).
     for (const child of node.children) {
       const childEl = renderPart(child, ctx);
@@ -406,6 +442,7 @@ function renderText(node, ns, ctx) {
     if (t.size !== undefined) el.setAttribute('size', t.size);
     if (t.emphasis) el.setAttribute('emphasis', '');
   }
+  if (ns.palette?.muted) el.setAttribute('muted', '');
   // A text part may ALSO carry box/stack/palette (e.g. an icon-button flank's edge
   // padding · box{paddingStart}) — merge them as classes + data-* (the same
   // merged-node treatment renderIcon uses · the RN text node gets these via
@@ -413,7 +450,7 @@ function renderText(node, ns, ctx) {
   const { classes, data } = mergeAttrs(ns);
   if (classes.length) el.classList.add(...classes);
   for (const [k, v] of Object.entries(data)) el.setAttribute(k, v);
-  el.append(own); // the string label
+  appendValue(el, own); // the string label
   return el;
 }
 
@@ -561,14 +598,17 @@ export function defineNuriComponent(descriptor, tagName) {
   // site of the partition on the web side (the RN renderer + the scripts consume
   // the exported/SoT-bound lists).
   const slotParts = anatomy.children.filter((c) => c.el === 'view' || c.el === 'pressable').map((c) => c.name);
-  const isCompound = slotParts.length > 0;
+  const isCompound = anatomy.el === 'view' && slotParts.length > 0;
   const defaultSlot = slotParts[slotParts.length - 1];
   const slotTagToPart = {};
   for (const part of slotParts) slotTagToPart[`${tagName}-${part}`] = part;
+  const regionSlotEntries = Object.entries(apiSlots).filter(([, spec]) => spec.kind === 'region');
+  const regionSlotTagToPart = {};
+  for (const [slot, spec] of regionSlotEntries) regionSlotTagToPart[`${tagName}-${camelToKebab(slot)}`] = spec.part;
   const componentSlotEntries = Object.entries(apiSlots).filter(([, spec]) => spec.component === true);
   const componentSlotTagToSpec = {};
-  for (const [slot, spec] of componentSlotEntries) componentSlotTagToSpec[`${tagName}-${slot}`] = spec;
-  const hasComponentSlots = componentSlotEntries.length > 0;
+  for (const [slot, spec] of componentSlotEntries) componentSlotTagToSpec[`${tagName}-${camelToKebab(slot)}`] = spec;
+  const hasComponentSlots = componentSlotEntries.length > 0 || (!isCompound && regionSlotEntries.length > 0);
   // OPEN-POSITIONAL HOST (the TabBar · §7 · descriptor-driven · the RN createNuriComponent
   // mirror): an `open` root with NO named regions and no lone primary renders its
   // authored POSITIONAL children directly inside the built root. Distinct from
@@ -633,7 +673,7 @@ export function defineNuriComponent(descriptor, tagName) {
       if (descriptor.decorative) this.setAttribute('aria-hidden', 'true');
       // Capture ordered leaf composition before the factory tree replaces the
       // children. With no slot marker, keep the legacy bare text-primary route.
-      if (hasComponentSlots) this.#composition = harvestComposition(this, componentSlotTagToSpec, defaultSlotSpec?.part);
+      if (hasComponentSlots) this.#composition = harvestComposition(this, componentSlotTagToSpec, defaultSlotSpec?.part, regionSlotTagToPart);
       // Capture the authored label BEFORE the factory tree replaces the children
       // (buildComponent routes `children` to the lone non-root text part).
       if (textPrimary && !this.#composition) this.#label = this.textContent.trim();
@@ -737,6 +777,11 @@ export function defineNuriComponent(descriptor, tagName) {
     for (const part of slotParts) {
       const slotTag = `${tagName}-${part}`;
       if (!customElements.get(slotTag)) customElements.define(slotTag, class extends HTMLElement {});
+    }
+  }
+  if (!isCompound) {
+    for (const slot of Object.keys(regionSlotTagToPart)) {
+      if (!customElements.get(slot)) customElements.define(slot, class extends HTMLElement {});
     }
   }
   if (hasComponentSlots) {

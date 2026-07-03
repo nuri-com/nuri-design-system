@@ -28,6 +28,13 @@ import {
   TopbarLeading,
   TopbarCenter,
   TopbarTrailing,
+  PressableItem,
+  PressableItemLeadingAvatar,
+  PressableItemText,
+  PressableItemTextMuted,
+  PressableItemTrailingText,
+  PressableItemTrailingTextMuted,
+  PressableItemTrailIcon,
   TabBar,
   TabBarItem,
   NuriIcon,
@@ -298,6 +305,30 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
+  test('PressableItem — direct row slots render avatar, content, trailing value, and trail icon', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <PressableItem accessibilityLabel="Transaction" onPress={() => undefined}>
+          <PressableItemLeadingAvatar name="arrow-up" />
+          <PressableItemText>To Emin Mahrt</PressableItemText>
+          <PressableItemTextMuted>Sent • Wed, 16 May</PressableItemTextMuted>
+          <PressableItemTrailingText>- 12.00 €</PressableItemTrailingText>
+          <PressableItemTrailingTextMuted>3433 Sats</PressableItemTrailingTextMuted>
+          <PressableItemTrailIcon name="chevron-right" />
+        </PressableItem>
+      </NuriThemeProvider>,
+    );
+    expect(tr.toJSON()).toBeTruthy();
+    expect(tr.root.findAllByType(NuriIcon).map((g) => g.props.name)).toEqual(['arrow-up', 'chevron-right']);
+    expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toEqual([
+      'To Emin Mahrt',
+      'Sent • Wed, 16 May',
+      '- 12.00 €',
+      '3433 Sats',
+    ]);
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
   // ── the hand-authorable primitive layer (step ①) — one headless mount per
   // primitive · no-throw + a committed snapshot (the consumability guard,
   // primitive-side · contract §3.3b). A View carrying a palette delivers its fg
@@ -497,5 +528,94 @@ describe('renderDescriptorInstance — the pressable trust boundary', () => {
     } finally {
       quiet.mockRestore();
     }
+  });
+});
+
+describe('renderDescriptorInstance — nested composition', () => {
+  const nestedDescriptor: Descriptor<Axes> = {
+    structure: {
+      anatomy: {
+        el: 'pressable',
+        parts: {
+          leading: { el: 'view', parts: { glyph: { el: 'icon' } } },
+          content: { el: 'view', parts: { label: { el: 'text' }, detail: { el: 'text' } } },
+        },
+      },
+      base: {
+        root: {
+          stack: { direction: 'row', align: 'center', gap: 'md' },
+          palette: { variant: 'ghost' },
+          interactive: { pressColor: true },
+        },
+        leading: { stack: { align: 'center', justify: 'center' }, box: { width: 'lg', height: 'lg' } },
+        content: { stack: { direction: 'column', fill: 'grow' } },
+        label: { typography: { size: 'md', emphasis: true } },
+        detail: { typography: { size: 'sm' }, palette: { muted: true } },
+      },
+    },
+    api: {
+      axes: [],
+      themeScope: { accent: true },
+      behaviour: { pressable: { target: 'root', props: ['onPress'] } },
+      slots: {},
+    },
+  };
+  const nestedRecipe: BakedComponentRecipe = {
+    root: {
+      el: 'pressable',
+      geometry: { base: { flexDirection: 'row', alignItems: 'center', gap: 12 }, variants: {} },
+      interactive: { base: { pressColor: true } },
+    },
+    leading: {
+      el: 'view',
+      geometry: { base: { alignItems: 'center', justifyContent: 'center', width: 48, height: 48 }, variants: {} },
+    },
+    glyph: { el: 'icon', geometry: { base: {}, variants: {} } },
+    content: {
+      el: 'view',
+      geometry: { base: { flexDirection: 'column', flexGrow: 1, flexShrink: 1 }, variants: {} },
+    },
+    label: { el: 'text', geometry: { base: {}, variants: {} }, typography: { base: { size: 'md', emphasis: true } } },
+    detail: { el: 'text', geometry: { base: {}, variants: {} }, typography: { base: { size: 'sm' } } },
+  };
+
+  test('composition entries targeting nested leaves render their ancestor hosts', () => {
+    const Nested: React.FC = () =>
+      renderDescriptorInstance({
+        descriptor: nestedDescriptor,
+        recipe: nestedRecipe,
+        displayName: 'Nested',
+        selection: {},
+        content: {},
+        composition: {
+          root: [
+            { part: 'glyph', content: 'bank' },
+            { part: 'label', content: 'Bank account' },
+            { part: 'detail', content: 'Personal' },
+          ],
+        },
+        behaviour: { pressable: { target: 'root', onPress: () => undefined } },
+      });
+    const tr = render(
+      <NuriThemeProvider>
+        <Nested />
+      </NuriThemeProvider>,
+    );
+
+    const glyph = tr.root.findByType(NuriIcon);
+    expect(glyph.props.name).toBe('bank');
+    const leading = glyph.parent;
+    expect(leading?.type).toBe('View');
+    const leadingStyle = Array.isArray(leading?.props.style)
+      ? Object.assign({}, ...leading.props.style.filter(Boolean))
+      : leading?.props.style;
+    expect(leadingStyle).toMatchObject({ width: 48, height: 48 });
+
+    const texts = tr.root.findAllByType(Text);
+    expect(texts.map((t) => t.props.children)).toEqual(['Bank account', 'Personal']);
+    const contentHosts = texts.map((text) => text.parent);
+    expect(contentHosts[0]?.type).toBe('View');
+    expect(contentHosts[1]?.type).toBe('View');
+    expect(contentHosts[0]).toBe(contentHosts[1]);
   });
 });

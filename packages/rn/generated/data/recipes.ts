@@ -251,6 +251,138 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       }
     }
   },
+  "pressable-item": {
+    "root": {
+      "el": "pressable",
+      "geometry": {
+        "base": {
+          "flexDirection": "row",
+          "alignItems": "center",
+          "gap": 12,
+          "padding": 12,
+          "borderRadius": 18
+        },
+        "variants": {}
+      },
+      "interactive": {
+        "base": {
+          "pressColor": true,
+          "disabledOpacity": true
+        }
+      }
+    },
+    "leadingAvatar": {
+      "el": "view",
+      "geometry": {
+        "base": {
+          "alignItems": "center",
+          "justifyContent": "center",
+          "width": 48,
+          "height": 48,
+          "borderRadius": 9999
+        },
+        "variants": {}
+      }
+    },
+    "leadingIcon": {
+      "el": "icon",
+      "geometry": {
+        "base": {
+          "width": 18,
+          "height": 18
+        },
+        "variants": {}
+      }
+    },
+    "content": {
+      "el": "view",
+      "geometry": {
+        "base": {
+          "flexDirection": "column",
+          "alignItems": "flex-start",
+          "justifyContent": "center",
+          "flexGrow": 1,
+          "flexShrink": 0
+        },
+        "variants": {}
+      }
+    },
+    "text": {
+      "el": "text",
+      "geometry": {
+        "base": {},
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "md",
+          "emphasis": true,
+          "align": "start"
+        }
+      }
+    },
+    "textMuted": {
+      "el": "text",
+      "geometry": {
+        "base": {},
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "sm",
+          "align": "start"
+        }
+      }
+    },
+    "trailing": {
+      "el": "view",
+      "geometry": {
+        "base": {
+          "flexDirection": "column",
+          "alignItems": "flex-end",
+          "justifyContent": "center"
+        },
+        "variants": {}
+      }
+    },
+    "trailingText": {
+      "el": "text",
+      "geometry": {
+        "base": {},
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "md",
+          "emphasis": true,
+          "align": "end"
+        }
+      }
+    },
+    "trailingTextMuted": {
+      "el": "text",
+      "geometry": {
+        "base": {},
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "sm",
+          "align": "end"
+        }
+      }
+    },
+    "trailIcon": {
+      "el": "icon",
+      "geometry": {
+        "base": {
+          "width": 18,
+          "height": 18
+        },
+        "variants": {}
+      }
+    }
+  },
   "tab-bar-item": {
     "root": {
       "el": "pressable",

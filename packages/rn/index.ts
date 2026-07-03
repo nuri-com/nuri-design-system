@@ -85,6 +85,7 @@ export type {
 //   <Button><ButtonText>Buy</ButtonText><ButtonIcon name="apple" /></Button>
 //   <IconAvatar variant="soft" icon="apple" />
 //   <IconButton variant="soft" icon="apple" accessibilityLabel="Buy" onPress={…} />
+//   <PressableItem><PressableItemLeadingAvatar name="bank" />…</PressableItem>
 //   <Topbar><TopbarLeading>…</TopbarLeading><TopbarCenter>…</TopbarCenter>…</Topbar>
 //   <TabBar><TabBarItem icon="card" label="Wallet" selected onPress={…} />…</TabBar>
 export {
@@ -97,6 +98,15 @@ export {
   TopbarCenter,
   TopbarTrailing,
   IconButton,
+  PressableItem,
+  PressableItemContent,
+  PressableItemLeadingAvatar,
+  PressableItemText,
+  PressableItemTextMuted,
+  PressableItemTrailing,
+  PressableItemTrailingText,
+  PressableItemTrailingTextMuted,
+  PressableItemTrailIcon,
   TabBarItem,
   TabBar,
 } from './generated/components';
@@ -107,6 +117,13 @@ export type {
   IconAvatarProps,
   TopbarProps,
   IconButtonProps,
+  PressableItemProps,
+  PressableItemLeadingAvatarProps,
+  PressableItemTextProps,
+  PressableItemTextMutedProps,
+  PressableItemTrailingTextProps,
+  PressableItemTrailingTextMutedProps,
+  PressableItemTrailIconProps,
   TabBarItemProps,
   TabBarProps,
 } from './generated/components';

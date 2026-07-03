@@ -99,6 +99,10 @@ function buildProps(api, variants) {
   let usesAccent = false;
   let usesIcon = false;
   let hasDefault = false;
+  const regionParts = Object.values(api.slots).filter((s) => s.kind === 'region').map((s) => s.part);
+  const componentSlots = Object.entries(api.slots)
+    .filter(([, s]) => s.component === true)
+    .map(([slotName, slot]) => ({ slotName, ...slot }));
 
   for (const axis of api.axes) {
     const values = Object.keys(variants[axis] || {});
@@ -138,12 +142,9 @@ function buildProps(api, variants) {
     }
   }
 
-  lines.push(hasDefault ? '  children?: React.ReactNode;' : '  children?: never;');
+  const acceptsChildren = hasDefault || regionParts.length > 0 || componentSlots.length > 0;
+  lines.push(acceptsChildren ? '  children?: React.ReactNode;' : '  children?: never;');
 
-  const regionParts = Object.values(api.slots).filter((s) => s.kind === 'region').map((s) => s.part);
-  const componentSlots = Object.entries(api.slots)
-    .filter(([, s]) => s.component === true)
-    .map(([slotName, slot]) => ({ slotName, ...slot }));
   return { lines, usesAccent, usesIcon, regionParts, componentSlots };
 }
 
@@ -257,10 +258,11 @@ export function emitComponentFile(spec, descriptor) {
   const rendererImports = ['nuriNames', 'renderDescriptorInstance'];
   if (hasRegions) rendererImports.push('createNuriSlot', 'harvestNuriSlots');
   if (hasComponentSlots) rendererImports.push('createNuriSlot', 'harvestNuriComposition');
+  const uniqueRendererImports = [...new Set(rendererImports)];
 
   const imports = [
     "import * as React from 'react';",
-    `import { ${rendererImports.join(', ')} } from '../../runtime/renderer';`,
+    `import { ${uniqueRendererImports.join(', ')} } from '../../runtime/renderer';`,
     `import type { NuriBehaviour${hasComponentSlots ? ', NuriCompositionEntry' : ''} } from '../../runtime/renderer';`,
     `import { ${descId} } from '@nuri/spec/descriptors/${name}';`,
     "import { recipes } from '../data/recipes';",

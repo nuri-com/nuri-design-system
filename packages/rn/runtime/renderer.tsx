@@ -130,13 +130,28 @@ type RenderCtx<A extends Axes> = {
   behaviour: NuriBehaviour<string>;
 };
 
-function findChildPart(node: AnatomyNode, part: PartId): AnatomyNode | undefined {
+function findChildPath(node: AnatomyNode, part: PartId): AnatomyNode[] | undefined {
   for (const child of node.children) {
-    if (child.name === part) return child;
-    const nested = findChildPart(child, part);
-    if (nested) return nested;
+    if (child.name === part) return [child];
+    const nested = findChildPath(child, part);
+    if (nested) return [child, ...nested];
   }
   return undefined;
+}
+
+function appendContent(
+  content: Partial<Record<string, React.ReactNode>>,
+  part: PartId,
+  value: React.ReactNode,
+): void {
+  const existing = content[part];
+  if (existing === undefined) {
+    content[part] = value;
+  } else if (Array.isArray(existing)) {
+    content[part] = [...existing, value];
+  } else {
+    content[part] = [existing, value];
+  }
 }
 
 function renderPart<A extends Axes>(
@@ -173,24 +188,60 @@ function renderPart<A extends Axes>(
   // ELEMENT differs, and that is the switch's decision (el is structure data).
   const renderHostBody = (): React.ReactNode => {
     const kids: React.ReactNode[] = [];
+    const appendCompositionEntries = (composition: NuriCompositionEntry<string>[]): void => {
+      const grouped = new Map<string, { child: AnatomyNode; content: Partial<Record<string, React.ReactNode>> }>();
+      const ordered: Array<
+        | { kind: 'direct'; child: AnatomyNode; entry: NuriCompositionEntry<string>; index: number }
+        | { kind: 'group'; part: string }
+      > = [];
+      composition.forEach((entry, index) => {
+        const path = findChildPath(node, entry.part);
+        if (!path) throw new Error(`nuri-factory: composition entry targets '${entry.part}', which is not under '${node.name}'`);
+        const childNode = path[0];
+        if (path.length > 1 && !LEAF_ELS.includes(childNode.el)) {
+          let group = grouped.get(childNode.name);
+          if (!group) {
+            group = { child: childNode, content: {} };
+            grouped.set(childNode.name, group);
+            ordered.push({ kind: 'group', part: childNode.name });
+          }
+          appendContent(group.content, entry.part, entry.content);
+          return;
+        }
+        ordered.push({ kind: 'direct', child: childNode, entry, index });
+      });
+      for (const item of ordered) {
+        const group = item.kind === 'group' ? grouped.get(item.part) : undefined;
+        const rendered = item.kind === 'group' && group
+          ? renderPart(group.child, { ...ctx, content: { ...ctx.content, ...group.content } }, fg, false)
+          : item.kind === 'direct'
+            ? renderPart(
+              item.child,
+              { ...ctx, content: { ...ctx.content, [item.entry.part]: item.entry.content } },
+              fg,
+              false,
+            )
+            : null;
+        if (rendered) {
+          const key = item.kind === 'group' ? item.part : `${item.entry.part}:${item.index}`;
+          kids.push(React.cloneElement(rendered, { key }));
+        }
+      }
+    };
+
     const composition = ctx.composition[node.name];
     if (composition) {
-      composition.forEach((entry, index) => {
-        const childNode = findChildPart(node, entry.part);
-        if (!childNode) throw new Error(`nuri-factory: composition entry targets '${entry.part}', which is not under '${node.name}'`);
-        const rendered = renderPart(
-          childNode,
-          { ...ctx, content: { ...ctx.content, [entry.part]: entry.content } },
-          fg,
-          false,
-        );
-        if (rendered) kids.push(React.cloneElement(rendered, { key: `${entry.part}:${index}` }));
-      });
+      appendCompositionEntries(composition);
     } else {
-      const childEls = node.children.map((child) => renderPart(child, ctx, fg, false));
       const ownContent = ctx.content[node.name];
-      if (ownContent != null) kids.push(<React.Fragment key="__content">{ownContent}</React.Fragment>);
-      kids.push(...childEls);
+      const nestedComposition = harvestNuriComposition<string>(ownContent, undefined);
+      if (nestedComposition.hasSlots) {
+        appendCompositionEntries(nestedComposition.items);
+      } else {
+        const childEls = node.children.map((child) => renderPart(child, ctx, fg, false));
+        if (ownContent != null) kids.push(<React.Fragment key="__content">{ownContent}</React.Fragment>);
+        kids.push(...childEls);
+      }
     }
 
     return flat.node.fg !== undefined ? (
