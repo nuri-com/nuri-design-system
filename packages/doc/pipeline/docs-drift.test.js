@@ -104,7 +104,9 @@ const PAGE_CONTRACT = {
       '| `onPress` | no | `() => void` | pressable behaviour |',
       '| `disabled` | no | `boolean` | pressable behaviour |',
       '| `accessibilityLabel` | no | `string` | pressable behaviour |',
-      '| `children` | no | `React.ReactNode` | default content slot |',
+      // pressable-item has NO default:true sink — children exist for typed
+      // slot/region composition only (the honest-children contract).
+      '| `children` | no | `React.ReactNode` | composition children |',
       '### PressableItemLeadingAvatarProps',
       '| `name` | yes | `IconName` | scalar icon name |',
       '### PressableItemTextMutedProps',

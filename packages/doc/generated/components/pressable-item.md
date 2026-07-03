@@ -19,7 +19,7 @@ nav_order: 4
 | `onPress` | no | `() => void` | pressable behaviour |
 | `disabled` | no | `boolean` | pressable behaviour |
 | `accessibilityLabel` | no | `string` | pressable behaviour |
-| `children` | no | `React.ReactNode` | default content slot |
+| `children` | no | `React.ReactNode` | composition children |
 
 ### PressableItemLeadingAvatarProps
 

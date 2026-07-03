@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 export const COMPONENT_API_DOCS = [
   {
@@ -143,8 +144,13 @@ export function componentPropTypeName(name) {
   return `${pascal(name)}Props`;
 }
 
-function noteForProp(name, type, isPrimaryType) {
-  if (name === 'children') return isPrimaryType ? 'default content slot' : 'slot content';
+function noteForProp(name, type, isPrimaryType, childrenNote) {
+  // The primary type's `children` note is DATA-derived (componentApiIrFromFile
+  // reads the descriptor's api.slots): a declared `default: true` sink is a
+  // 'default content slot'; children accepted only for typed slot/region
+  // composition are 'composition children' — the docs never promise a bare-
+  // children sink the engine does not have.
+  if (name === 'children') return isPrimaryType ? (childrenNote ?? 'default content slot') : 'slot content';
   if (NOTE_BY_PROP[name]) return NOTE_BY_PROP[name];
   if (type === 'IconName') return 'scalar icon name';
   return 'component prop';
@@ -248,7 +254,7 @@ function parsePropObject(spec, typeName, body, isPrimaryType, aliases) {
       name,
       required: optional !== '?',
       type,
-      note: noteForProp(name, type, isPrimaryType),
+      note: noteForProp(name, type, isPrimaryType, spec.childrenNote),
     };
     if (type === 'never') forbidden.push(entry);
     else props.push(entry);
@@ -341,5 +347,18 @@ export async function componentApiIrFromFile(spec, repoRoot) {
     readFile(resolve(repoRoot, 'packages/spec/components/schema.ts'), 'utf8'),
     readFile(resolve(repoRoot, 'packages/rn/generated/data/tokens.ts'), 'utf8'),
   ]);
-  return componentApiIrFromSource(spec, source, extraSources);
+  // Descriptor-backed pages derive the primary `children` note from the api
+  // DATA (the browser-ESM descriptor twin — the same read docs.js uses): a
+  // `default: true` slot is a real bare-children sink; slots without one accept
+  // children for typed composition only.
+  let childrenNote;
+  if (spec.name) {
+    const twin = pathToFileURL(resolve(repoRoot, `packages/prototype/generated/descriptors/${spec.name}.js`)).href;
+    const descriptor = (await import(twin))[`${camel(spec.name)}Descriptor`];
+    const slots = Object.values(descriptor?.api?.slots ?? {});
+    if (slots.length) {
+      childrenNote = slots.some((slot) => slot.default === true) ? 'default content slot' : 'composition children';
+    }
+  }
+  return componentApiIrFromSource({ ...spec, childrenNote }, source, extraSources);
 }
