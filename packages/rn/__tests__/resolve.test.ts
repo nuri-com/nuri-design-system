@@ -305,6 +305,7 @@ describe('Topbar — same resolver, the COMPOUND slot regions (true centring · 
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-end',
+      gap: space.sm,
       flexGrow: 1,
       flexShrink: 1,
       flexBasis: 0,

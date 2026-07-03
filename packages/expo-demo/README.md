@@ -2,7 +2,7 @@
 
 The consumable **example app** — the canonical "how an app consumes the DS".
 Three real screens (**wallet · coin · cash**, translated from the playground's
-[`tab-bar` boards](../playground/pages/tab-bar.html)) built _only_ on
+[`screens` boards](../playground/pages/screens.html)) built _only_ on
 [`@nuri/rn`](../rn), wired by an app-owned bottom bar. The structure IS the
 example:
 

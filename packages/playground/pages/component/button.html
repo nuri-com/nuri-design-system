@@ -42,45 +42,45 @@
   </script>
 
   <!-- Token cake + base reset + type scale (the foundation · the web projection's generated output). -->
-  <link rel="stylesheet" href="../../prototype/generated/styles/tokens-primitive.css" />
-  <link rel="stylesheet" href="../../prototype/generated/styles/tokens-semantic.css" />
-  <link rel="stylesheet" href="../../prototype/generated/styles/shell.css" />
-  <link rel="stylesheet" href="../../prototype/generated/styles/typography.css" />
+  <link rel="stylesheet" href="../../../prototype/generated/styles/tokens-primitive.css" />
+  <link rel="stylesheet" href="../../../prototype/generated/styles/tokens-semantic.css" />
+  <link rel="stylesheet" href="../../../prototype/generated/styles/shell.css" />
+  <link rel="stylesheet" href="../../../prototype/generated/styles/typography.css" />
 
   <!-- Active components — the descriptor recipes' primitives + the shared demo layer
        (control toolbar styling + the <nuri-demo> card / device frame). -->
-  <link rel="stylesheet" href="../../prototype/primitives/icon.css" />
-  <link rel="stylesheet" href="../../prototype/styles/typography.css" />
-  <link rel="stylesheet" href="../../prototype/styles/stack.css" />
-  <link rel="stylesheet" href="../../prototype/styles/box.css" />
-  <link rel="stylesheet" href="../../prototype/styles/palette.css" />
-  <link rel="stylesheet" href="../../prototype/styles/interactive.css" />
-  <link rel="stylesheet" href="../../prototype/factory/reset.css" />
-  <link rel="stylesheet" href="../../prototype/demo/control.css" />
-  <link rel="stylesheet" href="../../prototype/demo/demo.css" />
+  <link rel="stylesheet" href="../../../prototype/primitives/icon.css" />
+  <link rel="stylesheet" href="../../../prototype/styles/typography.css" />
+  <link rel="stylesheet" href="../../../prototype/styles/stack.css" />
+  <link rel="stylesheet" href="../../../prototype/styles/box.css" />
+  <link rel="stylesheet" href="../../../prototype/styles/palette.css" />
+  <link rel="stylesheet" href="../../../prototype/styles/interactive.css" />
+  <link rel="stylesheet" href="../../../prototype/factory/reset.css" />
+  <link rel="stylesheet" href="../../../prototype/demo/control.css" />
+  <link rel="stylesheet" href="../../../prototype/demo/demo.css" />
   <!-- The playground area shell (topbar + the board scroll container). -->
-  <link rel="stylesheet" href="../lib/shell.css" />
+  <link rel="stylesheet" href="../../lib/shell.css" />
 
   <!-- The standalone playground's NuriState seed (theme + spec-derived accent · no
        neutral · no localStorage) — a MODULE, loaded before demo.js reads it. -->
-  <script src="../../prototype/demo/available.js" type="module"></script>
+  <script src="../../../prototype/demo/available.js" type="module"></script>
 
   <!-- Shell first (mirrors the DS order): it reparents the authored <nuri-demo>
        panels into its built <main>, so it must run before the demos compose. -->
-  <script src="../lib/shell.js" defer></script>
+  <script src="../../lib/shell.js" defer></script>
 
   <!-- Custom element scripts MUST be deferred so connectedCallback fires AFTER body
        parsing (children present). NuriControl (the toolbar) + <nuri-scope> precede
        demo.js (which depends on both). The recipe modules self-import the factory +
        their primitive element defs (idempotent · decision 74). -->
-  <script src="../../prototype/demo/control.js" defer></script>
-  <script src="../../prototype/primitives/scope.js" defer></script>
-  <script src="../../prototype/primitives/icon.js" type="module"></script>
-  <script src="../../prototype/primitives/typography.js" defer></script>
-  <script src="../../prototype/primitives/stack.js" defer></script>
-  <script src="../../prototype/recipes/button.js" type="module"></script>
-  <script src="../../prototype/recipes/topbar.js" type="module"></script>
-  <script src="../../prototype/demo/demo.js" defer></script>
+  <script src="../../../prototype/demo/control.js" defer></script>
+  <script src="../../../prototype/primitives/scope.js" defer></script>
+  <script src="../../../prototype/primitives/icon.js" type="module"></script>
+  <script src="../../../prototype/primitives/typography.js" defer></script>
+  <script src="../../../prototype/primitives/stack.js" defer></script>
+  <script src="../../../prototype/recipes/button.js" type="module"></script>
+  <script src="../../../prototype/recipes/topbar.js" type="module"></script>
+  <script src="../../../prototype/demo/demo.js" defer></script>
 
   <style>
     /* Page-local CHROME tweaks ONLY (the board row · the topbar) — NOT the

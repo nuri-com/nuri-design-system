@@ -1,6 +1,6 @@
 /* ──────────────────────────────────────────────────────────────
  * WALLET · the card destination — the "wallet" board of
- * packages/playground/pages/tab-bar.html, translated. Pure DS
+ * packages/playground/pages/screens.html, translated. Pure DS
  * composition: primitives + generated components via the ui/ manifest,
  * typed props only. The tab bar is NOT here — the bar renders ONCE in
  * App (screen = topbar + content; App composes screen + BottomBar).

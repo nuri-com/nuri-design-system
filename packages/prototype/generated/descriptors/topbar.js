@@ -44,7 +44,7 @@ export const topbarDescriptor = {
       leading: { stack: { direction: 'row', align: 'center', fill: 'even' } },
       // The centre is NATURAL (flex:none · sized to its content), centred within itself.
       center: { stack: { direction: 'row', align: 'center', justify: 'center' } },
-      trailing: { stack: { direction: 'row', align: 'center', justify: 'end', fill: 'even' } },
+      trailing: { stack: { direction: 'row', align: 'center', justify: 'end', gap: 'sm', fill: 'even' } },
     },
   },
   // The PUBLIC API (Path C · Phase 1). A static layout shell — NO variant axes,

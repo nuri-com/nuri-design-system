@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>Nuri · Playground · Tab bar</title>
+  <title>Nuri · Playground · Screens</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,16 +15,12 @@
 
   <!--
     ═══════════════════════════════════════════════════════════════
-    PLAYGROUND · DOCUMENT · TAB BAR (the bottom bar · presentation only)
+    PLAYGROUND · DOCUMENT · SCREENS (product surfaces)
     ═══════════════════════════════════════════════════════════════
-    THE PAYOFF — three REAL screens composed from the catalog pieces (topbar +
-    balance + two Buttons + the tab-bar), one active destination each. The DS is
-    DUMB: <nuri-tab-bar> is an OPEN row that lays out its <nuri-tab-bar-item> children as
-    EQUAL columns and nothing else; each <nuri-tab-bar-item> just LOOKS selected or not
-    (the `selected` boolean → the ghost/subtle colour treatment) and fires its
-    press. NO value / state / routing in the DS — the consuming app owns `active`.
-
-    Plus an ISOLATION board (the item states side by side: one selected, two not).
+    Three product-like screens composed from the ACTIVE catalog pieces:
+    topbar + balance + two Buttons + the tab-bar, one active destination
+    each. Page-local CSS stays harness/chrome only; the screen bodies stay
+    on DS primitives, generated recipes, and the shared demo layer.
 
     Composed from the ACTIVE set only — the tab-bar/topbar/button/icon-button
     recipes + the shared @nuri/prototype demo layer. ZERO import from @nuri/doc
@@ -46,7 +42,7 @@
   <link rel="stylesheet" href="../../prototype/generated/styles/shell.css" />
   <link rel="stylesheet" href="../../prototype/generated/styles/typography.css" />
 
-  <!-- Active components — the tab-bar/topbar/button/icon-button recipes' primitives + the shared demo layer. -->
+  <!-- Active components — the screen recipes' primitives + the shared demo layer. -->
   <link rel="stylesheet" href="../../prototype/primitives/icon.css" />
   <link rel="stylesheet" href="../../prototype/primitives/pressable.css" />
   <link rel="stylesheet" href="../../prototype/styles/typography.css" />
@@ -90,28 +86,25 @@
 </head>
 <body>
 
-<nuri-playground-shell doc="Tab bar">
+<nuri-playground-shell doc="Screens">
 
-  <!-- WALLET screen · the card destination is active. topbar + balance + two
-       actions, with the bottom bar pinned below — a real screen from the pieces. -->
-  <nuri-demo layout="board" controls="device,theme,accent" label="wallet">
+  <!-- BITCOIN screen · the bitcoin wallet destination is active. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="bitcoin">
     <template>
       <nuri-stack direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-topbar>
           <nuri-topbar-leading>
             <nuri-icon name="nuri"></nuri-icon>
           </nuri-topbar-leading>
-          <nuri-topbar-center>
-            <nuri-icon-button size="sm" variant="solid" icon="apple" aria-label="Buy with Apple Pay"></nuri-icon-button>
-          </nuri-topbar-center>
           <nuri-topbar-trailing>
+            <nuri-icon-button icon="list-bullets" variant="soft" size="lg" aria-label="Activity"></nuri-icon-button>
             <nuri-icon-button icon="headphones" variant="soft" size="lg" aria-label="Support"></nuri-icon-button>
           </nuri-topbar-trailing>
         </nuri-topbar>
 
         <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
           <nuri-view aspect-ratio="card" radius="lg"></nuri-view>
-          <nuri-typography size="3xl" emphasis align="center">€ 25.87</nuri-typography>
+          <nuri-typography size="3xl" align="center">₿ 0.0413</nuri-typography>
           <nuri-view direction="row" align="center" gap="sm">
             <nuri-view fill="even"><nuri-button size="lg" variant="soft">Receive</nuri-button></nuri-view>
             <nuri-view fill="even"><nuri-button size="lg" variant="solid" accent="orange">Send</nuri-button></nuri-view>
@@ -119,33 +112,31 @@
         </nuri-view>
 
         <nuri-tab-bar>
-          <nuri-tab-bar-item icon="wallet" label="€ 36.50" selected></nuri-tab-bar-item>
-          <nuri-tab-bar-item icon="card" label="€ 18.90"></nuri-tab-bar-item>
-          <nuri-tab-bar-item icon="bank" label="€ 25.70"></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="bitcoin-wallet" label="€ 36.50" selected></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="bank" label="€ 18.90"></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="euro-wallet" label="€ 25.70"></nuri-tab-bar-item>
         </nuri-tab-bar>
       </nuri-stack>
     </template>
   </nuri-demo>
 
-  <!-- COIN screen · the bitcoin destination is active. -->
-  <nuri-demo layout="board" controls="device,theme,accent" label="coin">
+  <!-- BANK screen · the bank destination is active. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="bank">
     <template>
       <nuri-stack direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-topbar>
           <nuri-topbar-leading>
             <nuri-icon name="nuri"></nuri-icon>
           </nuri-topbar-leading>
-          <nuri-topbar-center>
-            <nuri-button size="sm" variant="solid">Euro → Bitcoin</nuri-button>
-          </nuri-topbar-center>
           <nuri-topbar-trailing>
+            <nuri-icon-button icon="list-bullets" variant="soft" size="lg" aria-label="Activity"></nuri-icon-button>
             <nuri-icon-button icon="headphones" variant="soft" size="lg" aria-label="Support"></nuri-icon-button>
           </nuri-topbar-trailing>
         </nuri-topbar>
 
         <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
-          <nuri-view aspect-ratio="card" radius="lg"></nuri-view>
-          <nuri-typography size="3xl" emphasis align="center">₿ 0.0413</nuri-typography>
+          <nuri-view aspect-ratio="card" radius="lg" variant="soft"></nuri-view>
+          <nuri-typography size="3xl" align="center">€ 25.87</nuri-typography>
           <nuri-view direction="row" align="center" gap="sm">
             <nuri-view fill="even"><nuri-button size="lg" variant="soft">Details</nuri-button></nuri-view>
             <nuri-view fill="even"><nuri-button size="lg" variant="solid" accent="lilac">Send</nuri-button></nuri-view>
@@ -153,58 +144,41 @@
         </nuri-view>
 
         <nuri-tab-bar>
-          <nuri-tab-bar-item icon="wallet" label="€ 36.50"></nuri-tab-bar-item>
-          <nuri-tab-bar-item icon="card" label="€ 18.90" selected></nuri-tab-bar-item>
-          <nuri-tab-bar-item icon="bank" label="€ 25.70"></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="bitcoin-wallet" label="€ 36.50"></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="bank" label="€ 18.90" selected></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="euro-wallet" label="€ 25.70"></nuri-tab-bar-item>
         </nuri-tab-bar>
       </nuri-stack>
     </template>
   </nuri-demo>
 
-  <!-- CASH screen · the euro destination is active. -->
-  <nuri-demo layout="board" controls="device,theme,accent" label="cash">
+  <!-- EURO screen · the euro wallet destination is active. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="euro">
     <template>
       <nuri-stack direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-topbar>
           <nuri-topbar-leading>
             <nuri-icon name="nuri"></nuri-icon>
           </nuri-topbar-leading>
-          <nuri-topbar-center>
-            <nuri-button size="sm" variant="solid">Add to Apple Wallet</nuri-button>
-          </nuri-topbar-center>
           <nuri-topbar-trailing>
+            <nuri-icon-button icon="list-bullets" variant="soft" size="lg" aria-label="Activity"></nuri-icon-button>
             <nuri-icon-button icon="headphones" variant="soft" size="lg" aria-label="Support"></nuri-icon-button>
           </nuri-topbar-trailing>
         </nuri-topbar>
 
         <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
-          <nuri-view aspect-ratio="card" radius="lg" variant="soft"></nuri-view>
-          <nuri-typography size="3xl" emphasis align="center">€ 1 240.00</nuri-typography>
+          <nuri-view aspect-ratio="card" radius="lg"></nuri-view>
+          <nuri-typography size="3xl" align="center">€ 1 240.00</nuri-typography>
           <nuri-view direction="row" align="center" gap="sm">
-            <nuri-view fill="even"><nuri-button size="lg" variant="soft">Details</nuri-button></nuri-view>
-            <nuri-view fill="even"><nuri-button size="lg" variant="solid" accent="lilac">Add Money</nuri-button></nuri-view>
+            <nuri-view fill="even"><nuri-button size="lg" variant="soft">Receive</nuri-button></nuri-view>
+            <nuri-view fill="even"><nuri-button size="lg" variant="solid" accent="lilac">Send</nuri-button></nuri-view>
           </nuri-view>
         </nuri-view>
 
         <nuri-tab-bar>
-          <nuri-tab-bar-item icon="wallet" label="€ 36.50"></nuri-tab-bar-item>
-          <nuri-tab-bar-item icon="card" label="€ 18.90"></nuri-tab-bar-item>
-          <nuri-tab-bar-item icon="bank" label="€ 25.70" selected></nuri-tab-bar-item>
-        </nuri-tab-bar>
-      </nuri-stack>
-    </template>
-  </nuri-demo>
-
-  <!-- ISOLATION · the bar's states side by side: ONE selected (text-primary) vs the
-       others unselected (the receded border-strong) — the colour-only treatment
-       (no icon weights · decision 38). pressScale on tap (no bg change). -->
-  <nuri-demo layout="board" controls="device,theme,accent" label="states">
-    <template>
-      <nuri-stack direction="column" align="stretch" justify="center" gap="md" fill>
-        <nuri-tab-bar>
-          <nuri-tab-bar-item icon="wallet" label="€ 36.50" selected></nuri-tab-bar-item>
-          <nuri-tab-bar-item icon="card" label="€ 18.90"></nuri-tab-bar-item>
-          <nuri-tab-bar-item icon="bank" label="€ 25.70"></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="bitcoin-wallet" label="€ 36.50"></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="bank" label="€ 18.90"></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="euro-wallet" label="€ 25.70" selected></nuri-tab-bar-item>
         </nuri-tab-bar>
       </nuri-stack>
     </template>
