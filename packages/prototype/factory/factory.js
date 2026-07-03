@@ -551,12 +551,16 @@ export function defineNuriComponent(descriptor, tagName) {
   const primary = anatomy.children.length === 1 ? anatomy.children[0] : undefined;
   const textPrimary = defaultSlotSpec?.kind === 'text';
   // COMPOUND capability (the topbar-slots slice · descriptor-driven · the web twin
-  // of createNuriComponent's): a non-root `view` part is a fillable REGION (a slot)
+  // of createNuriComponent's): a non-root HOST part is a fillable REGION (a slot)
   // → the factory generates a sub-element (<nuri-topbar-leading/center/trailing>,
   // generalizing the retired <nuri-topbar-content>) and the container harvests its
   // children into that region. Bare children of the container default to the LAST
   // region (trailing · "just actions"). A leaf-only anatomy is NOT compound.
-  const slotParts = anatomy.children.filter((c) => c.el === 'view').map((c) => c.name);
+  // The host pair (view · pressable) mirrors schema.ts's HOST_ELS partition —
+  // browser runtime cannot import the .ts, so this is the ONE annotated hand
+  // site of the partition on the web side (the RN renderer + the scripts consume
+  // the exported/SoT-bound lists).
+  const slotParts = anatomy.children.filter((c) => c.el === 'view' || c.el === 'pressable').map((c) => c.name);
   const isCompound = slotParts.length > 0;
   const defaultSlot = slotParts[slotParts.length - 1];
   const slotTagToPart = {};

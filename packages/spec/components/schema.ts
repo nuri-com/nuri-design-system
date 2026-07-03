@@ -257,6 +257,26 @@ export type Part = PartId;
 // declared `behaviour.pressable.target` ≡ the `interactive`-flagged parts.
 export type El = 'view' | 'text' | 'icon' | 'pressable';
 
+// ── The RUNTIME host/leaf partition of `El` (the PR-#132 review pass) ────────
+// The renderers and guards need the classification AT RUNTIME: HOSTS (view ·
+// pressable) render children and always render; LEAVES (text · icon) are
+// content-gated. The switches over `el` are compile-safe (assertNever); the
+// value-level PREDICATES (`el === …` chains) are not — so they consume THIS
+// partition instead of hand-enumerating members. The `satisfies Record<El, …>`
+// keeps the classification TOTAL by construction (the PALETTE_KEYS totality
+// precedent): a new `El` member is a COMPILE error on this line until it is
+// classified host-or-leaf. Script-side mirror: scripts/parsers/components-api.js
+// HOST_ELS (node cannot import this .ts); web-factory floor: one annotated hand
+// site (factory.js · browser runtime).
+const EL_CLASS = {
+  view: 'host',
+  pressable: 'host',
+  text: 'leaf',
+  icon: 'leaf',
+} satisfies Record<El, 'host' | 'leaf'>;
+export const HOST_ELS = (Object.keys(EL_CLASS) as El[]).filter((el) => EL_CLASS[el] === 'host');
+export const LEAF_ELS = (Object.keys(EL_CLASS) as El[]).filter((el) => EL_CLASS[el] === 'leaf');
+
 // A part's anatomy: its element, whether it is OPEN (accepts positional
 // children · the §7 open-primitive layer), and any nested named parts.
 export type PartAnatomy<P extends PartId = PartId> = {

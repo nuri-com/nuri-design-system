@@ -9,6 +9,7 @@
 
 import * as React from 'react';
 import { Pressable, Text, View } from 'react-native';
+import { LEAF_ELS } from '@nuri/spec/descriptors/schema';
 import type { Accent, Descriptor, Axes, IconName, PartId } from '../contract';
 import { typeStyle, useNuriTheme, NuriScope } from '../theme';
 import type { NuriTheme } from './theme-payload';
@@ -144,9 +145,10 @@ function renderPart<A extends Axes>(
   inheritedFg: string | undefined,
   isRoot: boolean,
 ): React.ReactElement | null {
-  // A leaf part (text / icon) with no routed content renders nothing. A host
-  // (`view` / `pressable`) always renders because it may be a container or region.
-  if ((node.el === 'text' || node.el === 'icon') && ctx.content[node.name] == null) return null;
+  // A LEAF part (the schema's totality-pinned host/leaf partition · LEAF_ELS)
+  // with no routed content renders nothing. A HOST always renders because it
+  // may be a container or region.
+  if (LEAF_ELS.includes(node.el) && ctx.content[node.name] == null) return null;
 
   const recipePart = ctx.recipe[node.name];
   if (!recipePart) throw new Error(`nuri-factory: no baked recipe for part '${node.name}'`);

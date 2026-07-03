@@ -57,8 +57,9 @@ import assert from 'node:assert/strict';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { emitComponentFile } from './parsers/components-api.js';
+import { emitComponentFile, HOST_ELS } from './parsers/components-api.js';
 import { DESCRIPTOR_COMPONENTS, exportNameFor } from './parsers/descriptors.js';
+import { loadTsDataFromPath } from './ts-data-loader.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
@@ -124,12 +125,15 @@ function authoredPartMaps(descriptor) {
   return maps;
 }
 
-// The legal slot `kind` vocabulary + the anatomy `el` each kind must target
+// The legal slot `kind` vocabulary + the anatomy `el`s each kind may target
 // (Phase-2 codegen branches on `kind`, so a kind that contradicts the part's
 // element would mis-generate). `text`→a text leaf · `icon-name`→the glyph leaf ·
-// `region`/`children`/`node`→a view host (a `children` sink must also be OPEN).
-const KIND_EL = { text: 'text', 'icon-name': 'icon', region: 'view', children: 'view', node: 'view' };
-const KINDS = Object.keys(KIND_EL);
+// `region`/`children`/`node`→a HOST (the schema's host/leaf partition — view OR
+// pressable; both renderers serve a host's children through the same body path,
+// so a slot kind must not reject the pressable half). A `children` sink must
+// also be OPEN.
+const KIND_ELS = { text: ['text'], 'icon-name': ['icon'], region: HOST_ELS, children: HOST_ELS, node: HOST_ELS };
+const KINDS = Object.keys(KIND_ELS);
 
 // The public behaviour props a `pressable` may expose (mirrors the schema union
 // `('onPress' | 'disabled' | 'accessibilityLabel')[]` · schema.ts). Codegen emits
@@ -161,6 +165,24 @@ const axisKeys = (descriptor) => Object.keys(descriptor.variants || {});
 const axisValues = (descriptor, axis) => Object.keys((descriptor.variants || {})[axis] || {});
 const slotEntries = (descriptor) => Object.entries(descriptor.api.slots || {});
 
+// ── The host/leaf partition · the script mirror is SoT-BOUND ──────────────────
+// scripts run synchronously at emit time, so parsers/components-api.js carries a
+// hand HOST_ELS mirror of schema.ts's totality-pinned partition. This test binds
+// the mirror to the SoT (transpile-load the .ts · the ts-data-loader boundary):
+// a partition change in schema.ts that misses the mirror — or vice versa — fails
+// HERE, so the hand list can never drift silently. Also pins host/leaf
+// disjointness (a member classified both ways is a partition bug, not a vocab).
+const SCHEMA = await loadTsDataFromPath(resolve(REPO_ROOT, 'packages/spec/components/schema.ts'));
+test('component-api · the script HOST_ELS mirror ≡ the schema host/leaf partition', () => {
+  assert.deepEqual(
+    [...HOST_ELS].sort(),
+    [...SCHEMA.HOST_ELS].sort(),
+    'parsers/components-api.js HOST_ELS drifted from schema.ts HOST_ELS — update the mirror',
+  );
+  const overlap = SCHEMA.HOST_ELS.filter((el) => SCHEMA.LEAF_ELS.includes(el));
+  assert.deepEqual(overlap, [], `schema.ts classifies ${overlap.join(', ')} as BOTH host and leaf`);
+});
+
 // Sanity: every roster descriptor actually carries an `api` (REQUIRED · Path C
 // Phase 1). A missing `api` would make every channel below vacuously pass.
 test('component-api · every descriptor declares an `api` block', () => {
@@ -178,8 +200,8 @@ test('component-api · every descriptor anatomy has one root host and unique loc
     const anatomy = CATALOG[name].structure.anatomy;
     assert.ok(anatomy && typeof anatomy === 'object', `${name}: structure.anatomy must be an object`);
     assert.ok(
-      anatomy.el === 'view' || anatomy.el === 'pressable',
-      `${name}: root anatomy must be a host element (view or pressable), got '${anatomy.el}'`,
+      HOST_ELS.includes(anatomy.el),
+      `${name}: root anatomy must be a HOST element (${HOST_ELS.join(' | ')}), got '${anatomy.el}'`,
     );
     const duplicates = anatomyDuplicates(anatomy);
     assert.deepEqual(duplicates, [], `${name}: anatomy reuses reserved/duplicate part ids (${duplicates.join(', ')})`);
@@ -227,10 +249,9 @@ test('component-api · every slot kind is legal and matches its part element', (
       assert.ok(KINDS.includes(spec.kind), `${name}: slot '${slot}' has illegal kind '${spec.kind}' (${KINDS.join(', ')})`);
       const node = index.get(spec.part);
       if (!node) continue; // part-existence is Channel 1's failure to report
-      assert.equal(
-        node.el,
-        KIND_EL[spec.kind],
-        `${name}: slot '${slot}' is kind '${spec.kind}' but its part '${spec.part}' is el '${node.el}' — expected el '${KIND_EL[spec.kind]}'`,
+      assert.ok(
+        KIND_ELS[spec.kind].includes(node.el),
+        `${name}: slot '${slot}' is kind '${spec.kind}' but its part '${spec.part}' is el '${node.el}' — expected el ${KIND_ELS[spec.kind].map((e) => `'${e}'`).join(' | ')}`,
       );
       if (spec.kind === 'children') {
         assert.equal(node.open, true, `${name}: slot '${slot}' is kind 'children' but part '${spec.part}' is not an \`open\` view (the positional-children host)`);
