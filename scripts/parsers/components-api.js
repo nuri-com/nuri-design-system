@@ -21,9 +21,16 @@ const q = (value) => JSON.stringify(value);
 
 const PRESSABLE_TS = { onPress: '() => void', disabled: 'boolean', accessibilityLabel: 'string' };
 
+// The HOST half of the frozen `El` host/leaf partition — the script-side mirror
+// of schema.ts's totality-pinned HOST_ELS (the parser runs synchronously at emit
+// time; the authoritative partition lives beside the `El` type). Bound to the
+// SoT by the component-api guard's mirror-parity test (it transpile-loads
+// schema.ts and asserts ≡), so this hand list cannot drift silently.
+export const HOST_ELS = ['view', 'pressable'];
+
 function anatomyParts(anatomy) {
-  if (!anatomy || anatomy.el !== 'view') {
-    throw new Error('[components-api] descriptor anatomy must declare a view root');
+  if (!anatomy || !HOST_ELS.includes(anatomy.el)) {
+    throw new Error('[components-api] descriptor anatomy must declare a host root (view or pressable)');
   }
   const parts = ['root'];
   const seen = new Set(parts);

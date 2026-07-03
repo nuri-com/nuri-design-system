@@ -292,7 +292,7 @@ describe('Topbar — same resolver, the COMPOUND slot regions (true centring · 
 
 describe('genericity + the resolved geometry (three descriptors, ONE resolver)', () => {
   test('anatomy shapes', () => {
-    expect(resolveAnatomy(buttonDescriptor)).toMatchObject({ name: 'root', el: 'view', open: false });
+    expect(resolveAnatomy(buttonDescriptor)).toMatchObject({ name: 'root', el: 'pressable', open: false });
     expect(resolveAnatomy(iconAvatarDescriptor).children[0]).toMatchObject({ name: 'icon', el: 'icon' });
     expect(resolveAnatomy(topbarDescriptor)).toMatchObject({ name: 'root', open: true });
   });

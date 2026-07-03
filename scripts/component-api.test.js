@@ -20,9 +20,15 @@
  *   1.  every `slots[*].part` exists in the anatomy (walk `structure.anatomy`);
  *   1b. every slot `kind` is a legal literal AND matches its part's `el`
  *       (`text`→text · `icon-name`→icon · `region`/`node`→view · `children`→OPEN view);
- *   2.  every `behaviour.pressable.target` exists in the anatomy, is a `view`,
- *       AND declares `interactive` (base or a variant value) — onPress must not
- *       exist independent of interactivity (review §9);
+ *   2.  the PRESSABLE COHERENCE rule (el:'pressable' · amendment 65.13 — the
+ *       host element is structure data), all FOUR directions: every
+ *       `behaviour.pressable.target` is an `el:'pressable'` anatomy part; every
+ *       `el:'pressable'` part is THE declared `behaviour.pressable` target;
+ *       `interactive` flags live ONLY on `el:'pressable'` parts (effects
+ *       opt-ins imply the pressable host — verified to hold descriptor-wide);
+ *       and every `el:'pressable'` part DECLARES `interactive` (base or a
+ *       variant value) — onPress must not exist independent of interactivity
+ *       (review §9 · the old rule's scan, restored as direction 4);
  *   2b. `behaviour.pressable.props` are a non-empty, duplicate-free subset of the
  *       legal public props (`onPress`/`disabled`/`accessibilityLabel`);
  *   3.  every `api.axes` member is a real `variants` axis key;
@@ -51,8 +57,9 @@ import assert from 'node:assert/strict';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { emitComponentFile } from './parsers/components-api.js';
+import { emitComponentFile, HOST_ELS } from './parsers/components-api.js';
 import { DESCRIPTOR_COMPONENTS, exportNameFor } from './parsers/descriptors.js';
+import { loadTsDataFromPath } from './ts-data-loader.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
@@ -118,12 +125,15 @@ function authoredPartMaps(descriptor) {
   return maps;
 }
 
-// The legal slot `kind` vocabulary + the anatomy `el` each kind must target
+// The legal slot `kind` vocabulary + the anatomy `el`s each kind may target
 // (Phase-2 codegen branches on `kind`, so a kind that contradicts the part's
 // element would mis-generate). `text`→a text leaf · `icon-name`→the glyph leaf ·
-// `region`/`children`/`node`→a view host (a `children` sink must also be OPEN).
-const KIND_EL = { text: 'text', 'icon-name': 'icon', region: 'view', children: 'view', node: 'view' };
-const KINDS = Object.keys(KIND_EL);
+// `region`/`children`/`node`→a HOST (the schema's host/leaf partition — view OR
+// pressable; both renderers serve a host's children through the same body path,
+// so a slot kind must not reject the pressable half). A `children` sink must
+// also be OPEN.
+const KIND_ELS = { text: ['text'], 'icon-name': ['icon'], region: HOST_ELS, children: HOST_ELS, node: HOST_ELS };
+const KINDS = Object.keys(KIND_ELS);
 
 // The public behaviour props a `pressable` may expose (mirrors the schema union
 // `('onPress' | 'disabled' | 'accessibilityLabel')[]` · schema.ts). Codegen emits
@@ -155,6 +165,24 @@ const axisKeys = (descriptor) => Object.keys(descriptor.variants || {});
 const axisValues = (descriptor, axis) => Object.keys((descriptor.variants || {})[axis] || {});
 const slotEntries = (descriptor) => Object.entries(descriptor.api.slots || {});
 
+// ── The host/leaf partition · the script mirror is SoT-BOUND ──────────────────
+// scripts run synchronously at emit time, so parsers/components-api.js carries a
+// hand HOST_ELS mirror of schema.ts's totality-pinned partition. This test binds
+// the mirror to the SoT (transpile-load the .ts · the ts-data-loader boundary):
+// a partition change in schema.ts that misses the mirror — or vice versa — fails
+// HERE, so the hand list can never drift silently. Also pins host/leaf
+// disjointness (a member classified both ways is a partition bug, not a vocab).
+const SCHEMA = await loadTsDataFromPath(resolve(REPO_ROOT, 'packages/spec/components/schema.ts'));
+test('component-api · the script HOST_ELS mirror ≡ the schema host/leaf partition', () => {
+  assert.deepEqual(
+    [...HOST_ELS].sort(),
+    [...SCHEMA.HOST_ELS].sort(),
+    'parsers/components-api.js HOST_ELS drifted from schema.ts HOST_ELS — update the mirror',
+  );
+  const overlap = SCHEMA.HOST_ELS.filter((el) => SCHEMA.LEAF_ELS.includes(el));
+  assert.deepEqual(overlap, [], `schema.ts classifies ${overlap.join(', ')} as BOTH host and leaf`);
+});
+
 // Sanity: every roster descriptor actually carries an `api` (REQUIRED · Path C
 // Phase 1). A missing `api` would make every channel below vacuously pass.
 test('component-api · every descriptor declares an `api` block', () => {
@@ -171,7 +199,10 @@ test('component-api · every descriptor anatomy has one root host and unique loc
   for (const name of NAMES) {
     const anatomy = CATALOG[name].structure.anatomy;
     assert.ok(anatomy && typeof anatomy === 'object', `${name}: structure.anatomy must be an object`);
-    assert.equal(anatomy.el, 'view', `${name}: root anatomy must be a view host`);
+    assert.ok(
+      HOST_ELS.includes(anatomy.el),
+      `${name}: root anatomy must be a HOST element (${HOST_ELS.join(' | ')}), got '${anatomy.el}'`,
+    );
     const duplicates = anatomyDuplicates(anatomy);
     assert.deepEqual(duplicates, [], `${name}: anatomy reuses reserved/duplicate part ids (${duplicates.join(', ')})`);
   }
@@ -218,10 +249,9 @@ test('component-api · every slot kind is legal and matches its part element', (
       assert.ok(KINDS.includes(spec.kind), `${name}: slot '${slot}' has illegal kind '${spec.kind}' (${KINDS.join(', ')})`);
       const node = index.get(spec.part);
       if (!node) continue; // part-existence is Channel 1's failure to report
-      assert.equal(
-        node.el,
-        KIND_EL[spec.kind],
-        `${name}: slot '${slot}' is kind '${spec.kind}' but its part '${spec.part}' is el '${node.el}' — expected el '${KIND_EL[spec.kind]}'`,
+      assert.ok(
+        KIND_ELS[spec.kind].includes(node.el),
+        `${name}: slot '${slot}' is kind '${spec.kind}' but its part '${spec.part}' is el '${node.el}' — expected el ${KIND_ELS[spec.kind].map((e) => `'${e}'`).join(' | ')}`,
       );
       if (spec.kind === 'children') {
         assert.equal(node.open, true, `${name}: slot '${slot}' is kind 'children' but part '${spec.part}' is not an \`open\` view (the positional-children host)`);
@@ -230,22 +260,66 @@ test('component-api · every slot kind is legal and matches its part element', (
   }
 });
 
-// ── Channel 2 · every pressable target is a real, VIEW, INTERACTIVE anatomy part ──
-test('component-api · every behaviour.pressable.target is an interactive view anatomy part', () => {
+// ── Channel 2 · the PRESSABLE COHERENCE rule (el:'pressable' · amendment 65.13) ──
+// The host element is STRUCTURE data: `el:'pressable'` in the anatomy, the declared
+// `behaviour.pressable.target`, and the `interactive` effect opt-ins must name the
+// SAME parts, all FOUR directions (a true equivalence of the three legs). A
+// descriptor that flips one leg without the others (a pressable root with no
+// declared behaviour · a target that is a static view · interactive flags on a
+// non-pressable part · a pressable with no effects opt-in at all) fails on a
+// NAMED direction.
+test('component-api · behaviour.pressable, el:pressable anatomy, and interactive flags cohere', () => {
   for (const name of NAMES) {
     const d = CATALOG[name];
-    const target = d.api.behaviour?.pressable?.target;
-    if (target === undefined) continue; // non-interactive components declare no pressable
     const index = anatomyIndex(d.structure.anatomy);
     const interactive = interactiveParts(d);
-    const node = index.get(target);
-    assert.ok(node, `${name}: pressable.target '${target}' is not an anatomy part`);
-    assert.equal(node?.el, 'view', `${name}: pressable.target '${target}' is el '${node?.el}' — Pressable can only wrap view parts`);
-    assert.ok(
-      interactive.has(target),
-      `${name}: pressable.target '${target}' does not declare \`interactive\` in base or any variant — ` +
-        `onPress must not exist independent of interactivity (review §9)`,
-    );
+    const pressableParts = [...index.entries()].filter(([, node]) => node.el === 'pressable').map(([part]) => part);
+    const target = d.api.behaviour?.pressable?.target;
+
+    // direction 1 · a declared target must be an el:'pressable' anatomy part.
+    if (target !== undefined) {
+      const node = index.get(target);
+      assert.ok(node, `${name}: pressable.target '${target}' is not an anatomy part`);
+      assert.equal(
+        node?.el,
+        'pressable',
+        `${name}: pressable.target '${target}' is el '${node?.el}' — the target must be an el:'pressable' host (the host element is structure data)`,
+      );
+    }
+
+    // direction 2 · every el:'pressable' part must be THE declared behaviour target
+    // (the schema carries at most one `behaviour.pressable`, so a pressable part
+    // that is not the target is an undeclared — hence unreachable — press host).
+    for (const part of pressableParts) {
+      assert.equal(
+        target,
+        part,
+        `${name}: anatomy part '${part}' is el:'pressable' but is not the declared behaviour.pressable.target (got '${target}')`,
+      );
+    }
+
+    // direction 3 · `interactive` effect opt-ins live ONLY on el:'pressable' parts —
+    // a static part must never react (press effects imply the pressable host).
+    for (const part of interactive) {
+      assert.equal(
+        index.get(part)?.el,
+        'pressable',
+        `${name}: part '${part}' declares \`interactive\` flags but is el '${index.get(part)?.el}' — effects opt-ins live only on el:'pressable' parts`,
+      );
+    }
+
+    // direction 4 · every el:'pressable' part DECLARES `interactive` in
+    // `structure.base` or a variant value (the pre-65.13 rule's exact scan ·
+    // interactiveParts) — onPress must not exist independent of interactivity
+    // (review §9). Directions 3+4 together make interactive ↔ pressable a true
+    // equivalence, not a one-way implication.
+    for (const part of pressableParts) {
+      assert.ok(
+        interactive.has(part),
+        `${name}: part '${part}' is el:'pressable' but declares no \`interactive\` opt-in in base or any variant — ` +
+          `onPress must not exist independent of interactivity (review §9)`,
+      );
+    }
   }
 });
 

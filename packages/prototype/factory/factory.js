@@ -19,11 +19,13 @@
  * The walker is generic (component-/axis-agnostic · the engine is fixed); the
  * surface it walks is the generated descriptor.
  *
- * THE el → web-primitive map (the N+26 lock · roadmap/N+26.md · ALL BUILT @S4):
- *   view + interactive → <nuri-pressable>     (the RN <Pressable> case)
- *   view (static)      → <nuri-view>           (the RN static <View> · the element IS the merged node)
- *   text               → <nuri-typography>     (REUSE · text parts are single-NS)
- *   icon               → <nuri-icon name=X>    (glyph leaf · name routed · fg by currentColor)
+ * THE el → web-primitive map (the N+26 lock · roadmap/N+26.md · ALL BUILT @S4 ·
+ * `pressable` promoted to a 4th `El` at amendment 65.13 — the host is structure
+ * data, keyed on `el`, never sniffed off the interactive flags):
+ *   pressable → <nuri-pressable>      (the RN <Pressable> case)
+ *   view      → <nuri-view>           (the RN static <View> · the element IS the merged node)
+ *   text      → <nuri-typography>     (REUSE · text parts are single-NS)
+ *   icon      → <nuri-icon name=X>    (glyph leaf · name routed · fg by currentColor)
  * S3 shipped the BUTTON slice (view+interactive + text). S4 generalizes the
  * SAME engine to IconAvatar (static view + icon child) + Topbar (open static
  * view + a static-view content pivot) — `open` needs NO branch (the RN oracle's
@@ -40,7 +42,7 @@
  * geometry/colour data-* onto the same button with no clobber. The button is
  * created lazily in the pressable's connectedCallback, so the merge is DEFERRED
  * until it exists (a one-shot MutationObserver · applied before first paint).
- * For a STATIC view (no interactive · IconAvatar / Topbar) the merged node is
+ * For a STATIC view (el:'view' · IconAvatar / Topbar) the merged node is
  * the <nuri-view> ELEMENT ITSELF — no inner element, so the classes + data-*
  * land directly and synchronously, no MutationObserver.
  *
@@ -274,8 +276,13 @@ function renderPart(node, ctx) {
   const ns = mergedNSForPart(ctx.descriptor, ctx.selection, node.name);
   switch (node.el) {
     case 'view':
-      // interactive view → <nuri-pressable> (S3); static view → <nuri-view> (S4).
-      return ns.interactive ? renderInteractiveView(node, ns, ctx) : renderStaticView(node, ns, ctx);
+      // static view → <nuri-view> (S4). The host decision is STRUCTURE data now
+      // (el:'pressable' · amendment 65.13) — no interactive-flag sniff here.
+      return renderStaticView(node, ns, ctx);
+    case 'pressable':
+      // pressable host → <nuri-pressable> (S3) — keyed on `el`, the per-descriptor
+      // structural fact; the `interactive` flags still choose only the EFFECTS.
+      return renderInteractiveView(node, ns, ctx);
     case 'text':
       return renderText(node, ns, ctx);
     case 'icon':
@@ -313,7 +320,7 @@ function appendComposition(host, node, ctx) {
   return true;
 }
 
-// view + interactive → <nuri-pressable> + the merged inner <button>.
+// el:'pressable' → <nuri-pressable> + the merged inner <button>.
 function renderInteractiveView(node, ns, ctx) {
   const host = document.createElement('nuri-pressable');
 
@@ -321,8 +328,12 @@ function renderInteractiveView(node, ns, ctx) {
   // GATED opt that is on, set the host attr derived from the opt key (= opts[key].gate ·
   // single-sourced via INTERACTIVE_GATES + the guard · no hardcoded attr string here).
   // disabledOpacity is automatic (interactive.css dims a disabled host).
+  // The merged map is SELECTION-DEPENDENT (a descriptor may declare `interactive`
+  // only under some variant values — coherence direction 4 requires base OR a
+  // variant); the HOST is not — el:'pressable' reaches here regardless, so a
+  // selection that merges no interactive map renders gate-attr-free, not a crash.
   for (const key of INTERACTIVE_GATES) {
-    if (ns.interactive[key]) host.setAttribute(camelToKebab(key), '');
+    if (ns.interactive?.[key]) host.setAttribute(camelToKebab(key), '');
   }
 
   // instance / base props (the createNuriComponent NuriBaseProps mirror).
@@ -540,12 +551,16 @@ export function defineNuriComponent(descriptor, tagName) {
   const primary = anatomy.children.length === 1 ? anatomy.children[0] : undefined;
   const textPrimary = defaultSlotSpec?.kind === 'text';
   // COMPOUND capability (the topbar-slots slice · descriptor-driven · the web twin
-  // of createNuriComponent's): a non-root `view` part is a fillable REGION (a slot)
+  // of createNuriComponent's): a non-root HOST part is a fillable REGION (a slot)
   // → the factory generates a sub-element (<nuri-topbar-leading/center/trailing>,
   // generalizing the retired <nuri-topbar-content>) and the container harvests its
   // children into that region. Bare children of the container default to the LAST
   // region (trailing · "just actions"). A leaf-only anatomy is NOT compound.
-  const slotParts = anatomy.children.filter((c) => c.el === 'view').map((c) => c.name);
+  // The host pair (view · pressable) mirrors schema.ts's HOST_ELS partition —
+  // browser runtime cannot import the .ts, so this is the ONE annotated hand
+  // site of the partition on the web side (the RN renderer + the scripts consume
+  // the exported/SoT-bound lists).
+  const slotParts = anatomy.children.filter((c) => c.el === 'view' || c.el === 'pressable').map((c) => c.name);
   const isCompound = slotParts.length > 0;
   const defaultSlot = slotParts[slotParts.length - 1];
   const slotTagToPart = {};

@@ -31,30 +31,32 @@ The operator + coordinator have settled the architecture; this audit encodes it:
   the shared `resolve-map`: web = a custom element + the generated namespace CSS; RN = a component
   → `<View style={…}>`. **RN's hand-authorable wrappers DON'T exist yet — that is the gap (§2).**
 
-### 0.1 One reconciliation the code forces
+### 0.1 The reconciliation, discharged — `El` is 4 (the el:'pressable' bump)
 
-The framing names **four** parity primitives — *view · text · icon · pressable*. The frozen schema
-`El` union has only **three** members:
+The framing names **four** parity primitives — *view · text · icon · pressable* — and the frozen
+schema `El` union now has **four** members to match:
 
 ```
-El = 'view' | 'text' | 'icon'
+El = 'view' | 'text' | 'icon' | 'pressable'
 ```
-[schema.ts:237](packages/spec/components/schema.ts:237) · pinned by Guard F as
-`El: ['view', 'text', 'icon']` ([scripts/docs-drift.test.js:507](scripts/docs-drift.test.js:507)).
+[schema.ts](packages/spec/components/schema.ts) · pinned by Guard F as
+`El: ['view', 'text', 'icon', 'pressable']` ([scripts/docs-drift.test.js](scripts/docs-drift.test.js)).
 
-**Pressable is not a 4th `El` — it is the `interactive`-flagged `view`.** The factory renders a
-node as `<Pressable>` when `flat.node.interactive` is set, otherwise as `<View>`
-([renderer.tsx:165-189](packages/rn/runtime/renderer.tsx:165)); the
-`interactive` opt-in is the `InteractiveNS` namespace
-([schema.ts:191-195](packages/spec/components/schema.ts:191)). The web mirror is identical:
-`<nuri-view>` is the static host, `<nuri-pressable>` is "the static counterpart … the el:'view'+
-interactive case" ([view.js:8-9](packages/prototype/primitives/view.js:8),
-[pressable.js:3-6](packages/prototype/primitives/pressable.js:3)).
+An earlier revision of this section held the union at three ("Pressable is not a 4th `El` — it is
+the `interactive`-flagged `view` … adding one is a versioned Guard-F bump"). **That bump is done
+(amendment 65.13):** *which JSX host a part renders as* is a static, per-descriptor **structural**
+fact, so it lives in the anatomy — not derived from the behaviour channel (the old RN sniff) or the
+`interactive` flags (the old web sniff). Both renderers are now a pure switch over `el`: RN
+`el:'pressable'` → `<Pressable>` ([renderer.tsx](packages/rn/runtime/renderer.tsx)), web
+`el:'pressable'` → `<nuri-pressable>` ([factory.js](packages/prototype/factory/factory.js)). The
+`interactive` opt-in ([schema.ts](packages/spec/components/schema.ts) `InteractiveNS`) still chooses
+only the **effects**; the behaviour channel carries only runtime handlers. The coherence guard
+([component-api.test.js](scripts/component-api.test.js) Channel 2) pins the three legs together as
+a true equivalence (four checked directions, each a named failure — including review §9's "onPress
+must not exist independent of interactivity", restored as direction 4):
+`el:'pressable'` ≡ the declared `behaviour.pressable.target` ≡ the `interactive`-flagged parts.
 
-So: **3 `El` cases, 4 parity primitives** — View, Text, Icon, and Pressable (= View+interactive).
-This doc uses the 4-primitive parity set while keeping the `El` union at three (a Pressable wrapper
-is built on the interactive-view path, *not* by adding an `El` member — adding one is a versioned
-Guard-F bump).
+So: **4 `El` cases, 4 parity primitives** — View, Text, Icon, Pressable. 1:1.
 
 ---
 
@@ -69,11 +71,11 @@ consumer can write).
 
 | Primitive | Web element / file | Web? | RN hand-authorable? | Namespace / prop surface (schema SoT) |
 |---|---|---|---|---|
-| **View** | `<nuri-view>` · [view.js](packages/prototype/primitives/view.js) + [view.css](packages/prototype/primitives/view.css) | ✅ the merged box⊕stack⊕palette host | ❌ — only the factory's internal `el:'view'` render ([renderer.tsx:185](packages/rn/runtime/renderer.tsx:185)) | `box` + `stack` + `palette` ([schema.ts:135,109,173](packages/spec/components/schema.ts:135)) |
+| **View** | `<nuri-view>` · [view.js](packages/prototype/primitives/view.js) + [view.css](packages/prototype/primitives/view.css) | ✅ the merged box⊕stack⊕palette host | ❌ — only the factory's internal `el:'view'` render ([renderer.tsx](packages/rn/runtime/renderer.tsx)) | `box` + `stack` + `palette` ([schema.ts:135,109,173](packages/spec/components/schema.ts:135)) |
 | **Stack** | `<nuri-stack>` · [stack.js](packages/prototype/primitives/stack.js) + [styles/stack.css](packages/prototype/styles/stack.css) | ✅ | ❌ | `stack` (`StackNS`: direction·align·justify·gap·wrap·fill · [schema.ts:109-116](packages/spec/components/schema.ts:109)) |
-| **Text** (Typography) | `<nuri-typography>` · [typography.js](packages/prototype/primitives/typography.js) + [styles/typography.css](packages/prototype/styles/typography.css) | ✅ | ❌ — only the factory's internal `el:'text'` render ([renderer.tsx:192](packages/rn/runtime/renderer.tsx:192)) | `typography` (`size`·`emphasis` · [schema.ts:158-161](packages/spec/components/schema.ts:158)) + colour via `palette` |
+| **Text** (Typography) | `<nuri-typography>` · [typography.js](packages/prototype/primitives/typography.js) + [styles/typography.css](packages/prototype/styles/typography.css) | ✅ | ❌ — only the factory's internal `el:'text'` render ([renderer.tsx](packages/rn/runtime/renderer.tsx)) | `typography` (`size`·`emphasis` · [schema.ts:158-161](packages/spec/components/schema.ts:158)) + colour via `palette` |
 | **Icon** | `<nuri-icon>` · [icon.js](packages/prototype/primitives/icon.js) + [icon.css](packages/prototype/primitives/icon.css) | ✅ | ✅ **`NuriIcon`** ([primitives/NuriIcon.tsx](packages/rn/primitives/NuriIcon.tsx), exported on the public barrel [index.ts](packages/rn/index.ts)) | typed `IconName` + `dimension` (shared `size` axis) + `color` (scope fg) |
-| **Pressable** | `<nuri-pressable>` · [pressable.js](packages/prototype/primitives/pressable.js) + [pressable.css](packages/prototype/primitives/pressable.css) | ✅ | ❌ — only the factory's internal interactive-view render ([renderer.tsx:165](packages/rn/runtime/renderer.tsx:165)) | `interactive` (`pressColor`·`pressScale`·`disabledOpacity` · [schema.ts:191-195](packages/spec/components/schema.ts:191)) + box⊕stack⊕palette |
+| **Pressable** | `<nuri-pressable>` · [pressable.js](packages/prototype/primitives/pressable.js) + [pressable.css](packages/prototype/primitives/pressable.css) | ✅ | ❌ — only the factory's internal `el:'pressable'` render ([renderer.tsx](packages/rn/runtime/renderer.tsx)) | `interactive` (`pressColor`·`pressScale`·`disabledOpacity` · [schema.ts:191-195](packages/spec/components/schema.ts:191)) + box⊕stack⊕palette |
 | **Screen** (structural) | `<nuri-screen>` · [screen.js](packages/prototype/primitives/screen.js) + [screen.css](packages/prototype/primitives/screen.css) | ✅ flex-column fill | ❌ | none — pure structural fill |
 | **Scroll** (structural) | `<nuri-scroll>` · [scroll.js](packages/prototype/primitives/scroll.js) + [scroll.css](packages/prototype/primitives/scroll.css) | ✅ flex-fill + overflow | ❌ | none — pure structural fill + overflow |
 
@@ -279,10 +281,10 @@ reserved for app harness responsibilities (safe-area, theme toggle, root surface
 
 ## Appendix — load-bearing citations (the ones the audit turns on)
 
-- **The `el`-type set is 3, frozen:** `El = 'view' | 'text' | 'icon'`
-  ([schema.ts:237](packages/spec/components/schema.ts:237)) · pinned `El: ['view','text','icon']`
-  ([docs-drift.test.js:507](scripts/docs-drift.test.js:507)). Pressable = interactive-flagged view
-  ([renderer.tsx:165-189](packages/rn/runtime/renderer.tsx:165)).
+- **The `el`-type set is 4, frozen:** `El = 'view' | 'text' | 'icon' | 'pressable'`
+  ([schema.ts](packages/spec/components/schema.ts)) · pinned `El: ['view','text','icon','pressable']`
+  ([docs-drift.test.js](scripts/docs-drift.test.js)). Pressable is a first-class `El` host since
+  amendment 65.13 (was the interactive-flagged view; §0.1).
 - **RN hand-authorable primitives exist:** the public barrel exports
   `View`/`Stack`/`Text`/`Pressable`/`Screen`/`Scroll` from
   [primitives/index.ts](packages/rn/primitives/index.ts), and the Expo demo screens

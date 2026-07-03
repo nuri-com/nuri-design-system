@@ -33,7 +33,9 @@ import {
   NuriIcon,
 } from '../index';
 import { icons } from '../contract';
-import type { Descriptor } from '../contract';
+import type { Descriptor, Axes } from '../contract';
+import { renderDescriptorInstance } from '../runtime/renderer';
+import type { BakedComponentRecipe } from '../runtime/resolve';
 // The hand-authorable primitives (step ①) — aliased so the DS names don't clash
 // with the raw react-native View/Text imported above for the catalog tests.
 import {
@@ -433,5 +435,67 @@ describe('type-surface honesty (compile-time assertions · SEED-3 + D8)', () => 
     void unknownAxisKey;
 
     expect(true).toBe(true);
+  });
+});
+
+// ── The exported-surface trust boundary (the PR-#132 review pass) ─────────────
+// The coherence guard pins the SPEC data, but `renderDescriptorInstance` is
+// public and `behaviour` is caller input. A pressable part the behaviour does
+// not target must THROW named (operator-ratified), never render an
+// a11y-announced dead button. SYNTHETIC shapes on purpose — the catalog's
+// generated adapters always set `behaviour.pressable`, so no committed
+// snapshot exercises this path (the verify-guard-completeness lesson).
+describe('renderDescriptorInstance — the pressable trust boundary', () => {
+  // A minimal schema-valid pressable descriptor + its baked-recipe twin (the
+  // geometry-bake synthetic-fixture shape · geometry-bake.test.ts).
+  const syntheticPressable: Descriptor<Axes> = {
+    structure: {
+      anatomy: { el: 'pressable' },
+      base: { root: { interactive: { pressScale: true } } },
+    },
+    api: {
+      axes: [],
+      behaviour: { pressable: { target: 'root', props: ['onPress'] } },
+      slots: {},
+    },
+  };
+  const syntheticRecipe: BakedComponentRecipe = {
+    root: { el: 'pressable', geometry: { base: {}, variants: {} } },
+  };
+
+  function mountWith(behaviour: Parameters<typeof renderDescriptorInstance>[0]['behaviour']): void {
+    const Rogue: React.FC = () =>
+      renderDescriptorInstance({
+        descriptor: syntheticPressable,
+        recipe: syntheticRecipe,
+        displayName: 'Rogue',
+        selection: {},
+        content: {},
+        behaviour,
+      });
+    act(() => {
+      TestRenderer.create(
+        <NuriThemeProvider>
+          <Rogue />
+        </NuriThemeProvider>,
+      );
+    });
+  }
+
+  test('an untargeted el:pressable part throws named (behaviour: {})', () => {
+    // React logs the render-phase throw via console.error — silence it so the
+    // suite output stays clean; the assertion is the throw itself.
+    const quiet = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      expect(() => mountWith({})).toThrow(
+        "nuri-factory: part 'root' is el:'pressable' but behaviour.pressable does not target it",
+      );
+      // A MISTARGETED pressable (declared, wrong part name) is the same caller error.
+      expect(() => mountWith({ pressable: { target: 'label' } })).toThrow(
+        "nuri-factory: part 'root' is el:'pressable' but behaviour.pressable does not target it",
+      );
+    } finally {
+      quiet.mockRestore();
+    }
   });
 });

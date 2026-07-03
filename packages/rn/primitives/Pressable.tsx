@@ -1,7 +1,8 @@
 // ════════════════════════════════════════════════════════════════
 // Pressable — View + the interactive opt-in (+ onPress) · RN <Pressable>
 // ────────────────────────────────────────────────────────────────
-// Mirrors the factory's interactive-view branch (runtime/renderer.tsx:165): the
+// Mirrors the factory's el:'pressable' case (runtime/renderer.tsx · amendment
+// 65.13 — the host is structure data, not an interactive-view derivation): the
 // pressed render-prop re-applies the interactive transients via the SHARED
 // flattenInteractive (F-PRESSED-1); disabled drives the a11y state + the
 // disabledOpacity opt-in. behaviour (onPress/disabled/a11y) is the wrapper's;
