@@ -178,6 +178,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "flexDirection": "row",
           "alignItems": "center",
           "justifyContent": "flex-end",
+          "gap": 6,
           "flexGrow": 1,
           "flexShrink": 1,
           "flexBasis": 0,
