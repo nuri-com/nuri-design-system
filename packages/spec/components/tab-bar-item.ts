@@ -56,7 +56,7 @@ type TabBarItemAxes = {
 export const tabBarItemDescriptor: Descriptor<TabBarItemAxes> = {
   structure: {
     anatomy: {
-      el: 'view',
+      el: 'pressable',
       // Authored in COLUMN order (icon → label · glyph above the destination
       // name): both factories walk the anatomy in key order, so this IS the
       // rendered top→bottom order on RN and web (the twin is a verbatim

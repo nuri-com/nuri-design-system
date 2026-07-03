@@ -36,7 +36,7 @@ type ButtonAxes = {
 
 export const buttonDescriptor: Descriptor<ButtonAxes> = {
   structure: {
-    anatomy: { el: 'view', parts: { label: { el: 'text' }, icon: { el: 'icon' } } },
+    anatomy: { el: 'pressable', parts: { label: { el: 'text' }, icon: { el: 'icon' } } },
     base: {
       root: {
         stack: { direction: 'row', align: 'center', justify: 'center' },

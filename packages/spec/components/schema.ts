@@ -37,8 +37,11 @@
  * `box:{minHeight:'lg'}` · `typography:{size:'md',emphasis:true}`) the platform-native
  * ENGINE resolves (factory on RN · CSS on web · 65.1) — no ViewStyle /
  * TextStyle here, no `(theme) =>`. The descriptor is DATA; behaviour
- * (Pressable / press transition / focus / a11y) is the factory's, never
- * data (decision 65 · 65.3 · "behaviour ≠ data").
+ * (press handlers / press transition / focus / a11y) is the factory's,
+ * never data (decision 65 · 65.3 · "behaviour ≠ data") — but WHICH host a
+ * part renders as (el:'pressable' vs 'view') is STRUCTURE, declared in the
+ * anatomy (amendment 65.13 · the behaviour channel carries only runtime
+ * handlers).
  *
  * Authored as a real .ts (not a JS template string) so the editor
  * typechecks the contract directly.
@@ -242,10 +245,17 @@ export const TYPOGRAPHY_KEYS = Object.keys(
 export type PartId = string;
 export type Part = PartId;
 
-// The structural elements a part renders as — view-ish, text-ish, or the
-// glyph leaf. Drives the factory's JSX (and the web painting node);
-// un-derivable from CSS (web is one node · 65.2) → structure knowledge.
-export type El = 'view' | 'text' | 'icon';
+// The structural elements a part renders as — the static view host, the
+// PRESSABLE host (RN <Pressable> · web <nuri-pressable> · the el:'pressable'
+// bump: WHICH JSX host a part renders as is a per-descriptor STRUCTURAL fact,
+// so it lives here — not derived from the behaviour channel or the
+// `interactive` flags), text, or the glyph leaf. Drives the factory's JSX
+// (and the web painting node); un-derivable from CSS (web is one node ·
+// 65.2) → structure knowledge. `pressable` is the 1st deliberate post-freeze
+// `El` add (decision 65 · versioned · amendment 65.13); the coherence guard
+// (scripts/component-api.test.js Channel 2) pins el:'pressable' ≡ the
+// declared `behaviour.pressable.target` ≡ the `interactive`-flagged parts.
+export type El = 'view' | 'text' | 'icon' | 'pressable';
 
 // A part's anatomy: its element, whether it is OPEN (accepts positional
 // children · the §7 open-primitive layer), and any nested named parts.

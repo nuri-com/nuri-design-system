@@ -18,7 +18,7 @@
 export const iconButtonDescriptor = {
   structure: {
     anatomy: {
-      el: 'view',
+      el: 'pressable',
       // ONE non-root part: the glyph is the whole control (the lone primary · the
       // `icon` prop routes here via the factory same-name shorthand).
       parts: {

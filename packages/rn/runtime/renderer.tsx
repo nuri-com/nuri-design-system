@@ -144,9 +144,9 @@ function renderPart<A extends Axes>(
   inheritedFg: string | undefined,
   isRoot: boolean,
 ): React.ReactElement | null {
-  // A leaf part (text / icon) with no routed content renders nothing. A `view`
-  // always renders because it may be a container or region.
-  if (node.el !== 'view' && ctx.content[node.name] == null) return null;
+  // A leaf part (text / icon) with no routed content renders nothing. A host
+  // (`view` / `pressable`) always renders because it may be a container or region.
+  if ((node.el === 'text' || node.el === 'icon') && ctx.content[node.name] == null) return null;
 
   const recipePart = ctx.recipe[node.name];
   if (!recipePart) throw new Error(`nuri-factory: no baked recipe for part '${node.name}'`);
@@ -166,61 +166,69 @@ function renderPart<A extends Axes>(
       ? { accessibilityElementsHidden: true, importantForAccessibility: 'no-hide-descendants' as const }
       : null;
 
+  // The shared host body (children + own routed content, fg scope threaded) —
+  // identical for the static `view` and the `pressable` host; only the host
+  // ELEMENT differs, and that is the switch's decision (el is structure data).
+  const renderHostBody = (): React.ReactNode => {
+    const kids: React.ReactNode[] = [];
+    const composition = ctx.composition[node.name];
+    if (composition) {
+      composition.forEach((entry, index) => {
+        const childNode = findChildPart(node, entry.part);
+        if (!childNode) throw new Error(`nuri-factory: composition entry targets '${entry.part}', which is not under '${node.name}'`);
+        const rendered = renderPart(
+          childNode,
+          { ...ctx, content: { ...ctx.content, [entry.part]: entry.content } },
+          fg,
+          false,
+        );
+        if (rendered) kids.push(React.cloneElement(rendered, { key: `${entry.part}:${index}` }));
+      });
+    } else {
+      const childEls = node.children.map((child) => renderPart(child, ctx, fg, false));
+      const ownContent = ctx.content[node.name];
+      if (ownContent != null) kids.push(<React.Fragment key="__content">{ownContent}</React.Fragment>);
+      kids.push(...childEls);
+    }
+
+    return flat.node.fg !== undefined ? (
+      <NuriSurfaceContext.Provider value={{ foreground: flat.node.fg }}>{kids}</NuriSurfaceContext.Provider>
+    ) : (
+      kids
+    );
+  };
+
   switch (node.el) {
     case 'view': {
-      const kids: React.ReactNode[] = [];
-      const composition = ctx.composition[node.name];
-      if (composition) {
-        composition.forEach((entry, index) => {
-          const childNode = findChildPart(node, entry.part);
-          if (!childNode) throw new Error(`nuri-factory: composition entry targets '${entry.part}', which is not under '${node.name}'`);
-          const rendered = renderPart(
-            childNode,
-            { ...ctx, content: { ...ctx.content, [entry.part]: entry.content } },
-            fg,
-            false,
-          );
-          if (rendered) kids.push(React.cloneElement(rendered, { key: `${entry.part}:${index}` }));
-        });
-      } else {
-        const childEls = node.children.map((child) => renderPart(child, ctx, fg, false));
-        const ownContent = ctx.content[node.name];
-        if (ownContent != null) kids.push(<React.Fragment key="__content">{ownContent}</React.Fragment>);
-        kids.push(...childEls);
-      }
-
-      const body =
-        flat.node.fg !== undefined ? (
-          <NuriSurfaceContext.Provider value={{ foreground: flat.node.fg }}>{kids}</NuriSurfaceContext.Provider>
-        ) : (
-          kids
-        );
-
-      if (pressable) {
-        return (
-          <Pressable
-            key={node.name}
-            onPress={pressable.onPress}
-            disabled={disabled}
-            accessibilityRole="button"
-            accessibilityState={{ disabled }}
-            accessibilityLabel={pressable.accessibilityLabel}
-            {...a11yHide}
-            style={({ pressed }) =>
-              flattenBakedPart(recipePart, ctx.descriptor, ctx.theme, node.name, ctx.selection, {
-                pressed,
-                disabled,
-              }).style
-            }
-          >
-            {body}
-          </Pressable>
-        );
-      }
       return (
         <View key={node.name} style={flat.style} {...a11yHide}>
-          {body}
+          {renderHostBody()}
         </View>
+      );
+    }
+
+    case 'pressable': {
+      // The host is structural (el:'pressable' · amendment 65.13); the behaviour
+      // channel supplies only the runtime handlers (the coherence guard pins the
+      // declared target ≡ this part).
+      return (
+        <Pressable
+          key={node.name}
+          onPress={pressable?.onPress}
+          disabled={disabled}
+          accessibilityRole="button"
+          accessibilityState={{ disabled }}
+          accessibilityLabel={pressable?.accessibilityLabel}
+          {...a11yHide}
+          style={({ pressed }) =>
+            flattenBakedPart(recipePart, ctx.descriptor, ctx.theme, node.name, ctx.selection, {
+              pressed,
+              disabled,
+            }).style
+          }
+        >
+          {renderHostBody()}
+        </Pressable>
       );
     }
 

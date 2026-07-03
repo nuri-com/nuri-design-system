@@ -19,11 +19,13 @@
  * The walker is generic (component-/axis-agnostic · the engine is fixed); the
  * surface it walks is the generated descriptor.
  *
- * THE el → web-primitive map (the N+26 lock · roadmap/N+26.md · ALL BUILT @S4):
- *   view + interactive → <nuri-pressable>     (the RN <Pressable> case)
- *   view (static)      → <nuri-view>           (the RN static <View> · the element IS the merged node)
- *   text               → <nuri-typography>     (REUSE · text parts are single-NS)
- *   icon               → <nuri-icon name=X>    (glyph leaf · name routed · fg by currentColor)
+ * THE el → web-primitive map (the N+26 lock · roadmap/N+26.md · ALL BUILT @S4 ·
+ * `pressable` promoted to a 4th `El` at amendment 65.13 — the host is structure
+ * data, keyed on `el`, never sniffed off the interactive flags):
+ *   pressable → <nuri-pressable>      (the RN <Pressable> case)
+ *   view      → <nuri-view>           (the RN static <View> · the element IS the merged node)
+ *   text      → <nuri-typography>     (REUSE · text parts are single-NS)
+ *   icon      → <nuri-icon name=X>    (glyph leaf · name routed · fg by currentColor)
  * S3 shipped the BUTTON slice (view+interactive + text). S4 generalizes the
  * SAME engine to IconAvatar (static view + icon child) + Topbar (open static
  * view + a static-view content pivot) — `open` needs NO branch (the RN oracle's
@@ -40,7 +42,7 @@
  * geometry/colour data-* onto the same button with no clobber. The button is
  * created lazily in the pressable's connectedCallback, so the merge is DEFERRED
  * until it exists (a one-shot MutationObserver · applied before first paint).
- * For a STATIC view (no interactive · IconAvatar / Topbar) the merged node is
+ * For a STATIC view (el:'view' · IconAvatar / Topbar) the merged node is
  * the <nuri-view> ELEMENT ITSELF — no inner element, so the classes + data-*
  * land directly and synchronously, no MutationObserver.
  *
@@ -274,8 +276,13 @@ function renderPart(node, ctx) {
   const ns = mergedNSForPart(ctx.descriptor, ctx.selection, node.name);
   switch (node.el) {
     case 'view':
-      // interactive view → <nuri-pressable> (S3); static view → <nuri-view> (S4).
-      return ns.interactive ? renderInteractiveView(node, ns, ctx) : renderStaticView(node, ns, ctx);
+      // static view → <nuri-view> (S4). The host decision is STRUCTURE data now
+      // (el:'pressable' · amendment 65.13) — no interactive-flag sniff here.
+      return renderStaticView(node, ns, ctx);
+    case 'pressable':
+      // pressable host → <nuri-pressable> (S3) — keyed on `el`, the per-descriptor
+      // structural fact; the `interactive` flags still choose only the EFFECTS.
+      return renderInteractiveView(node, ns, ctx);
     case 'text':
       return renderText(node, ns, ctx);
     case 'icon':
@@ -313,7 +320,7 @@ function appendComposition(host, node, ctx) {
   return true;
 }
 
-// view + interactive → <nuri-pressable> + the merged inner <button>.
+// el:'pressable' → <nuri-pressable> + the merged inner <button>.
 function renderInteractiveView(node, ns, ctx) {
   const host = document.createElement('nuri-pressable');
 

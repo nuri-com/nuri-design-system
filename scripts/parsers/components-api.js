@@ -22,8 +22,8 @@ const q = (value) => JSON.stringify(value);
 const PRESSABLE_TS = { onPress: '() => void', disabled: 'boolean', accessibilityLabel: 'string' };
 
 function anatomyParts(anatomy) {
-  if (!anatomy || anatomy.el !== 'view') {
-    throw new Error('[components-api] descriptor anatomy must declare a view root');
+  if (!anatomy || (anatomy.el !== 'view' && anatomy.el !== 'pressable')) {
+    throw new Error('[components-api] descriptor anatomy must declare a view or pressable root host');
   }
   const parts = ['root'];
   const seen = new Set(parts);

@@ -83,7 +83,7 @@ test('A2 · buildComponent(IconAvatar) · an EXPLICIT variant wins over the defa
 test('B · buildComponent(Button) · de-collapsed pressable tree · variant+size DEFAULT from data · label routed', async () => {
   const el = mount(buildComponent(buttonDescriptor, {}, { children: 'Pay' }));
 
-  assert.equal(el.tagName.toLowerCase(), 'nuri-pressable', 'interactive view → nuri-pressable host');
+  assert.equal(el.tagName.toLowerCase(), 'nuri-pressable', "el:'pressable' root → nuri-pressable host");
   await tick(); // let the pressable create its inner button + the deferred merge land
 
   const btn = el.querySelector('button.nuri-interactive');
@@ -178,7 +178,7 @@ test('C3 · <nuri-icon-avatar> · DECORATIVE aria-hidden comes from descriptor.d
 // ══════════════════════════════════════════════════════════════════
 test('E · buildComponent(icon-button) · the icon-only circle — just the glyph · square floor · aria-label', async () => {
   const el = mount(buildComponent(iconButtonDescriptor, { variant: 'solid', size: 'md' }, { icon: 'apple', accessibilityLabel: 'Buy Bitcoin' }));
-  assert.equal(el.tagName.toLowerCase(), 'nuri-pressable', 'interactive root → nuri-pressable host');
+  assert.equal(el.tagName.toLowerCase(), 'nuri-pressable', "el:'pressable' root → nuri-pressable host");
   await tick();
 
   const btn = el.querySelector('button.nuri-interactive');

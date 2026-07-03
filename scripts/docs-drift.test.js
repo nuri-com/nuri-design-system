@@ -503,7 +503,18 @@ const FROZEN_SCHEMA = {
   // Part ids are descriptor-local (Path C · Phase 5). `root` is still the required
   // host convention, but non-root names are validated against each descriptor's
   // anatomy by component-api guards/codegen rather than frozen as one global roster.
-  El: ['view', 'text', 'icon'],
+  //
+  // `pressable` ADDED at the el:'pressable' slice (the 1st deliberate post-freeze
+  // `El` add · decision 65 "post-freeze changes are versioned" · logged as
+  // amendment 65.13): WHICH JSX host a part renders as is a per-descriptor
+  // STRUCTURAL fact, so it moves into the anatomy — the renderers become a pure
+  // switch over `el` (RN <Pressable> · web <nuri-pressable>), retiring the RN
+  // behaviour-channel sniff and the web interactive-flag sniff. The coherence
+  // guard (component-api.test.js Channel 2) pins el:'pressable' ≡ the declared
+  // `behaviour.pressable.target` ≡ the `interactive`-flagged parts. This
+  // discharges primitives-contract §0.1's "adding one is a versioned Guard-F
+  // bump" reservation — 4 El cases now, 4 parity primitives.
+  El: ['view', 'text', 'icon', 'pressable'],
   NS: { 'stack?': 'StackNS', 'box?': 'BoxNS', 'typography?': 'TypographyNS', 'palette?': 'PaletteNS', 'interactive?': 'InteractiveNS' },
   PartAnatomy: { 'el': 'El', 'open?': 'boolean', 'parts?': "Partial<Record<Exclude<P, 'root'>, PartAnatomy<P>>>" },
   // `defaults` (R1.5 per-axis public default) + `decorative` (decision 50 a11y

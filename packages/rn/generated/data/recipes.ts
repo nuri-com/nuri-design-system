@@ -22,7 +22,7 @@ import type { BakedComponentRecipe } from '../../runtime/resolve';
 export const recipes: Record<string, BakedComponentRecipe> = {
   "button": {
     "root": {
-      "el": "view",
+      "el": "pressable",
       "geometry": {
         "base": {
           "flexDirection": "row",
@@ -189,7 +189,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
   },
   "icon-button": {
     "root": {
-      "el": "view",
+      "el": "pressable",
       "geometry": {
         "base": {
           "flexDirection": "row",
@@ -253,7 +253,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
   },
   "tab-bar-item": {
     "root": {
-      "el": "view",
+      "el": "pressable",
       "geometry": {
         "base": {
           "flexDirection": "column",
