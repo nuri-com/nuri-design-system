@@ -16,7 +16,7 @@
  *
  *   · EVERY variant + chrome bg/fg/pressed/border cell — palette-surface.ts's SURFACE
  *     role table (the complete pair + the optional pressed swap + the optional border:
- *     variant solid/soft/ghost/subtle/outline + the 3 chrome slots; an extra/missing
+ *     variant solid/soft/ghost/subtle/outline + the 4 chrome slots; an extra/missing
  *     role or channel throws).
  *   · fgMuted (every cell)                       — typography-axis.ts's muted role
  *     (the single muted delivery · decision 53; no node-level muted).
@@ -55,13 +55,14 @@ export const PALETTE_CONTRACT = {
     canvas: { bg: '--nuri-bg-canvas', fg: '--nuri-text-primary', fgMuted: '--nuri-text-muted' },
     subtle: { bg: '--nuri-bg-subtle', fg: '--nuri-text-primary', fgMuted: '--nuri-text-muted' },
     strong: { bg: '--nuri-bg-strong', fg: '--nuri-text-primary', fgMuted: '--nuri-text-muted' },
+    transparent: { bg: 'transparent', fg: '--nuri-text-primary', fgMuted: '--nuri-text-muted' },
   },
 };
 
 // Canonical orderings — the emit is deterministic regardless of the SoT's
 // source declaration order (the descriptors.js convention).
 const AXIS_ORDER    = ['variant', 'chrome'];
-const ROW_ORDER     = { variant: ['solid', 'soft', 'ghost', 'subtle', 'outline'], chrome: ['canvas', 'subtle', 'strong'] };
+const ROW_ORDER     = { variant: ['solid', 'soft', 'ghost', 'subtle', 'outline'], chrome: ['canvas', 'subtle', 'strong', 'transparent'] };
 const CHANNEL_ORDER = ['bg', 'fg', 'fgMuted', 'pressedBg', 'border'];
 
 // ── SoT reading helpers ───────────────────────────────────────────────

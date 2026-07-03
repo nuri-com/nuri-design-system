@@ -1,0 +1,46 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · DOCK
+ *
+ * Structural primitive · screen-local docked chrome. A Dock is positioned
+ * inside the nearest Screen containing block, never the page/window, so the
+ * same authored composition works in app screens, modals, sheets, and panels.
+ *
+ * API
+ *   edge="bottom" | "top"
+ *
+ * The dock measures its rendered block size in dock.js and writes that value to
+ * the nearest .nuri-screen as --nuri-screen-dock-top/bottom. Scroll consumes the
+ * variables only when inset-top/inset-bottom="dock".
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design. Dock is structural and owns no design-scale tokens. */
+}
+
+@layer rules {
+  nuri-dock {
+    display: contents;
+  }
+
+  nuri-dock:not(:defined) {
+    display: block;
+  }
+
+  .nuri-dock {
+    box-sizing: border-box;
+    inline-size: 100%;
+    z-index: 1;
+  }
+
+  .nuri-dock[data-edge="bottom"] {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+  }
+
+  .nuri-dock[data-edge="top"] {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 0;
+  }
+}

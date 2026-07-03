@@ -28,7 +28,7 @@
  * The interactive-namespace channels (decision 65.4 · a structured
  * per-part opt-in, NOT a boolean) — each its own gate so a static
  * surface never reacts:
- *   press-scale  → data-press-scale  · interactive.css scales on :active
+ *   press-scale  → data-press-scale  · interactive.css scales on :active / data-pressed
  *   press-color  → data-press-color  · palette.css swaps bg on :active (realized once palette merges · S3)
  *
  * accent → data-accent on the inner <button> · Tier-2 self-scope
@@ -61,6 +61,15 @@
 
     #btn = null;
 
+    #setPressed(pressed) {
+      if (!this.#btn || this.#btn.disabled || this.hasAttribute('disabled')) return;
+      this.#btn.toggleAttribute('data-pressed', pressed);
+    }
+
+    #clearPressed() {
+      if (this.#btn) this.#btn.removeAttribute('data-pressed');
+    }
+
     connectedCallback() {
       if (this.#btn) return;
 
@@ -73,6 +82,15 @@
       // The generic interaction namespace — NOT a recipe class. box ⊕ stack ⊕
       // palette land here too once a descriptor merges onto the node (S3).
       btn.className = 'nuri-interactive';
+      btn.addEventListener('pointerdown', () => this.#setPressed(true));
+      btn.addEventListener('pointerup', () => this.#clearPressed());
+      btn.addEventListener('pointercancel', () => this.#clearPressed());
+      btn.addEventListener('pointerleave', () => this.#clearPressed());
+      btn.addEventListener('blur', () => this.#clearPressed());
+      btn.addEventListener('keydown', (event) => {
+        if (event.key === ' ' || event.key === 'Enter') this.#setPressed(true);
+      });
+      btn.addEventListener('keyup', () => this.#clearPressed());
       while (this.firstChild) btn.appendChild(this.firstChild);
       this.appendChild(btn);
       this.#btn = btn;
@@ -94,6 +112,7 @@
       // shared opacity, and a native disabled button never fires :active, so
       // the press scale reverts for free (interactive.css comment).
       this.#btn.toggleAttribute('disabled', this.hasAttribute('disabled'));
+      if (this.#btn.disabled) this.#clearPressed();
 
       // Tier-2 self-scope (decision 27 / 62 · like button.js): when `accent`
       // is explicit, mirror it as data-accent on the inner button so the

@@ -31,7 +31,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { View, Stack, Text, Pressable, Screen, Scroll, Separator, ListSeparator } from '../primitives';
+import { View, Stack, Text, Pressable, Screen, Scroll, Dock, Separator, ListSeparator } from '../primitives';
 import { STACK_FIELDS, BOX_FIELDS } from '@nuri/spec/resolve-map';
 import { opts as INTERACTIVE_OPTS } from '@nuri/spec/interactive-effects';
 import { PALETTE_KEYS, TYPOGRAPHY_KEYS } from '@nuri/spec/descriptors/schema';
@@ -106,10 +106,17 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
     );
   });
 
-  test('Screen / Scroll / ListSeparator are structural (no namespace props)', () => {
+  test('Screen / ListSeparator are structural (no namespace props)', () => {
     expect(Screen.propKeys).toEqual([]);
-    expect(Scroll.propKeys).toEqual([]);
     expect(ListSeparator.propKeys).toEqual([]);
+  });
+
+  test('Scroll props are its local inset contract', () => {
+    expect(Scroll.propKeys).toEqual(['insetTop', 'insetBottom']);
+  });
+
+  test('Dock props are its local edge contract', () => {
+    expect(Dock.propKeys).toEqual(['edge']);
   });
 
   test('Separator props are its local y-space contract', () => {
@@ -142,5 +149,13 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
     const interactiveKebab = new Set(INTERACTIVE_KEYS.map(kebab));
     const pressAttrs = webAttrs('pressable.js').filter((a) => a.startsWith('press-'));
     for (const a of pressAttrs) expect(interactiveKebab.has(a)).toBe(true);
+  });
+
+  test('web <nuri-scroll> exposes its local inset attrs', () => {
+    expect(webAttrs('scroll.js')).toEqual(['as', 'inset-top', 'inset-bottom']);
+  });
+
+  test('web <nuri-dock> exposes its local edge attr', () => {
+    expect(webAttrs('dock.js')).toEqual(['edge']);
   });
 });

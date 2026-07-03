@@ -25,7 +25,7 @@
 @layer rules {
   .nuri-interactive { cursor: pointer; transition: background-color var(--nuri-duration-fast) ease, transform var(--nuri-duration-fast) ease; }
   .nuri-interactive:focus-visible { outline: 2px solid var(--nuri-focus-ring); outline-offset: 2px; }
-  .nuri-interactive[data-press-scale]:active { transform: scale(var(--nuri-interaction-press-scale)); }
-  .nuri-interactive[aria-disabled="true"]:active { transform: none; }
+  .nuri-interactive[data-press-scale]:active, .nuri-interactive[data-press-scale][data-pressed] { transform: scale(var(--nuri-interaction-press-scale)); }
+  .nuri-interactive[aria-disabled="true"]:active, .nuri-interactive[aria-disabled="true"][data-pressed] { transform: none; }
   .nuri-interactive:disabled, .nuri-interactive[aria-disabled="true"] { opacity: var(--nuri-interaction-disabled-opacity); }
 }

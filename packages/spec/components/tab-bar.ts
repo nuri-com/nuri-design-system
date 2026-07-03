@@ -23,23 +23,22 @@
  * `direction:'row'` bar take an IDENTICAL share — N equal columns, for free. The
  * bar itself is just the chrome: the `size.xl` height (the bottom-destination
  * row · a comfortable touch target) + `align:'stretch'` so each item fills the
- * full bar height (the whole column is tappable), over the `chrome:'canvas'`
- * bottom-bar surface (the legacy bottom-bar background · decision 49: no top
- * border — dividers are author-placed).
+ * full bar height (the whole column is tappable), over the `surface` axis'
+ * bottom-bar chrome (default canvas · transparent for docked-over-content screens).
+ * Decision 49 still holds: no top border — dividers are author-placed.
  *
  * NO routing / safe-area / position:fixed (the consuming app's · the legacy
  * decision · the primitive is presentation only). PURE DATA (no theme thunk ·
  * 65.3 §7): structure { anatomy, base } in SEMANTIC names; the engine resolves
- * them (factory on RN · CSS on web · 65.1). NO variant axes — a static layout
- * shell (`TabBarAxes` is the EMPTY axis map · `keyof` is `never`, so the factory's
- * named-prop surface is only NuriBaseProps; it must immediately follow the import +
- * stay brace-form so the browser-ESM twin's type-strip removes it · the topbar
- * precedent · emitDescriptorJsFromSource).
+ * them (factory on RN · CSS on web · 65.1). The only public axis is the semantic
+ * bar surface; it must immediately follow the import + stay brace-form so the
+ * browser-ESM twin's type-strip removes it · the topbar precedent ·
+ * emitDescriptorJsFromSource.
  * ────────────────────────────────────────────────────────────── */
 
 import type { Descriptor } from './schema';
 
-type TabBarAxes = {};
+type TabBarAxes = { surface: 'canvas' | 'transparent' };
 
 export const tabBarDescriptor: Descriptor<TabBarAxes> = {
   structure: {
@@ -66,12 +65,19 @@ export const tabBarDescriptor: Descriptor<TabBarAxes> = {
       },
     },
   },
-  // The PUBLIC API (Path C · Phase 1). A DUMB open container — NO variant axes,
-  // NO behaviour. ONE slot: its repeated `TabBarItem` children render as the
+  variants: {
+    surface: {
+      canvas: { root: { palette: { chrome: 'canvas' } } },
+      transparent: { root: { palette: { chrome: 'transparent' } } },
+    },
+  },
+  defaults: { surface: 'canvas' },
+  // The PUBLIC API (Path C · Phase 1). A DUMB open container — one semantic
+  // surface axis, NO behaviour. ONE slot: its repeated `TabBarItem` children render as the
   // open root's positional content (`kind: 'children'` · `multiple: true`), so
   // `default: true` on the `root` container part.
   api: {
-    axes: [],
+    axes: ['surface'],
     themeScope: { accent: true },
     slots: {
       default: { part: 'root', kind: 'children', default: true, multiple: true },

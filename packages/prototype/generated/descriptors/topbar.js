@@ -47,12 +47,19 @@ export const topbarDescriptor = {
       trailing: { stack: { direction: 'row', align: 'center', justify: 'end', gap: 'sm', fill: 'even' } },
     },
   },
-  // The PUBLIC API (Path C · Phase 1). A static layout shell — NO variant axes,
-  // NO behaviour. Three REGION slots map 1:1 to the typed sub-components
+  variants: {
+    surface: {
+      canvas: { root: { palette: { chrome: 'canvas' } } },
+      transparent: { root: { palette: { chrome: 'transparent' } } },
+    },
+  },
+  defaults: { surface: 'canvas' },
+  // The PUBLIC API (Path C · Phase 1). A static layout shell — one semantic
+  // surface axis, NO behaviour. Three REGION slots map 1:1 to the typed sub-components
   // (`TopbarLeading/Center/Trailing` ↔ `nuri-topbar-<slot>`); bare children
   // default to `trailing` (the "just actions" case), so it carries `default:true`.
   api: {
-    axes: [],
+    axes: ['surface'],
     themeScope: { accent: true },
     slots: {
       leading: { part: 'leading', kind: 'region' },

@@ -20,8 +20,8 @@
  * small leading icon and a larger trailing icon-button leave the centre
  * dead-centre. `even`'s min-size 0 lets an over-wide edge truncate rather than
  * shove the centre. This is what the old stringly `center` boolean axis (a
- * pivot patch) could not do — so that axis is GONE; topbar has NO variant axes
- * (a static layout shell · R1.5 first-bump backlog item closed).
+ * pivot patch) could not do — so that axis is GONE; the only public axis is the
+ * semantic bar surface (default canvas · transparent for overlay/product screens).
  *
  * PURE DATA (no theme thunk · 65.3 §7): structure { anatomy, base }, composed
  * from the five primitive namespaces (65.3 §6) in SEMANTIC names; the engine
@@ -32,17 +32,14 @@
  * `center`/`trailing` Part vocab + the `even` StackNS.fill, both added at this
  * slice (the 2nd post-freeze contract bump · the Guard-F pins move with them).
  *
- * NO variant axes — a static layout shell (true centring is structural, not a
- * `center` boolean). `TopbarAxes` is the EMPTY axis map (`{}`): `keyof` is
- * `never`, so the factory's `{ [K in keyof A]?: A[K] }` named-prop surface is
- * empty (only NuriBaseProps + the region sub-components), yet it still satisfies
- * `A extends Axes`. (It must immediately follow the import + stay brace-form so
- * the browser-ESM twin's type-strip removes it · emitDescriptorJsFromSource.)
+ * The only variant axis is the semantic surface. True centring remains structural,
+ * not a `center` boolean. (It must immediately follow the import + stay brace-form
+ * so the browser-ESM twin's type-strip removes it · emitDescriptorJsFromSource.)
  * ────────────────────────────────────────────────────────────── */
 
 import type { Descriptor } from './schema';
 
-type TopbarAxes = {};
+type TopbarAxes = { surface: 'canvas' | 'transparent' };
 
 export const topbarDescriptor: Descriptor<TopbarAxes> = {
   structure: {
@@ -76,12 +73,19 @@ export const topbarDescriptor: Descriptor<TopbarAxes> = {
       trailing: { stack: { direction: 'row', align: 'center', justify: 'end', gap: 'sm', fill: 'even' } },
     },
   },
-  // The PUBLIC API (Path C · Phase 1). A static layout shell — NO variant axes,
-  // NO behaviour. Three REGION slots map 1:1 to the typed sub-components
+  variants: {
+    surface: {
+      canvas: { root: { palette: { chrome: 'canvas' } } },
+      transparent: { root: { palette: { chrome: 'transparent' } } },
+    },
+  },
+  defaults: { surface: 'canvas' },
+  // The PUBLIC API (Path C · Phase 1). A static layout shell — one semantic
+  // surface axis, NO behaviour. Three REGION slots map 1:1 to the typed sub-components
   // (`TopbarLeading/Center/Trailing` ↔ `nuri-topbar-<slot>`); bare children
   // default to `trailing` (the "just actions" case), so it carries `default:true`.
   api: {
-    axes: [],
+    axes: ['surface'],
     themeScope: { accent: true },
     slots: {
       leading: { part: 'leading', kind: 'region' },

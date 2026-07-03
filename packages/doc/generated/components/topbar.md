@@ -13,5 +13,6 @@ nav_order: 8
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
+| `surface` | no | `'canvas' | 'transparent'` | component prop |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `children` | no | `React.ReactNode` | default content slot |

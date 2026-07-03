@@ -19,5 +19,5 @@ nav_order: 11
 | `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `muted` | no | `boolean` | style axis |
-| `chrome` | no | `'canvas' | 'subtle' | 'strong'` | style axis |
+| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | style axis |
 | `children` | no | `React.ReactNode` | default content slot |

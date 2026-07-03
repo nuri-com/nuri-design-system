@@ -1,6 +1,6 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · SCROLL · CUSTOM ELEMENT
- * <nuri-scroll> mirrors the RN-side Scroll API shape (just `as`)
+ * <nuri-scroll> mirrors the RN-side Scroll API shape (`as`, `inset-top`, `inset-bottom`)
  * while delegating to a host element (default <div>; `as` overrides)
  * for the actual flex-fill + overflow scroll.
  *
@@ -11,26 +11,35 @@
  *
  * Defaults
  *   as → "div"
+ *   inset-top → "none"
+ *   inset-bottom → "none"
  * ────────────────────────────────────────────────────────────── */
 
 (() => {
+  const ATTRS = ['as', 'inset-top', 'inset-bottom'];
+
   class NuriScroll extends HTMLElement {
     static get observedAttributes() {
-      return ['as'];
+      return ATTRS;
     }
 
     #inner = null;
     #innerTag = null;
+    #content = null;
 
     connectedCallback() {
       if (this.#inner) return;
 
       const tag = (this.getAttribute('as') || 'div').toLowerCase();
       const inner = document.createElement(tag);
-      while (this.firstChild) inner.appendChild(this.firstChild);
+      const content = document.createElement('div');
+      content.className = 'nuri-scroll__content';
+      while (this.firstChild) content.appendChild(this.firstChild);
+      inner.appendChild(content);
       this.appendChild(inner);
       this.#inner = inner;
       this.#innerTag = tag;
+      this.#content = content;
       this.#sync();
     }
 
@@ -51,6 +60,9 @@
 
     #sync() {
       this.#inner.className = 'nuri-scroll';
+      this.#inner.dataset.insetTop = this.getAttribute('inset-top') || 'none';
+      this.#inner.dataset.insetBottom = this.getAttribute('inset-bottom') || 'none';
+      this.#content.className = 'nuri-scroll__content';
     }
   }
 

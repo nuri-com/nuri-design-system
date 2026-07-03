@@ -7,12 +7,10 @@
  * structure — no surface, no padding, no own tokens (decision 37 ·
  * the layout-primitive class, same as Stack / Box / Scroll).
  *
- * It is NOT the navigator. In RN the thing that holds Screen + the
- * bottom TabBar and owns the safe-area is the navigator (React
- * Navigation) — framework chrome, not an authored View. In the
- * playground that role is the device frame; here Screen is just the
- * single screen's content column. The TabBar is a SIBLING of Screen,
- * never a child (RN navigation norm · tab-bar.css note · decision 56).
+ * It is NOT the navigator. The app/navigator still owns route state and safe
+ * area. Screen is the local containing scope for product-screen chrome: authored
+ * content may include a semantic Dock child, and that dock reports its measured
+ * inset to Scroll.
  *
  * API
  *   as?: string                                       host-resolved (default <div>)
@@ -58,13 +56,18 @@
   }
 
   /* ── Base · the full-height column ─────────────────────────────
-   * flex:1 fills the parent's main axis (the device viewport, or in
-   * RN the navigator's content area); min-block-size:0 lets the inner
-   * <nuri-scroll> shrink below content size so it can scroll. */
+   * flex:1 fills the parent's main axis (the device viewport, or any nested
+   * panel/sheet root); min-block-size:0 lets the inner <nuri-scroll> shrink below
+   * content size so it can scroll. position:relative makes this screen, not the
+   * page, the containing block for <nuri-dock>. */
   .nuri-screen {
     display: flex;
     flex-direction: column;
     flex: 1;
     min-block-size: 0;
+    position: relative;
+    overflow: hidden;
+    --nuri-screen-dock-top: 0px;
+    --nuri-screen-dock-bottom: 0px;
   }
 }

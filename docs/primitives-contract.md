@@ -76,8 +76,9 @@ consumer can write).
 | **Text** (Typography) | `<nuri-typography>` · [typography.js](packages/prototype/primitives/typography.js) + [styles/typography.css](packages/prototype/styles/typography.css) | ✅ | ✅ **`Text`** ([primitives/Text.tsx](packages/rn/primitives/Text.tsx)) | `typography` (`size`·`emphasis`·`align` · [schema.ts](packages/spec/components/schema.ts)) + colour via `palette` |
 | **Icon** | `<nuri-icon>` · [icon.js](packages/prototype/primitives/icon.js) + [icon.css](packages/prototype/primitives/icon.css) | ✅ | ✅ **`NuriIcon`** ([primitives/NuriIcon.tsx](packages/rn/primitives/NuriIcon.tsx), exported on the public barrel [index.ts](packages/rn/index.ts)) | typed `IconName` + `dimension` (shared `size` axis) + `color` (scope fg) |
 | **Pressable** | `<nuri-pressable>` · [pressable.js](packages/prototype/primitives/pressable.js) + [pressable.css](packages/prototype/primitives/pressable.css) | ✅ | ✅ **`Pressable`** ([primitives/Pressable.tsx](packages/rn/primitives/Pressable.tsx)) | `interactive` (`pressColor`·`pressScale`·`disabledOpacity` · [schema.ts:191-195](packages/spec/components/schema.ts:191)) + box⊕stack⊕palette |
-| **Screen** (structural) | `<nuri-screen>` · [screen.js](packages/prototype/primitives/screen.js) + [screen.css](packages/prototype/primitives/screen.css) | ✅ flex-column fill | ✅ **`Screen`** ([primitives/Screen.tsx](packages/rn/primitives/Screen.tsx)) | none — pure structural fill |
-| **Scroll** (structural) | `<nuri-scroll>` · [scroll.js](packages/prototype/primitives/scroll.js) + [scroll.css](packages/prototype/primitives/scroll.css) | ✅ flex-fill + overflow | ✅ **`Scroll`** ([primitives/Scroll.tsx](packages/rn/primitives/Scroll.tsx)) | none — pure structural fill + overflow |
+| **Screen** (structural) | `<nuri-screen>` · [screen.js](packages/prototype/primitives/screen.js) + [screen.css](packages/prototype/primitives/screen.css) | ✅ flex-column fill + dock inset scope | ✅ **`Screen`** ([primitives/Screen.tsx](packages/rn/primitives/Screen.tsx)) | none — structural fill + screen-local dock context |
+| **Scroll** (structural) | `<nuri-scroll>` · [scroll.js](packages/prototype/primitives/scroll.js) + [scroll.css](packages/prototype/primitives/scroll.css) | ✅ flex-fill + overflow + content inset | ✅ **`Scroll`** ([primitives/Scroll.tsx](packages/rn/primitives/Scroll.tsx)) | local `insetTop` / `insetBottom: none \| dock`; padding is applied to scroll content |
+| **Dock** (structural) | `<nuri-dock>` · [dock.js](packages/prototype/primitives/dock.js) + [dock.css](packages/prototype/primitives/dock.css) | ✅ screen-local absolute dock | ✅ **`Dock`** ([primitives/Dock.tsx](packages/rn/primitives/Dock.tsx)) | local `edge: top \| bottom`; each edge measures itself into the nearest Screen dock inset |
 | **Separator** | `<nuri-separator>` · [separator.js](packages/prototype/primitives/separator.js) + [separator.css](packages/prototype/primitives/separator.css) | ✅ horizontal hairline | ✅ **`Separator`** ([primitives/Separator.tsx](packages/rn/primitives/Separator.tsx)) | local `ySpace: none \| xs \| sm \| md \| lg \| xl`; visible line uses `border.1` + scoped `border.subtle` |
 | **ListSeparator** (preset) | `<nuri-list-separator>` · [list-separator.js](packages/prototype/primitives/list-separator.js) + [list-separator.css](packages/prototype/primitives/list-separator.css) | ✅ list-family inset wrapper over `<nuri-separator y-space="sm">` | ✅ **`ListSeparator`** ([primitives/ListSeparator.tsx](packages/rn/primitives/ListSeparator.tsx)) | none — no props; fixed `md` inset, hairline + vertical rhythm delegated to Separator |
 
@@ -174,7 +175,7 @@ copy of `box.js` etc.); they are not the active projection and are out of scope 
 The audit-era gap was: web had hand-authorable primitives, while RN exposed only
 catalog components plus raw `react-native` hosts. That is no longer true. `@nuri/rn`
 now exports the open primitive layer (`View`, `Stack`, `Text`, `Pressable`, `Screen`,
-`Scroll`, `Separator`) alongside `NuriIcon` and the generated catalog components
+`Scroll`, `Dock`, `Separator`) alongside `NuriIcon` and the generated catalog components
 ([index.ts](packages/rn/index.ts); [primitives/index.ts](packages/rn/primitives/index.ts)).
 
 | Primitive | Web | RN today |
@@ -184,7 +185,8 @@ now exports the open primitive layer (`View`, `Stack`, `Text`, `Pressable`, `Scr
 | **Text** | `<nuri-typography>` | `Text` — typography + palette colour |
 | **Pressable** | `<nuri-pressable>` | `Pressable` — View + interactive opt-ins |
 | **Screen** | `<nuri-screen>` | `Screen` — structural full-screen wrapper |
-| **Scroll** | `<nuri-scroll>` | `Scroll` — structural scroll wrapper |
+| **Scroll** | `<nuri-scroll>` | `Scroll` — structural scroll wrapper with local `insetTop` / `insetBottom` |
+| **Dock** | `<nuri-dock>` | `Dock` — structural screen-local dock with local `edge` |
 | **Separator** | `<nuri-separator>` | `Separator` — horizontal `border.1` hairline with scoped `border.subtle` |
 | **ListSeparator** | `<nuri-list-separator>` | `ListSeparator` — fixed-md list inset over `Separator ySpace="sm"` |
 | **Icon** | `<nuri-icon>` | `NuriIcon` |

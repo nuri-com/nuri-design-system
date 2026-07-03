@@ -55,6 +55,7 @@ import {
   Pressable as NuriPressable,
   Screen as NuriScreen,
   Scroll as NuriScroll,
+  Dock as NuriDock,
 } from '../primitives';
 
 function render(node: React.ReactElement): TestRenderer.ReactTestRenderer {
@@ -306,6 +307,41 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(selectedGlyph!.props.color).toBe('#222013');
     expect(unselectedGlyph!.props.color).not.toBe('#222013');
     expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('Screen + Scroll dock insets + Dock mount with transparent Topbar/TabBar', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <NuriScreen>
+          <NuriDock edge="top">
+            <Topbar surface="transparent">
+              <IconButton icon="list-bullets" variant="soft" size="lg" accessibilityLabel="Activity" />
+              <IconButton icon="headphones" variant="soft" size="lg" accessibilityLabel="Support" />
+            </Topbar>
+          </NuriDock>
+          <NuriScroll insetTop="dock" insetBottom="dock">
+            <List>
+              <ListAction accessibilityLabel="Bank account" onPress={() => undefined}>
+                <ListActionLeadingAvatar name="bank" />
+                <ListActionText>Bank account</ListActionText>
+                <ListActionTrailIcon name="chevron-right" />
+              </ListAction>
+            </List>
+          </NuriScroll>
+          <NuriDock edge="bottom">
+            <TabBar surface="transparent">
+              <TabBarItem icon="bitcoin-wallet" label="€ 36.50" selected />
+              <TabBarItem icon="bank" label="€ 18.90" />
+              <TabBarItem icon="euro-wallet" label="€ 25.70" />
+            </TabBar>
+          </NuriDock>
+        </NuriScreen>
+      </NuriThemeProvider>,
+    );
+
+    expect(tr.toJSON()).toBeTruthy();
+    expect(JSON.stringify(tr.toJSON())).toContain('"backgroundColor":"transparent"');
+    expect(tr.root.findByType(ScrollView).props.contentContainerStyle).toEqual({ flexGrow: 1 });
   });
 
   test('ListAction — direct row slots render avatar, content, trailing value, and trail icon', () => {
@@ -633,6 +669,34 @@ describe('type-surface honesty (compile-time assertions · SEED-3 + D8)', () => 
     // it ACCEPTS the clean consumer boolean.
     const ok = <TabBarItem icon="card" label="Wallet" selected onPress={() => undefined} />;
     void ok;
+    const transparentTabBarOk = <TabBar surface="transparent" />;
+    void transparentTabBarOk;
+    const transparentTopbarOk = <Topbar surface="transparent" />;
+    void transparentTopbarOk;
+    const dockOk = <NuriDock edge="bottom" />;
+    void dockOk;
+    const topDockOk = <NuriDock edge="top" />;
+    void topDockOk;
+    const scrollInsetOk = <NuriScroll insetBottom="dock" />;
+    void scrollInsetOk;
+    const scrollTopInsetOk = <NuriScroll insetTop="dock" />;
+    void scrollTopInsetOk;
+
+    // @ts-expect-error — TabBar surface is the public axis, limited to canvas|transparent.
+    const badTabBarSurface = <TabBar surface="frosted" />;
+    void badTabBarSurface;
+    // @ts-expect-error — Topbar surface is the public axis, limited to canvas|transparent.
+    const badTopbarSurface = <Topbar surface="frosted" />;
+    void badTopbarSurface;
+    // @ts-expect-error — Dock supports semantic screen edges, not arbitrary sides.
+    const badDockEdge = <NuriDock edge="left" />;
+    void badDockEdge;
+    // @ts-expect-error — Scroll insetBottom is semantic, not an arbitrary spacing value.
+    const badScrollInset = <NuriScroll insetBottom="xl" />;
+    void badScrollInset;
+    // @ts-expect-error — Scroll insetTop is semantic, not an arbitrary spacing value.
+    const badScrollTopInset = <NuriScroll insetTop="xl" />;
+    void badScrollTopInset;
 
     // …and a descriptor with NO `state` axis REJECTS it — `selected` no longer
     // lives on the universal base, so passing it is a type error, not a silent

@@ -10,7 +10,7 @@
  * useNuriTheme · typeStyle · the ThemePayload type), the
  * components + renderer helpers (nuriNames · NuriSurfaceContext · the
  * Button/IconAvatar/Topbar/… instances), NuriIcon, and the
- * hand-authorable primitives (View/Stack/Text/Pressable/Screen/Scroll). The generic
+ * hand-authorable primitives (View/Stack/Text/Pressable/Screen/Scroll/Dock). The generic
  * descriptor ENGINE (resolveNS · flattenPart · flattenBakedPart · buildNuriTheme ·
  * the palette MAPPING · the baked geometry recipe + the resolver intermediate types)
  * is deliberately INTERNAL — intra-package module exports only (runtime/), not on
@@ -61,10 +61,10 @@ export { NuriIcon } from './primitives';
 export type { NuriIconProps } from './primitives';
 
 // The hand-authorable OPEN primitive layer — the RN twins of the web
-// `<nuri-stack/view/typography/pressable/screen/scroll>` (primitives-contract §1.A ·
+// `<nuri-stack/view/typography/pressable/screen/scroll/dock>` (primitives-contract §1.A ·
 // the §2 parity gap · step ①). Thin wrappers forwarding namespace props through the
 // SAME runtime/resolve.ts appliers (no second mapping · the drift rule). NOT descriptors.
-export { View, Stack, Text, Pressable, Screen, Scroll, Separator, ListSeparator } from './primitives';
+export { View, Stack, Text, Pressable, Screen, Scroll, Dock, Separator, ListSeparator } from './primitives';
 export type {
   ViewProps,
   StackProps,
@@ -72,6 +72,7 @@ export type {
   PressableProps,
   ScreenProps,
   ScrollProps,
+  DockProps,
   SeparatorProps,
   SeparatorYSpace,
   ListSeparatorProps,

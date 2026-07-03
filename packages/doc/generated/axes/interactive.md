@@ -16,7 +16,7 @@ The bespoke **interactive** axis — interaction decomposed into independent opt
 | Input | Web | RN | Value |
 | --- | --- | --- | --- |
 | `pressColor` | → palette (`:active` bg swap) | `backgroundColor ← pressedBg` | opt-in · `[data-press-color]` |
-| `pressScale` | `.nuri-interactive[data-press-scale]:active` → `transform: scale(var(--nuri-interaction-press-scale))` | `transform: [{ scale }] ← interaction.pressScale` | opt-in · `[data-press-scale]` |
+| `pressScale` | `.nuri-interactive[data-press-scale]:active, .nuri-interactive[data-press-scale][data-pressed]` → `transform: scale(var(--nuri-interaction-press-scale))` | `transform: [{ scale }] ← interaction.pressScale` | opt-in · `[data-press-scale]` |
 | `disabledOpacity` | `.nuri-interactive:disabled, .nuri-interactive[aria-disabled="true"]` → `opacity: var(--nuri-interaction-disabled-opacity)` | `opacity ← interaction.disabledOpacity` | automatic |
 
 ## Chrome
@@ -25,7 +25,7 @@ The bespoke **interactive** axis — interaction decomposed into independent opt
 | --- | --- | --- |
 | `affordance` | `.nuri-interactive` | `cursor: pointer`<br>`transition: background-color var(--nuri-duration-fast) ease, transform var(--nuri-duration-fast) ease` |
 | `focus` | `.nuri-interactive:focus-visible` | `outline: 2px solid var(--nuri-focus-ring)`<br>`outline-offset: 2px` |
-| `disabledGuard` | `.nuri-interactive[aria-disabled="true"]:active` | `transform: none` |
+| `disabledGuard` | `.nuri-interactive[aria-disabled="true"]:active, .nuri-interactive[aria-disabled="true"][data-pressed]` | `transform: none` |
 
 > The `nuri-interactive` chrome is **web-only** realization support (cursor + transition
 > affordance · the focus ring · the disabled-state guard) — no agnostic input, no RN

@@ -130,6 +130,7 @@ const PAGE_CONTRACT = {
   'tab-bar': {
     kind: 'api', source: 'tab-bar', title: 'Tab Bar', nav: 6,
     cells: [
+      "| `surface` | no | `'canvas' | 'transparent'` | component prop |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
       '| `children` | no | `React.ReactNode` | default content slot |',
     ],
@@ -147,6 +148,7 @@ const PAGE_CONTRACT = {
   topbar: {
     kind: 'api', source: 'topbar', title: 'Topbar', nav: 8,
     cells: [
+      "| `surface` | no | `'canvas' | 'transparent'` | component prop |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
       '| `children` | no | `React.ReactNode` | default content slot |',
     ],
@@ -178,7 +180,7 @@ const PAGE_CONTRACT = {
       "| `size` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '3xl'` | style axis |",
       '| `emphasis` | no | `boolean` | style axis |',
       "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |",
-      "| `chrome` | no | `'canvas' | 'subtle' | 'strong'` | style axis |",
+      "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | style axis |",
       '| `children` | no | `React.ReactNode` | default content slot |',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
@@ -296,7 +298,7 @@ const AXIS_CONTRACT = {
     nav: 4, title: 'Interactive', section: '## Effects',
     cells: [
       // the agnostic opt-in: assembled web selector → decl · the RN realization · the gate
-      '| `pressScale` | `.nuri-interactive[data-press-scale]:active` → `transform: scale(var(--nuri-interaction-press-scale))` | `transform: [{ scale }] ← interaction.pressScale` | opt-in · `[data-press-scale]` |',
+      '| `pressScale` | `.nuri-interactive[data-press-scale]:active, .nuri-interactive[data-press-scale][data-pressed]` → `transform: scale(var(--nuri-interaction-press-scale))` | `transform: [{ scale }] ← interaction.pressScale` | opt-in · `[data-press-scale]` |',
       // pressColor's Web is a palette cross-ref (its :active bg-swap is palette's rule)
       '| `pressColor` | → palette (`:active` bg swap) | `backgroundColor ← pressedBg` | opt-in · `[data-press-color]` |',
       // disabledOpacity · automatic gate · the multi-selector web rule
@@ -307,7 +309,7 @@ const AXIS_CONTRACT = {
     includes: [
       '| Input | Web | RN | Value |',
       '## Chrome',
-      '| `disabledGuard` | `.nuri-interactive[aria-disabled="true"]:active` | `transform: none` |',
+      '| `disabledGuard` | `.nuri-interactive[aria-disabled="true"]:active, .nuri-interactive[aria-disabled="true"][data-pressed]` | `transform: none` |',
       'both set `transform` at equal specificity',
     ],
   },

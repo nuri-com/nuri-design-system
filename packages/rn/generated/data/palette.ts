@@ -84,5 +84,10 @@ export const palette = {
       fg:         { group: 'chrome', leaf: 'textPrimary'  } as const satisfies ColorRef,
       fgMuted:    { group: 'chrome', leaf: 'textMuted'    } as const satisfies ColorRef,
     },
+    transparent: {
+      bg:         'transparent',
+      fg:         { group: 'chrome', leaf: 'textPrimary'  } as const satisfies ColorRef,
+      fgMuted:    { group: 'chrome', leaf: 'textMuted'    } as const satisfies ColorRef,
+    },
   },
 } as const;

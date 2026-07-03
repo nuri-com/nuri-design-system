@@ -177,7 +177,7 @@ export type TypographyNS = {
 // adds the first border-colour channel; solid.fgMuted stays mapped-not-built
 // (decision 30).
 export type PaletteVariant = 'solid' | 'soft' | 'ghost' | 'subtle' | 'outline';
-export type PaletteChrome = 'canvas' | 'subtle' | 'strong';
+export type PaletteChrome = 'canvas' | 'subtle' | 'strong' | 'transparent';
 export type PaletteNS = {
   variant?: PaletteVariant;
   accent?: Accent;
