@@ -12,7 +12,7 @@
  * ────────────────────────────────────────────────────────────── */
 
 import * as React from 'react';
-import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriSlots, harvestNuriComposition } from '../../runtime/renderer';
+import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriComposition } from '../../runtime/renderer';
 import type { NuriBehaviour, NuriCompositionEntry } from '../../runtime/renderer';
 import { pressableItemDescriptor } from '@nuri/spec/descriptors/pressable-item';
 import { recipes } from '../data/recipes';
@@ -31,44 +31,41 @@ export type PressableItemProps = {
 type PressableItemPart = 'root' | 'leadingAvatar' | 'leadingIcon' | 'content' | 'text' | 'textMuted' | 'trailing' | 'trailingText' | 'trailingTextMuted' | 'trailIcon';
 
 const pressableItemDisplayName = nuriNames('pressable-item').rn;
-export const PressableItemContent = createNuriSlot("content", `${pressableItemDisplayName}Content`);
-export const PressableItemTrailing = createNuriSlot("trailing", `${pressableItemDisplayName}Trailing`);
+export const PressableItemContent = createNuriSlot("content", `${pressableItemDisplayName}Content`, 'children', pressableItemDisplayName);
+export const PressableItemTrailing = createNuriSlot("trailing", `${pressableItemDisplayName}Trailing`, 'children', pressableItemDisplayName);
 export type PressableItemLeadingAvatarProps = {
   name: IconName;
   children?: never;
 };
-export const PressableItemLeadingAvatar = createNuriSlot<PressableItemLeadingAvatarProps>("leadingIcon", `${pressableItemDisplayName}LeadingAvatar`, 'name');
+export const PressableItemLeadingAvatar = createNuriSlot<PressableItemLeadingAvatarProps>("leadingIcon", `${pressableItemDisplayName}LeadingAvatar`, 'name', pressableItemDisplayName);
 export type PressableItemTextProps = {
   children?: React.ReactNode;
 };
-export const PressableItemText = createNuriSlot<PressableItemTextProps>("text", `${pressableItemDisplayName}Text`);
+export const PressableItemText = createNuriSlot<PressableItemTextProps>("text", `${pressableItemDisplayName}Text`, 'children', pressableItemDisplayName);
 export type PressableItemTextMutedProps = {
   children?: React.ReactNode;
 };
-export const PressableItemTextMuted = createNuriSlot<PressableItemTextMutedProps>("textMuted", `${pressableItemDisplayName}TextMuted`);
+export const PressableItemTextMuted = createNuriSlot<PressableItemTextMutedProps>("textMuted", `${pressableItemDisplayName}TextMuted`, 'children', pressableItemDisplayName);
 export type PressableItemTrailingTextProps = {
   children?: React.ReactNode;
 };
-export const PressableItemTrailingText = createNuriSlot<PressableItemTrailingTextProps>("trailingText", `${pressableItemDisplayName}TrailingText`);
+export const PressableItemTrailingText = createNuriSlot<PressableItemTrailingTextProps>("trailingText", `${pressableItemDisplayName}TrailingText`, 'children', pressableItemDisplayName);
 export type PressableItemTrailingTextMutedProps = {
   children?: React.ReactNode;
 };
-export const PressableItemTrailingTextMuted = createNuriSlot<PressableItemTrailingTextMutedProps>("trailingTextMuted", `${pressableItemDisplayName}TrailingTextMuted`);
+export const PressableItemTrailingTextMuted = createNuriSlot<PressableItemTrailingTextMutedProps>("trailingTextMuted", `${pressableItemDisplayName}TrailingTextMuted`, 'children', pressableItemDisplayName);
 export type PressableItemTrailIconProps = {
   name: IconName;
   children?: never;
 };
-export const PressableItemTrailIcon = createNuriSlot<PressableItemTrailIconProps>("trailIcon", `${pressableItemDisplayName}TrailIcon`, 'name');
+export const PressableItemTrailIcon = createNuriSlot<PressableItemTrailIconProps>("trailIcon", `${pressableItemDisplayName}TrailIcon`, 'name', pressableItemDisplayName);
 
 const PressableItemInner: React.FC<PressableItemProps> = (props) => {
   const selection: Record<string, string> = {
   };
   const content: Partial<Record<PressableItemPart, React.ReactNode>> = {};
-  const harvested = harvestNuriSlots<PressableItemPart>(props.children, undefined);
-  if (harvested["content"] !== undefined) content["content"] = harvested["content"];
-  if (harvested["trailing"] !== undefined) content["trailing"] = harvested["trailing"];
   const composition: Partial<Record<PressableItemPart, NuriCompositionEntry<PressableItemPart>[]>> = {};
-  const harvestedComposition = harvestNuriComposition<PressableItemPart>(props.children, undefined);
+  const harvestedComposition = harvestNuriComposition<PressableItemPart>(props.children, undefined, pressableItemDisplayName);
   if (harvestedComposition.hasSlots) {
     composition.root = harvestedComposition.items;
   }

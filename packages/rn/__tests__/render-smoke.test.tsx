@@ -29,6 +29,7 @@ import {
   TopbarCenter,
   TopbarTrailing,
   PressableItem,
+  PressableItemContent,
   PressableItemLeadingAvatar,
   PressableItemText,
   PressableItemTextMuted,
@@ -327,6 +328,121 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       '3433 Sats',
     ]);
     expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  // ── The mixed-content / repetition contract (decision 83) — PAIRED with the
+  // web factory tests (packages/prototype/factory/factory.test.js B6–B11):
+  // both engines resolve the same authored composition to the same structure,
+  // or fail with the same named error.
+  test('PressableItem — bare children inside a region stay that region\'s own content, order preserved', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
+          <PressableItemContent>
+            before
+            <PressableItemText>Bank account</PressableItemText>
+            after
+          </PressableItemContent>
+        </PressableItem>
+      </NuriThemeProvider>,
+    );
+    const text = tr.root.findByType(Text);
+    expect(text.props.children).toBe('Bank account');
+    const region = text.parent as NonNullable<typeof text.parent>;
+    expect(region.type).toBe('View');
+    expect(region.children.length).toBe(3);
+    expect(region.children[0]).toBe('before');
+    expect((region.children[1] as { type: unknown }).type).toBe(Text);
+    expect(region.children[2]).toBe('after');
+  });
+
+  test('PressableItem — a typed slot targeting a part outside its region fails named', () => {
+    const quiet = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      expect(() =>
+        render(
+          <NuriThemeProvider>
+            <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
+              <PressableItemContent>
+                <PressableItemTrailingText>Wrong</PressableItemTrailingText>
+              </PressableItemContent>
+            </PressableItem>
+          </NuriThemeProvider>,
+        ),
+      ).toThrow("nuri-factory: composition entry targets 'trailingText', which is not under 'content'");
+    } finally {
+      quiet.mockRestore();
+    }
+  });
+
+  test('PressableItem — a multiple:true slot repeats as a SEQUENCE of leaf instances', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
+          <PressableItemText>First line</PressableItemText>
+          <PressableItemText>Second line</PressableItemText>
+        </PressableItem>
+      </NuriThemeProvider>,
+    );
+    const texts = tr.root.findAllByType(Text);
+    expect(texts.map((t) => t.props.children)).toEqual(['First line', 'Second line']);
+    // TWO leaf instances inside ONE content region — never one concatenated leaf.
+    expect(texts).toHaveLength(2);
+    expect(texts[0].parent).toBe(texts[1].parent);
+  });
+
+  test('PressableItem — a repeated SINGULAR icon slot fails named', () => {
+    const quiet = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      expect(() =>
+        render(
+          <NuriThemeProvider>
+            <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
+              <PressableItemLeadingAvatar name="arrow-up" />
+              <PressableItemLeadingAvatar name="arrow-down" />
+            </PressableItem>
+          </NuriThemeProvider>,
+        ),
+      ).toThrow("nuri-factory: slot targeting part 'leadingIcon' is singular — it appears 2 times under 'leadingAvatar'");
+    } finally {
+      quiet.mockRestore();
+    }
+  });
+
+  test('PressableItem — bare children with no default sink fail named', () => {
+    const quiet = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      expect(() =>
+        render(
+          <NuriThemeProvider>
+            <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
+              Send money
+            </PressableItem>
+          </NuriThemeProvider>,
+        ),
+      ).toThrow("nuri-factory: 'PressableItem' has no default content slot");
+    } finally {
+      quiet.mockRestore();
+    }
+  });
+
+  test('PressableItem — a foreign component\'s slot marker fails named', () => {
+    const quiet = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      expect(() =>
+        render(
+          <NuriThemeProvider>
+            <PressableItem accessibilityLabel="Row" onPress={() => undefined}>
+              <PressableItemContent>
+                <ButtonText>Wrong</ButtonText>
+              </PressableItemContent>
+            </PressableItem>
+          </NuriThemeProvider>,
+        ),
+      ).toThrow("nuri-factory: foreign slot marker 'ButtonText' — not a 'PressableItem' slot");
+    } finally {
+      quiet.mockRestore();
+    }
   });
 
   // ── the hand-authorable primitive layer (step ①) — one headless mount per

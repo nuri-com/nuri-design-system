@@ -94,6 +94,27 @@ const camelToKebab = (s) => s.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
 // here — the single-source seam, no second copy of the opt→attr mapping.
 export const INTERACTIVE_GATES = ['pressScale', 'pressColor'];
 
+// ── The RUNTIME host/leaf partition of `El` — the ONE annotated web hand copy ──
+// schema.ts owns the totality-pinned EL_CLASS/HOST_ELS/LEAF_ELS partition (the
+// PR-#132 single-sourcing); this browser-runtime module cannot import the .ts
+// SoT, so this constant is the single permitted web hand site. Every value-level
+// predicate over the partition in this file consumes THIS list — never a fresh
+// inline `el === …` enumeration. Keep ≡ schema.ts EL_CLASS.
+const HOST_ELS = ['view', 'pressable'];
+
+// EVERY slot/region marker tag registered by ANY defineNuriComponent call. A tag
+// found in a host's children that is here but is not one of the host's OWN
+// markers is a FOREIGN marker — interpreted against the wrong anatomy it would
+// silently mis-route, so the harvest fails named instead (the RN mirror keys the
+// same policy off the marker's __nuriSlotOwner).
+const NURI_SLOT_TAGS = new Set();
+
+// A part accepts REPEATED composition entries only where the descriptor's api
+// declares a slot targeting it `multiple: true` (the sequence contract —
+// repeats render as a sequence of instances, never a concatenated leaf).
+const isMultiPart = (descriptor, part) =>
+  Object.values(descriptor.api?.slots || {}).some((slot) => slot.part === part && slot.multiple === true);
+
 // ── merge: base ⊕ each selected axis patch, per namespace (resolve.ts mergeNS) ──
 // later wins; each present namespace is shallow-merged in NS_ORDER.
 function mergeNS(list) {
@@ -209,18 +230,25 @@ function harvestSlots(host, slotTagToPart, defaultSlot) {
   return slots;
 }
 
-// Harvest ordered leaf composition (<nuri-button-text>, <nuri-button-icon>) into
-// a normalized sequence. No marker present means "use the legacy bare text route";
-// once a marker is present, meaningful bare nodes are preserved in order through
-// the default text sink.
-function harvestComposition(host, slotTagToSpec, fallbackPart, regionTagToPart = {}) {
+// Harvest ordered composition (<nuri-button-text> leaves · region sub-trees)
+// into a PER-SCOPE entry map: `root` carries the host's direct entries; each
+// REGION part carries the entries authored inside its marker — its typed slots
+// plus its own bare content (an entry whose part IS the region · the
+// mixed-content contract). The walker (appendComposition) consumes ONE scope per
+// host, so a region's entries are validated against the REGION's anatomy, never
+// the root's (a slot targeting a part outside its region fails named). A region
+// marker leaves a content-less placeholder entry in the enclosing scope so it
+// renders at its authored position. Bare children in a scope with NO fallback
+// sink fail named. No marker present → null (the legacy bare text-primary
+// route); the pre-scan decides that BEFORE any DOM mutation (the
+// <nuri-button>Go</nuri-button> blank-label regression).
+function harvestComposition(host, slotTagToSpec, fallbackPart, regionTagToPart = {}, hostTag = 'this component') {
   // PRE-SCAN before any DOM mutation: a marker is only meaningful as a DIRECT
   // child of the host (component slots and region slots alike), so one shallow
-  // pass decides the route. Without it, bare text nodes were moved into
-  // detached templates before "no marker" was known, and the legacy
-  // `#label = textContent` capture read an already-emptied host (the
-  // <nuri-button>Go</nuri-button> blank-label regression).
+  // pass decides the route. A foreign registered marker with NO local marker
+  // present fails named here (with a local marker present, collect() fails).
   let hasSlot = false;
+  let foreignTag = null;
   for (const child of host.childNodes) {
     if (child.nodeType !== 1) continue;
     const tag = child.tagName.toLowerCase();
@@ -228,46 +256,57 @@ function harvestComposition(host, slotTagToSpec, fallbackPart, regionTagToPart =
       hasSlot = true;
       break;
     }
+    if (NURI_SLOT_TAGS.has(tag)) foreignTag = tag;
   }
-  if (!hasSlot) return null;
+  if (!hasSlot) {
+    if (foreignTag) throw new Error(`[nuri-factory] foreign slot marker '<${foreignTag}>' — not a '${hostTag}' slot`);
+    return null;
+  }
 
-  const entries = [];
-  const textEntry = (part, node) => {
+  const byPart = {};
+  const textEntry = (list, part, node) => {
     const tpl = document.createElement('template');
     tpl.content.append(node);
-    entries.push({ part, content: tpl });
+    list.push({ part, content: tpl });
   };
 
-  const collect = (nodes, fallback) => {
+  const collect = (nodes, scopePart, fallback) => {
+    const list = (byPart[scopePart] ??= []);
     for (const child of [...nodes]) {
       if (child.nodeType === 1) {
         const tag = child.tagName.toLowerCase();
         const spec = slotTagToSpec[tag];
         if (spec) {
-          hasSlot = true;
           if (spec.kind === 'icon-name') {
-            entries.push({ part: spec.part, content: child.getAttribute('name') });
+            list.push({ part: spec.part, content: child.getAttribute('name') });
           } else {
             const tpl = document.createElement('template');
             while (child.firstChild) tpl.content.append(child.firstChild);
-            entries.push({ part: spec.part, content: tpl });
+            list.push({ part: spec.part, content: tpl });
           }
           continue;
         }
         const regionPart = regionTagToPart[tag];
         if (regionPart) {
-          hasSlot = true;
-          collect(child.childNodes, regionPart);
+          list.push({ part: regionPart }); // the placeholder — the region's own entries live in byPart[regionPart]
+          collect(child.childNodes, regionPart, regionPart);
           continue;
+        }
+        if (NURI_SLOT_TAGS.has(tag)) {
+          throw new Error(`[nuri-factory] foreign slot marker '<${tag}>' — not a '${hostTag}' slot`);
         }
       }
       if (child.nodeType === 3 && !child.textContent.trim()) continue;
-      if (fallback) textEntry(fallback, child);
+      if (child.nodeType === 8) continue; // comments are never content
+      if (!fallback) {
+        throw new Error(`[nuri-factory] '${hostTag}' has no default content slot — bare children must use its typed slot markers`);
+      }
+      textEntry(list, fallback, child);
     }
   };
 
-  collect(host.childNodes, fallbackPart);
-  return hasSlot ? entries : null;
+  collect(host.childNodes, 'root', fallbackPart);
+  return byPart;
 }
 
 // Defer the box/stack/palette merge onto the inner <button> the pressable owns.
@@ -322,13 +361,6 @@ function findChildPath(node, part) {
   return null;
 }
 
-function appendContent(content, part, value) {
-  const existing = content[part];
-  if (existing === undefined) content[part] = value;
-  else if (Array.isArray(existing)) content[part] = [...existing, value];
-  else content[part] = [existing, value];
-}
-
 function cloneEntryContent(value) {
   const isTemplate = value && value.nodeType === 1 && value.tagName === 'TEMPLATE';
   return isTemplate ? value.content.cloneNode(true) : value;
@@ -339,31 +371,66 @@ function appendValue(host, value) {
   else host.append(value);
 }
 
+// ── THE GROUPING WALKER · mirrored across engines — edit in LOCKSTEP with
+// packages/rn/runtime/renderer.tsx renderHostBody#appendCompositionEntries (full
+// dedup is a named follow-up). The shared contract is pinned per-cell by the
+// composition-envelope suites (packages/prototype/factory/composition-envelope
+// .test.js · packages/rn/__tests__/composition-envelope.test.tsx).
+// Entry classification against THIS host:
+//   · own    — entry.part === this host: bare content of a region scope,
+//     rendered in place (bare children inside a region stay that region's own
+//     content · the mixed-content contract);
+//   · direct — a direct child part: ONE rendered instance per entry, in
+//     authored order (repeated entries = a SEQUENCE of instances);
+//   · group  — a part nested deeper: routed through its ancestor container
+//     ONCE, the entries re-scoped to that ancestor via ctx.composition (the
+//     ancestor's own walker re-classifies them one level down).
+// Repetition policy: a part may be targeted more than once only where a
+// declared slot marks it `multiple: true`; a singular part targeted twice
+// (including a region marker mixed with loose slots for the same region) fails
+// named — never silent concatenation, never last-wins.
 function appendComposition(host, node, ctx) {
   const entries = ctx.composition && ctx.composition[node.name];
   if (!entries) return false;
   const grouped = new Map();
+  const targets = new Map();
   const ordered = [];
   for (const [index, entry] of entries.entries()) {
+    if (entry.part === node.name) {
+      ordered.push({ kind: 'own', entry, index });
+      continue;
+    }
     const path = findChildPath(node, entry.part);
     if (!path) throw new Error(`[nuri-factory] composition entry targets '${entry.part}', which is not under '${node.name}'`);
     const childNode = path[0];
-    if (path.length > 1 && childNode.el !== 'text' && childNode.el !== 'icon') {
+    if (path.length > 1 && HOST_ELS.includes(childNode.el)) {
       let group = grouped.get(childNode.name);
       if (!group) {
-        group = { child: childNode, content: {} };
+        group = { child: childNode, entries: [] };
         grouped.set(childNode.name, group);
         ordered.push({ kind: 'group', part: childNode.name });
+        targets.set(childNode.name, (targets.get(childNode.name) ?? 0) + 1);
       }
-      appendContent(group.content, entry.part, cloneEntryContent(entry.content));
+      group.entries.push(entry);
       continue;
     }
     ordered.push({ kind: 'direct', child: childNode, entry, index });
+    targets.set(entry.part, (targets.get(entry.part) ?? 0) + 1);
+  }
+  for (const [part, count] of targets) {
+    if (count > 1 && !isMultiPart(ctx.descriptor, part)) {
+      throw new Error(`[nuri-factory] slot targeting part '${part}' is singular — it appears ${count} times under '${node.name}'`);
+    }
   }
   for (const item of ordered) {
+    if (item.kind === 'own') {
+      const value = cloneEntryContent(item.entry.content);
+      if (value != null) appendValue(host, value);
+      continue;
+    }
     const group = item.kind === 'group' ? grouped.get(item.part) : null;
     const childEl = item.kind === 'group' && group
-      ? renderPart(group.child, { ...ctx, content: { ...ctx.content, ...group.content } })
+      ? renderPart(group.child, { ...ctx, composition: { ...ctx.composition, [item.part]: group.entries } })
       : item.kind === 'direct'
         ? renderPart(item.child, { ...ctx, content: { ...ctx.content, [item.entry.part]: cloneEntryContent(item.entry.content) } })
         : null;
@@ -603,28 +670,26 @@ export function defineNuriComponent(descriptor, tagName) {
   // el is addressed by its part name (the `icon` attribute · the per-part path below).
   const primary = anatomy.children.length === 1 ? anatomy.children[0] : undefined;
   const textPrimary = defaultSlotSpec?.kind === 'text';
-  // COMPOUND capability (the topbar-slots slice · descriptor-driven · the web twin
-  // of createNuriComponent's): a non-root HOST part is a fillable REGION (a slot)
-  // → the factory generates a sub-element (<nuri-topbar-leading/center/trailing>,
-  // generalizing the retired <nuri-topbar-content>) and the container harvests its
-  // children into that region. Bare children of the container default to the LAST
-  // region (trailing · "just actions"). A leaf-only anatomy is NOT compound.
-  // The host pair (view · pressable) mirrors schema.ts's HOST_ELS partition —
-  // browser runtime cannot import the .ts, so this is the ONE annotated hand
-  // site of the partition on the web side (the RN renderer + the scripts consume
-  // the exported/SoT-bound lists).
-  const slotParts = anatomy.children.filter((c) => c.el === 'view' || c.el === 'pressable').map((c) => c.name);
-  const isCompound = anatomy.el === 'view' && slotParts.length > 0;
-  const defaultSlot = slotParts[slotParts.length - 1];
-  const slotTagToPart = {};
-  for (const part of slotParts) slotTagToPart[`${tagName}-${part}`] = part;
+  // Slot ROUTING is api-driven: region slots and component slots both come from
+  // api.slots (their tags derive via camelToKebab(slot), matching the RN marker
+  // names) — never from root-element or anatomy special cases, so a deep
+  // descriptor is a data-only add whatever its root host element.
   const regionSlotEntries = Object.entries(apiSlots).filter(([, spec]) => spec.kind === 'region');
   const regionSlotTagToPart = {};
   for (const [slot, spec] of regionSlotEntries) regionSlotTagToPart[`${tagName}-${camelToKebab(slot)}`] = spec.part;
   const componentSlotEntries = Object.entries(apiSlots).filter(([, spec]) => spec.component === true);
   const componentSlotTagToSpec = {};
   for (const [slot, spec] of componentSlotEntries) componentSlotTagToSpec[`${tagName}-${camelToKebab(slot)}`] = spec;
-  const hasComponentSlots = componentSlotEntries.length > 0 || (!isCompound && regionSlotEntries.length > 0);
+  const hasComponentSlots = componentSlotEntries.length > 0;
+  // COMPOUND capability (the topbar-slots slice): region slots WITHOUT component
+  // slots — the container IS the root painting node (apply-NS-to-host) and each
+  // region fills from a wholesale per-region harvest; bare children default to
+  // the region declared `default: true` (Topbar → trailing · "just actions"). A
+  // descriptor that ALSO declares component slots routes through the composition
+  // harvest instead (its regions become validated sub-scopes).
+  const isCompound = regionSlotEntries.length > 0 && !hasComponentSlots;
+  const defaultRegionEntry = regionSlotEntries.find(([, spec]) => spec.default === true);
+  const defaultSlot = defaultRegionEntry ? defaultRegionEntry[1].part : undefined;
   // OPEN-POSITIONAL HOST (the TabBar · §7 · descriptor-driven · the RN createNuriComponent
   // mirror): an `open` root with NO named regions and no lone primary renders its
   // authored POSITIONAL children directly inside the built root. Distinct from
@@ -687,15 +752,28 @@ export function defineNuriComponent(descriptor, tagName) {
       if (mountsTree) this.setAttribute('data-host-tree', '');
       // Decorative · the whole element is hidden from AT (decision 50) — from DATA.
       if (descriptor.decorative) this.setAttribute('aria-hidden', 'true');
-      // Capture ordered leaf composition before the factory tree replaces the
+      // Capture ordered composition before the factory tree replaces the
       // children. With no slot marker, keep the legacy bare text-primary route.
-      if (hasComponentSlots) this.#composition = harvestComposition(this, componentSlotTagToSpec, defaultSlotSpec?.part, regionSlotTagToPart);
+      if (hasComponentSlots) {
+        this.#composition = harvestComposition(this, componentSlotTagToSpec, defaultSlotSpec?.part, regionSlotTagToPart, tagName);
+        // A composition-only host (no default sink, no legacy label route) with
+        // meaningful bare children and no marker at all cannot route them —
+        // fail named rather than render an empty skeleton (the honest-children
+        // contract; the RN adapter harvest throws the same error).
+        if (!this.#composition && !defaultSlotSpec) {
+          for (const child of this.childNodes) {
+            if (child.nodeType === 3 && !child.textContent.trim()) continue;
+            if (child.nodeType === 8) continue;
+            throw new Error(`[nuri-factory] '${tagName}' has no default content slot — bare children must use its typed slot markers`);
+          }
+        }
+      }
       // Capture the authored label BEFORE the factory tree replaces the children
       // (buildComponent routes `children` to the lone non-root text part).
       if (textPrimary && !this.#composition) this.#label = this.textContent.trim();
       // COMPOUND: harvest the region sub-elements + bare children BEFORE the render
       // replaces them (cloned per render · the topbar-slots slice).
-      if (isCompound) this.#slots = harvestSlots(this, slotTagToPart, defaultSlot);
+      if (isCompound) this.#slots = harvestSlots(this, regionSlotTagToPart, defaultSlot);
       // OPEN HOST: capture ALL authored positional children (the Tab items) into a
       // detached <template> BEFORE the render replaces them — #render clones from it,
       // so a re-render (an accent change) still has the content (the harvestSlots
@@ -729,7 +807,10 @@ export function defineNuriComponent(descriptor, tagName) {
       }
       const props = {};
       if (textPrimary) props.children = this.#label;
-      if (this.#composition) props.composition = { root: this.#composition };
+      // The harvested per-scope entry map ({ root: […], [region]: […] }) —
+      // each host's walker consumes its own scope (region entries validate
+      // against the region's anatomy, not the root's).
+      if (this.#composition) props.composition = this.#composition;
       if (interactive) props.disabled = this.hasAttribute('disabled');
       // `selected` boolean attr → props.selected (buildComponent bridges it to the
       // `state` axis · present = selected · absent = unselected).
@@ -786,24 +867,15 @@ export function defineNuriComponent(descriptor, tagName) {
   }
 
   customElements.define(tagName, NuriElement);
-  // COMPOUND: register an INERT marker element per region (<nuri-topbar-leading> …).
-  // The container harvests their children; they never render themselves. Guarded so
-  // a recipe re-import (idempotent define) does not throw.
-  if (isCompound) {
-    for (const part of slotParts) {
-      const slotTag = `${tagName}-${part}`;
-      if (!customElements.get(slotTag)) customElements.define(slotTag, class extends HTMLElement {});
-    }
-  }
-  if (!isCompound) {
-    for (const slot of Object.keys(regionSlotTagToPart)) {
-      if (!customElements.get(slot)) customElements.define(slot, class extends HTMLElement {});
-    }
-  }
-  if (hasComponentSlots) {
-    for (const slot of Object.keys(componentSlotTagToSpec)) {
-      if (!customElements.get(slot)) customElements.define(slot, class extends HTMLElement {});
-    }
+  // Register an INERT marker element per declared region/component slot
+  // (<nuri-topbar-leading> · <nuri-button-text> …). The container harvests
+  // their children; they never render themselves. Guarded so a recipe
+  // re-import (idempotent define) does not throw. Every marker tag is also
+  // recorded in the global registry so ANOTHER component's harvest can fail
+  // named on a foreign marker.
+  for (const slotTag of [...Object.keys(regionSlotTagToPart), ...Object.keys(componentSlotTagToSpec)]) {
+    NURI_SLOT_TAGS.add(slotTag);
+    if (!customElements.get(slotTag)) customElements.define(slotTag, class extends HTMLElement {});
   }
   return NuriElement;
 }

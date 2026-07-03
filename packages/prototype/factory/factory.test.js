@@ -51,6 +51,25 @@ function mount(el) {
 }
 const classesOf = (el) => [...el.classList].sort();
 
+// jsdom reports a connectedCallback exception on the window `error` event
+// instead of propagating it out of appendChild — capture it and assert the
+// NAMED message (the web half of the paired mixed-content contract tests).
+function mountExpectingNamedError(el, pattern) {
+  let caught = null;
+  const onError = (event) => {
+    caught = event.error ?? new Error(event.message);
+    event.preventDefault();
+  };
+  dom.window.addEventListener('error', onError);
+  try {
+    dom.window.document.body.appendChild(el);
+  } finally {
+    dom.window.removeEventListener('error', onError);
+  }
+  assert.ok(caught, 'an invalid composition must fail with a named error');
+  assert.match(caught.message, pattern);
+}
+
 // ══════════════════════════════════════════════════════════════════
 // A · buildComponent · IconAvatar — static merged node + DEFAULT from data
 // ══════════════════════════════════════════════════════════════════
@@ -253,6 +272,71 @@ test('B5 · <nuri-pressable-item> direct typed slots route through their ancesto
   assert.deepEqual([...btn.children[1].querySelectorAll('nuri-typography')].map((el) => el.textContent), ['Bank account', 'Personal']);
   assert.deepEqual([...btn.children[2].querySelectorAll('nuri-typography')].map((el) => el.textContent), ['12.00 €', '3433 Sats']);
   assert.equal(btn.children[3].getAttribute('name'), 'chevron-right');
+});
+
+// ── The mixed-content / repetition contract (decision 83) — PAIRED with the RN
+// render-smoke tests (packages/rn/__tests__/render-smoke.test.tsx · the
+// PressableItem contract block): both engines resolve the same authored
+// composition to the same structure, or fail with the same named error.
+test('B6 · <nuri-pressable-item> · bare region children stay the region\'s own content, order preserved', async () => {
+  const row = dom.window.document.createElement('nuri-pressable-item');
+  row.innerHTML = '<nuri-pressable-item-content>before<nuri-pressable-item-text>Bank account</nuri-pressable-item-text>after</nuri-pressable-item-content>';
+  mount(row);
+  await tick();
+
+  const btn = row.querySelector('button.nuri-interactive');
+  assert.ok(btn, 'the row mounts');
+  assert.equal(btn.children.length, 1, 'the content region renders exactly ONCE');
+  const region = btn.children[0];
+  assert.equal(region.tagName.toLowerCase(), 'nuri-view');
+  const sequence = [...region.childNodes].map((n) =>
+    n.nodeType === 3 ? `#text:${n.textContent}` : `${n.tagName.toLowerCase()}:${n.textContent}`,
+  );
+  assert.deepEqual(
+    sequence,
+    ['#text:before', 'nuri-typography:Bank account', '#text:after'],
+    'bare children mix with typed slots in authored order, inside the region',
+  );
+});
+
+test('B7 · a typed slot targeting a part OUTSIDE its region fails named', () => {
+  const row = dom.window.document.createElement('nuri-pressable-item');
+  row.innerHTML = '<nuri-pressable-item-content><nuri-pressable-item-trailing-text>Wrong</nuri-pressable-item-trailing-text></nuri-pressable-item-content>';
+  mountExpectingNamedError(row, /composition entry targets 'trailingText', which is not under 'content'/);
+});
+
+test('B8 · a multiple:true slot repeats as a SEQUENCE of leaf instances', async () => {
+  const row = dom.window.document.createElement('nuri-pressable-item');
+  row.innerHTML = '<nuri-pressable-item-text>First line</nuri-pressable-item-text><nuri-pressable-item-text>Second line</nuri-pressable-item-text>';
+  mount(row);
+  await tick();
+
+  const btn = row.querySelector('button.nuri-interactive');
+  assert.equal(btn.children.length, 1, 'ONE content region hosts the sequence');
+  const texts = [...btn.children[0].querySelectorAll('nuri-typography')];
+  assert.deepEqual(
+    texts.map((el) => el.textContent),
+    ['First line', 'Second line'],
+    'TWO leaf instances — never one concatenated leaf',
+  );
+});
+
+test('B9 · a repeated SINGULAR icon slot fails named', () => {
+  const row = dom.window.document.createElement('nuri-pressable-item');
+  row.innerHTML = '<nuri-pressable-item-leading-avatar name="arrow-up"></nuri-pressable-item-leading-avatar><nuri-pressable-item-leading-avatar name="arrow-down"></nuri-pressable-item-leading-avatar>';
+  mountExpectingNamedError(row, /slot targeting part 'leadingIcon' is singular — it appears 2 times under 'leadingAvatar'/);
+});
+
+test('B10 · bare children with NO default sink fail named', () => {
+  const row = dom.window.document.createElement('nuri-pressable-item');
+  row.textContent = 'Send money';
+  mountExpectingNamedError(row, /'nuri-pressable-item' has no default content slot/);
+});
+
+test('B11 · a FOREIGN component\'s slot marker fails named', () => {
+  const row = dom.window.document.createElement('nuri-pressable-item');
+  row.innerHTML = '<nuri-pressable-item-content><nuri-button-text>Wrong</nuri-button-text></nuri-pressable-item-content>';
+  mountExpectingNamedError(row, /foreign slot marker '<nuri-button-text>' — not a 'nuri-pressable-item' slot/);
 });
 
 // ══════════════════════════════════════════════════════════════════

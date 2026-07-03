@@ -36,12 +36,12 @@ const buttonDisplayName = nuriNames('button').rn;
 export type ButtonTextProps = {
   children?: React.ReactNode;
 };
-export const ButtonText = createNuriSlot<ButtonTextProps>("label", `${buttonDisplayName}Text`);
+export const ButtonText = createNuriSlot<ButtonTextProps>("label", `${buttonDisplayName}Text`, 'children', buttonDisplayName);
 export type ButtonIconProps = {
   name: IconName;
   children?: never;
 };
-export const ButtonIcon = createNuriSlot<ButtonIconProps>("icon", `${buttonDisplayName}Icon`, 'name');
+export const ButtonIcon = createNuriSlot<ButtonIconProps>("icon", `${buttonDisplayName}Icon`, 'name', buttonDisplayName);
 
 const ButtonInner: React.FC<ButtonProps> = (props) => {
   const selection: Record<string, string> = {
@@ -50,7 +50,7 @@ const ButtonInner: React.FC<ButtonProps> = (props) => {
   };
   const content: Partial<Record<ButtonPart, React.ReactNode>> = {};
   const composition: Partial<Record<ButtonPart, NuriCompositionEntry<ButtonPart>[]>> = {};
-  const harvestedComposition = harvestNuriComposition<ButtonPart>(props.children, "label");
+  const harvestedComposition = harvestNuriComposition<ButtonPart>(props.children, "label", buttonDisplayName);
   if (harvestedComposition.hasSlots) {
     composition.root = harvestedComposition.items;
   }
