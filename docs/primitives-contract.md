@@ -79,10 +79,12 @@ consumer can write).
 | **Screen** (structural) | `<nuri-screen>` · [screen.js](packages/prototype/primitives/screen.js) + [screen.css](packages/prototype/primitives/screen.css) | ✅ flex-column fill | ✅ **`Screen`** ([primitives/Screen.tsx](packages/rn/primitives/Screen.tsx)) | none — pure structural fill |
 | **Scroll** (structural) | `<nuri-scroll>` · [scroll.js](packages/prototype/primitives/scroll.js) + [scroll.css](packages/prototype/primitives/scroll.css) | ✅ flex-fill + overflow | ✅ **`Scroll`** ([primitives/Scroll.tsx](packages/rn/primitives/Scroll.tsx)) | none — pure structural fill + overflow |
 | **Separator** | `<nuri-separator>` · [separator.js](packages/prototype/primitives/separator.js) + [separator.css](packages/prototype/primitives/separator.css) | ✅ horizontal hairline | ✅ **`Separator`** ([primitives/Separator.tsx](packages/rn/primitives/Separator.tsx)) | local `ySpace: none \| xs \| sm \| md \| lg \| xl`; visible line uses `border.1` + scoped `border.subtle` |
+| **ListSeparator** (preset) | `<nuri-list-separator>` · [list-separator.js](packages/prototype/primitives/list-separator.js) + [list-separator.css](packages/prototype/primitives/list-separator.css) | ✅ list-family inset wrapper over `<nuri-separator y-space="none">` | ✅ **`ListSeparator`** ([primitives/ListSeparator.tsx](packages/rn/primitives/ListSeparator.tsx)) | none — no props; fixed `md` inset, hairline delegated to Separator |
 
 All contracted primitives now have web + RN implementations. Separator is a parity primitive because
 the hairline width and scoped border colour are part of the DS contract, even though its prop surface
-stays intentionally local and small.
+stays intentionally local and small. ListSeparator is a preset beside it: it owns only the list-family
+inset, so the hairline paint remains single-sourced in Separator.
 
 **Screen / Scroll do NOT map to the descriptor factory.** They are structural containers with no
 namespace composition. On RN they map to react-native directly, per their own headers:
@@ -184,6 +186,7 @@ now exports the open primitive layer (`View`, `Stack`, `Text`, `Pressable`, `Scr
 | **Screen** | `<nuri-screen>` | `Screen` — structural full-screen wrapper |
 | **Scroll** | `<nuri-scroll>` | `Scroll` — structural scroll wrapper |
 | **Separator** | `<nuri-separator>` | `Separator` — horizontal `border.1` hairline with scoped `border.subtle` |
+| **ListSeparator** | `<nuri-list-separator>` | `ListSeparator` — fixed-md list inset over `Separator ySpace="none"` |
 | **Icon** | `<nuri-icon>` | `NuriIcon` |
 
 The RN wrappers reuse the existing runtime appliers: `resolveNS` / `flattenInteractive`
