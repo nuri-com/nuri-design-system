@@ -328,8 +328,12 @@ function renderInteractiveView(node, ns, ctx) {
   // GATED opt that is on, set the host attr derived from the opt key (= opts[key].gate ·
   // single-sourced via INTERACTIVE_GATES + the guard · no hardcoded attr string here).
   // disabledOpacity is automatic (interactive.css dims a disabled host).
+  // The merged map is SELECTION-DEPENDENT (a descriptor may declare `interactive`
+  // only under some variant values — coherence direction 4 requires base OR a
+  // variant); the HOST is not — el:'pressable' reaches here regardless, so a
+  // selection that merges no interactive map renders gate-attr-free, not a crash.
   for (const key of INTERACTIVE_GATES) {
-    if (ns.interactive[key]) host.setAttribute(camelToKebab(key), '');
+    if (ns.interactive?.[key]) host.setAttribute(camelToKebab(key), '');
   }
 
   // instance / base props (the createNuriComponent NuriBaseProps mirror).

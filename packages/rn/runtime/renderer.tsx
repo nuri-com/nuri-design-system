@@ -209,16 +209,23 @@ function renderPart<A extends Axes>(
 
     case 'pressable': {
       // The host is structural (el:'pressable' · amendment 65.13); the behaviour
-      // channel supplies only the runtime handlers (the coherence guard pins the
-      // declared target ≡ this part).
+      // channel supplies only the runtime handlers. The coherence guard pins the
+      // SPEC data (target ≡ el:'pressable'), but `renderDescriptorInstance` is a
+      // PUBLIC surface and `ctx.behaviour` is caller input — a pressable part the
+      // behaviour does not target would render an a11y-announced dead button
+      // (accessibilityRole="button", no handler). That is a caller error, the
+      // same class as the missing-baked-recipe throw above; fail named.
+      if (!pressable) {
+        throw new Error(`nuri-factory: part '${node.name}' is el:'pressable' but behaviour.pressable does not target it`);
+      }
       return (
         <Pressable
           key={node.name}
-          onPress={pressable?.onPress}
+          onPress={pressable.onPress}
           disabled={disabled}
           accessibilityRole="button"
           accessibilityState={{ disabled }}
-          accessibilityLabel={pressable?.accessibilityLabel}
+          accessibilityLabel={pressable.accessibilityLabel}
           {...a11yHide}
           style={({ pressed }) =>
             flattenBakedPart(recipePart, ctx.descriptor, ctx.theme, node.name, ctx.selection, {
