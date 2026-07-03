@@ -5356,3 +5356,29 @@ The in-code prose this direction contradicts is tracked in [`roadmap/post-migrat
 - **Bare muted RN text now follows scoped theme colour.** A palette `{ muted: true }` with no variant/chrome resolves to the active scoped theme's muted foreground, closing the dark-scope fallback gap.
 
 **Base**: [decision 70](../decisionlog.md) (one SoT, projected into web/RN) · [decision 80](../decisionlog.md) (projection-owned resolution) · [decision 48](../decisionlog.md) (one source, N readers). **Realizes**: `packages/spec/tokens/dimensions.ts` · `scripts/parsers/{dimension-css,dimension-tokens,recipes,semantic,token-paths}.js` · generated web token CSS + RN token data · `packages/rn/runtime/resolve.ts` · `packages/rn/primitives/Separator.tsx` · `packages/prototype/primitives/separator.css` · the updated guards and generated docs. **Next**: the separate W3 `typography.align` schema bump; not included here.
+
+## 82. `typography.align` is a text-axis field · W3 schema bump · N+56
+
+**Operator-ratified · deliberate Guard-F schema bump.** `TypographyNS` now includes
+`align?: 'start' | 'center' | 'end'` as a text-axis field. It is not
+`StackNS.align`: Stack alignment lays out children; typography alignment maps to
+the text node's own alignment.
+
+- **Web was already carrying the raw wrapper dispatch.** The generated typography
+  wrapper CSS had `nuri-typography[align="start|center|end"]` rules. This slice
+  makes the schema, the custom element's observed attr list, the RN resolver, and
+  the Expo consumer screens honest with that existing axis.
+- **RN maps the same semantic vocabulary into `TextStyle.textAlign`.** `center`
+  stays `center`; `start` and `end` map explicitly to `left` and `right` for the
+  current LTR app/runtime. This does not build an RTL system.
+- **Scope is W3 only.** No list-item descriptor, board work, inverse-card theme
+  feature, or additional typography feature is included. The #133 hairline /
+  Separator / bare-muted text slice stays closed.
+
+**Base**: decision 65 (frozen schema changes are versioned) · decision 73
+(typography is a bespoke axis) · decision 80 (projection-owned resolution) ·
+decision 81 (W3 was separate from the hairline slice). **Realizes**:
+`packages/spec/components/schema.ts` · `scripts/docs-drift.test.js` ·
+`packages/prototype/primitives/typography.js` · `packages/rn/runtime/resolve.ts` ·
+`packages/rn/primitives/Text.tsx` · the Expo wallet/coin/cash consumer proof and
+focused resolver/parity/bake guards.

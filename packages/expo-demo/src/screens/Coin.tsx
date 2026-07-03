@@ -34,9 +34,7 @@ export const Coin: React.FC = () => (
 
     <View direction="column" align="stretch" justify="start" gap="lg" paddingX="lg" paddingY="md" fill="grow">
       <View aspectRatio="card" radius="lg" />
-      <View align="center">
-        <Text size="3xl" emphasis>₿ 0.0413</Text>
-      </View>
+      <Text size="3xl" emphasis align="center">₿ 0.0413</Text>
       <View direction="row" align="center" gap="sm">
         <View fill="even">
           <Button size="lg" variant="soft">Details</Button>

@@ -15,6 +15,7 @@ nav_order: 9
 | --- | --- | --- | --- |
 | `size` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '3xl'` | style axis |
 | `emphasis` | no | `boolean` | style axis |
+| `align` | no | `'start' | 'center' | 'end'` | style axis |
 | `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `muted` | no | `boolean` | style axis |

@@ -10,8 +10,8 @@
  *   · SELECTION-DEPENDENT interactivity — an `interactive` opt-in in a VARIANT
  *     (not just base) is carried through the base/variant channel (the reviewer's
  *     blocking finding #1 · was base-only).
- *   · EMPHASIS-ONLY typography — a variant that changes only `emphasis` over a base
- *     `size` is baked as a mergeable partial (finding #2 · was dropped).
+ *   · TYPOGRAPHY-ONLY partials — a variant that changes only `emphasis` or `align`
+ *     over a base `size` is baked as a mergeable partial (finding #2 · was dropped).
  *
  * Bakes synthetic descriptors against the SAME single-sourced spec deps the build
  * uses (loadRecipeDeps · no divergent fixture). Sibling to tokens-parser.test.js —
@@ -54,25 +54,29 @@ test('the bake carries VARIANT-LEVEL interactive (not base-only · reviewer find
   assert.deepEqual(recipe.root.geometry.base, { flexDirection: 'row' });
 });
 
-test('the bake carries EMPHASIS-ONLY typography variants as mergeable partials (finding #2)', () => {
+test('the bake carries EMPHASIS/ALIGN-ONLY typography variants as mergeable partials (finding #2)', () => {
   const descriptor = {
     structure: {
-      anatomy: { el: 'view', parts: { label: { el: 'text' } } },
+      anatomy: { el: 'view', parts: { label: { el: 'text' }, value: { el: 'text' } } },
       base: { label: { typography: { size: 'md', emphasis: true } } },
     },
     variants: {
       tone: {
-        normal: { label: { typography: { emphasis: false } } },
-        loud: { label: { typography: { emphasis: true } } },
+        normal: { label: { typography: { emphasis: false } }, value: { typography: { align: 'start' } } },
+        loud: { label: { typography: { emphasis: true } }, value: { typography: { align: 'end' } } },
       },
     },
   };
   const recipe = buildGeometryRecipe(descriptor, deps);
-  // the base `size` + the emphasis-only variant overrides survive as raw partials —
-  // the runtime merges + resolves them (normal → { size:md }, loud → { size:md, emphasis }).
+  // the base `size` + the typography-only variant overrides survive as raw partials —
+  // the runtime merges + resolves them (normal → { size:md }, loud → { size:md, emphasis };
+  // align-only survives even when no size is present).
   assert.deepEqual(recipe.label.typography, {
     base: { size: 'md', emphasis: true },
     variants: { tone: { normal: { emphasis: false }, loud: { emphasis: true } } },
+  });
+  assert.deepEqual(recipe.value.typography, {
+    variants: { tone: { normal: { align: 'start' }, loud: { align: 'end' } } },
   });
 });
 

@@ -110,6 +110,30 @@ describe('baseline theme (resolver-model §11)', () => {
   });
 });
 
+describe('typography align — text-axis alignment resolves through the RN resolver', () => {
+  const theme = buildNuriTheme('lilac', 'light');
+
+  test('align="center" resolves to centered RN Text style', () => {
+    const centered: Descriptor<Record<string, never>> = {
+      structure: { anatomy: { el: 'text' }, base: { root: { typography: { size: 'md', align: 'center' } } } },
+      api: { axes: [], slots: {} },
+    };
+    expect(flattenPart(centered, theme, 'root', {}, {}).style).toMatchObject({ textAlign: 'center' });
+    expect(resolveNS({ typography: { size: 'md', align: 'center' } }, theme).text).toEqual({ textAlign: 'center' });
+  });
+
+  test('align-only typography still resolves when size is absent', () => {
+    const node = resolveNS({ typography: { align: 'center' } }, theme);
+    expect(node.type).toBeUndefined();
+    expect(node.text).toEqual({ textAlign: 'center' });
+  });
+
+  test('start/end map explicitly for the current LTR runtime', () => {
+    expect(resolveNS({ typography: { align: 'start' } }, theme).text).toEqual({ textAlign: 'left' });
+    expect(resolveNS({ typography: { align: 'end' } }, theme).text).toEqual({ textAlign: 'right' });
+  });
+});
+
 describe('Button — the richest descriptor (every namespace + interactive · via flattenPart)', () => {
   const theme = buildNuriTheme('lilac', 'light');
   const rootCell = (variant: string, size_: string, state = {}) =>
