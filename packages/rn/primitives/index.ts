@@ -51,3 +51,5 @@ export { NuriIcon } from './NuriIcon';
 export type { NuriIconProps } from './NuriIcon';
 export { Separator } from './Separator';
 export type { SeparatorProps, SeparatorYSpace } from './Separator';
+export { ListSeparator } from './ListSeparator';
+export type { ListSeparatorProps } from './ListSeparator';

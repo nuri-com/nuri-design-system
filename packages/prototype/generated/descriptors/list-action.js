@@ -1,21 +1,21 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · COMPONENT DESCRIPTOR · PRESSABLE-ITEM · BROWSER ESM · GENERATED · DO NOT EDIT BY HAND
+ * NURI · COMPONENT DESCRIPTOR · LIST-ACTION · BROWSER ESM · GENERATED · DO NOT EDIT BY HAND
  *
- * The browser-ESM twin of packages/spec/components/pressable-item.ts — IDENTICAL data,
+ * The browser-ESM twin of packages/spec/components/list-action.ts — IDENTICAL data,
  * the authored source type-stripped (no `import type`, no axes type, no
- * `: Descriptor<…>` annotation). A browser can `import { pressableItemDescriptor }`
+ * `: Descriptor<…>` annotation). A browser can `import { listActionDescriptor }`
  * from it at runtime with NO build step — the prototype web factory
  * (packages/prototype/factory/factory.js · decision 67) consumes it to render a de-collapsed
  * nuri-* tree, preserving the zero-build composition property (decision 66 ·
  * what Nuri IS #3).
  *
- * Source · packages/spec/components/pressable-item.ts (the AUTHORED SoT · §9 step 1 ·
+ * Source · packages/spec/components/list-action.ts (the AUTHORED SoT · §9 step 1 ·
  * decision 69 · N+29 B1). Emitter · scripts/tokens-parser.js — `npm run build`.
  * Committed (decision 35) · the re-emit gate covers packages/prototype/generated/.
  * NEVER hand-edit generated/ — edit the authored source above.
  * ────────────────────────────────────────────────────────────── */
 
-export const pressableItemDescriptor = {
+export const listActionDescriptor = {
   structure: {
     anatomy: {
       el: 'pressable',
@@ -36,7 +36,6 @@ export const pressableItemDescriptor = {
       leadingAvatar: {
         stack: { align: 'center', justify: 'center' },
         box: { width: 'lg', height: 'lg', radius: 'full' },
-        palette: { variant: 'outline' },
       },
       leadingIcon: { box: { width: 'xs', height: 'xs' } },
       content: {
@@ -52,8 +51,20 @@ export const pressableItemDescriptor = {
       trailIcon: { box: { width: 'xs', height: 'xs' }, palette: { variant: 'subtle' } },
     },
   },
+  variants: {
+    // The row stays a ghost surface; variant is routed deliberately to the
+    // leading avatar so grouped row surfaces can belong to a future list-group.
+    variant: {
+      outline: { leadingAvatar: { palette: { variant: 'outline' } } },
+      solid: { leadingAvatar: { palette: { variant: 'solid' } } },
+      soft: { leadingAvatar: { palette: { variant: 'soft' } } },
+      ghost: { leadingAvatar: { palette: { variant: 'ghost' } } },
+      subtle: { leadingAvatar: { palette: { variant: 'subtle' } } },
+    },
+  },
+  defaults: { variant: 'outline' },
   api: {
-    axes: [],
+    axes: ['variant'],
     themeScope: { accent: true },
     behaviour: { pressable: { target: 'root', props: ['onPress', 'disabled', 'accessibilityLabel'] } },
     slots: {

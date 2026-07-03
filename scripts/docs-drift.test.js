@@ -198,10 +198,18 @@ const EXPECTED_DESCRIPTORS = {
     parts: ['icon'],
     interactive: ['pressColor', 'pressScale', 'disabledOpacity'],
   },
-  // pressable-item (the row-action foundation) — a pressColor-only row with nested
-  // containers for leading avatar, content, trailing value stack, and trailing icon.
-  'pressable-item': {
+  // list (the list family's open host) — a gap-free column that accepts rows and
+  // separators as positional children. It names no row slots by design.
+  list: {
     axes: {},
+    parts: [],
+    interactive: [],
+  },
+  // list-action (the list family's pressable row · decision 84) — a
+  // pressColor-only row with nested containers for leading avatar, content,
+  // trailing value stack, and trailing icon.
+  'list-action': {
+    axes: { variant: ['outline', 'solid', 'soft', 'ghost', 'subtle'] },
     parts: [
       'leadingAvatar',
       'leadingIcon',

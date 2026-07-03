@@ -531,7 +531,464 @@ exports[`render-smoke — the ergonomic components mount headless IconButton —
 </View>
 `;
 
-exports[`render-smoke — the ergonomic components mount headless PressableItem — direct row slots render avatar, content, trailing value, and trail icon 1`] = `
+exports[`render-smoke — the ergonomic components mount headless List — open container preserves positional rows and separators 1`] = `
+<View
+  style={
+    {
+      "alignItems": "stretch",
+      "flexDirection": "column",
+    }
+  }
+>
+  <View
+    accessibilityLabel="Bank"
+    accessibilityRole="button"
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": false,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "transparent",
+        "borderRadius": 18,
+        "flexDirection": "row",
+        "gap": 12,
+        "padding": 12,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "transparent",
+          "borderColor": "#dddac9",
+          "borderRadius": 9999,
+          "borderWidth": 1,
+          "height": 48,
+          "justifyContent": "center",
+          "width": 48,
+        }
+      }
+    >
+      <RNSVGSvgView
+        align="xMidYMid"
+        bbHeight={18}
+        bbWidth={18}
+        color="#666455"
+        fill="currentColor"
+        focusable={false}
+        height={18}
+        meetOrSlice={0}
+        minX={0}
+        minY={0}
+        style={
+          [
+            {
+              "backgroundColor": "transparent",
+              "borderWidth": 0,
+            },
+            {
+              "flex": 0,
+              "height": 18,
+              "width": 18,
+            },
+          ]
+        }
+        vbHeight={32}
+        vbWidth={32}
+        width={18}
+        xml="<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M4.0002 27C4.0002 26.4477 4.44791 26 5.0002 26H27.0002C27.5525 26 28.0002 26.4477 28.0002 27C28.0002 27.5523 27.5525 28 27.0002 28H5.0002C4.44791 28 4.0002 27.5523 4.0002 27Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M27.9614 10.3919C27.7746 11.3269 26.9537 12 26.0002 12H6.0002C5.04671 12 4.22581 11.3269 4.03897 10.3919C3.85213 9.4569 4.35132 8.52002 5.23158 8.15359L14.4383 4.32107C14.939 4.1014 15.4783 4 16.0002 4C16.5221 4 17.0614 4.1014 17.5621 4.32107L26.7688 8.15359C27.6491 8.52002 28.1483 9.4569 27.9614 10.3919ZM16.7726 6.15876C16.5422 6.05511 16.2741 6 16.0002 6C15.7263 6 15.4582 6.05511 15.2278 6.15876L6.0002 10H26.0002L16.7726 6.15876Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M6.0002 14C6.55248 14 7.0002 14.4477 7.0002 15V22H9.0002V15C9.0002 14.4477 9.44791 14 10.0002 14C10.5525 14 11.0002 14.4477 11.0002 15V23C11.0002 23.5523 10.5525 24 10.0002 24H6.0002C5.44791 24 5.0002 23.5523 5.0002 23V15C5.0002 14.4477 5.44791 14 6.0002 14Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M14.0002 14C14.5525 14 15.0002 14.4477 15.0002 15V22H17.0002V15C17.0002 14.4477 17.4479 14 18.0002 14C18.5525 14 19.0002 14.4477 19.0002 15V23C19.0002 23.5523 18.5525 24 18.0002 24H14.0002C13.4479 24 13.0002 23.5523 13.0002 23V15C13.0002 14.4477 13.4479 14 14.0002 14Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M22.0002 14C22.5525 14 23.0002 14.4477 23.0002 15V22H25.0002V15C25.0002 14.4477 25.4479 14 26.0002 14C26.5525 14 27.0002 14.4477 27.0002 15V23C27.0002 23.5523 26.5525 24 26.0002 24H22.0002C21.4479 24 21.0002 23.5523 21.0002 23V15C21.0002 14.4477 21.4479 14 22.0002 14Z" fill="currentColor"/></svg>"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <RNSVGGroup
+          fill={
+            {
+              "type": 2,
+            }
+          }
+          propList={
+            [
+              "fill",
+            ]
+          }
+        >
+          <RNSVGPath
+            clipRule={0}
+            d="M4.0002 27C4.0002 26.4477 4.44791 26 5.0002 26H27.0002C27.5525 26 28.0002 26.4477 28.0002 27C28.0002 27.5523 27.5525 28 27.0002 28H5.0002C4.44791 28 4.0002 27.5523 4.0002 27Z"
+            fill={
+              {
+                "type": 2,
+              }
+            }
+            fillRule={0}
+            propList={
+              [
+                "fill",
+                "fillRule",
+              ]
+            }
+          />
+          <RNSVGPath
+            clipRule={0}
+            d="M27.9614 10.3919C27.7746 11.3269 26.9537 12 26.0002 12H6.0002C5.04671 12 4.22581 11.3269 4.03897 10.3919C3.85213 9.4569 4.35132 8.52002 5.23158 8.15359L14.4383 4.32107C14.939 4.1014 15.4783 4 16.0002 4C16.5221 4 17.0614 4.1014 17.5621 4.32107L26.7688 8.15359C27.6491 8.52002 28.1483 9.4569 27.9614 10.3919ZM16.7726 6.15876C16.5422 6.05511 16.2741 6 16.0002 6C15.7263 6 15.4582 6.05511 15.2278 6.15876L6.0002 10H26.0002L16.7726 6.15876Z"
+            fill={
+              {
+                "type": 2,
+              }
+            }
+            fillRule={0}
+            propList={
+              [
+                "fill",
+                "fillRule",
+              ]
+            }
+          />
+          <RNSVGPath
+            clipRule={0}
+            d="M6.0002 14C6.55248 14 7.0002 14.4477 7.0002 15V22H9.0002V15C9.0002 14.4477 9.44791 14 10.0002 14C10.5525 14 11.0002 14.4477 11.0002 15V23C11.0002 23.5523 10.5525 24 10.0002 24H6.0002C5.44791 24 5.0002 23.5523 5.0002 23V15C5.0002 14.4477 5.44791 14 6.0002 14Z"
+            fill={
+              {
+                "type": 2,
+              }
+            }
+            fillRule={0}
+            propList={
+              [
+                "fill",
+                "fillRule",
+              ]
+            }
+          />
+          <RNSVGPath
+            clipRule={0}
+            d="M14.0002 14C14.5525 14 15.0002 14.4477 15.0002 15V22H17.0002V15C17.0002 14.4477 17.4479 14 18.0002 14C18.5525 14 19.0002 14.4477 19.0002 15V23C19.0002 23.5523 18.5525 24 18.0002 24H14.0002C13.4479 24 13.0002 23.5523 13.0002 23V15C13.0002 14.4477 13.4479 14 14.0002 14Z"
+            fill={
+              {
+                "type": 2,
+              }
+            }
+            fillRule={0}
+            propList={
+              [
+                "fill",
+                "fillRule",
+              ]
+            }
+          />
+          <RNSVGPath
+            clipRule={0}
+            d="M22.0002 14C22.5525 14 23.0002 14.4477 23.0002 15V22H25.0002V15C25.0002 14.4477 25.4479 14 26.0002 14C26.5525 14 27.0002 14.4477 27.0002 15V23C27.0002 23.5523 26.5525 24 26.0002 24H22.0002C21.4479 24 21.0002 23.5523 21.0002 23V15C21.0002 14.4477 21.4479 14 22.0002 14Z"
+            fill={
+              {
+                "type": 2,
+              }
+            }
+            fillRule={0}
+            propList={
+              [
+                "fill",
+                "fillRule",
+              ]
+            }
+          />
+        </RNSVGGroup>
+      </RNSVGSvgView>
+    </View>
+    <View
+      style={
+        {
+          "alignItems": "flex-start",
+          "flexDirection": "column",
+          "flexGrow": 1,
+          "flexShrink": 0,
+          "justifyContent": "center",
+        }
+      }
+    >
+      <Text
+        ellipsizeMode="tail"
+        numberOfLines={1}
+        style={
+          [
+            {
+              "fontSize": 17,
+              "fontWeight": "600",
+              "letterSpacing": -0.34,
+              "lineHeight": 21.93,
+            },
+            {
+              "color": "#222013",
+            },
+            {
+              "flexShrink": 1,
+              "textAlign": "center",
+            },
+            {
+              "textAlign": "left",
+            },
+          ]
+        }
+      >
+        Bank account
+      </Text>
+    </View>
+  </View>
+  <View
+    style={
+      {
+        "paddingHorizontal": 12,
+      }
+    }
+  >
+    <View
+      accessibilityRole="none"
+      style={
+        {
+          "backgroundColor": "#dddac9",
+          "height": 1,
+          "marginVertical": 0,
+          "width": "100%",
+        }
+      }
+    />
+  </View>
+  <View
+    accessibilityLabel="Card"
+    accessibilityRole="button"
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": false,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "transparent",
+        "borderRadius": 18,
+        "flexDirection": "row",
+        "gap": 12,
+        "padding": 12,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "transparent",
+          "borderColor": "#dddac9",
+          "borderRadius": 9999,
+          "borderWidth": 1,
+          "height": 48,
+          "justifyContent": "center",
+          "width": 48,
+        }
+      }
+    >
+      <RNSVGSvgView
+        align="xMidYMid"
+        bbHeight={18}
+        bbWidth={18}
+        color="#666455"
+        fill="currentColor"
+        focusable={false}
+        height={18}
+        meetOrSlice={0}
+        minX={0}
+        minY={0}
+        style={
+          [
+            {
+              "backgroundColor": "transparent",
+              "borderWidth": 0,
+            },
+            {
+              "flex": 0,
+              "height": 18,
+              "width": 18,
+            },
+          ]
+        }
+        vbHeight={32}
+        vbWidth={32}
+        width={18}
+        xml="<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M6 17C6 16.4477 6.44772 16 7 16H11C11.5523 16 12 16.4477 12 17C12 17.5523 11.5523 18 11 18H7C6.44772 18 6 17.5523 6 17Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M16 17C16 16.4477 16.4477 16 17 16H25C25.5523 16 26 16.4477 26 17C26 17.5523 25.5523 18 25 18H17C16.4477 18 16 17.5523 16 17Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M16 21C16 20.4477 16.4477 20 17 20H25C25.5523 20 26 20.4477 26 21C26 21.5523 25.5523 22 25 22H17C16.4477 22 16 21.5523 16 21Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M26 8H6C4.89543 8 4 8.89543 4 10V22C4 23.1046 4.89543 24 6 24H26C27.1046 24 28 23.1046 28 22V10C28 8.89543 27.1046 8 26 8ZM6 6C3.79086 6 2 7.79086 2 10V22C2 24.2091 3.79086 26 6 26H26C28.2091 26 30 24.2091 30 22V10C30 7.79086 28.2091 6 26 6H6Z" fill="currentColor"/></svg>"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <RNSVGGroup
+          fill={
+            {
+              "type": 2,
+            }
+          }
+          propList={
+            [
+              "fill",
+            ]
+          }
+        >
+          <RNSVGPath
+            clipRule={0}
+            d="M6 17C6 16.4477 6.44772 16 7 16H11C11.5523 16 12 16.4477 12 17C12 17.5523 11.5523 18 11 18H7C6.44772 18 6 17.5523 6 17Z"
+            fill={
+              {
+                "type": 2,
+              }
+            }
+            fillRule={0}
+            propList={
+              [
+                "fill",
+                "fillRule",
+              ]
+            }
+          />
+          <RNSVGPath
+            clipRule={0}
+            d="M16 17C16 16.4477 16.4477 16 17 16H25C25.5523 16 26 16.4477 26 17C26 17.5523 25.5523 18 25 18H17C16.4477 18 16 17.5523 16 17Z"
+            fill={
+              {
+                "type": 2,
+              }
+            }
+            fillRule={0}
+            propList={
+              [
+                "fill",
+                "fillRule",
+              ]
+            }
+          />
+          <RNSVGPath
+            clipRule={0}
+            d="M16 21C16 20.4477 16.4477 20 17 20H25C25.5523 20 26 20.4477 26 21C26 21.5523 25.5523 22 25 22H17C16.4477 22 16 21.5523 16 21Z"
+            fill={
+              {
+                "type": 2,
+              }
+            }
+            fillRule={0}
+            propList={
+              [
+                "fill",
+                "fillRule",
+              ]
+            }
+          />
+          <RNSVGPath
+            clipRule={0}
+            d="M26 8H6C4.89543 8 4 8.89543 4 10V22C4 23.1046 4.89543 24 6 24H26C27.1046 24 28 23.1046 28 22V10C28 8.89543 27.1046 8 26 8ZM6 6C3.79086 6 2 7.79086 2 10V22C2 24.2091 3.79086 26 6 26H26C28.2091 26 30 24.2091 30 22V10C30 7.79086 28.2091 6 26 6H6Z"
+            fill={
+              {
+                "type": 2,
+              }
+            }
+            fillRule={0}
+            propList={
+              [
+                "fill",
+                "fillRule",
+              ]
+            }
+          />
+        </RNSVGGroup>
+      </RNSVGSvgView>
+    </View>
+    <View
+      style={
+        {
+          "alignItems": "flex-start",
+          "flexDirection": "column",
+          "flexGrow": 1,
+          "flexShrink": 0,
+          "justifyContent": "center",
+        }
+      }
+    >
+      <Text
+        ellipsizeMode="tail"
+        numberOfLines={1}
+        style={
+          [
+            {
+              "fontSize": 17,
+              "fontWeight": "600",
+              "letterSpacing": -0.34,
+              "lineHeight": 21.93,
+            },
+            {
+              "color": "#222013",
+            },
+            {
+              "flexShrink": 1,
+              "textAlign": "center",
+            },
+            {
+              "textAlign": "left",
+            },
+          ]
+        }
+      >
+        Credit card
+      </Text>
+    </View>
+  </View>
+</View>
+`;
+
+exports[`render-smoke — the ergonomic components mount headless ListAction — direct row slots render avatar, content, trailing value, and trail icon 1`] = `
 <View
   accessibilityLabel="Transaction"
   accessibilityRole="button"

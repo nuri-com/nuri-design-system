@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>Nuri · Playground · Pressable Item</title>
+  <title>Nuri · Playground · List Action</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="../../prototype/primitives/icon.css" />
   <link rel="stylesheet" href="../../prototype/primitives/pressable.css" />
   <link rel="stylesheet" href="../../prototype/primitives/separator.css" />
+  <link rel="stylesheet" href="../../prototype/primitives/list-separator.css" />
   <link rel="stylesheet" href="../../prototype/styles/typography.css" />
   <link rel="stylesheet" href="../../prototype/styles/stack.css" />
   <link rel="stylesheet" href="../../prototype/styles/box.css" />
@@ -45,52 +46,53 @@
   <script src="../../prototype/primitives/stack.js" defer></script>
   <script src="../../prototype/primitives/view.js" type="module"></script>
   <script src="../../prototype/primitives/separator.js" defer></script>
-  <script src="../../prototype/recipes/pressable-item.js" type="module"></script>
+  <script src="../../prototype/recipes/list.js" type="module"></script>
+  <script src="../../prototype/recipes/list-action.js" type="module"></script>
   <script src="../../prototype/recipes/topbar.js" type="module"></script>
   <script src="../../prototype/demo/demo.js" defer></script>
 
 </head>
 <body>
 
-<nuri-playground-shell doc="Pressable Item">
+<nuri-playground-shell doc="List Action">
 
   <nuri-demo layout="board" controls="device,theme,accent" label="navigation">
     <template>
-      <nuri-view direction="column" align="stretch" justify="center" gap="none" fill padding-x="sm">
-        <nuri-pressable-item aria-label="Bank account">
-          <nuri-pressable-item-leading-avatar name="bank"></nuri-pressable-item-leading-avatar>
-          <nuri-pressable-item-text>Bank account</nuri-pressable-item-text>
-          <nuri-pressable-item-trail-icon name="chevron-right"></nuri-pressable-item-trail-icon>
-        </nuri-pressable-item>
-        <nuri-view padding-x="md"><nuri-separator y-space="sm"></nuri-separator></nuri-view>
-        <nuri-pressable-item aria-label="Credit card">
-          <nuri-pressable-item-leading-avatar name="card"></nuri-pressable-item-leading-avatar>
-          <nuri-pressable-item-text>Credit card</nuri-pressable-item-text>
-          <nuri-pressable-item-trail-icon name="chevron-right"></nuri-pressable-item-trail-icon>
-        </nuri-pressable-item>
-      </nuri-view>
+      <nuri-list>
+        <nuri-list-action aria-label="Bank account">
+          <nuri-list-action-leading-avatar name="bank"></nuri-list-action-leading-avatar>
+          <nuri-list-action-text>Bank account</nuri-list-action-text>
+          <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+        </nuri-list-action>
+        <nuri-list-separator></nuri-list-separator>
+        <nuri-list-action aria-label="Credit card">
+          <nuri-list-action-leading-avatar name="card"></nuri-list-action-leading-avatar>
+          <nuri-list-action-text>Credit card</nuri-list-action-text>
+          <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+        </nuri-list-action>
+      </nuri-list>
     </template>
   </nuri-demo>
 
   <nuri-demo layout="board" controls="device,theme,accent" label="transactions">
     <template>
-      <nuri-view direction="column" align="stretch" justify="center" gap="none" fill padding-x="sm">
-        <nuri-pressable-item aria-label="To Emin Mahrt, minus 12 euros">
-          <nuri-pressable-item-leading-avatar name="arrow-up"></nuri-pressable-item-leading-avatar>
-          <nuri-pressable-item-text>To Emin Mahrt</nuri-pressable-item-text>
-          <nuri-pressable-item-text-muted>Sent • Wed, 16 May</nuri-pressable-item-text-muted>
-          <nuri-pressable-item-trailing-text>- 12.00 €</nuri-pressable-item-trailing-text>
-          <nuri-pressable-item-trailing-text-muted>3433 Sats</nuri-pressable-item-trailing-text-muted>
-        </nuri-pressable-item>
-        <nuri-view padding-x="md"><nuri-separator y-space="sm"></nuri-separator></nuri-view>
-        <nuri-pressable-item aria-label="From Apple Pay, 12 euros">
-          <nuri-pressable-item-leading-avatar name="transfer-horizontal"></nuri-pressable-item-leading-avatar>
-          <nuri-pressable-item-text>From Apple Pay</nuri-pressable-item-text>
-          <nuri-pressable-item-text-muted>Convert • Wed, 16 May</nuri-pressable-item-text-muted>
-          <nuri-pressable-item-trailing-text>12.00 €</nuri-pressable-item-trailing-text>
-          <nuri-pressable-item-trailing-text-muted>3433 Sats</nuri-pressable-item-trailing-text-muted>
-        </nuri-pressable-item>
-      </nuri-view>
+      <nuri-list>
+        <nuri-list-action variant="solid" aria-label="To Emin Mahrt, minus 12 euros">
+          <nuri-list-action-leading-avatar name="arrow-up"></nuri-list-action-leading-avatar>
+          <nuri-list-action-text>To Emin Mahrt</nuri-list-action-text>
+          <nuri-list-action-text-muted>Sent • Wed, 16 May</nuri-list-action-text-muted>
+          <nuri-list-action-trailing-text>- 12.00 €</nuri-list-action-trailing-text>
+          <nuri-list-action-trailing-text-muted>3433 Sats</nuri-list-action-trailing-text-muted>
+        </nuri-list-action>
+        <nuri-list-separator></nuri-list-separator>
+        <nuri-list-action variant="solid" accent="orange" aria-label="From Apple Pay, 12 euros">
+          <nuri-list-action-leading-avatar name="transfer-horizontal"></nuri-list-action-leading-avatar>
+          <nuri-list-action-text>From Apple Pay</nuri-list-action-text>
+          <nuri-list-action-text-muted>Convert • Wed, 16 May</nuri-list-action-text-muted>
+          <nuri-list-action-trailing-text>12.00 €</nuri-list-action-trailing-text>
+          <nuri-list-action-trailing-text-muted>3433 Sats</nuri-list-action-trailing-text-muted>
+        </nuri-list-action>
+      </nuri-list>
     </template>
   </nuri-demo>
 

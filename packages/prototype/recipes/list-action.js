@@ -1,17 +1,17 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · COMPONENT · PRESSABLE-ITEM · CUSTOM ELEMENT
+ * NURI · COMPONENT · LIST-ACTION · CUSTOM ELEMENT
  *
- * <nuri-pressable-item> is the row-action foundation: a pressable root with
+ * <nuri-list-action> is the list family's pressable row: a pressable root with
  * generated composition slots for a leading glyph avatar, content text, optional
- * trailing value stack, and a trailing icon. Separators and grouping are owned by
- * the page/list composition, not this row.
+ * trailing value stack, and a trailing icon. Separators and grouping are sibling
+ * composition, not row anatomy.
  * ────────────────────────────────────────────────────────────── */
 
 import { defineNuriComponent, nuriNames } from '../factory/factory.js';
-import { pressableItemDescriptor } from '../generated/descriptors/pressable-item.js';
+import { listActionDescriptor } from '../generated/descriptors/list-action.js';
 import '../primitives/pressable.js';
 import '../primitives/view.js';
 import '../primitives/typography.js';
 import '../primitives/icon.js';
 
-defineNuriComponent(pressableItemDescriptor, nuriNames('pressable-item').web);
+defineNuriComponent(listActionDescriptor, nuriNames('list-action').web);

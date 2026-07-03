@@ -33,7 +33,8 @@ for (const key of ['window', 'document', 'customElements', 'HTMLElement', 'Mutat
 await import('../recipes/button.js');
 await import('../recipes/icon-avatar.js');
 await import('../recipes/icon-button.js');
-await import('../recipes/pressable-item.js');
+await import('../recipes/list.js');
+await import('../recipes/list-action.js');
 // The factory + the descriptor twins, for the buildComponent-direct assertions
 // (same cached module instances the recipes use).
 const { buildComponent, defineNuriComponent } = await import('../factory/factory.js');
@@ -250,17 +251,17 @@ test('B4 · defineNuriComponent harvests component slots nested inside region sl
   assert.deepEqual([...btn.querySelectorAll('nuri-typography')].map((el) => el.textContent), ['Bank account', 'Personal']);
 });
 
-test('B5 · <nuri-pressable-item> direct typed slots route through their ancestor regions', async () => {
-  assert.ok(customElements.get('nuri-pressable-item'), 'PressableItem web twin is registered');
+test('B5 · <nuri-list-action> direct typed slots route through their ancestor regions', async () => {
+  assert.ok(customElements.get('nuri-list-action'), 'ListAction web twin is registered');
 
-  const row = dom.window.document.createElement('nuri-pressable-item');
+  const row = dom.window.document.createElement('nuri-list-action');
   row.innerHTML = [
-    '<nuri-pressable-item-leading-avatar name="bank"></nuri-pressable-item-leading-avatar>',
-    '<nuri-pressable-item-text>Bank account</nuri-pressable-item-text>',
-    '<nuri-pressable-item-text-muted>Personal</nuri-pressable-item-text-muted>',
-    '<nuri-pressable-item-trailing-text>12.00 €</nuri-pressable-item-trailing-text>',
-    '<nuri-pressable-item-trailing-text-muted>3433 Sats</nuri-pressable-item-trailing-text-muted>',
-    '<nuri-pressable-item-trail-icon name="chevron-right"></nuri-pressable-item-trail-icon>',
+    '<nuri-list-action-leading-avatar name="bank"></nuri-list-action-leading-avatar>',
+    '<nuri-list-action-text>Bank account</nuri-list-action-text>',
+    '<nuri-list-action-text-muted>Personal</nuri-list-action-text-muted>',
+    '<nuri-list-action-trailing-text>12.00 €</nuri-list-action-trailing-text>',
+    '<nuri-list-action-trailing-text-muted>3433 Sats</nuri-list-action-trailing-text-muted>',
+    '<nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>',
   ].join('');
   mount(row);
   await tick();
@@ -274,13 +275,55 @@ test('B5 · <nuri-pressable-item> direct typed slots route through their ancesto
   assert.equal(btn.children[3].getAttribute('name'), 'chevron-right');
 });
 
+test('B5b · <nuri-list-action> variant defaults to outline and can route solid to the avatar', async () => {
+  const outline = dom.window.document.createElement('nuri-list-action');
+  outline.innerHTML = '<nuri-list-action-leading-avatar name="bank"></nuri-list-action-leading-avatar><nuri-list-action-text>Bank</nuri-list-action-text>';
+  mount(outline);
+  await tick();
+  const outlineAvatar = outline.querySelector('button.nuri-interactive > nuri-view');
+  assert.equal(outlineAvatar?.getAttribute('data-variant'), 'outline', 'default variant routes to leading avatar');
+
+  const solid = dom.window.document.createElement('nuri-list-action');
+  solid.setAttribute('variant', 'solid');
+  solid.setAttribute('accent', 'orange');
+  solid.innerHTML = '<nuri-list-action-leading-avatar name="arrow-up"></nuri-list-action-leading-avatar><nuri-list-action-text>Orange</nuri-list-action-text>';
+  mount(solid);
+  await tick();
+  const solidAvatar = solid.querySelector('button.nuri-interactive > nuri-view');
+  const solidButton = solid.querySelector('button.nuri-interactive');
+  assert.equal(solidAvatar?.getAttribute('data-variant'), 'solid', 'explicit variant routes to leading avatar');
+  assert.equal(solidButton?.getAttribute('data-accent'), 'orange', 'accent scope lands on the row painting node');
+});
+
+test('B5c · <nuri-list> preserves list-action children with shared nuri-list-* slot prefixes', async () => {
+  const list = dom.window.document.createElement('nuri-list');
+  list.innerHTML = [
+    '<nuri-list-action aria-label="Bank">',
+    '<nuri-list-action-leading-avatar name="bank"></nuri-list-action-leading-avatar>',
+    '<nuri-list-action-text>Bank account</nuri-list-action-text>',
+    '</nuri-list-action>',
+    '<nuri-list-action aria-label="Card">',
+    '<nuri-list-action-leading-avatar name="card"></nuri-list-action-leading-avatar>',
+    '<nuri-list-action-text>Credit card</nuri-list-action-text>',
+    '</nuri-list-action>',
+  ].join('');
+  mount(list);
+  await tick();
+
+  assert.equal(list.classList.contains('nuri-stack'), true, 'the open list host is its own painting node');
+  const rows = [...list.children].filter((child) => child.tagName.toLowerCase() === 'nuri-list-action');
+  assert.equal(rows.length, 2, 'list keeps the row elements as positional children');
+  assert.deepEqual([...list.querySelectorAll('nuri-typography')].map((el) => el.textContent), ['Bank account', 'Credit card']);
+  assert.deepEqual([...list.querySelectorAll('nuri-icon')].map((el) => el.getAttribute('name')), ['bank', 'card']);
+});
+
 // ── The mixed-content / repetition contract (decision 83) — PAIRED with the RN
 // render-smoke tests (packages/rn/__tests__/render-smoke.test.tsx · the
-// PressableItem contract block): both engines resolve the same authored
+// ListAction contract block): both engines resolve the same authored
 // composition to the same structure, or fail with the same named error.
-test('B6 · <nuri-pressable-item> · bare region children stay the region\'s own content, order preserved', async () => {
-  const row = dom.window.document.createElement('nuri-pressable-item');
-  row.innerHTML = '<nuri-pressable-item-content>before<nuri-pressable-item-text>Bank account</nuri-pressable-item-text>after</nuri-pressable-item-content>';
+test('B6 · <nuri-list-action> · bare region children stay the region\'s own content, order preserved', async () => {
+  const row = dom.window.document.createElement('nuri-list-action');
+  row.innerHTML = '<nuri-list-action-content>before<nuri-list-action-text>Bank account</nuri-list-action-text>after</nuri-list-action-content>';
   mount(row);
   await tick();
 
@@ -300,14 +343,14 @@ test('B6 · <nuri-pressable-item> · bare region children stay the region\'s own
 });
 
 test('B7 · a typed slot targeting a part OUTSIDE its region fails named', () => {
-  const row = dom.window.document.createElement('nuri-pressable-item');
-  row.innerHTML = '<nuri-pressable-item-content><nuri-pressable-item-trailing-text>Wrong</nuri-pressable-item-trailing-text></nuri-pressable-item-content>';
+  const row = dom.window.document.createElement('nuri-list-action');
+  row.innerHTML = '<nuri-list-action-content><nuri-list-action-trailing-text>Wrong</nuri-list-action-trailing-text></nuri-list-action-content>';
   mountExpectingNamedError(row, /composition entry targets 'trailingText', which is not under 'content'/);
 });
 
 test('B8 · a multiple:true slot repeats as a SEQUENCE of leaf instances', async () => {
-  const row = dom.window.document.createElement('nuri-pressable-item');
-  row.innerHTML = '<nuri-pressable-item-text>First line</nuri-pressable-item-text><nuri-pressable-item-text>Second line</nuri-pressable-item-text>';
+  const row = dom.window.document.createElement('nuri-list-action');
+  row.innerHTML = '<nuri-list-action-text>First line</nuri-list-action-text><nuri-list-action-text>Second line</nuri-list-action-text>';
   mount(row);
   await tick();
 
@@ -322,21 +365,21 @@ test('B8 · a multiple:true slot repeats as a SEQUENCE of leaf instances', async
 });
 
 test('B9 · a repeated SINGULAR icon slot fails named', () => {
-  const row = dom.window.document.createElement('nuri-pressable-item');
-  row.innerHTML = '<nuri-pressable-item-leading-avatar name="arrow-up"></nuri-pressable-item-leading-avatar><nuri-pressable-item-leading-avatar name="arrow-down"></nuri-pressable-item-leading-avatar>';
+  const row = dom.window.document.createElement('nuri-list-action');
+  row.innerHTML = '<nuri-list-action-leading-avatar name="arrow-up"></nuri-list-action-leading-avatar><nuri-list-action-leading-avatar name="arrow-down"></nuri-list-action-leading-avatar>';
   mountExpectingNamedError(row, /slot targeting part 'leadingIcon' is singular — it appears 2 times under 'leadingAvatar'/);
 });
 
 test('B10 · bare children with NO default sink fail named', () => {
-  const row = dom.window.document.createElement('nuri-pressable-item');
+  const row = dom.window.document.createElement('nuri-list-action');
   row.textContent = 'Send money';
-  mountExpectingNamedError(row, /'nuri-pressable-item' has no default content slot/);
+  mountExpectingNamedError(row, /'nuri-list-action' has no default content slot/);
 });
 
 test('B11 · a FOREIGN component\'s slot marker fails named', () => {
-  const row = dom.window.document.createElement('nuri-pressable-item');
-  row.innerHTML = '<nuri-pressable-item-content><nuri-button-text>Wrong</nuri-button-text></nuri-pressable-item-content>';
-  mountExpectingNamedError(row, /foreign slot marker '<nuri-button-text>' — not a 'nuri-pressable-item' slot/);
+  const row = dom.window.document.createElement('nuri-list-action');
+  row.innerHTML = '<nuri-list-action-content><nuri-button-text>Wrong</nuri-button-text></nuri-list-action-content>';
+  mountExpectingNamedError(row, /foreign slot marker '<nuri-button-text>' — not a 'nuri-list-action' slot/);
 });
 
 // ══════════════════════════════════════════════════════════════════

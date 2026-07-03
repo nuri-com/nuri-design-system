@@ -31,7 +31,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { View, Stack, Text, Pressable, Screen, Scroll, Separator } from '../primitives';
+import { View, Stack, Text, Pressable, Screen, Scroll, Separator, ListSeparator } from '../primitives';
 import { STACK_FIELDS, BOX_FIELDS } from '@nuri/spec/resolve-map';
 import { opts as INTERACTIVE_OPTS } from '@nuri/spec/interactive-effects';
 import { PALETTE_KEYS, TYPOGRAPHY_KEYS } from '@nuri/spec/descriptors/schema';
@@ -106,9 +106,10 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
     );
   });
 
-  test('Screen / Scroll are structural (no namespace props)', () => {
+  test('Screen / Scroll / ListSeparator are structural (no namespace props)', () => {
     expect(Screen.propKeys).toEqual([]);
     expect(Scroll.propKeys).toEqual([]);
+    expect(ListSeparator.propKeys).toEqual([]);
   });
 
   test('Separator props are its local y-space contract', () => {
