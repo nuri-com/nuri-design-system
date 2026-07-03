@@ -60,7 +60,7 @@ const webBorder1 = (): number => {
 describe('baseline theme (resolver-model §11)', () => {
   const theme = buildNuriTheme('lilac', 'light');
 
-  test('surface roles resolve from build/palette.ts against the live slice', () => {
+  test('surface roles resolve from packages/rn/generated/data/palette.ts against the live slice', () => {
     expect(theme.surface.solid.bg).toBe(acc('lilac', 'solid', 'light'));
     expect(theme.surface.solid.fg).toBe(acc('lilac', 'onSolid', 'light'));
     expect(theme.surface.solid.pressedBg).toBe(acc('lilac', 'solidPressed', 'light'));

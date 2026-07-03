@@ -24,8 +24,8 @@ nuri-playground-shell {
 
 /* ── Topbar · the DS <nuri-topbar center> ─────────────────────────
  * Built by shell.js. Its layout, height, padding and surface come from
- * lib/components/topbar/topbar.css; the playground only pins it to the top
- * and draws the divider that separates it from the scrolling body. */
+ * the generated descriptor + namespace CSS; the playground only pins it
+ * to the top and draws the divider that separates it from the scrolling body. */
 .nuri-pg__topbar {
   position: sticky;
   top: 0;

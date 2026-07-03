@@ -192,7 +192,7 @@ test('Guard A · re-emit ≡ committed interactive.css (structural · merged-nod
 });
 
 // ══════════════════════════════════════════════════════════════════
-// Guard B · RE-EMIT FRESHNESS (committed shadow == the emitter's output)
+// Guard B · RE-EMIT FRESHNESS (committed CSS == the emitter's output)
 // ══════════════════════════════════════════════════════════════════
 test('Guard B · committed styles/interactive.css is fresh (re-emit ≡ committed)', () => {
   assert.equal(

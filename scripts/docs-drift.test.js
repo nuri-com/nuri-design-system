@@ -32,7 +32,7 @@
  *       validated shapes are pinned: a renamed/removed part, variant, or
  *       namespace value (incl. the collapsed `interactive` opt-in) breaks
  *       the test (the TokenPath discipline applied to the descriptor).
- *   E · build/palette.ts re-emits identically from the namespace-axis TS SoTs
+ *   E · packages/rn/generated/data/palette.ts re-emits identically from the namespace-axis TS SoTs
  *       (palette-surface.ts + typography-axis.ts · re-sourced N+40 · §74), and
  *       the operator-settled contract table is pinned — a cell that contradicts
  *       the SoT fails here (and the build · decision 48).
@@ -101,7 +101,7 @@ const readProto = (rel) => readFileSync(resolve(PROTO_GENERATED, rel), 'utf8');
 // Load a namespace-axis TS SoT (palette-surface.ts / typography-axis.ts) through
 // the same TS data boundary Slice 8 uses (NOT loadSurface/loadAxis · those emitters
 // leave spec at the A3 carve). The two derivePalette guards (E + G) re-derive
-// build/palette.ts from the SAME SoTs the build reads.
+// packages/rn/generated/data/palette.ts from the SAME SoTs the build reads.
 const loadAxisSoT = async (rel, exportName) =>
   (await loadTsDataFromPath(resolve(REPO_ROOT, rel)))[exportName];
 
@@ -379,7 +379,7 @@ test('icon-button stays size-coherent with button (height + corner + the square 
 // ── Guard E · the palette mapping ⊂ its TS SoT (N+19 B2b · decision 65.3 §6 · re-sourced N+40) ──
 // The decision-48 discipline applied to the colour namespace: the
 // {variant | chrome} → {bg, fg, fgMuted, pressedBg, border} mapping at
-// build/palette.ts must always re-derive from the namespace-axis TS SoTs —
+// packages/rn/generated/data/palette.ts must always re-derive from the namespace-axis TS SoTs —
 // palette-surface.ts (the SURFACE pairs · every variant + chrome bg/fg + the pressed
 // swap) + typography-axis.ts (the muted fg). RE-SOURCED at N+40 from the generated
 // lib/components/{palette,typography}.css (§74 'Next: final') — one step up the cascade
@@ -408,7 +408,7 @@ const EXPECTED_PALETTE = {
   },
 };
 
-test('E · build/palette.ts re-derives from the TS SoT and matches the pinned contract table', async () => {
+test('E · packages/rn/generated/data/palette.ts re-derives from the TS SoT and matches the pinned contract table', async () => {
   const classifiedGroups = classifyAll(readSemanticRules(readProto('styles/tokens-semantic.css')));
 
   // derivePalette re-reads every SoT and THROWS on drift (a cell pointing

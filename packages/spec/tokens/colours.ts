@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════════════════
  * NURI · COLOUR PRIMITIVES · SOURCE OF TRUTH (TS) · N+32 C1 · decision 70
  * ──────────────────────────────────────────────────────────────────
- * The colour PRIMITIVE layer of the cascade (docs/cascade.md · L1 colour), the
+ * The colour PRIMITIVE layer of the cascade (L1 colour), the
  * SECOND real flip after the dimension vertical (N+31): decision 2 (CSS is the
  * source of truth) is REVERSED for the colour-primitive layer ONLY — these raw
  * values are no longer read out of styles/tokens-primitive.css, they are WRITTEN

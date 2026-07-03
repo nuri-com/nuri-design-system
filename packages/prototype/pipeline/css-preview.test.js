@@ -1,7 +1,7 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · NAMESPACE CSS (BOX/STACK) FRESHNESS + VALUE HARNESS (the LIVE generated CSS · decision 74)
  *
- * The agnostic box + stack namespace CSS (lib/components/{box,stack}/<ns>.css) is now
+ * The agnostic box + stack namespace CSS (packages/prototype/styles/{box,stack}.css) is now
  * GENERATED in place from the Field table (resolve-map.ts via pipeline/parsers/
  * namespace-css.js · run by `npm run build`) — decision 2 reversed for the namespace
  * layer (the L3c flip · N+38). The hand parity oracle RETIRED; this harness keeps the
@@ -18,7 +18,7 @@
  *       Guard D). Identical (selector → declarations) ⇒ identical stylesheet ⇒
  *       identical computed style (CSS computed value is a pure function of the
  *       matched declarations) — so this is the core computed-style proof.
- *   B · RE-EMIT ≡ COMMITTED — the committed lib/components/<ns>/<ns>.css is exactly
+ *   B · RE-EMIT ≡ COMMITTED — the committed packages/prototype/styles/<ns>.css is exactly
  *       what the emitter produces now (the Guard-F freshness posture · re-run
  *       `npm run build`).
  *   C · RESOLVED-VALUE SPOT-CHECK — a curated cell set resolves through the REAL
@@ -144,14 +144,14 @@ for (const { ns } of NS_SPECS) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// Guard B · RE-EMIT FRESHNESS (committed shadow == the emitter's output)
+// Guard B · RE-EMIT FRESHNESS (committed CSS == the emitter's output)
 // ══════════════════════════════════════════════════════════════════
 for (const { ns } of NS_SPECS) {
-  test(`Guard B · ${ns}: committed lib/components/${ns}/${ns}.css is fresh (re-emit ≡ committed)`, () => {
+  test(`Guard B · ${ns}: committed packages/prototype/styles/${ns}.css is fresh (re-emit ≡ committed)`, () => {
     const committed = readFileSync(liveCssPath(ns), 'utf8');
     assert.equal(
       committed, genByNs.get(ns),
-      `lib/components/${ns}/${ns}.css is stale — re-run \`npm run build\` (the namespace-CSS slice regenerates it)`,
+      `packages/prototype/styles/${ns}.css is stale — re-run \`npm run build\` (the namespace-CSS slice regenerates it)`,
     );
   });
 }

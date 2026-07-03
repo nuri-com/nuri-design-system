@@ -1,8 +1,8 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · TYPOGRAPHY NAMESPACE CSS FRESHNESS + VALUE HARNESS (the LIVE generated CSS · decision 74)
  *
- * The typography namespace (WRAPPER) CSS (lib/components/typography/typography.css) is
- * now GENERATED in place from the AXIS (pipeline/typography-axis.ts via pipeline/parsers/
+ * The typography namespace (WRAPPER) CSS (packages/prototype/styles/typography.css) is
+ * now GENERATED in place from the AXIS (packages/spec/axes/typography-axis.ts via pipeline/parsers/
  * typography-css.js · run by `npm run build`) — decision 2 reversed for the namespace
  * layer (the L3c flip · N+38). The hand parity oracle RETIRED; this harness keeps the
  * GENERATED output honest (freshness · value · order-soundness).
@@ -195,12 +195,12 @@ test('Guard A · re-emit ≡ committed typography.css (structural · element wra
 });
 
 // ══════════════════════════════════════════════════════════════════
-// Guard B · RE-EMIT FRESHNESS (committed shadow == the emitter's output)
+// Guard B · RE-EMIT FRESHNESS (committed CSS == the emitter's output)
 // ══════════════════════════════════════════════════════════════════
-test('Guard B · committed lib/components/typography/typography.css is fresh (re-emit ≡ committed)', () => {
+test('Guard B · committed packages/prototype/styles/typography.css is fresh (re-emit ≡ committed)', () => {
   assert.equal(
     readFileSync(LIVE_CSS, 'utf8'), generated,
-    'lib/components/typography/typography.css is stale — re-run `npm run build` (the namespace-CSS slice regenerates it)',
+    'packages/prototype/styles/typography.css is stale — re-run `npm run build` (the namespace-CSS slice regenerates it)',
   );
 });
 

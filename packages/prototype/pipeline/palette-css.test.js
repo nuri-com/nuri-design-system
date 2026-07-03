@@ -1,8 +1,8 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · PALETTE NAMESPACE CSS FRESHNESS + VALUE HARNESS (the LIVE generated CSS · decision 74)
  *
- * The palette namespace CSS (lib/components/palette/palette.css) is now GENERATED in
- * place from the SURFACE table (pipeline/palette-surface.ts via pipeline/parsers/
+ * The palette namespace CSS (packages/prototype/styles/palette.css) is now GENERATED in
+ * place from the SURFACE table (packages/spec/axes/palette-surface.ts via pipeline/parsers/
  * palette-css.js · run by `npm run build`) — decision 2 reversed for the namespace
  * layer (the L3c flip · N+38). The hand parity oracle RETIRED; the structural ≡ proof
  * that validated the shadow (generated ≡ hand) is now historical. This harness keeps
@@ -11,7 +11,7 @@
  *
  * Four guards (node-only · the no-browser CI gate):
  *   A · RE-EMIT ≡ COMMITTED (structural) — the in-memory re-emit and the committed
- *       lib/components/palette/palette.css carry the SAME @layer rules (same selector
+ *       packages/prototype/styles/palette.css carry the SAME @layer rules (same selector
  *       set · same decls · comments excepted · order-insensitive), AND every selector
  *       is the `.nuri-palette` CLASS dispatch (merged-node · no <nuri-palette> element,
  *       no :not(:defined) skeleton, no shell). For palette this structural identity IS
@@ -142,10 +142,10 @@ test('Guard A · re-emit ≡ committed palette.css (structural · merged-node)',
 // ══════════════════════════════════════════════════════════════════
 // Guard B · RE-EMIT ≡ COMMITTED (byte · the committed live file is fresh)
 // ══════════════════════════════════════════════════════════════════
-test('Guard B · committed lib/components/palette/palette.css is fresh (re-emit ≡ committed)', () => {
+test('Guard B · committed packages/prototype/styles/palette.css is fresh (re-emit ≡ committed)', () => {
   assert.equal(
     readFileSync(LIVE_CSS, 'utf8'), generated,
-    'lib/components/palette/palette.css is stale — re-run `npm run build` (the namespace-CSS slice regenerates it)',
+    'packages/prototype/styles/palette.css is stale — re-run `npm run build` (the namespace-CSS slice regenerates it)',
   );
 });
 

@@ -14,7 +14,7 @@
  *      agree.
  *
  * R2 mitigation per docs/archive/RISKS-2026-06.md (R2 closed 2026-07-02). Run with:
- *   node --test pipeline/tokens-parser.test.js
+ *   node --test scripts/tokens-parser.test.js
  * ────────────────────────────────────────────────────────────── */
 
 import { test } from 'node:test';
@@ -129,7 +129,7 @@ function leafAt(tree, path) {
   return node;
 }
 
-test('build/tokens.json exists (run `node pipeline/tokens-parser.js` first)', async () => {
+test('build/tokens.json exists (run `node scripts/tokens-parser.js` first)', async () => {
   await access(JSON_PATH);
 });
 
@@ -846,8 +846,8 @@ test('build/interaction.ts + the --nuri-interaction-* CSS both flatten from the 
 // N+51 · icon registry · the SVG folder is the SoT (decision 38/48)
 // The icon SoT is the folder icons/*.svg (one drawing per glyph · NO
 // weights · N+51). readIcons(folder) builds the ICONS registry; the
-// orchestrator emits BOTH readers from it — lib/components/icon/icons.js
-// (web · zero-build inline) + build/icons.ts (RN · SvgXml). This is the
+// orchestrator emits BOTH readers from it — packages/prototype/generated/icons.js
+// (web · zero-build inline) + packages/rn/generated/data/icons.ts (RN · SvgXml). This is the
 // folder → registry ROUND-TRIP guard: both committed readers must re-emit
 // identically from the folder, so a hand-edit to either reader (forbidden ·
 // decision 35), a stale build, or a malformed source SVG all fail here.
@@ -871,19 +871,19 @@ test('both icon readers re-emit identically from the icons/*.svg folder (folder 
   }
 
   // 2. The on-disk RN reader re-emits identically from the folder — the drift
-  //    guard. A manual edit to build/icons.ts or a stale build both fail.
+  //    guard. A manual edit to packages/rn/generated/data/icons.ts or a stale build both fail.
   const tsOnDisk = await readFile(ICONS_TS_PATH, 'utf8');
   assert.equal(
     tsOnDisk, emitIconsTs(icons),
-    'build/icons.ts is out of sync with icons/*.svg — run `npm run build`',
+    'packages/rn/generated/data/icons.ts is out of sync with icons/*.svg — run `npm run build`',
   );
 
-  // 3. The on-disk WEB reader (the GENERATED lib/components/icon/icons.js) also
+  // 3. The on-disk WEB reader (the GENERATED packages/prototype/generated/icons.js) also
   //    re-emits identically — it is a build output too, never hand-edited.
   const jsOnDisk = await readFile(ICONS_JS_PATH, 'utf8');
   assert.equal(
     jsOnDisk, emitIconsJs(icons),
-    'lib/components/icon/icons.js is out of sync with icons/*.svg — run `npm run build`',
+    'packages/prototype/generated/icons.js is out of sync with icons/*.svg — run `npm run build`',
   );
 
   // 4. Belt-and-suspenders: every glyph's markup appears in both emitted

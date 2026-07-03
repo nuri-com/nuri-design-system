@@ -2,7 +2,7 @@
  * NURI · COMPONENT · ICON · REGISTRY · GENERATED · DO NOT EDIT BY HAND
  *
  * Source · icons/*.svg (the SoT folder · one drawing per glyph)
- * Emitter · pipeline/tokens-parser.js — run `npm run build`
+ * Emitter · scripts/tokens-parser.js — run `npm run build`
  *
  * 33 glyphs · one markup each · NO weights (decision 38 · N+51).
  * Colour is currentColor only; <nuri-icon> re-wraps the markup in an

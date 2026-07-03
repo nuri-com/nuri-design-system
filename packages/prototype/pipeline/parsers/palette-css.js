@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · PARSER · PALETTE NAMESPACE CSS EMIT (the L3b·1 reversible shadow · decision 70 / 67)
+ * NURI · PARSER · PALETTE NAMESPACE CSS EMIT (the LIVE generated CSS · decision 74 / 70 / 67)
  * ──────────────────────────────────────────────────────────────────
- * The palette SURFACE role table (pipeline/palette-surface.ts) → the web palette
+ * The palette SURFACE role table (packages/spec/axes/palette-surface.ts) → the web palette
  * namespace CSS. palette is the FIRST bespoke axis (decision 67): the colour
  * funnel, single-sourced but NOT a Field-table member (box/stack rode the generic
  * resolve-map.ts table at L3.1; palette has its own bespoke shape). This is the
@@ -9,13 +9,11 @@
  * resolver maps `surface[variant] → { bg, fg, pressedBg, border }` onto a node; this
  * writes the `.nuri-palette[data-*]` dispatch the CSS cascade resolves.
  *
- * REVERSIBLE SHADOW (the L3.1 discipline · roadmap/N+30-L3.1.md): generates to
- * build/css-preview/palette.css, proven ≡ the hand lib/components/palette/
- * palette.css (the parity oracle · pipeline/palette-css.test.js). NOT wired into
- * `npm run build`; the live web factory, the pages, the recipe layer, and
- * build/palette.ts (still derived from the hand CSS via pipeline/parsers/
- * palette.js · byte-identical) are untouched. decision 2 STANDS for the namespace
- * layer until L3c.
+ * POST-FLIP, this emitter writes the live palette namespace CSS under
+ * packages/prototype/styles/palette.css via packages/prototype/pipeline/css-preview.js
+ * (`npm run build -w @nuri/prototype`). The older build/css-preview shadow target
+ * and hand lib/components/palette/palette.css oracle are retired historical context;
+ * decision 2 is reversed for this namespace layer.
  *
  * ── The dispatch, precisely (the inverse of resolvePalette) ─────────
  *   · REST state · one rule per (axis, input): `.nuri-palette[data-<axis>="<v>"]`
@@ -50,7 +48,7 @@
  * here; palette only references var(--nuri-accent-*).
  *
  * loadSurface imports the .ts SoT through the shared TS data loader. The L3c flip
- * relocates the table into @nuri/spec proper and retires the hand CSS.
+ * relocated the table into @nuri/spec proper and retired the hand CSS.
  * ══════════════════════════════════════════════════════════════════ */
 
 import { loadTsDataFromPath } from './strip.js';

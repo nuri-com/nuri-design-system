@@ -18,8 +18,7 @@
   that, and the palette CSS only references var(--nuri-accent-*) + rides that scope.
 
   It loads the live token CSS (styles/tokens-{primitive,semantic}.css) + BOTH the
-  GENERATED shadow palette CSS (build/css-preview/palette.css) and the HAND SoT
-  (lib/components/palette/palette.css), builds nested DOM scopes, and reads
+  live generated palette CSS (packages/prototype/styles/palette.css), builds nested DOM scopes, and reads
   getComputedStyle of `.nuri-palette[data-*]` probes.
 
   Two assertions per (cell, channel):

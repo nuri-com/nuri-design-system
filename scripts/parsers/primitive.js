@@ -10,7 +10,7 @@
  * roadmap/N+5.md); moved to pipeline/parsers/ at N+6.0.4 alongside
  * the source/output physical separation (decision 35). The 6
  * primitive round-trip tests still consume these exports unchanged
- * via the orchestrator at pipeline/tokens-parser.js.
+ * via the orchestrator at scripts/tokens-parser.js.
  * ────────────────────────────────────────────────────────────── */
 
 import postcss from 'postcss';

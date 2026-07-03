@@ -168,7 +168,7 @@ export type TypographyNS = {
 };
 
 // `palette` — ALL colour, from the semantic inputs (65.3 §6 · mirrors the
-// PaletteNS the RN resolver consumes · build/palette.ts is the mapping).
+// PaletteNS the RN resolver consumes · packages/rn/generated/data/palette.ts is the mapping).
 // `variant` is the accent/chrome-funnel role; `chrome` is the separate
 // theme-only surface slot (the `subtle` ROLE name is taken). At most one
 // of variant|chrome per node (variant wins · not encoded in the type). The

@@ -8,7 +8,7 @@
  *   stack       → flex container       (matches the hand Stack primitive)
  *   box         → sizing · padding · radii   (matches the hand Box primitive)
  *   typography  → a type STEP ref the factory expands via typeStyle (54/55)
- *   palette     → colour via theme.surface / theme.chrome (build/palette.ts)
+ *   palette     → colour via theme.surface / theme.chrome (packages/rn/generated/data/palette.ts)
  *   interactive → press/disabled transients (the structured opt-in · 65.4)
  *
  * Behaviour stays the FACTORY's, the descriptor stays DATA (65): the
