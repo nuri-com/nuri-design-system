@@ -1,6 +1,6 @@
 /* ──────────────────────────────────────────────────────────────
  * COIN · the bitcoin destination — the "coin" board of
- * packages/playground/pages/tab-bar.html, translated. Pure DS
+ * packages/playground/pages/screens.html, translated. Pure DS
  * composition via the ui/ manifest; the tab bar renders ONCE in App.
  * Same hand-finish deltas as Wallet.tsx (documented there + in the PR).
  * ────────────────────────────────────────────────────────────── */
