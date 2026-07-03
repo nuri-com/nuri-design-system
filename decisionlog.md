@@ -5078,7 +5078,7 @@ The 65.7 layout is the **target** (5 workspaces); M1 deliberately built **only `
 
 **Base**: decision 65 step 5 (the enforced freeze · versioned bumps) · 65.6 (Guard F · the pin that moved) · decision 30 (the reservation this discharges — the historical record stands) · decision 67/70 (bespoke-but-single-sourced · one SoT, two projections) · decision 53 (muted is typography's single delivery · why no fgMuted cell). **Realizes**: `packages/spec/{components/schema.ts · components/icon-avatar.ts · axes/palette-surface.ts}` → the regenerated projections (`packages/rn/generated/{data/palette.ts, components/icon-avatar.ts}` · `packages/prototype/styles/palette.css` + descriptor twin · `packages/doc/generated/*`) + the Guard-F pin move + the PR-#130 review-pass hardening (the broad `\boutline\b` agnosticism deny · Guard C border-first · the 5-column doc pins · the computed-harness outline cell).
 
-### 65.13 amendment · (2026-07-03) · `El` gains `'pressable'` — the host element becomes structure data
+### 65.13 amendment · PR #132 (2026-07-03) · `El` gains `'pressable'` — the host element becomes structure data
 
 **The 1st deliberate post-freeze `El` bump (decision 65 step 5 · "post-freeze changes are versioned").** `El` = `'view' | 'text' | 'icon' | 'pressable'`; the Guard-F pin (`scripts/docs-drift.test.js` `FROZEN_SCHEMA.El`) moved with it, annotated in the pin's precedent style (`outline` · `even` · `minWidth` · `aspectRatio`). This DISCHARGES primitives-contract §0.1's held reconciliation ("Pressable is not a 4th `El` … adding one is a versioned Guard-F bump" — this bump IS the versioned change that section anticipated): 4 `El` cases now, 4 parity primitives, 1:1.
 
