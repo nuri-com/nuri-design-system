@@ -55,7 +55,7 @@
  * selector/declaration-free.
  *
  * loadAxis imports the .ts SoT through the shared TS data loader. The L3c flip
- * relocates the SoT into @nuri/spec proper and retires the hand CSS.
+ * relocated the SoT into @nuri/spec proper and retired the hand CSS.
  * ══════════════════════════════════════════════════════════════════ */
 
 import { loadTsDataFromPath } from './strip.js';

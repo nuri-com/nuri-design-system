@@ -3,8 +3,8 @@
  *
  * The descriptor LAYER's source of truth (decision 69 · §9 step 1 · N+29 B1):
  * decision 2 (CSS is SoT) is reversed FOR THE DESCRIPTOR LAYER — this hand-
- * authored TS is the producer; build/descriptors/icon-avatar.{ts,js} are emitted
- * FROM it (a verbatim passthrough · pipeline/tokens-parser.js · run `npm run
+ * authored TS is the producer; the browser-ESM twin generated/descriptors/icon-avatar.js is emitted
+ * FROM it (a verbatim passthrough · scripts/tokens-parser.js · run `npm run
  * build`). The token vocabulary stays CSS-SoT (decision 63 · ring-fenced).
  *
  * Co-located with the frozen schema (./schema · the same `import type` resolves
@@ -15,14 +15,14 @@
  * never data. Static surface — no `interactive` opt-in (65.3 · the IconAvatar
  * story); the full surface INCLUDING `subtle` (the fg-only role · 65.1).
  *
- * The hand CSS (lib/components/icon-avatar/icon-avatar.css) still renders web AND
- * still proves this descriptor faithful: Guard D asserts deriveDescriptor(CSS,
- * HTML) ≡ this authored data — the parity ORACLE that keeps the inversion
- * faithful + reversible until B2 generates the CSS (the §9 boundary).
+ * The old hand CSS/page oracle is retired; this descriptor is now the SOLE SoT.
+ * Guard D (scripts/docs-drift.test.js) re-emits the browser-ESM twin and pins the
+ * composition-form shape, while the projection guards exercise the generated RN/web
+ * contracts derived from this data.
  *
  * FROZEN shape (decision 65 step 5 · Guard F); the per-component AXES + VALUES
- * are the editable surface (kept faithful to the live CSS by Guard D · faithful
- * inversion only · no R1.5 fidelity change here).
+ * are the editable surface (kept structurally pinned by Guard D · no R1.5 fidelity
+ * change here).
  * ────────────────────────────────────────────────────────────── */
 
 import type { Descriptor } from './schema';

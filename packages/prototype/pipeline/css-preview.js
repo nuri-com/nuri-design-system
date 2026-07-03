@@ -30,7 +30,7 @@
  * The five axis SoTs live in @nuri/spec (the data root · DAG: prototype → spec). They
  * are read across the package boundary via the spec EXPORTS MAP (import.meta.resolve)
  * + imported through the shared TS data loader. The scale vocab
- * rides spec's generated styles/tokens-semantic.css (read via the spec package root).
+ * rides this prototype projection's generated/styles/tokens-semantic.css.
  * ══════════════════════════════════════════════════════════════════ */
 
 import { writeFile } from 'node:fs/promises';
@@ -128,8 +128,8 @@ export async function generateNamespaceCss() {
 }
 
 // flipNamespaceCss · generate the five files and write them IN PLACE over the live
-// lib/components/<ns>/<ns>.css. Called by pipeline/tokens-parser.js (the build) and by
-// main() (standalone regen). Mirrors the Slice-0 flip* idiom (flipDimensionCss /
+// prototype/styles/<ns>.css. Called by the prototype build and by main() (standalone
+// regen). Mirrors the Slice-0 flip* idiom (flipDimensionCss /
 // flipColourCss / flipSemanticCss) — the namespace CSS is now a generated projection,
 // not a hand source. Returns [{ ns, out }] for the build log.
 export async function flipNamespaceCss() {

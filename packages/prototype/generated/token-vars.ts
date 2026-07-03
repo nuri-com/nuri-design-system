@@ -2,7 +2,7 @@
  * NURI · TOKEN VARS · GENERATED · DO NOT EDIT BY HAND
  *
  * Source · styles/tokens-semantic.css (the leaf→cssVar map · classifyAll)
- * Emitter · pipeline/tokens-parser.js — run `npm run build`
+ * Emitter · scripts/tokens-parser.js — run `npm run build`
  *
  * The CSS custom-property NAME for every cascade-varying semantic colour
  * leaf (chrome · accent). @nuri/doc reads this to render the Token-map

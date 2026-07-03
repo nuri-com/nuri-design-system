@@ -47,14 +47,14 @@ export const THEMES = ['light', 'dark'];
 // The playground <nuri-demo> accent control reads this as NuriState.AVAILABLE.accent
 // (prototype/demo/available.js) so its toggle set is SPEC-DERIVED, never hand-listed —
 // adding an accent to ACCENTS flows through here with no playground edit. The typed RN
-// twin of the same list is build/palette.ts's `Accent` union.
+// twin of the same list is packages/rn/generated/data/palette.ts's `Accent` union.
 export function emitAccentsJs(accents) {
   const lines = [
     `/* ──────────────────────────────────────────────────────────────`,
     ` * NURI · ACCENT REGISTRY · GENERATED · DO NOT EDIT BY HAND`,
     ` *`,
     ` * Source · the ACCENTS list (pipeline/parsers/semantic.js · the cross-product axis)`,
-    ` * Emitter · pipeline/tokens-parser.js — run \`npm run build\``,
+    ` * Emitter · scripts/tokens-parser.js — run \`npm run build\``,
     ` *`,
     ` * ${accents.length} accents · the web reader (zero-build ES module). Drives the`,
     ` * playground <nuri-demo> accent control so the toggle set is spec-derived; never`,
@@ -68,7 +68,7 @@ export function emitAccentsJs(accents) {
 }
 
 // Selectable neutral scales for the --neutral=<scale> CLI flag at
-// pipeline/tokens-parser.js (decision 31). `gray` is kept as the
+// scripts/tokens-parser.js (decision 31). `gray` is kept as the
 // pre-N+5.8 default; `cream` is the new build default per the brand's
 // warmer content tone. The six alternatives stay in the primitive
 // layer per P11 parsimony via RESERVED_COLOR_SCALES in the guardrail
@@ -911,7 +911,7 @@ export function emitTokensTs(resolved, rules, opts = {}) {
           ` * per (accent × theme) by walking the cascade blocks of`,
           ` * tokens-semantic.css and chasing the var() chain through the`,
           ` * primitives at the build's selected --neutral scope (decision 31`,
-          ` * · default cream; pass --neutral=<scale> to pipeline/tokens-parser.js`,
+          ` * · default cream; pass --neutral=<scale> to scripts/tokens-parser.js`,
           ` * to switch).`,
         ]),
     ` * ────────────────────────────────────────────────────────────── */`,
@@ -973,7 +973,7 @@ export function emitTokenVarsTs(classifiedGroups) {
     ` * NURI · TOKEN VARS · GENERATED · DO NOT EDIT BY HAND`,
     ` *`,
     ` * Source · styles/tokens-semantic.css (the leaf→cssVar map · classifyAll)`,
-    ` * Emitter · pipeline/tokens-parser.js — run \`npm run build\``,
+    ` * Emitter · scripts/tokens-parser.js — run \`npm run build\``,
     ` *`,
     ` * The CSS custom-property NAME for every cascade-varying semantic colour`,
     ` * leaf (chrome · accent). @nuri/doc reads this to render the Token-map`,

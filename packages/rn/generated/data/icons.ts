@@ -2,7 +2,7 @@
  * NURI · ICON REGISTRY · GENERATED · DO NOT EDIT BY HAND
  *
  * Source · icons/*.svg (the SoT folder · one drawing per glyph)
- * Emitter · pipeline/tokens-parser.js — run `npm run build`
+ * Emitter · scripts/tokens-parser.js — run `npm run build`
  *
  * Typed RN reader for 33 glyphs · one markup each · NO weights
  * (decision 38 · N+51). The web inlines packages/prototype/generated/icons.js

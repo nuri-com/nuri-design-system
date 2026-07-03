@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════════════════
  * NURI · PALETTE SURFACE · SOURCE OF TRUTH (TS) · N+33 · L3b·1 · decision 70 / 67
  * ──────────────────────────────────────────────────────────────────
- * The `palette` axis of the cascade (docs/cascade.md · L3 · the FIRST bespoke
+ * The `palette` axis of the cascade (L3 · the FIRST bespoke
  * axis · decision 67), authored ONCE in TS. palette is the colour funnel: a
  * SURFACE role table that resolves a node's COMPLETE pair — background AND
  * foreground — plus the optional pressed swap and optional border colour. It is BESPOKE-but-single-sourced
@@ -9,16 +9,20 @@
  * box/stack/typography), and deliberately NOT forced into that generic shape —
  * "single-sourcing is the rule, not uniformity" (the kitchen-sink anti-goal).
  *
- * REVERSIBLE SHADOW (the L3.1 discipline · roadmap/N+30-L3.1.md): this SoT feeds
- * pipeline/parsers/palette-css.js, which generates the SHADOW web namespace CSS
- * (build/css-preview/palette.css) PROVEN ≡ the hand lib/components/palette/
- * palette.css (the parity oracle). decision 2 (CSS is the SoT) STANDS for the
- * namespace layer — the hand palette.css is still the live source (→ build/
- * palette.ts via pipeline/parsers/palette.js · byte-identical). NOTHING flips
- * here: the factory, the pages, the recipe layer are untouched. The SoT flip
- * (decision-2 reversal for the namespace layer) is L3c, not this slice.
+ * PALETTE SoT (post-L3c · decision 74 · N+38): THIS table is the palette source.
+ * The web projection emits the palette namespace CSS from it:
+ * packages/prototype/pipeline/parsers/palette-css.js, run by
+ * packages/prototype/pipeline/css-preview.js, writes
+ * packages/prototype/styles/palette.css (value-pinned by the prototype palette
+ * guard). The RN projection resolves it through scripts/parsers/palette.js →
+ * packages/rn/generated/data/palette.ts.
  *
- * ── The role table, exactly (lib/components/palette/palette.css) ─────
+ * Provenance: the N+33 / decision-70 reversible-shadow slice began as a proof
+ * against the hand palette CSS, preserving decision-2 history while the flip was
+ * still pending. Since L3c, the hand namespace CSS is retired historical context;
+ * the factory, pages, and recipe layer consume the generated projection.
+ *
+ * ── The role table, exactly (emitted to packages/prototype/styles/palette.css) ─────
  *   input            background          color              pressed (:active · gated)
  *   ───────────────────────────────────────────────────────────────────
  *   variant=solid    accent-solid        accent-on-solid    accent-solid-pressed
@@ -52,8 +56,8 @@
  *
  * Consumed by the node pipeline through the shared TS data loader (loadSurface ·
  * packages/prototype/pipeline/parsers/palette-css.js). Base: decision 2 (reversed
- * at L3c, not here) · 11 · 30 · 50 · 65.3 §6 · 67 · 70 · the L3.1
- * reversible-shadow discipline.
+ * for this namespace at L3c) · 11 · 30 · 50 · 65.3 §6 · 67 · 70 · 74 · the
+ * L3.1 reversible-shadow provenance.
  * ══════════════════════════════════════════════════════════════════ */
 
 // A paint value — the universal channel shape: EITHER a bare L2 role NAME (the

@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════════════════
  * NURI · TYPOGRAPHY AXIS · SOURCE OF TRUTH (TS) · N+35 · L3.1b · decision 70 / 67 / 73
  * ──────────────────────────────────────────────────────────────────
- * The `typography` axis of the cascade (docs/cascade.md · L3 · the THIRD and LAST
+ * The `typography` axis of the cascade (L3 · the THIRD and LAST
  * bespoke axis · decision 73 corrected dec 70: typography is bespoke, not agnostic),
  * authored ONCE in TS. typography is the prose funnel: a thin wrapper that carries
  * declarative, prop-based authoring (muted tone + block alignment) over the

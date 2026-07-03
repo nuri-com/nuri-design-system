@@ -94,7 +94,7 @@ const PROP_SCALE = {
 };
 
 // palette cell channel → its short doc label, in canonical render order
-// (mirrors build/palette.ts cell order: bg · fg · fgMuted · pressedBg · border).
+// (mirrors packages/rn/generated/data/palette.ts cell order: bg · fg · fgMuted · pressedBg · border).
 const PALETTE_CHANNELS = [['bg', 'bg'], ['fg', 'fg'], ['fgMuted', 'muted'], ['pressedBg', 'pressed'], ['border', 'border']];
 
 // ONE LINE PER ATTRIBUTE in a "Resolves to" cell (operator readability · N+22):
@@ -250,7 +250,7 @@ function assertLeaf(tokens, scale, leaf, where) {
 }
 
 // palette node ({ variant } | { chrome }) → { token, value } cell pair: the
-// channel TokenPaths dereferenced through build/palette.ts (token column) and
+// channel TokenPaths dereferenced through packages/rn/generated/data/palette.ts (token column) and
 // the live var() swatch + default-scope hex (value column), one channel per
 // line (dt/dd style · the two columns align line-for-line).
 function renderPalette(ns, palette, colors, where) {

@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════════════════
  * NURI · TYPE SCALE · SOURCE OF TRUTH (TS) · N+52 · decision 78
  * ──────────────────────────────────────────────────────────────────
- * The type-scale composite (docs/cascade.md · the type token layer), authored
+ * The type-scale composite (the type token layer), authored
  * ONCE in TS as a SELF-CONTAINED, readable table of text styles. This is the
  * value flip §77 explicitly deferred to phase 4: decision 2 (CSS is the source
  * of truth) is REVERSED for the type COMPOSITE — the six step composites are no

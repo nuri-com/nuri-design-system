@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════════════════
  * NURI · INTERACTIVE AXIS · SOURCE OF TRUTH (TS) · agnostic opt-ins · decision 70 / 73 / 74
  * ──────────────────────────────────────────────────────────────────
- * The `interactive` axis of the cascade (docs/cascade.md · L3 · a BESPOKE axis ·
+ * The `interactive` axis of the cascade (L3 · a BESPOKE axis ·
  * decision 67 / 73), authored ONCE in TS. interactive is the interaction funnel:
  * the structured per-part opt-in (decision 65.3 §6 / 65.4) that decomposes
  * interaction into INDEPENDENT effects — a node opts into exactly what it needs.

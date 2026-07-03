@@ -119,7 +119,7 @@ export function derivePalette({ surface, typographyAxis }, { classifiedGroups })
   // chrome host) RETIRED with the recipe layer (decision 74 · the L3c flip) — they
   // were REDUNDANT cross-checks with sections D + E below. The contract is now
   // witnessed in full by the two namespace-axis TS SoTs (the source the generated
-  // namespace CSS is itself derived from); build/palette.ts (the cells) is unchanged.
+  // namespace CSS is itself derived from); packages/rn/generated/data/palette.ts (the cells) is unchanged.
 
   // D · fgMuted (every cell) ← typography-axis.ts's `muted.role`. The single
   // muted delivery (decision 53) resolves to the shared text-muted role.
@@ -193,7 +193,7 @@ export function derivePalette({ surface, typographyAxis }, { classifiedGroups })
   return cells;
 }
 
-// ── emit · build/palette.ts source ────────────────────────────────────
+// ── emit · packages/rn/generated/data/palette.ts source ────────────────────────────────────
 // The mapping emits each colour cell as a STRUCTURAL ref `{ group, leaf }` (a
 // dotted TokenPath split at emit) or a verbatim literal (ghost's 'transparent').
 // Preserving (group, leaf) structurally lets the RN theme builder index the

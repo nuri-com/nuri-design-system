@@ -22,7 +22,7 @@ The library is **loaded in the browser with no build step** (custom elements + C
 npm run build -w @nuri/prototype     # pipeline/css-preview.js → styles/<ns>.css
 ```
 
-It reads `@nuri/spec`'s axis SoTs (`resolve-map` · `property-spelling` · `palette-surface` · `interactive-effects` · `typography-axis` · via the `@nuri/spec` exports map) and `@nuri/spec`'s generated `styles/tokens-semantic.css` (the scale vocab · cross-package), and writes the 5 namespace CSS into `styles/`. The output is **committed** and CI-guarded — `re-emit ≡ committed` (`pipeline/*.test.js` · `git diff --exit-code styles/`).
+It reads `@nuri/spec`'s axis SoTs (`resolve-map` · `property-spelling` · `palette-surface` · `interactive-effects` · `typography-axis` · via the `@nuri/spec` exports map) and this projection's `generated/styles/tokens-semantic.css` (the scale vocab · emitted by the root codegen), and writes the 5 namespace CSS into `styles/`. The output is **committed** and CI-guarded — `re-emit ≡ committed` (`pipeline/*.test.js` · `git diff --exit-code styles/`).
 
 ## DAG
 

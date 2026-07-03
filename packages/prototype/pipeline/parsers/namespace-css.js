@@ -4,7 +4,7 @@
  * Field table → the web namespace CSS. This is the web emit that S1 promised
  * ("three platforms, one table — RN → ViewStyle · web → CSS · CSS → a rule")
  * but never built — S3 reused the hand CSS (Option A) instead, "which is where
- * the model got lost" (docs/cascade.md · L3 step 1).
+ * the model got lost" (L3 step 1).
  *
  * It consumes the SAME Field table the RN applier consumes
  * (packages/spec/axes/resolve-map.ts · STACK_FIELDS/BOX_FIELDS) and emits the
@@ -17,7 +17,7 @@
  * shadow target build/css-preview/ and hand lib/components/<ns>/<ns>.css oracle are
  * retired historical context.
  *
- * ── THE WEB SPELLING LAYER (the per-target delta · cascade.md "+ its own
+ * ── THE WEB SPELLING LAYER (the per-target delta · "+ its own
  *    spelling") ──────────────────────────────────────────────────────────
  * The shared table carries the field → { via, property-CONCEPT, value-SOURCE }
  * mapping (the concept is a CANONICAL id); the per-target EMIT supplies the
@@ -33,8 +33,8 @@
  *   1. SCALE_VOCAB — the per-field accepted leaves. `size`/`radius` DERIVE from
  *      the token scale (the SizeLeaf model · Object-keys of the scale); `space`
  *      is the CURATED 5-leaf subset (SpaceLeaf ⊊ space — none/2xs/2xl have no
- *      prop surface). That curation is the cascade.md "SpaceLeaf hardcoded ·
- *      a double declaration to remove" — today it lives ONLY as an erased TS
+ *      prop surface). That curation is the "SpaceLeaf hardcoded ·
+ *      a double declaration to remove" residue — today it lives ONLY as an erased TS
  *      type (schema.ts), so this restates it (SPACE_LEAF below).
  *   2. LITERAL_VOCAB — a `literal` field is value-passthrough; the table names
  *      no vocabulary (RN passes the runtime value straight through). The web
@@ -57,7 +57,7 @@
  * retires and the emitter is the sole source (the B1 discipline).
  *
  * ── THE TABLE + REGISTRY ARE HOMED IN @nuri/spec (N+39 · the rn→spec DAG) ──
- * resolve-map.ts + property-spelling.ts now live in @nuri/spec's pipeline/
+ * resolve-map.ts + property-spelling.ts now live in @nuri/spec's axes/
  * (decision 73 cl.2 / 74 · convergence `final`) — the axis SoT was mis-homed in
  * @nuri/rn through the shadow phase (the decision-68 rn→spec DAG, finally right
  * way round). This module reads both in place + TYPE-STRIPS them (node 20 cannot
