@@ -1,8 +1,9 @@
 /* ══════════════════════════════════════════════════════════════════
  * NURI · PARSER · DIMENSION → packages/rn/generated/data/tokens.ts (N+60 · Slice 3b·2a · decision 80)
  * ──────────────────────────────────────────────────────────────────
- * Re-sources the DIMENSION arm of packages/rn/generated/data/tokens.ts (space · size · radius) STRAIGHT
- * from packages/spec/tokens/dimensions.ts — ref→px literal, no CSS round-trip. The N+59 colour
+ * Re-sources the DIMENSION arm of packages/rn/generated/data/tokens.ts
+ * (space · size · radius · ratio · border) STRAIGHT from
+ * packages/spec/tokens/dimensions.ts — no CSS round-trip. The N+59 colour
  * twin (parsers/colour-tokens.js) did this for chrome + accent; this finishes the
  * RN contract's value arm (projection model §4 · no TS→CSS→TS round-trip).
  *
@@ -15,7 +16,6 @@
  *
  * A leaf resolves to the final CSS literal the semantic var() chain bottoms out at
  * (the value the browser / RN sees):
- *   · { ref: N }            → `${px[N]}px` — the px primitive, value == name (decision 32).
  *   · { value: 0, unit:px } → '0'          — the collapsed-gutter sentinel, unitless (dec 32).
  *   · { value: V, unit:px } → `${V}px`     — the 9999 pill sentinel (amendment 36.1).
  *   · { value: V, unit:none}→ `${V}`       — the BARE ratio (aspectRatio: 1.586 · NO px).
@@ -26,27 +26,18 @@ import { ACCENTS, THEMES } from './semantic.js';
 
 // The scales packages/rn/generated/data/tokens.ts exposes as singleton dimension namespaces (decision 36 ·
 // amendment 36.1). Their KEYS are the leaf names (the DTCG shape · no array restated).
-const DIMENSION_SCALES = ['space', 'size', 'radius', 'ratio'];
+const DIMENSION_SCALES = ['space', 'size', 'radius', 'ratio', 'border'];
 
-// Resolve a dimensions.ts leaf to its final CSS literal — the same value the live
-// var() chain (--nuri-<scale>-leaf → var(--nuri-px-N) → Npx) bottoms out at. Mirrors
-// dimension-css.js's leafRhs, but a `{ ref }` is RESOLVED to its px value (leafRhs
-// stops at the var() reference; here we want the terminal literal tokens.ts emits).
-export function resolveDimLeaf(leaf, px) {
-  if (leaf && 'ref' in leaf) {
-    const v = px[leaf.ref];
-    if (typeof v !== 'number') {
-      throw new Error(`[dimension-tokens] ref ${leaf.ref} is not in the px scale (value == name · decision 32)`);
-    }
-    return `${v}px`;
-  }
+// Resolve a dimensions.ts leaf to its final CSS literal. Mirrors
+// dimension-css.js's leafRhs.
+export function resolveDimLeaf(leaf) {
   if (leaf && typeof leaf.value === 'number') {
     // `none` is a BARE number (the `ratio` scale · RN `aspectRatio: 1.586` — NO `px`,
     // the named risk); `px` is the pixel dimension (0 collapses unitless · decision 32).
     if (leaf.unit === 'none') return `${leaf.value}`;
     return leaf.value === 0 ? '0' : `${leaf.value}px`;
   }
-  throw new Error(`[dimension-tokens] leaf is neither { ref } nor { value, unit }: ${JSON.stringify(leaf)}`);
+  throw new Error(`[dimension-tokens] leaf is not { value, unit }: ${JSON.stringify(leaf)}`);
 }
 
 // The dimension arm of packages/rn/generated/data/tokens.ts, resolved from the TS SoT. Returns the
@@ -62,7 +53,7 @@ export function resolveDimensionTokens(dims) {
       throw new Error(`[dimension-tokens] packages/spec/tokens/dimensions.ts has no '${scale}' table`);
     }
     for (const [leaf, def] of Object.entries(table)) {
-      const literal = resolveDimLeaf(def, dims.px);
+      const literal = resolveDimLeaf(def);
       const perAccent = {};
       for (const a of ACCENTS) {
         perAccent[a] = {};

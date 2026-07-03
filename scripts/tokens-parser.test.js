@@ -308,7 +308,7 @@ const SEMANTIC_EXPECTED = {
                                        orange:  { light: '#ffd8c2', dark: '#4b1b04' } },
 
   // ── Semantic spacing · cascade-invariant · same value across (accent × theme) ──
-  // Maps to the --nuri-px-N primitive layer (decision 32). T-shirt scale
+  // Direct values from the dimension SoT. T-shirt scale
   // semantic vocabulary landed at N+6.1 (decision 36). The oracle holds
   // raw RHS strings (`'12px'` etc.) — the runtime emitter strips `px`
   // to a JS numeric expression downstream, but the cross-product
@@ -348,10 +348,9 @@ const SEMANTIC_EXPECTED = {
   '--nuri-size-3xl':  { neutral: { light: '90px', dark: '90px' },
                         lilac:   { light: '90px', dark: '90px' } },
 
-  // ── Semantic radius · cascade-invariant · sm/md/lg chain to --nuri-px-N ──
-  // 3 leaves chain (sm=px-6, md=px-12, lg=px-18); full is the only
-  // semantic dimension leaf without primitive backing — literal 100%
-  // for pills + circular shapes. Amendment 36.1 · N+6.1.1.
+  // ── Semantic radius · cascade-invariant · direct values ──
+  // full is the literal 9999px sentinel for pills + circular shapes.
+  // Amendment 36.1 · N+6.1.1.
   '--nuri-radius-sm':   { neutral: { light: '6px',  dark: '6px'  },
                           lilac:   { light: '6px',  dark: '6px'  } },
   '--nuri-radius-md':   { neutral: { light: '12px', dark: '12px' },
@@ -364,11 +363,15 @@ const SEMANTIC_EXPECTED = {
   // ── Semantic ratio · cascade-invariant · UNITLESS (aspect-ratio · no px backing) ──
   // The bare-number aspect-ratio scale (box-aspect-ratio slice · square=1, card=1.586).
   // The named-risk surface: a px leak would show as '1px'/'1.586px' here. NO
-  // --nuri-px-N chain (the ratio sits outside the px scale by design).
+  // The ratio scale stays unitless by design.
   '--nuri-ratio-square': { neutral: { light: '1',     dark: '1'     },
                            lilac:   { light: '1',     dark: '1'     } },
   '--nuri-ratio-card':   { neutral: { light: '1.586', dark: '1.586' },
                            lilac:   { light: '1.586', dark: '1.586' } },
+
+  // ── Semantic border · cascade-invariant · shared hairline ──
+  '--nuri-border-1': { neutral: { light: '1px', dark: '1px' },
+                       lilac:   { light: '1px', dark: '1px' } },
 };
 
 test('resolveSemanticCrossProduct · every semantic token matches the hand-derived oracle', async () => {
@@ -700,7 +703,7 @@ test('SET_POLICY mechanism · auto-rule + orphan + missing-entry checks throw', 
   for (const cssVar of [
     // --nuri-radius-{sm,md,lg} moved to the semantic layer at N+6.1.1
     // (amendment 36.1); cite --nuri-radius-xl which stays primitive.
-    '--nuri-px-60', '--nuri-radius-xl', '--nuri-type-md-size',
+    '--nuri-radius-xl', '--nuri-type-md-size',
     '--nuri-font-weight-semibold', '--nuri-duration-fast', '--nuri-color-cream-1-light',
   ]) {
     const setKey = primitiveSetFor(cssVar);
@@ -1065,14 +1068,11 @@ test('every primitive token is consumed or explicitly reserved', async () => {
   // Each entry needs a one-line justification.
   const RESERVED_TOKENS = new Set([
     // N+6.0 retired the --nuri-size-{0..12} indexed scale; the
-    // direct-pixel scale (--nuri-px-N) ships exactly the values
-    // currently consumed, so no spacing/dimension primitives are
-    // reserved today. Decision 32.
+    // later hairline slice retired the --nuri-px-* indirection scale.
+    // Spacing/sizing/radius/border leaves now own their direct values.
     // radius family kept as the canonical vocabulary
     // (none / xs / sm / md / lg / xl / 2xl / full).
     '--nuri-radius-none', '--nuri-radius-xl', '--nuri-radius-2xl',
-    // border-N family kept whole (0 / 1 / 2 / 4).
-    '--nuri-border-0', '--nuri-border-2', '--nuri-border-4',
     // display family points at the system stack today; held distinct
     // from -sans so a future display face can land without renaming.
     '--nuri-font-family-display',

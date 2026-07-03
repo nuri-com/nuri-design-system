@@ -11,9 +11,9 @@
 .nuri-control {
   display: inline-flex;
   align-items: center;
-  gap: var(--nuri-px-4);
-  height: var(--nuri-px-28); /* 28px */
-  padding: 0 var(--nuri-px-6);
+  gap: 4px;
+  height: 28px; /* 28px */
+  padding: 0 6px;
   background: var(--nuri-bg-strong);
   border: var(--nuri-border-1) solid var(--nuri-border-subtle);
   border-radius: var(--nuri-radius-sm);
@@ -31,7 +31,7 @@
 .nuri-control__inner {
   display: inline-flex;
   align-items: center;
-  gap: var(--nuri-px-4);
+  gap: 4px;
 }
 
 .nuri-control__label {
@@ -61,7 +61,7 @@
 }
 
 .nuri-control--icon {
-  width: var(--nuri-px-28);
+  width: 28px;
   padding: 0;
   justify-content: center;
 }

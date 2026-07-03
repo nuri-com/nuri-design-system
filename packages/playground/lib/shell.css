@@ -48,7 +48,7 @@ nuri-playground-shell {
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  gap: var(--nuri-px-24);
+  gap: 24px;
   overflow-x: auto;
   height: 100%;
 }
@@ -58,8 +58,8 @@ nuri-playground-shell {
 .nuri-pg__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--nuri-px-24);
-  padding: var(--nuri-px-36) var(--nuri-px-48);
+  gap: 24px;
+  padding: 36px 48px;
   align-content: start;
   /* The shell never scrolls (overflow:hidden) — the card grid takes the
    * main's full height and scrolls its own overflow. */
@@ -71,10 +71,10 @@ nuri-playground-shell {
 .nuri-pg__card {
   display: flex;
   flex-direction: column;
-  gap: var(--nuri-px-12);
+  gap: 12px;
   text-decoration: none;
   color: inherit;
-  padding: var(--nuri-px-18);
+  padding: 18px;
   background: var(--nuri-bg-canvas);
   border: var(--nuri-border-1) solid var(--nuri-border-subtle);
   border-radius: var(--nuri-radius-lg);

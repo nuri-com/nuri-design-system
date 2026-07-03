@@ -263,11 +263,8 @@
  * 7 · SPACING · semantic vocabulary · between elements
  *
  * Role · the T-shirt scale layout consumers reach for when
- * declaring gap / margin / padding between siblings. Maps to the
- * --nuri-px-N primitive layer (decision 32). Cascade-invariant
- * today; 1-line role descriptions per the dependency-driven
- * trigger in decision 33 (Format B applies only to tokens that
- * vary across cascade dimensions). Decision 36 · N+6.1.
+ * declaring gap / margin / padding between siblings. Leaves own
+ * direct values in the dimension SoT. Cascade-invariant today.
  * ══════════════════════════════════════════════════════════════ */
 
 :root {
@@ -279,19 +276,19 @@
    * primitive). Added N+8.1 alongside the Separator y-space prop. */
   --nuri-space-none: 0;
   /* space.2xs · finest granularity · hairline gap between adjacent micro-elements */
-  --nuri-space-2xs: var(--nuri-px-2);
+  --nuri-space-2xs: 2px;
   /* space.xs  · tight gap · icon-to-label inside a control, label-to-glyph */
-  --nuri-space-xs:  var(--nuri-px-4);
+  --nuri-space-xs:  4px;
   /* space.sm  · compact gap · stacked rows in a dense list */
-  --nuri-space-sm:  var(--nuri-px-6);
+  --nuri-space-sm:  6px;
   /* space.md  · default gap · siblings inside a card, row-gap in a grid */
-  --nuri-space-md:  var(--nuri-px-12);
+  --nuri-space-md:  12px;
   /* space.lg  · roomy gap · button padding-x, comfortable interior */
-  --nuri-space-lg:  var(--nuri-px-18);
+  --nuri-space-lg:  18px;
   /* space.xl  · section gap · vertical rhythm between content groups */
-  --nuri-space-xl:  var(--nuri-px-24);
+  --nuri-space-xl:  24px;
   /* space.2xl · major gap · separator between distinct page regions */
-  --nuri-space-2xl: var(--nuri-px-36);
+  --nuri-space-2xl: 36px;
 }
 
 
@@ -299,10 +296,9 @@
  * 8 · SIZING · semantic vocabulary · element dimensions
  *
  * Role · the T-shirt scale layout consumers reach for when
- * declaring min-height / width of an element itself. Maps to the
- * --nuri-px-N primitive layer (decision 32). Cascade-invariant
- * today; 1-line role descriptions per the dependency-driven
- * trigger in decision 33. Asymmetric vs spacing by design —
+ * declaring min-height / width of an element itself. Leaves own
+ * direct values in the dimension SoT. Cascade-invariant today.
+ * Asymmetric vs spacing by design —
  * sizing anchors larger (touch targets, control heights), spacing
  * anchors smaller (between-element values). Decision 36 · N+6.1.
  * ══════════════════════════════════════════════════════════════ */
@@ -312,19 +308,19 @@
    * dec-2 reversed for the dimension layer). Edit the SoT, not these values —
    * `npm run build` regenerates them in place (Slice 0). */
   /* size.xs  · smallest element · inline tag / chip height */
-  --nuri-size-xs:  var(--nuri-px-18);
+  --nuri-size-xs:  18px;
   /* size.sm  · compact element · dense list-item height, indicator dot */
-  --nuri-size-sm:  var(--nuri-px-24);
+  --nuri-size-sm:  24px;
   /* size.md  · medium element · default icon-button, input field height */
-  --nuri-size-md:  var(--nuri-px-36);
+  --nuri-size-md:  36px;
   /* size.lg  · standard touch target · iOS minimum + comfortable headroom */
-  --nuri-size-lg:  var(--nuri-px-48);
+  --nuri-size-lg:  48px;
   /* size.xl  · roomy touch target · primary action button height */
-  --nuri-size-xl:  var(--nuri-px-54);
+  --nuri-size-xl:  54px;
   /* size.2xl · large element · prominent CTA, screen-header height */
-  --nuri-size-2xl: var(--nuri-px-72);
+  --nuri-size-2xl: 72px;
   /* size.3xl · hero element · feature card height, large display tile */
-  --nuri-size-3xl: var(--nuri-px-90);
+  --nuri-size-3xl: 90px;
 }
 
 
@@ -332,12 +328,12 @@
  * 9 · RADIUS · semantic vocabulary · corner softness
  *
  * Role · the T-shirt scale border-radius consumers reach for when
- * declaring corner softness. sm / md / lg chain to the
- * --nuri-px-N primitive layer (decision 32); full is a literal
+ * declaring corner softness. sm / md / lg are direct values;
+ * full is a literal
  * 9999px sentinel value — border-radius clamps it to
  * min(width/2, height/2), producing a pill for any rectangular box
  * and a circle when width = height. The 9999 sentinel sits outside
- * the --nuri-px-N scale (which tops at 90) by design; using 100%
+ * the ordinary scale by design; using 100%
  * instead would distort non-square boxes into ellipses (see N+6.1.1
  * post-close polish). Cascade-invariant today; 1-line role
  * descriptions per the dependency-driven trigger in decision 33.
@@ -350,11 +346,11 @@
    * literal sentinel). Edit the SoT, not these values — `npm run build`
    * regenerates them in place (Slice 0). */
   /* radius.sm   · tight softening · dense controls, inline chips */
-  --nuri-radius-sm:   var(--nuri-px-6);
+  --nuri-radius-sm:   6px;
   /* radius.md   · default softening · cards, inputs, mid-scale controls */
-  --nuri-radius-md:   var(--nuri-px-12);
+  --nuri-radius-md:   12px;
   /* radius.lg   · roomy softening · primary action buttons, hero surfaces */
-  --nuri-radius-lg:   var(--nuri-px-18);
+  --nuri-radius-lg:   18px;
   /* radius.full · literal 9999px sentinel · pills (rectangular) + circles (square w=h); browser clamps to min(width/2, height/2) */
   --nuri-radius-full: 9999px;
 }
@@ -381,4 +377,17 @@
   --nuri-ratio-square: 1;
   /* ratio.card   · 1.586:1 · the credit-card / payment-card surface (ISO 7810 ID-1) */
   --nuri-ratio-card:   1.586;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+ * 11 · BORDER · semantic vocabulary · hairline widths
+ *
+ * Role · the shared hairline width consumed by palette outlines and
+ * Separator. Only real DS consumers ship leaves.
+ * ══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* GENERATED from the TS SoT (packages/spec/tokens/dimensions.ts). */
+  --nuri-border-1: 1px;
 }

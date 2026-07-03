@@ -29,7 +29,7 @@ The operator + coordinator have settled the architecture; this audit encodes it:
   - Guideline: **Stack = laying out children · View = a surface/box/leaf.**
 - **Both targets implement the primitives as thin wrappers** that forward namespace props through
   the shared `resolve-map`: web = a custom element + the generated namespace CSS; RN = a component
-  → `<View style={…}>`. **RN's hand-authorable wrappers DON'T exist yet — that is the gap (§2).**
+  → `<View style={…}>`. **RN's hand-authorable wrappers now exist — the audit-era gap is closed (§2).**
 
 ### 0.1 The reconciliation, discharged — `El` is 4 (the el:'pressable' bump)
 
@@ -71,17 +71,18 @@ consumer can write).
 
 | Primitive | Web element / file | Web? | RN hand-authorable? | Namespace / prop surface (schema SoT) |
 |---|---|---|---|---|
-| **View** | `<nuri-view>` · [view.js](packages/prototype/primitives/view.js) + [view.css](packages/prototype/primitives/view.css) | ✅ the merged box⊕stack⊕palette host | ❌ — only the factory's internal `el:'view'` render ([renderer.tsx](packages/rn/runtime/renderer.tsx)) | `box` + `stack` + `palette` ([schema.ts:135,109,173](packages/spec/components/schema.ts:135)) |
-| **Stack** | `<nuri-stack>` · [stack.js](packages/prototype/primitives/stack.js) + [styles/stack.css](packages/prototype/styles/stack.css) | ✅ | ❌ | `stack` (`StackNS`: direction·align·justify·gap·wrap·fill · [schema.ts:109-116](packages/spec/components/schema.ts:109)) |
-| **Text** (Typography) | `<nuri-typography>` · [typography.js](packages/prototype/primitives/typography.js) + [styles/typography.css](packages/prototype/styles/typography.css) | ✅ | ❌ — only the factory's internal `el:'text'` render ([renderer.tsx](packages/rn/runtime/renderer.tsx)) | `typography` (`size`·`emphasis` · [schema.ts:158-161](packages/spec/components/schema.ts:158)) + colour via `palette` |
+| **View** | `<nuri-view>` · [view.js](packages/prototype/primitives/view.js) + [view.css](packages/prototype/primitives/view.css) | ✅ the merged box⊕stack⊕palette host | ✅ **`View`** ([primitives/View.tsx](packages/rn/primitives/View.tsx)) | `box` + `stack` + `palette` ([schema.ts:135,109,173](packages/spec/components/schema.ts:135)) |
+| **Stack** | `<nuri-stack>` · [stack.js](packages/prototype/primitives/stack.js) + [styles/stack.css](packages/prototype/styles/stack.css) | ✅ | ✅ **`Stack`** ([primitives/Stack.tsx](packages/rn/primitives/Stack.tsx)) | `stack` (`StackNS`: direction·align·justify·gap·wrap·fill · [schema.ts:109-116](packages/spec/components/schema.ts:109)) |
+| **Text** (Typography) | `<nuri-typography>` · [typography.js](packages/prototype/primitives/typography.js) + [styles/typography.css](packages/prototype/styles/typography.css) | ✅ | ✅ **`Text`** ([primitives/Text.tsx](packages/rn/primitives/Text.tsx)) | `typography` (`size`·`emphasis` · [schema.ts:158-161](packages/spec/components/schema.ts:158)) + colour via `palette` |
 | **Icon** | `<nuri-icon>` · [icon.js](packages/prototype/primitives/icon.js) + [icon.css](packages/prototype/primitives/icon.css) | ✅ | ✅ **`NuriIcon`** ([primitives/NuriIcon.tsx](packages/rn/primitives/NuriIcon.tsx), exported on the public barrel [index.ts](packages/rn/index.ts)) | typed `IconName` + `dimension` (shared `size` axis) + `color` (scope fg) |
-| **Pressable** | `<nuri-pressable>` · [pressable.js](packages/prototype/primitives/pressable.js) + [pressable.css](packages/prototype/primitives/pressable.css) | ✅ | ❌ — only the factory's internal `el:'pressable'` render ([renderer.tsx](packages/rn/runtime/renderer.tsx)) | `interactive` (`pressColor`·`pressScale`·`disabledOpacity` · [schema.ts:191-195](packages/spec/components/schema.ts:191)) + box⊕stack⊕palette |
-| **Screen** (structural) | `<nuri-screen>` · [screen.js](packages/prototype/primitives/screen.js) + [screen.css](packages/prototype/primitives/screen.css) | ✅ flex-column fill | ❌ | none — pure structural fill |
-| **Scroll** (structural) | `<nuri-scroll>` · [scroll.js](packages/prototype/primitives/scroll.js) + [scroll.css](packages/prototype/primitives/scroll.css) | ✅ flex-fill + overflow | ❌ | none — pure structural fill + overflow |
+| **Pressable** | `<nuri-pressable>` · [pressable.js](packages/prototype/primitives/pressable.js) + [pressable.css](packages/prototype/primitives/pressable.css) | ✅ | ✅ **`Pressable`** ([primitives/Pressable.tsx](packages/rn/primitives/Pressable.tsx)) | `interactive` (`pressColor`·`pressScale`·`disabledOpacity` · [schema.ts:191-195](packages/spec/components/schema.ts:191)) + box⊕stack⊕palette |
+| **Screen** (structural) | `<nuri-screen>` · [screen.js](packages/prototype/primitives/screen.js) + [screen.css](packages/prototype/primitives/screen.css) | ✅ flex-column fill | ✅ **`Screen`** ([primitives/Screen.tsx](packages/rn/primitives/Screen.tsx)) | none — pure structural fill |
+| **Scroll** (structural) | `<nuri-scroll>` · [scroll.js](packages/prototype/primitives/scroll.js) + [scroll.css](packages/prototype/primitives/scroll.css) | ✅ flex-fill + overflow | ✅ **`Scroll`** ([primitives/Scroll.tsx](packages/rn/primitives/Scroll.tsx)) | none — pure structural fill + overflow |
+| **Separator** | `<nuri-separator>` · [separator.js](packages/prototype/primitives/separator.js) + [separator.css](packages/prototype/primitives/separator.css) | ✅ horizontal hairline | ✅ **`Separator`** ([primitives/Separator.tsx](packages/rn/primitives/Separator.tsx)) | local `ySpace: none \| xs \| sm \| md \| lg \| xl`; visible line uses `border.1` + scoped `border.subtle` |
 
-**Icon is the only contracted primitive with both targets done today** (the icon contract · the DS
-owns RN glyph rendering · [NuriIcon.tsx:1-16](packages/rn/primitives/NuriIcon.tsx:1)). View, Stack,
-Text, Pressable, Screen, Scroll are **web-only** — the §2 gap.
+All contracted primitives now have web + RN implementations. Separator is a parity primitive because
+the hairline width and scoped border colour are part of the DS contract, even though its prop surface
+stays intentionally local and small.
 
 **Screen / Scroll do NOT map to the descriptor factory.** They are structural containers with no
 namespace composition. On RN they map to react-native directly, per their own headers:
@@ -110,8 +111,7 @@ namespace composition. On RN they map to react-native directly, per their own he
 | Element | File | Verdict |
 |---|---|---|
 | **Box** (`<nuri-box>` standalone element) | [box.js](packages/prototype/primitives/box.js) | **FOLD → View.** Retire the standalone custom element; the **box *namespace* stays** (see below). |
-| **Separator** | [separator.js](packages/prototype/primitives/separator.js) | **Web helper + trivial RN.** Header: "it does NOT port to RN (the RN consumer is a thin `<View>` with marginVertical from the space scale)" ([separator.js:17-18](packages/prototype/primitives/separator.js:17)). Keep web-only; RN is a one-liner, not a contracted parity primitive. |
-| **Spacer** | [spacer.js](packages/prototype/primitives/spacer.js) | **Web helper + trivial RN.** Header: "grow → `<View style={{flex:1}} />`; size → a `<View>` with fixed width/height" ([spacer.js:15-16](packages/prototype/primitives/spacer.js:15)). Same as Separator. |
+| **Spacer** | [spacer.js](packages/prototype/primitives/spacer.js) | **Web helper + trivial RN.** Header: "grow → `<View style={{flex:1}} />`; size → a `<View>` with fixed width/height" ([spacer.js:15-16](packages/prototype/primitives/spacer.js:15)). Not a contracted parity primitive. |
 | **Scope** | [scope.js](packages/prototype/primitives/scope.js) | **WEB-ONLY mechanism — keep, not a parity primitive.** It is a CSS-cascade scope (`display:contents`, mirrors props → `data-*`). Its own header: "web-only … In RN the same semantic is expressed via React Context (e.g. `<AccentProvider>`), not via Unistyles … the pipeline does NOT translate `<nuri-scope>` 1:1" ([scope.js:11-14,36-38](packages/prototype/primitives/scope.js:11)). The RN equivalent already exists — `NuriThemeProvider` / `NuriScope` ([theme.tsx](packages/rn/theme.tsx)). |
 
 #### The Box fold — work-list (the namespace stays; only the standalone *element* retires)
@@ -172,7 +172,7 @@ copy of `box.js` etc.); they are not the active projection and are out of scope 
 The audit-era gap was: web had hand-authorable primitives, while RN exposed only
 catalog components plus raw `react-native` hosts. That is no longer true. `@nuri/rn`
 now exports the open primitive layer (`View`, `Stack`, `Text`, `Pressable`, `Screen`,
-`Scroll`) alongside `NuriIcon` and the generated catalog components
+`Scroll`, `Separator`) alongside `NuriIcon` and the generated catalog components
 ([index.ts](packages/rn/index.ts); [primitives/index.ts](packages/rn/primitives/index.ts)).
 
 | Primitive | Web | RN today |
@@ -183,6 +183,7 @@ now exports the open primitive layer (`View`, `Stack`, `Text`, `Pressable`, `Scr
 | **Pressable** | `<nuri-pressable>` | `Pressable` — View + interactive opt-ins |
 | **Screen** | `<nuri-screen>` | `Screen` — structural full-screen wrapper |
 | **Scroll** | `<nuri-scroll>` | `Scroll` — structural scroll wrapper |
+| **Separator** | `<nuri-separator>` | `Separator` — horizontal `border.1` hairline with scoped `border.subtle` |
 | **Icon** | `<nuri-icon>` | `NuriIcon` |
 
 The RN wrappers reuse the existing runtime appliers: `resolveNS` / `flattenInteractive`
@@ -286,7 +287,7 @@ reserved for app harness responsibilities (safe-area, theme toggle, root surface
   ([docs-drift.test.js](scripts/docs-drift.test.js)). Pressable is a first-class `El` host since
   amendment 65.13 (was the interactive-flagged view; §0.1).
 - **RN hand-authorable primitives exist:** the public barrel exports
-  `View`/`Stack`/`Text`/`Pressable`/`Screen`/`Scroll` from
+  `View`/`Stack`/`Text`/`Pressable`/`Screen`/`Scroll`/`Separator` from
   [primitives/index.ts](packages/rn/primitives/index.ts), and the Expo demo screens
   consume them through `src/components/ui`.
 - **The Box-fold work-list:** the box *namespace* (`.nuri-box`) is applied by the factory

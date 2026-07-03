@@ -196,21 +196,21 @@ export function makeRoleResolver(specTokens, tokenVars) {
   };
 }
 
-// Build the value-bearing emitter inputs from @nuri/spec's token DATA. The px
-// scale maps ({ leaf: 'NNpx' }) double as the leaf-VALIDATION sets (assertLeaf
-// reads them by Object.hasOwn) AND the value source (the px each cell renders) —
-// one map, two uses. The size/space/radius values are bare px integers in
-// @nuri/spec/tokens; the docs render them with the unit (the inverse of the
-// pipeline's px-strip · the byte-identical gate witnesses it). `type` is the full
-// type scale (the step → its composite fields · directly from the data).
+// Build the value-bearing emitter inputs from @nuri/spec's token DATA. Dimension
+// values follow the same spelling as CSS: pixel dimensions render Npx except 0,
+// ratio renders bare numbers. `type` is the full type scale.
 export function buildDocTokenInputs(specTokens, tokenVars) {
   const px = (scale) =>
-    Object.fromEntries(Object.entries(scale).map(([leaf, v]) => [leaf, `${v}px`]));
+    Object.fromEntries(Object.entries(scale).map(([leaf, v]) => [leaf, v === 0 ? '0' : `${v}px`]));
+  const bare = (scale) =>
+    Object.fromEntries(Object.entries(scale).map(([leaf, v]) => [leaf, `${v}`]));
   return {
     tokens: {
       size: px(specTokens.size),
       space: px(specTokens.space),
       radius: px(specTokens.radius),
+      ratio: bare(specTokens.ratio),
+      border: px(specTokens.border),
       type: specTokens.type,
       emphasisWeight: specTokens.emphasisWeight, // the orthogonal weight override (decision 77)
     },
@@ -727,19 +727,19 @@ export function emitFoundationPage(ir, { nav, src, lead } = {}) {
   return lines.join('\n');
 }
 
-// ── dimension · the L1 px primitives (token → px) then the three L2 scales. Each
-// scale leaf renders its cascade SOURCE (the `px-N` primitive it references · or the
-// `literal` sentinel for the off-scale 0 / 9999) beside the RESOLVED px — the `{ref}`
-// made visible (the pointer + its resolution · mirrors palette's role → swatch). ──
+// ── dimension · direct semantic scales. Each leaf renders its source posture
+// (`literal`) beside the resolved value. ──
 function renderDimension(ir, lines) {
-  lines.push('## Primitives');
-  lines.push('');
-  lines.push('| Token | Value |');
-  lines.push('| --- | --- |');
-  for (const p of ir.primitives) {
-    lines.push(`| \`${p.token}\` | \`${p.value}\` |`);
+  if (ir.primitives.length) {
+    lines.push('## Primitives');
+    lines.push('');
+    lines.push('| Token | Value |');
+    lines.push('| --- | --- |');
+    for (const p of ir.primitives) {
+      lines.push(`| \`${p.token}\` | \`${p.value}\` |`);
+    }
+    lines.push('');
   }
-  lines.push('');
   for (const scale of ir.scales) {
     lines.push(`## ${cap(scale.name)}`);
     lines.push('');

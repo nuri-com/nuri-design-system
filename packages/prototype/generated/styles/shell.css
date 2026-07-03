@@ -7,7 +7,7 @@
  * `.nuri-swatch` and `.nuri-token-table` widgets are the only
  * exceptions: their job is to render primitive scales themselves.
  *
- * Non-colour primitives (--nuri-px-*, --nuri-radius-*, --nuri-font-*)
+ * Non-colour primitives (--nuri-radius-*, --nuri-font-*) plus semantic dimensions.
  * are referenced directly — they have no semantic layer yet.
  * ────────────────────────────────────────────────────────────── */
 
@@ -82,7 +82,7 @@ nuri-shell:not(:defined)::after {
   top: 0;
   left: 260px;
   right: 0;
-  height: calc(var(--nuri-px-18) + var(--nuri-px-28) + var(--nuri-px-18));
+  height: calc(18px + 28px + 18px);
   background: var(--nuri-bg-canvas);
   border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
   pointer-events: none;
@@ -149,16 +149,16 @@ nuri-demo:not(:defined) {
 .nuri-shell__brand {
   display: flex;
   align-items: center;
-  gap: var(--nuri-px-6);
-  padding: var(--nuri-px-18) var(--nuri-px-18) var(--nuri-px-18);
+  gap: 6px;
+  padding: 18px 18px 18px;
   border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
   text-decoration: none;
   color: inherit;
 }
 
 .nuri-shell__brand-mark {
-  width: var(--nuri-px-28);
-  height: var(--nuri-px-28);
+  width: 28px;
+  height: 28px;
   border-radius: var(--nuri-radius-md);
   background: var(--nuri-bg-inverse);
   color: var(--nuri-text-on-inverse);
@@ -194,7 +194,7 @@ nuri-demo:not(:defined) {
 .nuri-shell__nav {
   flex: 1;
   overflow-y: auto;
-  padding: var(--nuri-px-18) 0 var(--nuri-px-24);
+  padding: 18px 0 24px;
   scrollbar-width: thin;
 }
 
@@ -206,7 +206,7 @@ nuri-demo:not(:defined) {
  * hover · the same chrome ladder the Button/IconButton soft variant uses). */
 .nuri-shell__footer {
   flex: none;
-  padding: var(--nuri-px-12) var(--nuri-px-18) var(--nuri-px-18);
+  padding: 12px 18px 18px;
   border-top: var(--nuri-border-1) solid var(--nuri-border-subtle);
 }
 
@@ -214,7 +214,7 @@ nuri-demo:not(:defined) {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--nuri-px-12);
+  padding: 12px;
   border-radius: var(--nuri-radius-md);
   background: var(--nuri-bg-strong);
   color: var(--nuri-text-primary);
@@ -228,13 +228,13 @@ nuri-demo:not(:defined) {
 }
 
 .nuri-shell__nav-group {
-  padding: 0 var(--nuri-px-6);
-  margin-bottom: var(--nuri-px-18);
+  padding: 0 6px;
+  margin-bottom: 18px;
 }
 
 .nuri-shell__nav-group-title {
   margin: 0;
-  padding: var(--nuri-px-6) var(--nuri-px-6) var(--nuri-px-4);
+  padding: 6px 6px 4px;
   font-size: var(--nuri-font-size-13);
   /* semibold (operator-locked post-N+6.5 NAV polish) so the three
    * top-level groups (Get started, Foundations, Components) read as
@@ -248,7 +248,7 @@ nuri-demo:not(:defined) {
 .nuri-shell__nav-link {
   display: flex;
   align-items: center;
-  padding: var(--nuri-px-4) var(--nuri-px-6);
+  padding: 4px 6px;
   border-radius: var(--nuri-radius-sm);
   font-size: var(--nuri-font-size-13);
   color: var(--nuri-text-primary);
@@ -286,8 +286,8 @@ nuri-demo:not(:defined) {
 /* Nested nav items — sub-pages of a parent. Indented + subtle left rule
  * so the hierarchy is visible without an explicit tree control. */
 .nuri-shell__nav-link--nested {
-  margin-left: var(--nuri-px-12);
-  padding-left: var(--nuri-px-12);
+  margin-left: 12px;
+  padding-left: 12px;
   border-left: var(--nuri-border-1) solid var(--nuri-border-subtle);
   border-radius: 0 var(--nuri-radius-sm) var(--nuri-radius-sm) 0;
   font-size: var(--nuri-font-size-13);
@@ -312,7 +312,7 @@ nuri-demo:not(:defined) {
  * rail under the header + the cursor:default cue, not from a color
  * downgrade — operator-locked at post-N+6.5 NAV polish. */
 .nuri-shell__nav-link--header {
-  margin-top: var(--nuri-px-4);
+  margin-top: 4px;
   /* padding-bottom: 0 tightens the gap to the first nested child
    * so the indent rail feels visually attached to its parent
    * (Colour → Primitive reads as one cluster). Without this, the
@@ -336,7 +336,7 @@ nuri-demo:not(:defined) {
  * nested group "closes". Headers and leaves both qualify; nested-
  * to-nested transitions stay tight (matches sibling rhythm). */
 .nuri-shell__nav-link--nested + .nuri-shell__nav-link:not(.nuri-shell__nav-link--nested) {
-  margin-top: var(--nuri-px-12);
+  margin-top: 12px;
 }
 
 /* ── Topbar ───────────────────────────────────────────────────── */
@@ -348,10 +348,10 @@ nuri-demo:not(:defined) {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--nuri-px-6);
+  gap: 6px;
   /* Match sidebar brand vertical padding so border-bottoms align */
-  padding: var(--nuri-px-18) var(--nuri-px-24) var(--nuri-px-18);
-  min-height: calc(var(--nuri-px-18) + var(--nuri-px-28) + var(--nuri-px-18)); /* 18 + 28 + 18 = 64px */
+  padding: 18px 24px 18px;
+  min-height: calc(18px + 28px + 18px); /* 18 + 28 + 18 = 64px */
   background: var(--nuri-bg-canvas);
   border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
 }
@@ -367,14 +367,14 @@ nuri-demo:not(:defined) {
  * viewport edge (capped by shell-padding); prose / cards constrain
  * themselves to 560 via the .page-section whitelist below. */
 .nuri-shell__main {
-  padding: var(--nuri-px-36) var(--nuri-px-48);
+  padding: 36px 48px;
   max-width: none;
 }
 
 .nuri-shell__breadcrumb {
   font-size: var(--nuri-font-size-13);
   color: var(--nuri-text-muted);
-  margin-bottom: var(--nuri-px-6);
+  margin-bottom: 6px;
 }
 
 .nuri-shell__breadcrumb a {
@@ -393,7 +393,7 @@ nuri-demo:not(:defined) {
 }
 
 .nuri-shell__lead {
-  margin: var(--nuri-px-6) 0 0;
+  margin: 6px 0 0;
   font-size: var(--nuri-font-size-15);
   color: var(--nuri-text-muted);
   max-width: 70ch;
@@ -405,7 +405,7 @@ nuri-demo:not(:defined) {
 .nuri-shell__page-head {
   padding-bottom: 0;
   border-bottom: none;
-  margin-bottom: var(--nuri-px-28);
+  margin-bottom: 28px;
 }
 
 /* ── Content blocks (default styles for page bodies) ─────────────
@@ -424,7 +424,7 @@ nuri-demo:not(:defined) {
   font-size: var(--nuri-font-size-17);
   font-weight: var(--nuri-font-weight-semibold);
   line-height: 1.3;
-  margin: var(--nuri-px-48) 0 var(--nuri-px-12);
+  margin: 48px 0 12px;
   color: var(--nuri-text-primary);
 }
 
@@ -432,12 +432,12 @@ nuri-demo:not(:defined) {
   font-size: var(--nuri-font-size-17);
   font-weight: var(--nuri-font-weight-medium, 500);
   line-height: 1.4;
-  margin: var(--nuri-px-28) 0 var(--nuri-px-6);
+  margin: 28px 0 6px;
   color: var(--nuri-text-primary);
 }
 
 .nuri-shell__main p {
-  margin: 0 0 var(--nuri-px-12);
+  margin: 0 0 12px;
   max-width: 70ch;
   font-size: var(--nuri-font-size-15);
   color: var(--nuri-text-muted);
@@ -479,19 +479,19 @@ nuri-demo:not(:defined) {
  * Locked 2026-05-26 on the Button page, promoted here in N+2 so
  * foundation pages and future component pages inherit it. */
 .page-section {
-  margin: 0 0 var(--nuri-px-36);
+  margin: 0 0 36px;
 }
 .page-section + .page-section {
-  margin-top: var(--nuri-px-48);
-  padding-top: var(--nuri-px-48);
+  margin-top: 48px;
+  padding-top: 48px;
   position: relative;
 }
 .page-section + .page-section::before {
   content: '';
   position: absolute;
   top: 0;
-  left: calc(-1 * var(--nuri-px-48));
-  width: calc(100% + 2 * var(--nuri-px-48));
+  left: -48px;
+  width: calc(100% + 96px);
   height: 1px;
   background: var(--nuri-border-subtle);
 }
@@ -513,11 +513,11 @@ nuri-demo:not(:defined) {
 .page-section > .nuri-token-meta {
   max-width: 560px;
 }
-.page-section > h2 { margin: 0 0 var(--nuri-px-6); }
-.page-section > h3 { margin: var(--nuri-px-18) 0 var(--nuri-px-6); }
+.page-section > h2 { margin: 0 0 6px; }
+.page-section > h3 { margin: 18px 0 6px; }
 /* Generous bottom margin on intro paragraphs so the following demo
  * card / table / scale-list has breathing room. */
-.page-section > p { margin: 0 0 var(--nuri-px-28); }
+.page-section > p { margin: 0 0 28px; }
 
 /* Tag tightening inside spec-card / roadmap rows: shell.css gives
  * .nuri-tag a left margin (so it can sit after a heading); inside
@@ -533,12 +533,12 @@ nuri-demo:not(:defined) {
 .nuri-note {
   display: flex;
   flex-direction: column;
-  gap: var(--nuri-px-4);
-  padding: var(--nuri-px-12) var(--nuri-px-18);
+  gap: 4px;
+  padding: 12px 18px;
   border-radius: var(--nuri-radius-md);
   background: var(--nuri-bg-subtle);
   border: var(--nuri-border-1) solid var(--nuri-border-subtle);
-  margin: var(--nuri-px-18) 0;
+  margin: 18px 0;
   font-size: var(--nuri-font-size-13);
   color: var(--nuri-text-muted);
   max-width: 70ch;
@@ -561,15 +561,15 @@ nuri-demo:not(:defined) {
 .nuri-tag {
   display: inline-flex;
   align-items: center;
-  height: var(--nuri-px-24);
-  padding: 0 var(--nuri-px-12);
+  height: 24px;
+  padding: 0 12px;
   border-radius: var(--nuri-radius-full);
   font-size: var(--nuri-font-size-13);
   background: var(--nuri-bg-strong);
   color: var(--nuri-text-muted);
   border: var(--nuri-border-1) solid var(--nuri-border-subtle);
   vertical-align: middle;
-  margin-left: var(--nuri-px-6);
+  margin-left: 6px;
 }
 
 /* ── Swatch · shared docs widget ─────────────────────────────────
@@ -598,14 +598,14 @@ nuri-demo:not(:defined) {
   flex-shrink: 0;
 }
 
-.nuri-swatch--xs    { width: var(--nuri-px-18); }   /* 18px — inline next to text */
-.nuri-swatch--sm    { width: var(--nuri-px-28); }   /* 28px — inline emphasis */
-.nuri-swatch--md    { width: var(--nuri-px-36); }   /* 36px — reserved */
-.nuri-swatch--lg    { width: var(--nuri-px-48); }   /* 48px — token table rows */
+.nuri-swatch--xs    { width: 18px; }   /* 18px — inline next to text */
+.nuri-swatch--sm    { width: 28px; }   /* 28px — inline emphasis */
+.nuri-swatch--md    { width: 36px; }   /* 36px — reserved */
+.nuri-swatch--lg    { width: 48px; }   /* 48px — token table rows */
 /* --fluid · fills the cell up to 72px max. Used by all palette cells so
  * chip size stays consistent across pages: ~72px on wide viewports,
  * smaller on narrow ones (primitive's 12-col rows). */
-.nuri-swatch--fluid { width: 100%; max-width: var(--nuri-px-72); }
+.nuri-swatch--fluid { width: 100%; max-width: 72px; }
 
 /* Alpha · checkerboard backdrop + overlay fill.
  * Theme-independent by design: the pattern must stay visible regardless
@@ -645,15 +645,15 @@ nuri-demo:not(:defined) {
 
 .nuri-grid {
   display: grid;
-  gap: var(--nuri-px-12);
-  margin: var(--nuri-px-18) 0;
+  gap: 12px;
+  margin: 18px 0;
 }
 .nuri-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .nuri-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .nuri-grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
 .nuri-card {
-  padding: var(--nuri-px-18);
+  padding: 18px;
   background: var(--nuri-bg-canvas);
   border: var(--nuri-border-1) solid var(--nuri-border-subtle);
   border-radius: var(--nuri-radius-lg);
@@ -662,11 +662,11 @@ nuri-demo:not(:defined) {
 .nuri-card__eyebrow {
   font-size: var(--nuri-font-size-13);
   color: var(--nuri-text-muted);
-  margin: 0 0 var(--nuri-px-4);
+  margin: 0 0 4px;
 }
 
 .nuri-card__title {
-  margin: 0 0 var(--nuri-px-4);
+  margin: 0 0 4px;
   font-size: var(--nuri-font-size-13);
   font-weight: var(--nuri-font-weight-semibold);
   color: var(--nuri-text-primary);
@@ -695,10 +695,10 @@ nuri-demo:not(:defined) {
  * ────────────────────────────────────────────────────────────── */
 .nuri-table-scroll {
   width: auto;
-  margin-left: calc(-1 * var(--nuri-px-48));
-  margin-right: calc(-1 * var(--nuri-px-48));
-  margin-top: var(--nuri-px-12);
-  margin-bottom: var(--nuri-px-24);
+  margin-left: -48px;
+  margin-right: -48px;
+  margin-top: 12px;
+  margin-bottom: 24px;
   overflow-x: auto;
 }
 
@@ -746,14 +746,14 @@ nuri-demo:not(:defined) {
 .nuri-token-table__caption {
   caption-side: top;
   text-align: left;
-  padding: 0 0 var(--nuri-px-6);
+  padding: 0 0 6px;
   font-size: var(--nuri-font-size-13);
   color: var(--nuri-text-muted);
 }
 
 .nuri-token-table thead th {
   text-align: left;
-  padding: var(--nuri-px-4) var(--nuri-px-12);
+  padding: 4px 12px;
   border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
   color: var(--nuri-text-muted);
   font-weight: var(--nuri-font-weight-regular);
@@ -762,12 +762,12 @@ nuri-demo:not(:defined) {
 }
 
 .nuri-token-table tbody td {
-  padding: var(--nuri-px-6) var(--nuri-px-12);
+  padding: 6px 12px;
   border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
   vertical-align: middle;
   line-height: 1.4;
   white-space: nowrap;
-  height: var(--nuri-px-48);
+  height: 48px;
 }
 
 .nuri-token-table tbody tr:last-child td {
@@ -780,11 +780,11 @@ nuri-demo:not(:defined) {
  * .nuri-table-scroll's negative margins. Header and body rows match. */
 .nuri-token-table thead th:first-child,
 .nuri-token-table tbody td:first-child {
-  padding-left: var(--nuri-px-48);
+  padding-left: 48px;
 }
 .nuri-token-table thead th:last-child,
 .nuri-token-table tbody td:last-child {
-  padding-right: var(--nuri-px-48);
+  padding-right: 48px;
 }
 
 /* DTCG name cell · the <td> stays `display: table-cell` (so the row's
@@ -839,11 +839,11 @@ nuri-demo:not(:defined) {
  *     → token name starts at 6 + 24 + 18 = 48px from cell border
  *       = aligned with the "DTCG" column header above. */
 .nuri-swatch--inline {
-  flex: 0 0 var(--nuri-px-24);
-  width: var(--nuri-px-24);
-  height: var(--nuri-px-24);
-  margin-left: calc(-1 * var(--nuri-px-48) + var(--nuri-px-6));
-  margin-right: var(--nuri-px-18);
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  margin-left: -42px;
+  margin-right: 18px;
   border-radius: var(--nuri-radius-sm);
   border: var(--nuri-border-1) solid var(--nuri-border-subtle);
 }
@@ -854,9 +854,9 @@ nuri-demo:not(:defined) {
 .nuri-token-meta {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--nuri-px-4);
-  margin: 0 0 var(--nuri-px-18);
-  padding: var(--nuri-px-4) var(--nuri-px-6);
+  gap: 4px;
+  margin: 0 0 18px;
+  padding: 4px 6px;
   background: var(--nuri-bg-strong);
   border-radius: var(--nuri-radius-sm);
   font-size: var(--nuri-font-size-13);
@@ -899,7 +899,7 @@ nuri-demo:not(:defined) {
 }
 .nuri-table thead th {
   text-align: left;
-  padding: var(--nuri-px-4) var(--nuri-px-12);
+  padding: 4px 12px;
   border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
   color: var(--nuri-text-muted);
   font-weight: var(--nuri-font-weight-regular);
@@ -907,13 +907,13 @@ nuri-demo:not(:defined) {
   white-space: nowrap;
 }
 .nuri-table tbody td {
-  padding: var(--nuri-px-6) var(--nuri-px-12);
+  padding: 6px 12px;
   border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
   vertical-align: middle;
   line-height: 1.4;
   color: var(--nuri-text-muted);
   white-space: nowrap;
-  height: var(--nuri-px-48);
+  height: 48px;
 }
 .nuri-table tbody tr:last-child td {
   border-bottom: none;
@@ -924,11 +924,11 @@ nuri-demo:not(:defined) {
  * .nuri-token-table. */
 .nuri-table thead th:first-child,
 .nuri-table tbody td:first-child {
-  padding-left: var(--nuri-px-48);
+  padding-left: 48px;
 }
 .nuri-table thead th:last-child,
 .nuri-table tbody td:last-child {
-  padding-right: var(--nuri-px-48);
+  padding-right: 48px;
 }
 /* Description columns (props / parts): humans read prose here —
  * allow wrap with a min/max-width so the column behaves
@@ -960,8 +960,8 @@ nuri-demo:not(:defined) {
 }
 .nuri-table__group th {
   text-align: left;
-  height: var(--nuri-px-48);
-  padding: var(--nuri-px-6) var(--nuri-px-48);
+  height: 48px;
+  padding: 6px 48px;
   font-size: var(--nuri-font-size-15);
   font-weight: var(--nuri-font-weight-semibold);
   color: var(--nuri-text-primary);
@@ -999,8 +999,8 @@ nuri-demo:not(:defined) {
  * after the canonical component-docs template was validated.
  * ────────────────────────────────────────────────────────────── */
 .nuri-spec-card {
-  margin: 0 0 var(--nuri-px-24);
-  padding: 0 var(--nuri-px-18);
+  margin: 0 0 24px;
+  padding: 0 18px;
   background: var(--nuri-bg-subtle);
   border: var(--nuri-border-1) solid var(--nuri-border-subtle);
   border-radius: var(--nuri-radius-md);
@@ -1011,9 +1011,9 @@ nuri-demo:not(:defined) {
 .nuri-spec-card__row {
   display: grid;
   grid-template-columns: 140px 1fr;
-  gap: var(--nuri-px-12);
+  gap: 12px;
   align-items: center;
-  padding: var(--nuri-px-6) 0;
+  padding: 6px 0;
   min-height: 48px;
 }
 .nuri-spec-card__row + .nuri-spec-card__row {
@@ -1029,7 +1029,7 @@ nuri-demo:not(:defined) {
   margin: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: var(--nuri-px-2) var(--nuri-px-6);
+  gap: 2px 6px;
   align-items: baseline;
   color: var(--nuri-text-muted);
 }
@@ -1048,7 +1048,7 @@ nuri-demo:not(:defined) {
 @media (max-width: 480px) {
   .nuri-spec-card__row {
     grid-template-columns: 1fr;
-    gap: var(--nuri-px-2);
+    gap: 2px;
   }
 }
 
@@ -1081,14 +1081,14 @@ nuri-demo:not(:defined) {
 .nuri-anatomy {
   display: flex;
   flex-direction: column;
-  gap: var(--nuri-px-12);
-  margin: var(--nuri-px-12) 0;
+  gap: 12px;
+  margin: 12px 0;
 }
 .nuri-anatomy__visual {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--nuri-px-28) var(--nuri-px-18);
+  padding: 28px 18px;
   background: var(--nuri-bg-canvas);
   border: var(--nuri-border-1) solid var(--nuri-border-subtle);
   border-radius: var(--nuri-radius-lg);
@@ -1117,15 +1117,15 @@ nuri-demo:not(:defined) {
 .nuri-state-grid {
   display: flex;
   flex-direction: column;
-  gap: var(--nuri-px-6);
-  margin: var(--nuri-px-6) 0 var(--nuri-px-18);
+  gap: 6px;
+  margin: 6px 0 18px;
 }
 .nuri-state-grid__cell {
   display: grid;
   grid-template-columns: minmax(120px, 160px) 1fr;
-  gap: var(--nuri-px-12);
+  gap: 12px;
   align-items: center;
-  padding: var(--nuri-px-6) 0;
+  padding: 6px 0;
   border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
 }
 .nuri-state-grid__cell:first-child {
@@ -1161,14 +1161,14 @@ nuri-demo:not(:defined) {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--nuri-px-6);
+  gap: 6px;
 }
 .nuri-roadmap li {
   display: grid;
   grid-template-columns: minmax(120px, 160px) 1fr;
-  gap: var(--nuri-px-12);
+  gap: 12px;
   align-items: start;
-  padding: var(--nuri-px-12);
+  padding: 12px;
   background: var(--nuri-bg-subtle);
   border: var(--nuri-border-1) solid var(--nuri-border-subtle);
   border-radius: var(--nuri-radius-md);
@@ -1181,7 +1181,7 @@ nuri-demo:not(:defined) {
 .nuri-roadmap__body {
   display: flex;
   flex-direction: column;
-  gap: var(--nuri-px-2);
+  gap: 2px;
   min-width: 0;
 }
 .nuri-roadmap__title {
@@ -1226,9 +1226,9 @@ nuri-demo:not(:defined) {
 .nuri-role-legend {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--nuri-px-4) var(--nuri-px-18);
-  margin: var(--nuri-px-12) 0;
-  padding: var(--nuri-px-12) var(--nuri-px-18);
+  gap: 4px 18px;
+  margin: 12px 0;
+  padding: 12px 18px;
   background: var(--nuri-bg-subtle);
   border: var(--nuri-border-1) solid var(--nuri-border-subtle);
   border-radius: var(--nuri-radius-md);
@@ -1237,7 +1237,7 @@ nuri-demo:not(:defined) {
   display: grid;
   grid-template-columns: 28px 1fr;
   align-items: baseline;
-  gap: var(--nuri-px-6);
+  gap: 6px;
   font-size: var(--nuri-font-size-15);
   color: var(--nuri-text-muted);
 }
@@ -1287,8 +1287,8 @@ nuri-demo:not(:defined) {
  * ────────────────────────────────────────────────────────────── */
 .nuri-scale-list {
   display: grid;
-  gap: var(--nuri-px-12);
-  margin: var(--nuri-px-12) 0 var(--nuri-px-24);
+  gap: 12px;
+  margin: 12px 0 24px;
 }
 .nuri-scale-card {
   border: var(--nuri-border-1) solid var(--nuri-border-subtle);
@@ -1304,8 +1304,8 @@ nuri-demo:not(:defined) {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--nuri-px-6);
-  padding: var(--nuri-px-6) var(--nuri-px-18);
+  gap: 6px;
+  padding: 6px 18px;
   background: var(--nuri-bg-subtle);
   border-bottom: var(--nuri-border-1) solid var(--nuri-border-subtle);
   font-family: var(--nuri-font-family-mono);
@@ -1316,8 +1316,8 @@ nuri-demo:not(:defined) {
 .nuri-scale-card__step {
   display: inline-flex;
   align-items: center;
-  height: var(--nuri-px-18);
-  padding: 0 var(--nuri-px-6);
+  height: 18px;
+  padding: 0 6px;
   background: var(--nuri-bg-inverse);
   color: var(--nuri-text-on-inverse);
   border-radius: var(--nuri-radius-xs);
@@ -1329,7 +1329,7 @@ nuri-demo:not(:defined) {
 .nuri-scale-card__meta {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--nuri-px-2);
+  gap: 2px;
 }
 .nuri-scale-card__meta-label {
   color: var(--nuri-text-muted);
@@ -1344,14 +1344,14 @@ nuri-demo:not(:defined) {
 }
 .nuri-scale-card__sep {
   width: var(--nuri-border-1);
-  height: var(--nuri-px-12);
+  height: 12px;
   background: var(--nuri-border-subtle);
 }
 .nuri-scale-card__body {
   display: flex;
   flex-direction: column;
-  gap: var(--nuri-px-6);
-  padding: var(--nuri-px-18) var(--nuri-px-18);
+  gap: 6px;
+  padding: 18px 18px;
 }
 .nuri-scale-card__sample {
   margin: 0;
@@ -1370,7 +1370,7 @@ nuri-demo:not(:defined) {
 .nuri-scale-card--gap .nuri-scale-card__head {
   background: transparent;
   border-bottom: none;
-  padding: var(--nuri-px-18);
+  padding: 18px;
   justify-content: space-between;
 }
 .nuri-scale-card--gap .nuri-scale-card__gap-label {
@@ -1415,7 +1415,7 @@ nuri-demo:not(:defined) {
   border-color: var(--nuri-border-strong);
 }
 .nuri-card--link .nuri-card__cta {
-  margin: var(--nuri-px-12) 0 0;
+  margin: 12px 0 0;
   font-family: var(--nuri-font-family-mono);
   font-size: var(--nuri-font-size-13);
   font-weight: var(--nuri-font-weight-semibold);

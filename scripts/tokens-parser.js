@@ -263,8 +263,8 @@ async function main() {
   console.log(`[tokens-parser] data-neutral=${neutral}`);
 
   // ── Slice 0 · the dimension cascade · TS SoT → tokens-*.css (N+31 · decision 70 · the first flip) ──
-  // decision 2 reverses for the dimension layer ONLY: the px scale + the
-  // space/size/radius semantics are authored in pipeline/dimensions.ts (the
+  // decision 2 reverses for the dimension layer ONLY: the
+  // space/size/radius/ratio/border semantics are authored in packages/spec/tokens/dimensions.ts (the
   // SoT) and WRITTEN INTO styles/tokens-{primitive,semantic}.css here, before
   // every downstream slice reads them. The emit is an in-place PASSTHROUGH —
   // only the dimension declarations' values are regenerated; all non-dimension
@@ -278,8 +278,9 @@ async function main() {
   await flipDimensionCss({ primitivePath: PRIMITIVE_CSS, semanticPath: SEMANTIC_CSS, dims });
   console.log(
     `[tokens-parser] flipped the dimension cascade from the TS SoT ` +
-    `(${Object.keys(dims.px).length} px · ${Object.keys(dims.space).length} space · ` +
-    `${Object.keys(dims.size).length} size · ${Object.keys(dims.radius).length} radius) → styles/tokens-*.css`,
+    `(${Object.keys(dims.space).length} space · ${Object.keys(dims.size).length} size · ` +
+    `${Object.keys(dims.radius).length} radius · ${Object.keys(dims.ratio).length} ratio · ` +
+    `${Object.keys(dims.border).length} border) → styles/tokens-*.css`,
   );
 
   // ── Slice 0 · the colour primitives · TS SoT → tokens-primitive.css (N+32 C1 · decision 70 · the second flip) ──
@@ -386,8 +387,8 @@ async function main() {
   // build/tokens.ts's value arm is flattened STRAIGHT from the TS SoTs — NO TS→CSS→TS
   // round-trip (projection model §4 · decision 80). The COLOUR arm (chrome · accent)
   // came onto pipeline/colours.ts at N+59 (Slice 3b·1 · ref→hex); the DIMENSION arm
-  // (space · size · radius) comes onto pipeline/dimensions.ts HERE (N+60 · Slice 3b·2a ·
-  // ref→px literal). So `resolved` is now assembled from the two TS resolvers instead
+  // (space · size · radius · ratio · border) comes onto packages/spec/tokens/dimensions.ts
+  // HERE (N+60 · Slice 3b·2a, updated by the hairline slice). So `resolved` is now assembled from the two TS resolvers instead
   // of the cascade walk (resolveSemanticCrossProduct · the last CSS read of the RN
   // value arm) — chrome is a theme-major cross-product node map (byte-identical generic
   // emit), the dimension singletons hold the identical literal in every (accent, theme)
@@ -433,8 +434,8 @@ async function main() {
   // tokens-parser.test.js.)
 
   // ── Slice 5 · TokenPath union emit (N+6.0.3 · decision 34 · re-sourced N+60 · Slice 3b·2a) ────
-  // Enumerated STRAIGHT from the TS SoTs (pipeline/colours.ts chrome + accent roles ·
-  // pipeline/dimensions.ts space/size/radius keys) — no longer from classifyAll
+  // Enumerated STRAIGHT from the TS SoTs (packages/spec/tokens/colours.ts chrome + accent roles ·
+  // packages/spec/tokens/dimensions.ts space/size/radius/ratio/border keys) — no longer from classifyAll
   // (semanticRules · the CSS). The SoT keys ARE the runtime-set leaf names, in the same
   // emit order tokens.ts uses, so the union stays in lockstep with the runtime namespace
   // without a CSS classify step (projection model §4 · decision 80). classifyAll stays

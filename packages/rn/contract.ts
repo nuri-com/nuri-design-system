@@ -16,7 +16,7 @@
  * (the `./descriptors/<name>` subpaths · pure data · source only):
  *
  *   ./generated/data/tokens       static scales: space · size · radius · ratio
- *                                 · type (+ Accent/Theme)
+ *                                 · border · type (+ Accent/Theme)
  *   ./generated/data/interaction  the transversal interaction baseline
  *                                 ({ pressScale · disabledOpacity } · decision 45)
  *   ./generated/data/icons        IconName → SVG markup registry (one drawing
@@ -30,6 +30,7 @@ import {
   size,
   radius,
   ratio,
+  border,
   type as typeScale,
   emphasisWeight,
 } from './generated/data/tokens';
@@ -87,6 +88,7 @@ export {
   size,
   radius,
   ratio,
+  border,
   typeScale,
   emphasisWeight,
   icons,

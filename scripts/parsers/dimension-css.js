@@ -13,12 +13,9 @@
  * repointing, and because the values are unchanged this slice the whole pipeline
  * downstream (tokens.json · tokens.ts · …) stays byte-identical.
  *
- * Two ownership families, one per file (kept disjoint so the LOCKED reserved
- * radius PRIMITIVES are never touched):
- *   · tokens-primitive.css → the --nuri-px-* scale ONLY (NOT --nuri-radius-*,
- *     which are the reserved radius primitives · hand · decision 32 / 36.1).
- *   · tokens-semantic.css  → --nuri-{space,size,radius,ratio}-* (the L2 semantics ·
- *     ratio is UNITLESS · a bare number, not a px dimension · the aspect-ratio scale).
+ * The dimension SoT owns the semantic dimension families:
+ * --nuri-{space,size,radius,ratio,border}-*. The old --nuri-px-* indirection
+ * family is gone; leaves emit their terminal CSS values directly.
  *
  * Each rewrite asserts the SoT and the CSS own EXACTLY the same leaves in their
  * families (the drift guard · both directions) — a px primitive added to one but
@@ -46,41 +43,35 @@ export async function loadDimensions(dimensionsTsPath) {
   const mod = await loadTsDataFromPath(dimensionsTsPath);
   // A loader regression must fail LOUD here, not silently emit garbage: every
   // SoT table must survive the strip as a non-empty object.
-  for (const name of ['px', 'space', 'size', 'radius', 'ratio']) {
+  for (const name of ['space', 'size', 'radius', 'ratio', 'border']) {
     if (!mod[name] || typeof mod[name] !== 'object' || !Object.keys(mod[name]).length) {
       throw new Error(`[dimension-css] loadDimensions: ${name} missing/empty (loader regression?)`);
     }
   }
-  return { px: mod.px, space: mod.space, size: mod.size, radius: mod.radius, ratio: mod.ratio };
+  return { space: mod.space, size: mod.size, radius: mod.radius, ratio: mod.ratio, border: mod.border };
 }
 
 // ── SoT leaf → the CSS declaration RHS ──────────────────────────────
-// A reference (`{ ref: N }`) becomes `var(--nuri-px-N)` (the cascade); a
-// structured literal (`{ value, unit }`) becomes its CSS spelling, discriminated by
-// `unit`: `none` is a BARE number (the `ratio` scale · `aspect-ratio: 1.586` — NO
-// `px`, the named risk), `px` is a pixel dimension — 0 stays unitless `0` by Nuri
-// convention (decision 32), else `${value}px`. The shape is exhaustive over Leaf —
-// an unrecognised leaf throws.
+// A structured literal (`{ value, unit }`) becomes its CSS spelling, discriminated
+// by `unit`: `none` is a BARE number (the `ratio` scale · `aspect-ratio: 1.586`
+// — NO `px`), `px` is a pixel dimension — 0 stays unitless `0`, else `${value}px`.
 export function leafRhs(leaf) {
-  if (leaf && 'ref' in leaf) return `var(--nuri-px-${leaf.ref})`;
   if (leaf && typeof leaf.value === 'number') {
     if (leaf.unit === 'none') return `${leaf.value}`;
     return leaf.value === 0 ? '0' : `${leaf.value}px`;
   }
-  throw new Error(`[dimension-css] leaf is neither { ref } nor { value, unit }: ${JSON.stringify(leaf)}`);
+  throw new Error(`[dimension-css] leaf is not { value, unit }: ${JSON.stringify(leaf)}`);
 }
 
 // ── SoT → the { cssVar → RHS } maps the rewriter applies, one per file ──
-// Primitive file: the --nuri-px-N scale (value == name · decision 32). The KEYS
-// of `px` ARE the scale (the DTCG shape · no array restated).
-export function primitiveDimMap({ px }) {
-  return new Map(Object.keys(px).map((n) => [`--nuri-px-${n}`, `${n}px`]));
+export function primitiveDimMap() {
+  return new Map();
 }
 
-// Semantic file: the space/size/radius/ratio leaves → var(--nuri-px-N) | literal.
-export function semanticDimMap({ space, size, radius, ratio }) {
+// Semantic file: the space/size/radius/ratio/border leaves → terminal CSS literal.
+export function semanticDimMap({ space, size, radius, ratio, border }) {
   const map = new Map();
-  for (const [scale, table] of [['space', space], ['size', size], ['radius', radius], ['ratio', ratio]]) {
+  for (const [scale, table] of [['space', space], ['size', size], ['radius', radius], ['ratio', ratio], ['border', border]]) {
     for (const [leaf, def] of Object.entries(table)) {
       map.set(`--nuri-${scale}-${leaf}`, leafRhs(def));
     }
@@ -124,12 +115,10 @@ export function rewriteDimensionDecls(cssText, declMap, ownedRe) {
 // repointing); byte-identical while values are unchanged. Returns the rewritten
 // strings so a caller can reuse them without re-reading.
 export async function flipDimensionCss({ primitivePath, semanticPath, dims }) {
-  const primitive = rewriteDimensionDecls(
-    refreshTokenCssProvenance(await readFile(primitivePath, 'utf8')), primitiveDimMap(dims), /^--nuri-px-/,
-  );
+  const primitive = refreshTokenCssProvenance(await readFile(primitivePath, 'utf8'));
   await writeFile(primitivePath, primitive, 'utf8');
   const semantic = rewriteDimensionDecls(
-    refreshTokenCssProvenance(await readFile(semanticPath, 'utf8')), semanticDimMap(dims), /^--nuri-(space|size|radius|ratio)-/,
+    refreshTokenCssProvenance(await readFile(semanticPath, 'utf8')), semanticDimMap(dims), /^--nuri-(space|size|radius|ratio|border-\d)/,
   );
   await writeFile(semanticPath, semantic, 'utf8');
   return { primitive, semantic };

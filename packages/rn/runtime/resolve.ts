@@ -34,6 +34,7 @@ import {
   size,
   radius,
   ratio,
+  border,
 } from '../contract';
 import type {
   NS,
@@ -85,10 +86,8 @@ export type State = { pressed?: boolean; disabled?: boolean };
 const SCALES: Record<ScaleName, Record<string, number>> = { space, size, radius, ratio };
 
 // Web emits palette strokes as `var(--nuri-border-1) solid <colour>`.
-// RN needs the numeric projection of that same primitive; resolve.test.ts pins
-// this value against the generated web token so the two projections cannot drift
-// silently.
-export const PALETTE_BORDER_WIDTH = 1;
+// RN consumes the numeric projection of that same dimension token.
+export const PALETTE_BORDER_WIDTH = border[1];
 
 function fillCaseToRn(fill: FillCase): ViewStyle {
   const out: ViewStyle = {
@@ -177,6 +176,7 @@ function resolvePalette(ns: PaletteNS, theme: NuriTheme): ResolvedPalette {
     const role = theme.chrome[ns.chrome];
     return { bg: role.bg, fg: ns.muted ? role.fgMuted : role.fg, fgMuted: role.fgMuted };
   }
+  if (ns.muted) return { fg: theme.chrome.canvas.fgMuted, fgMuted: theme.chrome.canvas.fgMuted };
   return {}; // palette present but neither variant nor chrome → no colour
 }
 
