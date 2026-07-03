@@ -51,7 +51,9 @@ fact, so it lives in the anatomy — not derived from the behaviour channel (the
 `el:'pressable'` → `<nuri-pressable>` ([factory.js](packages/prototype/factory/factory.js)). The
 `interactive` opt-in ([schema.ts](packages/spec/components/schema.ts) `InteractiveNS`) still chooses
 only the **effects**; the behaviour channel carries only runtime handlers. The coherence guard
-([component-api.test.js](scripts/component-api.test.js) Channel 2) pins the three legs together:
+([component-api.test.js](scripts/component-api.test.js) Channel 2) pins the three legs together as
+a true equivalence (four checked directions, each a named failure — including review §9's "onPress
+must not exist independent of interactivity", restored as direction 4):
 `el:'pressable'` ≡ the declared `behaviour.pressable.target` ≡ the `interactive`-flagged parts.
 
 So: **4 `El` cases, 4 parity primitives** — View, Text, Icon, Pressable. 1:1.

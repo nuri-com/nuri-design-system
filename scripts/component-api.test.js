@@ -21,11 +21,14 @@
  *   1b. every slot `kind` is a legal literal AND matches its part's `el`
  *       (`text`→text · `icon-name`→icon · `region`/`node`→view · `children`→OPEN view);
  *   2.  the PRESSABLE COHERENCE rule (el:'pressable' · amendment 65.13 — the
- *       host element is structure data), all three directions: every
+ *       host element is structure data), all FOUR directions: every
  *       `behaviour.pressable.target` is an `el:'pressable'` anatomy part; every
- *       `el:'pressable'` part is THE declared `behaviour.pressable` target; and
+ *       `el:'pressable'` part is THE declared `behaviour.pressable` target;
  *       `interactive` flags live ONLY on `el:'pressable'` parts (effects
  *       opt-ins imply the pressable host — verified to hold descriptor-wide);
+ *       and every `el:'pressable'` part DECLARES `interactive` (base or a
+ *       variant value) — onPress must not exist independent of interactivity
+ *       (review §9 · the old rule's scan, restored as direction 4);
  *   2b. `behaviour.pressable.props` are a non-empty, duplicate-free subset of the
  *       legal public props (`onPress`/`disabled`/`accessibilityLabel`);
  *   3.  every `api.axes` member is a real `variants` axis key;
@@ -239,9 +242,11 @@ test('component-api · every slot kind is legal and matches its part element', (
 // ── Channel 2 · the PRESSABLE COHERENCE rule (el:'pressable' · amendment 65.13) ──
 // The host element is STRUCTURE data: `el:'pressable'` in the anatomy, the declared
 // `behaviour.pressable.target`, and the `interactive` effect opt-ins must name the
-// SAME parts, all three directions. A descriptor that flips one leg without the
-// others (a pressable root with no declared behaviour · a target that is a static
-// view · interactive flags on a non-pressable part) fails on a NAMED direction.
+// SAME parts, all FOUR directions (a true equivalence of the three legs). A
+// descriptor that flips one leg without the others (a pressable root with no
+// declared behaviour · a target that is a static view · interactive flags on a
+// non-pressable part · a pressable with no effects opt-in at all) fails on a
+// NAMED direction.
 test('component-api · behaviour.pressable, el:pressable anatomy, and interactive flags cohere', () => {
   for (const name of NAMES) {
     const d = CATALOG[name];
@@ -279,6 +284,19 @@ test('component-api · behaviour.pressable, el:pressable anatomy, and interactiv
         index.get(part)?.el,
         'pressable',
         `${name}: part '${part}' declares \`interactive\` flags but is el '${index.get(part)?.el}' — effects opt-ins live only on el:'pressable' parts`,
+      );
+    }
+
+    // direction 4 · every el:'pressable' part DECLARES `interactive` in
+    // `structure.base` or a variant value (the pre-65.13 rule's exact scan ·
+    // interactiveParts) — onPress must not exist independent of interactivity
+    // (review §9). Directions 3+4 together make interactive ↔ pressable a true
+    // equivalence, not a one-way implication.
+    for (const part of pressableParts) {
+      assert.ok(
+        interactive.has(part),
+        `${name}: part '${part}' is el:'pressable' but declares no \`interactive\` opt-in in base or any variant — ` +
+          `onPress must not exist independent of interactivity (review §9)`,
       );
     }
   }
