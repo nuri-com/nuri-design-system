@@ -158,6 +158,20 @@ function rulesForField(ns, key, field, scaleVocab, registry) {
       if (!vocab) throw new Error(`[namespace-css] ${ns}.${key}: no scale vocab for '${field.scale}'`);
       return vocab.map((leaf) => ({ sel: sel(leaf), decls: [[prop, `var(--nuri-${field.scale}-${leaf})`]] }));
     }
+    case 'scaleMulti': {
+      const vocab = scaleVocab[field.scale];
+      if (!vocab) throw new Error(`[namespace-css] ${ns}.${key}: no scale vocab for '${field.scale}'`);
+      return vocab.map((leaf) => ({
+        sel: sel(leaf),
+        decls: field.props.map((id) => {
+          const entry = registry[id];
+          if (!entry || entry.css === undefined) {
+            throw new Error(`[namespace-css] ${ns}.${key}: canonical id '${id}' has no property-spelling registry entry`);
+          }
+          return [entry.css, `var(--nuri-${field.scale}-${leaf})`];
+        }),
+      }));
+    }
     case 'keyword':
       // vocab + values both ride the table's map (no supplement needed).
       return Object.entries(field.map).map(([inK, outV]) => ({ sel: sel(inK), decls: [[prop, outV]] }));

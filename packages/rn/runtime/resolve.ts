@@ -41,6 +41,7 @@ import type {
   PaletteNS,
   InteractiveNS,
   TypographyNS,
+  EffectNS,
   PartId,
   El,
   PartAnatomy,
@@ -124,6 +125,9 @@ function applyFields(fields: Record<string, Field>, ns: Record<string, unknown>)
       case 'scale':
         set(rnProp(f.prop), SCALES[f.scale][value as string]);
         break;
+      case 'scaleMulti':
+        for (const prop of f.props) set(rnProp(prop), SCALES[f.scale][value as string]);
+        break;
       case 'keyword':
         set(rnProp(f.prop), f.map[value as string]);
         break;
@@ -192,6 +196,16 @@ const TEXT_ALIGN = {
   start: 'left',
   end: 'right',
 } satisfies Record<NonNullable<TypographyNS['align']>, NonNullable<TextStyle['textAlign']>>;
+
+const RN_ELEVATION_STYLE = {
+  none: {},
+  raised: {
+    shadowOffset: { width: 0, height: -8 },
+    shadowOpacity: 0.14,
+    shadowRadius: 20,
+    elevation: 16,
+  },
+} satisfies Record<NonNullable<EffectNS['elevation']>, ViewStyle>;
 
 function resolveTypography(typography: TypographyNS | undefined): {
   type?: TypeRef;
@@ -272,6 +286,9 @@ const RN_RESOLVERS: TargetResolvers = {
   interactive: (v, { node }) => {
     node.interactive = v;
   },
+  effect: (v, { node }) => {
+    if (v.elevation !== undefined) Object.assign(node.view, RN_ELEVATION_STYLE[v.elevation]);
+  },
 };
 
 // The registry, shaped for the per-target columns S2/S3/§9 add (web runtime ·
@@ -304,7 +321,7 @@ export function resolveNS(ns: NS, theme: NuriTheme): ResolvedNode {
 // in sequence). The type-level check keeps NS_ORDER TOTAL over keyof NS — a
 // sixth namespace must be added here too, else its patch silently skips the
 // merge (now a COMPILE error, not a runtime gap).
-const NS_ORDER = ['stack', 'box', 'typography', 'palette', 'interactive'] as const;
+const NS_ORDER = ['stack', 'box', 'typography', 'palette', 'interactive', 'effect'] as const;
 type _NSOrderComplete = Exclude<keyof NS, (typeof NS_ORDER)[number]> extends never ? true : never;
 const _nsOrderComplete: _NSOrderComplete = true;
 void _nsOrderComplete;

@@ -57,7 +57,7 @@ import { loadTsDataFromPath } from '../ts-data-loader.js';
 
 // ── the RN key order the resolver merges in (resolve.ts NS_ORDER) · palette is
 // SKIPPED here (colour is the Arc-1 runtime path · never baked) ──
-const NS_ORDER = ['stack', 'box', 'typography', 'palette', 'interactive'];
+const NS_ORDER = ['stack', 'box', 'typography', 'palette', 'interactive', 'effect'];
 
 // ── resolve a dimension SoT leaf → its concrete number ──────────────
 // A `{ value }` leaf is verbatim. This is the SAME resolution leafRhs
@@ -87,6 +87,16 @@ function fillCaseToRn(fill) {
   return out;
 }
 
+const RN_ELEVATION_STYLE = {
+  none: {},
+  raised: {
+    shadowOffset: { width: 0, height: -8 },
+    shadowOpacity: 0.14,
+    shadowRadius: 20,
+    elevation: 16,
+  },
+};
+
 // ── applyFieldsNode · the Node port of resolve.ts's `applyFields` (box · stack) ──
 // Walks the shared Field TABLE in its declaration order (NOT the input's) so the
 // emit reproduces the runtime resolver's key order byte-for-byte. The RN property
@@ -112,6 +122,14 @@ function applyFieldsNode(fields, ns, spelling, scales) {
           throw new Error(`[recipes] no ${f.scale} scale value for '${value}'`);
         }
         out[rnProp(f.prop)] = table[value];
+        break;
+      }
+      case 'scaleMulti': {
+        const table = scales[f.scale];
+        if (!table || table[value] === undefined) {
+          throw new Error(`[recipes] no ${f.scale} scale value for '${value}'`);
+        }
+        for (const prop of f.props) out[rnProp(prop)] = table[value];
         break;
       }
       case 'keyword':
@@ -156,6 +174,13 @@ function resolveGeometryNode(ns, deps) {
         break; // colour is the Arc-1 runtime path — NEVER baked (the no-colour invariant)
       case 'interactive':
         node.interactive = v; // the raw opt-in booleans — merged at runtime
+        break;
+      case 'effect':
+        if (v.elevation !== undefined) {
+          const effect = RN_ELEVATION_STYLE[v.elevation];
+          if (!effect) throw new Error(`[recipes] unknown effect.elevation '${v.elevation}'`);
+          Object.assign(node.view, effect);
+        }
         break;
       default:
         throw new Error(`[recipes] unhandled namespace '${key}'`);

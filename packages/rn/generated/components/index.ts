@@ -21,3 +21,5 @@ export { TabBarItem } from './tab-bar-item';
 export type { TabBarItemProps } from './tab-bar-item';
 export { TabBar } from './tab-bar';
 export type { TabBarProps } from './tab-bar';
+export { BottomSheetPanel } from './bottom-sheet-panel';
+export type { BottomSheetPanelProps } from './bottom-sheet-panel';

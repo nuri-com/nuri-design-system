@@ -56,6 +56,7 @@ export type FillCase = {
 };
 export type Field =
   | { via: 'scale'; prop: CanonicalId; scale: ScaleName } //       value = scale[input]
+  | { via: 'scaleMulti'; props: readonly CanonicalId[]; scale: ScaleName } // value = scale[input] applied to each prop
   | { via: 'keyword'; prop: CanonicalId; map: Record<string, string> } // value = map[input]
   | { via: 'literal'; prop: CanonicalId } //                       value = input (passthrough)
   | { via: 'flag'; prop: CanonicalId; on: string; off: string } // value = input ? on : off
@@ -114,11 +115,13 @@ export const STACK_FIELDS: Record<keyof StackNS, Field> = {
 // mapping as DATA (was resolveBox's if-wall) ──
 // ⚠ ORDER IS LOAD-BEARING (see above). Order: width · height · minHeight ·
 // minWidth · padding · paddingX · paddingY · paddingStart · paddingEnd ·
-// paddingTop · paddingBottom · radius · aspectRatio. The `prop` is a CANONICAL id
+// paddingTop · paddingBottom · radius · radiusTop · aspectRatio. The `prop` is a CANONICAL id
 // (the CSS-logical concept · property-spelling.ts), so the box INPUT keys
 // (width/paddingX/radius) and the canonical ids (inlineSize/paddingInline/
 // borderRadius) differ — the registry's `rn` column maps each back to RN's
-// physical prop (width/paddingHorizontal/…). `aspectRatio` is the geometry-group
+// physical prop (width/paddingHorizontal/…). `radiusTop` is one semantic input
+// applied to the two logical top-corner concepts, each target spelling locally.
+// `aspectRatio` is the geometry-group
 // tail: a `ratio`-scale field (the credit-card surface · unitless on both targets ·
 // canonical id == RN prop == web `aspect-ratio`, no de-logicalization).
 export const BOX_FIELDS: Record<keyof BoxNS, Field> = {
@@ -134,5 +137,10 @@ export const BOX_FIELDS: Record<keyof BoxNS, Field> = {
   paddingTop: { via: 'scale', prop: 'paddingBlockStart', scale: 'space' },
   paddingBottom: { via: 'scale', prop: 'paddingBlockEnd', scale: 'space' },
   radius: { via: 'scale', prop: 'borderRadius', scale: 'radius' },
+  radiusTop: {
+    via: 'scaleMulti',
+    props: ['borderStartStartRadius', 'borderStartEndRadius'],
+    scale: 'radius',
+  },
   aspectRatio: { via: 'scale', prop: 'aspectRatio', scale: 'ratio' },
 };

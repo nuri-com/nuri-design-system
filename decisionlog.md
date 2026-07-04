@@ -5465,3 +5465,10 @@ inside `list`; they are not anatomy parts of it, matching the `tab-bar` / `tab-b
 behaviour) · decision 83 (owner-scoped nested composition). **Realizes**:
 `packages/spec/components/list.ts` · `packages/spec/components/list-action.ts` ·
 `packages/rn/primitives/ListSeparator.tsx` · `packages/prototype/primitives/list-separator.{js,css}`.
+
+## 85. Sheet engine = core RN, no gorhom · N+59
+
+Bottom-sheet gestures are out of the product vocabulary (nuri-expo removed swipe-dismiss), so the
+sheet engine is core `react-native` only (`Animated` + `Pressable`) — no `@gorhom/bottom-sheet`, no
+reanimated/gesture-handler/worklets; zero native deps is what makes the DS vendorable/OTA-able into
+nuri-expo (Expo 53 · RN 0.79 · React 19.0). **Realizes**: `packages/rn/primitives/BottomSheet.tsx`.

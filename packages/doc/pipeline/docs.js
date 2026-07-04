@@ -72,13 +72,14 @@ const DEFAULT_THEME = 'light';
 // topbar regions (leading/center/trailing · the topbar-slots slice) join in
 // left→centre→right row order; the leaf parts (label/icon/content) follow. ──
 const PART_ORDER = ['root', 'leading', 'center', 'trailing', 'label', 'icon', 'content'];
-const NS_ORDER = ['stack', 'box', 'typography', 'palette', 'interactive'];
+const NS_ORDER = ['stack', 'box', 'typography', 'palette', 'interactive', 'effect'];
 const NS_PROP_ORDER = {
   stack: ['direction', 'align', 'justify', 'gap', 'wrap', 'fill'],
-  box: ['width', 'height', 'minHeight', 'padding', 'paddingX', 'paddingY', 'paddingStart', 'paddingEnd', 'paddingTop', 'paddingBottom', 'radius'],
+  box: ['width', 'height', 'minHeight', 'minWidth', 'padding', 'paddingX', 'paddingY', 'paddingStart', 'paddingEnd', 'paddingTop', 'paddingBottom', 'radius', 'radiusTop', 'aspectRatio'],
   typography: ['size', 'emphasis'],
   palette: ['variant', 'accent', 'muted', 'chrome'],
   interactive: ['pressColor', 'pressScale', 'disabledOpacity'],
+  effect: ['elevation'],
 };
 
 // A geometry leaf's scale namespace — engine knowledge (the schema's
@@ -89,7 +90,8 @@ const PROP_SCALE = {
   width: 'size', height: 'size', minHeight: 'size',
   padding: 'space', paddingX: 'space', paddingY: 'space',
   paddingStart: 'space', paddingEnd: 'space', paddingTop: 'space', paddingBottom: 'space',
-  radius: 'radius',
+  radius: 'radius', radiusTop: 'radius',
+  aspectRatio: 'ratio',
   gap: 'space',
 };
 
@@ -565,6 +567,7 @@ function renderFields(ir, lines) {
 function renderFieldValue(via, detail) {
   switch (via) {
     case 'scale':
+    case 'scaleMulti':
       return `\`${detail.scale}\` scale`;
     case 'literal':
       return 'passthrough';

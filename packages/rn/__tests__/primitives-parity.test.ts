@@ -34,7 +34,7 @@ import * as path from 'path';
 import { View, Stack, Text, Pressable, Screen, Scroll, Dock, Separator, ListSeparator } from '../primitives';
 import { STACK_FIELDS, BOX_FIELDS } from '@nuri/spec/resolve-map';
 import { opts as INTERACTIVE_OPTS } from '@nuri/spec/interactive-effects';
-import { PALETTE_KEYS, TYPOGRAPHY_KEYS } from '@nuri/spec/descriptors/schema';
+import { PALETTE_KEYS, TYPOGRAPHY_KEYS, EFFECT_KEYS } from '@nuri/spec/descriptors/schema';
 
 // ── schema namespace keys · ONE runtime SoT per namespace, read from @nuri/spec
 // (independent of primitives/ · the gate must read the SCHEMA, not the wrapper
@@ -83,7 +83,7 @@ function viewAttrs(): string[] {
       .map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
       .filter(Boolean);
   };
-  return [...grab('BOX_ATTRS'), ...grab('STACK_ATTRS'), ...grab('PALETTE_ATTRS')];
+  return [...grab('BOX_ATTRS'), ...grab('STACK_ATTRS'), ...grab('PALETTE_ATTRS'), ...grab('EFFECT_ATTRS')];
 }
 
 describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', () => {
@@ -92,8 +92,8 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
     expect(sorted(Stack.propKeys)).toEqual(sorted(STACK_KEYS));
   });
 
-  test('View props ≡ box ∪ stack ∪ palette keys', () => {
-    expect(sorted(View.propKeys)).toEqual(union(BOX_KEYS, STACK_KEYS, PALETTE_KEYS));
+  test('View props ≡ box ∪ stack ∪ palette ∪ effect keys', () => {
+    expect(sorted(View.propKeys)).toEqual(union(BOX_KEYS, STACK_KEYS, PALETTE_KEYS, EFFECT_KEYS));
   });
 
   test('Text props ≡ typography ∪ palette keys', () => {
@@ -129,8 +129,8 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
     expect(sorted(attrs)).toEqual(sorted(STACK_KEYS.map(kebab)));
   });
 
-  test('web <nuri-view> ATTRS ≡ box ∪ stack ∪ palette keys (the #102-deferred leg, now bidirectional)', () => {
-    expect(sorted(viewAttrs())).toEqual(sorted(union(BOX_KEYS, STACK_KEYS, PALETTE_KEYS).map(kebab)));
+  test('web <nuri-view> ATTRS ≡ box ∪ stack ∪ palette ∪ effect keys (the #102-deferred leg, now bidirectional)', () => {
+    expect(sorted(viewAttrs())).toEqual(sorted(union(BOX_KEYS, STACK_KEYS, PALETTE_KEYS, EFFECT_KEYS).map(kebab)));
   });
 
   test('web <nuri-typography> namespace ATTRS are real schema keys (typography ∪ palette)', () => {

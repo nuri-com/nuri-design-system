@@ -23,6 +23,8 @@ const DENY = [
   { name: 'web-cursor-decl', re: /\bcursor\b/g, reason: 'CSS declaration payloads live in the web projection.' },
   { name: 'web-transition-decl', re: /\btransition\b/g, reason: 'CSS declaration payloads live in the web projection.' },
   { name: 'web-outline-decl', re: /\boutline\b/g, reason: 'CSS declaration payloads live in the web projection.' },
+  { name: 'target-web-field', re: /\bweb\s*:/g, reason: 'Web projection payloads live in the web projection.' },
+  { name: 'target-rn-field', re: /\brn\s*:/g, reason: 'RN projection payloads live in the RN projection.' },
   { name: 'rn-flex-grow', re: /\bflexGrow\b/g, reason: 'RN ViewStyle keys live at the RN boundary.' },
   { name: 'rn-flex-shrink', re: /\bflexShrink\b/g, reason: 'RN ViewStyle keys live at the RN boundary.' },
   { name: 'rn-flex-basis', re: /\bflexBasis\b/g, reason: 'RN ViewStyle keys live at the RN boundary.' },
@@ -30,6 +32,10 @@ const DENY = [
   { name: 'rn-padding-horizontal', re: /\bpaddingHorizontal\b/g, reason: 'RN ViewStyle keys live at the RN boundary.' },
   { name: 'rn-padding-vertical', re: /\bpaddingVertical\b/g, reason: 'RN ViewStyle keys live at the RN boundary.' },
   { name: 'rn-min-width', re: /\bminWidth\b/g, reason: 'RN ViewStyle keys live at the RN boundary.' },
+  { name: 'rn-shadow-color', re: /\bshadowColor\b/g, reason: 'RN shadow style keys live at the RN boundary.' },
+  { name: 'rn-shadow-offset', re: /\bshadowOffset\b/g, reason: 'RN shadow style keys live at the RN boundary.' },
+  { name: 'rn-shadow-opacity', re: /\bshadowOpacity\b/g, reason: 'RN shadow style keys live at the RN boundary.' },
+  { name: 'rn-shadow-radius', re: /\bshadowRadius\b/g, reason: 'RN shadow style keys live at the RN boundary.' },
 ];
 
 // Explicit exceptions:
@@ -45,12 +51,12 @@ const DENY = [
 const ALLOW = [
   {
     file: 'axes/property-spelling.ts',
-    names: new Set(['rn-min-width', 'rn-padding-horizontal', 'rn-padding-vertical']),
+    names: new Set(['target-rn-field', 'rn-min-width', 'rn-padding-horizontal', 'rn-padding-vertical']),
     why: 'the explicit RN column in the per-target spelling registry',
   },
   {
     file: 'axes/interactive-effects.ts',
-    names: new Set(['rn-background-color']),
+    names: new Set(['target-rn-field', 'rn-background-color']),
     why: 'the SEED-1a RN realization vocabulary for interaction opt-ins',
   },
   {

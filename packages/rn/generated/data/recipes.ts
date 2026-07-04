@@ -460,5 +460,29 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "variants": {}
       }
     }
+  },
+  "bottom-sheet-panel": {
+    "root": {
+      "el": "view",
+      "open": true,
+      "geometry": {
+        "base": {
+          "flexDirection": "column",
+          "alignItems": "stretch",
+          "flexGrow": 1,
+          "flexShrink": 0,
+          "borderTopLeftRadius": 18,
+          "borderTopRightRadius": 18,
+          "shadowOffset": {
+            "width": 0,
+            "height": -8
+          },
+          "shadowOpacity": 0.14,
+          "shadowRadius": 20,
+          "elevation": 16
+        },
+        "variants": {}
+      }
+    }
   }
 };

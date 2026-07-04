@@ -1,0 +1,69 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · BOTTOM SHEET · STATIC WEB RULES
+ *
+ * Static prototype-only layout for the RN bottom-sheet primitive. Behaviour
+ * stays out: no gestures, no dismissal, no snap-point runtime.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer rules {
+  nuri-bottom-sheet {
+    --nuri-bottom-sheet-scrim-none: transparent;
+    --nuri-bottom-sheet-scrim-dim: transparent;
+
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: none;
+    align-items: flex-end;
+    justify-content: stretch;
+    pointer-events: none;
+  }
+
+  nuri-bottom-sheet[open] {
+    display: flex;
+  }
+
+  nuri-bottom-sheet::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    pointer-events: auto;
+  }
+
+  nuri-bottom-sheet[scrim="dim"]::before {
+    background: var(--nuri-bottom-sheet-scrim-dim);
+  }
+
+  nuri-bottom-sheet > nuri-bottom-sheet-panel {
+    position: relative;
+    z-index: 1;
+    inline-size: 100%;
+    min-block-size: 0;
+    max-block-size: min(82%, max-content);
+    overflow: hidden;
+    pointer-events: auto;
+  }
+
+  nuri-bottom-sheet[detent="large"] > nuri-bottom-sheet-panel {
+    block-size: 80%;
+    max-block-size: 80%;
+  }
+
+  nuri-bottom-sheet[detent="full"] > nuri-bottom-sheet-panel {
+    block-size: calc(100% - 12px);
+    max-block-size: calc(100% - 12px);
+  }
+
+  nuri-bottom-sheet-scroll {
+    display: block;
+    min-block-size: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  nuri-bottom-sheet[detent="large"] nuri-bottom-sheet-scroll,
+  nuri-bottom-sheet[detent="full"] nuri-bottom-sheet-scroll {
+    flex: 1;
+  }
+}

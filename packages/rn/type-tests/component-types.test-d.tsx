@@ -30,6 +30,9 @@ import {
   ListActionText,
   ListSeparator,
   TabBarItem,
+  BottomSheet,
+  BottomSheetPanel,
+  BottomSheetScroll,
 } from '../index';
 
 // ── Button — text sink · variant/size · NO icon (the soup is gone) ──
@@ -83,3 +86,20 @@ export const listSeparatorNoProps = <ListSeparator ySpace="sm" />;
 export const tabItemOk = <TabBarItem icon="card" label="Wallet" selected onPress={() => undefined} />;
 // @ts-expect-error TabBarItem declares no `disabled` — an unselected item stays tappable (the DS never blocks it).
 export const tabItemNoDisabled = <TabBarItem icon="card" label="Wallet" disabled />;
+
+// ── BottomSheet family — Nuri contract, no raw engine surface ──
+export const bottomSheetOk = (
+  <BottomSheet open detent="content" scrim="dim" dismissible>
+    <BottomSheetPanel>
+      <BottomSheetScroll>
+        <Button>Paste Bitcoin Address</Button>
+      </BottomSheetScroll>
+    </BottomSheetPanel>
+  </BottomSheet>
+);
+// @ts-expect-error BottomSheet intentionally does NOT expose raw engine snapPoints.
+export const bottomSheetNoSnapPoints = <BottomSheet open snapPoints={['25%', '75%']} />;
+// @ts-expect-error BottomSheet intentionally has no content-slot props; compose children instead.
+export const bottomSheetNoFooterProp = <BottomSheet open footer={<Button>Done</Button>} />;
+// @ts-expect-error BottomSheetPanel is visual content only; detents live on BottomSheet.
+export const bottomSheetPanelNoDetent = <BottomSheetPanel detent="full" />;

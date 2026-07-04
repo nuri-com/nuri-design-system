@@ -192,6 +192,7 @@ const CELLS = [
   ['box', '.nuri-box[data-padding-x="xl"]', 'padding-inline', '24px'],   // scale·space·logical pad
   ['box', '.nuri-box[data-padding-start="sm"]', 'padding-inline-start', '6px'], // edge·logical
   ['box', '.nuri-box[data-radius="full"]', 'border-radius', '9999px'],   // scale·radius·sentinel
+  ['box', '.nuri-box[data-radius-top="lg"]', 'border-start-start-radius', '18px'], // scaleMulti·radius·logical corner
   ['box', '.nuri-box[data-center="true"]', 'margin-inline', 'auto'],     // shell extra (literal)
   ['stack', '.nuri-stack[data-gap="md"]', 'gap', '12px'],                // scale·space
   ['stack', '.nuri-stack[data-align="center"]', 'align-items', 'center'],          // keyword

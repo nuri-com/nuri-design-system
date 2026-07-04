@@ -89,6 +89,10 @@
   .nuri-box[data-radius="md"] { border-radius: var(--nuri-radius-md); }
   .nuri-box[data-radius="lg"] { border-radius: var(--nuri-radius-lg); }
   .nuri-box[data-radius="full"] { border-radius: var(--nuri-radius-full); }
+  .nuri-box[data-radius-top="sm"] { border-start-start-radius: var(--nuri-radius-sm); border-start-end-radius: var(--nuri-radius-sm); }
+  .nuri-box[data-radius-top="md"] { border-start-start-radius: var(--nuri-radius-md); border-start-end-radius: var(--nuri-radius-md); }
+  .nuri-box[data-radius-top="lg"] { border-start-start-radius: var(--nuri-radius-lg); border-start-end-radius: var(--nuri-radius-lg); }
+  .nuri-box[data-radius-top="full"] { border-start-start-radius: var(--nuri-radius-full); border-start-end-radius: var(--nuri-radius-full); }
   .nuri-box[data-aspect-ratio="square"] { aspect-ratio: var(--nuri-ratio-square); }
   .nuri-box[data-aspect-ratio="card"] { aspect-ratio: var(--nuri-ratio-card); }
   .nuri-box[data-center="true"] { margin-inline: auto; }

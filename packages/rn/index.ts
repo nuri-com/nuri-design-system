@@ -64,7 +64,20 @@ export type { NuriIconProps } from './primitives';
 // `<nuri-stack/view/typography/pressable/screen/scroll/dock>` (primitives-contract §1.A ·
 // the §2 parity gap · step ①). Thin wrappers forwarding namespace props through the
 // SAME runtime/resolve.ts appliers (no second mapping · the drift rule). NOT descriptors.
-export { View, Stack, Text, Pressable, Screen, Scroll, Dock, Separator, ListSeparator } from './primitives';
+export {
+  View,
+  Stack,
+  Text,
+  Pressable,
+  Screen,
+  Scroll,
+  Dock,
+  Separator,
+  ListSeparator,
+  BottomSheet,
+  BottomSheetPanel,
+  BottomSheetScroll,
+} from './primitives';
 export type {
   ViewProps,
   StackProps,
@@ -76,6 +89,11 @@ export type {
   SeparatorProps,
   SeparatorYSpace,
   ListSeparatorProps,
+  BottomSheetProps,
+  BottomSheetDetent,
+  BottomSheetScrim,
+  BottomSheetPanelProps,
+  BottomSheetScrollProps,
 } from './primitives';
 
 // Generated component adapters (Path C · Phase 3). Each descriptor's `api` emits

@@ -47,6 +47,22 @@ function fieldRow(source, input, field, registry) {
   if (field.via === 'expand') {
     return { input, css: 'flex', rn: null, via: 'expand', detail: { cases: field.cases } };
   }
+  if (field.via === 'scaleMulti') {
+    const spellings = field.props.map((prop) => {
+      const spelling = registry[prop];
+      if (!spelling) {
+        throw new Error(`[axis-doc] ${source}.${input}: canonical id '${prop}' has no property-spelling entry (registry drift)`);
+      }
+      return spelling;
+    });
+    return {
+      input,
+      css: spellings.map((s) => s.css).join(' · '),
+      rn: spellings.map((s) => s.rn).join(' · '),
+      via: 'scaleMulti',
+      detail: { scale: field.scale },
+    };
+  }
   const spelling = registry[field.prop];
   if (!spelling) {
     throw new Error(`[axis-doc] ${source}.${input}: canonical id '${field.prop}' has no property-spelling entry (registry drift)`);
