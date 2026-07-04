@@ -74,6 +74,14 @@ try {
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
   writeFileSync(manifestPath, JSON.stringify({ ref, ...manifest }, null, 2) + '\n');
 
+  // Resolve the exporter's {{REF}} placeholders (version banner + the
+  // version-exact doc links): the tag when pinned, the commit for --local.
+  const readmePath = join(stagedOut, 'README.md');
+  if (existsSync(readmePath)) {
+    const pin = ref === 'local' ? String(manifest.commit) : ref;
+    writeFileSync(readmePath, readFileSync(readmePath, 'utf8').replaceAll('{{REF}}', pin));
+  }
+
   // Swap: old copy → backup, staged copy → live.
   if (existsSync(vendorDir)) renameSync(vendorDir, backupDir);
   swapped = true;
