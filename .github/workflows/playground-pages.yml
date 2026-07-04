@@ -1,0 +1,75 @@
+name: playground-pages
+
+# Prepare a static playground deploy without enabling it on push.
+#
+# OPERATOR DECISION BEFORE RUNNING:
+# GitHub Pages sites from private repositories are publicly accessible unless the
+# organization is on GitHub Enterprise with private Pages enabled. Dario decides
+# whether public Pages is acceptable or whether this should move to a protected
+# host such as Vercel or Netlify before anyone triggers this workflow.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: playground-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install (locked · workspace-aware)
+        run: npm ci
+
+      - name: Build generated playground inputs
+        run: npm run build
+
+      - name: Stage static playground artifact
+        run: |
+          mkdir -p _playground_site/packages
+          cp -R packages/playground _playground_site/packages/playground
+          cp -R packages/prototype _playground_site/packages/prototype
+          cat > _playground_site/index.html <<'HTML'
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8" />
+            <meta http-equiv="refresh" content="0; url=packages/playground/pages/index.html" />
+            <title>Nuri · Playground</title>
+          </head>
+          <body>
+            <a href="packages/playground/pages/index.html">Open the Nuri playground</a>
+          </body>
+          </html>
+          HTML
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload playground artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _playground_site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

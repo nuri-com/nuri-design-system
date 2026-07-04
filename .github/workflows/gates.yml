@@ -97,6 +97,12 @@ jobs:
       - name: packages/prototype/styles/ must match source (re-emit ≡ committed)
         run: git diff --exit-code packages/prototype/styles/
 
+      - name: Build the playground bundles (@nuri/playground · reads @nuri/prototype assets)
+        run: npm run build -w @nuri/playground
+
+      - name: packages/playground/generated/ must match source (re-emit ≡ committed)
+        run: git diff --exit-code packages/playground/generated/
+
   # The SSG documentation site · @nuri/doc (the A4 carve · N+42). Owns the doc-gen:
   # it transforms @nuri/spec's DATA exports (tokens · token-vars · palette · the
   # descriptor twins) → the generated component Markdown. The build+diff is the
