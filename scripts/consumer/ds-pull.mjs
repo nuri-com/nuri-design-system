@@ -22,7 +22,8 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const DS_GIT = 'git@github.com:nuri-com/nuri-design-system.git';
+// Override for HTTPS/token auth: DS_GIT_URL=https://github.com/nuri-com/nuri-design-system.git
+const DS_GIT = process.env.DS_GIT_URL ?? 'git@github.com:nuri-com/nuri-design-system.git';
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const vendorParent = join(appRoot, 'ds');
 const vendorDir = join(vendorParent, 'nuri');
