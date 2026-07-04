@@ -99,6 +99,10 @@ export const textFieldActionOk = (
 );
 // @ts-expect-error TextFieldLabel requires visible label content.
 export const textFieldLabelRequiresChildren = <TextFieldLabel />;
+// @ts-expect-error TextFieldLabel feeds the native input label and is string-only in PR2.
+export const textFieldLabelNoMixedChildren = <TextFieldLabel>First {'name'}</TextFieldLabel>;
+// @ts-expect-error TextFieldLabel feeds the native input label and does not accept rich label nodes.
+export const textFieldLabelNoRichChildren = <TextFieldLabel>{<>Name</>}</TextFieldLabel>;
 // @ts-expect-error TextField has no label prop; labels are public composition via TextFieldLabel.
 export const textFieldNoLabelProp = <TextField label="IBAN" />;
 // @ts-expect-error TextField v1 exposes inputMode, not RN keyboardType.

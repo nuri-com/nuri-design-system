@@ -41,7 +41,7 @@ const componentRegistry = {
   "button": Button as React.ComponentType<Record<string, unknown>>,
 };
 export type TextFieldLabelProps = {
-  children: React.ReactNode;
+  children: string;
 };
 export const TextFieldLabel = createNuriSlot<TextFieldLabelProps>("label", `${textFieldDisplayName}Label`, 'children', textFieldDisplayName);
 export type TextFieldActionProps = {

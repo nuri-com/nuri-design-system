@@ -472,7 +472,12 @@ export function emitComponentFile(spec, descriptor) {
           `export const ${Pascal}${slotPascal} = createNuriSlot<${Pascal}${slotPascal}Props>(${q(slot.part)}, \`${'${'}${displayNameConst}}${slotPascal}\`, 'name', ${displayNameConst});`,
         );
       } else {
-        const propLines = [`  children${slot.required ? '' : '?'}: React.ReactNode;`];
+        const isInputLabelSlot =
+          slot.kind === 'text' &&
+          slot.required === true &&
+          descriptor.api.behaviour?.input?.labelPart === slot.part;
+        const childrenType = isInputLabelSlot ? 'string' : 'React.ReactNode';
+        const propLines = [`  children${slot.required ? '' : '?'}: ${childrenType};`];
         for (const prop of slotPropNames.filter((p) => p !== 'children')) {
           propLines.push(`  ${prop}?: ${SLOT_PROP_TS[prop] || 'unknown'};`);
         }

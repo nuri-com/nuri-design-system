@@ -31,7 +31,7 @@ nav_order: 6
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
-| `children` | yes | `React.ReactNode` | slot content |
+| `children` | yes | `string` | slot content |
 
 ### TextFieldActionProps
 

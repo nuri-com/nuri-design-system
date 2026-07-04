@@ -140,7 +140,7 @@ const PAGE_CONTRACT = {
       '| `onBlur` | no | `() => void` | input behaviour |',
       '| `accessibilityLabel` | no | `string` | input behaviour |',
       '### TextFieldLabelProps',
-      '| `children` | yes | `React.ReactNode` | slot content |',
+      '| `children` | yes | `string` | slot content |',
       '### TextFieldActionProps',
       '| `onPress` | no | `() => void` | pressable behaviour |',
       '| `children` | no | `React.ReactNode` | slot content |',
