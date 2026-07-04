@@ -347,7 +347,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.root.findByType(ScrollView).props.contentContainerStyle).toEqual({ flexGrow: 1 });
   });
 
-  test('BottomSheet — structural host renders descriptor-backed panel and gorhom scroll wrapper', () => {
+  test('BottomSheet — structural host renders descriptor-backed panel and core-RN scroll wrapper', () => {
     const tr = render(
       <NuriThemeProvider>
         <NuriScreen>

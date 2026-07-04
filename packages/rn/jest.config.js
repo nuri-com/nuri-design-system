@@ -23,7 +23,6 @@ module.exports = {
     '^react/jsx-dev-runtime$': require.resolve('react/jsx-dev-runtime'),
     '^react-native$': path.join(reactNativeDir, 'index.js'),
     '^react-native/(.*)$': path.join(reactNativeDir, '$1'),
-    '^@gorhom/bottom-sheet$': '<rootDir>/__mocks__/gorhom-bottom-sheet.tsx',
   },
   // Don't let this package's Jest scan the sibling @nuri/expo-demo workspace —
   // it nests a duplicate react-native@0.81.5 that collides in jest-expo's haste
@@ -38,6 +37,5 @@ module.exports = {
   // appended to the negative-lookahead allowlist (M2 integration · decision 65.8).
   transformIgnorePatterns: [
     '/node_modules/(?!(.pnpm|react-native|@react-native|@react-native-community|expo|@expo|@expo-google-fonts|react-navigation|@react-navigation|@sentry/react-native|native-base|@nuri/spec))',
-    '/node_modules/react-native-reanimated/plugin/',
   ],
 };
