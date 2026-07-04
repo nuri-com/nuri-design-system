@@ -388,7 +388,6 @@ export function resolveAnatomy<A extends Axes>(descriptor: Descriptor<A>): Anato
 // (selection × state) cell patch; the bake (buildGeometryRecipe ·
 // scripts/parsers/recipes.js) carries the raw opt-ins through, colour-free.
 type OptKey = keyof typeof INTERACTIVE_OPTS;
-type InteractiveOpt = (typeof INTERACTIVE_OPTS)[OptKey];
 
 // OptKey must align with the schema's InteractiveNS — an opt without a schema flag (or
 // a schema flag with no opt) is a COMPILE error here (the NS_ORDER-completeness pattern):
