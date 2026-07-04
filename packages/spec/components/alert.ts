@@ -50,13 +50,13 @@ export const alertDescriptor: Descriptor<AlertAxes> = {
     anatomy: {
       // OPEN root (accepts the flat children slot — the message string + the
       // AlertButton element) with one leading `icon` part and a `message` text part.
-      // v1 is a COMPACT ONE-LINE inline notice — flat, no icon band, no baseline
-      // tricks. `message` is a STYLE-DONOR part: no api slot targets it, so the
-      // renderer's prose rule routes the flat string children THROUGH it (rendered as
-      // its normal single-line `text` leaf · §1.3); it never renders as its own empty
-      // node, and element children (AlertButton) flow in the root row unchanged.
-      // Multi-line copy + richer action layout are DEFERRED (they need the
-      // descriptor/component-reference capability designed properly · not this PR).
+      // v1 is a compact inline notice — flat, no icon band, no baseline tricks.
+      // `message` is a STYLE-DONOR part: no api slot targets it, so the renderer's
+      // prose rule routes the flat string children THROUGH it (rendered as its normal
+      // `text` leaf · §1.3); it never renders as its own empty node, and element
+      // children (AlertButton) flow in the root row unchanged. Line count/truncation
+      // and richer action layout are DEFERRED — they need typography-axis data +
+      // the descriptor/component-reference capability designed properly (not this PR).
       el: 'view',
       open: true,
       parts: {
@@ -66,8 +66,8 @@ export const alertDescriptor: Descriptor<AlertAxes> = {
     },
     base: {
       root: {
-        // A simple CENTRED row — glyph, one-line message, and (optional) action
-        // sit on one vertical centre. No baseline alignment (v1 tradeoff).
+        // A simple CENTRED row — glyph, message, and (optional) action sit on one
+        // vertical centre. No baseline alignment (v1 tradeoff).
         stack: { direction: 'row', align: 'center', gap: 'sm' },
       },
       // The glyph is the SMALL (xs) icon box, MUTED to the same tone as the message
@@ -75,8 +75,9 @@ export const alertDescriptor: Descriptor<AlertAxes> = {
       // icon and text read as one subtle unit.
       icon: { box: { width: 'xs', height: 'xs' }, palette: { muted: true } },
       // The message: sm, EMPHASIS (semibold), MUTED (the subtle notice tone),
-      // left-aligned. It GROWS + shrinks (the prose leaf clamps to ONE line with a
-      // tail ellipsis · §1.3) so the icon and the trailing action hug their content.
+      // left-aligned. It GROWS + shrinks so the icon and the trailing action hug
+      // their content. (Line count / truncation is NOT declared here — it stays the
+      // shared `text` leaf's platform behaviour until modelled as typography data.)
       message: {
         stack: { fill: 'grow-shrink' },
         typography: { size: 'sm', emphasis: true, align: 'start' },

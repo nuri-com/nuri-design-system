@@ -375,26 +375,20 @@ function appendValue(host, value) {
 // ── THE PROSE-CHILDREN RULE (web mirror · form-kit-spec §1.3) ──
 // The web twin of renderer.tsx#wrapProse. A host with a PROSE-DONOR part — an
 // `el:'text'` child that NO api slot targets (an unrouted style-donor · e.g.
-// Alert's `message`) — wraps its BARE TEXT-NODE children by RENDERING them through
-// that donor part (renderPart → renderText), so the message gets the donor's
-// authored style (type size · muted palette · the grow/shrink fill) as a compact
-// SINGLE-LINE leaf while sibling parts (icon · action) HUG their content. The web
-// `text` leaf wraps by default (unlike RN's always-clamped <Text>), so the prose
-// leaf also gets `.nuri-truncate` (reset.css) → nowrap + tail ellipsis, matching
-// RN's numberOfLines={1}. A host with NO donor leaves nodes RAW (the mixed-content
-// contract · web tolerates loose text nodes) and ELEMENT children always pass
-// through unchanged.
+// Alert's `message`) — routes its BARE TEXT-NODE children through that donor part
+// (renderPart → renderText), so the message renders as the donor's normal `text`
+// leaf with its authored style (type size · muted palette · the grow/shrink fill).
+// A host with NO donor leaves nodes RAW (the mixed-content contract · web tolerates
+// loose text nodes) and ELEMENT children always pass through unchanged. (Line
+// count / truncation is NOT modelled here — it is the shared `text`-leaf's concern,
+// pending explicit typography-axis data · projected symmetrically to RN + web.)
 function proseDonorNode(node, ctx) {
   const slotTargets = new Set(Object.values(ctx.descriptor.api?.slots || {}).map((s) => s.part));
   return node.children.find((c) => c.el === 'text' && !slotTargets.has(c.name)) || null;
 }
 function wrapProseNodes(value, donor, ctx) {
   if (!donor || value == null) return value;
-  const renderProse = (text) => {
-    const el = renderPart(donor, { ...ctx, content: { ...ctx.content, [donor.name]: text } });
-    if (el && el.classList) el.classList.add('nuri-truncate'); // single-line clamp (RN parity)
-    return el;
-  };
+  const renderProse = (text) => renderPart(donor, { ...ctx, content: { ...ctx.content, [donor.name]: text } });
   if (typeof value === 'string') return value.trim() ? renderProse(value) : value;
   if (value.nodeType === 3) return value.textContent.trim() ? renderProse(value.textContent) : value;
   if (value.nodeType === 11) {

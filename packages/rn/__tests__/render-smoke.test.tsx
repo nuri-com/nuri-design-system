@@ -424,7 +424,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
-  test('Alert — the STRING message renders through a prose <Text> (grow + wrap · muted · the §1.3 rule)', () => {
+  test('Alert — the STRING message renders through the prose donor part (§1.3 rule)', () => {
     const tr = render(
       <NuriThemeProvider>
         <Alert>
@@ -435,19 +435,18 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     );
     // The bare string would crash RN inside a <View> ("Text strings must be
     // rendered within a <Text>"); the prose-children rule routes it through the
-    // `message` donor part, rendered as its normal single-line `text` leaf.
+    // `message` donor part, rendered as that part's normal `text` leaf.
     const message = tr.root
       .findAllByType(Text)
       .find((t) => t.props.children === 'Total balance insufficient');
     expect(message).toBeTruthy();
     const style = Object.assign({}, ...(message!.props.style as unknown[]).filter(Boolean));
-    // v1 is a COMPACT ONE-LINE notice: the message clamps to one line with a tail
-    // ellipsis, and still grows/shrinks so the icon + action hug their content.
-    expect(message!.props.numberOfLines).toBe(1);
-    expect(message!.props.ellipsizeMode).toBe('tail');
+    // Assert only the DONOR's DECLARED styling (descriptor data): grow/shrink fill,
+    // sm + emphasis (semibold), and muted (one tone shared with the also-muted
+    // glyph). Line count / truncation is NOT an Alert-declared feature, so it is not
+    // asserted here — it is the shared `text` leaf's platform behaviour (pre-existing
+    // typography-axis debt), pending explicit typography data.
     expect(style).toMatchObject({ flexGrow: 1, flexShrink: 1 });
-    // the donor styling is DATA: sm + emphasis (semibold) + muted. The message and
-    // the (also-muted) glyph share ONE muted tone, so they read as a subtle unit.
     expect(style.fontWeight).toBe(typeStyle('sm', true).fontWeight);
     expect(style.color).toBe(tr.root.findByType(NuriIcon).props.color);
     expect(typeof style.color).toBe('string');
