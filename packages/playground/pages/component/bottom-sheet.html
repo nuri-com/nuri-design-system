@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -12,19 +13,41 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
 
+  <!--
+    ═══════════════════════════════════════════════════════════════
+    PLAYGROUND · DOCUMENT · BOTTOM SHEET (primitive structure + descriptor chrome)
+    ═══════════════════════════════════════════════════════════════
+    Three board proofs for the static web mirror of the RN bottom-sheet family:
+    content detent + dim scrim, full detent + scroll content + dim scrim, and a
+    camera/background overlay with no scrim. The structural wrapper stays the
+    runtime primitive (<nuri-bottom-sheet>), while the visual sheet surface stays
+    descriptor-backed (<nuri-bottom-sheet-panel>).
+
+    Composed from the ACTIVE set only — bottom-sheet primitive, bottom-sheet-panel
+    descriptor recipe, standard Nuri primitives/components, and the shared
+    @nuri/prototype demo layer. ZERO import from @nuri/doc (the DAG stays
+    playground → prototype → spec).
+    ═══════════════════════════════════════════════════════════════
+  -->
+
+  <!-- The playground is a FIXED light + cream surface (decision 57): no page-level
+       toggle — each <nuri-demo> scopes its OWN theme/accent locally. -->
   <script>
     document.documentElement.dataset.theme = 'light';
     document.documentElement.dataset.neutral = 'cream';
     document.documentElement.dataset.accent = 'neutral';
   </script>
 
+  <!-- Token cake + base reset + type scale (the foundation · the web projection's generated output). -->
   <link rel="stylesheet" href="../../../prototype/generated/styles/tokens-primitive.css" />
   <link rel="stylesheet" href="../../../prototype/generated/styles/tokens-semantic.css" />
   <link rel="stylesheet" href="../../../prototype/generated/styles/shell.css" />
   <link rel="stylesheet" href="../../../prototype/generated/styles/typography.css" />
 
+  <!-- Active components — the bottom-sheet recipe's primitives + the shared demo layer. -->
   <link rel="stylesheet" href="../../../prototype/primitives/icon.css" />
   <link rel="stylesheet" href="../../../prototype/primitives/pressable.css" />
+  <link rel="stylesheet" href="../../../prototype/primitives/view.css" />
   <link rel="stylesheet" href="../../../prototype/styles/typography.css" />
   <link rel="stylesheet" href="../../../prototype/styles/stack.css" />
   <link rel="stylesheet" href="../../../prototype/styles/box.css" />
@@ -33,9 +56,22 @@
   <link rel="stylesheet" href="../../../prototype/styles/effect.css" />
   <link rel="stylesheet" href="../../../prototype/factory/reset.css" />
   <link rel="stylesheet" href="../../../prototype/recipes/bottom-sheet.css" />
+  <link rel="stylesheet" href="../../../prototype/demo/control.css" />
+  <link rel="stylesheet" href="../../../prototype/demo/demo.css" />
+  <!-- The playground area shell (topbar + the board scroll container). -->
   <link rel="stylesheet" href="../../lib/shell.css" />
 
+  <!-- The standalone playground's NuriState seed (theme + spec-derived accent). -->
+  <script src="../../../prototype/demo/available.js" type="module"></script>
+
+  <!-- Shell first (mirrors the DS order): it reparents the authored <nuri-demo>
+       panels into its built <main>, so it must run before the demos compose. -->
   <script src="../../lib/shell.js" defer></script>
+
+  <!-- Custom element scripts MUST be deferred so connectedCallback fires AFTER body
+       parsing. The recipes self-import their primitives (idempotent define-guards). -->
+  <script src="../../../prototype/demo/control.js" defer></script>
+  <script src="../../../prototype/primitives/scope.js" defer></script>
   <script src="../../../prototype/primitives/icon.js" type="module"></script>
   <script src="../../../prototype/primitives/view.js" type="module"></script>
   <script src="../../../prototype/primitives/typography.js" defer></script>
@@ -44,99 +80,76 @@
   <script src="../../../prototype/recipes/icon-button.js" type="module"></script>
   <script src="../../../prototype/recipes/topbar.js" type="module"></script>
   <script src="../../../prototype/recipes/bottom-sheet.js" type="module"></script>
+  <script src="../../../prototype/demo/demo.js" defer></script>
 
   <style>
-    [data-pg-nav="ds"],
+    /* Page-local HARNESS only: board chrome, static scene backgrounds, and the
+       containing block the absolutely positioned sheet needs inside the phone
+       viewport. Sheet panel radius/elevation come from the descriptor axes. */
+    .nuri-pg__scroll { gap: 0; }
+    [data-pg-nav="ds"] { display: none; }
     [data-pg-nav="index"] { display: none; }
 
-    .nuri-pg__scroll {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 28px;
-      padding: 32px 42px;
-      align-content: start;
-      overflow: auto;
-    }
-
-    .sheet-proof {
-      display: grid;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .phone {
+    .sheet-stage {
       position: relative;
-      inline-size: min(100%, 342px);
-      aspect-ratio: 390 / 760;
-      justify-self: center;
-      border: 12px solid #171512;
-      border-radius: 38px;
       overflow: hidden;
-      background: #171512;
-      box-shadow: 0 18px 45px -30px rgba(0, 0, 0, 0.62);
+      min-block-size: 0;
     }
 
-    .phone__camera {
-      position: absolute;
-      z-index: 10;
-      inset-block-start: 11px;
-      inset-inline-start: 50%;
-      inline-size: 92px;
-      block-size: 24px;
-      transform: translateX(-50%);
-      border-radius: 999px;
-      background: #171512;
-    }
-
-    .phone__screen {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-      border-radius: 24px;
+    .sheet-stage--camera {
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0.2)),
-        var(--nuri-chrome-bg-subtle);
-    }
-
-    .phone__screen--camera {
-      background:
-        radial-gradient(circle at 35% 22%, rgba(255,255,255,0.8), transparent 24%),
+        radial-gradient(circle at 34% 21%, rgba(255, 255, 255, 0.78), transparent 25%),
         linear-gradient(150deg, #18261f 0%, #49715e 38%, #d9c4a1 70%, #6c5042 100%);
+      color: white;
     }
 
-    .screen-pad {
-      padding: 54px 18px 18px;
+    .sheet-content {
+      position: relative;
+      z-index: 0;
     }
 
-    .camera-reticle {
+    .sheet-reticle {
       position: absolute;
-      inset: 98px 38px auto;
-      block-size: 210px;
-      border: 1px solid rgba(255,255,255,0.72);
-      border-radius: 18px;
-      box-shadow: inset 0 0 0 999px rgba(0,0,0,0.08);
+      inset-block-start: 116px;
+      inset-inline: 40px;
+      block-size: 220px;
+      border: var(--nuri-border-1) solid rgba(255, 255, 255, 0.72);
+      border-radius: var(--nuri-radius-lg);
+      box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.08);
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
 
 <nuri-playground-shell doc="Bottom Sheet">
-  <section class="sheet-proof" aria-label="content detent with dim scrim">
-    <nuri-typography size="sm" emphasis>content / dim</nuri-typography>
-    <div class="phone" data-proof="content-dim">
-      <div class="phone__camera"></div>
-      <div class="phone__screen">
-        <div class="screen-pad">
+
+  <!-- content · a content-height sheet with dimmed background. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="content / dim">
+    <template>
+      <nuri-view class="sheet-stage" chrome="subtle" fill>
+        <nuri-view class="sheet-content" padding-x="lg" padding-top="lg">
           <nuri-stack direction="column" gap="md">
-            <nuri-typography size="lg" emphasis>Wallet</nuri-typography>
+            <nuri-topbar>
+              <nuri-topbar-center>
+                <nuri-typography size="md" emphasis>Wallet</nuri-typography>
+              </nuri-topbar-center>
+            </nuri-topbar>
             <nuri-view chrome="canvas" radius="lg" padding="lg">
               <nuri-stack direction="column" gap="xs">
                 <nuri-typography size="sm" muted>Available</nuri-typography>
                 <nuri-typography size="xl" emphasis>€ 1,248.90</nuri-typography>
               </nuri-stack>
             </nuri-view>
+            <nuri-view chrome="canvas" radius="lg" padding="lg">
+              <nuri-stack direction="column" gap="xs">
+                <nuri-typography size="sm" muted>Bitcoin</nuri-typography>
+                <nuri-typography size="md" emphasis>0.0248 BTC</nuri-typography>
+              </nuri-stack>
+            </nuri-view>
           </nuri-stack>
-        </div>
+        </nuri-view>
+
         <nuri-bottom-sheet open detent="content" scrim="dim">
           <nuri-bottom-sheet-panel>
             <nuri-view padding="lg">
@@ -148,23 +161,30 @@
             </nuri-view>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>
-      </div>
-    </div>
-  </section>
+      </nuri-view>
+    </template>
+  </nuri-demo>
 
-  <section class="sheet-proof" aria-label="full detent with scroll content and dim scrim">
-    <nuri-typography size="sm" emphasis>full-scroll / dim</nuri-typography>
-    <div class="phone" data-proof="full-scroll-dim">
-      <div class="phone__camera"></div>
-      <div class="phone__screen">
-        <div class="screen-pad">
+  <!-- full-scroll · full-height sheet with internal scrolling content. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="full-scroll / dim">
+    <template>
+      <nuri-view class="sheet-stage" chrome="subtle" fill>
+        <nuri-view class="sheet-content" padding-x="lg" padding-top="lg">
           <nuri-stack direction="column" gap="md">
-            <nuri-typography size="lg" emphasis>Activity</nuri-typography>
-            <nuri-view chrome="canvas" radius="lg" padding="md">
-              <nuri-typography size="sm" muted>Recent payments are visible behind the dimmed sheet.</nuri-typography>
+            <nuri-topbar>
+              <nuri-topbar-center>
+                <nuri-typography size="md" emphasis>Activity</nuri-typography>
+              </nuri-topbar-center>
+            </nuri-topbar>
+            <nuri-view chrome="canvas" radius="lg" padding="lg">
+              <nuri-stack direction="column" gap="xs">
+                <nuri-typography size="sm" muted>Recent payments are visible behind the dimmed sheet.</nuri-typography>
+                <nuri-typography size="md" emphasis>12 movements this week</nuri-typography>
+              </nuri-stack>
             </nuri-view>
           </nuri-stack>
-        </div>
+        </nuri-view>
+
         <nuri-bottom-sheet open detent="full" scrim="dim">
           <nuri-bottom-sheet-panel>
             <nuri-topbar surface="transparent">
@@ -190,16 +210,23 @@
             </nuri-bottom-sheet-scroll>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>
-      </div>
-    </div>
-  </section>
+      </nuri-view>
+    </template>
+  </nuri-demo>
 
-  <section class="sheet-proof" aria-label="camera proof with no scrim">
-    <nuri-typography size="sm" emphasis>camera / no-scrim</nuri-typography>
-    <div class="phone" data-proof="camera-no-scrim">
-      <div class="phone__camera"></div>
-      <div class="phone__screen phone__screen--camera">
-        <div class="camera-reticle"></div>
+  <!-- camera · no scrim, so the preview stays visible behind the sheet. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="camera / no-scrim">
+    <template>
+      <nuri-view class="sheet-stage sheet-stage--camera" fill>
+        <div class="sheet-reticle"></div>
+        <nuri-view class="sheet-content" padding-x="lg" padding-top="lg">
+          <nuri-topbar surface="transparent">
+            <nuri-topbar-center>
+              <nuri-typography size="md" emphasis>Scan QR</nuri-typography>
+            </nuri-topbar-center>
+          </nuri-topbar>
+        </nuri-view>
+
         <nuri-bottom-sheet open detent="content" scrim="none">
           <nuri-bottom-sheet-panel>
             <nuri-view padding="lg">
@@ -211,9 +238,10 @@
             </nuri-view>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>
-      </div>
-    </div>
-  </section>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
 </nuri-playground-shell>
 
 </body>
