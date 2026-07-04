@@ -61,10 +61,28 @@ for (const entry of readdirSync(RN_SRC)) {
   if (RN_EXCLUDE.has(entry)) continue;
   cpSync(join(RN_SRC, entry), join(outDir, 'rn', entry), { recursive: true });
 }
-// Copy every spec file the exports map names PLUS the transitive closure of
-// their intra-spec relative imports (e.g. schema.ts → ../tokens/typography,
-// which no exports-map entry names), layout preserved.
-const specQueue = [...new Set(specMap.values())];
+// Seed the spec copy from the rn tree's ACTUAL @nuri/spec imports (both the
+// `from '...'` and inline `import('...')` forms) — NOT the whole exports map:
+// axes only the other projections read (palette-surface · typography-axis)
+// must not ship in the consumer payload. Then close over the seeds' intra-spec
+// relative imports (e.g. schema.ts → ../tokens/typography, which no
+// exports-map entry names), layout preserved.
+const seeds = new Set();
+(function scanRn(dir) {
+  for (const entry of readdirSync(dir)) {
+    const p = join(dir, entry);
+    if (statSync(p).isDirectory()) scanRn(p);
+    else if (/\.tsx?$/.test(entry)) {
+      const src = readFileSync(p, 'utf8');
+      for (const [, , subpath] of src.matchAll(/(from |import\()['"](@nuri\/spec\/[^'"]+)['"]/g)) {
+        const target = specMap.get(subpath);
+        if (!target) throw new Error(`${p}: import '${subpath}' has no entry in the spec exports map`);
+        seeds.add(target);
+      }
+    }
+  }
+})(join(outDir, 'rn'));
+const specQueue = [...seeds];
 const specCopied = new Set();
 while (specQueue.length) {
   const target = specQueue.pop();
