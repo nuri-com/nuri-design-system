@@ -29,6 +29,9 @@ import {
   ListActionLeadingAvatar,
   ListActionText,
   ListSeparator,
+  TextField,
+  TextFieldAction,
+  TextFieldLabel,
   TabBarItem,
   BottomSheet,
   BottomSheetPanel,
@@ -81,6 +84,39 @@ export const listOk = (
 export const listActionBadVariant = <ListAction variant="plaid" />;
 // @ts-expect-error ListSeparator v1 has no knobs; it is the preset.
 export const listSeparatorNoProps = <ListSeparator ySpace="sm" />;
+
+// ── TextField — input allowlist + label/action composition ──
+export const textFieldOk = (
+  <TextField value="DE12" onChangeText={() => undefined} placeholder="DE..." inputMode="numeric">
+    <TextFieldLabel>IBAN</TextFieldLabel>
+  </TextField>
+);
+export const textFieldActionOk = (
+  <TextField value="Ada" onChangeText={() => undefined}>
+    <TextFieldLabel>First name</TextFieldLabel>
+    <TextFieldAction onPress={() => undefined} accessibilityLabel="Paste name">Paste</TextFieldAction>
+  </TextField>
+);
+// @ts-expect-error TextFieldLabel requires visible label content.
+export const textFieldLabelRequiresChildren = <TextFieldLabel />;
+// @ts-expect-error TextField has no label prop; labels are public composition via TextFieldLabel.
+export const textFieldNoLabelProp = <TextField label="IBAN" />;
+// @ts-expect-error TextField v1 exposes inputMode, not RN keyboardType.
+export const textFieldNoKeyboardType = <TextField keyboardType="numeric"><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
+// @ts-expect-error disabled is the public prop; editable is not exposed.
+export const textFieldNoEditable = <TextField editable={false}><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
+// @ts-expect-error autoCapitalize is intentionally out of the v1 input allowlist.
+export const textFieldNoAutoCapitalize = <TextField autoCapitalize="words"><TextFieldLabel>Name</TextFieldLabel></TextField>;
+// @ts-expect-error error is external Alert composition, not a TextField prop.
+export const textFieldNoError = <TextField error><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
+// @ts-expect-error helper text is out of scope for v1.
+export const textFieldNoHelper = <TextField helper="Use IBAN"><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
+// @ts-expect-error TextField v1 has no size axis.
+export const textFieldNoSize = <TextField size="sm"><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
+// @ts-expect-error TextField v1 has no variant axis.
+export const textFieldNoVariant = <TextField variant="soft"><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
+// @ts-expect-error TextFieldAction delegates to Button text; it does not expose an icon prop.
+export const textFieldActionNoIcon = <TextFieldAction icon="apple">Paste</TextFieldAction>;
 
 // ── TabBarItem — selected bridge + onPress/a11yLabel · icon/label · no disabled ──
 export const tabItemOk = <TabBarItem icon="card" label="Wallet" selected onPress={() => undefined} />;

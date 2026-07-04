@@ -36,6 +36,7 @@ await import('../recipes/icon-button.js');
 await import('../recipes/list.js');
 await import('../recipes/list-action.js');
 await import('../recipes/alert.js');
+await import('../recipes/text-field.js');
 await import('../primitives/scroll.js');
 // The factory + the descriptor twins, for the buildComponent-direct assertions
 // (same cached module instances the recipes use).
@@ -514,6 +515,108 @@ test('C4 · <nuri-alert-button disabled> delegates to the real button through co
   assert.equal(btn?.hasAttribute('disabled'), true, 'disabled forwards through the generic slot-prop mapping');
   assert.equal(btn?.getAttribute('aria-label'), 'Top up funds', 'the delegated Button forwards the accessible name to its native button');
   assert.equal(action.querySelector('nuri-typography')?.textContent, 'Top up', 'children forward to the delegated button label');
+});
+
+test('C5 · <nuri-text-field> input props reach the native input and label names it', async () => {
+  assert.ok(customElements.get('nuri-text-field'), 'TextField web twin is registered');
+  assert.deepEqual(
+    [...customElements.get('nuri-text-field').observedAttributes].sort(),
+    ['accent', 'aria-label', 'disabled', 'input-mode', 'placeholder', 'secure-text-entry', 'value'],
+    'TextField observes its input allowlist attrs plus accent',
+  );
+
+  const field = dom.window.document.createElement('nuri-text-field');
+  field.setAttribute('value', 'DE12');
+  field.setAttribute('placeholder', 'DE...');
+  field.setAttribute('input-mode', 'numeric');
+  field.innerHTML = '<nuri-text-field-label>IBAN</nuri-text-field-label>';
+  mount(field);
+  await tick();
+
+  const box = field.querySelector('nuri-view[data-nuri-focus-target]');
+  assert.ok(box, 'the descriptor-declared box is marked as the input focus target');
+  assert.equal(box.getAttribute('data-height'), 'xl', 'the field box uses the box height axis at 54px');
+  assert.equal(box.hasAttribute('data-min-height'), false, 'the field box height is explicit, not a min-height fallback');
+  const input = field.querySelector('nuri-input > input');
+  assert.ok(input, 'TextField renders a real native input');
+  assert.equal(input.value, 'DE12');
+  assert.equal(input.getAttribute('placeholder'), 'DE...');
+  assert.equal(input.getAttribute('inputmode'), 'numeric');
+  assert.equal(input.getAttribute('aria-label'), 'IBAN', 'plain label content names the native input');
+});
+
+test('C6 · <nuri-text-field> secure/disabled/action delegation and aria-label override', async () => {
+  const field = dom.window.document.createElement('nuri-text-field');
+  field.setAttribute('secure-text-entry', '');
+  field.setAttribute('disabled', '');
+  field.setAttribute('aria-label', 'Account number');
+  field.innerHTML = [
+    '<nuri-text-field-label>IBAN</nuri-text-field-label>',
+    '<nuri-text-field-action aria-label="Paste name">Paste</nuri-text-field-action>',
+  ].join('');
+  mount(field);
+  await tick();
+
+  const input = field.querySelector('nuri-input > input');
+  assert.equal(input?.getAttribute('type'), 'password');
+  assert.equal(input?.disabled, true);
+  assert.equal(input?.getAttribute('aria-label'), 'Account number');
+  const action = field.querySelector('nuri-button');
+  assert.ok(action, 'TextFieldAction delegates to the real nuri-button element');
+  assert.equal(action.getAttribute('variant'), 'soft');
+  assert.equal(action.getAttribute('size'), 'sm');
+  assert.equal(action.getAttribute('aria-label'), 'Paste name');
+  assert.equal(action.querySelector('nuri-typography')?.textContent, 'Paste');
+});
+
+test('C7 · <nuri-text-field> native input event calls onChangeText property handler', async () => {
+  const field = dom.window.document.createElement('nuri-text-field');
+  const seen = [];
+  field.onChangeText = (value) => seen.push(value);
+  field.innerHTML = '<nuri-text-field-label>First name</nuri-text-field-label>';
+  mount(field);
+  await tick();
+
+  const input = field.querySelector('nuri-input > input');
+  input.value = 'Ada';
+  input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+  assert.deepEqual(seen, ['Ada']);
+});
+
+test('C7b · <nuri-text-field> input focus owns the field focus state', async () => {
+  const field = dom.window.document.createElement('nuri-text-field');
+  const seen = [];
+  field.onFocus = () => seen.push('focus');
+  field.onBlur = () => seen.push('blur');
+  field.innerHTML = [
+    '<nuri-text-field-label>First name</nuri-text-field-label>',
+    '<nuri-text-field-action>Paste</nuri-text-field-action>',
+  ].join('');
+  mount(field);
+  await tick();
+
+  const box = field.querySelector('nuri-view[data-nuri-focus-target]');
+  const input = field.querySelector('nuri-input > input');
+  const actionButton = field.querySelector('nuri-button button.nuri-interactive');
+  assert.ok(box, 'the field box is the descriptor-declared focus target');
+  assert.ok(input, 'TextField renders a native input');
+  assert.ok(actionButton, 'TextFieldAction delegates to a native Button focus target');
+
+  input.dispatchEvent(new dom.window.Event('focus'));
+  assert.equal(box.hasAttribute('data-nuri-input-focused'), true, 'input focus marks the field box focused');
+  assert.deepEqual(seen, ['focus'], 'public onFocus fires from native input focus');
+
+  input.dispatchEvent(new dom.window.Event('blur'));
+  assert.equal(box.hasAttribute('data-nuri-input-focused'), false, 'input blur clears the field box focused state');
+  assert.deepEqual(seen, ['focus', 'blur'], 'public onBlur fires from native input blur');
+
+  actionButton.dispatchEvent(new dom.window.Event('focus'));
+  assert.equal(box.hasAttribute('data-nuri-input-focused'), false, 'action Button focus does not mark the input-owned field focus state');
+});
+
+test('C8 · <nuri-text-field> missing required label fails named', () => {
+  const field = dom.window.document.createElement('nuri-text-field');
+  mountExpectingNamedError(field, /'nuri-text-field' requires label/);
 });
 
 // ══════════════════════════════════════════════════════════════════

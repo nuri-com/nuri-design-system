@@ -127,8 +127,28 @@ const PAGE_CONTRACT = {
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
+  'text-field': {
+    kind: 'api', source: 'text-field', title: 'Text Field', nav: 6,
+    cells: [
+      '| `value` | no | `string` | input behaviour |',
+      '| `onChangeText` | no | `(text: string) => void` | input behaviour |',
+      '| `placeholder` | no | `string` | input behaviour |',
+      "| `inputMode` | no | `'text' | 'decimal' | 'numeric' | 'tel' | 'email' | 'url' | 'search'` | input behaviour |",
+      '| `secureTextEntry` | no | `boolean` | input behaviour |',
+      '| `disabled` | no | `boolean` | input behaviour |',
+      '| `onFocus` | no | `() => void` | input behaviour |',
+      '| `onBlur` | no | `() => void` | input behaviour |',
+      '| `accessibilityLabel` | no | `string` | input behaviour |',
+      '### TextFieldLabelProps',
+      '| `children` | yes | `React.ReactNode` | slot content |',
+      '### TextFieldActionProps',
+      '| `onPress` | no | `() => void` | pressable behaviour |',
+      '| `children` | no | `React.ReactNode` | slot content |',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`variant` |', '`size` |', '`keyboardType`'],
+  },
   'tab-bar': {
-    kind: 'api', source: 'tab-bar', title: 'Tab Bar', nav: 6,
+    kind: 'api', source: 'tab-bar', title: 'Tab Bar', nav: 7,
     cells: [
       "| `surface` | no | `'canvas' | 'transparent'` | component prop |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
@@ -137,7 +157,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   'tab-bar-item': {
-    kind: 'api', source: 'tab-bar-item', title: 'Tab Bar Item', nav: 7,
+    kind: 'api', source: 'tab-bar-item', title: 'Tab Bar Item', nav: 8,
     cells: [
       '| `selected` | no | `boolean` | state axis |',
       '| `label` | no | `string` | scalar label |',
@@ -146,7 +166,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   topbar: {
-    kind: 'api', source: 'topbar', title: 'Topbar', nav: 8,
+    kind: 'api', source: 'topbar', title: 'Topbar', nav: 9,
     cells: [
       "| `surface` | no | `'canvas' | 'transparent'` | component prop |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
@@ -155,7 +175,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   stack: {
-    kind: 'api', source: 'stack', title: 'Stack', nav: 9,
+    kind: 'api', source: 'stack', title: 'Stack', nav: 10,
     cells: [
       "| `direction` | no | `'row' | 'column'` | style axis |",
       "| `gap` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |",
@@ -165,7 +185,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   view: {
-    kind: 'api', source: 'view', title: 'View', nav: 10,
+    kind: 'api', source: 'view', title: 'View', nav: 11,
     cells: [
       "| `width` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |",
       "| `radiusTop` | no | `'sm' | 'md' | 'lg' | 'full'` | style axis |",
@@ -177,7 +197,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   typography: {
-    kind: 'api', source: 'typography', title: 'Typography', nav: 11,
+    kind: 'api', source: 'typography', title: 'Typography', nav: 12,
     cells: [
       "| `size` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '3xl'` | style axis |",
       '| `emphasis` | no | `boolean` | style axis |',
@@ -188,7 +208,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   icon: {
-    kind: 'api', source: 'icon', title: 'Icon', nav: 12,
+    kind: 'api', source: 'icon', title: 'Icon', nav: 13,
     cells: [
       '| `name` | yes | `IconName` | scalar icon name |',
       '| `color` | no | `string` | glyph rendering |',

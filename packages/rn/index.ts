@@ -131,6 +131,9 @@ export {
   ListActionTrailingText,
   ListActionTrailingTextMuted,
   ListActionTrailIcon,
+  TextField,
+  TextFieldLabel,
+  TextFieldAction,
   TabBarItem,
   TabBar,
 } from './generated/components';
@@ -152,6 +155,9 @@ export type {
   ListActionTrailingTextProps,
   ListActionTrailingTextMutedProps,
   ListActionTrailIconProps,
+  TextFieldProps,
+  TextFieldLabelProps,
+  TextFieldActionProps,
   TabBarItemProps,
   TabBarProps,
 } from './generated/components';

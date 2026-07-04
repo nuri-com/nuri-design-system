@@ -49,6 +49,7 @@ export const DESCRIPTOR_COMPONENTS = [
   { name: 'icon-button' },
   { name: 'list' },
   { name: 'list-action' },
+  { name: 'text-field' },
   { name: 'tab-bar-item' },
   { name: 'tab-bar' },
   { name: 'bottom-sheet-panel' },

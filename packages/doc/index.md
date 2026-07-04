@@ -22,6 +22,7 @@ The docs are organized in **three sections matching the cascade**:
   - [Button](generated/components/button.html)
   - [Icon Button](generated/components/icon-button.html)
   - [Icon Avatar](generated/components/icon-avatar.html)
+  - [Text Field](generated/components/text-field.html)
   - [Tab Bar](generated/components/tab-bar.html)
   - [Tab Bar Item](generated/components/tab-bar-item.html)
   - [Topbar](generated/components/topbar.html)

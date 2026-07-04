@@ -139,6 +139,7 @@ const KINDS = Object.keys(KIND_ELS);
 // `('onPress' | 'disabled' | 'accessibilityLabel')[]` · schema.ts). Codegen emits
 // these onto the wrapper, so a bogus/missing entry must fail here.
 const PRESSABLE_PROPS = ['onPress', 'disabled', 'accessibilityLabel'];
+const INPUT_PROPS = ['value', 'onChangeText', 'placeholder', 'inputMode', 'secureTextEntry', 'disabled', 'onFocus', 'onBlur', 'accessibilityLabel'];
 const SAFE_IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 
 // Every part that declares an `interactive` opt-in in ANY composition layer —
@@ -181,6 +182,10 @@ test('component-api · the script HOST_ELS mirror ≡ the schema host/leaf parti
   );
   const overlap = SCHEMA.HOST_ELS.filter((el) => SCHEMA.LEAF_ELS.includes(el));
   assert.deepEqual(overlap, [], `schema.ts classifies ${overlap.join(', ')} as BOTH host and leaf`);
+  for (const el of SCHEMA.CONTROL_ELS || []) {
+    assert.equal(SCHEMA.HOST_ELS.includes(el), false, `schema.ts classifies control '${el}' as a host`);
+    assert.equal(SCHEMA.LEAF_ELS.includes(el), false, `schema.ts classifies control '${el}' as a leaf`);
+  }
 });
 
 // Sanity: every roster descriptor actually carries an `api` (REQUIRED · Path C
@@ -253,6 +258,7 @@ test('component-api · every slot kind is legal and matches its part element', (
         assert.equal(spec.component, true, `${name}: slot '${slot}' targets component-ref part '${spec.part}' but is not a generated component slot`);
         continue;
       }
+      assert.notEqual(node.el, 'input', `${name}: slot '${slot}' targets el:'input' part '${spec.part}' — input controls are contentless and cannot be slot targets`);
       assert.ok(
         KIND_ELS[spec.kind].includes(node.el),
         `${name}: slot '${slot}' is kind '${spec.kind}' but its part '${spec.part}' is el '${node.el}' — expected el ${KIND_ELS[spec.kind].map((e) => `'${e}'`).join(' | ')}`,
@@ -260,6 +266,60 @@ test('component-api · every slot kind is legal and matches its part element', (
       if (spec.kind === 'children') {
         assert.equal(node.open, true, `${name}: slot '${slot}' is kind 'children' but part '${spec.part}' is not an \`open\` view (the positional-children host)`);
       }
+    }
+  }
+});
+
+test('component-api · behaviour.input and el:input anatomy cohere', () => {
+  for (const name of NAMES) {
+    const d = CATALOG[name];
+    const index = anatomyIndex(d.structure.anatomy);
+    const interactive = interactiveParts(d);
+    const inputParts = [...index.entries()].filter(([, node]) => node.el === 'input').map(([part]) => part);
+    const input = d.api.behaviour?.input;
+
+    if (input !== undefined) {
+      const node = index.get(input.target);
+      assert.ok(node, `${name}: input.target '${input.target}' is not an anatomy part`);
+      assert.equal(node?.el, 'input', `${name}: input.target '${input.target}' is el '${node?.el}' — the target must be el:'input'`);
+    }
+
+    for (const part of inputParts) {
+      assert.equal(input?.target, part, `${name}: anatomy part '${part}' is el:'input' but is not the declared behaviour.input.target`);
+      assert.equal(interactive.has(part), false, `${name}: el:'input' part '${part}' must not use interactive flags for focus styling`);
+      const node = index.get(part);
+      assert.deepEqual(Object.keys(node?.parts || {}), [], `${name}: el:'input' part '${part}' must not own child anatomy`);
+    }
+  }
+});
+
+test('component-api · behaviour.input focus/label targets and props are legal', () => {
+  for (const name of NAMES) {
+    const d = CATALOG[name];
+    const index = anatomyIndex(d.structure.anatomy);
+    const input = d.api.behaviour?.input;
+    if (!input) continue;
+
+    const props = input.props;
+    assert.ok(Array.isArray(props) && props.length > 0, `${name}: input.props must be a non-empty array (got ${JSON.stringify(props)})`);
+    for (const p of props) {
+      assert.ok(INPUT_PROPS.includes(p), `${name}: input.props has illegal member '${p}' (${INPUT_PROPS.join(', ')})`);
+      assert.match(p, SAFE_IDENTIFIER, `${name}: input prop '${p}' is not a safe generated TS prop identifier`);
+    }
+    assert.equal(new Set(props).size, props.length, `${name}: input.props has duplicates (${props.join(', ')})`);
+
+    if (input.focusTarget !== undefined) {
+      const node = index.get(input.focusTarget);
+      assert.ok(node, `${name}: input.focusTarget '${input.focusTarget}' is not an anatomy part`);
+      assert.ok(HOST_ELS.includes(node?.el), `${name}: input.focusTarget '${input.focusTarget}' is el '${node?.el}' — expected a non-input host`);
+    }
+    if (input.labelPart !== undefined) {
+      const node = index.get(input.labelPart);
+      assert.ok(node, `${name}: input.labelPart '${input.labelPart}' is not an anatomy part`);
+      assert.equal(node?.el, 'text', `${name}: input.labelPart '${input.labelPart}' is el '${node?.el}' — expected text`);
+      const labelSlot = Object.values(d.api.slots || {}).find((slot) => slot.part === input.labelPart);
+      assert.equal(labelSlot?.component, true, `${name}: input.labelPart '${input.labelPart}' must be exposed through a generated component slot`);
+      assert.equal(labelSlot?.required, true, `${name}: input.labelPart '${input.labelPart}' must be required`);
     }
   }
 });
@@ -495,6 +555,9 @@ test('component-api · generated prop and component-slot identifiers are safe', 
     }
     for (const prop of d.api.behaviour?.pressable?.props || []) {
       assert.match(prop, SAFE_IDENTIFIER, `${name}: pressable prop '${prop}' is not a safe generated TS prop identifier`);
+    }
+    for (const prop of d.api.behaviour?.input?.props || []) {
+      assert.match(prop, SAFE_IDENTIFIER, `${name}: input prop '${prop}' is not a safe generated TS prop identifier`);
     }
     for (const [slot, spec] of slotEntries(d)) {
       assert.match(slot, SAFE_IDENTIFIER, `${name}: slot '${slot}' is not a safe generated TS identifier suffix`);

@@ -14,6 +14,7 @@
     "./descriptors/icon-button": "./components/icon-button.ts",
     "./descriptors/list": "./components/list.ts",
     "./descriptors/list-action": "./components/list-action.ts",
+    "./descriptors/text-field": "./components/text-field.ts",
     "./descriptors/tab-bar-item": "./components/tab-bar-item.ts",
     "./descriptors/tab-bar": "./components/tab-bar.ts",
     "./descriptors/bottom-sheet-panel": "./components/bottom-sheet-panel.ts",

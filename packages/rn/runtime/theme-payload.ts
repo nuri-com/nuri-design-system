@@ -81,6 +81,7 @@ export type NuriTheme = {
   chrome: Record<PaletteChrome, ChromeRole>;
   text: { primary: string; muted: string; onInverse: string };
   border: { subtle: string; default: string; strong: string };
+  focusRing: string;
   type: typeof typeScale;
   interaction: { pressScale: number; disabledOpacity: number };
 };
@@ -183,6 +184,7 @@ export function buildNuriTheme(accent: Accent, mode: Theme): ThemePayload {
       default: chromeSlice.borderDefault,
       strong: chromeSlice.borderStrong,
     },
+    focusRing: chromeSlice.focusRing,
     type: typeScale,
     interaction: INTERACTION_BASELINE,
   };

@@ -278,7 +278,7 @@ export type Part = PartId;
 // `El` add (decision 65 · versioned · amendment 65.13); the coherence guard
 // (scripts/component-api.test.js Channel 2) pins el:'pressable' ≡ the
 // declared `behaviour.pressable.target` ≡ the `interactive`-flagged parts.
-export type El = 'view' | 'text' | 'icon' | 'pressable';
+export type El = 'view' | 'text' | 'icon' | 'pressable' | 'input';
 
 // ── The RUNTIME host/leaf partition of `El` (the PR-#132 review pass) ────────
 // The renderers and guards need the classification AT RUNTIME: HOSTS (view ·
@@ -296,9 +296,11 @@ const EL_CLASS = {
   pressable: 'host',
   text: 'leaf',
   icon: 'leaf',
-} satisfies Record<El, 'host' | 'leaf'>;
+  input: 'control',
+} satisfies Record<El, 'host' | 'leaf' | 'control'>;
 export const HOST_ELS = (Object.keys(EL_CLASS) as El[]).filter((el) => EL_CLASS[el] === 'host');
 export const LEAF_ELS = (Object.keys(EL_CLASS) as El[]).filter((el) => EL_CLASS[el] === 'leaf');
+export const CONTROL_ELS = (Object.keys(EL_CLASS) as El[]).filter((el) => EL_CLASS[el] === 'control');
 
 // A part's anatomy: its element, whether it is OPEN (accepts positional
 // children · the §7 open-primitive layer), and any nested named parts.
@@ -384,10 +386,23 @@ export type SlotSpec<P extends PartId = PartId> = {
 // the press affordance, ONLY where declared and the target part is `interactive`;
 // `propMaps.selected` = the `selected`→state-axis bridge as DATA (kills the
 // `'state' extends keyof A` factory magic); `slots` = the content entry points.
+export type InputBehaviourProp = 'value'
+  | 'onChangeText'
+  | 'placeholder'
+  | 'inputMode'
+  | 'secureTextEntry'
+  | 'disabled'
+  | 'onFocus'
+  | 'onBlur'
+  | 'accessibilityLabel';
+
 export type ComponentApi<P extends PartId = PartId> = {
   axes: string[];
   themeScope?: { accent: true };
-  behaviour?: { pressable?: { target: P; props: ('onPress' | 'disabled' | 'accessibilityLabel')[] } };
+  behaviour?: {
+    pressable?: { target: P; props: ('onPress' | 'disabled' | 'accessibilityLabel')[] };
+    input?: { target: P; focusTarget?: P; labelPart?: P; props: InputBehaviourProp[] };
+  };
   propMaps?: { selected?: { axis: string; true: string; false: string } };
   slots: Record<string, SlotSpec<P>>;
 };

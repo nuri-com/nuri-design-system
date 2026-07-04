@@ -8,7 +8,7 @@
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import { LEAF_ELS } from '@nuri/spec/descriptors/schema';
 import type { Accent, Descriptor, Axes, IconName, PartId } from '../contract';
 import { typeStyle, useNuriTheme, NuriScope } from '../theme';
@@ -140,6 +140,22 @@ export type NuriBehaviour<PId extends PartId = PartId> = {
     disabled?: boolean;
     accessibilityLabel?: string;
   };
+  input?: {
+    target: PId;
+    focusTarget?: PId;
+    labelPart?: PId;
+    props: {
+      value?: string;
+      onChangeText?: (text: string) => void;
+      placeholder?: string;
+      inputMode?: 'text' | 'decimal' | 'numeric' | 'tel' | 'email' | 'url' | 'search';
+      secureTextEntry?: boolean;
+      disabled?: boolean;
+      onFocus?: () => void;
+      onBlur?: () => void;
+      accessibilityLabel?: string;
+    };
+  };
 };
 
 export type NuriDescriptorInstance<A extends Axes, PId extends PartId = PartId> = {
@@ -163,6 +179,8 @@ type RenderCtx<A extends Axes> = {
   slotProps: Partial<Record<string, Record<string, unknown>>>;
   components: Record<string, React.ComponentType<Record<string, unknown>>>;
   behaviour: NuriBehaviour<string>;
+  focusedInput: boolean;
+  setFocusedInput: (focused: boolean) => void;
   // STATIC api facts, computed once per instance render: `slotted` = the
   // descriptor declares component slots at all (the render-time nested-harvest
   // gate — an unslotted component never pays a per-host children walk);
@@ -178,6 +196,10 @@ function findChildPath(node: AnatomyNode, part: PartId): AnatomyNode[] | undefin
     if (nested) return [child, ...nested];
   }
   return undefined;
+}
+
+function subtreeHasPart(node: AnatomyNode, part: PartId): boolean {
+  return node.name === part || node.children.some((child) => subtreeHasPart(child, part));
 }
 
 // A part accepts REPEATED composition entries only where the descriptor's api
@@ -229,11 +251,17 @@ function renderPart<A extends Axes>(
   if (!recipePart) throw new Error(`nuri-factory: no baked recipe for part '${node.name}'`);
 
   const pressable = ctx.behaviour.pressable?.target === node.name ? ctx.behaviour.pressable : undefined;
+  const input = ctx.behaviour.input?.target === node.name ? ctx.behaviour.input : undefined;
+  const focusedByInput = ctx.focusedInput && ctx.behaviour.input?.focusTarget === node.name;
   const disabled = pressable?.disabled ?? false;
   const flat = flattenBakedPart(recipePart, ctx.descriptor, ctx.theme, node.name, ctx.selection, {
     pressed: false,
     disabled,
   });
+  if (focusedByInput) {
+    flat.style = { ...flat.style, borderColor: ctx.theme.focusRing };
+    flat.node.view = { ...flat.node.view, borderColor: ctx.theme.focusRing };
+  }
   const fg = flat.node.fg ?? inheritedFg;
 
   // F-DECORATIVE-1 · a decorative descriptor hides the whole host subtree from
@@ -292,12 +320,21 @@ function renderPart<A extends Axes>(
     // (including a region marker mixed with loose slots for the same region)
     // fails named — never silent concatenation, never last-wins.
     const appendCompositionEntries = (composition: NuriCompositionEntry<string>[]): void => {
+      const ambientContent = { ...ctx.content };
+      const labelPart = ctx.behaviour.input?.labelPart;
+      if (labelPart && ambientContent[labelPart] === undefined) {
+        const labelEntry = composition.find((entry) => entry.part === labelPart);
+        if (labelEntry) ambientContent[labelPart] = labelEntry.content;
+      }
+      const ambientCtx = { ...ctx, content: ambientContent };
       const grouped = new Map<string, { child: AnatomyNode; entries: NuriCompositionEntry<string>[] }>();
       const targets = new Map<string, number>();
+      const childIndex = new Map(node.children.map((child, index) => [child.name, index]));
       const ordered: Array<
         | { kind: 'own'; entry: NuriCompositionEntry<string>; index: number }
         | { kind: 'direct'; child: AnatomyNode; entry: NuriCompositionEntry<string>; index: number }
         | { kind: 'group'; part: string }
+        | { kind: 'static'; child: AnatomyNode }
       > = [];
       composition.forEach((entry, index) => {
         if (entry.part === node.name) {
@@ -321,6 +358,18 @@ function renderPart<A extends Axes>(
         ordered.push({ kind: 'direct', child: childNode, entry, index });
         targets.set(entry.part, (targets.get(entry.part) ?? 0) + 1);
       });
+      for (const child of node.children) {
+        if (targets.has(child.name)) continue;
+        if (!ctx.behaviour.input?.target || !subtreeHasPart(child, ctx.behaviour.input.target)) continue;
+        const staticItem = { kind: 'static' as const, child };
+        const staticIndex = childIndex.get(child.name) ?? 0;
+        const before = ordered.findIndex((item) => {
+          const part = item.kind === 'group' ? item.part : item.kind === 'direct' ? item.child.name : undefined;
+          return part !== undefined && (childIndex.get(part) ?? 0) > staticIndex;
+        });
+        if (before === -1) ordered.push(staticItem);
+        else ordered.splice(before, 0, staticItem);
+      }
       for (const [part, count] of targets) {
         if (count > 1 && !isMultiPart(ctx.descriptor, part)) {
           throw new Error(`nuri-factory: slot targeting part '${part}' is singular — it appears ${count} times under '${node.name}'`);
@@ -332,10 +381,12 @@ function renderPart<A extends Axes>(
           continue;
         }
         const group = item.kind === 'group' ? grouped.get(item.part) : undefined;
-        const rendered = item.kind === 'group' && group
+        const rendered = item.kind === 'static'
+          ? renderPart(item.child, ambientCtx, fg, false)
+          : item.kind === 'group' && group
           ? renderPart(
             group.child,
-            { ...ctx, composition: { ...ctx.composition, [item.part]: group.entries } },
+            { ...ambientCtx, composition: { ...ctx.composition, [item.part]: group.entries } },
             fg,
             false,
           )
@@ -343,8 +394,8 @@ function renderPart<A extends Axes>(
             ? renderPart(
               item.child,
               {
-                ...ctx,
-                content: { ...ctx.content, [item.entry.part]: item.entry.content },
+                ...ambientCtx,
+                content: { ...ambientCtx.content, [item.entry.part]: item.entry.content },
                 slotProps: item.entry.props ? { ...ctx.slotProps, [item.entry.part]: item.entry.props } : ctx.slotProps,
               },
               fg,
@@ -352,7 +403,11 @@ function renderPart<A extends Axes>(
             )
             : null;
         if (rendered) {
-          const key = item.kind === 'group' ? item.part : `${item.entry.part}:${item.index}`;
+          const key = item.kind === 'group'
+            ? item.part
+            : item.kind === 'static'
+              ? item.child.name
+              : `${item.entry.part}:${item.index}`;
           kids.push(React.cloneElement(rendered, { key }));
         }
       }
@@ -469,6 +524,49 @@ function renderPart<A extends Axes>(
       return <React.Fragment key={node.name} />;
     }
 
+    case 'input': {
+      if (!input) {
+        throw new Error(`nuri-factory: part '${node.name}' is el:'input' but behaviour.input does not target it`);
+      }
+      const labelContent = input.labelPart ? ctx.content[input.labelPart] : undefined;
+      const derivedLabel = typeof labelContent === 'string' ? labelContent : undefined;
+      const inputProps = input.props;
+      const inputDisabled = inputProps.disabled ?? false;
+      const flowProps =
+        flat.node.textFlow?.flow === 'truncate'
+          ? { numberOfLines: flat.node.textFlow.lines }
+          : {};
+      return (
+        <TextInput
+          key={node.name}
+          value={inputProps.value}
+          onChangeText={inputProps.onChangeText}
+          placeholder={inputProps.placeholder}
+          inputMode={inputProps.inputMode}
+          secureTextEntry={inputProps.secureTextEntry}
+          editable={!inputDisabled}
+          accessibilityLabel={inputProps.accessibilityLabel ?? derivedLabel}
+          accessibilityState={{ disabled: inputDisabled }}
+          placeholderTextColor={ctx.theme.text.muted}
+          onFocus={() => {
+            ctx.setFocusedInput(true);
+            inputProps.onFocus?.();
+          }}
+          onBlur={() => {
+            ctx.setFocusedInput(false);
+            inputProps.onBlur?.();
+          }}
+          {...flowProps}
+          style={[
+            flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis) : null,
+            fg ? { color: fg } : null,
+            { flexShrink: 1, padding: 0 },
+            flat.style,
+          ]}
+        />
+      );
+    }
+
     default:
       return assertNever(node.el, 'el');
   }
@@ -488,6 +586,7 @@ export function renderDescriptorInstance<A extends Axes, PId extends PartId = Pa
   const anatomy = resolveAnatomy(descriptor);
   const theme = useNuriTheme();
   const ambient = React.useContext(NuriSurfaceContext);
+  const [focusedInput, setFocusedInput] = React.useState(false);
   // The static api fact gating the render-time nested harvest — only a
   // descriptor that declares component slots can carry nested composition.
   const slotted = Object.values(descriptor.api?.slots ?? {}).some((slot) => slot.component === true);
@@ -503,6 +602,8 @@ export function renderDescriptorInstance<A extends Axes, PId extends PartId = Pa
       slotProps: {},
       components,
       behaviour,
+      focusedInput,
+      setFocusedInput,
       slotted,
       owner: displayName,
     } as RenderCtx<A>,

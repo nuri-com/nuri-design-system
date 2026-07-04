@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuri · Playground · Text Field</title>
+  <link rel="stylesheet" href="../../generated/playground.css" />
+  <script src="../../generated/boot.js" type="module"></script>
+  <style>
+    .nuri-pg__scroll { gap: 0; }
+    [data-pg-nav="ds"] { display: none; }
+  </style>
+</head>
+<body>
+
+<nuri-playground-shell doc="Text Field">
+
+  <nuri-demo layout="board" controls="device,theme,accent" label="default">
+    <template>
+      <nuri-view direction="column" justify="start" gap="xl" fill padding-x="lg" padding-top="lg">
+        <nuri-text-field placeholder="Amount">
+          <nuri-text-field-label>Amount</nuri-text-field-label>
+        </nuri-text-field>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
+  <nuri-demo layout="board" controls="device,theme,accent" label="value / action">
+    <template>
+      <nuri-view direction="column" justify="start" gap="xl" fill padding-x="lg" padding-top="lg">
+        <nuri-text-field value="dario@nuri.com" input-mode="email" placeholder="Email">
+          <nuri-text-field-label>Email</nuri-text-field-label>
+          <nuri-text-field-action>Paste</nuri-text-field-action>
+        </nuri-text-field>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
+  <nuri-demo layout="board" controls="device,theme,accent" label="secure / disabled">
+    <template>
+      <nuri-view direction="column" justify="start" gap="xl" fill padding-x="lg" padding-top="lg">
+        <nuri-text-field secure-text-entry value="hunter2" placeholder="Password">
+          <nuri-text-field-label>Password</nuri-text-field-label>
+          <nuri-text-field-action disabled>Show</nuri-text-field-action>
+        </nuri-text-field>
+        <nuri-text-field disabled value="Unavailable">
+          <nuri-text-field-label>Reference</nuri-text-field-label>
+        </nuri-text-field>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
+  <nuri-demo layout="board" controls="device,theme,accent" label="field error">
+    <template>
+      <nuri-view direction="column" justify="start" gap="xl" fill padding-x="lg" padding-top="lg">
+        <nuri-view direction="column" justify="start" gap="md" fill>
+          <nuri-text-field value="DE89" input-mode="text" placeholder="IBAN">
+            <nuri-text-field-label>Recipient IBAN</nuri-text-field-label>
+            <nuri-text-field-action>Scan</nuri-text-field-action>
+          </nuri-text-field>
+          <nuri-alert variant="ghost">
+            <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
+            Please enter a valid IBAN
+          </nuri-alert>
+        </nuri-view>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+</body>
+</html>

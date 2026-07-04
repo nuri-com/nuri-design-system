@@ -196,6 +196,15 @@ export function mergeAttrs(ns) {
   return { classes, data };
 }
 
+function applyTypographyAttrs(el, typography) {
+  if (!typography) return;
+  if (typography.size !== undefined) el.setAttribute('data-type-style', typography.size);
+  if (typography.emphasis) el.setAttribute('data-type-emphasis', '');
+  if (typography.align !== undefined) el.setAttribute('align', typography.align);
+  if (typography.flow !== undefined) el.setAttribute('flow', typography.flow);
+  if (typography.lines !== undefined) el.setAttribute('lines', String(typography.lines));
+}
+
 // Apply a merged namespace map (stack ⊕ box ⊕ palette) to an EXISTING element as
 // the namespace classes + data-* — the factory's merged-node spelling onto a HOST
 // node instead of a freshly-created one. The compound container (the topbar-slots
@@ -358,6 +367,8 @@ function renderPart(node, ctx) {
       return renderText(node, ns, ctx);
     case 'icon':
       return renderIcon(node, ns, ctx);
+    case 'input':
+      return renderInput(node, ns, ctx);
     default:
       // The web analogue of the RN factory's assertNever (R7): an el outside the
       // frozen vocabulary is a hard error, never a silent mis-render.
@@ -372,6 +383,11 @@ function findChildPath(node, part) {
     if (nested) return [child, ...nested];
   }
   return null;
+}
+
+function subtreeHasPart(node, part) {
+  if (node.name === part) return true;
+  return node.children.some((child) => subtreeHasPart(child, part));
 }
 
 function cloneEntryContent(value) {
@@ -389,6 +405,13 @@ function cloneSlotProps(props) {
 function appendValue(host, value) {
   if (Array.isArray(value)) host.append(...value);
   else host.append(value);
+}
+
+function plainTextContent(value) {
+  if (typeof value === 'string') return value;
+  if (value?.nodeType === 1 && value.tagName === 'TEMPLATE') return value.content.textContent.trim();
+  if (value?.nodeType === 11 || value?.nodeType === 3 || value?.nodeType === 1) return value.textContent.trim();
+  return undefined;
 }
 
 function resolveComponentProps(node, entry, ctx) {
@@ -489,12 +512,20 @@ function wrapProseNodes(value, donor, ctx) {
 function appendComposition(host, node, ctx) {
   const entries = ctx.composition && ctx.composition[node.name];
   if (!entries) return false;
+  const ambientContent = { ...ctx.content };
+  const labelPart = ctx.inputBehaviour?.labelPart;
+  if (labelPart && ambientContent[labelPart] === undefined) {
+    const labelEntry = entries.find((entry) => entry.part === labelPart);
+    if (labelEntry) ambientContent[labelPart] = labelEntry.content;
+  }
+  const ambientCtx = { ...ctx, content: ambientContent };
   // The host's prose donor (null for a host with none) — styles this host's bare
   // string content via the prose-children rule.
   const donor = proseDonorNode(node, ctx);
   const grouped = new Map();
   const targets = new Map();
   const ordered = [];
+  const childIndex = new Map(node.children.map((child, index) => [child.name, index]));
   for (const [index, entry] of entries.entries()) {
     if (entry.part === node.name) {
       ordered.push({ kind: 'own', entry, index });
@@ -517,6 +548,18 @@ function appendComposition(host, node, ctx) {
     ordered.push({ kind: 'direct', child: childNode, entry, index });
     targets.set(entry.part, (targets.get(entry.part) ?? 0) + 1);
   }
+  for (const child of node.children) {
+    if (targets.has(child.name)) continue;
+    if (!ctx.inputBehaviour?.target || !subtreeHasPart(child, ctx.inputBehaviour.target)) continue;
+    const staticItem = { kind: 'static', child };
+    const staticIndex = childIndex.get(child.name);
+    const before = ordered.findIndex((item) => {
+      const part = item.kind === 'group' ? item.part : item.kind === 'direct' ? item.child.name : null;
+      return part != null && childIndex.get(part) > staticIndex;
+    });
+    if (before === -1) ordered.push(staticItem);
+    else ordered.splice(before, 0, staticItem);
+  }
   for (const [part, count] of targets) {
     if (count > 1 && !isMultiPart(ctx.descriptor, part)) {
       throw new Error(`[nuri-factory] slot targeting part '${part}' is singular — it appears ${count} times under '${node.name}'`);
@@ -531,13 +574,15 @@ function appendComposition(host, node, ctx) {
     const group = item.kind === 'group' ? grouped.get(item.part) : null;
     const directCtx = item.kind === 'direct'
       ? {
-        ...ctx,
-        content: { ...ctx.content, [item.entry.part]: cloneEntryContent(item.entry.content) },
+        ...ambientCtx,
+        content: { ...ambientCtx.content, [item.entry.part]: cloneEntryContent(item.entry.content) },
         slotProps: item.entry.props ? { ...ctx.slotProps, [item.entry.part]: cloneSlotProps(item.entry.props) } : ctx.slotProps,
       }
       : null;
-    const childEl = item.kind === 'group' && group
-      ? renderPart(group.child, { ...ctx, composition: { ...ctx.composition, [item.part]: group.entries } })
+    const childEl = item.kind === 'static'
+      ? renderPart(item.child, ambientCtx)
+      : item.kind === 'group' && group
+      ? renderPart(group.child, { ...ambientCtx, composition: { ...ctx.composition, [item.part]: group.entries } })
       : item.kind === 'direct'
         ? item.child.component
           ? renderComponentRef(item.child, directCtx, item.entry)
@@ -601,6 +646,11 @@ function renderStaticView(node, ns, ctx) {
   const { classes, data } = mergeAttrs(ns);
   if (classes.length) host.classList.add(...classes);
   for (const [k, v] of Object.entries(data)) host.setAttribute(k, v);
+  if (ctx.inputBehaviour?.focusTarget === node.name) {
+    host.setAttribute('data-nuri-focus-target', '');
+    host.addEventListener('nuri-input-focus', () => host.setAttribute('data-nuri-input-focused', ''));
+    host.addEventListener('nuri-input-blur', () => host.removeAttribute('data-nuri-input-focused'));
+  }
 
   // accent self-scope (Tier-2 · decision 27/62) — mirror to data-accent on this
   // node so the token cascade re-resolves accent tokens here only (the
@@ -647,6 +697,33 @@ function renderText(node, ns, ctx) {
   for (const [k, v] of Object.entries(data)) el.setAttribute(k, v);
   appendValue(el, own); // the string label
   return el;
+}
+
+function renderInput(node, ns, ctx) {
+  const behaviour = ctx.inputBehaviour;
+  if (!behaviour || behaviour.target !== node.name) {
+    throw new Error(`[nuri-factory] part '${node.name}' is el:'input' but behaviour.input does not target it`);
+  }
+  const host = document.createElement('nuri-input');
+  const { classes, data } = mergeAttrs(ns);
+  if (classes.length) host.classList.add(...classes);
+  for (const [k, v] of Object.entries(data)) host.setAttribute(k, v);
+  applyTypographyAttrs(host, ns.typography);
+  if (ns.palette?.muted) host.setAttribute('data-muted', '');
+
+  const props = ctx.base || {};
+  if (props.value !== undefined) host.setAttribute('value', String(props.value));
+  if (props.placeholder !== undefined) host.setAttribute('placeholder', String(props.placeholder));
+  if (props.inputMode !== undefined) host.setAttribute('input-mode', String(props.inputMode));
+  if (props.secureTextEntry) host.setAttribute('secure-text-entry', '');
+  if (props.disabled) host.setAttribute('disabled', '');
+  const label = behaviour.labelPart ? ctx.content?.[behaviour.labelPart] : undefined;
+  const accessibleName = props.accessibilityLabel ?? plainTextContent(label);
+  if (accessibleName !== undefined) host.setAttribute('aria-label', String(accessibleName));
+  if (typeof props.onChangeText === 'function') host.onChangeText = props.onChangeText;
+  if (typeof props.onFocus === 'function') host.onNuriFocus = props.onFocus;
+  if (typeof props.onBlur === 'function') host.onNuriBlur = props.onBlur;
+  return host;
 }
 
 // icon → <nuri-icon name=X> · the glyph leaf (IconAvatar's icon part). fg flows
@@ -739,7 +816,15 @@ export function buildComponent(descriptor, selection = {}, props = {}) {
     }
   }
 
-  return renderPart(anatomy, { descriptor, selection: sel, content, composition: props.composition || {}, slotProps: {}, base: props });
+  return renderPart(anatomy, {
+    descriptor,
+    selection: sel,
+    content,
+    composition: props.composition || {},
+    slotProps: {},
+    base: props,
+    inputBehaviour: descriptor.api?.behaviour?.input,
+  });
 }
 
 // ── THE DETERMINISTIC NAMING RULE (deterministic-naming · the web MIRROR) ──
@@ -843,10 +928,25 @@ export function defineNuriComponent(descriptor, tagName) {
   const interactive = !!(descriptor.structure.base && descriptor.structure.base.root && descriptor.structure.base.root.interactive);
   const supportsAccessibleName =
     descriptor.api?.behaviour?.pressable?.props?.includes('accessibilityLabel') === true;
+  const inputBehaviour = descriptor.api?.behaviour?.input;
+  const inputAttrByProp = {
+    value: 'value',
+    placeholder: 'placeholder',
+    inputMode: 'input-mode',
+    secureTextEntry: 'secure-text-entry',
+    disabled: 'disabled',
+    accessibilityLabel: 'aria-label',
+  };
 
   const observed = [...axisNames, 'accent'];
   if (interactive) observed.push('disabled');
   observed.push(...perPartAttrs);
+  if (inputBehaviour) {
+    for (const prop of inputBehaviour.props || []) {
+      const attr = inputAttrByProp[prop];
+      if (attr && !observed.includes(attr)) observed.push(attr);
+    }
+  }
   // `selected` boolean ATTR → the `state` appearance axis (the tab-item · the
   // createNuriComponent boolean bridge). Observed so a live toggle re-renders.
   const hasStateAxis = !!(descriptor.variants && descriptor.variants.state);
@@ -878,6 +978,11 @@ export function defineNuriComponent(descriptor, tagName) {
       // children. With no slot marker, keep the legacy bare text-primary route.
       if (hasComponentSlots) {
         this.#composition = harvestComposition(this, componentSlotTagToSpec, defaultSlotSpec?.part, regionSlotTagToPart, tagName);
+        for (const [slotName, spec] of componentSlotEntries) {
+          if (spec.required && !this.#composition?.root?.some((entry) => entry.part === spec.part)) {
+            throw new Error(`[nuri-factory] '${tagName}' requires ${slotName}`);
+          }
+        }
         // A composition-only host (no default sink, no legacy label route) with
         // meaningful bare children and no marker at all cannot route them —
         // fail named rather than render an empty skeleton (the honest-children
@@ -954,6 +1059,22 @@ export function defineNuriComponent(descriptor, tagName) {
         const ariaLabel = this.getAttribute('aria-label');
         if (ariaLabel != null) props.accessibilityLabel = ariaLabel;
       }
+      if (inputBehaviour) {
+        for (const prop of inputBehaviour.props || []) {
+          if (prop === 'onChangeText' || prop === 'onFocus' || prop === 'onBlur') {
+            if (typeof this[prop] === 'function') props[prop] = this[prop].bind(this);
+            continue;
+          }
+          const attr = inputAttrByProp[prop];
+          if (!attr) continue;
+          if (prop === 'secureTextEntry' || prop === 'disabled') {
+            props[prop] = this.hasAttribute(attr);
+          } else {
+            const v = this.getAttribute(attr);
+            if (v != null) props[prop] = v;
+          }
+        }
+      }
 
       // COMPOUND (the topbar-slots slice): the HOST is the root painting node (the
       // chrome row · apply-NS-to-host, full-width via the .nuri-stack block-flex);
@@ -966,7 +1087,7 @@ export function defineNuriComponent(descriptor, tagName) {
         for (const [part, tpl] of Object.entries(this.#slots || {})) {
           content[part] = tpl.content.cloneNode(true); // a fresh fragment of clones
         }
-        const ctx = { descriptor, selection, content, base: props };
+        const ctx = { descriptor, selection, content, base: props, inputBehaviour };
         const regions = anatomy.children.map((child) => renderPart(child, ctx)).filter(Boolean);
         this.replaceChildren(...regions);
         return;
