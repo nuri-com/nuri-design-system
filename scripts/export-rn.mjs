@@ -7,13 +7,16 @@
  * Usage:  node scripts/export-rn.mjs [outDir]      (default: vendor-out/nuri-ds)
  *
  * Output layout (all imports rewritten to relative paths):
- *   <out>/index.ts        → re-export of rn/index
- *   <out>/rn/**           → packages/rn minus tests/mocks/config
- *   <out>/spec/**         → the spec files the exports map names,
- *                           ORIGINAL layout preserved (spec files
- *                           import each other relatively · e.g.
- *                           axes/resolve-map → ../components/schema)
- *   <out>/MANIFEST.json   → { commit, exportedAt, files }
+ *   <out>/index.ts        → the ONLY sanctioned import target (consumers
+ *                           reach it via the @ds tsconfig-paths alias) —
+ *                           re-exports internal/rn/index
+ *   <out>/internal/**     → everything else, producer layout preserved
+ *                           verbatim (rn/** minus tests/mocks/config ·
+ *                           spec/** = the actual-import closure). The
+ *                           internal/ prefix IS the contract: generated
+ *                           payload, never imported directly, reviewed
+ *                           as a MANIFEST bump not file-by-file.
+ *   <out>/MANIFEST.json   → { ref?, commit, exportedAt, files }
  *
  * The @nuri/spec subpath → file mapping is READ from
  * packages/spec/package.json `exports` — never hardcoded, so a new
@@ -25,7 +28,7 @@
  * react-native-svg externals are allowed to survive.
  * ────────────────────────────────────────────────────────────── */
 
-import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execSync } from 'node:child_process';
@@ -54,23 +57,42 @@ for (const [subpath, target] of Object.entries(specPkg.exports)) {
 
 // ── 2 · clean output, copy trees ──
 rmSync(outDir, { recursive: true, force: true });
-mkdirSync(join(outDir, 'rn'), { recursive: true });
-mkdirSync(join(outDir, 'spec'), { recursive: true });
+const internalDir = join(outDir, 'internal');
+mkdirSync(join(internalDir, 'rn'), { recursive: true });
+mkdirSync(join(internalDir, 'spec'), { recursive: true });
 
 for (const entry of readdirSync(RN_SRC)) {
   if (RN_EXCLUDE.has(entry)) continue;
-  cpSync(join(RN_SRC, entry), join(outDir, 'rn', entry), { recursive: true });
+  cpSync(join(RN_SRC, entry), join(internalDir, 'rn', entry), { recursive: true });
 }
-// Copy every spec file the exports map names PLUS the transitive closure of
-// their intra-spec relative imports (e.g. schema.ts → ../tokens/typography,
-// which no exports-map entry names), layout preserved.
-const specQueue = [...new Set(specMap.values())];
+// Seed the spec copy from the rn tree's ACTUAL @nuri/spec imports (both the
+// `from '...'` and inline `import('...')` forms) — NOT the whole exports map:
+// axes only the other projections read (palette-surface · typography-axis)
+// must not ship in the consumer payload. Then close over the seeds' intra-spec
+// relative imports (e.g. schema.ts → ../tokens/typography, which no
+// exports-map entry names), layout preserved.
+const seeds = new Set();
+(function scanRn(dir) {
+  for (const entry of readdirSync(dir)) {
+    const p = join(dir, entry);
+    if (statSync(p).isDirectory()) scanRn(p);
+    else if (/\.tsx?$/.test(entry)) {
+      const src = readFileSync(p, 'utf8');
+      for (const [, , subpath] of src.matchAll(/(from |import\()['"](@nuri\/spec\/[^'"]+)['"]/g)) {
+        const target = specMap.get(subpath);
+        if (!target) throw new Error(`${p}: import '${subpath}' has no entry in the spec exports map`);
+        seeds.add(target);
+      }
+    }
+  }
+})(join(internalDir, 'rn'));
+const specQueue = [...seeds];
 const specCopied = new Set();
 while (specQueue.length) {
   const target = specQueue.pop();
   if (specCopied.has(target)) continue;
   specCopied.add(target);
-  cpSync(join(SPEC_SRC, target), join(outDir, 'spec', target));
+  cpSync(join(SPEC_SRC, target), join(internalDir, 'spec', target));
   const src = readFileSync(join(SPEC_SRC, target), 'utf8');
   // Both import forms: `from './x'` and the inline type form `import('./x')`.
   for (const [, , rel] of src.matchAll(/(from |import\()['"](\.\.?\/[^'"]+)['"]/g)) {
@@ -99,7 +121,7 @@ for (const file of tsFiles) {
   src = src.replace(/from (['"])(@nuri\/spec\/[^'"]+)\1/g, (whole, quote, subpath) => {
     const target = specMap.get(subpath);
     if (!target) throw new Error(`${file}: import '${subpath}' has no entry in the spec exports map`);
-    let rel = relative(dirname(file), join(outDir, 'spec', target)).replace(/\\/g, '/').replace(/\.tsx?$/, '');
+    let rel = relative(dirname(file), join(internalDir, 'spec', target)).replace(/\\/g, '/').replace(/\.tsx?$/, '');
     if (!rel.startsWith('.')) rel = `./${rel}`;
     changed = true;
     return `from ${quote}${rel}${quote}`;
@@ -110,7 +132,66 @@ for (const file of tsFiles) {
 // ── 4 · consumer-facing barrel ──
 writeFileSync(
   join(outDir, 'index.ts'),
-  `// NURI DS · vendored · generated by scripts/export-rn.mjs — DO NOT EDIT.\n// Re-pull with ds-pull.mjs; see MANIFEST.json for the source tag/commit.\nexport * from './rn/index';\n`,
+  `// NURI DS · vendored · generated by scripts/export-rn.mjs — DO NOT EDIT.\n// The ONLY sanctioned import target (via the @ds alias). Never import from\n// internal/. Re-pull with ds-pull.mjs; MANIFEST.json has the source pin.\nexport * from './internal/rn/index';\n`,
+);
+
+// ── 4b · consumer README: version banner + component inventory with
+// version-exact doc links. {{REF}} placeholders are substituted by
+// ds-pull (tag when pinned · commit when --local), so every link points
+// at the docs FOR THE VENDORED VERSION via the repo-at-tag URL. When the
+// docs site (GitHub Pages) exists, only DOCS_BASE changes.
+const DOCS_BASE = 'https://github.com/nuri-com/nuri-design-system/blob/{{REF}}/packages/doc/generated/components';
+// Doc filenames follow the WEB element names where they differ from the RN export.
+const DOC_ALIAS = { 'nuri-icon': 'icon', text: 'typography' };
+const kebab = (n) => n.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+const pascal = (k) => k.split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join('');
+
+const components = [];
+for (const f of readdirSync(join(RN_SRC, 'primitives'))) {
+  if (!/\.tsx$/.test(f) || f === 'shared.tsx') continue;
+  components.push(f.replace(/\.tsx$/, ''));
+}
+for (const subpath of specMap.keys()) {
+  const m = subpath.match(/^@nuri\/spec\/descriptors\/(.+)$/);
+  if (m && m[1] !== 'schema') components.push(pascal(m[1]));
+}
+components.sort();
+
+const rows = components.map((name) => {
+  const docName = DOC_ALIAS[kebab(name)] ?? kebab(name);
+  const hasDoc = existsSync(join(repoRoot, 'packages/doc/generated/components', `${docName}.md`));
+  return `| \`${name}\` | ${hasDoc ? `[docs](${DOCS_BASE}/${docName}.md)` : '—'} |`;
+});
+
+writeFileSync(
+  join(outDir, 'README.md'),
+  [
+    '# Nuri DS · vendored — DO NOT TOUCH',
+    '',
+    '**Version: `{{REF}}`** · exported from nuri-design-system by `scripts/export-rn.mjs`.',
+    '',
+    'Everything in this folder is **generated**. Never edit, never import from `internal/` —',
+    'the ONLY sanctioned import is the barrel, via the `@ds` alias:',
+    '',
+    '```ts',
+    "import { Button, View, BottomSheet } from '@ds';",
+    '```',
+    '',
+    'Upgrade = re-pull (the whole upgrade is one reviewable diff; see `MANIFEST.json` for the pin):',
+    '',
+    '```bash',
+    'node tools/ds-pull.mjs rn/vX.Y.Z',
+    '```',
+    '',
+    '## Components',
+    '',
+    '| Component | Docs |',
+    '|---|---|',
+    ...rows,
+    '',
+    '_Docs links point at the documentation for exactly this vendored version (repo-at-tag)._',
+    '',
+  ].join('\n'),
 );
 
 // ── 5 · gate: nothing forbidden survives ──
