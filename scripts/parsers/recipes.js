@@ -52,7 +52,7 @@
 
 import { readFile } from 'node:fs/promises';
 
-import { emitDescriptorJsFromSource, exportNameFor } from './descriptors.js';
+import { emitDescriptorJsFromSource, exportNameFor, validateDescriptorTypographyFlow } from './descriptors.js';
 import { loadTsDataFromPath } from '../ts-data-loader.js';
 
 // ── the RN key order the resolver merges in (resolve.ts NS_ORDER) · palette is
@@ -209,6 +209,7 @@ function anatomyParts(anatomy) {
 // blocking findings). Iterates ALL axis values (not only geometry-bearing ones) for
 // the typography/interactive channels.
 export function buildGeometryRecipe(descriptor, deps) {
+  validateDescriptorTypographyFlow('<synthetic>', descriptor);
   const recipe = {};
   const axes = descriptor.variants ? Object.keys(descriptor.variants) : [];
   for (const { name: part, el, open } of anatomyParts(descriptor.structure.anatomy)) {
@@ -297,6 +298,7 @@ async function loadDescriptor(spec, source) {
   if (!descriptor || !descriptor.structure) {
     throw new Error(`[recipes] loadDescriptor: '${spec.name}' export ${exportNameFor(spec.name)} missing/invalid`);
   }
+  validateDescriptorTypographyFlow(spec.name, descriptor);
   return descriptor;
 }
 

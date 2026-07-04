@@ -12,7 +12,7 @@
 
 import { readFile } from 'node:fs/promises';
 
-import { emitDescriptorJsFromSource, exportNameFor } from './descriptors.js';
+import { emitDescriptorJsFromSource, exportNameFor, validateDescriptorTypographyFlow } from './descriptors.js';
 
 const pascalCase = (kebab) => kebab.split('-').map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join('');
 const pascalPart = (s) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -195,6 +195,7 @@ async function loadDescriptor(spec, source) {
   if (!descriptor || !descriptor.api) {
     throw new Error(`[components-api] loadDescriptor: '${spec.name}' export ${exportNameFor(spec.name)} missing/invalid api`);
   }
+  validateDescriptorTypographyFlow(spec.name, descriptor);
   validateDescriptorLocalParts(spec.name, descriptor);
   return descriptor;
 }

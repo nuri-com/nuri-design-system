@@ -54,9 +54,9 @@ export const alertDescriptor: Descriptor<AlertAxes> = {
       // `message` is a STYLE-DONOR part: no api slot targets it, so the renderer's
       // prose rule routes the flat string children THROUGH it (rendered as its normal
       // `text` leaf · §1.3); it never renders as its own empty node, and element
-      // children (AlertButton) flow in the root row unchanged. Line count/truncation
-      // and richer action layout are DEFERRED — they need typography-axis data +
-      // the descriptor/component-reference capability designed properly (not this PR).
+      // children (AlertButton) flow in the root row unchanged. v1 line truncation
+      // is descriptor-owned typography data on this donor part; richer multiline
+      // Alert behavior/action layout remains deferred.
       el: 'view',
       open: true,
       parts: {
@@ -87,11 +87,11 @@ export const alertDescriptor: Descriptor<AlertAxes> = {
       icon: { box: { width: 'xs', height: 'xs' }, palette: { muted: true } },
       // The message: sm, EMPHASIS (semibold), MUTED (the subtle notice tone),
       // left-aligned. It GROWS + shrinks so the icon and the trailing action hug
-      // their content. (Line count / truncation is NOT declared here — it stays the
-      // shared `text` leaf's platform behaviour until modelled as typography data.)
+      // their content. v1 is a compact one-line notice: max-line tail ellipsis is
+      // declared as typography data, not as an Alert-local renderer/CSS hack.
       message: {
         stack: { fill: 'grow-shrink' },
-        typography: { size: 'sm', emphasis: true, align: 'start' },
+        typography: { size: 'sm', emphasis: true, align: 'start', flow: 'truncate', lines: 1 },
         palette: { muted: true },
       },
     },

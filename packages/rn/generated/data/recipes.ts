@@ -66,7 +66,9 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "base": {
           "size": "sm",
           "emphasis": true,
-          "align": "start"
+          "align": "start",
+          "flow": "truncate",
+          "lines": 1
         }
       }
     }
@@ -119,15 +121,21 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "size": {
             "sm": {
               "size": "sm",
-              "emphasis": true
+              "emphasis": true,
+              "flow": "truncate",
+              "lines": 1
             },
             "md": {
               "size": "md",
-              "emphasis": true
+              "emphasis": true,
+              "flow": "truncate",
+              "lines": 1
             },
             "lg": {
               "size": "md",
-              "emphasis": true
+              "emphasis": true,
+              "flow": "truncate",
+              "lines": 1
             }
           }
         }
@@ -360,7 +368,9 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "base": {
           "size": "md",
           "emphasis": true,
-          "align": "start"
+          "align": "start",
+          "flow": "truncate",
+          "lines": 1
         }
       }
     },
@@ -373,7 +383,9 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       "typography": {
         "base": {
           "size": "sm",
-          "align": "start"
+          "align": "start",
+          "flow": "truncate",
+          "lines": 1
         }
       }
     },
@@ -398,7 +410,9 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "base": {
           "size": "md",
           "emphasis": true,
-          "align": "end"
+          "align": "end",
+          "flow": "truncate",
+          "lines": 1
         }
       }
     },
@@ -411,7 +425,9 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       "typography": {
         "base": {
           "size": "sm",
-          "align": "end"
+          "align": "end",
+          "flow": "truncate",
+          "lines": 1
         }
       }
     },
@@ -469,7 +485,9 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       "typography": {
         "base": {
           "size": "xs",
-          "emphasis": true
+          "emphasis": true,
+          "flow": "truncate",
+          "lines": 1
         }
       }
     }

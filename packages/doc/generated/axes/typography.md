@@ -36,6 +36,9 @@ The bespoke **typography** axis — two orthogonal inputs (decision 77): **`size
 | `alignStart` | `nuri-typography[align="start"]` | `display: block`<br>`text-align: start` |
 | `alignCenter` | `nuri-typography[align="center"]` | `display: block`<br>`text-align: center` |
 | `alignEnd` | `nuri-typography[align="end"]` | `display: block`<br>`text-align: end` |
+| `truncate1` | `nuri-typography[flow="truncate"][lines="1"]` | `display: -webkit-box`<br>`-webkit-box-orient: vertical`<br>`-webkit-line-clamp: 1`<br>`overflow: hidden`<br>`text-overflow: ellipsis` |
+| `truncate2` | `nuri-typography[flow="truncate"][lines="2"]` | `display: -webkit-box`<br>`-webkit-box-orient: vertical`<br>`-webkit-line-clamp: 2`<br>`overflow: hidden`<br>`text-overflow: ellipsis` |
+| `truncate3` | `nuri-typography[flow="truncate"][lines="3"]` | `display: -webkit-box`<br>`-webkit-box-orient: vertical`<br>`-webkit-line-clamp: 3`<br>`overflow: hidden`<br>`text-overflow: ellipsis` |
 
 > The `nuri-typography` element is a **web-only** prose wrapper (muted tone + block
 > alignment · no RN analog). It is not part of the `size`/`emphasis` axis above.

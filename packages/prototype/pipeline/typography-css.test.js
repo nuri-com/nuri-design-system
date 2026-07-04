@@ -217,8 +217,8 @@ const resolved = resolveSemanticCrossProduct(
 );
 const HEX = /^#[0-9a-f]{6}$/;
 const varName = (value) => value.match(/^var\((--[\w-]+)\)$/)?.[1];
-// the non-var typography values: display + text-align literals (no token, no resolution).
-const LITERALS = new Set(['inline', 'block', 'start', 'center', 'end']);
+// the non-var typography values: display + text-align + line-clamp literals (no token, no resolution).
+const LITERALS = new Set(['inline', 'block', '-webkit-box', 'vertical', 'start', 'center', 'end', '1', '2', '3', 'hidden', 'ellipsis']);
 
 test('Guard C · the muted token bottoms out at a hex (default scope); display/text-align are literals', () => {
   const gen = layerRuleMap(generated);
@@ -243,10 +243,22 @@ test('Guard C · the muted token bottoms out at a hex (default scope); display/t
       }
     }
   }
-  // exactly one var paint (muted colour) + the 8 literal decls (2 shell display + 3×
-  // align display + 3× align text-align).
+  // exactly one var paint (muted colour) + the 23 literal decls (2 shell display + 3×
+  // align display + 3× align text-align + 3× truncate five-decl clamp).
   assert.equal(varChecks, 1, 'expected exactly one var paint (the muted colour)');
-  assert.equal(literalChecks, 8, `expected exactly 8 literal display/text-align decls, saw ${literalChecks}`);
+  assert.equal(literalChecks, 23, `expected exactly 23 literal typography wrapper decls, saw ${literalChecks}`);
+});
+
+test('Guard C · truncate flow emits real max-line ellipsis CSS and wrap emits no clamp rule', () => {
+  const gen = layerRuleMap(generated);
+  const oneLine = gen.get('nuri-typography[flow="truncate"][lines="1"]');
+  assert.ok(oneLine, 'missing truncate one-line selector');
+  assert.equal(oneLine.get('display'), '-webkit-box');
+  assert.equal(oneLine.get('-webkit-box-orient'), 'vertical');
+  assert.equal(oneLine.get('-webkit-line-clamp'), '1');
+  assert.equal(oneLine.get('overflow'), 'hidden');
+  assert.equal(oneLine.get('text-overflow'), 'ellipsis');
+  assert.equal(gen.has('nuri-typography[flow="wrap"]'), false, 'wrap must stay natural and emit no clamp selector');
 });
 
 // The design oracle (RESTATED · the colour-semantic.test.js validated value · NOT read

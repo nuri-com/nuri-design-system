@@ -4,13 +4,14 @@
  * The `typography` axis of the cascade (L3 · the THIRD and LAST
  * bespoke axis · decision 73 corrected dec 70: typography is bespoke, not agnostic),
  * authored ONCE in TS. typography is the prose funnel: a thin wrapper that carries
- * declarative, prop-based authoring (muted tone + block alignment) over the
- * foundation type scale.
+ * declarative, prop-based authoring (muted tone + block alignment + text flow)
+ * over the foundation type scale.
  *
  * The axis data is neutral wrapper intent:
  *   · `element` — the stable wrapper host id.
  *   · `muted.role` — the semantic text role the muted wrapper resolves to.
  *   · `align.values` — the authored alignment vocabulary.
+ *   · `flow.values` + `lines.values` — the authored text-flow vocabulary.
  *
  * The web projection owns selector and declaration spelling (`data-muted`,
  * `color: var(...)`, `display`, `text-align`). RN maps typography directly through
@@ -26,10 +27,14 @@ type TypographyAxis = {
   element: string;
   muted: { role: 'text-muted' };
   align: { values: readonly ['start', 'center', 'end'] };
+  flow: { values: readonly ['wrap', 'truncate'] };
+  lines: { values: readonly [1, 2, 3] };
 };
 
 export const axis = {
   element: 'nuri-typography',
   muted: { role: 'text-muted' },
   align: { values: ['start', 'center', 'end'] },
+  flow: { values: ['wrap', 'truncate'] },
+  lines: { values: [1, 2, 3] },
 } as const satisfies TypographyAxis;

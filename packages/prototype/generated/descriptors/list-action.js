@@ -42,13 +42,13 @@ export const listActionDescriptor = {
       content: {
         stack: { direction: 'column', align: 'start', justify: 'center', fill: 'grow' },
       },
-      text: { typography: { size: 'md', emphasis: true, align: 'start' } },
-      textMuted: { typography: { size: 'sm', align: 'start' }, palette: { muted: true } },
+      text: { typography: { size: 'md', emphasis: true, align: 'start', flow: 'truncate', lines: 1 } },
+      textMuted: { typography: { size: 'sm', align: 'start', flow: 'truncate', lines: 1 }, palette: { muted: true } },
       trailing: {
         stack: { direction: 'column', align: 'end', justify: 'center' },
       },
-      trailingText: { typography: { size: 'md', emphasis: true, align: 'end' } },
-      trailingTextMuted: { typography: { size: 'sm', align: 'end' }, palette: { muted: true } },
+      trailingText: { typography: { size: 'md', emphasis: true, align: 'end', flow: 'truncate', lines: 1 } },
+      trailingTextMuted: { typography: { size: 'sm', align: 'end', flow: 'truncate', lines: 1 }, palette: { muted: true } },
       trailIcon: { box: { width: 'xs', height: 'xs' }, palette: { variant: 'subtle' } },
     },
   },

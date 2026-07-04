@@ -186,9 +186,12 @@ function resolvePalette(ns: PaletteNS, theme: NuriTheme): ResolvedPalette {
 
 // ── the resolved typography ref · orthogonal inputs (decision 77 · the N+45
 // de-fusion): the `size` step + the `emphasis` boolean become a type ref. `align`
-// is text-axis style, mapped explicitly for the current LTR RN runtime. Was a single
-// fused TypeKey (`mdEm`); the renderer expands type via typeStyle(size, emphasis). ──
+// is text-axis style, mapped explicitly for the current LTR RN runtime. `flow` +
+// `lines` stay structured because they map to Text props, not TextStyle. Was a
+// single fused TypeKey (`mdEm`); the renderer expands type via typeStyle(size,
+// emphasis). ──
 export type TypeRef = { size: TypeSize; emphasis?: boolean };
+export type TextFlowRef = { flow: 'wrap' } | { flow: 'truncate'; lines: 1 | 2 | 3 };
 export type ResolvedStyle = ViewStyle & TextStyle;
 
 const TEXT_ALIGN = {
@@ -210,6 +213,7 @@ const RN_ELEVATION_STYLE = {
 function resolveTypography(typography: TypographyNS | undefined): {
   type?: TypeRef;
   text?: TextStyle;
+  textFlow?: TextFlowRef;
 } {
   if (!typography) return {};
   const type = typography.size === undefined
@@ -218,9 +222,15 @@ function resolveTypography(typography: TypographyNS | undefined): {
       ? { size: typography.size, emphasis: true }
       : { size: typography.size };
   const text = typography.align === undefined ? undefined : { textAlign: TEXT_ALIGN[typography.align] };
+  const textFlow = typography.flow === undefined
+    ? undefined
+    : typography.flow === 'truncate' && typography.lines !== undefined
+      ? { flow: 'truncate' as const, lines: typography.lines }
+      : { flow: 'wrap' as const };
   return {
     ...(type !== undefined ? { type } : {}),
     ...(text !== undefined ? { text } : {}),
+    ...(textFlow !== undefined ? { textFlow } : {}),
   };
 }
 
@@ -228,6 +238,7 @@ function resolveTypography(typography: TypographyNS | undefined): {
 export type ResolvedNode = {
   view: ViewStyle; // stack + box + palette.bg (NO fg — fg flows by scope)
   text?: TextStyle;
+  textFlow?: TextFlowRef;
   fg?: string;
   fgMuted?: string;
   pressedBg?: string;

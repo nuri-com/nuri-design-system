@@ -254,9 +254,9 @@ function renderPart<A extends Axes>(
   // host with NO donor leaves bare children RAW — the mixed-content contract
   // (decision 83 · a region's loose text stays a raw child · the composition-
   // envelope 'before'/'after' cell). Element children (an AlertButton) always pass
-  // through unchanged. This is a RENDERING concern, not schema — the STYLE is
-  // descriptor data on the donor part. (Line count / truncation is whatever the
-  // shared `text` leaf does per platform today — NOT a prose-rule or Alert feature.)
+  // through unchanged. This is a RENDERING concern, not schema — the STYLE and
+  // text flow are descriptor data on the donor part, rendered by the shared
+  // `text` leaf rather than by an Alert-specific branch.
   const slotTargetParts = new Set(Object.values(ctx.descriptor.api?.slots ?? {}).map((s) => s.part));
   const donorNode = node.children.find((c) => c.el === 'text' && !slotTargetParts.has(c.name));
   const wrapProse = (content: React.ReactNode): React.ReactNode => {
@@ -431,11 +431,14 @@ function renderPart<A extends Axes>(
     }
 
     case 'text': {
+      const flowProps =
+        flat.node.textFlow?.flow === 'truncate'
+          ? { numberOfLines: flat.node.textFlow.lines, ellipsizeMode: 'tail' as const }
+          : {};
       return (
         <Text
           key={node.name}
-          numberOfLines={1}
-          ellipsizeMode="tail"
+          {...flowProps}
           style={[
             flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis) : null,
             fg ? { color: fg } : null,

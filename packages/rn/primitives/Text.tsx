@@ -18,8 +18,13 @@ export type TextProps = TypographyNS & PaletteNS & { children?: React.ReactNode 
 const TextImpl: React.FC<TextProps> = (props) => {
   const { children, ...nsProps } = props;
   const { node, fg } = useResolvedNode(nsProps);
+  const flowProps =
+    node.textFlow?.flow === 'truncate'
+      ? { numberOfLines: node.textFlow.lines, ellipsizeMode: 'tail' as const }
+      : {};
   return (
     <RNText
+      {...flowProps}
       style={[
         node.type ? typeStyle(node.type.size, node.type.emphasis) : null,
         fg ? { color: fg } : null,

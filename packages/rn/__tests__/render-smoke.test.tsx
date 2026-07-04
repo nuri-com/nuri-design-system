@@ -49,7 +49,7 @@ import {
   BottomSheetScroll,
 } from '../index';
 import { icons } from '../contract';
-import type { Descriptor, Axes } from '../contract';
+import type { Descriptor, Axes, TypographyNS } from '../contract';
 import { renderDescriptorInstance } from '../runtime/renderer';
 import type { BakedComponentRecipe } from '../runtime/resolve';
 // The hand-authorable primitives (step ①) — aliased so the DS names don't clash
@@ -442,14 +442,14 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(message).toBeTruthy();
     const style = Object.assign({}, ...(message!.props.style as unknown[]).filter(Boolean));
     // Assert only the DONOR's DECLARED styling (descriptor data): grow/shrink fill,
-    // sm + emphasis (semibold), and muted (one tone shared with the also-muted
-    // glyph). Line count / truncation is NOT an Alert-declared feature, so it is not
-    // asserted here — it is the shared `text` leaf's platform behaviour (pre-existing
-    // typography-axis debt), pending explicit typography data.
+    // sm + emphasis (semibold), muted (one tone shared with the also-muted glyph),
+    // and the v1 one-line truncate flow.
     expect(style).toMatchObject({ flexGrow: 1, flexShrink: 1 });
     expect(style.fontWeight).toBe(typeStyle('sm', true).fontWeight);
     expect(style.color).toBe(tr.root.findByType(NuriIcon).props.color);
     expect(typeof style.color).toBe('string');
+    expect(message!.props.numberOfLines).toBe(1);
+    expect(message!.props.ellipsizeMode).toBe('tail');
   });
 
   test('Alert — ghost without an action is a bare icon + message line (no pressable surface)', () => {
@@ -953,6 +953,52 @@ describe('renderDescriptorInstance — the pressable trust boundary', () => {
     } finally {
       quiet.mockRestore();
     }
+  });
+});
+
+describe('renderDescriptorInstance — typography text flow', () => {
+  const makeFlowHarness = (typography: TypographyNS) => {
+    const descriptor: Descriptor<Axes> = {
+      structure: {
+        anatomy: { el: 'view', parts: { label: { el: 'text' } } },
+        base: { label: { typography } },
+      },
+      api: {
+        axes: [],
+        themeScope: { accent: true },
+        slots: { default: { part: 'label', kind: 'text', default: true } },
+      },
+    };
+    const recipe: BakedComponentRecipe = {
+      root: { el: 'view', geometry: { base: {}, variants: {} } },
+      label: { el: 'text', geometry: { base: {}, variants: {} }, typography: { base: typography } },
+    };
+    const Harness: React.FC = () =>
+      renderDescriptorInstance({
+        descriptor,
+        recipe,
+        displayName: 'FlowHarness',
+        selection: {},
+        content: { label: 'A long label' },
+        behaviour: {},
+      });
+    return render(
+      <NuriThemeProvider>
+        <Harness />
+      </NuriThemeProvider>,
+    ).root.findByType(Text);
+  };
+
+  test('truncate + lines maps to RN clamp props with tail ellipsis', () => {
+    const label = makeFlowHarness({ size: 'md', flow: 'truncate', lines: 1 });
+    expect(label.props.numberOfLines).toBe(1);
+    expect(label.props.ellipsizeMode).toBe('tail');
+  });
+
+  test('wrap emits no RN clamp props', () => {
+    const label = makeFlowHarness({ size: 'md', flow: 'wrap' });
+    expect(label.props.numberOfLines).toBeUndefined();
+    expect(label.props.ellipsizeMode).toBeUndefined();
   });
 });
 
