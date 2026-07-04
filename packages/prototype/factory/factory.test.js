@@ -424,11 +424,11 @@ test('B11 · a FOREIGN component\'s slot marker fails named', () => {
 // C · defineNuriComponent · the registered elements (API derivation · reflection)
 // ══════════════════════════════════════════════════════════════════
 test('C · observedAttributes are DERIVED from the descriptor (axes ∪ accent ∪ disabled? ∪ icon?)', () => {
-  // Button: interactive + text primary → variant·size·accent·disabled (NO icon).
+  // Button: interactive + text primary + pressable accessibilityLabel → variant·size·accent·disabled·aria-label (NO icon).
   assert.deepEqual(
     [...customElements.get('nuri-button').observedAttributes].sort(),
-    ['accent', 'disabled', 'size', 'variant'],
-    'button observes its axes + accent + disabled (interactive), not icon',
+    ['accent', 'aria-label', 'disabled', 'size', 'variant'],
+    'button observes its axes + accent + disabled (interactive) + aria-label (pressable API), not icon',
   );
   // IconAvatar: static + icon part → variant·accent·icon (the component `icon` prop ·
   // NOT `name`, which is the primitive <nuri-icon>'s attr · NO disabled, NO size).
@@ -468,6 +468,19 @@ test('C2 · <nuri-button disabled> · disabled reflects to the interactive host 
   assert.equal(b.hasAttribute('aria-hidden'), false, 'a non-decorative component is NOT aria-hidden');
 });
 
+test('C2b · <nuri-button aria-label> · public accessible-name override reaches the native button', async () => {
+  const b = dom.window.document.createElement('nuri-button');
+  b.textContent = 'Pay';
+  b.setAttribute('aria-label', 'Pay now');
+  mount(b);
+  await tick();
+
+  const btn = b.querySelector('button.nuri-interactive');
+  assert.ok(btn, 'the registered element mounts the factory tree');
+  assert.equal(btn.getAttribute('aria-label'), 'Pay now', 'public aria-label maps to the inner native button');
+  assert.equal(b.querySelector('nuri-typography')?.textContent, 'Pay', 'visible text remains the fallback label content');
+});
+
 test('C3 · <nuri-icon-avatar> · DECORATIVE aria-hidden comes from descriptor.decorative', () => {
   const a = dom.window.document.createElement('nuri-icon-avatar');
   a.setAttribute('icon', 'apple');
@@ -487,7 +500,7 @@ test('C4 · <nuri-alert-button disabled> delegates to the real button through co
   alert.innerHTML = [
     '<nuri-alert-icon name="warning-circle"></nuri-alert-icon>',
     'Total balance insufficient',
-    '<nuri-alert-button disabled>Top up</nuri-alert-button>',
+    '<nuri-alert-button disabled aria-label="Top up funds">Top up</nuri-alert-button>',
   ].join('');
   mount(alert);
   await tick();
@@ -496,8 +509,10 @@ test('C4 · <nuri-alert-button disabled> delegates to the real button through co
   assert.ok(action, 'the action slot renders the real nuri-button element');
   assert.equal(action.getAttribute('variant'), 'solid', 'variant is pinned by descriptor mapping');
   assert.equal(action.getAttribute('size'), 'sm', 'size is pinned by descriptor mapping');
+  assert.equal(action.getAttribute('aria-label'), 'Top up funds', 'slot aria-label normalizes to the delegated Button public attr');
   const btn = action.querySelector('button.nuri-interactive');
   assert.equal(btn?.hasAttribute('disabled'), true, 'disabled forwards through the generic slot-prop mapping');
+  assert.equal(btn?.getAttribute('aria-label'), 'Top up funds', 'the delegated Button forwards the accessible name to its native button');
   assert.equal(action.querySelector('nuri-typography')?.textContent, 'Top up', 'children forward to the delegated button label');
 });
 
@@ -574,6 +589,7 @@ test('E4 · <nuri-icon-button> · the registered element renders the glyph + ref
   // the VALUE path (registered element · #113): the `icon` attribute routes the glyph
   // NAME onto the inner primitive <nuri-icon name>, not just a bare present leaf.
   assert.equal(kids[0].getAttribute('name'), 'apple', 'the `icon` attr routes the glyph name onto <nuri-icon>');
+  assert.equal(btn.getAttribute('aria-label'), 'Apple Pay', 'icon-button still forwards public aria-label');
   assert.equal(btn.getAttribute('data-variant'), 'soft', 'the descriptor default (soft) with no variant attr');
 });
 
@@ -625,4 +641,36 @@ test('text flow · descriptor typography projects to nuri-typography attrs', () 
   assert.equal(label.getAttribute('lines'), '1');
   assert.equal(note.getAttribute('flow'), 'wrap');
   assert.equal(note.hasAttribute('lines'), false);
+});
+
+test('D2 · aria-label support derives from the pressable API, even for a text-primary descriptor', async () => {
+  const syntheticPressableDescriptor = {
+    structure: {
+      anatomy: { el: 'pressable', parts: { label: { el: 'text' } } },
+      base: { root: { stack: { align: 'center' }, interactive: { pressColor: true } } },
+    },
+    api: {
+      axes: [],
+      themeScope: { accent: true },
+      behaviour: { pressable: { target: 'root', props: ['accessibilityLabel'] } },
+      slots: { default: { part: 'label', kind: 'text', default: true } },
+    },
+  };
+  defineNuriComponent(syntheticPressableDescriptor, 'nuri-a11y-text-primary-x');
+
+  assert.deepEqual(
+    [...customElements.get('nuri-a11y-text-primary-x').observedAttributes].sort(),
+    ['accent', 'aria-label', 'disabled'],
+    'aria-label is observed because the descriptor pressable API declares accessibilityLabel',
+  );
+
+  const x = dom.window.document.createElement('nuri-a11y-text-primary-x');
+  x.textContent = 'Transfer';
+  x.setAttribute('aria-label', 'Transfer money');
+  mount(x);
+  await tick();
+
+  const btn = x.querySelector('button.nuri-interactive');
+  assert.equal(btn?.getAttribute('aria-label'), 'Transfer money', 'the descriptor-driven accessible name reaches the native button');
+  assert.equal(btn?.querySelector('nuri-typography')?.textContent, 'Transfer', 'visible text remains rendered');
 });

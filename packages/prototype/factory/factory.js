@@ -289,7 +289,9 @@ function harvestComposition(host, slotTagToSpec, fallbackPart, regionTagToPart =
             while (child.firstChild) tpl.content.append(child.firstChild);
             const props = { children: tpl };
             for (const attr of child.attributes) {
-              const prop = attr.name.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+              const prop = attr.name === 'aria-label'
+                ? 'accessibilityLabel'
+                : attr.name.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
               props[prop] = attr.value === '' ? true : attr.value;
             }
             list.push({ part: spec.part, content: tpl, props });
@@ -428,7 +430,7 @@ function renderComponentRef(node, ctx, entry = null) {
     } else if (typeof value === 'function') {
       el[prop] = value;
     } else {
-      el.setAttribute(camelToKebab(prop), String(value));
+      el.setAttribute(prop === 'accessibilityLabel' ? 'aria-label' : camelToKebab(prop), String(value));
     }
   }
   return el;
@@ -839,6 +841,8 @@ export function defineNuriComponent(descriptor, tagName) {
   // Interactive iff the root opts in (the `disabled` reflection is generic to any
   // interactive component · button has it, icon-avatar does not).
   const interactive = !!(descriptor.structure.base && descriptor.structure.base.root && descriptor.structure.base.root.interactive);
+  const supportsAccessibleName =
+    descriptor.api?.behaviour?.pressable?.props?.includes('accessibilityLabel') === true;
 
   const observed = [...axisNames, 'accent'];
   if (interactive) observed.push('disabled');
@@ -847,11 +851,9 @@ export function defineNuriComponent(descriptor, tagName) {
   // createNuriComponent boolean bridge). Observed so a live toggle re-renders.
   const hasStateAxis = !!(descriptor.variants && descriptor.variants.state);
   if (hasStateAxis) observed.push('selected');
-  // a11y name — an interactive control WITHOUT a text primary (the icon-anchored
-  // icon-button) needs an explicit accessible name when bare; flanked, the visible
-  // text IS the name (the factory honours both). A text-labelled control (Button)
-  // derives its name from the label, so it does NOT observe aria-label.
-  if (interactive && !textPrimary) observed.push('aria-label');
+  // a11y name — if the descriptor declares the RN pressable accessibilityLabel
+  // prop, the web catalog twin accepts the platform-native aria-label override.
+  if (supportsAccessibleName) observed.push('aria-label');
 
   class NuriElement extends HTMLElement {
     static get observedAttributes() {
@@ -946,8 +948,9 @@ export function defineNuriComponent(descriptor, tagName) {
       }
       // aria-label → the a11y accessible name (the factory sets it on the
       // interactive host · nuri-pressable mirrors it to the inner button's
-      // aria-label · F-ARIA-LABEL-1). Only observed for an icon-anchored control.
-      if (interactive && !textPrimary) {
+      // aria-label · F-ARIA-LABEL-1). Descriptor API support, not text shape,
+      // decides whether the public override exists.
+      if (supportsAccessibleName) {
         const ariaLabel = this.getAttribute('aria-label');
         if (ariaLabel != null) props.accessibilityLabel = ariaLabel;
       }
