@@ -176,7 +176,7 @@ const EXPECTED_DESCRIPTORS = {
   // surface + padding + radius; `ghost` is transparent. Static · no `interactive`.
   alert: {
     axes: { variant: ['soft', 'ghost'] },
-    parts: ['icon'],
+    parts: ['icon', 'message'],
     interactive: [],
   },
   button: {

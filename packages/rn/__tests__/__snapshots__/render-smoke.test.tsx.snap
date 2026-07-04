@@ -4,7 +4,7 @@ exports[`render-smoke — the ergonomic components mount headless Alert — ghos
 <View
   style={
     {
-      "alignItems": "center",
+      "alignItems": "baseline",
       "backgroundColor": "transparent",
       "flexDirection": "row",
       "gap": 6,
@@ -13,12 +13,12 @@ exports[`render-smoke — the ergonomic components mount headless Alert — ghos
 >
   <RNSVGSvgView
     align="xMidYMid"
-    bbHeight={24}
-    bbWidth={24}
+    bbHeight={18}
+    bbWidth={18}
     color="#222013"
     fill="currentColor"
     focusable={false}
-    height={24}
+    height={18}
     meetOrSlice={0}
     minX={0}
     minY={0}
@@ -30,14 +30,14 @@ exports[`render-smoke — the ergonomic components mount headless Alert — ghos
         },
         {
           "flex": 0,
-          "height": 24,
-          "width": 24,
+          "height": 18,
+          "width": 18,
         },
       ]
     }
     vbHeight={32}
     vbWidth={32}
-    width={24}
+    width={18}
     xml="<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M30 16C30 23.732 23.732 30 16 30C8.26801 30 2 23.732 2 16C2 8.26801 8.26801 2 16 2C23.732 2 30 8.26801 30 16ZM16 8C16.5523 8 17 8.44772 17 9V20C17 20.5523 16.5523 21 16 21C15.4477 21 15 20.5523 15 20V9C15 8.44772 15.4477 8 16 8ZM15.4444 22.1685C15.6089 22.0586 15.8022 22 16 22C16.2652 22 16.5196 22.1054 16.7071 22.2929C16.8946 22.4804 17 22.7348 17 23C17 23.1978 16.9413 23.3911 16.8315 23.5556C16.7216 23.72 16.5654 23.8482 16.3827 23.9239C16.2 23.9996 15.9989 24.0194 15.8049 23.9808C15.6109 23.9422 15.4327 23.847 15.2929 23.7071C15.153 23.5673 15.0578 23.3891 15.0192 23.1951C14.9806 23.0011 15.0004 22.8 15.0761 22.6173C15.1518 22.4346 15.28 22.2784 15.4444 22.1685Z" fill="currentColor"/></svg>"
     xmlns="http://www.w3.org/2000/svg"
   >
@@ -75,17 +75,19 @@ exports[`render-smoke — the ergonomic components mount headless Alert — ghos
     style={
       [
         {
-          "fontSize": 17,
+          "fontSize": 14.5,
           "fontWeight": "400",
-          "letterSpacing": -0.34,
-          "lineHeight": 21.93,
+          "letterSpacing": -0.145,
+          "lineHeight": 19.285,
         },
         {
-          "color": "#222013",
+          "color": "#666455",
         },
         {
           "flexGrow": 1,
           "flexShrink": 1,
+          "minWidth": 0,
+          "textAlign": "left",
         },
       ]
     }
@@ -99,23 +101,24 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
 <View
   style={
     {
-      "alignItems": "center",
+      "alignItems": "baseline",
       "backgroundColor": "#f3f1e2",
-      "borderRadius": 18,
+      "borderRadius": 9999,
       "flexDirection": "row",
       "gap": 6,
+      "minHeight": 54,
       "padding": 12,
     }
   }
 >
   <RNSVGSvgView
     align="xMidYMid"
-    bbHeight={24}
-    bbWidth={24}
+    bbHeight={18}
+    bbWidth={18}
     color="#222013"
     fill="currentColor"
     focusable={false}
-    height={24}
+    height={18}
     meetOrSlice={0}
     minX={0}
     minY={0}
@@ -127,14 +130,14 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
         },
         {
           "flex": 0,
-          "height": 24,
-          "width": 24,
+          "height": 18,
+          "width": 18,
         },
       ]
     }
     vbHeight={32}
     vbWidth={32}
-    width={24}
+    width={18}
     xml="<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M30 16C30 23.732 23.732 30 16 30C8.26801 30 2 23.732 2 16C2 8.26801 8.26801 2 16 2C23.732 2 30 8.26801 30 16ZM16 8C16.5523 8 17 8.44772 17 9V20C17 20.5523 16.5523 21 16 21C15.4477 21 15 20.5523 15 20V9C15 8.44772 15.4477 8 16 8ZM15.4444 22.1685C15.6089 22.0586 15.8022 22 16 22C16.2652 22 16.5196 22.1054 16.7071 22.2929C16.8946 22.4804 17 22.7348 17 23C17 23.1978 16.9413 23.3911 16.8315 23.5556C16.7216 23.72 16.5654 23.8482 16.3827 23.9239C16.2 23.9996 15.9989 24.0194 15.8049 23.9808C15.6109 23.9422 15.4327 23.847 15.2929 23.7071C15.153 23.5673 15.0578 23.3891 15.0192 23.1951C14.9806 23.0011 15.0004 22.8 15.0761 22.6173C15.1518 22.4346 15.28 22.2784 15.4444 22.1685Z" fill="currentColor"/></svg>"
     xmlns="http://www.w3.org/2000/svg"
   >
@@ -172,17 +175,19 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
     style={
       [
         {
-          "fontSize": 17,
+          "fontSize": 14.5,
           "fontWeight": "400",
-          "letterSpacing": -0.34,
-          "lineHeight": 21.93,
+          "letterSpacing": -0.145,
+          "lineHeight": 19.285,
         },
         {
-          "color": "#222013",
+          "color": "#666455",
         },
         {
           "flexGrow": 1,
           "flexShrink": 1,
+          "minWidth": 0,
+          "textAlign": "left",
         },
       ]
     }

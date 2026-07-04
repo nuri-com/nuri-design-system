@@ -27,21 +27,17 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       "geometry": {
         "base": {
           "flexDirection": "row",
-          "alignItems": "center",
+          "alignItems": "baseline",
           "gap": 6
         },
         "variants": {
           "variant": {
             "soft": {
+              "minHeight": 54,
               "padding": 12,
-              "borderRadius": 18
+              "borderRadius": 9999
             }
           }
-        }
-      },
-      "typography": {
-        "base": {
-          "size": "md"
         }
       }
     },
@@ -49,10 +45,27 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       "el": "icon",
       "geometry": {
         "base": {
-          "width": 24,
-          "height": 24
+          "width": 18,
+          "height": 18
         },
         "variants": {}
+      }
+    },
+    "message": {
+      "el": "text",
+      "geometry": {
+        "base": {
+          "flexGrow": 1,
+          "flexShrink": 1,
+          "minWidth": 0
+        },
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "sm",
+          "align": "start"
+        }
       }
     }
   },

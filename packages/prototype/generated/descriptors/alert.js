@@ -19,34 +19,42 @@ export const alertDescriptor = {
   structure: {
     anatomy: {
       // OPEN root (accepts the flat children slot — the message string + the
-      // AlertButton element) with a single leading `icon` part.
+      // AlertButton element) with a leading `icon` part and a `message` text part.
+      // `message` is a STYLE-DONOR part: no api slot targets it, so the renderer's
+      // prose rule routes the flat string children through its authored style
+      // (typography + muted palette + fill · §1.2/§1.3) and it never renders as its
+      // own node — element children (AlertButton) flow in the root row unchanged.
       el: 'view',
       open: true,
       parts: {
         icon: { el: 'icon' },
+        message: { el: 'text' },
       },
     },
     base: {
       root: {
-        stack: { direction: 'row', align: 'center', gap: 'sm' },
-        // The MESSAGE text style. Read by the renderer's prose-children rule to
-        // style the wrapping <Text> for the bare string children (a container
-        // authoring `typography` opts its string children into prose wrapping).
-        typography: { size: 'md' },
+        // Baseline alignment sits the small glyph on the message's text baseline.
+        stack: { direction: 'row', align: 'baseline', gap: 'sm' },
       },
-      // The leading glyph sizes to the standard sm icon box (coherent with the
-      // Button/list leading-icon scale).
-      icon: { box: { width: 'sm', height: 'sm' } },
+      // The leading glyph is the SMALL (xs) icon box.
+      icon: { box: { width: 'xs', height: 'xs' } },
+      // The message: sm, MUTED (the subtle notice tone), left-aligned, and it
+      // GROWS + wraps so the icon and the trailing action hug their content.
+      message: {
+        stack: { fill: 'grow-shrink' },
+        typography: { size: 'sm', align: 'start' },
+        palette: { muted: true },
+      },
     },
   },
   variants: {
-    // soft = the raised bar (the mock's balance/insufficient surface): a neutral
-    // soft surface (bg-strong · text-primary · DESIGN-REVIEW flag: chrome vs the
-    // `soft` surface variant — the closest existing token is picked, no new token
-    // minted), padding, and radius lg. ghost = the bare error line: transparent,
-    // no padding, no radius — icon + text only.
+    // soft = the raised pill bar (the mock's balance/insufficient surface): a
+    // neutral soft surface (bg-strong · DESIGN-REVIEW flag: chrome vs the `soft`
+    // surface variant — the closest existing token is picked, no new token minted),
+    // padding, a size-xl min height, and a FULL (pill) radius. ghost = the bare
+    // error line: transparent, no padding, no radius — icon + text only.
     variant: {
-      soft: { root: { box: { padding: 'md', radius: 'lg' }, palette: { variant: 'soft' } } },
+      soft: { root: { box: { minHeight: 'xl', padding: 'md', radius: 'full' }, palette: { variant: 'soft' } } },
       ghost: { root: { palette: { variant: 'ghost' } } },
     },
   },

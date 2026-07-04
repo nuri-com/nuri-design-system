@@ -210,23 +210,34 @@ function renderPart<A extends Axes>(
       : null;
 
   // ── THE PROSE-CHILDREN RULE (form-kit-spec §1.3 · GENERIC, not alert-specific) ──
-  // A host that authors a `typography` style (flat.node.type present) opts its
-  // BARE STRING children into prose: each string/number child is wrapped in a
-  // <Text> carrying that text style, the scope fg (§12 · colour by scope), and a
-  // grow/shrink fill so the message FILLS + wraps while sibling parts (a leading
-  // icon, a trailing action) HUG their content. RN crashes on a bare string inside
-  // a <View> ("Text strings must be rendered within a <Text>"); web tolerates text
-  // nodes but wraps identically for layout parity (factory.js#wrapProseNodes). A
-  // host with NO authored text style leaves bare children RAW — the mixed-content
-  // contract (decision 83 · a region's loose text stays a raw child · the
-  // composition-envelope 'before'/'after' cell). This is a RENDERING concern, not
-  // schema: any open host authoring `typography` gets prose wrapping for free.
-  const proseType = flat.node.type;
+  // A host with a PROSE-DONOR part — an `el:'text'` child that NO api slot targets
+  // (an unrouted style-donor · e.g. Alert's `message`) — opts its BARE STRING
+  // children into prose: each string/number child is wrapped in a <Text> carrying
+  // the DONOR's authored style (typography · palette fg incl. muted · the fill
+  // geometry), so the message FILLS + wraps while sibling parts (a leading icon, a
+  // trailing action) HUG their content. RN crashes on a bare string inside a <View>
+  // ("Text strings must be rendered within a <Text>"); web tolerates text nodes but
+  // wraps identically for layout parity (factory.js#wrapProseNodes). A host with NO
+  // donor leaves bare children RAW — the mixed-content contract (decision 83 · a
+  // region's loose text stays a raw child · the composition-envelope 'before'/
+  // 'after' cell). The donor never renders as its own node; it is DATA the wrapper
+  // reads. This is a RENDERING concern, not schema — the STYLE (size · muted · fill)
+  // is descriptor data on the donor part.
+  const slotTargetParts = new Set(Object.values(ctx.descriptor.api?.slots ?? {}).map((s) => s.part));
+  const donorNode = node.children.find((c) => c.el === 'text' && !slotTargetParts.has(c.name));
+  const proseFlat = donorNode
+    ? flattenBakedPart(ctx.recipe[donorNode.name], ctx.descriptor, ctx.theme, donorNode.name, ctx.selection, {
+      pressed: false,
+      disabled: false,
+    })
+    : undefined;
   const wrapProse = (content: React.ReactNode): React.ReactNode => {
-    if (proseType === undefined) return content;
+    if (!proseFlat) return content;
+    const type = proseFlat.node.type;
+    const proseColor = proseFlat.node.fg ?? fg;
     return React.Children.map(content, (child) =>
       typeof child === 'string' || typeof child === 'number' ? (
-        <Text style={[typeStyle(proseType.size, proseType.emphasis), fg ? { color: fg } : null, { flexGrow: 1, flexShrink: 1 }]}>
+        <Text style={[type ? typeStyle(type.size, type.emphasis) : null, proseColor ? { color: proseColor } : null, proseFlat.style]}>
           {child}
         </Text>
       ) : (

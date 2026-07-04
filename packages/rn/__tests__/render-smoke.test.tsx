@@ -424,7 +424,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
-  test('Alert — the STRING message renders through a prose <Text> (grow + wrap · the §1.3 rule)', () => {
+  test('Alert — the STRING message renders through a prose <Text> (grow + wrap · muted · the §1.3 rule)', () => {
     const tr = render(
       <NuriThemeProvider>
         <Alert>
@@ -434,9 +434,9 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       </NuriThemeProvider>,
     );
     // The bare string would crash RN inside a <View> ("Text strings must be
-    // rendered within a <Text>"); the prose-children rule wraps it. The wrapper
-    // GROWS + wraps (so the icon hugs) and is NOT the single-line clamped control
-    // label (numberOfLines undefined · distinct from the text-part case).
+    // rendered within a <Text>"); the prose-children rule wraps it through the
+    // `message` donor part. The wrapper GROWS + wraps (so the icon hugs) and is NOT
+    // the single-line clamped control label (numberOfLines undefined).
     const message = tr.root
       .findAllByType(Text)
       .find((t) => t.props.children === 'Total balance insufficient');
@@ -444,8 +444,10 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const style = Object.assign({}, ...(message!.props.style as unknown[]).filter(Boolean));
     expect(style).toMatchObject({ flexGrow: 1, flexShrink: 1 });
     expect(message!.props.numberOfLines).toBeUndefined();
-    // colour by scope (§12): the message inherits the root soft surface fg.
+    // the message donor is MUTED (palette muted → fgMuted), a DIFFERENT colour than
+    // the leading glyph, which inherits the full surface fg by scope (§12).
     expect(typeof style.color).toBe('string');
+    expect(style.color).not.toBe(tr.root.findByType(NuriIcon).props.color);
   });
 
   test('Alert — ghost without an action is a bare icon + message line (no pressable surface)', () => {
