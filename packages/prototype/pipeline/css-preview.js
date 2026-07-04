@@ -2,7 +2,8 @@
  * NURI · @nuri/prototype · NAMESPACE-CSS GENERATOR (the L3 LIVE source · decision 74)
  * ──────────────────────────────────────────────────────────────────
  * Generates the LIVE namespace CSS — prototype's styles/{box,stack,palette,
- * interactive,typography}.css — from @nuri/spec's TS SoTs:
+ * interactive,typography,effect}.css — from @nuri/spec's TS SoTs / projection
+ * realization tables:
  *   · box + stack  ← the agnostic Field table (resolve-map.ts) via namespace-css.js
  *                    (L3.1 · "three platforms, one table" · the S1 promise).
  *   · palette      ← the bespoke SURFACE role table (palette-surface.ts) via
@@ -11,8 +12,8 @@
  *                    interactive-css.js (L3b·2 · the second bespoke axis · dec 67/73).
  *   · typography   ← the bespoke AXIS (typography-axis.ts · shell + muted/align) via
  *                    typography-css.js (L3.1b · the third/last bespoke axis · dec 67/73).
- * palette + interactive + typography are NOT NS_SPECs (not Field-table members ·
- * bespoke shapes) — each is a separate call alongside the NS_SPECS loop.
+ * palette + interactive + typography + effect are NOT NS_SPECs (not Field-table
+ * members · bespoke shapes) — each is a separate call alongside the NS_SPECS loop.
  *
  * POST-FLIP, @nuri/prototype OWNS the namespace-CSS generation (N+41 · the A3 carve ·
  * convergence §5 "each library owns the emitter for its own surface"). WIRED INTO
@@ -23,7 +24,7 @@
  * decision 2 stays reversed for the namespace layer — the generator is the SOLE source;
  * the pages <link> these files and the web factory (factory/factory.js) styles the
  * `nuri-*` merged nodes with them. Freshness (re-emit ≡ committed) is gated by
- * pipeline/{css-preview,palette-css,interactive-css,typography-css}.test.js.
+ * pipeline/{css-preview,palette-css,interactive-css,typography-css,effect-css}.test.js.
  *
  * Standalone regen (equivalent to the build):  node pipeline/css-preview.js
  *
@@ -47,6 +48,7 @@ import {
 import { loadSurface, emitPaletteCss } from './parsers/palette-css.js';
 import { loadInteractive, emitInteractiveCss } from './parsers/interactive-css.js';
 import { loadAxis, emitTypographyCss } from './parsers/typography-css.js';
+import { emitEffectCss } from './parsers/effect-css.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PKG_ROOT = resolve(__dirname, '..'); // packages/prototype
@@ -116,14 +118,21 @@ export async function generateTypography() {
   return { ns: 'typography', css: emitTypographyCss(axis) };
 }
 
-// Generate ALL five namespace CSS files (box · stack · palette · interactive ·
-// typography) in one pass — the single reader for both the build flip and the tests.
+// Generate the effect namespace CSS. The semantic value vocabulary lives in the
+// descriptor schema; the concrete box-shadow belongs to this web projection.
+export async function generateEffect() {
+  return { ns: 'effect', css: emitEffectCss() };
+}
+
+// Generate ALL namespace CSS files in one pass — the single reader for both the
+// build flip and the tests.
 export async function generateNamespaceCss() {
   return [
     ...(await generateAll()),
     await generatePalette(),
     await generateInteractive(),
     await generateTypography(),
+    await generateEffect(),
   ];
 }
 
@@ -150,7 +159,7 @@ async function main() {
   }
   console.log(
     `[css-preview] ${reports.length} files regenerated in place · freshness gated by ` +
-    `pipeline/{css-preview,palette-css,interactive-css,typography-css}.test.js`,
+    `pipeline/{css-preview,palette-css,interactive-css,typography-css,effect-css}.test.js`,
   );
 }
 

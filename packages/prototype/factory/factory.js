@@ -77,7 +77,7 @@
 // merge inserts keys in THIS order). The web emit reads stack/box/palette as
 // merged-node classes+data-*; typography is the label el; interactive is the
 // pressable opt-in.
-const NS_ORDER = ['stack', 'box', 'typography', 'palette', 'interactive'];
+const NS_ORDER = ['stack', 'box', 'typography', 'palette', 'interactive', 'effect'];
 
 // camelCase descriptor field → kebab-case data-* attr (the box/stack vocab:
 // minHeight → data-min-height · paddingX → data-padding-x · direction stays).
@@ -189,6 +189,7 @@ export function mergeAttrs(ns) {
     if (ns.palette.variant !== undefined) data['data-variant'] = ns.palette.variant;
     if (ns.palette.chrome !== undefined) data['data-chrome'] = ns.palette.chrome;
   }
+  if (ns.effect) { classes.push('nuri-effect'); dispatch(ns.effect); }
   return { classes, data };
 }
 

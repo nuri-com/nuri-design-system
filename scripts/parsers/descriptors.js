@@ -50,6 +50,7 @@ export const DESCRIPTOR_COMPONENTS = [
   { name: 'list-action' },
   { name: 'tab-bar-item' },
   { name: 'tab-bar' },
+  { name: 'bottom-sheet-panel' },
 ];
 
 // ── NAME → the export identifier / camelCase ─────────────────────────

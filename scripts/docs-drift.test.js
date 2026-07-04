@@ -241,6 +241,14 @@ const EXPECTED_DESCRIPTORS = {
     parts: [],
     interactive: [],
   },
+  // bottom-sheet-panel (the descriptor-backed visual part of the sheet family) —
+  // an OPEN positional canvas surface. Detents, scrim, gestures, and engine
+  // behaviour belong to the structural BottomSheet primitive, not this descriptor.
+  'bottom-sheet-panel': {
+    axes: {},
+    parts: [],
+    interactive: [],
+  },
 };
 
 // The anatomy's non-root parts (the structural declaration).
@@ -493,6 +501,7 @@ const FROZEN_SCHEMA = {
       'padding?': 'SpaceLeaf', 'paddingX?': 'SpaceLeaf', 'paddingY?': 'SpaceLeaf',
       'paddingStart?': 'SpaceLeaf', 'paddingEnd?': 'SpaceLeaf',
       'paddingTop?': 'SpaceLeaf', 'paddingBottom?': 'SpaceLeaf', 'radius?': 'RadiusLeaf',
+      'radiusTop?': 'RadiusLeaf',
       'aspectRatio?': 'RatioLeaf',
     },
     // DE-FUSED at N+45 (decision 77 · the versioned post-freeze change): two
@@ -504,6 +513,7 @@ const FROZEN_SCHEMA = {
     TypographyNS: { 'size?': 'TypeSize', 'emphasis?': 'boolean', 'align?': "'start' | 'center' | 'end'" },
     PaletteNS: { 'variant?': 'PaletteVariant', 'accent?': 'Accent', 'muted?': 'boolean', 'chrome?': 'PaletteChrome' },
     InteractiveNS: { 'pressColor?': 'boolean', 'pressScale?': 'boolean', 'disabledOpacity?': 'boolean' },
+    EffectNS: { 'elevation?': 'Elevation' },
   },
   // Leaf VOCABULARIES the namespaces reference. Pure string-literal unions are
   // pinned member-for-member (order-insensitive); the two scale-derived leaves
@@ -512,6 +522,7 @@ const FROZEN_SCHEMA = {
   leafUnions: {
     SpaceLeaf: ['xs', 'sm', 'md', 'lg', 'xl'],
     RadiusLeaf: ['sm', 'md', 'lg', 'full'],
+    Elevation: ['none', 'raised'],
     // `outline` ADDED at the icon-avatar outline slice (PR #130 · the 1st deliberate
     // post-freeze PaletteVariant add · decision 65 "post-freeze changes are versioned"
     // · logged as amendment 65.12): the palette's first BORDER channel (transparent
@@ -552,7 +563,7 @@ const FROZEN_SCHEMA = {
   // discharges primitives-contract §0.1's "adding one is a versioned Guard-F
   // bump" reservation — 4 El cases now, 4 parity primitives.
   El: ['view', 'text', 'icon', 'pressable'],
-  NS: { 'stack?': 'StackNS', 'box?': 'BoxNS', 'typography?': 'TypographyNS', 'palette?': 'PaletteNS', 'interactive?': 'InteractiveNS' },
+  NS: { 'stack?': 'StackNS', 'box?': 'BoxNS', 'typography?': 'TypographyNS', 'palette?': 'PaletteNS', 'interactive?': 'InteractiveNS', 'effect?': 'EffectNS' },
   PartAnatomy: { 'el': 'El', 'open?': 'boolean', 'parts?': "Partial<Record<Exclude<P, 'root'>, PartAnatomy<P>>>" },
   // `defaults` (R1.5 per-axis public default) + `decorative` (decision 50 a11y
   // flag) added at N+50 (the web-factory slice · a deliberate, versioned

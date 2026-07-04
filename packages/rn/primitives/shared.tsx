@@ -16,7 +16,7 @@ import type { ResolvedNode } from '../runtime/resolve';
 import { NuriSurfaceContext } from '../runtime/renderer';
 import { STACK_FIELDS, BOX_FIELDS } from '@nuri/spec/resolve-map';
 import { opts as INTERACTIVE_OPTS } from '@nuri/spec/interactive-effects';
-import { PALETTE_KEYS, TYPOGRAPHY_KEYS } from '@nuri/spec/descriptors/schema';
+import { PALETTE_KEYS, TYPOGRAPHY_KEYS, EFFECT_KEYS } from '@nuri/spec/descriptors/schema';
 
 // ── the per-namespace RUNTIME key tables (the schema-derived SoT · ONE per ns) ──
 // box/stack/interactive come STRAIGHT from the shared mapping tables (the same
@@ -46,6 +46,7 @@ function pickNS(props: Record<string, unknown>): NS {
   grab(TYPOGRAPHY_KEYS, 'typography');
   grab(PALETTE_KEYS, 'palette');
   grab(INTERACTIVE_KEYS, 'interactive');
+  grab(EFFECT_KEYS, 'effect');
   return ns;
 }
 

@@ -25,6 +25,7 @@ nav_order: 10
 | `paddingTop` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |
 | `paddingBottom` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |
 | `radius` | no | `'sm' | 'md' | 'lg' | 'full'` | style axis |
+| `radiusTop` | no | `'sm' | 'md' | 'lg' | 'full'` | style axis |
 | `aspectRatio` | no | `'square' | 'card'` | style axis |
 | `direction` | no | `'row' | 'column'` | style axis |
 | `align` | no | `'start' | 'center' | 'end' | 'stretch' | 'baseline'` | style axis |
@@ -36,4 +37,5 @@ nav_order: 10
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `muted` | no | `boolean` | style axis |
 | `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | style axis |
+| `elevation` | no | `'none' | 'raised'` | style axis |
 | `children` | no | `React.ReactNode` | default content slot |

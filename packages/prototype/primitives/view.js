@@ -52,20 +52,21 @@
 
 import { mergeAttrs } from '../factory/factory.js';
 
-// The PUBLIC attr surface = box ∪ stack ∪ palette (kebab) — the hand-authorable
-// mirror of the RN View props (box ∪ stack ∪ palette · primitives.tsx:135). The
-// parity gate (primitives-parity.test.ts) reads these three literals and asserts
+// The PUBLIC attr surface = box ∪ stack ∪ palette ∪ effect (kebab) — the hand-authorable
+// mirror of the RN View props. The
+// parity gate (primitives-parity.test.ts) reads these namespace literals and asserts
 // their union ≡ the schema namespace keys (kebab) — a CHECKED projection, not a
 // trusted hand list (contract §3.2). `as` is NOT here: <nuri-view> IS the painting
 // node (no inner host element to override · unlike <nuri-stack>).
 const BOX_ATTRS = [
   'width', 'height', 'min-height', 'min-width',
   'padding', 'padding-x', 'padding-y', 'padding-start', 'padding-end', 'padding-top', 'padding-bottom',
-  'radius', 'aspect-ratio',
+  'radius', 'radius-top', 'aspect-ratio',
 ];
 const STACK_ATTRS = ['direction', 'align', 'justify', 'gap', 'wrap', 'fill'];
 const PALETTE_ATTRS = ['variant', 'accent', 'muted', 'chrome'];
-const ATTRS = [...BOX_ATTRS, ...STACK_ATTRS, ...PALETTE_ATTRS];
+const EFFECT_ATTRS = ['elevation'];
+const ATTRS = [...BOX_ATTRS, ...STACK_ATTRS, ...PALETTE_ATTRS, ...EFFECT_ATTRS];
 
 // The full vocabulary of data-* keys this element manages (so a CHANGE/REMOVAL
 // of a public attr re-derives cleanly without touching anything the factory owns
@@ -75,6 +76,7 @@ const ATTRS = [...BOX_ATTRS, ...STACK_ATTRS, ...PALETTE_ATTRS];
 const MANAGED_DATA = [
   ...BOX_ATTRS.map((a) => `data-${a}`),
   ...STACK_ATTRS.map((a) => `data-${a}`),
+  ...EFFECT_ATTRS.map((a) => `data-${a}`),
   'data-variant', 'data-chrome', 'data-accent',
 ];
 
@@ -121,7 +123,7 @@ class NuriView extends HTMLElement {
 
     // namespace classes — toggle the three so removing a namespace's last attr
     // drops its class (safe: only a #managed, hand-authored node reaches here).
-    for (const c of ['nuri-box', 'nuri-stack', 'nuri-palette']) {
+    for (const c of ['nuri-box', 'nuri-stack', 'nuri-palette', 'nuri-effect']) {
       this.classList.toggle(c, classes.includes(c));
     }
     // data-* — set the derived keys, drop the managed-but-absent ones.
@@ -155,6 +157,10 @@ class NuriView extends HTMLElement {
     const palette = {};
     for (const a of PALETTE_ATTRS) if (this.hasAttribute(a)) palette[a] = this.getAttribute(a);
     if (Object.keys(palette).length) ns.palette = palette;
+
+    const effect = {};
+    for (const a of EFFECT_ATTRS) if (this.hasAttribute(a)) effect[a] = this.getAttribute(a);
+    if (Object.keys(effect).length) ns.effect = effect;
 
     return ns;
   }

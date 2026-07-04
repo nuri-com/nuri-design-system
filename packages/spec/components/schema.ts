@@ -82,6 +82,10 @@ export type SpaceLeaf = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 // corner geometry (box radii · box.css data-radius · the Box BoxRadius).
 export type RadiusLeaf = 'sm' | 'md' | 'lg' | 'full';
 
+// surface elevation (projection-owned effect realization). The spec carries only
+// the semantic level; RN/web own the concrete shadow/elevation payloads.
+export type Elevation = 'none' | 'raised';
+
 // aspect-ratio (box aspectRatio · box.css data-aspect-ratio). Derived STRAIGHT
 // from the dimensions SoT `ratio` table (square · card) — like SizeLeaf, the FULL
 // scale IS the vocab (no curated subset · adding a ratio token extends this union).
@@ -95,7 +99,7 @@ export type RatioLeaf = keyof typeof import('../tokens/dimensions').ratio;
 export type TypeKey = TypeSize;
 
 // ══════════════════════════════════════════════════════════════════
-// THE FIVE NAMESPACES · disjoint by domain (65.3 §6 · no two emit the
+// THE SEMANTIC NAMESPACES · disjoint by domain (65.3 §6 · no two emit the
 // same property) · semantic-name value vocab the engine resolves
 // ══════════════════════════════════════════════════════════════════
 
@@ -148,6 +152,7 @@ export type BoxNS = {
   paddingTop?: SpaceLeaf;
   paddingBottom?: SpaceLeaf;
   radius?: RadiusLeaf;
+  radiusTop?: RadiusLeaf;
   aspectRatio?: RatioLeaf;
 };
 
@@ -202,7 +207,13 @@ export type InteractiveNS = {
   disabledOpacity?: boolean;
 };
 
-// A node's namespace composition — any subset of the five. On RN this is
+// `effect` — static visual effects. The value is semantic; each projection owns
+// its realization (web box-shadow; RN shadow/elevation style).
+export type EffectNS = {
+  elevation?: Elevation;
+};
+
+// A node's namespace composition — any subset of the namespaces. On RN this is
 // one merged `<View style>`; on web one painting node carrying the merged
 // namespace classes/`data-*` (B1.5 §4.2 · the merged-node model).
 export type NS = {
@@ -211,6 +222,7 @@ export type NS = {
   typography?: TypographyNS;
   palette?: PaletteNS;
   interactive?: InteractiveNS;
+  effect?: EffectNS;
 };
 
 // ── The RUNTIME namespace-key lists for the two BESPOKE namespaces ──────
@@ -232,6 +244,9 @@ export const PALETTE_KEYS = Object.keys(
 );
 export const TYPOGRAPHY_KEYS = Object.keys(
   { size: 0, emphasis: 0, align: 0 } satisfies Record<keyof TypographyNS, 0>,
+);
+export const EFFECT_KEYS = Object.keys(
+  { elevation: 0 } satisfies Record<keyof EffectNS, 0>,
 );
 
 // ══════════════════════════════════════════════════════════════════

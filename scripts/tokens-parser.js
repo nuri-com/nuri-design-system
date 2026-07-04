@@ -193,6 +193,7 @@ const TYPOGRAPHY_AXIS_SRC = resolve(SPEC_ROOT, 'axes/typography-axis.ts');
 const RESOLVE_MAP_SRC     = resolve(SPEC_ROOT, 'axes/resolve-map.ts');
 const PROPERTY_SPELLING_SRC = resolve(SPEC_ROOT, 'axes/property-spelling.ts');
 const DESCRIPTORS_SRC  = resolve(SPEC_ROOT, 'components');
+const BOTTOM_SHEET_CHROME_SRC = resolve(SPEC_ROOT, 'components/bottom-sheet-chrome.ts');
 const ICONS_DIR        = resolve(SPEC_ROOT, 'icons');
 // ── outputs · the RN projection (committed · Movement A) ──
 // The six DATA tables land under generated/data/; the per-component API
@@ -208,6 +209,7 @@ const COMPONENTS_OUT   = resolve(RN_GENERATED, 'components');
 const JSON_OUT         = resolve(PROTO_GENERATED, 'tokens.json');
 const TOKEN_VARS_OUT   = resolve(PROTO_GENERATED, 'token-vars.ts');
 const DESCRIPTORS_OUT  = resolve(PROTO_GENERATED, 'descriptors');
+const BOTTOM_SHEET_CHROME_JS_OUT = resolve(PROTO_GENERATED, 'bottom-sheet-chrome.js');
 const ICONS_JS_OUT     = resolve(PROTO_GENERATED, 'icons.js');
 const ACCENTS_JS_OUT   = resolve(PROTO_GENERATED, 'accents.js');
 // (build/docs · DOC_COMPONENTS · MOVED to @nuri/doc at N+42 · the A4 carve. The
@@ -220,6 +222,22 @@ const ACCENTS_JS_OUT   = resolve(PROTO_GENERATED, 'accents.js');
 // frozen descriptor) — so it DERIVES from the one build-side roster rather than
 // restating the names (deterministic-naming · D7 · same scripts/ boundary).
 const BROWSER_DESCRIPTOR_COMPONENTS = DESCRIPTOR_COMPONENTS.map((spec) => spec.name);
+
+function emitBottomSheetChromeJs(source) {
+  const body = source
+    .replace(/\/\*[\s\S]*?\*\/\n\n/, '')
+    .replace(/\s+as const;\s*$/, ';');
+  return [
+    `/* ──────────────────────────────────────────────────────────────`,
+    ` * NURI · BOTTOM SHEET CHROME · BROWSER ESM · GENERATED · DO NOT EDIT BY HAND`,
+    ` *`,
+    ` * The browser-ESM twin of packages/spec/components/bottom-sheet-chrome.ts.`,
+    ` * Source · packages/spec/components/bottom-sheet-chrome.ts. Emitter · scripts/tokens-parser.js.`,
+    ` * ────────────────────────────────────────────────────────────── */`,
+    ``,
+    body,
+  ].join('\n');
+}
 
 // (Slice 4 · the per-component `@layer tokens` WALK · REMOVED at N+41 · the A3 carve.)
 // The walk read each component's lib/components/<name>/<name>.css to report its TokenPath
@@ -500,6 +518,8 @@ async function main() {
     }
     descriptorReports.push({ name: spec.name, out: twinOut, browser: twinOut !== null });
   }
+
+  await writeFile(BOTTOM_SHEET_CHROME_JS_OUT, emitBottomSheetChromeJs(await readFile(BOTTOM_SHEET_CHROME_SRC, 'utf8')), 'utf8');
 
   // ── Slice 8 · palette mapping emit (N+19 B2b · decision 65.3 §6 · re-sourced N+40) ──
   // ADDITIVE at packages/rn/generated/data/palette.ts: the {variant | chrome} → {bg, fg,

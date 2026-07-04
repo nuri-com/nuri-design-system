@@ -168,9 +168,11 @@ const PAGE_CONTRACT = {
     kind: 'api', source: 'view', title: 'View', nav: 10,
     cells: [
       "| `width` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |",
+      "| `radiusTop` | no | `'sm' | 'md' | 'lg' | 'full'` | style axis |",
       "| `aspectRatio` | no | `'square' | 'card'` | style axis |",
       "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
+      "| `elevation` | no | `'none' | 'raised'` | style axis |",
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
@@ -274,6 +276,7 @@ const AXIS_CONTRACT = {
       // the canonical-id → per-target spelling (logical web · de-logicalized RN)
       '| `paddingX` | `padding-inline` | `paddingHorizontal` | `space` scale |',
       '| `radius` | `border-radius` | `borderRadius` | `radius` scale |',
+      '| `radiusTop` | `border-start-start-radius · border-start-end-radius` | `borderTopLeftRadius · borderTopRightRadius` | `radius` scale |',
     ],
     includes: ['| Input | Web | RN | Value |'], // the locked grammar (CSS → Web · the N+47 rename)
   },

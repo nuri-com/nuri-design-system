@@ -90,6 +90,8 @@ export const PROPERTY_SPELLING = {
   paddingBlockStart:  { rn: 'paddingTop',        css: 'padding-block-start' },
   paddingBlockEnd:    { rn: 'paddingBottom',     css: 'padding-block-end' },
   borderRadius:       { rn: 'borderRadius',      css: 'border-radius' },
+  borderStartStartRadius: { rn: 'borderTopLeftRadius',  css: 'border-start-start-radius' },
+  borderStartEndRadius:   { rn: 'borderTopRightRadius', css: 'border-start-end-radius' },
   // aspect-ratio is the rare concept whose RN key, web property, and canonical id
   // all coincide (no logical/physical divergence) — both targets spell it the same.
   aspectRatio:        { rn: 'aspectRatio',       css: 'aspect-ratio' },
