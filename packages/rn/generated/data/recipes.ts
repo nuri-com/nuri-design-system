@@ -469,6 +469,8 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "base": {
           "flexDirection": "column",
           "alignItems": "stretch",
+          "flexGrow": 1,
+          "flexShrink": 0,
           "borderTopLeftRadius": 18,
           "borderTopRightRadius": 18,
           "shadowOffset": {

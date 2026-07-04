@@ -21,10 +21,7 @@ import {
 import type { LayoutChangeEvent, ViewStyle } from 'react-native';
 import { blackAlpha } from '@nuri/spec/colours';
 import { bottomSheetChrome } from '@nuri/spec/bottom-sheet-chrome';
-import { bottomSheetPanelDescriptor } from '@nuri/spec/descriptors/bottom-sheet-panel';
 
-import { useNuriTheme } from '../theme';
-import { recipes } from '../generated/data/recipes';
 import { BottomSheetPanel as GeneratedBottomSheetPanel } from '../generated/components/bottom-sheet-panel';
 
 // LayoutAnimation is a no-op on old-arch Android unless enabled.
@@ -75,19 +72,6 @@ const RN_SCRIM = {
 } as const;
 
 const AnimatedPressable = Animated.createAnimatedComponent(RNPressable);
-
-// Fixed detents size the ENGINE frame, so the panel must fill it (the RN
-// mirror of the web recipe's `[detent="large"] > panel` block-size rules);
-// the panel learns the active detent through this engine-private context.
-const DetentContext = React.createContext<BottomSheetDetent>('content');
-
-// The descriptor panel's authored chrome (radius · elevation · stack), read
-// from the generated recipe so the fixed-detent fill wrapper stays
-// recipe-exact with zero hand-mirrored values.
-const PANEL_CHROME = recipes['bottom-sheet-panel'].root.geometry.base as ViewStyle;
-// Its authored surface role likewise comes from the descriptor's palette —
-// the fill's bg can never drift from what the panel itself paints.
-const PANEL_SURFACE = bottomSheetPanelDescriptor.structure.base?.root?.palette?.chrome;
 
 export const BottomSheet: React.FC<BottomSheetProps> = ({
   open = false,
@@ -181,7 +165,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
         style={styles.host}
       >
         <Animated.View onLayout={handleSheetLayout} style={[sizeStyle, { transform: [{ translateY }] }]}>
-          <DetentContext.Provider value={detent}>{children}</DetentContext.Provider>
+          {children}
         </Animated.View>
       </KeyboardAvoidingView>
     </RNView>
@@ -189,21 +173,9 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
 };
 BottomSheet.displayName = 'BottomSheet';
 
-export const BottomSheetPanel: React.FC<BottomSheetPanelProps> = ({ children }) => {
-  const detent = React.useContext(DetentContext);
-  const theme = useNuriTheme();
-  if (detent === 'content') return <GeneratedBottomSheetPanel>{children}</GeneratedBottomSheetPanel>;
-  // Fill the fixed-detent frame with the panel's own chrome (recipe geometry +
-  // its palette bg realized via the theme); the clip box swallows the inner
-  // descriptor panel's shadow so no seam paints mid-sheet below short content.
-  return (
-    <RNView style={[PANEL_CHROME, styles.panelFill, { backgroundColor: PANEL_SURFACE && theme.chrome[PANEL_SURFACE].bg }]}>
-      <RNView style={styles.panelClip}>
-        <GeneratedBottomSheetPanel>{children}</GeneratedBottomSheetPanel>
-      </RNView>
-    </RNView>
-  );
-};
+export const BottomSheetPanel: React.FC<BottomSheetPanelProps> = ({ children }) => (
+  <GeneratedBottomSheetPanel>{children}</GeneratedBottomSheetPanel>
+);
 BottomSheetPanel.displayName = 'BottomSheetPanel';
 
 export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }) => (
@@ -221,12 +193,6 @@ const styles = StyleSheet.create({
   host: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
-  },
-  panelFill: {
-    flex: 1,
-  },
-  panelClip: {
-    overflow: 'hidden',
   },
   scrollContent: {
     flexGrow: 1,
