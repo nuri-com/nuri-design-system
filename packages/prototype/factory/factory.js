@@ -631,6 +631,9 @@ function renderText(node, ns, ctx) {
   if (t) {
     if (t.size !== undefined) el.setAttribute('size', t.size);
     if (t.emphasis) el.setAttribute('emphasis', '');
+    if (t.align !== undefined) el.setAttribute('align', t.align);
+    if (t.flow !== undefined) el.setAttribute('flow', t.flow);
+    if (t.lines !== undefined) el.setAttribute('lines', String(t.lines));
   }
   if (ns.palette?.muted) el.setAttribute('muted', '');
   // A text part may ALSO carry box/stack/palette (e.g. an icon-button flank's edge

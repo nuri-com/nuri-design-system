@@ -30,4 +30,7 @@
   nuri-typography[align="start"] { display: block; text-align: start; }
   nuri-typography[align="center"] { display: block; text-align: center; }
   nuri-typography[align="end"] { display: block; text-align: end; }
+  nuri-typography[flow="truncate"][lines="1"] { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden; text-overflow: ellipsis; }
+  nuri-typography[flow="truncate"][lines="2"] { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-overflow: ellipsis; }
+  nuri-typography[flow="truncate"][lines="3"] { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; text-overflow: ellipsis; }
 }

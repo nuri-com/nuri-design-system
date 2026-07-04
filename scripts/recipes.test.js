@@ -24,6 +24,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { buildGeometryRecipe, loadRecipeDeps } from './parsers/recipes.js';
+import { validateDescriptorTypographyFlow } from './parsers/descriptors.js';
 import { loadDimensions } from './parsers/dimension-css.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -33,6 +34,36 @@ const deps = await loadRecipeDeps({
   resolveMapPath: resolve(SPEC_ROOT, 'axes/resolve-map.ts'),
   propertySpellingPath: resolve(SPEC_ROOT, 'axes/property-spelling.ts'),
   dims: await loadDimensions(resolve(SPEC_ROOT, 'tokens/dimensions.ts')),
+});
+
+function descriptorWithTypography(typography) {
+  return {
+    structure: {
+      anatomy: { el: 'view', parts: { label: { el: 'text' } } },
+      base: { label: { typography } },
+    },
+  };
+}
+
+test('typography flow validation · lines without truncate fails named', () => {
+  assert.throws(
+    () => validateDescriptorTypographyFlow('flow-case', descriptorWithTypography({ size: 'md', lines: 1 })),
+    /flow-case: structure\.base\.label\.typography declares lines without flow:'truncate'/,
+  );
+});
+
+test('typography flow validation · truncate without lines fails named', () => {
+  assert.throws(
+    () => validateDescriptorTypographyFlow('flow-case', descriptorWithTypography({ size: 'md', flow: 'truncate' })),
+    /flow-case: structure\.base\.label\.typography flow:'truncate' must declare lines/,
+  );
+});
+
+test('typography flow validation · wrap with lines fails named', () => {
+  assert.throws(
+    () => validateDescriptorTypographyFlow('flow-case', descriptorWithTypography({ size: 'md', flow: 'wrap', lines: 1 })),
+    /flow-case: structure\.base\.label\.typography flow:'wrap' must not declare lines/,
+  );
 });
 
 test('the bake carries VARIANT-LEVEL interactive (not base-only · reviewer finding #1)', () => {

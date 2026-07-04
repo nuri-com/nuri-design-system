@@ -79,7 +79,7 @@ export const tabBarItemDescriptor: Descriptor<TabBarItemAxes> = {
       icon: { box: { width: 'sm', height: 'sm' } },
       // The destination label · the smallest type step, EMPHASISED (the uniform
       // semibold · decision 77) under the glyph — a compact, legible tab caption.
-      label: { box: { paddingEnd: 'sm' }, typography: { size: 'xs', emphasis: true } },
+      label: { box: { paddingEnd: 'sm' }, typography: { size: 'xs', emphasis: true, flow: 'truncate', lines: 1 } },
     },
   },
   variants: {

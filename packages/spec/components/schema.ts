@@ -164,12 +164,16 @@ export type BoxNS = {
 // engine applies the weight override when `emphasis` (web `[data-type-emphasis]`
 // · RN typeStyle's 2nd arg). `align` is TEXT alignment (start/center/end), not
 // StackNS layout alignment; web had the raw wrapper dispatch, and RN maps it to
-// TextStyle.textAlign at the resolver boundary. Was a single fused `TypeKey`
-// (`mdEm`) — de-fused.
+// TextStyle.textAlign at the resolver boundary. `flow`/`lines` are the first
+// shared text-flow model: wrap = natural wrapping (no clamp), truncate = max-line
+// tail ellipsis, with `lines` required only for truncate. Was a single fused
+// `TypeKey` (`mdEm`) — de-fused.
 export type TypographyNS = {
   size?: TypeSize;
   emphasis?: boolean;
   align?: 'start' | 'center' | 'end';
+  flow?: 'wrap' | 'truncate';
+  lines?: 1 | 2 | 3;
 };
 
 // `palette` — ALL colour, from the semantic inputs (65.3 §6 · mirrors the
@@ -243,7 +247,7 @@ export const PALETTE_KEYS = Object.keys(
   { variant: 0, accent: 0, muted: 0, chrome: 0 } satisfies Record<keyof PaletteNS, 0>,
 );
 export const TYPOGRAPHY_KEYS = Object.keys(
-  { size: 0, emphasis: 0, align: 0 } satisfies Record<keyof TypographyNS, 0>,
+  { size: 0, emphasis: 0, align: 0, flow: 0, lines: 0 } satisfies Record<keyof TypographyNS, 0>,
 );
 export const EFFECT_KEYS = Object.keys(
   { elevation: 0 } satisfies Record<keyof EffectNS, 0>,

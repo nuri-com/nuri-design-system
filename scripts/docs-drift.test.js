@@ -519,7 +519,13 @@ const FROZEN_SCHEMA = {
     // post-freeze TypographyNS add · decision 65 "post-freeze changes are
     // versioned"): text-axis alignment (`start`/`center`/`end`), distinct from
     // StackNS layout alignment, projected as raw web `[align]` and RN `textAlign`.
-    TypographyNS: { 'size?': 'TypeSize', 'emphasis?': 'boolean', 'align?': "'start' | 'center' | 'end'" },
+    TypographyNS: {
+      'size?': 'TypeSize',
+      'emphasis?': 'boolean',
+      'align?': "'start' | 'center' | 'end'",
+      'flow?': "'wrap' | 'truncate'",
+      'lines?': '1 | 2 | 3',
+    },
     PaletteNS: { 'variant?': 'PaletteVariant', 'accent?': 'Accent', 'muted?': 'boolean', 'chrome?': 'PaletteChrome' },
     InteractiveNS: { 'pressColor?': 'boolean', 'pressScale?': 'boolean', 'disabledOpacity?': 'boolean' },
     EffectNS: { 'elevation?': 'Elevation' },

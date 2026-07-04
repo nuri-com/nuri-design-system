@@ -16,6 +16,8 @@ nav_order: 11
 | `size` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '3xl'` | style axis |
 | `emphasis` | no | `boolean` | style axis |
 | `align` | no | `'start' | 'center' | 'end'` | style axis |
+| `flow` | no | `'wrap' | 'truncate'` | component prop |
+| `lines` | no | `1 | 2 | 3` | component prop |
 | `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `muted` | no | `boolean` | style axis |

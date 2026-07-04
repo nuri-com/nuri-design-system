@@ -34,17 +34,17 @@ export const buttonDescriptor = {
     size: {
       sm: {
         root: { box: { minHeight: 'md', paddingX: 'md', radius: 'full' } },
-        label: { typography: { size: 'sm', emphasis: true } },
+        label: { typography: { size: 'sm', emphasis: true, flow: 'truncate', lines: 1 } },
         icon: { box: { width: 'xs', height: 'xs' } },
       },
       md: {
         root: { box: { minHeight: 'lg', paddingX: 'lg', radius: 'full' } },
-        label: { typography: { size: 'md', emphasis: true } },
+        label: { typography: { size: 'md', emphasis: true, flow: 'truncate', lines: 1 } },
         icon: { box: { width: 'sm', height: 'sm' } },
       },
       lg: {
         root: { box: { minHeight: 'xl', paddingX: 'xl', radius: 'full' } },
-        label: { typography: { size: 'md', emphasis: true } },
+        label: { typography: { size: 'md', emphasis: true, flow: 'truncate', lines: 1 } },
         icon: { box: { width: 'sm', height: 'sm' } },
       },
     },

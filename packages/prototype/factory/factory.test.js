@@ -605,3 +605,24 @@ test('D · defineNuriComponent is component-agnostic · a fresh descriptor needs
   const label = view.querySelector('nuri-typography');
   assert.equal(label.textContent, 'Hi', 'children routes to the lone text part generically');
 });
+
+test('text flow · descriptor typography projects to nuri-typography attrs', () => {
+  const descriptor = {
+    structure: {
+      anatomy: { el: 'view', parts: { label: { el: 'text' }, note: { el: 'text' } } },
+      base: {
+        label: { typography: { size: 'md', flow: 'truncate', lines: 1 } },
+        note: { typography: { size: 'sm', flow: 'wrap' } },
+      },
+    },
+    api: { axes: [], themeScope: { accent: true }, slots: {} },
+  };
+
+  const el = buildComponent(descriptor, {}, { content: { label: 'Truncated label', note: 'Wrapped note' } });
+  const [label, note] = [...el.querySelectorAll('nuri-typography')];
+
+  assert.equal(label.getAttribute('flow'), 'truncate');
+  assert.equal(label.getAttribute('lines'), '1');
+  assert.equal(note.getAttribute('flow'), 'wrap');
+  assert.equal(note.hasAttribute('lines'), false);
+});

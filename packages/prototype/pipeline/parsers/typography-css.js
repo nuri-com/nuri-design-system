@@ -33,6 +33,8 @@
  *       align     · `nuri-typography[align="<v>"]` — display:block + text-align:<v> (the
  *                   plain prop-driven HTML attr · decision 59 · equality gate · one rule
  *                   per start/center/end). block flips the inline host so text-align applies.
+ *       flow      · `nuri-typography[flow="truncate"][lines="<n>"]` — max-line tail
+ *                   ellipsis via line-clamp. wrap emits no clamp rule.
  *
  * ── THE ELEMENT (the one place typography diverges from palette/interactive) ──
  * palette/interactive are MERGED-NODE (no element · the `.nuri-<ns>` class lands on the
@@ -51,7 +53,8 @@
  *
  * ── THE SPELLING (the per-target delta · the SoT-vs-shell line) ─────────────
  * typography's web projection spells muted as `data-muted` + the role var, and
- * align as `[align="<v>"]` + display/text-align declarations. The spec remains
+ * align as `[align="<v>"]` + display/text-align declarations, and truncate flow
+ * as `[flow="truncate"][lines="<n>"]` line-clamp rules. The spec remains
  * selector/declaration-free.
  *
  * loadAxis imports the .ts SoT through the shared TS data loader. The L3c flip
@@ -109,6 +112,18 @@ export function typographyWebProjection(axis) {
       selector: `${element}[align="${value}"]`,
       decls: [['display', 'block'], ['text-align', value]],
     })),
+    ...axis.lines.values.map((value) => ({
+      name: `truncate${value}`,
+      sel: `${element}[flow="truncate"][lines="${value}"]`,
+      selector: `${element}[flow="truncate"][lines="${value}"]`,
+      decls: [
+        ['display', '-webkit-box'],
+        ['-webkit-box-orient', 'vertical'],
+        ['-webkit-line-clamp', String(value)],
+        ['overflow', 'hidden'],
+        ['text-overflow', 'ellipsis'],
+      ],
+    })),
   ];
   return { element, dispatch };
 }
@@ -125,7 +140,7 @@ function serializeRule({ sel, decls }) {
 // Layout: provenance header + empty `@layer tokens` (mirrors the hand typography.css ·
 // the wrapper reuses the foundation --nuri-type-* via the utility classes · decision 37)
 // + `@layer rules` { the SHELL (base · :not(:defined)) THEN the dispatch (muted · align
-// in projection order) · shell-first is LOAD-BEARING for the display pair }.
+// · truncate in projection order) · shell-first is LOAD-BEARING for the display pair }.
 export function emitTypographyCss(axis) {
   const { element, dispatch } = typographyWebProjection(axis);
   const ruleLines = [

@@ -63,6 +63,33 @@ export function exportNameFor(name) {
   return camel(name) + 'Descriptor';
 }
 
+export function validateDescriptorTypographyFlow(name, descriptor) {
+  const maps = [];
+  if (descriptor.structure?.base) maps.push(['structure.base', descriptor.structure.base]);
+  for (const [axis, values] of Object.entries(descriptor.variants || {})) {
+    for (const [value, partMap] of Object.entries(values || {})) {
+      maps.push([`variants.${axis}.${value}`, partMap]);
+    }
+  }
+  for (const [surface, partMap] of maps) {
+    for (const [part, ns] of Object.entries(partMap || {})) {
+      const typography = ns?.typography;
+      if (!typography) continue;
+      const hasLines = typography.lines !== undefined;
+      const flow = typography.flow;
+      if (flow === 'wrap' && hasLines) {
+        throw new Error(`[descriptors] ${name}: ${surface}.${part}.typography flow:'wrap' must not declare lines`);
+      }
+      if (hasLines && flow !== 'truncate') {
+        throw new Error(`[descriptors] ${name}: ${surface}.${part}.typography declares lines without flow:'truncate'`);
+      }
+      if (flow === 'truncate' && !hasLines) {
+        throw new Error(`[descriptors] ${name}: ${surface}.${part}.typography flow:'truncate' must declare lines`);
+      }
+    }
+  }
+}
+
 // ════════════════════════════════════════════════════════════════════
 // PASSTHROUGH · the AUTHORED descriptor source → build/ (decision 69 · §9 step 1)
 // ════════════════════════════════════════════════════════════════════
