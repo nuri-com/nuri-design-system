@@ -8,26 +8,31 @@
  *
  * Mechanics: clone the DS repo at the tag (shallow) into a temp dir,
  * run THAT CHECKOUT'S scripts/export-rn.mjs (exporter and code version
- * together), replace ds/nuri/ wholesale, stamp the tag into
- * ds/nuri/MANIFEST.json, then gate on this app's own `tsc --noEmit`.
+ * together) into a staging dir NEXT TO ds/nuri (same volume · atomic
+ * rename), stamp the pin into MANIFEST.json, swap it in with the old
+ * copy kept as a backup, then gate on this app's own `tsc --noEmit`.
+ * Any failure — export, stamp, or gate — restores the previous
+ * vendored copy; the app is never left without a working DS.
  * ds/nuri/ is generated — never hand-edit it; re-pull instead.
  * ────────────────────────────────────────────────────────────── */
 
-import { execSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const DS_GIT = 'git@github.com:nuri-com/nuri-design-system.git';
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const vendorDir = join(appRoot, 'ds/nuri');
+const vendorParent = join(appRoot, 'ds');
+const vendorDir = join(vendorParent, 'nuri');
 
 const args = process.argv.slice(2);
-const run = (cmd, cwd) => execSync(cmd, { cwd, stdio: ['ignore', 'inherit', 'inherit'] });
+const run = (cmd, cmdArgs, cwd) =>
+  execFileSync(cmd, cmdArgs, { cwd, stdio: ['ignore', 'inherit', 'inherit'] });
 
 let checkout;
-let cleanup = () => {};
+let cleanupClone = () => {};
 let ref;
 
 if (args[0] === '--local') {
@@ -39,29 +44,61 @@ if (args[0] === '--local') {
   }
 } else if (args[0]) {
   ref = args[0];
+  if (!/^[\w./-]+$/.test(ref) || ref.startsWith('-')) {
+    console.error(`refusing suspicious ref: ${ref}`);
+    process.exit(1);
+  }
   const tmp = mkdtempSync(join(tmpdir(), 'nuri-ds-'));
-  cleanup = () => rmSync(tmp, { recursive: true, force: true });
+  cleanupClone = () => rmSync(tmp, { recursive: true, force: true });
   console.log(`cloning ${DS_GIT} @ ${ref} …`);
-  run(`git clone --depth 1 --branch ${ref} ${DS_GIT} ${tmp}/ds`);
+  run('git', ['clone', '--depth', '1', '--branch', ref, DS_GIT, join(tmp, 'ds')]);
   checkout = join(tmp, 'ds');
 } else {
   console.error('usage: node tools/ds-pull.mjs <tag> | --local <path-to-ds-checkout>');
   process.exit(1);
 }
 
-try {
-  rmSync(vendorDir, { recursive: true, force: true });
-  run(`node scripts/export-rn.mjs ${vendorDir}`, checkout);
+// Staging + backup live NEXT TO the vendor dir: same volume, so the
+// swap is two atomic renames, and a failed pull can always restore.
+mkdirSync(vendorParent, { recursive: true });
+const staging = mkdtempSync(join(vendorParent, '.stage-'));
+const stagedOut = join(staging, 'nuri');
+const backupDir = join(vendorParent, `.backup-${basename(staging)}`);
+let swapped = false;
 
-  // Stamp the pin into the exporter's manifest.
-  const manifestPath = join(vendorDir, 'MANIFEST.json');
+try {
+  run('node', ['scripts/export-rn.mjs', stagedOut], checkout);
+
+  // Stamp the pin into the exporter's manifest while still staged.
+  const manifestPath = join(stagedOut, 'MANIFEST.json');
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
   writeFileSync(manifestPath, JSON.stringify({ ref, ...manifest }, null, 2) + '\n');
 
+  // Swap: old copy → backup, staged copy → live.
+  if (existsSync(vendorDir)) renameSync(vendorDir, backupDir);
+  swapped = true;
+  renameSync(stagedOut, vendorDir);
+
   console.log(`vendored ${manifest.files} files @ ${ref} (${String(manifest.commit).slice(0, 7)}) → ds/nuri`);
   console.log('gate: tsc --noEmit …');
-  run('npx tsc --noEmit', appRoot);
+  run('npx', ['tsc', '--noEmit'], appRoot);
+
+  rmSync(backupDir, { recursive: true, force: true });
   console.log('OK — vendored DS typechecks on this app’s TS/config.');
+} catch (err) {
+  if (swapped) {
+    rmSync(vendorDir, { recursive: true, force: true });
+    if (existsSync(backupDir)) {
+      renameSync(backupDir, vendorDir);
+      console.error('pull failed — previous vendored copy restored.');
+    } else {
+      console.error('pull failed — no previous vendored copy existed; ds/nuri removed.');
+    }
+  } else {
+    console.error('pull failed before touching ds/nuri — nothing changed.');
+  }
+  throw err;
 } finally {
-  cleanup();
+  rmSync(staging, { recursive: true, force: true });
+  cleanupClone();
 }
