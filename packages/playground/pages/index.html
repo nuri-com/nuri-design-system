@@ -3,51 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
   <title>Nuri · Playground</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
-
-  <!-- The playground is a FIXED light + cream surface (decision 57): it has no
-       theme/neutral toggle of its own. Pin the chrome here on first paint so the
-       cascade matches before stylesheets (mirrors button.html). A5 dropped the
-       shared-docs localStorage hydration: lib/docs/state.js moved to @nuri/doc
-       at A4, and a build-free standalone bench owns no doc-site dependency (the
-       DAG stays playground → prototype → spec · decision 68). -->
-  <script>
-    document.documentElement.dataset.theme = 'light';
-    document.documentElement.dataset.neutral = 'cream';
-  </script>
-
-  <!-- The playground is a SEPARATE area from the DS docs (decision 57). It
-       reuses the token cake + the base body reset (styles/shell.css), but
-       its chrome is the playground shell, NOT <nuri-shell>. -->
-  <link rel="stylesheet" href="../../prototype/generated/styles/tokens-primitive.css" />
-  <link rel="stylesheet" href="../../prototype/generated/styles/tokens-semantic.css" />
-  <link rel="stylesheet" href="../../prototype/generated/styles/shell.css" />
-  <!-- Components used by the playground topbar (DS <nuri-topbar center>). -->
-  <link rel="stylesheet" href="../../prototype/primitives/icon.css" />
-  <link rel="stylesheet" href="../../prototype/generated/styles/typography.css" />
-  <link rel="stylesheet" href="../../prototype/styles/typography.css" />
-  <link rel="stylesheet" href="../../prototype/styles/stack.css" />
-  <link rel="stylesheet" href="../../prototype/styles/box.css" />
-  <link rel="stylesheet" href="../../prototype/styles/palette.css" />
-  <link rel="stylesheet" href="../../prototype/styles/interactive.css" />
-  <link rel="stylesheet" href="../../prototype/factory/reset.css" />
-  <link rel="stylesheet" href="../lib/shell.css" />
-
-  <!-- Shell first (mirrors the DS order), then the topbar's components. -->
-  <script src="../lib/shell.js" defer></script>
-  <script src="../../prototype/primitives/icon.js" type="module"></script>
-  <script src="../../prototype/recipes/button.js" type="module"></script>
-  <script src="../../prototype/primitives/typography.js" defer></script>
-  <script src="../../prototype/recipes/topbar.js" type="module"></script>
-
+  <link rel="stylesheet" href="../generated/playground.css" />
+  <script src="../generated/boot.js" type="module"></script>
   <style>
     /* This bench is self-contained — hide the shell's DS cross-link (page-local ·
        the shell stays untouched). */

@@ -24,12 +24,12 @@
  * ────────────────────────────────────────────────────────────── */
 
 (() => {
-  const SCRIPT = document.currentScript;
+  const SCRIPT_URL = new URL(import.meta.url);
   // shell.js lives at packages/playground/lib/shell.js. One level up → the
   // playground package root (its pages live under pages/); three levels up →
   // the repo root (the DS entry · the A5 carve relocated this from spec).
-  const PKG = new URL('../', SCRIPT.src).href;
-  const REPO_ROOT = new URL('../../../', SCRIPT.src).href;
+  const PKG = new URL('../', SCRIPT_URL).href;
+  const REPO_ROOT = new URL('../../../', SCRIPT_URL).href;
 
   const INDEX_HREF = `${PKG}pages/index.html`;
   // The design-system entry — the repo root redirects to the canonical

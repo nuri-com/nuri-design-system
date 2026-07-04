@@ -3,60 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
   <title>Nuri · Playground · Icon Avatar</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
-
-  <!--
-    ═══════════════════════════════════════════════════════════════
-    PLAYGROUND · DOCUMENT · ICON AVATAR
-    ═══════════════════════════════════════════════════════════════
-    Static decorative icon badges across the IconAvatar variant surface. This is
-    the catalogue bench for the home/list leading affordance, including the
-    outline variant.
-  -->
-
-  <script>
-    document.documentElement.dataset.theme = 'light';
-    document.documentElement.dataset.neutral = 'cream';
-    document.documentElement.dataset.accent = 'neutral';
-  </script>
-
-  <!-- Token cake + base reset + type scale. -->
-  <link rel="stylesheet" href="../../../prototype/generated/styles/tokens-primitive.css" />
-  <link rel="stylesheet" href="../../../prototype/generated/styles/tokens-semantic.css" />
-  <link rel="stylesheet" href="../../../prototype/generated/styles/shell.css" />
-  <link rel="stylesheet" href="../../../prototype/generated/styles/typography.css" />
-
-  <!-- Active components — IconAvatar's recipe primitives + the shared demo layer. -->
-  <link rel="stylesheet" href="../../../prototype/primitives/icon.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/typography.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/stack.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/box.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/palette.css" />
-  <link rel="stylesheet" href="../../../prototype/factory/reset.css" />
-  <link rel="stylesheet" href="../../../prototype/demo/control.css" />
-  <link rel="stylesheet" href="../../../prototype/demo/demo.css" />
-  <link rel="stylesheet" href="../../lib/shell.css" />
-
-  <script src="../../../prototype/demo/available.js" type="module"></script>
-  <script src="../../lib/shell.js" defer></script>
-
-  <script src="../../../prototype/demo/control.js" defer></script>
-  <script src="../../../prototype/primitives/scope.js" defer></script>
-  <script src="../../../prototype/primitives/icon.js" type="module"></script>
-  <script src="../../../prototype/primitives/typography.js" defer></script>
-  <script src="../../../prototype/primitives/stack.js" defer></script>
-  <script src="../../../prototype/recipes/topbar.js" type="module"></script>
-  <script src="../../../prototype/recipes/icon-avatar.js" type="module"></script>
-  <script src="../../../prototype/demo/demo.js" defer></script>
-
+  <link rel="stylesheet" href="../../generated/playground.css" />
+  <script src="../../generated/boot.js" type="module"></script>
   <style>
     .nuri-pg__scroll { gap: 0; }
     [data-pg-nav="ds"] { display: none; }

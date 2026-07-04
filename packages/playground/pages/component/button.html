@@ -3,85 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Dev cache busting · see README.md "Dev cache caveat" for rationale. -->
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
   <title>Nuri · Playground · Button</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&family=Google+Sans+Text:wght@400;500;700&display=swap" rel="stylesheet" />
-
-  <!--
-    ═══════════════════════════════════════════════════════════════
-    PLAYGROUND · DOCUMENT · BUTTONS (the legacy my-vault structure · decision 57)
-    ═══════════════════════════════════════════════════════════════
-    A playground DOCUMENT — the <nuri-playground-shell doc> + a board row of
-    <nuri-demo layout="board" controls="device,theme,accent"> panels. Each
-    panel renders its <template> markup LIVE inside a phone device frame AND
-    shows that markup as source (one source, two views · can't drift), with a
-    per-demo theme + accent toolbar (NO neutral · the playground's slice).
-
-    Composed from the ACTIVE set only — the descriptor recipes + the shared
-    @nuri/prototype demo layer (demo.js · control.js · the spec-derived accent
-    registry via available.js). ZERO import from @nuri/doc: the harness control
-    was relocated to prototype/demo, so the DAG stays playground → prototype →
-    spec (decision 68). The rendered Button is the FINALIZED one — pill radius
-    on every size, lg at 54px, the sm label at 14.5px.
-    ═══════════════════════════════════════════════════════════════
-  -->
-
-  <!-- The playground is a FIXED light + cream surface (decision 57): no page-level
-       toggle — each <nuri-demo> scopes its OWN theme/accent locally. Pin the chrome
-       before stylesheets so the cascade matches on first paint. -->
-  <script>
-    document.documentElement.dataset.theme = 'light';
-    document.documentElement.dataset.neutral = 'cream';
-    document.documentElement.dataset.accent = 'neutral';
-  </script>
-
-  <!-- Token cake + base reset + type scale (the foundation · the web projection's generated output). -->
-  <link rel="stylesheet" href="../../../prototype/generated/styles/tokens-primitive.css" />
-  <link rel="stylesheet" href="../../../prototype/generated/styles/tokens-semantic.css" />
-  <link rel="stylesheet" href="../../../prototype/generated/styles/shell.css" />
-  <link rel="stylesheet" href="../../../prototype/generated/styles/typography.css" />
-
-  <!-- Active components — the descriptor recipes' primitives + the shared demo layer
-       (control toolbar styling + the <nuri-demo> card / device frame). -->
-  <link rel="stylesheet" href="../../../prototype/primitives/icon.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/typography.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/stack.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/box.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/palette.css" />
-  <link rel="stylesheet" href="../../../prototype/styles/interactive.css" />
-  <link rel="stylesheet" href="../../../prototype/factory/reset.css" />
-  <link rel="stylesheet" href="../../../prototype/demo/control.css" />
-  <link rel="stylesheet" href="../../../prototype/demo/demo.css" />
-  <!-- The playground area shell (topbar + the board scroll container). -->
-  <link rel="stylesheet" href="../../lib/shell.css" />
-
-  <!-- The standalone playground's NuriState seed (theme + spec-derived accent · no
-       neutral · no localStorage) — a MODULE, loaded before demo.js reads it. -->
-  <script src="../../../prototype/demo/available.js" type="module"></script>
-
-  <!-- Shell first (mirrors the DS order): it reparents the authored <nuri-demo>
-       panels into its built <main>, so it must run before the demos compose. -->
-  <script src="../../lib/shell.js" defer></script>
-
-  <!-- Custom element scripts MUST be deferred so connectedCallback fires AFTER body
-       parsing (children present). NuriControl (the toolbar) + <nuri-scope> precede
-       demo.js (which depends on both). The recipe modules self-import the factory +
-       their primitive element defs (idempotent · decision 74). -->
-  <script src="../../../prototype/demo/control.js" defer></script>
-  <script src="../../../prototype/primitives/scope.js" defer></script>
-  <script src="../../../prototype/primitives/icon.js" type="module"></script>
-  <script src="../../../prototype/primitives/typography.js" defer></script>
-  <script src="../../../prototype/primitives/stack.js" defer></script>
-  <script src="../../../prototype/recipes/button.js" type="module"></script>
-  <script src="../../../prototype/recipes/topbar.js" type="module"></script>
-  <script src="../../../prototype/demo/demo.js" defer></script>
-
+  <link rel="stylesheet" href="../../generated/playground.css" />
+  <script src="../../generated/boot.js" type="module"></script>
   <style>
     /* Page-local CHROME tweaks ONLY (the board row · the topbar) — NOT the
        device frame's content layout, which must stay RN-faithful (a screen
