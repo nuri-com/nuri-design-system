@@ -35,6 +35,15 @@ aux_links:
   Nuri on GitHub:
     - https://github.com/nuri-com/nuri-design-system
 
+# The playground is a standalone static app staged into the site (stage.mjs →
+# assets/playground/). Link the full page directly from the main nav rather than
+# wrapping it in a doc layout. NOTE: just-the-docs prepends the site baseurl to
+# nav_external_links URLs, so this is a bare root-relative path (baseurl-portable).
+nav_external_links:
+  - title: Playground
+    url: /assets/playground/pages/index.html
+    hide_icon: false
+
 # Nest the GENERATED pages under their nav section WITHOUT editing them (the doc-gen
 # emits them byte-identical · the nav is a Jekyll-time concern). just-the-docs matches
 # a child's `parent` to a page's `title` (components.md · title: Components · axes.md ·
