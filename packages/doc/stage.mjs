@@ -11,6 +11,9 @@
  * web projection (the token CSS + the descriptor twins the recipes import + the icon
  * registry · N+62 · decision 80 · all formerly @nuri/spec's) — plus @nuri/doc's own
  * harness (state · control). @nuri/spec is PURE DATA now (no runtime assets to stage).
+ * It also stages @nuri/playground into assets/playground/ so GitHub Pages has ONE
+ * deployer: the docs site. The playground's generated boot module still imports
+ * ../lib and ../../prototype, so those relative neighbors are staged too.
  *
  * It copies whole package DIRECTORIES, PRESERVING the cross-package ES-module import
  * graph: a staged prototype/recipes/<n>.js imports `../factory`, `../primitives`, AND
@@ -29,11 +32,13 @@ import { fileURLToPath } from 'node:url';
 const DOC = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(DOC, '..', '..');
 const PROTOTYPE = resolve(REPO_ROOT, 'packages/prototype');
+const PLAYGROUND = resolve(REPO_ROOT, 'packages/playground');
 
 // Whole-directory copies (src → dst under @nuri/doc). The dst layout mirrors the
-// package layout so the recipes' relative imports (../factory · ../primitives ·
-// ../generated/descriptors · ../generated/icons.js) resolve
-// inside assets/nuri/. The staged dir is gitignored (.gitignore: /assets/nuri/).
+// package layout so relative imports resolve in the staged site. assets/nuri/
+// is the docs demo runtime; assets/playground/ is the playground's public
+// subpath; assets/prototype/ is the relative ../../prototype neighbor that
+// packages/playground/generated/boot.js imports.
 const DIRS = [
   // @nuri/prototype — the web mechanism + nuri-demo + the GENERATED web projection
   // (N+62 · decision 80): the token CSS, the descriptor twins the recipes import, and
@@ -48,10 +53,26 @@ const DIRS = [
   [resolve(PROTOTYPE, 'demo'), 'assets/nuri/prototype/demo'],
   // @nuri/doc — the harness (state seeds the scope · control defines NuriControl).
   [resolve(DOC, 'harness'), 'assets/nuri/docs'],
+
+  // @nuri/playground — keep pages/ and generated/ as siblings so their relative
+  // ../generated and ../../generated links survive. lib/ is required by boot.js.
+  [resolve(PLAYGROUND, 'pages'), 'assets/playground/pages'],
+  [resolve(PLAYGROUND, 'generated'), 'assets/playground/generated'],
+  [resolve(PLAYGROUND, 'lib'), 'assets/playground/lib'],
+
+  // Relative neighbor for the playground boot module's ../../prototype imports.
+  [resolve(PROTOTYPE, 'factory'), 'assets/prototype/factory'],
+  [resolve(PROTOTYPE, 'primitives'), 'assets/prototype/primitives'],
+  [resolve(PROTOTYPE, 'recipes'), 'assets/prototype/recipes'],
+  [resolve(PROTOTYPE, 'styles'), 'assets/prototype/styles'],
+  [resolve(PROTOTYPE, 'generated'), 'assets/prototype/generated'],
+  [resolve(PROTOTYPE, 'demo'), 'assets/prototype/demo'],
 ];
 
-// Clean the staged dir so a renamed/removed source asset doesn't linger.
-rmSync(resolve(DOC, 'assets/nuri'), { recursive: true, force: true });
+// Clean the staged dirs so a renamed/removed source asset doesn't linger.
+for (const stagedRoot of ['assets/nuri', 'assets/playground', 'assets/prototype']) {
+  rmSync(resolve(DOC, stagedRoot), { recursive: true, force: true });
+}
 for (const [from, dst] of DIRS) {
   const to = resolve(DOC, dst);
   mkdirSync(dirname(to), { recursive: true });
@@ -59,6 +80,6 @@ for (const [from, dst] of DIRS) {
 }
 
 console.log(
-  `[stage] copied ${DIRS.length} runtime asset trees → assets/nuri/ ` +
-    `(@nuri/prototype factory·primitives·recipes·styles·demo · @nuri/spec styles·descriptors·icon · @nuri/doc harness)`,
+  `[stage] copied ${DIRS.length} runtime asset trees → assets/nuri/ + assets/playground/ + assets/prototype/ ` +
+    `(@nuri/prototype · @nuri/playground · @nuri/doc harness)`,
 );
