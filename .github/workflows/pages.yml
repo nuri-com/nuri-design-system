@@ -12,6 +12,10 @@ name: pages
 # OPERATOR PREREQ: Settings → Pages → Source = "GitHub Actions" (this repo
 # currently serves the legacy .nojekyll site from the root; flipping to Actions
 # mode hands deployment to this workflow). Until then this workflow is inert.
+#
+# VISIBILITY CAVEAT: GitHub Pages sites from private repositories are publicly
+# accessible unless the organization is on GitHub Enterprise with private Pages
+# enabled. The playground is staged into this public docs deploy.
 on:
   push:
     branches: [main]

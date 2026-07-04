@@ -3,6 +3,8 @@
 # drift). Regenerate with `node stage.mjs`. (The generated Markdown under
 # generated/ is COMMITTED source — the doc-gen output · gated by Guard G — NOT here.)
 /assets/nuri/
+/assets/playground/
+/assets/prototype/
 
 # Jekyll build artefacts + local bundler state.
 /_site/
