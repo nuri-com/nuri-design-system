@@ -57,7 +57,7 @@ import assert from 'node:assert/strict';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { emitComponentFile, HOST_ELS } from './parsers/components-api.js';
+import { emitComponentFile, HOST_ELS, validateComponentReferences } from './parsers/components-api.js';
 import { DESCRIPTOR_COMPONENTS, exportNameFor } from './parsers/descriptors.js';
 import { loadTsDataFromPath } from './ts-data-loader.js';
 
@@ -249,6 +249,10 @@ test('component-api · every slot kind is legal and matches its part element', (
       assert.ok(KINDS.includes(spec.kind), `${name}: slot '${slot}' has illegal kind '${spec.kind}' (${KINDS.join(', ')})`);
       const node = index.get(spec.part);
       if (!node) continue; // part-existence is Channel 1's failure to report
+      if (node.component) {
+        assert.equal(spec.component, true, `${name}: slot '${slot}' targets component-ref part '${spec.part}' but is not a generated component slot`);
+        continue;
+      }
       assert.ok(
         KIND_ELS[spec.kind].includes(node.el),
         `${name}: slot '${slot}' is kind '${spec.kind}' but its part '${spec.part}' is el '${node.el}' — expected el ${KIND_ELS[spec.kind].map((e) => `'${e}'`).join(' | ')}`,
@@ -321,6 +325,10 @@ test('component-api · behaviour.pressable, el:pressable anatomy, and interactiv
       );
     }
   }
+});
+
+test('component-api · component references are known, acyclic, and map legal compatible props', () => {
+  assert.doesNotThrow(() => validateComponentReferences(CATALOG));
 });
 
 // ── Channel 2b · pressable.props exist, are an array, and are all legal ──

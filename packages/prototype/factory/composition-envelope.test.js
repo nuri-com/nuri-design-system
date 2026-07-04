@@ -70,6 +70,10 @@ const envelopeDescriptor = (rootEl) => ({
       parts: {
         leaf: { el: 'text' },
         badge: { el: 'icon' },
+        delegate: {
+          component: 'env-target',
+          props: { children: '$slot.children', disabled: '$slot.disabled' },
+        },
         panel: { el: 'view', parts: { label: { el: 'text' }, note: { el: 'text' } } },
       },
     },
@@ -91,6 +95,7 @@ const envelopeDescriptor = (rootEl) => ({
     slots: {
       leaf: { part: 'leaf', kind: 'text', component: true, multiple: true },
       badge: { part: 'badge', kind: 'icon-name', component: true },
+      action: { part: 'delegate', kind: 'children', component: true },
       panel: { part: 'panel', kind: 'region' },
       label: { part: 'label', kind: 'text', component: true, multiple: true },
       note: { part: 'note', kind: 'text', component: true },
@@ -98,8 +103,50 @@ const envelopeDescriptor = (rootEl) => ({
   },
 });
 
+const fixedOnlyDescriptor = (rootEl) => ({
+  structure: {
+    anatomy: {
+      el: rootEl,
+      parts: {
+        fixed: {
+          component: 'env-target',
+          props: { children: 'Fixed', disabled: true },
+        },
+      },
+    },
+    base: {
+      root: {
+        ...(rootEl === 'pressable' ? { interactive: { pressColor: true } } : {}),
+      },
+    },
+  },
+  api: {
+    axes: [],
+    themeScope: { accent: true },
+    ...(rootEl === 'pressable' ? { behaviour: { pressable: { target: 'root', props: ['onPress'] } } } : {}),
+    slots: {},
+  },
+});
+
+defineNuriComponent(
+  {
+    structure: {
+      anatomy: { el: 'pressable', parts: { label: { el: 'text' } } },
+      base: { root: { interactive: { disabledOpacity: true } }, label: { typography: { size: 'md' } } },
+    },
+    api: {
+      axes: [],
+      themeScope: { accent: true },
+      behaviour: { pressable: { target: 'root', props: ['disabled'] } },
+      slots: { default: { part: 'label', kind: 'text', default: true } },
+    },
+  },
+  'nuri-env-target',
+);
 defineNuriComponent(envelopeDescriptor('view'), 'nuri-env-view');
 defineNuriComponent(envelopeDescriptor('pressable'), 'nuri-env-press');
+defineNuriComponent(fixedOnlyDescriptor('view'), 'nuri-env-fixed-view');
+defineNuriComponent(fixedOnlyDescriptor('pressable'), 'nuri-env-fixed-press');
 // The FOREIGN component whose registered marker crosses into the envelope
 // hosts (its `label` PART NAME collides with the envelope's on purpose — the
 // tag/owner scoping, not part-name luck, must reject it).
@@ -133,6 +180,30 @@ for (const root of ROOTS) {
     const painted = root.painted(el);
     assert.ok(painted, 'the root painting node mounts');
     assert.deepEqual(leafSequence(painted), ['text:Alpha', 'icon:apple']);
+  });
+
+  test(`envelope · ${root.name} · component-ref slot delegates with mapped slot props`, async () => {
+    const el = dom.window.document.createElement(root.tag);
+    el.innerHTML = `<${root.tag}-action disabled>Forwarded</${root.tag}-action>`;
+    mount(el);
+    await tick();
+    const target = el.querySelector('nuri-env-target');
+    assert.ok(target, 'the component-ref renders the registered target element');
+    assert.equal(target.getAttribute('disabled'), '', 'disabled maps from the slot marker to the delegated component');
+    assert.equal(target.querySelector('button.nuri-interactive')?.hasAttribute('disabled'), true, 'the delegated component consumes the mapped prop');
+    assert.equal(target.querySelector('nuri-typography')?.textContent, 'Forwarded');
+  });
+
+  test(`envelope · ${root.name} · fixed-only component-ref renders without slot content`, async () => {
+    const tag = root.tag === 'nuri-env-press' ? 'nuri-env-fixed-press' : 'nuri-env-fixed-view';
+    const el = dom.window.document.createElement(tag);
+    mount(el);
+    await tick();
+    const target = el.querySelector('nuri-env-target');
+    assert.ok(target, 'the fixed-only component-ref renders the registered target element');
+    assert.equal(target.getAttribute('disabled'), '', 'fixed props map to the delegated component');
+    assert.equal(target.querySelector('button.nuri-interactive')?.hasAttribute('disabled'), true, 'the delegated component consumes the fixed prop');
+    assert.equal(target.querySelector('nuri-typography')?.textContent, 'Fixed');
   });
 
   test(`envelope · ${root.name} · depth-2 typed slot routes through its ancestor region`, async () => {

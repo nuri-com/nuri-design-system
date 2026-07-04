@@ -19,6 +19,7 @@ import { recipes } from '../data/recipes';
 import { NuriScope } from '../../theme';
 import type { Accent } from '../data/tokens';
 import type { IconName } from '../data/icons';
+import { IconAvatar } from './icon-avatar';
 
 export type ListActionProps = {
   variant?: 'outline' | 'solid' | 'soft' | 'ghost' | 'subtle';
@@ -29,16 +30,19 @@ export type ListActionProps = {
   children?: React.ReactNode;
 };
 
-type ListActionPart = 'root' | 'leadingAvatar' | 'leadingIcon' | 'content' | 'text' | 'textMuted' | 'trailing' | 'trailingText' | 'trailingTextMuted' | 'trailIcon';
+type ListActionPart = 'root' | 'leadingAvatar' | 'content' | 'text' | 'textMuted' | 'trailing' | 'trailingText' | 'trailingTextMuted' | 'trailIcon';
 
 const listActionDisplayName = nuriNames('list-action').rn;
+const componentRegistry = {
+  "icon-avatar": IconAvatar as React.ComponentType<Record<string, unknown>>,
+};
 export const ListActionContent = createNuriSlot("content", `${listActionDisplayName}Content`, 'children', listActionDisplayName);
 export const ListActionTrailing = createNuriSlot("trailing", `${listActionDisplayName}Trailing`, 'children', listActionDisplayName);
 export type ListActionLeadingAvatarProps = {
   name: IconName;
   children?: never;
 };
-export const ListActionLeadingAvatar = createNuriSlot<ListActionLeadingAvatarProps>("leadingIcon", `${listActionDisplayName}LeadingAvatar`, 'name', listActionDisplayName);
+export const ListActionLeadingAvatar = createNuriSlot<ListActionLeadingAvatarProps>("leadingAvatar", `${listActionDisplayName}LeadingAvatar`, 'name', listActionDisplayName);
 export type ListActionTextProps = {
   children?: React.ReactNode;
 };
@@ -86,6 +90,7 @@ const ListActionInner: React.FC<ListActionProps> = (props) => {
     selection,
     content,
     composition,
+    components: componentRegistry,
     behaviour,
   });
 };

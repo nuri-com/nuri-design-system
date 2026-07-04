@@ -19,6 +19,7 @@ import { recipes } from '../data/recipes';
 import { NuriScope } from '../../theme';
 import type { Accent } from '../data/tokens';
 import type { IconName } from '../data/icons';
+import { Button } from './button';
 
 export type AlertProps = {
   variant?: 'soft' | 'ghost';
@@ -26,14 +27,24 @@ export type AlertProps = {
   children?: React.ReactNode;
 };
 
-type AlertPart = 'root' | 'icon' | 'message';
+type AlertPart = 'root' | 'icon' | 'message' | 'action';
 
 const alertDisplayName = nuriNames('alert').rn;
+const componentRegistry = {
+  "button": Button as React.ComponentType<Record<string, unknown>>,
+};
 export type AlertIconProps = {
   name: IconName;
   children?: never;
 };
 export const AlertIcon = createNuriSlot<AlertIconProps>("icon", `${alertDisplayName}Icon`, 'name', alertDisplayName);
+export type AlertButtonProps = {
+  children?: React.ReactNode;
+  disabled?: boolean;
+  onPress?: () => void;
+  accessibilityLabel?: string;
+};
+export const AlertButton = createNuriSlot<AlertButtonProps>("action", `${alertDisplayName}Button`, 'children', alertDisplayName);
 
 const AlertInner: React.FC<AlertProps> = (props) => {
   const selection: Record<string, string> = {
@@ -55,6 +66,7 @@ const AlertInner: React.FC<AlertProps> = (props) => {
     selection,
     content,
     composition,
+    components: componentRegistry,
     behaviour,
   });
 };

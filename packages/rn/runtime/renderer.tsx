@@ -35,7 +35,11 @@ export type NuriSlot<P extends object = { children?: React.ReactNode }, PId exte
   __nuriSlotOwner?: string;
 };
 
-export type NuriCompositionEntry<PId extends PartId = PartId> = { part: PId; content: React.ReactNode };
+export type NuriCompositionEntry<PId extends PartId = PartId> = {
+  part: PId;
+  content?: React.ReactNode;
+  props?: Record<string, unknown>;
+};
 
 // part name → its PascalCase token (leading → Leading).
 const pascalPart = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
@@ -110,9 +114,9 @@ export function harvestNuriComposition<PId extends PartId = PartId>(
           throw new Error(`nuri-factory: foreign slot marker '${markerName}' — not a '${owner}' slot`);
         }
         hasSlots = true;
-        const props = child.props as Record<string, React.ReactNode>;
+        const props = child.props as Record<string, unknown>;
         const contentProp = slotType.__nuriSlotContentProp || 'children';
-        items.push({ part: slotType.__nuriSlot, content: props[contentProp] });
+        items.push({ part: slotType.__nuriSlot, content: props[contentProp] as React.ReactNode, props });
         return;
       }
     }
@@ -145,6 +149,7 @@ export type NuriDescriptorInstance<A extends Axes, PId extends PartId = PartId> 
   selection: Selection;
   content: Partial<Record<PId, React.ReactNode>>;
   composition?: Partial<Record<PId, NuriCompositionEntry<PId>[]>>;
+  components?: Record<string, React.ComponentType<Record<string, unknown>>>;
   behaviour: NuriBehaviour<PId>;
 };
 
@@ -155,6 +160,8 @@ type RenderCtx<A extends Axes> = {
   selection: Selection;
   content: Partial<Record<string, React.ReactNode>>;
   composition: Partial<Record<string, NuriCompositionEntry<string>[]>>;
+  slotProps: Partial<Record<string, Record<string, unknown>>>;
+  components: Record<string, React.ComponentType<Record<string, unknown>>>;
   behaviour: NuriBehaviour<string>;
   // STATIC api facts, computed once per instance render: `slotted` = the
   // descriptor declares component slots at all (the render-time nested-harvest
@@ -186,10 +193,37 @@ function renderPart<A extends Axes>(
   inheritedFg: string | undefined,
   isRoot: boolean,
 ): React.ReactElement | null {
+  if (node.component) {
+    const Component = ctx.components[node.component];
+    if (!Component) throw new Error(`nuri-factory: component part '${node.name}' references unregistered component '${node.component}'`);
+    const slotProps = ctx.slotProps[node.name] ?? {};
+    const content = ctx.content[node.name];
+    const slotBound = Object.values(node.props ?? {}).some((value) => typeof value === 'string' && value.startsWith('$slot.'));
+    if (slotBound && content == null && Object.keys(slotProps).length === 0) return null;
+    const mapped: Record<string, unknown> = {};
+    for (const [prop, value] of Object.entries(node.props ?? {})) {
+      if (typeof value === 'string' && value.startsWith('$axis.')) {
+        const axis = value.slice('$axis.'.length);
+        mapped[prop] = ctx.selection[axis];
+      } else if (typeof value === 'string' && value.startsWith('$slot.')) {
+        const slotProp = value.slice('$slot.'.length);
+        mapped[prop] = slotProp === 'children'
+          ? (slotProps.children ?? content)
+          : (slotProps[slotProp] ?? (slotProp === 'name' ? content : undefined));
+      } else {
+        mapped[prop] = value;
+      }
+    }
+    for (const key of Object.keys(mapped)) {
+      if (mapped[key] === undefined) delete mapped[key];
+    }
+    return <Component key={node.name} {...mapped} />;
+  }
+
   // A LEAF part (the schema's totality-pinned host/leaf partition · LEAF_ELS)
   // with no routed content renders nothing. A HOST always renders because it
   // may be a container or region.
-  if (LEAF_ELS.includes(node.el) && ctx.content[node.name] == null) return null;
+  if (node.el && LEAF_ELS.includes(node.el) && ctx.content[node.name] == null) return null;
 
   const recipePart = ctx.recipe[node.name];
   if (!recipePart) throw new Error(`nuri-factory: no baked recipe for part '${node.name}'`);
@@ -273,7 +307,7 @@ function renderPart<A extends Axes>(
         const path = findChildPath(node, entry.part);
         if (!path) throw new Error(`nuri-factory: composition entry targets '${entry.part}', which is not under '${node.name}'`);
         const childNode = path[0];
-        if (path.length > 1 && !LEAF_ELS.includes(childNode.el)) {
+        if (path.length > 1 && childNode.el && !LEAF_ELS.includes(childNode.el)) {
           let group = grouped.get(childNode.name);
           if (!group) {
             group = { child: childNode, entries: [] };
@@ -308,7 +342,11 @@ function renderPart<A extends Axes>(
           : item.kind === 'direct'
             ? renderPart(
               item.child,
-              { ...ctx, content: { ...ctx.content, [item.entry.part]: item.entry.content } },
+              {
+                ...ctx,
+                content: { ...ctx.content, [item.entry.part]: item.entry.content },
+                slotProps: item.entry.props ? { ...ctx.slotProps, [item.entry.part]: item.entry.props } : ctx.slotProps,
+              },
               fg,
               false,
             )
@@ -348,6 +386,8 @@ function renderPart<A extends Axes>(
       kids
     );
   };
+
+  if (!node.el) throw new Error(`nuri-factory: part '${node.name}' declares neither el nor component`);
 
   switch (node.el) {
     case 'view': {
@@ -438,6 +478,7 @@ export function renderDescriptorInstance<A extends Axes, PId extends PartId = Pa
   selection,
   content,
   composition = {},
+  components = {},
   behaviour,
 }: NuriDescriptorInstance<A, PId>): React.ReactElement {
   if (!recipe) throw new Error(`nuri-factory: renderDescriptorInstance('${displayName}') requires a baked recipe`);
@@ -456,6 +497,8 @@ export function renderDescriptorInstance<A extends Axes, PId extends PartId = Pa
       selection,
       content,
       composition,
+      slotProps: {},
+      components,
       behaviour,
       slotted,
       owner: displayName,

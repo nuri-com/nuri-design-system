@@ -62,6 +62,17 @@ export const alertDescriptor: Descriptor<AlertAxes> = {
       parts: {
         icon: { el: 'icon' },
         message: { el: 'text' },
+        action: {
+          component: 'button',
+          props: {
+            variant: 'solid',
+            size: 'sm',
+            children: '$slot.children',
+            disabled: '$slot.disabled',
+            onPress: '$slot.onPress',
+            accessibilityLabel: '$slot.accessibilityLabel',
+          },
+        },
       },
     },
     base: {
@@ -110,6 +121,7 @@ export const alertDescriptor: Descriptor<AlertAxes> = {
     themeScope: { accent: true },
     slots: {
       icon: { part: 'icon', kind: 'icon-name', component: true },
+      button: { part: 'action', kind: 'children', component: true },
       default: { part: 'root', kind: 'children', default: true, multiple: true },
     },
   },

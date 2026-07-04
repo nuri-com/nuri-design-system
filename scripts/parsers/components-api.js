@@ -20,6 +20,7 @@ const lowerFirst = (s) => s.charAt(0).toLowerCase() + s.slice(1);
 const q = (value) => JSON.stringify(value);
 
 const PRESSABLE_TS = { onPress: '() => void', disabled: 'boolean', accessibilityLabel: 'string' };
+const SLOT_PROP_TS = { onPress: '() => void', disabled: 'boolean', accessibilityLabel: 'string' };
 
 // The HOST half of the frozen `El` host/leaf partition — the script-side mirror
 // of schema.ts's totality-pinned HOST_ELS (the parser runs synchronously at emit
@@ -39,6 +40,9 @@ function anatomyParts(anatomy) {
     for (const [part, child] of Object.entries(node.parts)) {
       if (part === 'root') throw new Error("[components-api] 'root' is reserved for the descriptor host and cannot be nested");
       if (seen.has(part)) throw new Error(`[components-api] duplicate descriptor-local part '${part}'`);
+      if (child.component && child.el) throw new Error(`[components-api] part '${part}' declares both component and el`);
+      if (child.component && child.parts) throw new Error(`[components-api] component part '${part}' cannot declare nested parts`);
+      if (!child.component && !child.el) throw new Error(`[components-api] part '${part}' declares neither component nor el`);
       seen.add(part);
       parts.push(part);
       walk(child);
@@ -46,6 +50,107 @@ function anatomyParts(anatomy) {
   };
   walk(anatomy);
   return parts;
+}
+
+function anatomyIndex(anatomy) {
+  const index = new Map([['root', anatomy]]);
+  const walk = (node) => {
+    if (!node?.parts) return;
+    for (const [part, child] of Object.entries(node.parts)) {
+      index.set(part, child);
+      walk(child);
+    }
+  };
+  walk(anatomy);
+  return index;
+}
+
+function componentRefs(descriptor) {
+  const refs = [];
+  const walk = (part, node) => {
+    if (node.component) refs.push({ part, component: node.component, props: node.props || {} });
+    for (const [childPart, child] of Object.entries(node.parts || {})) walk(childPart, child);
+  };
+  walk('root', descriptor.structure.anatomy);
+  return refs;
+}
+
+function componentRefsByPart(descriptor) {
+  return new Map(componentRefs(descriptor).map((ref) => [ref.part, ref]));
+}
+
+function publicPropsForDescriptor(descriptor) {
+  const props = new Set(descriptor.api.axes || []);
+  if (descriptor.api.themeScope?.accent) props.add('accent');
+  for (const prop of descriptor.api.behaviour?.pressable?.props || []) props.add(prop);
+  for (const prop of Object.keys(descriptor.api.propMaps || {})) props.add(prop);
+  for (const [slotName, slot] of Object.entries(descriptor.api.slots || {})) {
+    if (slot.default === true) props.add('children');
+    if (slot.prop) props.add(slot.prop);
+    else if (!slot.component && (slot.kind === 'icon-name' || slot.kind === 'text')) props.add(slotName);
+  }
+  return props;
+}
+
+export function validateComponentReferences(catalog) {
+  const names = new Set(Object.keys(catalog));
+
+  for (const [name, descriptor] of Object.entries(catalog)) {
+    const componentParts = new Set(componentRefs(descriptor).map((ref) => ref.part));
+    for (const [surface, partMap] of [
+      ['structure.base', descriptor.structure?.base || {}],
+      ...Object.entries(descriptor.variants || {}).flatMap(([axis, values]) =>
+        Object.entries(values).map(([value, partMap]) => [`variants.${axis}.${value}`, partMap]),
+      ),
+    ]) {
+      for (const part of Object.keys(partMap || {})) {
+        if (componentParts.has(part)) throw new Error(`[components-api] ${name}: ${surface} styles component-ref part '${part}' — the referenced component owns its contract`);
+      }
+    }
+
+    for (const ref of componentRefs(descriptor)) {
+      const target = catalog[ref.component];
+      if (!target) throw new Error(`[components-api] ${name}: part '${ref.part}' references unknown component '${ref.component}'`);
+      const targetProps = publicPropsForDescriptor(target);
+      for (const [prop, value] of Object.entries(ref.props || {})) {
+        if (!targetProps.has(prop)) {
+          throw new Error(`[components-api] ${name}: component-ref '${ref.part}' maps prop '${prop}', which is not public on '${ref.component}'`);
+        }
+        if (typeof value === 'string' && value.startsWith('$axis.')) {
+          const axis = value.slice('$axis.'.length);
+          const sourceValues = Object.keys(descriptor.variants?.[axis] || {});
+          if (!sourceValues.length) throw new Error(`[components-api] ${name}: component-ref '${ref.part}' binds missing axis '${axis}'`);
+          const targetValues = Object.keys(target.variants?.[prop] || {});
+          if (targetValues.length) {
+            for (const sourceValue of sourceValues) {
+              if (!targetValues.includes(sourceValue)) {
+                throw new Error(`[components-api] ${name}: component-ref '${ref.part}' axis '${axis}' value '${sourceValue}' is not valid for '${ref.component}.${prop}'`);
+              }
+            }
+          }
+        } else if (typeof value === 'string' && !value.startsWith('$slot.') && target.variants?.[prop]) {
+          const targetValues = Object.keys(target.variants[prop] || {});
+          if (!targetValues.includes(value)) {
+            throw new Error(`[components-api] ${name}: component-ref '${ref.part}' fixed '${prop}' value '${value}' is not valid for '${ref.component}'`);
+          }
+        }
+      }
+    }
+  }
+
+  const visiting = new Set();
+  const visited = new Set();
+  const visit = (name, stack = []) => {
+    if (visited.has(name)) return;
+    if (visiting.has(name)) throw new Error(`[components-api] component-ref cycle: ${[...stack, name].join(' -> ')}`);
+    visiting.add(name);
+    for (const ref of componentRefs(catalog[name] || {})) {
+      if (names.has(ref.component)) visit(ref.component, [...stack, name]);
+    }
+    visiting.delete(name);
+    visited.add(name);
+  };
+  for (const name of names) visit(name);
 }
 
 function assertLocalPart(name, partSet, part, surface) {
@@ -94,7 +199,16 @@ async function loadDescriptor(spec, source) {
   return descriptor;
 }
 
-function buildProps(api, variants) {
+function slotPropNamesForComponentRef(ref) {
+  if (!ref) return [];
+  const names = [];
+  for (const value of Object.values(ref.props || {})) {
+    if (typeof value === 'string' && value.startsWith('$slot.')) names.push(value.slice('$slot.'.length));
+  }
+  return [...new Set(names)];
+}
+
+function buildProps(api, variants, descriptor) {
   const lines = [];
   let usesAccent = false;
   let usesIcon = false;
@@ -103,7 +217,6 @@ function buildProps(api, variants) {
   const componentSlots = Object.entries(api.slots)
     .filter(([, s]) => s.component === true)
     .map(([slotName, slot]) => ({ slotName, ...slot }));
-
   for (const axis of api.axes) {
     const values = Object.keys(variants[axis] || {});
     if (!values.length) continue;
@@ -255,7 +368,10 @@ export function emitComponentFile(spec, descriptor) {
   const descId = exportNameFor(name);
   const partTypeName = `${Pascal}Part`;
   const parts = validateDescriptorLocalParts(name, descriptor);
-  const { lines, usesAccent, usesIcon, regionParts, componentSlots } = buildProps(descriptor.api, descriptor.variants || {});
+  const { lines, usesAccent, usesIcon, regionParts, componentSlots } = buildProps(descriptor.api, descriptor.variants || {}, descriptor);
+  const refs = componentRefs(descriptor);
+  const refsByPart = componentRefsByPart(descriptor);
+  const refComponents = [...new Set(refs.map((ref) => ref.component))];
   const hasRegions = regionParts.length > 0;
   const hasComponentSlots = componentSlots.length > 0;
 
@@ -277,6 +393,9 @@ export function emitComponentFile(spec, descriptor) {
     imports.push("import type { Accent } from '../data/tokens';");
   }
   if (usesIcon) imports.push("import type { IconName } from '../data/icons';");
+  for (const component of refComponents) {
+    imports.push(`import { ${pascalCase(component)} } from './${component}';`);
+  }
 
   const displayNameConst = `${local}DisplayName`;
   const innerName = `${Pascal}Inner`;
@@ -289,6 +408,13 @@ export function emitComponentFile(spec, descriptor) {
     '',
     `const ${displayNameConst} = nuriNames('${name}').rn;`,
   ];
+  if (refComponents.length) {
+    body.push('const componentRegistry = {');
+    for (const component of refComponents) {
+      body.push(`  ${q(component)}: ${pascalCase(component)} as React.ComponentType<Record<string, unknown>>,`);
+    }
+    body.push('};');
+  }
 
   if (hasRegions) {
     for (const part of regionParts) {
@@ -298,18 +424,24 @@ export function emitComponentFile(spec, descriptor) {
   if (hasComponentSlots) {
     for (const slot of componentSlots) {
       const slotPascal = pascalPart(slot.slotName);
+      const slotPropNames = slotPropNamesForComponentRef(refsByPart.get(slot.part));
       if (slot.kind === 'icon-name') {
+        const nameRequired = slotPropNames.includes('name') || slot.kind === 'icon-name';
         body.push(
           `export type ${Pascal}${slotPascal}Props = {`,
-          '  name: IconName;',
+          `  name${nameRequired ? '' : '?'}: IconName;`,
           '  children?: never;',
           '};',
           `export const ${Pascal}${slotPascal} = createNuriSlot<${Pascal}${slotPascal}Props>(${q(slot.part)}, \`${'${'}${displayNameConst}}${slotPascal}\`, 'name', ${displayNameConst});`,
         );
       } else {
+        const propLines = ['  children?: React.ReactNode;'];
+        for (const prop of slotPropNames.filter((p) => p !== 'children')) {
+          propLines.push(`  ${prop}?: ${SLOT_PROP_TS[prop] || 'unknown'};`);
+        }
         body.push(
           `export type ${Pascal}${slotPascal}Props = {`,
-          '  children?: React.ReactNode;',
+          ...propLines,
           '};',
           `export const ${Pascal}${slotPascal} = createNuriSlot<${Pascal}${slotPascal}Props>(${q(slot.part)}, \`${'${'}${displayNameConst}}${slotPascal}\`, 'children', ${displayNameConst});`,
         );
@@ -331,6 +463,7 @@ export function emitComponentFile(spec, descriptor) {
     '    selection,',
     '    content,',
     ...(hasComponentSlots ? ['    composition,'] : []),
+    ...(refComponents.length ? ['    components: componentRegistry,'] : []),
     '    behaviour,',
     '  });',
     '};',
@@ -375,9 +508,15 @@ function emitIndex(entries) {
 export async function emitComponentApi({ descriptorComponents, descriptorsDir }) {
   const files = [];
   const indexEntries = [];
+  const loaded = [];
   for (const spec of descriptorComponents) {
     const source = await readFile(`${descriptorsDir}/${spec.name}.ts`, 'utf8');
     const descriptor = await loadDescriptor(spec, source);
+    loaded.push({ spec, descriptor });
+  }
+  validateComponentReferences(Object.fromEntries(loaded.map(({ spec, descriptor }) => [spec.name, descriptor])));
+
+  for (const { spec, descriptor } of loaded) {
     files.push({ filename: `${spec.name}.ts`, source: emitComponentFile(spec, descriptor) });
     const Pascal = pascalCase(spec.name);
     const regionSubs = Object.values(descriptor.api.slots)

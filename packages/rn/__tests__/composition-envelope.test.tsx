@@ -59,6 +59,10 @@ const envelopeDescriptor = (rootEl: 'view' | 'pressable'): Descriptor<Axes> => (
       parts: {
         leaf: { el: 'text' },
         badge: { el: 'icon' },
+        delegate: {
+          component: 'env-target',
+          props: { children: '$slot.children', disabled: '$slot.disabled' },
+        },
         panel: { el: 'view', parts: { label: { el: 'text' }, note: { el: 'text' } } },
       },
     },
@@ -80,6 +84,7 @@ const envelopeDescriptor = (rootEl: 'view' | 'pressable'): Descriptor<Axes> => (
     slots: {
       leaf: { part: 'leaf', kind: 'text', component: true, multiple: true },
       badge: { part: 'badge', kind: 'icon-name', component: true },
+      action: { part: 'delegate', kind: 'children', component: true },
       panel: { part: 'panel', kind: 'region' },
       label: { part: 'label', kind: 'text', component: true, multiple: true },
       note: { part: 'note', kind: 'text', component: true },
@@ -100,6 +105,39 @@ const envelopeRecipe = (rootEl: 'view' | 'pressable'): BakedComponentRecipe => (
   note: { el: 'text', geometry: { base: {}, variants: {} }, typography: { base: { size: 'sm' } } },
 });
 
+const fixedOnlyDescriptor = (rootEl: 'view' | 'pressable'): Descriptor<Axes> => ({
+  structure: {
+    anatomy: {
+      el: rootEl,
+      parts: {
+        fixed: {
+          component: 'env-target',
+          props: { children: 'Fixed', disabled: true },
+        },
+      },
+    },
+    base: {
+      root: {
+        ...(rootEl === 'pressable' ? { interactive: { pressColor: true } } : {}),
+      },
+    },
+  },
+  api: {
+    axes: [],
+    themeScope: { accent: true },
+    ...(rootEl === 'pressable' ? { behaviour: { pressable: { target: 'root', props: ['onPress'] as ('onPress')[] } } } : {}),
+    slots: {},
+  },
+});
+
+const fixedOnlyRecipe = (rootEl: 'view' | 'pressable'): BakedComponentRecipe => ({
+  root: {
+    el: rootEl,
+    geometry: { base: {}, variants: {} },
+    ...(rootEl === 'pressable' ? { interactive: { base: { pressColor: true } } } : {}),
+  },
+});
+
 // One envelope "component" per root — the generated-adapter shape exactly:
 // owner-carrying markers + the owner-scoped root harvest → composition.root.
 function makeEnvelope(rootEl: 'view' | 'pressable', name: string) {
@@ -110,6 +148,10 @@ function makeEnvelope(rootEl: 'view' | 'pressable', name: string) {
   const Panel = createNuriSlot('panel', `${name}Panel`, 'children', name);
   const Label = createNuriSlot('label', `${name}Label`, 'children', name);
   const Note = createNuriSlot('note', `${name}Note`, 'children', name);
+  const Action = createNuriSlot<{ disabled?: boolean; children?: React.ReactNode }>('delegate', `${name}Action`, 'children', name);
+  const Target: React.FC<{ disabled?: boolean; children?: React.ReactNode }> = (props) => (
+    <Text>{props.disabled ? `disabled:${props.children}` : props.children}</Text>
+  );
   const Component: React.FC<{ children?: React.ReactNode }> = (props) => {
     const composition: Partial<Record<string, NuriCompositionEntry<string>[]>> = {};
     const harvested = harvestNuriComposition<string>(props.children, undefined, name);
@@ -121,11 +163,12 @@ function makeEnvelope(rootEl: 'view' | 'pressable', name: string) {
       selection: {},
       content: {},
       composition,
+      components: { 'env-target': Target as React.ComponentType<Record<string, unknown>> },
       behaviour: rootEl === 'pressable' ? { pressable: { target: 'root', onPress: () => undefined } } : {},
     });
   };
   Component.displayName = name;
-  return { Component, Leaf, Badge, Panel, Label, Note };
+  return { Component, Leaf, Badge, Action, Panel, Label, Note };
 }
 
 // The FOREIGN component's marker (its `label` PART NAME collides with the
@@ -137,7 +180,7 @@ const ROOTS = [
   { title: 'pressable root', ...makeEnvelope('pressable', 'EnvPress') },
 ];
 
-describe.each(ROOTS)('composition-envelope · $title', ({ Component, Leaf, Badge, Panel, Label, Note }) => {
+describe.each(ROOTS)('composition-envelope · $title', ({ Component, Leaf, Badge, Action, Panel, Label, Note }) => {
   test('depth-1 typed slots render in authored order', () => {
     const tr = render(
       <NuriThemeProvider>
@@ -150,6 +193,40 @@ describe.each(ROOTS)('composition-envelope · $title', ({ Component, Leaf, Badge
     const texts = tr.root.findAllByType(Text);
     expect(texts.map((t) => t.props.children)).toEqual(['Alpha']);
     expect(tr.root.findAllByType(NuriIcon).map((icon) => icon.props.name)).toEqual(['apple']);
+  });
+
+  test('component-ref slot delegates with mapped slot props', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <Component>
+          <Action disabled>Forwarded</Action>
+        </Component>
+      </NuriThemeProvider>,
+    );
+    expect(tr.root.findByType(Text).props.children).toBe('disabled:Forwarded');
+  });
+
+  test('fixed-only component-ref renders without slot content', () => {
+    const rootEl = Component.displayName === 'EnvPress' ? 'pressable' : 'view';
+    const Target: React.FC<{ disabled?: boolean; children?: React.ReactNode }> = (props) => (
+      <Text>{props.disabled ? `disabled:${props.children}` : props.children}</Text>
+    );
+    const FixedComponent: React.FC = () =>
+      renderDescriptorInstance({
+        descriptor: fixedOnlyDescriptor(rootEl),
+        recipe: fixedOnlyRecipe(rootEl),
+        displayName: `EnvFixed${rootEl}`,
+        selection: {},
+        content: {},
+        components: { 'env-target': Target as React.ComponentType<Record<string, unknown>> },
+        behaviour: rootEl === 'pressable' ? { pressable: { target: 'root', onPress: () => undefined } } : {},
+      });
+    const tr = render(
+      <NuriThemeProvider>
+        <FixedComponent />
+      </NuriThemeProvider>,
+    );
+    expect(tr.root.findByType(Text).props.children).toBe('disabled:Fixed');
   });
 
   test('depth-2 typed slot routes through its ancestor region', () => {

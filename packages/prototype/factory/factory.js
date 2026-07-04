@@ -108,6 +108,7 @@ const HOST_ELS = ['view', 'pressable'];
 // silently mis-route, so the harvest fails named instead (the RN mirror keys the
 // same policy off the marker's __nuriSlotOwner).
 const NURI_SLOT_TAGS = new Set();
+const NURI_COMPONENT_TAGS = new Map();
 
 // A part accepts REPEATED composition entries only where the descriptor's api
 // declares a slot targeting it `multiple: true` (the sequence contract —
@@ -155,6 +156,8 @@ function resolveAnatomy(descriptor) {
   const walk = (name, a) => ({
     name,
     el: a.el,
+    component: a.component,
+    props: a.props,
     open: !!a.open,
     children: a.parts ? Object.keys(a.parts).map((c) => walk(c, a.parts[c])) : [],
   });
@@ -279,11 +282,17 @@ function harvestComposition(host, slotTagToSpec, fallbackPart, regionTagToPart =
         const spec = slotTagToSpec[tag];
         if (spec) {
           if (spec.kind === 'icon-name') {
-            list.push({ part: spec.part, content: child.getAttribute('name') });
+            const name = child.getAttribute('name');
+            list.push({ part: spec.part, content: name, props: { name } });
           } else {
             const tpl = document.createElement('template');
             while (child.firstChild) tpl.content.append(child.firstChild);
-            list.push({ part: spec.part, content: tpl });
+            const props = { children: tpl };
+            for (const attr of child.attributes) {
+              const prop = attr.name.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+              props[prop] = attr.value === '' ? true : attr.value;
+            }
+            list.push({ part: spec.part, content: tpl, props });
           }
           continue;
         }
@@ -332,6 +341,7 @@ function applyToInteractiveHost(host, merge) {
 
 // ── render one anatomy node → its nuri-* element (the el → web-primitive map) ──
 function renderPart(node, ctx) {
+  if (node.component) return renderComponentRef(node, ctx);
   const ns = mergedNSForPart(ctx.descriptor, ctx.selection, node.name);
   switch (node.el) {
     case 'view':
@@ -367,9 +377,61 @@ function cloneEntryContent(value) {
   return isTemplate ? value.content.cloneNode(true) : value;
 }
 
+function cloneSlotProps(props) {
+  if (!props) return undefined;
+  const out = {};
+  for (const [key, value] of Object.entries(props)) out[key] = cloneEntryContent(value);
+  return out;
+}
+
 function appendValue(host, value) {
   if (Array.isArray(value)) host.append(...value);
   else host.append(value);
+}
+
+function resolveComponentProps(node, entry, ctx) {
+  const slotProps = ctx.slotProps?.[node.name] || {};
+  const own = ctx.content?.[node.name];
+  const out = {};
+  for (const [prop, value] of Object.entries(node.props || {})) {
+    if (typeof value === 'string' && value.startsWith('$axis.')) {
+      out[prop] = ctx.selection[value.slice('$axis.'.length)];
+    } else if (typeof value === 'string' && value.startsWith('$slot.')) {
+      const slotProp = value.slice('$slot.'.length);
+      out[prop] = slotProp === 'children'
+        ? (slotProps.children ?? own ?? entry?.content)
+        : (slotProps[slotProp] ?? (slotProp === 'name' ? own ?? entry?.content : undefined));
+    } else {
+      out[prop] = value;
+    }
+  }
+  for (const key of Object.keys(out)) {
+    if (out[key] === undefined || out[key] === false || out[key] === null) delete out[key];
+  }
+  return out;
+}
+
+function renderComponentRef(node, ctx, entry = null) {
+  const tag = NURI_COMPONENT_TAGS.get(node.component);
+  if (!tag) throw new Error(`[nuri-factory] component part '${node.name}' references unregistered component '${node.component}'`);
+  const slotProps = ctx.slotProps?.[node.name] || {};
+  const own = ctx.content?.[node.name];
+  const slotBound = Object.values(node.props || {}).some((value) => typeof value === 'string' && value.startsWith('$slot.'));
+  if (slotBound && own == null && Object.keys(slotProps).length === 0) return null;
+  const el = document.createElement(tag);
+  const props = resolveComponentProps(node, entry, ctx);
+  for (const [prop, value] of Object.entries(props)) {
+    if (prop === 'children') {
+      appendValue(el, cloneEntryContent(value));
+    } else if (typeof value === 'boolean') {
+      if (value) el.setAttribute(camelToKebab(prop), '');
+    } else if (typeof value === 'function') {
+      el[prop] = value;
+    } else {
+      el.setAttribute(camelToKebab(prop), String(value));
+    }
+  }
+  return el;
 }
 
 // ── THE PROSE-CHILDREN RULE (web mirror · form-kit-spec §1.3) ──
@@ -465,10 +527,19 @@ function appendComposition(host, node, ctx) {
       continue;
     }
     const group = item.kind === 'group' ? grouped.get(item.part) : null;
+    const directCtx = item.kind === 'direct'
+      ? {
+        ...ctx,
+        content: { ...ctx.content, [item.entry.part]: cloneEntryContent(item.entry.content) },
+        slotProps: item.entry.props ? { ...ctx.slotProps, [item.entry.part]: cloneSlotProps(item.entry.props) } : ctx.slotProps,
+      }
+      : null;
     const childEl = item.kind === 'group' && group
       ? renderPart(group.child, { ...ctx, composition: { ...ctx.composition, [item.part]: group.entries } })
       : item.kind === 'direct'
-        ? renderPart(item.child, { ...ctx, content: { ...ctx.content, [item.entry.part]: cloneEntryContent(item.entry.content) } })
+        ? item.child.component
+          ? renderComponentRef(item.child, directCtx, item.entry)
+          : renderPart(item.child, directCtx)
         : null;
     if (childEl) host.appendChild(childEl);
   }
@@ -663,7 +734,7 @@ export function buildComponent(descriptor, selection = {}, props = {}) {
     }
   }
 
-  return renderPart(anatomy, { descriptor, selection: sel, content, composition: props.composition || {}, base: props });
+  return renderPart(anatomy, { descriptor, selection: sel, content, composition: props.composition || {}, slotProps: {}, base: props });
 }
 
 // ── THE DETERMINISTIC NAMING RULE (deterministic-naming · the web MIRROR) ──
@@ -702,6 +773,8 @@ export const nuriNames = (kebab) => ({ web: `nuri-${kebab}`, rn: pascalCase(keba
  * @param tagName    the custom-element tag (e.g. 'nuri-button')
  */
 export function defineNuriComponent(descriptor, tagName) {
+  const descriptorName = tagName.startsWith('nuri-') ? tagName.slice('nuri-'.length) : tagName;
+  NURI_COMPONENT_TAGS.set(descriptorName, tagName);
   const axisNames = descriptor.variants ? Object.keys(descriptor.variants) : [];
   const anatomy = resolveAnatomy(descriptor);
   const apiSlots = descriptor.api?.slots || {};

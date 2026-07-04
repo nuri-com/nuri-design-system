@@ -684,7 +684,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
             </ListAction>
           </NuriThemeProvider>,
         ),
-      ).toThrow("nuri-factory: slot targeting part 'leadingIcon' is singular — it appears 2 times under 'leadingAvatar'");
+      ).toThrow("nuri-factory: slot targeting part 'leadingAvatar' is singular — it appears 2 times under 'root'");
     } finally {
       quiet.mockRestore();
     }

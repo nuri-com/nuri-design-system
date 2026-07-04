@@ -360,7 +360,14 @@ function mergedNSForPart<A extends Axes>(
 }
 
 // ── anatomy → a render tree (structure · un-derivable from CSS · 65.2) ──
-export type AnatomyNode<P extends PartId = PartId> = { name: P; el: El; open: boolean; children: AnatomyNode<P>[] };
+export type AnatomyNode<P extends PartId = PartId> = {
+  name: P;
+  el?: El;
+  component?: string;
+  props?: Record<string, string | boolean | number | null>;
+  open: boolean;
+  children: AnatomyNode<P>[];
+};
 
 export function resolveAnatomy<A extends Axes>(descriptor: Descriptor<A>): AnatomyNode {
   const walk = (name: PartId, a: PartAnatomy): AnatomyNode => {
@@ -371,7 +378,7 @@ export function resolveAnatomy<A extends Axes>(descriptor: Descriptor<A>): Anato
         if (childAnatomy) children.push(walk(childName, childAnatomy));
       });
     }
-    return { name, el: a.el, open: !!a.open, children };
+    return { name, el: a.el, component: a.component, props: a.props, open: !!a.open, children };
   };
   return walk('root', descriptor.structure.anatomy);
 }

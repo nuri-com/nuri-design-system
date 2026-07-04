@@ -9,6 +9,7 @@
 
 import { defineNuriComponent, nuriNames } from '../factory/factory.js';
 import { listActionDescriptor } from '../generated/descriptors/list-action.js';
+import './icon-avatar.js';
 import '../primitives/pressable.js';
 import '../primitives/view.js';
 import '../primitives/typography.js';

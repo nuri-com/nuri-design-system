@@ -337,29 +337,6 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         }
       }
     },
-    "leadingAvatar": {
-      "el": "view",
-      "geometry": {
-        "base": {
-          "alignItems": "center",
-          "justifyContent": "center",
-          "width": 48,
-          "height": 48,
-          "borderRadius": 9999
-        },
-        "variants": {}
-      }
-    },
-    "leadingIcon": {
-      "el": "icon",
-      "geometry": {
-        "base": {
-          "width": 18,
-          "height": 18
-        },
-        "variants": {}
-      }
-    },
     "content": {
       "el": "view",
       "geometry": {
