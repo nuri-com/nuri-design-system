@@ -17,7 +17,7 @@ import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { ScrollView, Text, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
-import { NuriThemeProvider } from '../theme';
+import { NuriThemeProvider, typeStyle } from '../theme';
 import {
   Alert,
   AlertIcon,
@@ -444,10 +444,11 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const style = Object.assign({}, ...(message!.props.style as unknown[]).filter(Boolean));
     expect(style).toMatchObject({ flexGrow: 1, flexShrink: 1 });
     expect(message!.props.numberOfLines).toBeUndefined();
-    // the message donor is MUTED (palette muted → fgMuted), a DIFFERENT colour than
-    // the leading glyph, which inherits the full surface fg by scope (§12).
+    // the donor styling is DATA: sm + emphasis (semibold) + muted. The message and
+    // the (also-muted) glyph share ONE muted tone, so they read as a subtle unit.
+    expect(style.fontWeight).toBe(typeStyle('sm', true).fontWeight);
+    expect(style.color).toBe(tr.root.findByType(NuriIcon).props.color);
     expect(typeof style.color).toBe('string');
-    expect(style.color).not.toBe(tr.root.findByType(NuriIcon).props.color);
   });
 
   test('Alert — ghost without an action is a bare icon + message line (no pressable surface)', () => {

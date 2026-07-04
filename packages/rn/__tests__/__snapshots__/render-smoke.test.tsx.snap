@@ -15,7 +15,7 @@ exports[`render-smoke — the ergonomic components mount headless Alert — ghos
     align="xMidYMid"
     bbHeight={18}
     bbWidth={18}
-    color="#222013"
+    color="#666455"
     fill="currentColor"
     focusable={false}
     height={18}
@@ -76,7 +76,7 @@ exports[`render-smoke — the ergonomic components mount headless Alert — ghos
       [
         {
           "fontSize": 14.5,
-          "fontWeight": "400",
+          "fontWeight": "600",
           "letterSpacing": -0.145,
           "lineHeight": 19.285,
         },
@@ -108,6 +108,7 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
       "gap": 6,
       "minHeight": 54,
       "padding": 12,
+      "paddingStart": 18,
     }
   }
 >
@@ -115,7 +116,7 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
     align="xMidYMid"
     bbHeight={18}
     bbWidth={18}
-    color="#222013"
+    color="#666455"
     fill="currentColor"
     focusable={false}
     height={18}
@@ -176,7 +177,7 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
       [
         {
           "fontSize": 14.5,
-          "fontWeight": "400",
+          "fontWeight": "600",
           "letterSpacing": -0.145,
           "lineHeight": 19.285,
         },

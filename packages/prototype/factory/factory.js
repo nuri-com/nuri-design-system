@@ -590,6 +590,11 @@ function renderIcon(node, ns, ctx) {
   const { classes, data } = mergeAttrs(ns);
   if (classes.length) el.classList.add(...classes);
   for (const [k, v] of Object.entries(data)) el.setAttribute(k, v);
+  // A muted glyph (palette.muted · e.g. Alert's icon) — the parity twin of the
+  // nuri-typography muted treatment. mergeAttrs emits only variant/chrome, so the
+  // muted currentColor is set here as data-muted (icon.css colours it text-muted),
+  // matching RN's icon part resolving its own fgMuted.
+  if (ns.palette?.muted) el.setAttribute('data-muted', '');
   return el;
 }
 
