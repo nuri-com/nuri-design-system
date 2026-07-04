@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuri · Playground · Alert</title>
+  <link rel="stylesheet" href="../../generated/playground.css" />
+  <script src="../../generated/boot.js" type="module"></script>
+  <style>
+    /* Page-local CHROME tweaks ONLY (the board row) — content layout stays
+       RN-faithful. Each example is a filling, top-flowing column (the web mirror
+       of an RN <Screen>), with the alert(s) laid out at natural width so the soft
+       bar and the ghost line read like the real amount / recipient sheets. */
+    .nuri-pg__scroll { gap: 0; }
+    [data-pg-nav="ds"] { display: none; }
+  </style>
+</head>
+<body>
+
+<nuri-playground-shell doc="Alert">
+
+  <!-- soft / action · the amount sheet's balance bar: a raised soft surface with
+       the message growing to fill and the AlertButton hugging the trailing edge
+       (form-kit-spec §1.4). soft is the DEFAULT variant (omitted here). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="soft / action">
+    <template>
+      <nuri-stack direction="column" justify="start" gap="md" fill padding-x="lg" padding-top="lg">
+        <nuri-alert>
+          <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
+          Total balance insufficient
+          <nuri-alert-button>Top up</nuri-alert-button>
+        </nuri-alert>
+      </nuri-stack>
+    </template>
+  </nuri-demo>
+
+  <!-- soft / no action · the same raised bar as a plain notice (icon + message). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="soft / no action">
+    <template>
+      <nuri-stack direction="column" justify="start" gap="md" fill padding-x="lg" padding-top="lg">
+        <nuri-alert>
+          <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
+          Your payment is being processed
+        </nuri-alert>
+      </nuri-stack>
+    </template>
+  </nuri-demo>
+
+  <!-- ghost / no action · the recipient sheet's field error: transparent, no
+       padding — a bare icon + message line to sit under a text field (§3.2). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="ghost / error line">
+    <template>
+      <nuri-stack direction="column" justify="start" gap="md" fill padding-x="lg" padding-top="lg">
+        <nuri-alert variant="ghost">
+          <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
+          Please enter a valid IBAN
+        </nuri-alert>
+      </nuri-stack>
+    </template>
+  </nuri-demo>
+
+  <!-- ghost / action · the transparent variant still admits the sanctioned action. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="ghost / action">
+    <template>
+      <nuri-stack direction="column" justify="start" gap="md" fill padding-x="lg" padding-top="lg">
+        <nuri-alert variant="ghost">
+          <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
+          Connection lost — showing cached balances
+          <nuri-alert-button>Retry</nuri-alert-button>
+        </nuri-alert>
+      </nuri-stack>
+    </template>
+  </nuri-demo>
+
+  <!-- accent · the theme scope tints the whole alert AND the delegated
+       AlertButton for free (themeScope.accent · §1.1). A per-instance override. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="accent (lilac)">
+    <template>
+      <nuri-stack direction="column" justify="start" gap="md" fill padding-x="lg" padding-top="lg">
+        <nuri-alert accent="lilac">
+          <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
+          Verify your identity to raise limits
+          <nuri-alert-button>Verify</nuri-alert-button>
+        </nuri-alert>
+      </nuri-stack>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+</body>
+</html>

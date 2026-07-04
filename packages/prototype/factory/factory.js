@@ -372,6 +372,42 @@ function appendValue(host, value) {
   else host.append(value);
 }
 
+// ── THE PROSE-CHILDREN RULE (web mirror · form-kit-spec §1.3) ──
+// The web twin of renderer.tsx#wrapProse. A host that authors a `typography`
+// style wraps its BARE TEXT-NODE children in a styled <nuri-typography> so they
+// render as PROSE: the host's type style + a grow/shrink fill (nuri-stack ·
+// data-fill grow-shrink) so the message FILLS + wraps while sibling parts (a
+// leading icon, a trailing action) HUG their content. Colour inherits the host
+// palette fg by scope (currentColor · §12). A host with NO typography NS leaves
+// nodes RAW (the mixed-content contract · web tolerates loose text nodes) and
+// ELEMENT children always pass through unchanged. Web tolerates a bare text node
+// where RN crashes, but wraps identically so the two layouts match.
+function proseWrapper(text, typographyNS) {
+  const el = document.createElement('nuri-typography');
+  el.setAttribute('size', typographyNS.size);
+  if (typographyNS.emphasis) el.setAttribute('emphasis', '');
+  el.classList.add('nuri-stack');
+  el.setAttribute('data-fill', 'grow-shrink');
+  el.appendChild(text);
+  return el;
+}
+function wrapProseNodes(value, typographyNS) {
+  if (!typographyNS || typographyNS.size === undefined || value == null) return value;
+  if (typeof value === 'string') return proseWrapper(document.createTextNode(value), typographyNS);
+  if (value.nodeType === 3) return value.textContent.trim() ? proseWrapper(document.createTextNode(value.textContent), typographyNS) : value;
+  if (value.nodeType === 11) {
+    // Build each wrapper from a FRESH text node, THEN replaceChild — never move
+    // the original text node out of the fragment first (that would detach it and
+    // replaceChild could no longer find it in its parent).
+    for (const child of [...value.childNodes]) {
+      if (child.nodeType === 3 && child.textContent.trim()) {
+        value.replaceChild(proseWrapper(document.createTextNode(child.textContent), typographyNS), child);
+      }
+    }
+  }
+  return value;
+}
+
 // ── THE GROUPING WALKER · mirrored across engines — edit in LOCKSTEP with
 // packages/rn/runtime/renderer.tsx renderHostBody#appendCompositionEntries (full
 // dedup is a named follow-up). The shared contract is pinned per-cell by the
@@ -393,6 +429,9 @@ function appendValue(host, value) {
 function appendComposition(host, node, ctx) {
   const entries = ctx.composition && ctx.composition[node.name];
   if (!entries) return false;
+  // The host's authored text style (undefined for a host with no typography) —
+  // gates the prose-children wrap of this host's bare string content.
+  const hostTypography = mergedNSForPart(ctx.descriptor, ctx.selection, node.name).typography;
   const grouped = new Map();
   const targets = new Map();
   const ordered = [];
@@ -425,7 +464,7 @@ function appendComposition(host, node, ctx) {
   }
   for (const item of ordered) {
     if (item.kind === 'own') {
-      const value = cloneEntryContent(item.entry.content);
+      const value = wrapProseNodes(cloneEntryContent(item.entry.content), hostTypography);
       if (value != null) appendValue(host, value);
       continue;
     }
@@ -465,7 +504,7 @@ function renderInteractiveView(node, ns, ctx) {
   // pressable moves them INTO the inner <button> on connect).
   const own = ctx.content[node.name];
   if (!appendComposition(host, node, ctx)) {
-    if (own != null) appendValue(host, own);
+    if (own != null) appendValue(host, wrapProseNodes(own, ns.typography));
     // A leaf child may render NOTHING (an absent optional flank · renderPart → null).
     for (const child of node.children) {
       const childEl = renderPart(child, ctx);
@@ -503,7 +542,7 @@ function renderStaticView(node, ns, ctx) {
   // the child parts — the RN renderPart order (own content keyed before kids).
   const own = ctx.content[node.name];
   if (!appendComposition(host, node, ctx)) {
-    if (own != null) appendValue(host, own);
+    if (own != null) appendValue(host, wrapProseNodes(own, ns.typography));
     // A leaf child may render NOTHING (an absent optional flank · renderPart → null).
     for (const child of node.children) {
       const childEl = renderPart(child, ctx);

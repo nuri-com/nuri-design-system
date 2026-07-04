@@ -50,6 +50,7 @@ const BOOT_IMPORTS = [
   '../../prototype/primitives/separator.js',
   '../../prototype/primitives/list-separator.js',
   '../../prototype/primitives/spacer.js',
+  '../../prototype/recipes/alert.js',
   '../../prototype/recipes/button.js',
   '../../prototype/recipes/icon-button.js',
   '../../prototype/recipes/icon-avatar.js',

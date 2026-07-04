@@ -169,6 +169,16 @@ test('C · doc-stated emitted counts match the live build', () => {
 // `interactive` opt-in) breaks this test even if the build re-emitted
 // clean. The validated shapes (B1.5 · the three composed recipes).
 const EXPECTED_DESCRIPTORS = {
+  // alert (the form-kit inline notice · composition-only · form-kit-spec §1) — a
+  // centred row with one leading `icon` part; the message is the flat STRING
+  // children (rendered through the root's authored text style · the prose rule),
+  // and the trailing AlertButton is a bare element child. `soft` raises a neutral
+  // surface + padding + radius; `ghost` is transparent. Static · no `interactive`.
+  alert: {
+    axes: { variant: ['soft', 'ghost'] },
+    parts: ['icon'],
+    interactive: [],
+  },
   button: {
     axes: { variant: ['solid', 'soft', 'ghost'], size: ['sm', 'md', 'lg'] },
     parts: ['label', 'icon'], // the anatomy's non-root parts

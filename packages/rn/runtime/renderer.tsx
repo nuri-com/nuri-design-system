@@ -209,6 +209,32 @@ function renderPart<A extends Axes>(
       ? { accessibilityElementsHidden: true, importantForAccessibility: 'no-hide-descendants' as const }
       : null;
 
+  // ── THE PROSE-CHILDREN RULE (form-kit-spec §1.3 · GENERIC, not alert-specific) ──
+  // A host that authors a `typography` style (flat.node.type present) opts its
+  // BARE STRING children into prose: each string/number child is wrapped in a
+  // <Text> carrying that text style, the scope fg (§12 · colour by scope), and a
+  // grow/shrink fill so the message FILLS + wraps while sibling parts (a leading
+  // icon, a trailing action) HUG their content. RN crashes on a bare string inside
+  // a <View> ("Text strings must be rendered within a <Text>"); web tolerates text
+  // nodes but wraps identically for layout parity (factory.js#wrapProseNodes). A
+  // host with NO authored text style leaves bare children RAW — the mixed-content
+  // contract (decision 83 · a region's loose text stays a raw child · the
+  // composition-envelope 'before'/'after' cell). This is a RENDERING concern, not
+  // schema: any open host authoring `typography` gets prose wrapping for free.
+  const proseType = flat.node.type;
+  const wrapProse = (content: React.ReactNode): React.ReactNode => {
+    if (proseType === undefined) return content;
+    return React.Children.map(content, (child) =>
+      typeof child === 'string' || typeof child === 'number' ? (
+        <Text style={[typeStyle(proseType.size, proseType.emphasis), fg ? { color: fg } : null, { flexGrow: 1, flexShrink: 1 }]}>
+          {child}
+        </Text>
+      ) : (
+        child
+      ),
+    );
+  };
+
   // The shared host body (children + own routed content, fg scope threaded) —
   // identical for the static `view` and the `pressable` host; only the host
   // ELEMENT differs, and that is the switch's decision (el is structure data).
@@ -269,7 +295,7 @@ function renderPart<A extends Axes>(
       }
       for (const item of ordered) {
         if (item.kind === 'own') {
-          kids.push(<React.Fragment key={`own:${item.index}`}>{item.entry.content}</React.Fragment>);
+          kids.push(<React.Fragment key={`own:${item.index}`}>{wrapProse(item.entry.content)}</React.Fragment>);
           continue;
         }
         const group = item.kind === 'group' ? grouped.get(item.part) : undefined;
@@ -312,7 +338,7 @@ function renderPart<A extends Axes>(
         appendCompositionEntries(nestedComposition.items);
       } else {
         const childEls = node.children.map((child) => renderPart(child, ctx, fg, false));
-        if (ownContent != null) kids.push(<React.Fragment key="__content">{ownContent}</React.Fragment>);
+        if (ownContent != null) kids.push(<React.Fragment key="__content">{wrapProse(ownContent)}</React.Fragment>);
         kids.push(...childEls);
       }
     }
