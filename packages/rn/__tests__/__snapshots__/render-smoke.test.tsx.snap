@@ -1,5 +1,283 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`render-smoke — the ergonomic components mount headless Alert — ghost without an action is a bare icon + message line (no pressable surface) 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "transparent",
+      "flexDirection": "row",
+      "gap": 6,
+    }
+  }
+>
+  <RNSVGSvgView
+    align="xMidYMid"
+    bbHeight={18}
+    bbWidth={18}
+    color="#666455"
+    fill="currentColor"
+    focusable={false}
+    height={18}
+    meetOrSlice={0}
+    minX={0}
+    minY={0}
+    style={
+      [
+        {
+          "backgroundColor": "transparent",
+          "borderWidth": 0,
+        },
+        {
+          "flex": 0,
+          "height": 18,
+          "width": 18,
+        },
+      ]
+    }
+    vbHeight={32}
+    vbWidth={32}
+    width={18}
+    xml="<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M30 16C30 23.732 23.732 30 16 30C8.26801 30 2 23.732 2 16C2 8.26801 8.26801 2 16 2C23.732 2 30 8.26801 30 16ZM16 8C16.5523 8 17 8.44772 17 9V20C17 20.5523 16.5523 21 16 21C15.4477 21 15 20.5523 15 20V9C15 8.44772 15.4477 8 16 8ZM15.4444 22.1685C15.6089 22.0586 15.8022 22 16 22C16.2652 22 16.5196 22.1054 16.7071 22.2929C16.8946 22.4804 17 22.7348 17 23C17 23.1978 16.9413 23.3911 16.8315 23.5556C16.7216 23.72 16.5654 23.8482 16.3827 23.9239C16.2 23.9996 15.9989 24.0194 15.8049 23.9808C15.6109 23.9422 15.4327 23.847 15.2929 23.7071C15.153 23.5673 15.0578 23.3891 15.0192 23.1951C14.9806 23.0011 15.0004 22.8 15.0761 22.6173C15.1518 22.4346 15.28 22.2784 15.4444 22.1685Z" fill="currentColor"/></svg>"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <RNSVGGroup
+      fill={
+        {
+          "type": 2,
+        }
+      }
+      propList={
+        [
+          "fill",
+        ]
+      }
+    >
+      <RNSVGPath
+        clipRule={0}
+        d="M30 16C30 23.732 23.732 30 16 30C8.26801 30 2 23.732 2 16C2 8.26801 8.26801 2 16 2C23.732 2 30 8.26801 30 16ZM16 8C16.5523 8 17 8.44772 17 9V20C17 20.5523 16.5523 21 16 21C15.4477 21 15 20.5523 15 20V9C15 8.44772 15.4477 8 16 8ZM15.4444 22.1685C15.6089 22.0586 15.8022 22 16 22C16.2652 22 16.5196 22.1054 16.7071 22.2929C16.8946 22.4804 17 22.7348 17 23C17 23.1978 16.9413 23.3911 16.8315 23.5556C16.7216 23.72 16.5654 23.8482 16.3827 23.9239C16.2 23.9996 15.9989 24.0194 15.8049 23.9808C15.6109 23.9422 15.4327 23.847 15.2929 23.7071C15.153 23.5673 15.0578 23.3891 15.0192 23.1951C14.9806 23.0011 15.0004 22.8 15.0761 22.6173C15.1518 22.4346 15.28 22.2784 15.4444 22.1685Z"
+        fill={
+          {
+            "type": 2,
+          }
+        }
+        fillRule={0}
+        propList={
+          [
+            "fill",
+            "fillRule",
+          ]
+        }
+      />
+    </RNSVGGroup>
+  </RNSVGSvgView>
+  <Text
+    ellipsizeMode="tail"
+    numberOfLines={1}
+    style={
+      [
+        {
+          "fontSize": 14.5,
+          "fontWeight": "600",
+          "letterSpacing": -0.145,
+          "lineHeight": 19.285,
+        },
+        {
+          "color": "#666455",
+        },
+        {
+          "flexShrink": 1,
+          "textAlign": "center",
+        },
+        {
+          "flexGrow": 1,
+          "flexShrink": 1,
+          "minWidth": 0,
+          "textAlign": "left",
+        },
+      ]
+    }
+  >
+    Please enter a valid IBAN
+  </Text>
+</View>
+`;
+
+exports[`render-smoke — the ergonomic components mount headless Alert — soft + action: leading glyph, prose message, and the delegated AlertButton in a row 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#f3f1e2",
+      "borderRadius": 9999,
+      "flexDirection": "row",
+      "gap": 6,
+      "minHeight": 54,
+      "padding": 12,
+      "paddingStart": 18,
+    }
+  }
+>
+  <RNSVGSvgView
+    align="xMidYMid"
+    bbHeight={18}
+    bbWidth={18}
+    color="#666455"
+    fill="currentColor"
+    focusable={false}
+    height={18}
+    meetOrSlice={0}
+    minX={0}
+    minY={0}
+    style={
+      [
+        {
+          "backgroundColor": "transparent",
+          "borderWidth": 0,
+        },
+        {
+          "flex": 0,
+          "height": 18,
+          "width": 18,
+        },
+      ]
+    }
+    vbHeight={32}
+    vbWidth={32}
+    width={18}
+    xml="<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M30 16C30 23.732 23.732 30 16 30C8.26801 30 2 23.732 2 16C2 8.26801 8.26801 2 16 2C23.732 2 30 8.26801 30 16ZM16 8C16.5523 8 17 8.44772 17 9V20C17 20.5523 16.5523 21 16 21C15.4477 21 15 20.5523 15 20V9C15 8.44772 15.4477 8 16 8ZM15.4444 22.1685C15.6089 22.0586 15.8022 22 16 22C16.2652 22 16.5196 22.1054 16.7071 22.2929C16.8946 22.4804 17 22.7348 17 23C17 23.1978 16.9413 23.3911 16.8315 23.5556C16.7216 23.72 16.5654 23.8482 16.3827 23.9239C16.2 23.9996 15.9989 24.0194 15.8049 23.9808C15.6109 23.9422 15.4327 23.847 15.2929 23.7071C15.153 23.5673 15.0578 23.3891 15.0192 23.1951C14.9806 23.0011 15.0004 22.8 15.0761 22.6173C15.1518 22.4346 15.28 22.2784 15.4444 22.1685Z" fill="currentColor"/></svg>"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <RNSVGGroup
+      fill={
+        {
+          "type": 2,
+        }
+      }
+      propList={
+        [
+          "fill",
+        ]
+      }
+    >
+      <RNSVGPath
+        clipRule={0}
+        d="M30 16C30 23.732 23.732 30 16 30C8.26801 30 2 23.732 2 16C2 8.26801 8.26801 2 16 2C23.732 2 30 8.26801 30 16ZM16 8C16.5523 8 17 8.44772 17 9V20C17 20.5523 16.5523 21 16 21C15.4477 21 15 20.5523 15 20V9C15 8.44772 15.4477 8 16 8ZM15.4444 22.1685C15.6089 22.0586 15.8022 22 16 22C16.2652 22 16.5196 22.1054 16.7071 22.2929C16.8946 22.4804 17 22.7348 17 23C17 23.1978 16.9413 23.3911 16.8315 23.5556C16.7216 23.72 16.5654 23.8482 16.3827 23.9239C16.2 23.9996 15.9989 24.0194 15.8049 23.9808C15.6109 23.9422 15.4327 23.847 15.2929 23.7071C15.153 23.5673 15.0578 23.3891 15.0192 23.1951C14.9806 23.0011 15.0004 22.8 15.0761 22.6173C15.1518 22.4346 15.28 22.2784 15.4444 22.1685Z"
+        fill={
+          {
+            "type": 2,
+          }
+        }
+        fillRule={0}
+        propList={
+          [
+            "fill",
+            "fillRule",
+          ]
+        }
+      />
+    </RNSVGGroup>
+  </RNSVGSvgView>
+  <Text
+    ellipsizeMode="tail"
+    numberOfLines={1}
+    style={
+      [
+        {
+          "fontSize": 14.5,
+          "fontWeight": "600",
+          "letterSpacing": -0.145,
+          "lineHeight": 19.285,
+        },
+        {
+          "color": "#666455",
+        },
+        {
+          "flexShrink": 1,
+          "textAlign": "center",
+        },
+        {
+          "flexGrow": 1,
+          "flexShrink": 1,
+          "minWidth": 0,
+          "textAlign": "left",
+        },
+      ]
+    }
+  >
+    Total balance insufficient
+  </Text>
+  <View
+    accessibilityRole="button"
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": false,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "#beaaff",
+        "borderRadius": 9999,
+        "flexDirection": "row",
+        "justifyContent": "center",
+        "minHeight": 36,
+        "paddingHorizontal": 12,
+      }
+    }
+  >
+    <Text
+      ellipsizeMode="tail"
+      numberOfLines={1}
+      style={
+        [
+          {
+            "fontSize": 14.5,
+            "fontWeight": "600",
+            "letterSpacing": -0.145,
+            "lineHeight": 19.285,
+          },
+          {
+            "color": "#381b6a",
+          },
+          {
+            "flexShrink": 1,
+            "textAlign": "center",
+          },
+          {},
+        ]
+      }
+    >
+      Top up
+    </Text>
+  </View>
+</View>
+`;
+
 exports[`render-smoke — the ergonomic components mount headless Button — ordered composition renders text/icon/text through the root Pressable 1`] = `
 <View
   accessibilityRole="button"

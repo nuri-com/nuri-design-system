@@ -2531,6 +2531,12 @@ nuri-demo:not(:defined) {
     color: currentColor;
   }
 
+  /* Muted glyph (palette.muted · the factory sets data-muted) — the parity twin
+   * of nuri-typography[data-muted]. Colours the SVG currentColor text-muted. */
+  .nuri-icon[data-muted] {
+    color: var(--nuri-text-muted);
+  }
+
   /* ── Rendered SVG fills the box ────────────────────────────── */
   .nuri-icon svg {
     width: 100%;

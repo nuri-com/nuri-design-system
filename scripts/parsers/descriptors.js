@@ -42,6 +42,7 @@
 // name ∈ this ONE roster, so a rename that misses a site fails CI. This is the sole
 // build-side list; BROWSER_DESCRIPTOR_COMPONENTS (tokens-parser.js) derives from it.
 export const DESCRIPTOR_COMPONENTS = [
+  { name: 'alert' },
   { name: 'button' },
   { name: 'icon-avatar' },
   { name: 'topbar' },

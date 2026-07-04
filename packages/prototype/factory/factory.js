@@ -372,6 +372,38 @@ function appendValue(host, value) {
   else host.append(value);
 }
 
+// ── THE PROSE-CHILDREN RULE (web mirror · form-kit-spec §1.3) ──
+// The web twin of renderer.tsx#wrapProse. A host with a PROSE-DONOR part — an
+// `el:'text'` child that NO api slot targets (an unrouted style-donor · e.g.
+// Alert's `message`) — routes its BARE TEXT-NODE children through that donor part
+// (renderPart → renderText), so the message renders as the donor's normal `text`
+// leaf with its authored style (type size · muted palette · the grow/shrink fill).
+// A host with NO donor leaves nodes RAW (the mixed-content contract · web tolerates
+// loose text nodes) and ELEMENT children always pass through unchanged. (Line
+// count / truncation is NOT modelled here — it is the shared `text`-leaf's concern,
+// pending explicit typography-axis data · projected symmetrically to RN + web.)
+function proseDonorNode(node, ctx) {
+  const slotTargets = new Set(Object.values(ctx.descriptor.api?.slots || {}).map((s) => s.part));
+  return node.children.find((c) => c.el === 'text' && !slotTargets.has(c.name)) || null;
+}
+function wrapProseNodes(value, donor, ctx) {
+  if (!donor || value == null) return value;
+  const renderProse = (text) => renderPart(donor, { ...ctx, content: { ...ctx.content, [donor.name]: text } });
+  if (typeof value === 'string') return value.trim() ? renderProse(value) : value;
+  if (value.nodeType === 3) return value.textContent.trim() ? renderProse(value.textContent) : value;
+  if (value.nodeType === 11) {
+    // Render each wrapper from the text CONTENT, THEN replaceChild — never move the
+    // original text node out of the fragment first (that would detach it and
+    // replaceChild could no longer find it in its parent).
+    for (const child of [...value.childNodes]) {
+      if (child.nodeType === 3 && child.textContent.trim()) {
+        value.replaceChild(renderProse(child.textContent), child);
+      }
+    }
+  }
+  return value;
+}
+
 // ── THE GROUPING WALKER · mirrored across engines — edit in LOCKSTEP with
 // packages/rn/runtime/renderer.tsx renderHostBody#appendCompositionEntries (full
 // dedup is a named follow-up). The shared contract is pinned per-cell by the
@@ -393,6 +425,9 @@ function appendValue(host, value) {
 function appendComposition(host, node, ctx) {
   const entries = ctx.composition && ctx.composition[node.name];
   if (!entries) return false;
+  // The host's prose donor (null for a host with none) — styles this host's bare
+  // string content via the prose-children rule.
+  const donor = proseDonorNode(node, ctx);
   const grouped = new Map();
   const targets = new Map();
   const ordered = [];
@@ -425,7 +460,7 @@ function appendComposition(host, node, ctx) {
   }
   for (const item of ordered) {
     if (item.kind === 'own') {
-      const value = cloneEntryContent(item.entry.content);
+      const value = wrapProseNodes(cloneEntryContent(item.entry.content), donor, ctx);
       if (value != null) appendValue(host, value);
       continue;
     }
@@ -465,7 +500,7 @@ function renderInteractiveView(node, ns, ctx) {
   // pressable moves them INTO the inner <button> on connect).
   const own = ctx.content[node.name];
   if (!appendComposition(host, node, ctx)) {
-    if (own != null) appendValue(host, own);
+    if (own != null) appendValue(host, wrapProseNodes(own, proseDonorNode(node, ctx), ctx));
     // A leaf child may render NOTHING (an absent optional flank · renderPart → null).
     for (const child of node.children) {
       const childEl = renderPart(child, ctx);
@@ -503,7 +538,7 @@ function renderStaticView(node, ns, ctx) {
   // the child parts — the RN renderPart order (own content keyed before kids).
   const own = ctx.content[node.name];
   if (!appendComposition(host, node, ctx)) {
-    if (own != null) appendValue(host, own);
+    if (own != null) appendValue(host, wrapProseNodes(own, proseDonorNode(node, ctx), ctx));
     // A leaf child may render NOTHING (an absent optional flank · renderPart → null).
     for (const child of node.children) {
       const childEl = renderPart(child, ctx);
@@ -555,6 +590,11 @@ function renderIcon(node, ns, ctx) {
   const { classes, data } = mergeAttrs(ns);
   if (classes.length) el.classList.add(...classes);
   for (const [k, v] of Object.entries(data)) el.setAttribute(k, v);
+  // A muted glyph (palette.muted · e.g. Alert's icon) — the parity twin of the
+  // nuri-typography muted treatment. mergeAttrs emits only variant/chrome, so the
+  // muted currentColor is set here as data-muted (icon.css colours it text-muted),
+  // matching RN's icon part resolving its own fgMuted.
+  if (ns.palette?.muted) el.setAttribute('data-muted', '');
   return el;
 }
 
@@ -692,10 +732,13 @@ export function defineNuriComponent(descriptor, tagName) {
   const defaultRegionEntry = regionSlotEntries.find(([, spec]) => spec.default === true);
   const defaultSlot = defaultRegionEntry ? defaultRegionEntry[1].part : undefined;
   // OPEN-POSITIONAL HOST (the TabBar · §7 · descriptor-driven · the RN createNuriComponent
-  // mirror): an `open` root with NO named regions and no lone primary renders its
-  // authored POSITIONAL children directly inside the built root. Distinct from
-  // COMPOUND (named slots): the children move in wholesale, no per-region harvest.
-  const isOpenHost = !!anatomy.open && !isCompound && !primary;
+  // mirror): an `open` root with NO named regions, NO component slots, and no lone
+  // primary renders its authored POSITIONAL children directly inside the built root.
+  // Distinct from COMPOUND (named slots) and from a COMPONENT-SLOT host (Alert · an
+  // open root with a component slot + a donor part → `primary` is undefined because
+  // it has >1 part, but it must still route through the composition mount-a-tree
+  // path, not wholesale positional children).
+  const isOpenHost = !!anatomy.open && !isCompound && !hasComponentSlots && !primary;
   // MOUNT-A-TREE host (button / icon-button / tab-bar-item · the default #render
   // path · `replaceChildren(buildComponent(...))`): the host wraps a FRESH nuri-*
   // tree whose inner merged node carries the geometry/flex. The wrapper must be

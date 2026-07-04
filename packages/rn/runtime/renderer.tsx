@@ -209,6 +209,31 @@ function renderPart<A extends Axes>(
       ? { accessibilityElementsHidden: true, importantForAccessibility: 'no-hide-descendants' as const }
       : null;
 
+  // ── THE PROSE-CHILDREN RULE (form-kit-spec §1.3 · GENERIC, not alert-specific) ──
+  // A host with a PROSE-DONOR part — an `el:'text'` child that NO api slot targets
+  // (e.g. Alert's `message`) — routes its BARE STRING children THROUGH that donor
+  // part, so each string renders as the donor's normal `text` leaf carrying the
+  // donor's authored style (typography · muted palette · the grow/shrink fill),
+  // while sibling parts (a leading icon, a trailing action) HUG their content. RN
+  // crashes on a bare string inside a <View> ("Text strings must be rendered within
+  // a <Text>"); the web mirror routes the same way (factory.js#wrapProseNodes). A
+  // host with NO donor leaves bare children RAW — the mixed-content contract
+  // (decision 83 · a region's loose text stays a raw child · the composition-
+  // envelope 'before'/'after' cell). Element children (an AlertButton) always pass
+  // through unchanged. This is a RENDERING concern, not schema — the STYLE is
+  // descriptor data on the donor part. (Line count / truncation is whatever the
+  // shared `text` leaf does per platform today — NOT a prose-rule or Alert feature.)
+  const slotTargetParts = new Set(Object.values(ctx.descriptor.api?.slots ?? {}).map((s) => s.part));
+  const donorNode = node.children.find((c) => c.el === 'text' && !slotTargetParts.has(c.name));
+  const wrapProse = (content: React.ReactNode): React.ReactNode => {
+    if (!donorNode) return content;
+    return React.Children.map(content, (child) =>
+      typeof child === 'string' || typeof child === 'number'
+        ? renderPart(donorNode, { ...ctx, content: { ...ctx.content, [donorNode.name]: child } }, fg, false)
+        : child,
+    );
+  };
+
   // The shared host body (children + own routed content, fg scope threaded) —
   // identical for the static `view` and the `pressable` host; only the host
   // ELEMENT differs, and that is the switch's decision (el is structure data).
@@ -269,7 +294,7 @@ function renderPart<A extends Axes>(
       }
       for (const item of ordered) {
         if (item.kind === 'own') {
-          kids.push(<React.Fragment key={`own:${item.index}`}>{item.entry.content}</React.Fragment>);
+          kids.push(<React.Fragment key={`own:${item.index}`}>{wrapProse(item.entry.content)}</React.Fragment>);
           continue;
         }
         const group = item.kind === 'group' ? grouped.get(item.part) : undefined;
@@ -312,7 +337,7 @@ function renderPart<A extends Axes>(
         appendCompositionEntries(nestedComposition.items);
       } else {
         const childEls = node.children.map((child) => renderPart(child, ctx, fg, false));
-        if (ownContent != null) kids.push(<React.Fragment key="__content">{ownContent}</React.Fragment>);
+        if (ownContent != null) kids.push(<React.Fragment key="__content">{wrapProse(ownContent)}</React.Fragment>);
         kids.push(...childEls);
       }
     }

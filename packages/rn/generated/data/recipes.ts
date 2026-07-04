@@ -20,6 +20,57 @@
 import type { BakedComponentRecipe } from '../../runtime/resolve';
 
 export const recipes: Record<string, BakedComponentRecipe> = {
+  "alert": {
+    "root": {
+      "el": "view",
+      "open": true,
+      "geometry": {
+        "base": {
+          "flexDirection": "row",
+          "alignItems": "center",
+          "gap": 6
+        },
+        "variants": {
+          "variant": {
+            "soft": {
+              "minHeight": 54,
+              "padding": 12,
+              "paddingStart": 18,
+              "borderRadius": 9999
+            }
+          }
+        }
+      }
+    },
+    "icon": {
+      "el": "icon",
+      "geometry": {
+        "base": {
+          "width": 18,
+          "height": 18
+        },
+        "variants": {}
+      }
+    },
+    "message": {
+      "el": "text",
+      "geometry": {
+        "base": {
+          "flexGrow": 1,
+          "flexShrink": 1,
+          "minWidth": 0
+        },
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "sm",
+          "emphasis": true,
+          "align": "start"
+        }
+      }
+    }
+  },
   "button": {
     "root": {
       "el": "pressable",

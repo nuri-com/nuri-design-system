@@ -77,6 +77,9 @@ export {
   BottomSheet,
   BottomSheetPanel,
   BottomSheetScroll,
+  Alert,
+  AlertIcon,
+  AlertButton,
 } from './primitives';
 export type {
   ViewProps,
@@ -94,6 +97,9 @@ export type {
   BottomSheetScrim,
   BottomSheetPanelProps,
   BottomSheetScrollProps,
+  AlertProps,
+  AlertIconProps,
+  AlertButtonProps,
 } from './primitives';
 
 // Generated component adapters (Path C · Phase 3). Each descriptor's `api` emits

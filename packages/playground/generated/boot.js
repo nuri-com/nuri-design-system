@@ -19,6 +19,7 @@ await import('../../prototype/primitives/dock.js');
 await import('../../prototype/primitives/separator.js');
 await import('../../prototype/primitives/list-separator.js');
 await import('../../prototype/primitives/spacer.js');
+await import('../../prototype/recipes/alert.js');
 await import('../../prototype/recipes/button.js');
 await import('../../prototype/recipes/icon-button.js');
 await import('../../prototype/recipes/icon-avatar.js');

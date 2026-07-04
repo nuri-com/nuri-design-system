@@ -17,8 +17,11 @@ import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { ScrollView, Text, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
-import { NuriThemeProvider } from '../theme';
+import { NuriThemeProvider, typeStyle } from '../theme';
 import {
+  Alert,
+  AlertIcon,
+  AlertButton,
   Button,
   ButtonText,
   ButtonIcon,
@@ -67,6 +70,16 @@ function render(node: React.ReactElement): TestRenderer.ReactTestRenderer {
     tr = TestRenderer.create(node);
   });
   return tr;
+}
+
+// The interactive action HOSTS in a tree — the descriptor renderer's Pressable
+// parts (a `button` role + the pressed style render-prop). RN's Pressable is not
+// matched by findByType in RTR, so anchor on the role + the style FUNCTION (which
+// isolates the Pressable instance from its resolved-style inner host View).
+function pressableActions(tr: TestRenderer.ReactTestRenderer): TestRenderer.ReactTestInstance[] {
+  return tr.root.findAll(
+    (node) => node.props?.accessibilityRole === 'button' && typeof node.props?.style === 'function',
+  );
 }
 
 describe('render-smoke — the ergonomic components mount headless', () => {
@@ -385,6 +398,104 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       </NuriThemeProvider>,
     );
     expect(tr.toJSON()).toBeNull();
+  });
+
+  test('Alert — soft + action: leading glyph, prose message, and the delegated AlertButton in a row', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <Alert>
+          <AlertIcon name="warning-circle" />
+          Total balance insufficient
+          <AlertButton onPress={() => undefined}>Top up</AlertButton>
+        </Alert>
+      </NuriThemeProvider>,
+    );
+    expect(tr.toJSON()).toBeTruthy();
+    // the flat children compose in authored order: icon · message · action.
+    expect(tr.root.findByType(NuriIcon).props.name).toBe('warning-circle');
+    expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toEqual([
+      'Total balance insufficient',
+      'Top up',
+    ]);
+    // the AlertButton delegates to the real Button — one interactive action host
+    // (accessibilityRole 'button' · the pressed style render-prop) that inherits
+    // the Alert's (default) scope.
+    expect(pressableActions(tr)).toHaveLength(1);
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('Alert — the STRING message renders through the prose donor part (§1.3 rule)', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <Alert>
+          <AlertIcon name="warning-circle" />
+          Total balance insufficient
+        </Alert>
+      </NuriThemeProvider>,
+    );
+    // The bare string would crash RN inside a <View> ("Text strings must be
+    // rendered within a <Text>"); the prose-children rule routes it through the
+    // `message` donor part, rendered as that part's normal `text` leaf.
+    const message = tr.root
+      .findAllByType(Text)
+      .find((t) => t.props.children === 'Total balance insufficient');
+    expect(message).toBeTruthy();
+    const style = Object.assign({}, ...(message!.props.style as unknown[]).filter(Boolean));
+    // Assert only the DONOR's DECLARED styling (descriptor data): grow/shrink fill,
+    // sm + emphasis (semibold), and muted (one tone shared with the also-muted
+    // glyph). Line count / truncation is NOT an Alert-declared feature, so it is not
+    // asserted here — it is the shared `text` leaf's platform behaviour (pre-existing
+    // typography-axis debt), pending explicit typography data.
+    expect(style).toMatchObject({ flexGrow: 1, flexShrink: 1 });
+    expect(style.fontWeight).toBe(typeStyle('sm', true).fontWeight);
+    expect(style.color).toBe(tr.root.findByType(NuriIcon).props.color);
+    expect(typeof style.color).toBe('string');
+  });
+
+  test('Alert — ghost without an action is a bare icon + message line (no pressable surface)', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <Alert variant="ghost">
+          <AlertIcon name="warning-circle" />
+          Please enter a valid IBAN
+        </Alert>
+      </NuriThemeProvider>,
+    );
+    expect(tr.toJSON()).toBeTruthy();
+    expect(tr.root.findByType(NuriIcon).props.name).toBe('warning-circle');
+    expect(tr.root.findByType(Text).props.children).toBe('Please enter a valid IBAN');
+    // ghost has no padding and no trailing action — the row is icon + message.
+    expect(pressableActions(tr)).toHaveLength(0);
+    const root = tr.toJSON() as TestRenderer.ReactTestRendererJSON;
+    const rootStyle = Array.isArray(root.props.style)
+      ? Object.assign({}, ...root.props.style.filter(Boolean))
+      : root.props.style;
+    expect(rootStyle.backgroundColor).toBe('transparent');
+    expect(rootStyle.padding).toBeUndefined();
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('Alert — accent scopes the whole alert, including the delegated AlertButton', () => {
+    const buttonBg = (accent: 'lilac' | 'orange') => {
+      const tr = render(
+        <NuriThemeProvider>
+          <Alert accent={accent}>
+            <AlertIcon name="warning-circle" />
+            Verify your identity
+            <AlertButton>Verify</AlertButton>
+          </Alert>
+        </NuriThemeProvider>,
+      );
+      // the delegated Button's action host resolves its (solid) background from
+      // the ambient scope — evaluate the pressed render-prop in the rest state.
+      const [action] = pressableActions(tr);
+      const style = (action.props.style as (s: { pressed: boolean }) => Record<string, unknown>)({ pressed: false });
+      return style.backgroundColor as string;
+    };
+    // two different accent scopes reach the delegated action (a solid accent bg),
+    // so the button paints DIFFERENT colours — the Alert's accent scopes the
+    // AlertButton for free (form-kit-spec §1.1), not just the alert surface.
+    expect(buttonBg('lilac')).not.toBe(buttonBg('orange'));
   });
 
   test('ListAction — direct row slots render avatar, content, trailing value, and trail icon', () => {
