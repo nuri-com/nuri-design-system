@@ -42,6 +42,18 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         }
       }
     },
+    "iconWrap": {
+      "el": "view",
+      "geometry": {
+        "base": {
+          "flexDirection": "row",
+          "alignItems": "center",
+          "justifyContent": "center",
+          "height": 24
+        },
+        "variants": {}
+      }
+    },
     "icon": {
       "el": "icon",
       "geometry": {

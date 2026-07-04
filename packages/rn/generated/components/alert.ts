@@ -26,7 +26,7 @@ export type AlertProps = {
   children?: React.ReactNode;
 };
 
-type AlertPart = 'root' | 'icon' | 'message';
+type AlertPart = 'root' | 'iconWrap' | 'icon' | 'message';
 
 const alertDisplayName = nuriNames('alert').rn;
 export type AlertIconProps = {

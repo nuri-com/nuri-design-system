@@ -49,30 +49,41 @@ export const alertDescriptor: Descriptor<AlertAxes> = {
   structure: {
     anatomy: {
       // OPEN root (accepts the flat children slot — the message string + the
-      // AlertButton element) with a leading `icon` part and a `message` text part.
-      // `message` is a STYLE-DONOR part: no api slot targets it, so the renderer's
-      // prose rule routes the flat string children through its authored style
-      // (typography + muted palette + fill · §1.2/§1.3) and it never renders as its
-      // own node — element children (AlertButton) flow in the root row unchanged.
+      // AlertButton element) with a leading icon BAND and a `message` text part.
+      // `iconWrap` is a short, line-height-tall band that vertically CENTRES the
+      // glyph (align center); the row aligns items on the message's FIRST baseline,
+      // so the band — and the glyph inside it — stay level with line one even when
+      // the message wraps to two lines. `message` is a STYLE-DONOR part: no api slot
+      // targets it, so the renderer's prose rule routes the flat string children
+      // through its authored style (typography + muted palette + fill · §1.2/§1.3)
+      // and it never renders as its own node — element children (AlertButton) flow
+      // in the root row unchanged.
       el: 'view',
       open: true,
       parts: {
-        icon: { el: 'icon' },
+        iconWrap: { el: 'view', parts: { icon: { el: 'icon' } } },
         message: { el: 'text' },
       },
     },
     base: {
       root: {
-        // Baseline alignment sits the small glyph on the message's text baseline.
+        // Items align on the message's FIRST baseline — the icon band and (when
+        // present) the trailing AlertButton stay level with line one of a wrapping
+        // message.
         stack: { direction: 'row', align: 'baseline', gap: 'sm' },
       },
-      // The leading glyph is the SMALL (xs) icon box, MUTED to the same tone as
-      // the message (palette muted → the text-muted token · not the paler `subtle`
-      // glyph) so the icon and text read as one subtle unit.
+      // The icon BAND — a line-height-tall (sm) box that centres the glyph, so the
+      // glyph sits ON the message's first line rather than hanging from the baseline.
+      // A view baselines at its bottom edge, so the band's bottom lands on the
+      // message baseline and the centred glyph reads level with the text.
+      iconWrap: { stack: { direction: 'row', align: 'center', justify: 'center' }, box: { height: 'sm' } },
+      // The glyph is the SMALL (xs) icon box, MUTED to the same tone as the message
+      // (palette muted → the text-muted token · not the paler `subtle` glyph) so the
+      // icon and text read as one subtle unit.
       icon: { box: { width: 'xs', height: 'xs' }, palette: { muted: true } },
       // The message: sm, EMPHASIS (semibold), MUTED (the subtle notice tone),
-      // left-aligned, and it GROWS + wraps so the icon and the trailing action hug
-      // their content.
+      // left-aligned, and it GROWS + wraps so the icon band and the trailing action
+      // hug their content.
       message: {
         stack: { fill: 'grow-shrink' },
         typography: { size: 'sm', emphasis: true, align: 'start' },

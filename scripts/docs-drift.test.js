@@ -170,13 +170,13 @@ test('C · doc-stated emitted counts match the live build', () => {
 // clean. The validated shapes (B1.5 · the three composed recipes).
 const EXPECTED_DESCRIPTORS = {
   // alert (the form-kit inline notice · composition-only · form-kit-spec §1) — a
-  // centred row with one leading `icon` part; the message is the flat STRING
-  // children (rendered through the root's authored text style · the prose rule),
-  // and the trailing AlertButton is a bare element child. `soft` raises a neutral
-  // surface + padding + radius; `ghost` is transparent. Static · no `interactive`.
+  // baseline row with a leading icon BAND (iconWrap > icon) and a `message` donor
+  // text part (the flat STRING children render through it · the prose rule); the
+  // trailing AlertButton is a bare element child. `soft` raises a neutral pill
+  // surface; `ghost` is transparent. Static · no `interactive`.
   alert: {
     axes: { variant: ['soft', 'ghost'] },
-    parts: ['icon', 'message'],
+    parts: ['iconWrap', 'icon', 'message'],
     interactive: [],
   },
   button: {
