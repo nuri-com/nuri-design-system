@@ -21,7 +21,13 @@ export const listActionDescriptor: Descriptor<ListActionAxes> = {
     anatomy: {
       el: 'pressable',
       parts: {
-        leadingAvatar: { el: 'view', parts: { leadingIcon: { el: 'icon' } } },
+        leadingAvatar: {
+          component: 'icon-avatar',
+          props: {
+            variant: '$axis.variant',
+            icon: '$slot.name',
+          },
+        },
         content: { el: 'view', parts: { text: { el: 'text' }, textMuted: { el: 'text' } } },
         trailing: { el: 'view', parts: { trailingText: { el: 'text' }, trailingTextMuted: { el: 'text' } } },
         trailIcon: { el: 'icon' },
@@ -34,11 +40,6 @@ export const listActionDescriptor: Descriptor<ListActionAxes> = {
         palette: { variant: 'ghost' },
         interactive: { pressColor: true, disabledOpacity: true },
       },
-      leadingAvatar: {
-        stack: { align: 'center', justify: 'center' },
-        box: { width: 'lg', height: 'lg', radius: 'full' },
-      },
-      leadingIcon: { box: { width: 'xs', height: 'xs' } },
       content: {
         stack: { direction: 'column', align: 'start', justify: 'center', fill: 'grow' },
       },
@@ -56,11 +57,11 @@ export const listActionDescriptor: Descriptor<ListActionAxes> = {
     // The row stays a ghost surface; variant is routed deliberately to the
     // leading avatar so grouped row surfaces can belong to a future list-group.
     variant: {
-      outline: { leadingAvatar: { palette: { variant: 'outline' } } },
-      solid: { leadingAvatar: { palette: { variant: 'solid' } } },
-      soft: { leadingAvatar: { palette: { variant: 'soft' } } },
-      ghost: { leadingAvatar: { palette: { variant: 'ghost' } } },
-      subtle: { leadingAvatar: { palette: { variant: 'subtle' } } },
+      outline: {},
+      solid: {},
+      soft: {},
+      ghost: {},
+      subtle: {},
     },
   },
   defaults: { variant: 'outline' },
@@ -69,7 +70,7 @@ export const listActionDescriptor: Descriptor<ListActionAxes> = {
     themeScope: { accent: true },
     behaviour: { pressable: { target: 'root', props: ['onPress', 'disabled', 'accessibilityLabel'] } },
     slots: {
-      leadingAvatar: { part: 'leadingIcon', kind: 'icon-name', component: true },
+      leadingAvatar: { part: 'leadingAvatar', kind: 'icon-name', component: true },
       content: { part: 'content', kind: 'region' },
       text: { part: 'text', kind: 'text', component: true, multiple: true },
       textMuted: { part: 'textMuted', kind: 'text', component: true, multiple: true },

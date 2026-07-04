@@ -176,7 +176,7 @@ const EXPECTED_DESCRIPTORS = {
   // a neutral pill surface; `ghost` is transparent. Static · no `interactive`.
   alert: {
     axes: { variant: ['soft', 'ghost'] },
-    parts: ['icon', 'message'],
+    parts: ['icon', 'message', 'action'],
     interactive: [],
   },
   button: {
@@ -222,7 +222,6 @@ const EXPECTED_DESCRIPTORS = {
     axes: { variant: ['outline', 'solid', 'soft', 'ghost', 'subtle'] },
     parts: [
       'leadingAvatar',
-      'leadingIcon',
       'content',
       'text',
       'textMuted',
@@ -574,7 +573,17 @@ const FROZEN_SCHEMA = {
   // bump" reservation — 4 El cases now, 4 parity primitives.
   El: ['view', 'text', 'icon', 'pressable'],
   NS: { 'stack?': 'StackNS', 'box?': 'BoxNS', 'typography?': 'TypographyNS', 'palette?': 'PaletteNS', 'interactive?': 'InteractiveNS', 'effect?': 'EffectNS' },
-  PartAnatomy: { 'el': 'El', 'open?': 'boolean', 'parts?': "Partial<Record<Exclude<P, 'root'>, PartAnatomy<P>>>" },
+  ComponentRef: {
+    'component': 'string',
+    'props?': 'Record<string, string | boolean | number | null>',
+  },
+  PartAnatomy: {
+    'el?': 'El',
+    'component?': 'string',
+    'props?': "ComponentRef['props']",
+    'open?': 'boolean',
+    'parts?': "Partial<Record<Exclude<P, 'root'>, PartAnatomy<P>>>",
+  },
   // `defaults` (R1.5 per-axis public default) + `decorative` (decision 50 a11y
   // flag) added at N+50 (the web-factory slice · a deliberate, versioned
   // post-freeze envelope add · both DATA the two factories read). `defaults`
@@ -695,6 +704,7 @@ test('F · the descriptor schema shape is frozen (B3 · decision 65 step 5)', ()
 
   // The composition + anatomy + descriptor envelope (field maps).
   assert.deepEqual(typeFields(typeRhs(src, 'NS')), FROZEN_SCHEMA.NS, drift('the NS composition'));
+  assert.deepEqual(typeFields(typeRhs(src, 'ComponentRef')), FROZEN_SCHEMA.ComponentRef, drift('ComponentRef'));
   assert.deepEqual(typeFields(typeRhs(src, 'PartAnatomy')), FROZEN_SCHEMA.PartAnatomy, drift('PartAnatomy'));
   assert.deepEqual(typeFields(typeRhs(src, 'Descriptor')), FROZEN_SCHEMA.Descriptor, drift('the Descriptor envelope'));
 

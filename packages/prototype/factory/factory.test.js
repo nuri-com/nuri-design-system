@@ -35,6 +35,7 @@ await import('../recipes/icon-avatar.js');
 await import('../recipes/icon-button.js');
 await import('../recipes/list.js');
 await import('../recipes/list-action.js');
+await import('../recipes/alert.js');
 await import('../primitives/scroll.js');
 // The factory + the descriptor twins, for the buildComponent-direct assertions
 // (same cached module instances the recipes use).
@@ -287,8 +288,8 @@ test('B5 · <nuri-list-action> direct typed slots route through their ancestor r
 
   const btn = row.querySelector('button.nuri-interactive');
   assert.ok(btn, 'the registered element mounts the pressable tree');
-  assert.deepEqual([...btn.children].map((child) => child.tagName.toLowerCase()), ['nuri-view', 'nuri-view', 'nuri-view', 'nuri-icon']);
-  assert.equal(btn.children[0].querySelector('nuri-icon')?.getAttribute('name'), 'bank', 'leading avatar wraps the glyph');
+  assert.deepEqual([...btn.children].map((child) => child.tagName.toLowerCase()), ['nuri-icon-avatar', 'nuri-view', 'nuri-view', 'nuri-icon']);
+  assert.equal(btn.children[0].querySelector('nuri-icon')?.getAttribute('name'), 'bank', 'leading avatar delegates to the real icon-avatar');
   assert.deepEqual([...btn.children[1].querySelectorAll('nuri-typography')].map((el) => el.textContent), ['Bank account', 'Personal']);
   assert.deepEqual([...btn.children[2].querySelectorAll('nuri-typography')].map((el) => el.textContent), ['12.00 €', '3433 Sats']);
   assert.equal(btn.children[3].getAttribute('name'), 'chevron-right');
@@ -299,7 +300,7 @@ test('B5b · <nuri-list-action> variant defaults to outline and can route solid 
   outline.innerHTML = '<nuri-list-action-leading-avatar name="bank"></nuri-list-action-leading-avatar><nuri-list-action-text>Bank</nuri-list-action-text>';
   mount(outline);
   await tick();
-  const outlineAvatar = outline.querySelector('button.nuri-interactive > nuri-view');
+  const outlineAvatar = outline.querySelector('button.nuri-interactive > nuri-icon-avatar nuri-view');
   assert.equal(outlineAvatar?.getAttribute('data-variant'), 'outline', 'default variant routes to leading avatar');
 
   const solid = dom.window.document.createElement('nuri-list-action');
@@ -308,10 +309,24 @@ test('B5b · <nuri-list-action> variant defaults to outline and can route solid 
   solid.innerHTML = '<nuri-list-action-leading-avatar name="arrow-up"></nuri-list-action-leading-avatar><nuri-list-action-text>Orange</nuri-list-action-text>';
   mount(solid);
   await tick();
-  const solidAvatar = solid.querySelector('button.nuri-interactive > nuri-view');
+  const solidAvatar = solid.querySelector('button.nuri-interactive > nuri-icon-avatar nuri-view');
   const solidButton = solid.querySelector('button.nuri-interactive');
   assert.equal(solidAvatar?.getAttribute('data-variant'), 'solid', 'explicit variant routes to leading avatar');
   assert.equal(solidButton?.getAttribute('data-accent'), 'orange', 'accent scope lands on the row painting node');
+});
+
+test('B5d · <nuri-list-action> leading avatar uses the real icon-avatar element contract', async () => {
+  const row = dom.window.document.createElement('nuri-list-action');
+  row.setAttribute('variant', 'solid');
+  row.innerHTML = '<nuri-list-action-leading-avatar name="bank"></nuri-list-action-leading-avatar>';
+  mount(row);
+  await tick();
+
+  const avatar = row.querySelector('button.nuri-interactive > nuri-icon-avatar');
+  assert.ok(avatar, 'the row renders the catalog icon-avatar, not a rebuilt primitive clone');
+  assert.equal(avatar.getAttribute('variant'), 'solid', 'the row axis maps to the delegated component prop');
+  assert.equal(avatar.getAttribute('icon'), 'bank', 'the slot glyph maps to the delegated component prop');
+  assert.equal(avatar.querySelector('nuri-view')?.getAttribute('data-variant'), 'solid', 'the delegated component renders its own surface');
 });
 
 test('B5c · <nuri-list> preserves list-action children with shared nuri-list-* slot prefixes', async () => {
@@ -390,7 +405,7 @@ test('B8 · a multiple:true slot repeats as a SEQUENCE of leaf instances', async
 test('B9 · a repeated SINGULAR icon slot fails named', () => {
   const row = dom.window.document.createElement('nuri-list-action');
   row.innerHTML = '<nuri-list-action-leading-avatar name="arrow-up"></nuri-list-action-leading-avatar><nuri-list-action-leading-avatar name="arrow-down"></nuri-list-action-leading-avatar>';
-  mountExpectingNamedError(row, /slot targeting part 'leadingIcon' is singular — it appears 2 times under 'leadingAvatar'/);
+  mountExpectingNamedError(row, /slot targeting part 'leadingAvatar' is singular — it appears 2 times under 'root'/);
 });
 
 test('B10 · bare children with NO default sink fail named', () => {
@@ -465,6 +480,25 @@ test('C3 · <nuri-icon-avatar> · DECORATIVE aria-hidden comes from descriptor.d
   const icon = a.querySelector('nuri-icon');
   assert.ok(icon, 'the glyph leaf renders');
   assert.equal(icon.getAttribute('name'), 'apple', 'the `icon` attr routes the glyph name onto <nuri-icon>');
+});
+
+test('C4 · <nuri-alert-button disabled> delegates to the real button through component-ref mapping', async () => {
+  const alert = dom.window.document.createElement('nuri-alert');
+  alert.innerHTML = [
+    '<nuri-alert-icon name="warning-circle"></nuri-alert-icon>',
+    'Total balance insufficient',
+    '<nuri-alert-button disabled>Top up</nuri-alert-button>',
+  ].join('');
+  mount(alert);
+  await tick();
+
+  const action = alert.querySelector('nuri-alert > nuri-view > nuri-button');
+  assert.ok(action, 'the action slot renders the real nuri-button element');
+  assert.equal(action.getAttribute('variant'), 'solid', 'variant is pinned by descriptor mapping');
+  assert.equal(action.getAttribute('size'), 'sm', 'size is pinned by descriptor mapping');
+  const btn = action.querySelector('button.nuri-interactive');
+  assert.equal(btn?.hasAttribute('disabled'), true, 'disabled forwards through the generic slot-prop mapping');
+  assert.equal(action.querySelector('nuri-typography')?.textContent, 'Top up', 'children forward to the delegated button label');
 });
 
 // ══════════════════════════════════════════════════════════════════

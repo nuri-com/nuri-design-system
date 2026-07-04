@@ -63,7 +63,3 @@ export type {
   BottomSheetPanelProps,
   BottomSheetScrollProps,
 } from './BottomSheet';
-// The Alert family — generated Alert/AlertIcon + the hand-authored delegating
-// AlertButton (the BottomSheet-family precedent · a hand member beside generated).
-export { Alert, AlertIcon, AlertButton } from './Alert';
-export type { AlertProps, AlertIconProps, AlertButtonProps } from './Alert';

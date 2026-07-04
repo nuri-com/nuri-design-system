@@ -298,8 +298,15 @@ export const LEAF_ELS = (Object.keys(EL_CLASS) as El[]).filter((el) => EL_CLASS[
 
 // A part's anatomy: its element, whether it is OPEN (accepts positional
 // children · the §7 open-primitive layer), and any nested named parts.
+export type ComponentRef = {
+  component: string;
+  props?: Record<string, string | boolean | number | null>;
+};
+
 export type PartAnatomy<P extends PartId = PartId> = {
-  el: El;
+  el?: El;
+  component?: string;
+  props?: ComponentRef['props'];
   open?: boolean;
   parts?: Partial<Record<Exclude<P, 'root'>, PartAnatomy<P>>>;
 };

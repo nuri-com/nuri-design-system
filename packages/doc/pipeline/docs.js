@@ -363,11 +363,12 @@ function compositionRows(partMap, opts, where) {
 function renderAnatomyLines(ir) {
   const a = ir.anatomy;
   const open = a.open ? ' · `open`' : '';
-  const out = [`- **root** · \`${a.el}\`${open}`];
+  const label = (node) => node.component ? `component:${node.component}` : node.el;
+  const out = [`- **root** · \`${label(a)}\`${open}`];
   const parts = a.parts || {};
   for (const p of PART_ORDER) {
     if (p === 'root' || !parts[p]) continue;
-    out.push(`  - **${p}** · \`${parts[p].el}\``);
+    out.push(`  - **${p}** · \`${label(parts[p])}\``);
   }
   return out;
 }

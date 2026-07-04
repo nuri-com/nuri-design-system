@@ -9,12 +9,10 @@
  * The message STRING children render as prose through the root's authored text
  * style (factory.js#wrapProseNodes · the web mirror of the RN prose rule).
  *
- * <nuri-alert-button> is the web mirror of the RN AlertButton — the ONLY
- * sanctioned action inside an alert (there is NO raw <nuri-button> escape hatch
- * · §1.1). It is a thin DELEGATING wrapper: it renders the real <nuri-button>
- * with the PINNED look (size sm · variant solid); accent inherits from the
- * enclosing <nuri-alert> scope; the label is its text children. It re-implements
- * NO button styling, so it CANNOT drift.
+ * <nuri-alert-button> is the generated marker for the descriptor's `button`
+ * slot. The factory harvests its children/attrs and the `action` component-ref
+ * part renders the real <nuri-button> with the pinned look (size sm · variant
+ * solid). It re-implements NO button styling, so it CANNOT drift.
  *
  * The page loads THIS module (+ the linked namespace CSS); the primitives the
  * factory tree upgrades into (view · icon · typography) and the delegated
@@ -32,21 +30,3 @@ import '../primitives/typography.js';
 
 // <nuri-alert> — the generic factory registration over the frozen descriptor.
 defineNuriComponent(alertDescriptor, nuriNames('alert').web);
-
-// <nuri-alert-button> — delegate to the real <nuri-button> with pinned props. It
-// is idempotent under the factory's harvest+clone: a clone that already carries a
-// built <nuri-button> child keeps it (that child self-renders), so the label is
-// preserved without re-reading a mutated subtree.
-class NuriAlertButton extends HTMLElement {
-  connectedCallback() {
-    if (this.querySelector('nuri-button')) return;
-    const label = this.textContent.trim();
-    const button = document.createElement('nuri-button');
-    button.setAttribute('size', 'sm');
-    button.setAttribute('variant', 'solid');
-    button.textContent = label;
-    this.replaceChildren(button);
-  }
-}
-
-if (!customElements.get('nuri-alert-button')) customElements.define('nuri-alert-button', NuriAlertButton);

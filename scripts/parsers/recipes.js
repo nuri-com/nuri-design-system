@@ -194,7 +194,7 @@ function resolveGeometryNode(ns, deps) {
 function anatomyParts(anatomy) {
   const out = [];
   const walk = (name, a) => {
-    out.push({ name, el: a.el, open: !!a.open });
+    if (!a.component) out.push({ name, el: a.el, open: !!a.open });
     if (a.parts) for (const child of Object.keys(a.parts)) walk(child, a.parts[child]);
   };
   walk('root', anatomy);
