@@ -211,38 +211,26 @@ function renderPart<A extends Axes>(
 
   // ── THE PROSE-CHILDREN RULE (form-kit-spec §1.3 · GENERIC, not alert-specific) ──
   // A host with a PROSE-DONOR part — an `el:'text'` child that NO api slot targets
-  // (an unrouted style-donor · e.g. Alert's `message`) — opts its BARE STRING
-  // children into prose: each string/number child is wrapped in a <Text> carrying
-  // the DONOR's authored style (typography · palette fg incl. muted · the fill
-  // geometry), so the message FILLS + wraps while sibling parts (a leading icon, a
-  // trailing action) HUG their content. RN crashes on a bare string inside a <View>
-  // ("Text strings must be rendered within a <Text>"); web tolerates text nodes but
-  // wraps identically for layout parity (factory.js#wrapProseNodes). A host with NO
-  // donor leaves bare children RAW — the mixed-content contract (decision 83 · a
-  // region's loose text stays a raw child · the composition-envelope 'before'/
-  // 'after' cell). The donor never renders as its own node; it is DATA the wrapper
-  // reads. This is a RENDERING concern, not schema — the STYLE (size · muted · fill)
-  // is descriptor data on the donor part.
+  // (e.g. Alert's `message`) — routes its BARE STRING children THROUGH that donor
+  // part, so each string renders as the donor's normal `text` leaf: a SINGLE-LINE,
+  // tail-ellipsised label carrying the donor's authored style (typography · muted
+  // palette · the grow/shrink fill), so the message stays one compact line while
+  // sibling parts (a leading icon, a trailing action) HUG their content. RN crashes
+  // on a bare string inside a <View> ("Text strings must be rendered within a
+  // <Text>"); the web mirror routes the same way (factory.js#wrapProseNodes). A host
+  // with NO donor leaves bare children RAW — the mixed-content contract (decision 83
+  // · a region's loose text stays a raw child · the composition-envelope 'before'/
+  // 'after' cell). Element children (an AlertButton) always pass through unchanged.
+  // This is a RENDERING concern, not schema — the STYLE is descriptor data on the
+  // donor part, and the single-line clamp is the shared `text`-leaf treatment.
   const slotTargetParts = new Set(Object.values(ctx.descriptor.api?.slots ?? {}).map((s) => s.part));
   const donorNode = node.children.find((c) => c.el === 'text' && !slotTargetParts.has(c.name));
-  const proseFlat = donorNode
-    ? flattenBakedPart(ctx.recipe[donorNode.name], ctx.descriptor, ctx.theme, donorNode.name, ctx.selection, {
-      pressed: false,
-      disabled: false,
-    })
-    : undefined;
   const wrapProse = (content: React.ReactNode): React.ReactNode => {
-    if (!proseFlat) return content;
-    const type = proseFlat.node.type;
-    const proseColor = proseFlat.node.fg ?? fg;
+    if (!donorNode) return content;
     return React.Children.map(content, (child) =>
-      typeof child === 'string' || typeof child === 'number' ? (
-        <Text style={[type ? typeStyle(type.size, type.emphasis) : null, proseColor ? { color: proseColor } : null, proseFlat.style]}>
-          {child}
-        </Text>
-      ) : (
-        child
-      ),
+      typeof child === 'string' || typeof child === 'number'
+        ? renderPart(donorNode, { ...ctx, content: { ...ctx.content, [donorNode.name]: child } }, fg, false)
+        : child,
     );
   };
 

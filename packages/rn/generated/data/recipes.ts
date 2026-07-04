@@ -27,7 +27,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       "geometry": {
         "base": {
           "flexDirection": "row",
-          "alignItems": "baseline",
+          "alignItems": "center",
           "gap": 6
         },
         "variants": {
@@ -40,18 +40,6 @@ export const recipes: Record<string, BakedComponentRecipe> = {
             }
           }
         }
-      }
-    },
-    "iconWrap": {
-      "el": "view",
-      "geometry": {
-        "base": {
-          "flexDirection": "row",
-          "alignItems": "center",
-          "justifyContent": "center",
-          "height": 24
-        },
-        "variants": {}
       }
     },
     "icon": {

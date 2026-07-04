@@ -434,16 +434,18 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       </NuriThemeProvider>,
     );
     // The bare string would crash RN inside a <View> ("Text strings must be
-    // rendered within a <Text>"); the prose-children rule wraps it through the
-    // `message` donor part. The wrapper GROWS + wraps (so the icon hugs) and is NOT
-    // the single-line clamped control label (numberOfLines undefined).
+    // rendered within a <Text>"); the prose-children rule routes it through the
+    // `message` donor part, rendered as its normal single-line `text` leaf.
     const message = tr.root
       .findAllByType(Text)
       .find((t) => t.props.children === 'Total balance insufficient');
     expect(message).toBeTruthy();
     const style = Object.assign({}, ...(message!.props.style as unknown[]).filter(Boolean));
+    // v1 is a COMPACT ONE-LINE notice: the message clamps to one line with a tail
+    // ellipsis, and still grows/shrinks so the icon + action hug their content.
+    expect(message!.props.numberOfLines).toBe(1);
+    expect(message!.props.ellipsizeMode).toBe('tail');
     expect(style).toMatchObject({ flexGrow: 1, flexShrink: 1 });
-    expect(message!.props.numberOfLines).toBeUndefined();
     // the donor styling is DATA: sm + emphasis (semibold) + muted. The message and
     // the (also-muted) glyph share ONE muted tone, so they read as a subtle unit.
     expect(style.fontWeight).toBe(typeStyle('sm', true).fontWeight);

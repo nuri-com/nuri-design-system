@@ -76,4 +76,16 @@
   [data-host-tree] {
     display: contents;
   }
+
+  /* SINGLE-LINE CLAMP (plumbing · the web twin of RN's <Text numberOfLines={1}
+   * ellipsizeMode="tail">). The factory's prose rule adds this to a prose leaf
+   * (Alert's message) so it stays ONE line with a tail ellipsis instead of
+   * wrapping — the web `text` leaf otherwise wraps, unlike RN which always clamps.
+   * Pairs with the grow/shrink fill's `min-inline-size: 0` so the ellipsis engages
+   * inside the flex row. Generic, not alert-specific. */
+  .nuri-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
