@@ -147,6 +147,7 @@ const PAGE_CONTRACT = {
       '### TextFieldIconButtonProps',
       '| `name` | yes | `IconName` | scalar icon name |',
       '| `onPress` | no | `() => void` | pressable behaviour |',
+      '| `accessibilityLabel` | yes | `string` | pressable behaviour |',
       '> `children` is not accepted (`children?: never`).',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`variant` |', '`size` |', '`keyboardType`'],

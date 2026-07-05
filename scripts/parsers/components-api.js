@@ -225,6 +225,12 @@ function slotPropNamesForComponentRef(ref) {
   return [...new Set(names)];
 }
 
+function requiredSlotPropNamesForComponentRef(ref, slot) {
+  const names = slotPropNamesForComponentRef(ref);
+  if (slot?.kind !== 'icon-name') return [];
+  return names.filter((name) => name === 'accessibilityLabel');
+}
+
 function buildProps(api, variants, descriptor) {
   const lines = [];
   let usesAccent = false;
@@ -461,12 +467,14 @@ export function emitComponentFile(spec, descriptor) {
   if (hasComponentSlots) {
     for (const slot of componentSlots) {
       const slotPascal = pascalPart(slot.slotName);
-      const slotPropNames = slotPropNamesForComponentRef(refsByPart.get(slot.part));
+      const ref = refsByPart.get(slot.part);
+      const slotPropNames = slotPropNamesForComponentRef(ref);
+      const requiredSlotPropNames = new Set(requiredSlotPropNamesForComponentRef(ref, slot));
       if (slot.kind === 'icon-name') {
         const nameRequired = slotPropNames.includes('name') || slot.kind === 'icon-name';
         const propLines = [`  name${nameRequired ? '' : '?'}: IconName;`];
         for (const prop of slotPropNames.filter((p) => p !== 'name')) {
-          propLines.push(`  ${prop}?: ${SLOT_PROP_TS[prop] || 'unknown'};`);
+          propLines.push(`  ${prop}${requiredSlotPropNames.has(prop) ? '' : '?'}: ${SLOT_PROP_TS[prop] || 'unknown'};`);
         }
         body.push(
           `export type ${Pascal}${slotPascal}Props = {`,

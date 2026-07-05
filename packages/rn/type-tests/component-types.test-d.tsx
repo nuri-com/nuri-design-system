@@ -130,6 +130,8 @@ export const textFieldNoVariant = <TextField variant="soft"><TextFieldLabel>IBAN
 export const textFieldButtonNoIcon = <TextFieldButton icon="apple">Paste</TextFieldButton>;
 // @ts-expect-error TextFieldIconButton requires the generated icon-name prop.
 export const textFieldIconButtonMissingName = <TextFieldIconButton accessibilityLabel="Hide" />;
+// @ts-expect-error TextFieldIconButton is icon-only and requires an accessible label.
+export const textFieldIconButtonMissingAccessibilityLabel = <TextFieldIconButton name="eye-hidden" />;
 // @ts-expect-error TextFieldIconButton is icon-only and forbids children.
 export const textFieldIconButtonNoChildren = <TextFieldIconButton name="eye-hidden">Hide</TextFieldIconButton>;
 

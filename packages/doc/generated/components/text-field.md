@@ -49,6 +49,6 @@ nav_order: 6
 | `name` | yes | `IconName` | scalar icon name |
 | `onPress` | no | `() => void` | pressable behaviour |
 | `disabled` | no | `boolean` | pressable behaviour |
-| `accessibilityLabel` | no | `string` | pressable behaviour |
+| `accessibilityLabel` | yes | `string` | pressable behaviour |
 
 > `children` is not accepted (`children?: never`).

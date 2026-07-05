@@ -592,6 +592,16 @@ test('C7 · <nuri-text-field> native input event calls onChangeText property han
   assert.deepEqual(seen, ['Ada']);
 });
 
+test('C6b · <nuri-text-field-icon-button> requires aria-label before delegating an icon-only button', () => {
+  const field = dom.window.document.createElement('nuri-text-field');
+  field.innerHTML = [
+    '<nuri-text-field-label>Recovery code</nuri-text-field-label>',
+    '<nuri-text-field-icon-button name="eye-hidden"></nuri-text-field-icon-button>',
+  ].join('');
+
+  mountExpectingNamedError(field, /<nuri-text-field-icon-button>' requires aria-label/);
+});
+
 test('C7b · <nuri-text-field> input focus owns the field focus state', async () => {
   const field = dom.window.document.createElement('nuri-text-field');
   const seen = [];

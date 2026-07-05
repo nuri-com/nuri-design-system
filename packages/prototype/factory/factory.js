@@ -116,6 +116,21 @@ const NURI_COMPONENT_TAGS = new Map();
 const isMultiPart = (descriptor, part) =>
   Object.values(descriptor.api?.slots || {}).some((slot) => slot.part === part && slot.multiple === true);
 
+function componentRefsByPart(descriptor) {
+  const refs = new Map();
+  const walk = (part, node) => {
+    if (node.component) refs.set(part, node);
+    for (const child of node.children || []) walk(child.name, child);
+  };
+  walk('root', resolveAnatomy(descriptor));
+  return refs;
+}
+
+function requiredSlotPropsForComponentSlot(ref, spec) {
+  if (!ref || spec?.kind !== 'icon-name') return [];
+  return Object.values(ref.props || {}).includes('$slot.accessibilityLabel') ? ['accessibilityLabel'] : [];
+}
+
 // ── merge: base ⊕ each selected axis patch, per namespace (resolve.ts mergeNS) ──
 // later wins; each present namespace is shallow-merged in NS_ORDER.
 function mergeNS(list) {
@@ -302,7 +317,13 @@ function harvestComposition(host, slotTagToSpec, fallbackPart, regionTagToPart =
           };
           if (spec.kind === 'icon-name') {
             const name = child.getAttribute('name');
-            list.push({ part: spec.part, content: name, props: { name, ...propsFromAttrs() } });
+            const props = { name, ...propsFromAttrs() };
+            for (const prop of spec.requiredSlotProps || []) {
+              if (props[prop] === undefined || props[prop] === '') {
+                throw new Error(`[nuri-factory] '<${tag}>' requires ${prop === 'accessibilityLabel' ? 'aria-label' : prop}`);
+              }
+            }
+            list.push({ part: spec.part, content: name, props });
           } else {
             const tpl = document.createElement('template');
             while (child.firstChild) tpl.content.append(child.firstChild);
@@ -886,8 +907,14 @@ export function defineNuriComponent(descriptor, tagName) {
   const regionSlotTagToPart = {};
   for (const [slot, spec] of regionSlotEntries) regionSlotTagToPart[`${tagName}-${camelToKebab(slot)}`] = spec.part;
   const componentSlotEntries = Object.entries(apiSlots).filter(([, spec]) => spec.component === true);
+  const refsByPart = componentRefsByPart(descriptor);
   const componentSlotTagToSpec = {};
-  for (const [slot, spec] of componentSlotEntries) componentSlotTagToSpec[`${tagName}-${camelToKebab(slot)}`] = spec;
+  for (const [slot, spec] of componentSlotEntries) {
+    componentSlotTagToSpec[`${tagName}-${camelToKebab(slot)}`] = {
+      ...spec,
+      requiredSlotProps: requiredSlotPropsForComponentSlot(refsByPart.get(spec.part), spec),
+    };
+  }
   const hasComponentSlots = componentSlotEntries.length > 0;
   // COMPOUND capability (the topbar-slots slice): region slots WITHOUT component
   // slots — the container IS the root painting node (apply-NS-to-host) and each

@@ -58,7 +58,7 @@ export type TextFieldIconButtonProps = {
   name: IconName;
   onPress?: () => void;
   disabled?: boolean;
-  accessibilityLabel?: string;
+  accessibilityLabel: string;
   children?: never;
 };
 export const TextFieldIconButton = createNuriSlot<TextFieldIconButtonProps>("iconButton", `${textFieldDisplayName}IconButton`, 'name', textFieldDisplayName);
