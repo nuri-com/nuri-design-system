@@ -33,10 +33,10 @@ export const Wallet: React.FC = () => (
         <NuriIcon name="nuri" />
       </TopbarLeading>
       <TopbarCenter>
-        <IconButton size="sm" variant="solid" icon="apple" accessibilityLabel="Buy with Apple Pay" />
+        <IconButton variant="solid" icon="apple" accessibilityLabel="Buy with Apple Pay" />
       </TopbarCenter>
       <TopbarTrailing>
-        <IconButton icon="headphones" variant="soft" size="lg" accessibilityLabel="Support" />
+        <IconButton icon="headphones" variant="soft" accessibilityLabel="Support" />
       </TopbarTrailing>
     </Topbar>
 

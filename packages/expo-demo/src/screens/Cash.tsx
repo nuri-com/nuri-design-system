@@ -28,7 +28,7 @@ export const Cash: React.FC = () => (
         <Button size="sm" variant="solid">Add to Apple Wallet</Button>
       </TopbarCenter>
       <TopbarTrailing>
-        <IconButton icon="headphones" variant="soft" size="lg" accessibilityLabel="Support" />
+        <IconButton icon="headphones" variant="soft" accessibilityLabel="Support" />
       </TopbarTrailing>
     </Topbar>
 

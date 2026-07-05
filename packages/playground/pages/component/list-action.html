@@ -14,41 +14,52 @@
 
 <nuri-playground-shell doc="List Action">
 
-  <nuri-demo layout="board" controls="device,theme,accent" label="navigation">
+  <!-- sources · solid accent avatars (a filled orange/lilac disc) + a chevron. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="sources">
     <template>
       <nuri-list>
-        <nuri-list-action aria-label="Bank account">
-          <nuri-list-action-leading-avatar name="bank"></nuri-list-action-leading-avatar>
-          <nuri-list-action-text>Bank account</nuri-list-action-text>
+        <nuri-list-action variant="solid" accent="orange" aria-label="From Bitcoin Wallet">
+          <nuri-list-action-leading-avatar name="wallet"></nuri-list-action-leading-avatar>
+          <nuri-list-action-text>From Bitcoin Wallet</nuri-list-action-text>
           <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
         </nuri-list-action>
         <nuri-list-separator></nuri-list-separator>
-        <nuri-list-action aria-label="Credit card">
-          <nuri-list-action-leading-avatar name="card"></nuri-list-action-leading-avatar>
-          <nuri-list-action-text>Credit card</nuri-list-action-text>
+        <nuri-list-action variant="solid" accent="lilac" aria-label="From Cash Account">
+          <nuri-list-action-leading-avatar name="bank"></nuri-list-action-leading-avatar>
+          <nuri-list-action-text>From Cash Account</nuri-list-action-text>
           <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
         </nuri-list-action>
       </nuri-list>
     </template>
   </nuri-demo>
 
+  <!-- transactions · outline avatars + a two-line content stack + a trailing value
+       stack. EUR↔Sats are consistent at ~€54.8k/BTC (~1825 sats/€). -->
   <nuri-demo layout="board" controls="device,theme,accent" label="transactions">
     <template>
       <nuri-list>
-        <nuri-list-action variant="solid" aria-label="To Emin Mahrt, minus 12 euros">
+        <nuri-list-action aria-label="To Emin Mahrt, minus 18 euros">
           <nuri-list-action-leading-avatar name="arrow-up"></nuri-list-action-leading-avatar>
           <nuri-list-action-text>To Emin Mahrt</nuri-list-action-text>
-          <nuri-list-action-text-muted>Sent • Wed, 16 May</nuri-list-action-text-muted>
-          <nuri-list-action-trailing-text>- 12.00 €</nuri-list-action-trailing-text>
-          <nuri-list-action-trailing-text-muted>3433 Sats</nuri-list-action-trailing-text-muted>
+          <nuri-list-action-text-muted>Sent • Tue, 4 Mar</nuri-list-action-text-muted>
+          <nuri-list-action-trailing-text>− 18 €</nuri-list-action-trailing-text>
+          <nuri-list-action-trailing-text-muted>32845 Sats</nuri-list-action-trailing-text-muted>
         </nuri-list-action>
         <nuri-list-separator></nuri-list-separator>
-        <nuri-list-action variant="solid" accent="orange" aria-label="From Apple Pay, 12 euros">
+        <nuri-list-action aria-label="From Wallet, 7 euros 20">
+          <nuri-list-action-leading-avatar name="plus"></nuri-list-action-leading-avatar>
+          <nuri-list-action-text>From Wallet</nuri-list-action-text>
+          <nuri-list-action-text-muted>Received • Fri, 21 Feb</nuri-list-action-text-muted>
+          <nuri-list-action-trailing-text>7.20 €</nuri-list-action-trailing-text>
+          <nuri-list-action-trailing-text-muted>13138 Sats</nuri-list-action-trailing-text-muted>
+        </nuri-list-action>
+        <nuri-list-separator></nuri-list-separator>
+        <nuri-list-action aria-label="Euro to Bitcoin, 50 euros">
           <nuri-list-action-leading-avatar name="transfer-horizontal"></nuri-list-action-leading-avatar>
-          <nuri-list-action-text>From Apple Pay</nuri-list-action-text>
-          <nuri-list-action-text-muted>Convert • Wed, 16 May</nuri-list-action-text-muted>
-          <nuri-list-action-trailing-text>12.00 €</nuri-list-action-trailing-text>
-          <nuri-list-action-trailing-text-muted>3433 Sats</nuri-list-action-trailing-text-muted>
+          <nuri-list-action-text>Euro → Bitcoin</nuri-list-action-text>
+          <nuri-list-action-text-muted>Move • Mon, 17 Feb</nuri-list-action-text-muted>
+          <nuri-list-action-trailing-text>50 €</nuri-list-action-trailing-text>
+          <nuri-list-action-trailing-text-muted>91235 Sats</nuri-list-action-trailing-text-muted>
         </nuri-list-action>
       </nuri-list>
     </template>

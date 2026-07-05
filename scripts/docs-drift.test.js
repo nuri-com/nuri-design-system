@@ -204,7 +204,7 @@ const EXPECTED_DESCRIPTORS = {
   // anchored flanks retired · the lockup relocated to composable Button · Phase 4),
   // interactive like Button (all three channels), variant × size.
   'icon-button': {
-    axes: { variant: ['solid', 'soft', 'ghost'], size: ['sm', 'md', 'lg'] },
+    axes: { variant: ['solid', 'soft', 'ghost'] },
     parts: ['icon'],
     interactive: ['pressColor', 'pressScale', 'disabledOpacity'],
   },
@@ -371,34 +371,13 @@ test('D · build/descriptors/* re-emits from the authored SoT + the composition-
   }
 });
 
-// ── Size-coherence guard · icon-button's row-shape stays coherent with Button ──
-// P11 (the icon-button slice): the icon-anchored control shares Button's HEIGHT +
-// CORNER per size (minHeight · radius) so the two sit coherently in a row — but
-// paddingX INTENTIONALLY DIVERGES (Button pads for text; icon-button carries only
-// a small ring + a `minWidth` floor so the BARE form squares · minWidth =
-// minHeight). So the pin is: minHeight ≡ Button · radius ≡ Button · minWidth ==
-// the row's own minHeight (the square invariant). The shared-fragment extraction
-// (a `_button-family-sizing` slice) is a deliberate FOLLOW-UP; until then THIS
-// guard is the seam. Reads the browser-ESM twins (node cannot import the .ts).
-test('icon-button stays size-coherent with button (height + corner + the square floor · P11)', async () => {
-  const loadTwin = async (name) =>
-    (await import(pathToFileURL(resolve(PROTO_GENERATED, `descriptors/${name}.js`)).href))[exportNameFor(name)];
-  const button = await loadTwin('button');
-  const iconButton = await loadTwin('icon-button');
-
-  // Iterate BUTTON's actual sizes (sm · lg — `md` was dropped from Button): coherence
-  // is only meaningful where Button defines the size. icon-button may carry extra sizes
-  // (e.g. md) that simply have no Button row to align to.
-  for (const sizeKey of Object.keys(button.variants.size)) {
-    const buttonBox = button.variants.size[sizeKey].root.box;
-    const ibBox = iconButton.variants.size[sizeKey].root.box;
-    // height + corner coherent with Button (the row alignment invariant).
-    assert.equal(ibBox.minHeight, buttonBox.minHeight, `icon-button.size.${sizeKey}: minHeight diverged from Button (row-height coherence · P11)`);
-    assert.equal(ibBox.radius, buttonBox.radius, `icon-button.size.${sizeKey}: radius diverged from Button (corner coherence · P11)`);
-    // the square floor — minWidth must equal THIS row's minHeight (bare → square).
-    assert.equal(ibBox.minWidth, ibBox.minHeight, `icon-button.size.${sizeKey}: minWidth must equal minHeight so the bare control floors to a square (P11)`);
-  }
-});
+// ── Size-coherence guard · RETIRED (icon-button size axis removed · 2026-07-05) ──
+// icon-button once carried an sm/md/lg size axis pinned to Button's per-size height
+// + corner so the two sat coherently in a row. The axis is now retired — icon-button
+// is a single fixed 48² circle (the former `md`), baked into structure.base — so
+// there is no per-size shape left to cross-check against Button (a 48 circle sits
+// between Button's sm 36 / lg 54; row-height coherence is no longer promised). The
+// square-floor invariant (minWidth == minHeight) now lives in the base box itself.
 
 // ── Guard E · the palette mapping ⊂ its TS SoT (N+19 B2b · decision 65.3 §6 · re-sourced N+40) ──
 // The decision-48 discipline applied to the colour namespace: the

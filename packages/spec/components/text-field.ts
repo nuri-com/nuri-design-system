@@ -35,7 +35,6 @@ export const textFieldDescriptor: Descriptor<TextFieldAxes> = {
               component: 'icon-button',
               props: {
                 variant: 'ghost',
-                size: 'md',
                 icon: '$slot.name',
                 onPress: '$slot.onPress',
                 disabled: '$slot.disabled',
@@ -55,8 +54,12 @@ export const textFieldDescriptor: Descriptor<TextFieldAxes> = {
         palette: { muted: true },
       },
       box: {
-        stack: { direction: 'row', align: 'center', gap: 'sm' },
-        box: { height: 'xl', paddingX: 'md', radius: 'md' },
+        // No gap between the input and the trailing action (zero is expressed by
+        // OMITTING gap — SpaceLeaf has no 0/none token; flex default gap = 0).
+        stack: { direction: 'row', align: 'center' },
+        // Asymmetric horizontal padding: md leading (text edge) · sm trailing (a
+        // tighter edge for the trailing action's own ring).
+        box: { height: 'xl', paddingStart: 'md', paddingEnd: 'sm', radius: 'md' },
         palette: { variant: 'outline' },
       },
       input: {

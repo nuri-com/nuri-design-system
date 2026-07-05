@@ -25,8 +25,9 @@
 
 <nuri-playground-shell doc="Icon Button">
 
-  <!-- nudo · the icon-only round action across the variant surfaces (solid · soft ·
-       ghost) — the bare control's parity oracle vs the legacy icon-button. -->
+  <!-- nudo · the icon-only round action (a single fixed 48 circle), one row: the
+       variant surfaces (solid · soft · ghost) + a per-instance lilac accent solid + a
+       disabled solid (default accent). -->
   <nuri-demo layout="board" controls="device,theme,accent" label="nudo">
     <template>
       <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
@@ -34,11 +35,8 @@
           <nuri-icon-button variant="solid" icon="apple" aria-label="Buy with Apple Pay"></nuri-icon-button>
           <nuri-icon-button variant="soft" icon="card" aria-label="Cards"></nuri-icon-button>
           <nuri-icon-button variant="ghost" icon="euro" aria-label="Euro"></nuri-icon-button>
-        </nuri-stack>
-        <nuri-stack direction="row" align="center" justify="center" gap="md">
-          <nuri-icon-button size="sm" icon="bitcoin" aria-label="Bitcoin small"></nuri-icon-button>
-          <nuri-icon-button size="md" icon="bitcoin" aria-label="Bitcoin medium"></nuri-icon-button>
-          <nuri-icon-button size="lg" icon="bitcoin" aria-label="Bitcoin large"></nuri-icon-button>
+          <nuri-icon-button variant="solid" accent="lilac" icon="bitcoin" aria-label="Bitcoin lilac"></nuri-icon-button>
+          <nuri-icon-button variant="solid" disabled icon="bitcoin" aria-label="Bitcoin disabled"></nuri-icon-button>
         </nuri-stack>
       </nuri-stack>
     </template>

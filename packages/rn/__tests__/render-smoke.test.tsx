@@ -265,7 +265,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
   test('IconButton — the icon-only glyph circle · glyph routed via the `icon` prop · a11y name', () => {
     const tr = render(
       <NuriThemeProvider>
-        <IconButton variant="solid" size="md" icon="apple" accessibilityLabel="Buy Bitcoin" onPress={() => undefined} />
+        <IconButton variant="solid" icon="apple" accessibilityLabel="Buy Bitcoin" onPress={() => undefined} />
       </NuriThemeProvider>,
     );
     expect(tr.toJSON()).toBeTruthy();
@@ -335,8 +335,8 @@ describe('render-smoke — the ergonomic components mount headless', () => {
         <NuriScreen>
           <NuriDock edge="top">
             <Topbar surface="transparent">
-              <IconButton icon="list-bullets" variant="soft" size="lg" accessibilityLabel="Activity" />
-              <IconButton icon="headphones" variant="soft" size="lg" accessibilityLabel="Support" />
+              <IconButton icon="list-bullets" variant="soft" accessibilityLabel="Activity" />
+              <IconButton icon="headphones" variant="soft" accessibilityLabel="Support" />
             </Topbar>
           </NuriDock>
           <NuriScroll insetTop="dock" insetBottom="dock">

@@ -14,7 +14,6 @@ nav_order: 2
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `variant` | no | `'solid' | 'soft' | 'ghost'` | style axis |
-| `size` | no | `'sm' | 'md' | 'lg'` | style axis |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `onPress` | no | `() => void` | pressable behaviour |
 | `disabled` | no | `boolean` | pressable behaviour |

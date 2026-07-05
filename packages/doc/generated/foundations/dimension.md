@@ -41,7 +41,7 @@ The dimension foundation — direct `space` · `size` · `radius` · `ratio` · 
 | Token | Cascade | Value |
 | --- | --- | --- |
 | `radius.sm` | `literal` | `6px` |
-| `radius.md` | `literal` | `12px` |
+| `radius.md` | `literal` | `9px` |
 | `radius.lg` | `literal` | `18px` |
 | `radius.full` | `literal` | `9999px` |
 

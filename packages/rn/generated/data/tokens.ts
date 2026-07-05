@@ -167,7 +167,7 @@ export const radius: {
   full: number;
 } = {
   sm:    6,
-  md:    12,
+  md:    9,
   lg:    18,
   full:  9999,
 };

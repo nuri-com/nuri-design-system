@@ -16,15 +16,13 @@
  * `aria-label`/`label` on web (the budgeted platform diff · behaviour is the
  * factory's · decision 65).
  *
- * SIZE keeps minHeight + radius coherent with button (sm/md/lg → the SAME
- * minHeight · radius `full`), pinned by the size-coherence guard
- * (pipeline/docs-drift.test.js) so a Button and an icon-button at one size share a
- * height + corner and sit coherently in a row. paddingX INTENTIONALLY DIVERGES —
- * the root carries only a small icon-edge ring, and `minWidth` = minHeight floors
- * the control to a perfect square (the glyph centres; the small paddingX is
- * absorbed by the border-box floor · sm 36² · md 48² · lg 54²). The icon's own
- * `box` sizes the glyph (sm → the xs leaf 18px · md/lg → the sm leaf 24px · the
- * icon-arc shared box axis · N+51).
+ * ONE FIXED SIZE (48² · the former `md`): the size axis is retired — the control
+ * is a single 48px circle (minHeight = minWidth = the `lg` size leaf), baked into
+ * `structure.base`. `minWidth` = minHeight floors the control to a perfect square
+ * (the glyph centres; the small `md` paddingX icon-edge ring is absorbed by the
+ * border-box floor). The icon's own `box` sizes the glyph (the `sm` leaf · 24px).
+ * With no size axis there is no Button-row coherence to pin, so the old
+ * size-coherence guard is retired (a 48 circle sits between Button's sm 36 / lg 54).
  *
  * The circle's SURFACES (solid/soft/ghost bg·fg·pressed) + the pressed/scale/
  * disabled interaction hold parity with the legacy icon-button via the SAME
@@ -37,7 +35,6 @@ import type { Descriptor } from './schema';
 
 type IconButtonAxes = {
   variant: 'solid' | 'soft' | 'ghost';
-  size: 'sm' | 'md' | 'lg';
 };
 
 export const iconButtonDescriptor: Descriptor<IconButtonAxes> = {
@@ -51,13 +48,17 @@ export const iconButtonDescriptor: Descriptor<IconButtonAxes> = {
       },
     },
     base: {
+      // The centred round action, FIXED at 48² (the former `md`): minHeight =
+      // minWidth = the `lg` leaf floors it to a square, `md` paddingX is the icon
+      // edge ring (absorbed by the border-box floor), radius `full` rounds it. The
+      // single glyph sits dead-centre; the row stack + gap are inert with one item.
       root: {
-        // The centred round action: the single glyph sits dead-centre; the row
-        // stack + gap are inert with one item (kept for parity with the coherent
-        // Button root · a bare circle has nothing to space).
         stack: { direction: 'row', align: 'center', justify: 'center', gap: 'sm' },
+        box: { minHeight: 'lg', minWidth: 'lg', paddingX: 'md', radius: 'full' },
         interactive: { pressColor: true, pressScale: true, disabledOpacity: true },
       },
+      // The glyph size (the `sm` leaf · 24px).
+      icon: { box: { width: 'sm', height: 'sm' } },
     },
   },
   variants: {
@@ -66,29 +67,11 @@ export const iconButtonDescriptor: Descriptor<IconButtonAxes> = {
       soft: { root: { palette: { variant: 'soft' } } },
       ghost: { root: { palette: { variant: 'ghost' } } },
     },
-    // SIZE · minHeight + radius stay coherent with button; minWidth =
-    // minHeight floors the control to a SQUARE (the root paddingX is the icon
-    // edge ring — sm 6 · md/lg 12 — absorbed by the border-box floor, so the
-    // glyph centres in a perfect square). The icon `box` sizes the glyph.
-    size: {
-      sm: {
-        root: { box: { minHeight: 'md', minWidth: 'md', paddingX: 'sm', radius: 'full' } },
-        icon: { box: { width: 'xs', height: 'xs' } },
-      },
-      md: {
-        root: { box: { minHeight: 'lg', minWidth: 'lg', paddingX: 'md', radius: 'full' } },
-        icon: { box: { width: 'sm', height: 'sm' } },
-      },
-      lg: {
-        root: { box: { minHeight: 'xl', minWidth: 'xl', paddingX: 'md', radius: 'full' } },
-        icon: { box: { width: 'sm', height: 'sm' } },
-      },
-    },
   },
-  // The PUBLIC defaults (R1.5 · N+50) — soft + md, mirroring the legacy
-  // icon-button's soft default. Both factories read this; neither binding
-  // hand-passes a default.
-  defaults: { variant: 'soft', size: 'md' },
+  // The PUBLIC default (R1.5 · N+50) — soft, mirroring the legacy icon-button's
+  // soft default. Size is no longer an axis (one fixed 48 base). Both factories
+  // read this; neither binding hand-passes a default.
+  defaults: { variant: 'soft' },
   // The PUBLIC API (Path C · Phase 1 → Phase 2 Option A). Icon-ONLY (B0 ·
   // prefix/suffix retired): the lone `icon` glyph is the whole control, exposed as
   // the SCALAR icon-name shorthand `prop: 'icon'` (`<IconButton icon="apple" />` ·
@@ -96,10 +79,10 @@ export const iconButtonDescriptor: Descriptor<IconButtonAxes> = {
   // glyph is PROP-delivered, NOT a children-sink, so the slot carries NO `default`
   // (Option A · §1c — `default:true` means "the untagged-children sink", ⊥ `prop`)
   // and is `required` (`icon` is not optional · the control has nothing else). With
-  // no `default` slot the codegen emits `children?: never`. variant × size + the
-  // pressable root (all three channels), like Button.
+  // no `default` slot the codegen emits `children?: never`. variant only (size
+  // retired · one fixed 48 base) + the pressable root (all three channels), like Button.
   api: {
-    axes: ['variant', 'size'],
+    axes: ['variant'],
     themeScope: { accent: true },
     behaviour: { pressable: { target: 'root', props: ['onPress', 'disabled', 'accessibilityLabel'] } },
     slots: {
