@@ -459,6 +459,13 @@ export function flattenInteractive(node: ResolvedNode, theme: NuriTheme, state: 
   for (const key of Object.keys(INTERACTIVE_OPTS) as OptKey[]) {
     const opt = INTERACTIVE_OPTS[key];
     if (!state[opt.trigger]) continue;
+    // A disabled control never shows a PRESSED effect: suppress the press-triggered
+    // opts (pressColor · pressScale) when disabled. RN's Pressable already withholds
+    // `pressed` while disabled, so this is belt-and-suspenders — but it makes the
+    // invariant EXPLICIT + testable, and mirrors the web factory dropping the
+    // data-press-* gates on a disabled host (factory C2). disabledOpacity (trigger
+    // 'disabled') is unaffected.
+    if (opt.trigger === 'pressed' && state.disabled) continue;
     if (!node.interactive?.[key]) continue;
     const value =
       'from' in opt.rn ? (node as Record<string, unknown>)[opt.rn.from] : realizeToken(opt.rn, theme);

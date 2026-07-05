@@ -43,13 +43,14 @@
     </template>
   </nuri-demo>
 
-  <!-- variant · solid · soft · + a per-instance accent override. -->
+  <!-- variant · solid · soft · a per-instance accent override · a disabled solid. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="variant">
     <template>
       <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
         <nuri-button variant="solid">Solid</nuri-button>
         <nuri-button variant="soft">Soft</nuri-button>
         <nuri-button variant="solid" accent="orange">Solid accent</nuri-button>
+        <nuri-button variant="solid" disabled>Disabled</nuri-button>
       </nuri-stack>
     </template>
   </nuri-demo>

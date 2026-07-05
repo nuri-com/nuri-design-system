@@ -174,6 +174,18 @@ describe('Button — the richest descriptor (every namespace + interactive · vi
     expect(rootCell('solid', 'lg', { disabled: true }).style.opacity).toBe(interactionTokens.disabledOpacity);
   });
 
+  test('a DISABLED control shows NO pressed effect — press triggers suppressed when disabled (mirrors web dropping the data-press-* gates)', () => {
+    // pressed + disabled together is unreachable via RN's Pressable, but the invariant is explicit:
+    const disabledPressed = rootCell('solid', 'lg', { pressed: true, disabled: true }).style;
+    expect(disabledPressed.backgroundColor).toBe(acc('lilac', 'solid', 'light')); // the NORMAL solid bg, NOT solidPressed
+    expect(disabledPressed.transform).toBeUndefined();                            // no press-scale transform
+    expect(disabledPressed.opacity).toBe(interactionTokens.disabledOpacity);      // the disabled dim DOES apply
+    // control — pressed WITHOUT disabled DOES swap the bg + scale:
+    const pressed = rootCell('solid', 'lg', { pressed: true }).style;
+    expect(pressed.backgroundColor).toBe(acc('lilac', 'solidPressed', 'light'));
+    expect(pressed.transform).toEqual([{ scale: interactionTokens.pressScale }]);
+  });
+
   test('foreground flows by SCOPE — the variant fg is a node channel, NOT in the label patch (§12 · F-BOX-FG-1)', () => {
     // the root PROVIDES the surface fg per variant (scope-published · not a style patch)
     expect(rootCell('solid', 'lg').node.fg).toBe(acc('lilac', 'onSolid', 'light'));
