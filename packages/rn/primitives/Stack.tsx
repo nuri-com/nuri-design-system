@@ -15,6 +15,10 @@ const StackImpl: React.FC<StackProps> = (props) => {
   // `distribute` is child-affecting (no node style · the childFill no-op). RN has no
   // `> *` combinator, so wrap each DIRECT child in a flex View carrying the per-child
   // style — the projection of the web child combinator (equal shares of the axis).
+  // PARITY EDGE (latent): React.Children.map wraps each ELEMENT, so a Fragment child
+  // (`<>…</>`) becomes ONE even cell — unlike web `> *`, where a fragment has no DOM
+  // node and its members are the direct children (each its own cell). Author FLAT
+  // children under a distribute stack (no fragment grouping) to keep the two aligned.
   if (!nsProps.distribute) return <RNView style={node.view}>{children}</RNView>;
   const childStyle = childFillStyle(nsProps.distribute);
   return (

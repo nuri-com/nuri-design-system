@@ -60,7 +60,7 @@
  *   import { buildComponent } from '../factory/factory.js';
  *   import { buttonDescriptor } from '../generated/descriptors/button.js';
  *   container.appendChild(
- *     buildComponent(buttonDescriptor, { variant: 'solid', size: 'md' }, { children: 'Pay' }),
+ *     buildComponent(buttonDescriptor, { variant: 'solid', size: 'lg' }, { children: 'Pay' }),
  *   );
  *
  * An unset axis resolves to descriptor.defaults[axis] (R1.5 · N+50 · now IN the

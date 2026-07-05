@@ -101,7 +101,7 @@ export type {
 // into selection, content, behaviour, and accent scope before calling the shared
 // renderer. The renderer receives a descriptor instance; it no longer derives a
 // consumer API from anatomy.
-//   <Button variant="solid" size="md" accent="lilac" onPress={…}>Buy</Button>
+//   <Button variant="solid" size="lg" accent="lilac" onPress={…}>Buy</Button>
 //   <Button><ButtonText>Buy</ButtonText><ButtonIcon name="apple" /></Button>
 //   <IconAvatar variant="soft" icon="apple" />
 //   <IconButton variant="soft" icon="apple" accessibilityLabel="Buy" onPress={…} />

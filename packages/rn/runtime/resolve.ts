@@ -154,6 +154,14 @@ function applyFields(fields: Record<string, Field>, ns: Record<string, unknown>)
       case 'childFill':
         // child-affecting (distribute) — NO node style; the per-child flex is
         // injected by the Stack primitive (childFillStyle), not here.
+        // SCOPE (latent): `distribute` is a Stack-PRIMITIVE-only prop today — the
+        // hand-authorable <Stack> (RN) / <nuri-view>/<nuri-stack> (web) wrap their
+        // children. NO descriptor sets it, and it is NOT wired through the
+        // descriptor→projection paths: the web factory's mergeAttrs would emit
+        // data-distribute, but the RN renderer (renderer.tsx) has no distribute
+        // branch and would DROP it (this node applier is a no-op). Using it in a
+        // descriptor is therefore a deliberate, wired change (renderer child-wrap +
+        // factory child-wrap), not a free consequence of adding it to a descriptor.
         break;
       default:
         // a new Field arm without a case is a COMPILE error here (f: never) —
