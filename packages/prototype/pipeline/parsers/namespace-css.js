@@ -191,6 +191,14 @@ function rulesForField(ns, key, field, scaleVocab, registry) {
         return { sel: sel(caseKey), decls: expandWebDecls(field.cases[caseKey]) };
       });
     }
+    case 'childFill': {
+      // child-affecting (distribute): the SAME neutral flex intent, but written onto
+      // the node's DIRECT CHILDREN via a `> *` combinator (the RN twin injects it per
+      // child in the Stack primitive). The first child-combinator rule in namespace CSS.
+      return Object.keys(field.cases).map((caseKey) => {
+        return { sel: `${sel(caseKey)} > *`, decls: expandWebDecls(field.cases[caseKey]) };
+      });
+    }
     default:
       throw new Error(`[namespace-css] ${ns}.${key}: unhandled via '${field.via}'`);
   }

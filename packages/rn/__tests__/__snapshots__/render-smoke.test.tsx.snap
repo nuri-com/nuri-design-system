@@ -244,9 +244,12 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
         "backgroundColor": "#beaaff",
         "borderRadius": 9999,
         "flexDirection": "row",
+        "flexGrow": 0,
+        "flexShrink": 0,
+        "gap": 4,
         "justifyContent": "center",
         "minHeight": 36,
-        "paddingHorizontal": 12,
+        "paddingHorizontal": 18,
       }
     }
   >
@@ -316,10 +319,11 @@ exports[`render-smoke — the ergonomic components mount headless Button — ord
       "backgroundColor": "#beaaff",
       "borderRadius": 9999,
       "flexDirection": "row",
+      "gap": 6,
       "justifyContent": "center",
-      "minHeight": 48,
+      "minHeight": 54,
       "opacity": 0.4,
-      "paddingHorizontal": 18,
+      "paddingHorizontal": 24,
     }
   }
 >
@@ -469,9 +473,10 @@ exports[`render-smoke — the ergonomic components mount headless Button — typ
       "backgroundColor": "#beaaff",
       "borderRadius": 9999,
       "flexDirection": "row",
+      "gap": 6,
       "justifyContent": "center",
-      "minHeight": 48,
-      "paddingHorizontal": 18,
+      "minHeight": 54,
+      "paddingHorizontal": 24,
     }
   }
 >

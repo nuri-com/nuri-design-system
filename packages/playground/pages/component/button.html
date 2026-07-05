@@ -33,7 +33,7 @@
     </template>
   </nuri-demo>
 
-  <!-- sizes · sm + lg (no md · the default already shows the middle). -->
+  <!-- sizes · the two-size scale (sm · lg) — lg is the default (shown above). -->
   <nuri-demo layout="board" controls="device,theme,accent" label="sizes">
     <template>
       <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
@@ -43,15 +43,81 @@
     </template>
   </nuri-demo>
 
-  <!-- variant · solid · soft · ghost · + a per-instance accent override. -->
+  <!-- variant · solid · soft · a per-instance accent override · a disabled solid. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="variant">
     <template>
       <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
         <nuri-button variant="solid">Solid</nuri-button>
         <nuri-button variant="soft">Soft</nuri-button>
-        <nuri-button variant="ghost">Ghost</nuri-button>
-        <nuri-button variant="solid" accent="orange">Accent</nuri-button>
+        <nuri-button variant="solid" accent="orange">Solid accent</nuri-button>
+        <nuri-button variant="solid" disabled>Disabled</nuri-button>
       </nuri-stack>
+    </template>
+  </nuri-demo>
+
+  <!-- with icons · ordered ButtonText + ButtonIcon lockups: trailing icon · mid icon · leading icon. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="with icons">
+    <template>
+      <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
+        <nuri-button size="sm" variant="soft">
+          <nuri-button-text>Copied</nuri-button-text>
+          <nuri-button-icon name="check-circle"></nuri-button-icon>
+        </nuri-button>
+        <nuri-button size="sm" variant="solid">
+          <nuri-button-text>Buy Bitcoin</nuri-button-text>
+          <nuri-button-icon name="apple"></nuri-button-icon>
+          <nuri-button-text>Pay</nuri-button-text>
+        </nuri-button>
+        <nuri-button size="lg" variant="solid" accent="lilac">
+          <nuri-button-icon name="plus"></nuri-button-icon>
+          <nuri-button-text>Add contact</nuri-button-text>
+        </nuri-button>
+      </nuri-stack>
+    </template>
+  </nuri-demo>
+
+  <!-- layout · buttons composed into a real screen via nested distribute="even" grids:
+       a quick-amount chip row + the numpad (4 even rows, the last key icon-only) + a
+       full-width Next. Container carries lg padding. (Section gap xl — 2xl is not in the
+       gap vocab; SpaceLeaf caps at xl.) -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="layout">
+    <template>
+      <nuri-view direction="column" align="stretch" justify="end" gap="xl" padding="lg" fill>
+        <!-- quick amounts · one even row of 4 sm solid chips -->
+        <nuri-view direction="row" distribute="even" gap="sm">
+          <nuri-button size="sm" variant="solid">€ 25</nuri-button>
+          <nuri-button size="sm" variant="solid">€ 50</nuri-button>
+          <nuri-button size="sm" variant="solid">€ 100</nuri-button>
+          <nuri-button size="sm" variant="solid">€ 200</nuri-button>
+        </nuri-view>
+
+        <!-- numpad · 4 even rows of default (lg soft) keys; the last key is icon-only -->
+        <nuri-view direction="column" gap="sm">
+          <nuri-view direction="row" distribute="even" gap="sm">
+            <nuri-button>1</nuri-button>
+            <nuri-button>2</nuri-button>
+            <nuri-button>3</nuri-button>
+          </nuri-view>
+          <nuri-view direction="row" distribute="even" gap="sm">
+            <nuri-button>4</nuri-button>
+            <nuri-button>5</nuri-button>
+            <nuri-button>6</nuri-button>
+          </nuri-view>
+          <nuri-view direction="row" distribute="even" gap="sm">
+            <nuri-button>7</nuri-button>
+            <nuri-button>8</nuri-button>
+            <nuri-button>9</nuri-button>
+          </nuri-view>
+          <nuri-view direction="row" distribute="even" gap="sm">
+            <nuri-button>.</nuri-button>
+            <nuri-button>0</nuri-button>
+            <nuri-button><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+          </nuri-view>
+        </nuri-view>
+
+        <!-- next · full-width solid lilac CTA (stretched by the column) -->
+        <nuri-button variant="solid" accent="lilac">Next</nuri-button>
+      </nuri-view>
     </template>
   </nuri-demo>
 

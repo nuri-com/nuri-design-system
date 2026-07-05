@@ -47,6 +47,11 @@ function fieldRow(source, input, field, registry) {
   if (field.via === 'expand') {
     return { input, css: 'flex', rn: null, via: 'expand', detail: { cases: field.cases } };
   }
+  if (field.via === 'childFill') {
+    // child-affecting (distribute): web is a `> *` child combinator, RN a per-child
+    // View style — no property-spelling entry (like `expand`, mechanism-divergent).
+    return { input, css: 'flex (› *)', rn: null, via: 'childFill', detail: { cases: field.cases } };
+  }
   if (field.via === 'scaleMulti') {
     const spellings = field.props.map((prop) => {
       const spelling = registry[prop];

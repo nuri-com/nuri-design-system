@@ -115,9 +115,17 @@ describe('geometry bake · guard 1 — ORACLE EQUIVALENCE (baked ≡ runtime res
               // full NODE equivalence — view · fg · fgMuted · pressedBg · type · interactive
               // (the render-critical channels the factory applies SEPARATELY from `style`)
               expect(baked.node).toEqual(runtime.node);
-              // GEOMETRY key-order fidelity (guard #3) — palette stripped, order-SENSITIVE
-              expect(Object.keys(stripColour(baked.style as Record<string, unknown>)))
-                .toEqual(Object.keys(stripColour(runtime.style as Record<string, unknown>)));
+              // GEOMETRY key-SET fidelity (guard #3) — palette stripped, order-INSENSITIVE.
+              // Was order-sensitive, but that guarded ViewStyle key ORDER, which RN never
+              // reads (each geometry longhand — flexGrow/minHeight/gap/paddingHorizontal —
+              // applies independently · no intra-object cascade). Once a size variant carries
+              // BOTH a stack field (per-size `gap`) and box, while `fill` also writes stack,
+              // the per-axis bake merge cannot reproduce the resolver's field-level namespace
+              // order — and needn't, since the VALUES match (the toEqual above stays strict:
+              // same keys, same values). So this compares the key SETS, catching a field
+              // emitted by one path only, without pinning an order that has no render effect.
+              expect(Object.keys(stripColour(baked.style as Record<string, unknown>)).sort())
+                .toEqual(Object.keys(stripColour(runtime.style as Record<string, unknown>)).sort());
               cells++;
             }
           }
@@ -131,14 +139,14 @@ describe('geometry bake · guard 1 — ORACLE EQUIVALENCE (baked ≡ runtime res
 describe('geometry bake · guard 1 BINDS — mutation proof (a stale bake WOULD fail)', () => {
   test('mutating one descriptor box cell breaks the baked ≡ runtime equality', () => {
     const theme = buildNuriTheme('lilac', 'light');
-    const selection = { variant: 'solid', size: 'md' };
+    const selection = { variant: 'solid', size: 'lg' };
     const baked = flattenBakedPart(recipes['button'].root, buttonDescriptor, theme, 'root', selection, {}).style;
 
-    // A MUTATED descriptor: change size.md.box.minHeight 'lg' → 'xl'. The runtime
+    // A MUTATED descriptor: change size.lg.box.minHeight 'xl' → '2xl'. The runtime
     // resolver now diverges from the (unmutated) bake — proving the oracle is
     // sensitive to the actual descriptor geometry, not vacuously equal.
     const mutated = JSON.parse(JSON.stringify(buttonDescriptor)) as typeof buttonDescriptor;
-    (mutated.variants as unknown as { size: Record<string, { root: { box: { minHeight: string } } }> }).size.md.root.box.minHeight = 'xl';
+    (mutated.variants as unknown as { size: Record<string, { root: { box: { minHeight: string } } }> }).size.lg.root.box.minHeight = '2xl';
     expect(flattenPart(mutated, theme, 'root', selection, {}).style).not.toEqual(baked);
     // control — the unmutated runtime still matches (the divergence is the mutation's).
     expect(flattenPart(buttonDescriptor, theme, 'root', selection, {}).style).toEqual(baked);

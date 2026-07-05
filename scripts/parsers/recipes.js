@@ -144,6 +144,8 @@ function applyFieldsNode(fields, ns, spelling, scales) {
       case 'expand':
         Object.assign(out, fillCaseToRn(f.cases[value]));
         break;
+      case 'childFill':
+        break; // child-affecting (distribute) — no node style baked (children get it at render)
       default:
         throw new Error(`[recipes] unhandled field via '${f.via}'`);
     }
@@ -217,6 +219,7 @@ export function buildGeometryRecipe(descriptor, deps) {
     const baseNode = resolveGeometryNode(baseNS, deps);
 
     const geomVariants = {};
+    const geomRank = {}; // axis → min NS_ORDER index of the GEOMETRY namespace(s) it patches
     const typoVariants = {};
     const interVariants = {};
     for (const axis of axes) {
@@ -224,22 +227,36 @@ export function buildGeometryRecipe(descriptor, deps) {
       const axisGeom = {};
       const axisTypo = {};
       const axisInter = {};
+      let rank = NS_ORDER.length;
       for (const value of Object.keys(valueMap)) {
         const partNS = valueMap[value][part];
         if (!partNS) continue;
+        // rank the axis by the earliest geometry namespace it touches (stack < box)
+        for (const ns of ['stack', 'box']) if (partNS[ns]) rank = Math.min(rank, NS_ORDER.indexOf(ns));
         const vNode = resolveGeometryNode(partNS, deps);
         if (Object.keys(vNode.view).length) axisGeom[value] = vNode.view;
         if (vNode.typography !== undefined) axisTypo[value] = vNode.typography;
         if (vNode.interactive !== undefined) axisInter[value] = vNode.interactive;
       }
-      if (Object.keys(axisGeom).length) geomVariants[axis] = axisGeom;
+      if (Object.keys(axisGeom).length) { geomVariants[axis] = axisGeom; geomRank[axis] = rank; }
       if (Object.keys(axisTypo).length) typoVariants[axis] = axisTypo;
       if (Object.keys(axisInter).length) interVariants[axis] = axisInter;
     }
 
+    // Order geometry axes by the namespace they patch (NS_ORDER: stack before box)
+    // so composeGeometry's in-declaration-order spread reproduces the runtime
+    // resolver's namespace key order EVEN when one variant contributes STACK fields
+    // (button's `fill`) while another contributes BOX (button's `size`). Stable sort
+    // → axes touching the same namespace keep declaration order. Single-geometry-axis
+    // components (the common `size`→box case) are untouched (one key, nothing to sort).
+    const orderedGeomVariants = {};
+    for (const axis of Object.keys(geomVariants).sort((a, b) => geomRank[a] - geomRank[b])) {
+      orderedGeomVariants[axis] = geomVariants[axis];
+    }
+
     const partRecipe = { el };
     if (open) partRecipe.open = true;
-    partRecipe.geometry = { base: baseNode.view, variants: geomVariants };
+    partRecipe.geometry = { base: baseNode.view, variants: orderedGeomVariants };
 
     const typography = {};
     if (baseNode.typography !== undefined) typography.base = baseNode.typography;

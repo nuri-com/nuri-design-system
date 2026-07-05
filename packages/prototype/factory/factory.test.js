@@ -133,10 +133,10 @@ test('B · buildComponent(Button) · de-collapsed pressable tree · variant+size
   assert.deepEqual(classesOf(btn), ['nuri-box', 'nuri-interactive', 'nuri-palette', 'nuri-stack'], 'box ⊕ stack ⊕ palette merge onto the SAME interactive button');
 
   // R1.5 · the defaults resolve FROM the descriptor: variant→soft (not solid),
-  // size→md (not the order-first sm). md box geometry = minHeight lg · paddingX lg · radius full.
+  // size→lg (the large control · sm/lg scale). lg box geometry = minHeight xl · paddingX xl · radius full.
   assert.equal(btn.getAttribute('data-variant'), 'soft', 'variant defaults to soft from data');
-  assert.equal(btn.getAttribute('data-min-height'), 'lg', 'size defaults to md from data (minHeight lg)');
-  assert.equal(btn.getAttribute('data-padding-x'), 'lg');
+  assert.equal(btn.getAttribute('data-min-height'), 'xl', 'size defaults to lg from data (minHeight xl)');
+  assert.equal(btn.getAttribute('data-padding-x'), 'xl');
   assert.equal(btn.getAttribute('data-radius'), 'full');
 
   // the label part (text) is routed from `children` → nuri-typography, moved into the button.
@@ -425,11 +425,11 @@ test('B11 · a FOREIGN component\'s slot marker fails named', () => {
 // C · defineNuriComponent · the registered elements (API derivation · reflection)
 // ══════════════════════════════════════════════════════════════════
 test('C · observedAttributes are DERIVED from the descriptor (axes ∪ accent ∪ disabled? ∪ icon?)', () => {
-  // Button: interactive + text primary + pressable accessibilityLabel → variant·size·accent·disabled·aria-label (NO icon).
+  // Button: interactive + text primary + pressable accessibilityLabel → variant·size·fill·accent·disabled·aria-label (NO icon).
   assert.deepEqual(
     [...customElements.get('nuri-button').observedAttributes].sort(),
-    ['accent', 'aria-label', 'disabled', 'size', 'variant'],
-    'button observes its axes + accent + disabled (interactive) + aria-label (pressable API), not icon',
+    ['accent', 'aria-label', 'disabled', 'fill', 'size', 'variant'],
+    'button observes its axes (variant·size·fill) + accent + disabled (interactive) + aria-label (pressable API), not icon',
   );
   // IconAvatar: static + icon part → variant·accent·icon (the component `icon` prop ·
   // NOT `name`, which is the primitive <nuri-icon>'s attr · NO disabled, NO size).

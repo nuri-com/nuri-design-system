@@ -60,7 +60,8 @@ export type Field =
   | { via: 'keyword'; prop: CanonicalId; map: Record<string, string> } // value = map[input]
   | { via: 'literal'; prop: CanonicalId } //                       value = input (passthrough)
   | { via: 'flag'; prop: CanonicalId; on: string; off: string } // value = input ? on : off
-  | { via: 'expand'; cases: Record<string, FillCase> }; // neutral multi-prop intent
+  | { via: 'expand'; cases: Record<string, FillCase> } // neutral multi-prop intent (node's OWN flex)
+  | { via: 'childFill'; cases: Record<string, FillCase> }; // the SAME intent applied to DIRECT CHILDREN
 
 // ── flexbox keyword maps · NEUTRAL (CSS align-items/justify-content take the
 // SAME flex-* keywords) · were the ALIGN/JUSTIFY consts in resolve.ts ──
@@ -89,9 +90,25 @@ const JUSTIFY: Record<NonNullable<StackNS['justify']>, string> = {
 // centre). Each projection spells this neutral intent locally. A mechanism
 // difference, not a name → NOT a registry entry (decision 73 cl.2). Was
 // resolveFill's switch.
+// `hug` = the NO-FILL floor (web flex:0 0 auto · basis auto ⇒ content size, and
+// grow 0 + shrink 0 so the node NEITHER stretches NOR collapses below its content
+// — the "trailing action hugs its label" case · alert's AlertButton). Distinct
+// from the bare no-`fill` default (flex 0 1 auto · shrinks under row pressure);
+// `hug` is the explicit opt-out of that shrink. The 3rd versioned StackNS.fill add.
 const FILL: Record<NonNullable<StackNS['fill']>, FillCase> = {
   grow: { grow: 1, shrink: 0 },
   'grow-shrink': { grow: 1, shrink: 1, minInline: 0 },
+  even: { grow: 1, shrink: 1, basis: 0, minInline: 0 },
+  hug: { grow: 0, shrink: 0 },
+};
+
+// distribute → the PARENT-side even split: each DIRECT CHILD becomes flex 1 1 0
+// (the same neutral intent as the `even` FILL case, but the flex lands on the
+// CHILDREN, not this node). `childFill` is a distinct `via` because the projections
+// target children — web writes a `> *` child combinator, RN injects the per-child
+// style in the Stack primitive — so the field appliers (which build the NODE's own
+// style) treat it as a no-op. Extend the record to add other distributions later.
+const DISTRIBUTE: Record<NonNullable<StackNS['distribute']>, FillCase> = {
   even: { grow: 1, shrink: 1, basis: 0, minInline: 0 },
 };
 
@@ -109,6 +126,8 @@ export const STACK_FIELDS: Record<keyof StackNS, Field> = {
   gap: { via: 'scale', prop: 'gap', scale: 'space' },
   wrap: { via: 'flag', prop: 'flexWrap', on: 'wrap', off: 'nowrap' },
   fill: { via: 'expand', cases: FILL },
+  // child-affecting (see DISTRIBUTE) — tail of the table; a node no-op in the appliers.
+  distribute: { via: 'childFill', cases: DISTRIBUTE },
 };
 
 // ── box → sizing · padding · radii (geometry only · 65.3 §6 · no colour) · the

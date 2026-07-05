@@ -577,6 +577,7 @@ function renderFieldValue(via, detail) {
     case 'flag':
       return `\`${detail.on}\` / \`${detail.off}\``;
     case 'expand':
+    case 'childFill':
       return Object.entries(detail.cases)
         .map(([name, props]) => `\`${name}\` → ${Object.entries(props).map(([k, v]) => `\`${k}: ${v}\``).join(' · ')}`)
         .join(ATTR_SEP);

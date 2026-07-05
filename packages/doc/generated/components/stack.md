@@ -18,5 +18,6 @@ nav_order: 10
 | `justify` | no | `'start' | 'center' | 'end' | 'between' | 'around'` | style axis |
 | `gap` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |
 | `wrap` | no | `boolean` | style axis |
-| `fill` | no | `'grow' | 'grow-shrink' | 'even'` | style axis |
+| `fill` | no | `'grow' | 'grow-shrink' | 'even' | 'hug'` | style axis |
+| `distribute` | no | `'even'` | component prop |
 | `children` | no | `React.ReactNode` | default content slot |

@@ -63,7 +63,7 @@ const BOX_ATTRS = [
   'padding', 'padding-x', 'padding-y', 'padding-start', 'padding-end', 'padding-top', 'padding-bottom',
   'radius', 'radius-top', 'aspect-ratio',
 ];
-const STACK_ATTRS = ['direction', 'align', 'justify', 'gap', 'wrap', 'fill'];
+const STACK_ATTRS = ['direction', 'align', 'justify', 'gap', 'wrap', 'fill', 'distribute'];
 const PALETTE_ATTRS = ['variant', 'accent', 'muted', 'chrome'];
 const EFFECT_ATTRS = ['elevation'];
 const ATTRS = [...BOX_ATTRS, ...STACK_ATTRS, ...PALETTE_ATTRS, ...EFFECT_ATTRS];
@@ -96,13 +96,50 @@ class NuriView extends HTMLElement {
   // node never carries a public attr, so it stays false and #sync is a no-op,
   // leaving the factory's classes + data-* untouched.
   #managed = false;
+  #distributeObserver = null;
 
   connectedCallback() {
     this.#sync();
+    this.#syncDistribute();
   }
 
   attributeChangedCallback() {
     if (this.isConnected) this.#sync();
+    if (this.isConnected) this.#syncDistribute();
+  }
+
+  disconnectedCallback() {
+    if (this.#distributeObserver) { this.#distributeObserver.disconnect(); this.#distributeObserver = null; }
+  }
+
+  // distribute="even" · the parent-side even split. Web cannot reach the real flex
+  // item THROUGH a display:contents component host (nuri-button) with a `> *`
+  // combinator — the flex would land on the boxless host. So wrap each direct ELEMENT
+  // child in a real `.nuri-stack` box that the `[data-distribute="even"] > *` rule
+  // sizes to an equal share (flex 1 1 0); the child then stretches to fill it. The RN
+  // twin wraps each child in a flex View — the symmetric projection of one intent.
+  // Idempotent + childList-observed: added children get wrapped, toggling off unwraps.
+  #syncDistribute() {
+    if (this.#distributeObserver) this.#distributeObserver.disconnect();
+    if (this.getAttribute('distribute') === 'even') {
+      for (const child of [...this.children]) {
+        if (child.dataset.nuriDistributeWrapper !== undefined) continue; // already wrapped
+        const w = document.createElement('div');
+        w.className = 'nuri-stack';
+        w.dataset.nuriDistributeWrapper = '';
+        this.insertBefore(w, child);
+        w.appendChild(child);
+      }
+      if (!this.#distributeObserver) this.#distributeObserver = new MutationObserver(() => this.#syncDistribute());
+      this.#distributeObserver.observe(this, { childList: true });
+    } else {
+      for (const w of [...this.children]) {
+        if (w.dataset.nuriDistributeWrapper === undefined) continue;
+        while (w.firstChild) this.insertBefore(w.firstChild, w);
+        w.remove();
+      }
+      this.#distributeObserver = null;
+    }
   }
 
   // Self-derive the merged-node classes + data-* from this element's OWN public

@@ -32,7 +32,8 @@ nav_order: 11
 | `justify` | no | `'start' | 'center' | 'end' | 'between' | 'around'` | style axis |
 | `gap` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |
 | `wrap` | no | `boolean` | style axis |
-| `fill` | no | `'grow' | 'grow-shrink' | 'even'` | style axis |
+| `fill` | no | `'grow' | 'grow-shrink' | 'even' | 'hug'` | style axis |
+| `distribute` | no | `'even'` | component prop |
 | `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `muted` | no | `boolean` | style axis |

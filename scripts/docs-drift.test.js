@@ -180,7 +180,7 @@ const EXPECTED_DESCRIPTORS = {
     interactive: [],
   },
   button: {
-    axes: { variant: ['solid', 'soft', 'ghost'], size: ['sm', 'md', 'lg'] },
+    axes: { variant: ['solid', 'soft'], size: ['sm', 'lg'], fill: ['natural', 'even', 'hug'] },
     parts: ['label', 'icon'], // the anatomy's non-root parts
     interactive: ['pressColor', 'pressScale', 'disabledOpacity'], // the collapsed root opt-in (§8 · no compound)
   },
@@ -386,7 +386,10 @@ test('icon-button stays size-coherent with button (height + corner + the square 
   const button = await loadTwin('button');
   const iconButton = await loadTwin('icon-button');
 
-  for (const sizeKey of ['sm', 'md', 'lg']) {
+  // Iterate BUTTON's actual sizes (sm · lg — `md` was dropped from Button): coherence
+  // is only meaningful where Button defines the size. icon-button may carry extra sizes
+  // (e.g. md) that simply have no Button row to align to.
+  for (const sizeKey of Object.keys(button.variants.size)) {
     const buttonBox = button.variants.size[sizeKey].root.box;
     const ibBox = iconButton.variants.size[sizeKey].root.box;
     // height + corner coherent with Button (the row alignment invariant).
@@ -502,7 +505,12 @@ const FROZEN_SCHEMA = {
       'wrap?': 'boolean',
       // `even` ADDED at the topbar-slots slice (the 2nd post-freeze StackNS add ·
       // the equal-basis-0 edge for true centring · decision 65 "versioned").
-      'fill?': "'grow' | 'grow-shrink' | 'even'",
+      // `hug` ADDED at the trailing-action slice (the 3rd versioned StackNS.fill
+      // add · flex:0 0 auto — the no-shrink content floor · alert's AlertButton).
+      'fill?': "'grow' | 'grow-shrink' | 'even' | 'hug'",
+      // `distribute` ADDED at the even-row slice (a versioned StackNS add · the FIRST
+      // child-affecting stack property · web `> *` combinator · RN per-child inject).
+      'distribute?': "'even'",
     },
     // `minWidth` ADDED at P11 (the icon-button slice · the 2nd deliberate
     // post-freeze BoxNS add · decision 65 "post-freeze changes are versioned"):

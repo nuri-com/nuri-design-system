@@ -230,19 +230,26 @@ test('Guard C · resolved-value spot-check (generated → final value)', () => {
 // emitted shell-first in both files — their relative order already matches hand.)
 for (const { ns } of NS_SPECS) {
   test(`Guard D · ${ns}: each dispatched property is owned by one data-attr (order cannot matter)`, () => {
-    const attrsForProp = new Map(); // property → Set<data-attr>
+    // Partition by CASCADE TARGET: a node rule (`.nuri-stack[data-x]`) and a child
+    // rule (`.nuri-stack[data-y] > *`) style DIFFERENT elements, so the same property
+    // dispatched by each never co-matches — no order dependence across the boundary.
+    // (`fill` sets the node's own `flex`; `distribute`'s `> *` sets the CHILDREN's.)
+    const attrsForProp = new Map(); // `${prop} ${target}` → Set<data-attr>
     for (const [sel, decls] of layerRuleMap(genByNs.get(ns))) {
       const attr = sel.match(/\[data-([\w-]+)=/)?.[1];
       if (!attr) continue; // shell base / element-wrapper rule
+      const target = />\s*\*/.test(sel) ? 'child' : 'self';
       for (const prop of decls.keys()) {
-        if (!attrsForProp.has(prop)) attrsForProp.set(prop, new Set());
-        attrsForProp.get(prop).add(attr);
+        const key = `${prop} ${target}`;
+        if (!attrsForProp.has(key)) attrsForProp.set(key, new Set());
+        attrsForProp.get(key).add(attr);
       }
     }
-    for (const [prop, attrs] of attrsForProp) {
+    for (const [key, attrs] of attrsForProp) {
+      const [prop, target] = key.split(' ');
       assert.equal(
         attrs.size, 1,
-        `property '${prop}' is dispatched by >1 data-attr (${[...attrs].join(', ')}) — ` +
+        `property '${prop}' (${target} target) is dispatched by >1 data-attr (${[...attrs].join(', ')}) — ` +
         `field-rule order could be cascade-significant, so Guard A's order-insensitive compare may be unsound`,
       );
     }
@@ -294,4 +301,29 @@ test('Guard E · box: the padding family is source-ordered by precedence (unifor
     }
   }
   assert.equal(sidesChecked, 4, `expected all 4 physical sides exercised by the box padding family, saw ${sidesChecked}`);
+});
+
+// ══════════════════════════════════════════════════════════════════
+// distribute · the parent-side even split (childFill · the `> *` combinator)
+// ══════════════════════════════════════════════════════════════════
+// The WEB half of the cross-platform parity proof. `distribute:'even'` emits a
+// child-combinator rule sizing every direct child to an equal share; the neutral
+// FillCase it spells is STACK_FIELDS.distribute.cases.even — the SAME table RN's
+// childFillStyle('even') reads (packages/rn/__tests__/stack-distribute.test.tsx).
+// One source, two emits ⇒ "equal share on both" is honest, not asserted by eye.
+test('distribute:even emits the child-fill combinator, derived from STACK_FIELDS.distribute (the RN-parity source)', async () => {
+  const { loadTsDataFromPath } = await import('./parsers/strip.js');
+  const RESOLVE_MAP = fileURLToPath(import.meta.resolve('@nuri/spec/resolve-map'));
+  const { STACK_FIELDS } = await loadTsDataFromPath(RESOLVE_MAP);
+  const even = STACK_FIELDS.distribute.cases.even; // { grow:1, shrink:1, basis:0, minInline:0 }
+
+  const rules = layerRuleMap(genByNs.get('stack'));
+  const sel = '.nuri-stack[data-distribute="even"] > *';
+  assert.ok(rules.has(sel), `expected the distribute child-combinator rule '${sel}' in the generated stack CSS`);
+  const decls = rules.get(sel);
+  // web spells the neutral FillCase as `flex` + `min-inline-size` (expandWebDecls)
+  assert.equal(decls.get('flex'), `${even.grow} ${even.shrink} ${even.basis}`, 'flex derives from the shared FillCase (grow shrink basis)');
+  assert.equal(decls.get('min-inline-size'), String(even.minInline), 'min-inline-size derives from the shared FillCase minInline');
+  // RN's childFillStyle('even') reads the SAME even case → { flexGrow:1, flexShrink:1,
+  // flexBasis:0, minWidth:0 } (pinned in the RN suite). One table → equal share on both.
 });

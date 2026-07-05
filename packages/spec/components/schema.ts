@@ -113,13 +113,19 @@ export type TypeKey = TypeSize;
 // `flex:none` centre region lands at the bar's TRUE centre regardless of
 // edge-content asymmetry (the TopbarLeading/Trailing edges · the centring
 // forcing function). Distinct from `grow-shrink` (basis auto · the old pivot).
+// `hug` (flex 0 0 auto · the 3rd versioned fill add) = the no-shrink content floor.
+// `distribute` (a versioned add) is the PARENT-side even split — every DIRECT CHILD
+// takes an equal share (flex 1 1 0), the concise "N equal buttons/chips in a row"
+// without a per-child `fill`. The FIRST stack property whose effect lands on CHILDREN,
+// not the node (web `> *` combinator · RN per-child inject · a node no-op in the appliers).
 export type StackNS = {
   direction?: 'row' | 'column';
   align?: 'start' | 'center' | 'end' | 'stretch' | 'baseline';
   justify?: 'start' | 'center' | 'end' | 'between' | 'around';
   gap?: SpaceLeaf;
   wrap?: boolean;
-  fill?: 'grow' | 'grow-shrink' | 'even';
+  fill?: 'grow' | 'grow-shrink' | 'even' | 'hug';
+  distribute?: 'even';
 };
 
 // `box` — the element's own visual box: GEOMETRY ONLY, no colour

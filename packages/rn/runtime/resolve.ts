@@ -58,6 +58,7 @@ import type { NuriTheme } from './theme-payload';
 // spelling registry (@nuri/spec/property-spelling · the `.rn` column).
 import { STACK_FIELDS, BOX_FIELDS } from '@nuri/spec/resolve-map';
 import type { Field, FillCase, ScaleName } from '@nuri/spec/resolve-map';
+import type { StackNS } from '@nuri/spec/descriptors/schema';
 import { PROPERTY_SPELLING } from '@nuri/spec/property-spelling';
 import type { CanonicalId } from '@nuri/spec/property-spelling';
 // The interactive opt-in mapping is DATA, single-sourced in @nuri/spec (N+44 · the
@@ -100,6 +101,16 @@ function fillCaseToRn(fill: FillCase): ViewStyle {
   return out;
 }
 
+// childFillStyle · the per-child ViewStyle for a stack `distribute` value — the RN
+// twin of the web `.nuri-stack[data-distribute] > *` combinator. The Stack primitive
+// wraps each direct child in a View carrying this. Single-sourced from the same
+// DISTRIBUTE table (via STACK_FIELDS) the web CSS emits from, so the two never drift.
+export function childFillStyle(distribute: NonNullable<StackNS['distribute']>): ViewStyle {
+  const f = STACK_FIELDS.distribute;
+  if (f.via !== 'childFill') return {}; // unreachable — the table pins childFill
+  return fillCaseToRn(f.cases[distribute]);
+}
+
 // applyFields · the GENERIC RN APPLIER for the agnostic namespaces (box · stack).
 // Walks the shared mapping table (resolve-map.ts) and emits an RN ViewStyle —
 // the per-target EMIT that S3's web resolver replaces while reusing the SAME
@@ -139,6 +150,18 @@ function applyFields(fields: Record<string, Field>, ns: Record<string, unknown>)
         break;
       case 'expand':
         Object.assign(out, fillCaseToRn(f.cases[value as string]));
+        break;
+      case 'childFill':
+        // child-affecting (distribute) — NO node style; the per-child flex is
+        // injected by the Stack primitive (childFillStyle), not here.
+        // SCOPE (latent): `distribute` is a Stack-PRIMITIVE-only prop today — the
+        // hand-authorable <Stack> (RN) / <nuri-view>/<nuri-stack> (web) wrap their
+        // children. NO descriptor sets it, and it is NOT wired through the
+        // descriptor→projection paths: the web factory's mergeAttrs would emit
+        // data-distribute, but the RN renderer (renderer.tsx) has no distribute
+        // branch and would DROP it (this node applier is a no-op). Using it in a
+        // descriptor is therefore a deliberate, wired change (renderer child-wrap +
+        // factory child-wrap), not a free consequence of adding it to a descriptor.
         break;
       default:
         // a new Field arm without a case is a COMPILE error here (f: never) —
@@ -444,6 +467,13 @@ export function flattenInteractive(node: ResolvedNode, theme: NuriTheme, state: 
   for (const key of Object.keys(INTERACTIVE_OPTS) as OptKey[]) {
     const opt = INTERACTIVE_OPTS[key];
     if (!state[opt.trigger]) continue;
+    // A disabled control never shows a PRESSED effect: suppress the press-triggered
+    // opts (pressColor · pressScale) when disabled. RN's Pressable already withholds
+    // `pressed` while disabled, so this is belt-and-suspenders — but it makes the
+    // invariant EXPLICIT + testable, and mirrors the web factory dropping the
+    // data-press-* gates on a disabled host (factory C2). disabledOpacity (trigger
+    // 'disabled') is unaffected.
+    if (opt.trigger === 'pressed' && state.disabled) continue;
     if (!node.interactive?.[key]) continue;
     const value =
       'from' in opt.rn ? (node as Record<string, unknown>)[opt.rn.from] : realizeToken(opt.rn, theme);
@@ -531,10 +561,12 @@ function mergedPaletteNSForPart<A extends Axes>(
   return out;
 }
 
-// composeGeometry · base ⊕ each selected axis's geometry patch (axis-declaration
-// order · later wins). The catalog's base + variant geometry touch DISJOINT keys
-// (base = stack · the size variant = box · verified), so the spread reproduces the
-// resolver's field-table key order — pinned by the key-order guard (geometry-bake test).
+// composeGeometry · base ⊕ each selected axis's geometry patch (in geometry.variants
+// key order · later wins). base + variant geometry touch DISJOINT keys (base = stack ·
+// a variant patch = one namespace), and the emitter (recipes.js) ORDERS geometry.variants
+// by namespace (NS_ORDER: stack before box), so a stack-contributing variant (button's
+// `fill`) lands before a box-contributing one (`size`) — the in-order spread reproduces
+// the resolver's namespace key order. Pinned by the key-order guard (geometry-bake test).
 function composeGeometry(geometry: BakedPartRecipe['geometry'], selection: Selection): ViewStyle {
   let out: ViewStyle = { ...geometry.base };
   for (const axis of Object.keys(geometry.variants)) {

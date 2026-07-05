@@ -21,8 +21,9 @@ import type { Accent } from '../data/tokens';
 import type { IconName } from '../data/icons';
 
 export type ButtonProps = {
-  variant?: 'solid' | 'soft' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: 'solid' | 'soft';
+  size?: 'sm' | 'lg';
+  fill?: 'natural' | 'even' | 'hug';
   accent?: Accent;
   onPress?: () => void;
   disabled?: boolean;
@@ -46,7 +47,8 @@ export const ButtonIcon = createNuriSlot<ButtonIconProps>("icon", `${buttonDispl
 const ButtonInner: React.FC<ButtonProps> = (props) => {
   const selection: Record<string, string> = {
     "variant": props.variant ?? "soft",
-    "size": props.size ?? "md",
+    "size": props.size ?? "lg",
+    "fill": props.fill ?? "natural",
   };
   const content: Partial<Record<ButtonPart, React.ReactNode>> = {};
   const composition: Partial<Record<ButtonPart, NuriCompositionEntry<ButtonPart>[]>> = {};
