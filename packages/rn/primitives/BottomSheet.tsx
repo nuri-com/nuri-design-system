@@ -1,8 +1,16 @@
 // ════════════════════════════════════════════════════════════════
-// BottomSheet family — public Nuri API over the hidden core-RN engine.
+// BottomSheet family — public Nuri API, a REGISTRAR into the overlay layer.
 // No gestures by design (nuri-expo removed swipe-dismiss): scrim tap is
 // the only built-in dismissal, so Animated/Pressable/ScrollView suffice —
 // zero native deps beyond react-native itself.
+//
+// <BottomSheet open> stays the authored, DECLARATIVE API, but instead of
+// drawing its absoluteFill overlay inline it REGISTERS that subtree into the
+// OverlayProvider (the LayerHost <Layer> pattern) and returns null. The
+// provider's outlet renders it full-window, ABOVE the consumer's safe-area
+// padding — so the scrim covers the status bar and overlays can stack. The
+// enter/exit slide + the sheet-height measurement latch are unchanged; only
+// WHERE the subtree renders moved (inline → the provider outlet).
 // ════════════════════════════════════════════════════════════════
 import * as React from 'react';
 import {
@@ -20,6 +28,7 @@ import type { LayoutChangeEvent, ViewStyle } from 'react-native';
 import { blackAlpha } from '@nuri/spec/colours';
 import { bottomSheetChrome } from '@nuri/spec/bottom-sheet-chrome';
 
+import { useOverlay } from '../overlay';
 import { BottomSheetPanel as GeneratedBottomSheetPanel } from '../generated/components/bottom-sheet-panel';
 
 export type BottomSheetDetent = 'content' | 'full';
@@ -73,6 +82,8 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   onOpenChange,
   children,
 }) => {
+  const overlay = useOverlay();
+  const layerId = React.useId();
   const { height: windowHeight } = useWindowDimensions();
   const progress = React.useRef(new Animated.Value(0)).current;
   const [mounted, setMounted] = React.useState(open);
@@ -85,6 +96,12 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   // deps so a parent's inline lambda can't restart a running animation.
   const onOpenChangeRef = React.useRef(onOpenChange);
   onOpenChangeRef.current = onOpenChange;
+  // Stable close handler for scrim tap AND hardware-back routing (the overlay
+  // layer calls it on the topmost dismissible layer). Reads the latest callback
+  // via the ref so its identity never changes.
+  const requestClose = React.useCallback(() => {
+    onOpenChangeRef.current?.(false);
+  }, []);
 
   React.useEffect(() => {
     if (open) {
@@ -129,26 +146,27 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     [progress, sheetHeight, windowHeight],
   );
 
-  if (!mounted) return null;
-
   const sizeStyle: ViewStyle =
     detent === 'content'
       ? { maxHeight: Math.round(windowHeight * CONTENT_MAX_FRACTION) }
       : { height: Math.round(windowHeight * DETENT_FRACTION[detent]) };
 
-  const scrimNode =
-    scrim === 'dim' ? (
-      <AnimatedPressable
-        accessibilityRole={dismissible ? 'button' : undefined}
-        disabled={!dismissible}
-        onPress={dismissible ? () => onOpenChange?.(false) : undefined}
-        style={[styles.scrim, { opacity: progress }]}
-      />
-    ) : null;
-
-  return (
+  // The overlay subtree — identical to the old inline return (scrim +
+  // KeyboardAvoidingView + the measured, translateY-slid Animated.View). It is
+  // rebuilt each render (fresh translateY on a height/detent change) and
+  // re-registered so the outlet shows the current node; the progress/translateY
+  // Animated values are stable refs, so the enter/exit slide runs native-driven
+  // on the already-mounted node without a re-render. Only built while mounted.
+  const overlayNode = mounted ? (
     <RNView pointerEvents="box-none" style={StyleSheet.absoluteFill}>
-      {scrimNode}
+      {scrim === 'dim' ? (
+        <AnimatedPressable
+          accessibilityRole={dismissible ? 'button' : undefined}
+          disabled={!dismissible}
+          onPress={dismissible ? requestClose : undefined}
+          style={[styles.scrim, { opacity: progress }]}
+        />
+      ) : null}
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         pointerEvents="box-none"
@@ -159,7 +177,24 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
         </Animated.View>
       </KeyboardAvoidingView>
     </RNView>
-  );
+  ) : null;
+
+  // Register the subtree into the overlay layer while mounted (the <Layer>
+  // pattern): the outlet renders it full-window, above the safe-area padding.
+  // useLayoutEffect keyed on the node + dismissible upserts it before paint;
+  // the cleanup unregisters on close/unmount so a dismissed sheet leaves no
+  // layer behind. A non-dim/non-dismissible sheet passes onRequestClose only
+  // when dismissible, so hardware-back respects `dismissible`.
+  React.useLayoutEffect(() => {
+    if (!mounted) return undefined;
+    overlay.register(layerId, overlayNode, {
+      dismissible,
+      onRequestClose: dismissible ? requestClose : undefined,
+    });
+    return () => overlay.unregister(layerId);
+  }, [mounted, overlayNode, dismissible, requestClose, overlay, layerId]);
+
+  return null;
 };
 BottomSheet.displayName = 'BottomSheet';
 

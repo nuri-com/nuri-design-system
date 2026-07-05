@@ -4006,6 +4006,33 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
   opacity: 0.55;
 }
 
+/* ── Overlay mode · the device-fill stance for a sheet-bearing composition ──
+ * When the frame carries data-overlay (demo.js detects a <nuri-bottom-sheet>),
+ * the status bar + bottom affordance are pulled OUT of the flex flow and pinned
+ * as absolute overlays, so the viewport fills the WHOLE screen and the sheet's
+ * scrim (bounded by the viewport) dims the status-bar strip too — matching the
+ * RN OverlayProvider outlet, which renders above the consumer's safe-area
+ * padding. z-index sits ABOVE the sheet (recipe z-index 20) so the OS chrome —
+ * clock, signals, home pill — floats over the dim, as it does on a real device.
+ * The frame owns this device-fill; the demo needs no page-local CSS. */
+.nuri-device[data-overlay] .nuri-device__status {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 30;
+}
+.nuri-device[data-overlay] .nuri-device__home,
+.nuri-device[data-overlay] .nuri-device__nav {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline: 0;
+  z-index: 30;
+}
+/* The sensor housing is a physical hole in the glass — always on top. */
+.nuri-device[data-overlay] .nuri-device__cutout {
+  z-index: 31;
+}
+
 /* ──────────────────────────────────────────────────────────────
  * .nuri-demo-row · stack of demo cards (always single column —
  * the mobile-first preview layout). Container only; the cards

@@ -25,28 +25,31 @@ import { StatusBar } from 'expo-status-bar';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { NuriThemeProvider, useNuriTheme } from './src/components/ui';
+import { NuriThemeProvider, OverlayProvider, useNuriTheme } from './src/components/ui';
 import type { IconName, Theme } from './src/components/ui';
 import { BottomBar } from './src/components/BottomBar';
 import { Wallet } from './src/screens/Wallet';
 import { Coin } from './src/screens/Coin';
 import { Cash } from './src/screens/Cash';
+import { Sheet } from './src/screens/Sheet';
 
 // ── the app DATA the DS never owns: the routes and their tab items (the
-// playground's three boards · one interactive bar). `selected` follows the
-// route state; the DS bar just paints it. ──
-type Route = 'wallet' | 'coin' | 'cash';
+// playground's three boards · one interactive bar, plus the overlay demo).
+// `selected` follows the route state; the DS bar just paints it. ──
+type Route = 'wallet' | 'coin' | 'cash' | 'sheet';
 
 const TAB_ITEMS: readonly { key: Route; icon: IconName; label: string }[] = [
   { key: 'wallet', icon: 'wallet', label: '€ 36.50' },
   { key: 'coin', icon: 'card', label: '€ 18.90' },
   { key: 'cash', icon: 'bank', label: '€ 25.70' },
+  { key: 'sheet', icon: 'list-bullets', label: 'Overlay' },
 ];
 
 const SCREENS: Record<Route, React.FC> = {
   wallet: Wallet,
   coin: Coin,
   cash: Cash,
+  sheet: Sheet,
 };
 
 function ThemedRoot({
@@ -95,9 +98,17 @@ function Root() {
     [],
   );
 
+  // <OverlayProvider> sits INSIDE the theme provider (so a registered sheet's
+  // panel themes through the same payload) but ABOVE the safe-area padding
+  // (it wraps ThemedRoot, which owns the padded root) — so the overlay outlet's
+  // absoluteFill fills the WHOLE window, and a sheet's scrim dims the status bar
+  // too. This is the inset-agnostic stance: the DS provider consumes no insets;
+  // the consumer's placement above the padding is what makes it full-frame.
   return (
     <NuriThemeProvider mode={mode} accent="neutral">
-      <ThemedRoot mode={mode} onToggleTheme={toggleTheme} />
+      <OverlayProvider>
+        <ThemedRoot mode={mode} onToggleTheme={toggleTheme} />
+      </OverlayProvider>
     </NuriThemeProvider>
   );
 }

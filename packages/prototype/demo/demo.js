@@ -304,13 +304,22 @@
       const platform = preset.platform || 'ios';
       const chrome = PLATFORM_CHROME[platform] || PLATFORM_CHROME['ios'];
 
+      // Overlay-aware framing: a composition with a bottom sheet needs the
+      // sheet's scrim to dim the FULL screen — status-bar strip included — to
+      // match the RN OverlayProvider outlet, which renders above the safe-area
+      // padding. In this mode (demo.css) the status bar + bottom affordance
+      // become absolute overlays ABOVE the sheet, so the OS chrome floats over
+      // the dim exactly as it does on a real device. Non-sheet frames are
+      // unaffected (they keep the in-flow safe-area chrome).
+      const hasOverlay = /<nuri-bottom-sheet[\s/>]/.test(sourceHtml);
+
       // The themeable <nuri-scope> wraps the SCREEN (cutout + status + viewport
       // + bottom), not the bezel: the dark hardware slab is fixed chrome, while
       // the screen surface re-resolves through the scope. It carries the
       // controllable class so _wireControls writes the device theme/neutral/
       // font here — and nowhere else on the card.
       return `
-        <div class="nuri-device" data-device="${device}" data-platform="${platform}">
+        <div class="nuri-device" data-device="${device}" data-platform="${platform}"${hasOverlay ? ' data-overlay' : ''}>
           <div class="nuri-device__frame">
             <nuri-scope class="nuri-demo-card__scope nuri-device__scope" ${scopeAttrs}>
               <div class="nuri-device__screen">

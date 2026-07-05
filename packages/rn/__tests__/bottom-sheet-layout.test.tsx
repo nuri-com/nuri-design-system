@@ -14,7 +14,7 @@ import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { LayoutAnimation, Text } from 'react-native';
 import { NuriThemeProvider } from '../theme';
-import { BottomSheet, BottomSheetPanel } from '../index';
+import { BottomSheet, BottomSheetPanel, OverlayProvider } from '../index';
 
 function render(node: React.ReactElement): TestRenderer.ReactTestRenderer {
   let tr!: TestRenderer.ReactTestRenderer;
@@ -57,11 +57,13 @@ describe('BottomSheet — layout measurement latch + no LayoutAnimation arming (
   test('an initial measurement does NOT arm a LayoutAnimation', () => {
     const tr = render(
       <NuriThemeProvider>
-        <BottomSheet open detent="content">
-          <BottomSheetPanel>
-            <Text>Receive</Text>
-          </BottomSheetPanel>
-        </BottomSheet>
+        <OverlayProvider>
+          <BottomSheet open detent="content">
+            <BottomSheetPanel>
+              <Text>Receive</Text>
+            </BottomSheetPanel>
+          </BottomSheet>
+        </OverlayProvider>
       </NuriThemeProvider>,
     );
     fireSheetLayout(tr, 400);
@@ -71,11 +73,13 @@ describe('BottomSheet — layout measurement latch + no LayoutAnimation arming (
   test('a subsequent content/height change does NOT arm a LayoutAnimation', () => {
     const tr = render(
       <NuriThemeProvider>
-        <BottomSheet open detent="content">
-          <BottomSheetPanel>
-            <Text>Receive</Text>
-          </BottomSheetPanel>
-        </BottomSheet>
+        <OverlayProvider>
+          <BottomSheet open detent="content">
+            <BottomSheetPanel>
+              <Text>Receive</Text>
+            </BottomSheetPanel>
+          </BottomSheet>
+        </OverlayProvider>
       </NuriThemeProvider>,
     );
     // First layout latches the height; a second, taller layout is the swap the
@@ -88,11 +92,13 @@ describe('BottomSheet — layout measurement latch + no LayoutAnimation arming (
   test('the measurement latch keeps the sheet content mounted after layout (enter-slide path intact)', () => {
     const tr = render(
       <NuriThemeProvider>
-        <BottomSheet open detent="content">
-          <BottomSheetPanel>
-            <Text>Receive</Text>
-          </BottomSheetPanel>
-        </BottomSheet>
+        <OverlayProvider>
+          <BottomSheet open detent="content">
+            <BottomSheetPanel>
+              <Text>Receive</Text>
+            </BottomSheetPanel>
+          </BottomSheet>
+        </OverlayProvider>
       </NuriThemeProvider>,
     );
     // Latching a height drives the enter slide; the measurement path is unchanged
@@ -105,11 +111,13 @@ describe('BottomSheet — layout measurement latch + no LayoutAnimation arming (
   test('a closed sheet mounts no engine surface (exit/unmount behaviour retained)', () => {
     const tr = render(
       <NuriThemeProvider>
-        <BottomSheet open={false} detent="content">
-          <BottomSheetPanel>
-            <Text>Receive</Text>
-          </BottomSheetPanel>
-        </BottomSheet>
+        <OverlayProvider>
+          <BottomSheet open={false} detent="content">
+            <BottomSheetPanel>
+              <Text>Receive</Text>
+            </BottomSheetPanel>
+          </BottomSheet>
+        </OverlayProvider>
       </NuriThemeProvider>,
     );
     expect(tr.toJSON()).toBeNull();

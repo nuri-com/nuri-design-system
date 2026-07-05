@@ -51,6 +51,7 @@ import {
   BottomSheet,
   BottomSheetPanel,
   BottomSheetScroll,
+  OverlayProvider,
 } from '../index';
 import { icons } from '../contract';
 import type { Descriptor, Axes, TypographyNS } from '../contract';
@@ -367,18 +368,20 @@ describe('render-smoke — the ergonomic components mount headless', () => {
   test('BottomSheet — structural host renders descriptor-backed panel and core-RN scroll wrapper', () => {
     const tr = render(
       <NuriThemeProvider>
-        <NuriScreen>
-          <BottomSheet open detent="content" scrim="dim" dismissible>
-            <BottomSheetPanel>
-              <Topbar surface="transparent">
-                <TopbarCenter><Text>Receive</Text></TopbarCenter>
-              </Topbar>
-              <BottomSheetScroll>
-                <Button variant="solid">Paste Bitcoin Address</Button>
-              </BottomSheetScroll>
-            </BottomSheetPanel>
-          </BottomSheet>
-        </NuriScreen>
+        <OverlayProvider>
+          <NuriScreen>
+            <BottomSheet open detent="content" scrim="dim" dismissible>
+              <BottomSheetPanel>
+                <Topbar surface="transparent">
+                  <TopbarCenter><Text>Receive</Text></TopbarCenter>
+                </Topbar>
+                <BottomSheetScroll>
+                  <Button variant="solid">Paste Bitcoin Address</Button>
+                </BottomSheetScroll>
+              </BottomSheetPanel>
+            </BottomSheet>
+          </NuriScreen>
+        </OverlayProvider>
       </NuriThemeProvider>,
     );
 
@@ -396,9 +399,11 @@ describe('render-smoke — the ergonomic components mount headless', () => {
   test('BottomSheet — closed means no mounted engine surface', () => {
     const tr = render(
       <NuriThemeProvider>
-        <BottomSheet open={false}>
-          <BottomSheetPanel><Text>Hidden</Text></BottomSheetPanel>
-        </BottomSheet>
+        <OverlayProvider>
+          <BottomSheet open={false}>
+            <BottomSheetPanel><Text>Hidden</Text></BottomSheetPanel>
+          </BottomSheet>
+        </OverlayProvider>
       </NuriThemeProvider>,
     );
     expect(tr.toJSON()).toBeNull();

@@ -7,13 +7,20 @@
  * ────────────────────────────────────────────────────────────── */
 
 export {
+  BottomSheet,
+  BottomSheetPanel,
+  BottomSheetScroll,
   Button,
   IconButton,
   NuriIcon,
   NuriThemeProvider,
+  OverlayProvider,
+  Stack,
   TabBar,
   TabBarItem,
   Text,
+  TextField,
+  TextFieldLabel,
   Topbar,
   TopbarCenter,
   TopbarLeading,

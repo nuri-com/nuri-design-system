@@ -26,6 +26,14 @@
 export * from './contract';
 export * from './theme';
 
+// The overlay runtime — the DS overlay layer (route B · docs/bottom-sheet-
+// improvements.md). OverlayProvider is a root provider (like NuriThemeProvider)
+// the consumer mounts once, ABOVE their safe-area padding; <BottomSheet>
+// registers its subtree into it via useOverlay. RN-only runtime behaviour (no
+// web equivalent — web is a static device-frame layer).
+export { OverlayProvider, useOverlay, OverlayContext } from './overlay';
+export type { OverlayApi, OverlayLayerOptions } from './overlay';
+
 // The theme PAYLOAD shape (typed) + the interaction baseline are public; the
 // PAYLOAD BUILDER (`buildNuriTheme`) is an internal engine detail (SEED-4 · Arc 1)
 // — the provider/scope drive it, consumers never call it — so it is NOT re-exported
