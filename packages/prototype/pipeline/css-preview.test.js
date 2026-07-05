@@ -302,3 +302,28 @@ test('Guard E · box: the padding family is source-ordered by precedence (unifor
   }
   assert.equal(sidesChecked, 4, `expected all 4 physical sides exercised by the box padding family, saw ${sidesChecked}`);
 });
+
+// ══════════════════════════════════════════════════════════════════
+// distribute · the parent-side even split (childFill · the `> *` combinator)
+// ══════════════════════════════════════════════════════════════════
+// The WEB half of the cross-platform parity proof. `distribute:'even'` emits a
+// child-combinator rule sizing every direct child to an equal share; the neutral
+// FillCase it spells is STACK_FIELDS.distribute.cases.even — the SAME table RN's
+// childFillStyle('even') reads (packages/rn/__tests__/stack-distribute.test.tsx).
+// One source, two emits ⇒ "equal share on both" is honest, not asserted by eye.
+test('distribute:even emits the child-fill combinator, derived from STACK_FIELDS.distribute (the RN-parity source)', async () => {
+  const { loadTsDataFromPath } = await import('./parsers/strip.js');
+  const RESOLVE_MAP = fileURLToPath(import.meta.resolve('@nuri/spec/resolve-map'));
+  const { STACK_FIELDS } = await loadTsDataFromPath(RESOLVE_MAP);
+  const even = STACK_FIELDS.distribute.cases.even; // { grow:1, shrink:1, basis:0, minInline:0 }
+
+  const rules = layerRuleMap(genByNs.get('stack'));
+  const sel = '.nuri-stack[data-distribute="even"] > *';
+  assert.ok(rules.has(sel), `expected the distribute child-combinator rule '${sel}' in the generated stack CSS`);
+  const decls = rules.get(sel);
+  // web spells the neutral FillCase as `flex` + `min-inline-size` (expandWebDecls)
+  assert.equal(decls.get('flex'), `${even.grow} ${even.shrink} ${even.basis}`, 'flex derives from the shared FillCase (grow shrink basis)');
+  assert.equal(decls.get('min-inline-size'), String(even.minInline), 'min-inline-size derives from the shared FillCase minInline');
+  // RN's childFillStyle('even') reads the SAME even case → { flexGrow:1, flexShrink:1,
+  // flexBasis:0, minWidth:0 } (pinned in the RN suite). One table → equal share on both.
+});

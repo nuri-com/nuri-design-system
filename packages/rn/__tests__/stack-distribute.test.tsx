@@ -13,6 +13,7 @@ import TestRenderer, { act } from 'react-test-renderer';
 import { Text, View } from 'react-native';
 import { Stack } from '../primitives';
 import { childFillStyle } from '../runtime/resolve';
+import { STACK_FIELDS } from '@nuri/spec/resolve-map';
 
 function render(node: React.ReactElement): TestRenderer.ReactTestRenderer {
   let tr!: TestRenderer.ReactTestRenderer;
@@ -53,6 +54,18 @@ test('no distribute → children are NOT wrapped (byte-identical to a plain Stac
   expect(tr.root.findAll(isEvenWrapper)).toHaveLength(0);
 });
 
-test('childFillStyle("even") is flex 1 1 0 + min 0 (== the `even` fill · CHILD-applied)', () => {
-  expect(childFillStyle('even')).toEqual({ flexGrow: 1, flexShrink: 1, flexBasis: 0, minWidth: 0 });
+test('childFillStyle("even") derives from the SHARED STACK_FIELDS.distribute source (web ⟺ RN parity)', () => {
+  // The SAME table the web `.nuri-stack[data-distribute="even"] > *` rule spells from
+  // (pinned in @nuri/prototype's css-preview.test.js). RN spells the neutral FillCase as
+  // flexGrow/flexShrink/flexBasis/minWidth; web spells it as flex/min-inline-size — one
+  // source, two emits ⇒ equal share on both is guaranteed, not asserted by eye.
+  const field = STACK_FIELDS.distribute;
+  if (field.via !== 'childFill') throw new Error('STACK_FIELDS.distribute must be a childFill field');
+  const even = field.cases.even; // { grow:1, shrink:1, basis:0, minInline:0 }
+  expect(childFillStyle('even')).toEqual({
+    flexGrow: even.grow,
+    flexShrink: even.shrink,
+    flexBasis: even.basis,
+    minWidth: even.minInline,
+  });
 });
