@@ -21,6 +21,7 @@ The agnostic **stack** namespace — flexbox layout (direction · alignment · g
 | `gap` | `gap` | `gap` | `space` scale |
 | `wrap` | `flex-wrap` | `flexWrap` | `wrap` / `nowrap` |
 | `fill` | `flex` | — | `grow` → `grow: 1` · `shrink: 0`<br>`grow-shrink` → `grow: 1` · `shrink: 1` · `minInline: 0`<br>`even` → `grow: 1` · `shrink: 1` · `basis: 0` · `minInline: 0`<br>`hug` → `grow: 0` · `shrink: 0` |
+| `distribute` | `flex (› *)` | — | `even` → `grow: 1` · `shrink: 1` · `basis: 0` · `minInline: 0` |
 
 > **`fill`** is the mechanism-divergent `expand` arm (decision 73 cl.2) — not a
 > property-spelling entry: web is the `flex` shorthand, RN a multi-prop `ViewStyle`

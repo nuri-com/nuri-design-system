@@ -144,6 +144,8 @@ function applyFieldsNode(fields, ns, spelling, scales) {
       case 'expand':
         Object.assign(out, fillCaseToRn(f.cases[value]));
         break;
+      case 'childFill':
+        break; // child-affecting (distribute) — no node style baked (children get it at render)
       default:
         throw new Error(`[recipes] unhandled field via '${f.via}'`);
     }

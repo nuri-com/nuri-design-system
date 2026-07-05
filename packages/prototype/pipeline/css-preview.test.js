@@ -230,19 +230,26 @@ test('Guard C · resolved-value spot-check (generated → final value)', () => {
 // emitted shell-first in both files — their relative order already matches hand.)
 for (const { ns } of NS_SPECS) {
   test(`Guard D · ${ns}: each dispatched property is owned by one data-attr (order cannot matter)`, () => {
-    const attrsForProp = new Map(); // property → Set<data-attr>
+    // Partition by CASCADE TARGET: a node rule (`.nuri-stack[data-x]`) and a child
+    // rule (`.nuri-stack[data-y] > *`) style DIFFERENT elements, so the same property
+    // dispatched by each never co-matches — no order dependence across the boundary.
+    // (`fill` sets the node's own `flex`; `distribute`'s `> *` sets the CHILDREN's.)
+    const attrsForProp = new Map(); // `${prop} ${target}` → Set<data-attr>
     for (const [sel, decls] of layerRuleMap(genByNs.get(ns))) {
       const attr = sel.match(/\[data-([\w-]+)=/)?.[1];
       if (!attr) continue; // shell base / element-wrapper rule
+      const target = />\s*\*/.test(sel) ? 'child' : 'self';
       for (const prop of decls.keys()) {
-        if (!attrsForProp.has(prop)) attrsForProp.set(prop, new Set());
-        attrsForProp.get(prop).add(attr);
+        const key = `${prop} ${target}`;
+        if (!attrsForProp.has(key)) attrsForProp.set(key, new Set());
+        attrsForProp.get(key).add(attr);
       }
     }
-    for (const [prop, attrs] of attrsForProp) {
+    for (const [key, attrs] of attrsForProp) {
+      const [prop, target] = key.split(' ');
       assert.equal(
         attrs.size, 1,
-        `property '${prop}' is dispatched by >1 data-attr (${[...attrs].join(', ')}) — ` +
+        `property '${prop}' (${target} target) is dispatched by >1 data-attr (${[...attrs].join(', ')}) — ` +
         `field-rule order could be cascade-significant, so Guard A's order-insensitive compare may be unsound`,
       );
     }

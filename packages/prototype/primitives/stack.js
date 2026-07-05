@@ -31,7 +31,7 @@
  * ────────────────────────────────────────────────────────────── */
 
 (() => {
-  const ATTRS = ['direction', 'gap', 'align', 'justify', 'wrap', 'fill', 'as'];
+  const ATTRS = ['direction', 'gap', 'align', 'justify', 'wrap', 'fill', 'distribute', 'as'];
 
   class NuriStack extends HTMLElement {
     static get observedAttributes() {
@@ -40,6 +40,7 @@
 
     #inner = null;
     #innerTag = null;
+    #distributeObserver = null;
 
     connectedCallback() {
       if (this.#inner) return;
@@ -51,6 +52,7 @@
       this.#inner = inner;
       this.#innerTag = tag;
       this.#sync();
+      this.#syncDistribute();
     }
 
     attributeChangedCallback(name, _oldValue, newValue) {
@@ -67,6 +69,39 @@
         }
       }
       this.#sync();
+      this.#syncDistribute();
+    }
+
+    disconnectedCallback() {
+      if (this.#distributeObserver) { this.#distributeObserver.disconnect(); this.#distributeObserver = null; }
+    }
+
+    // distribute="even" · wrap each direct ELEMENT child of #inner in a `.nuri-stack`
+    // box the `[data-distribute="even"] > *` rule sizes to an equal share — the same
+    // parent-side split as <nuri-view> (web has no `> *` reach through a display:contents
+    // component host, so the flex must land on a real box · the RN twin wraps in a View).
+    #syncDistribute() {
+      if (!this.#inner) return;
+      if (this.#distributeObserver) this.#distributeObserver.disconnect();
+      if (this.getAttribute('distribute') === 'even') {
+        for (const child of [...this.#inner.children]) {
+          if (child.dataset.nuriDistributeWrapper !== undefined) continue;
+          const w = document.createElement('div');
+          w.className = 'nuri-stack';
+          w.dataset.nuriDistributeWrapper = '';
+          this.#inner.insertBefore(w, child);
+          w.appendChild(child);
+        }
+        if (!this.#distributeObserver) this.#distributeObserver = new MutationObserver(() => this.#syncDistribute());
+        this.#distributeObserver.observe(this.#inner, { childList: true });
+      } else {
+        for (const w of [...this.#inner.children]) {
+          if (w.dataset.nuriDistributeWrapper === undefined) continue;
+          while (w.firstChild) this.#inner.insertBefore(w.firstChild, w);
+          w.remove();
+        }
+        this.#distributeObserver = null;
+      }
     }
 
     #sync() {
@@ -86,13 +121,17 @@
       const fill      = fillAttr == null
         ? null
         : (fillAttr === 'grow-shrink' ? 'grow-shrink' : 'grow');
+      // distribute · the PARENT-side even split (child-fill · `> *`): a plain enum
+      // passthrough (`even`), no normalization — the CSS combinator styles the children.
+      const distribute = this.getAttribute('distribute');
 
-      this.#setData('direction', direction);
-      this.#setData('gap',       gap);
-      this.#setData('align',     align);
-      this.#setData('justify',   justify);
-      this.#setData('wrap',      wrap ? 'true' : null);
-      this.#setData('fill',      fill);
+      this.#setData('direction',  direction);
+      this.#setData('gap',        gap);
+      this.#setData('align',      align);
+      this.#setData('justify',    justify);
+      this.#setData('wrap',       wrap ? 'true' : null);
+      this.#setData('fill',       fill);
+      this.#setData('distribute', distribute);
     }
 
     #setData(key, value) {

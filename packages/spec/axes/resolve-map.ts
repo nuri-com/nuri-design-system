@@ -60,7 +60,8 @@ export type Field =
   | { via: 'keyword'; prop: CanonicalId; map: Record<string, string> } // value = map[input]
   | { via: 'literal'; prop: CanonicalId } //                       value = input (passthrough)
   | { via: 'flag'; prop: CanonicalId; on: string; off: string } // value = input ? on : off
-  | { via: 'expand'; cases: Record<string, FillCase> }; // neutral multi-prop intent
+  | { via: 'expand'; cases: Record<string, FillCase> } // neutral multi-prop intent (node's OWN flex)
+  | { via: 'childFill'; cases: Record<string, FillCase> }; // the SAME intent applied to DIRECT CHILDREN
 
 // ── flexbox keyword maps · NEUTRAL (CSS align-items/justify-content take the
 // SAME flex-* keywords) · were the ALIGN/JUSTIFY consts in resolve.ts ──
@@ -101,6 +102,16 @@ const FILL: Record<NonNullable<StackNS['fill']>, FillCase> = {
   hug: { grow: 0, shrink: 0 },
 };
 
+// distribute → the PARENT-side even split: each DIRECT CHILD becomes flex 1 1 0
+// (the same neutral intent as the `even` FILL case, but the flex lands on the
+// CHILDREN, not this node). `childFill` is a distinct `via` because the projections
+// target children — web writes a `> *` child combinator, RN injects the per-child
+// style in the Stack primitive — so the field appliers (which build the NODE's own
+// style) treat it as a no-op. Extend the record to add other distributions later.
+const DISTRIBUTE: Record<NonNullable<StackNS['distribute']>, FillCase> = {
+  even: { grow: 1, shrink: 1, basis: 0, minInline: 0 },
+};
+
 // ── stack → flex · the mapping as DATA (was resolveStack's if-wall · mirrors
 // the hand Stack primitive) ──
 // ⚠ ORDER IS LOAD-BEARING: the applier emits in this declaration order, which
@@ -115,6 +126,8 @@ export const STACK_FIELDS: Record<keyof StackNS, Field> = {
   gap: { via: 'scale', prop: 'gap', scale: 'space' },
   wrap: { via: 'flag', prop: 'flexWrap', on: 'wrap', off: 'nowrap' },
   fill: { via: 'expand', cases: FILL },
+  // child-affecting (see DISTRIBUTE) — tail of the table; a node no-op in the appliers.
+  distribute: { via: 'childFill', cases: DISTRIBUTE },
 };
 
 // ── box → sizing · padding · radii (geometry only · 65.3 §6 · no colour) · the

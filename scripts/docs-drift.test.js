@@ -505,6 +505,9 @@ const FROZEN_SCHEMA = {
       // `hug` ADDED at the trailing-action slice (the 3rd versioned StackNS.fill
       // add · flex:0 0 auto — the no-shrink content floor · alert's AlertButton).
       'fill?': "'grow' | 'grow-shrink' | 'even' | 'hug'",
+      // `distribute` ADDED at the even-row slice (a versioned StackNS add · the FIRST
+      // child-affecting stack property · web `> *` combinator · RN per-child inject).
+      'distribute?': "'even'",
     },
     // `minWidth` ADDED at P11 (the icon-button slice · the 2nd deliberate
     // post-freeze BoxNS add · decision 65 "post-freeze changes are versioned"):

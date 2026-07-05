@@ -58,6 +58,7 @@ import type { NuriTheme } from './theme-payload';
 // spelling registry (@nuri/spec/property-spelling · the `.rn` column).
 import { STACK_FIELDS, BOX_FIELDS } from '@nuri/spec/resolve-map';
 import type { Field, FillCase, ScaleName } from '@nuri/spec/resolve-map';
+import type { StackNS } from '@nuri/spec/descriptors/schema';
 import { PROPERTY_SPELLING } from '@nuri/spec/property-spelling';
 import type { CanonicalId } from '@nuri/spec/property-spelling';
 // The interactive opt-in mapping is DATA, single-sourced in @nuri/spec (N+44 · the
@@ -100,6 +101,16 @@ function fillCaseToRn(fill: FillCase): ViewStyle {
   return out;
 }
 
+// childFillStyle · the per-child ViewStyle for a stack `distribute` value — the RN
+// twin of the web `.nuri-stack[data-distribute] > *` combinator. The Stack primitive
+// wraps each direct child in a View carrying this. Single-sourced from the same
+// DISTRIBUTE table (via STACK_FIELDS) the web CSS emits from, so the two never drift.
+export function childFillStyle(distribute: NonNullable<StackNS['distribute']>): ViewStyle {
+  const f = STACK_FIELDS.distribute;
+  if (f.via !== 'childFill') return {}; // unreachable — the table pins childFill
+  return fillCaseToRn(f.cases[distribute]);
+}
+
 // applyFields · the GENERIC RN APPLIER for the agnostic namespaces (box · stack).
 // Walks the shared mapping table (resolve-map.ts) and emits an RN ViewStyle —
 // the per-target EMIT that S3's web resolver replaces while reusing the SAME
@@ -139,6 +150,10 @@ function applyFields(fields: Record<string, Field>, ns: Record<string, unknown>)
         break;
       case 'expand':
         Object.assign(out, fillCaseToRn(f.cases[value as string]));
+        break;
+      case 'childFill':
+        // child-affecting (distribute) — NO node style; the per-child flex is
+        // injected by the Stack primitive (childFillStyle), not here.
         break;
       default:
         // a new Field arm without a case is a COMPILE error here (f: never) —
