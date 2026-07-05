@@ -3529,11 +3529,6 @@ nuri-demo:not(:defined) {
     pointer-events: auto;
   }
 
-  nuri-bottom-sheet[detent="large"] > nuri-bottom-sheet-panel {
-    block-size: 80%;
-    max-block-size: 80%;
-  }
-
   nuri-bottom-sheet[detent="full"] > nuri-bottom-sheet-panel {
     block-size: calc(100% - 12px);
     max-block-size: calc(100% - 12px);
@@ -3546,7 +3541,6 @@ nuri-demo:not(:defined) {
     -webkit-overflow-scrolling: touch;
   }
 
-  nuri-bottom-sheet[detent="large"] nuri-bottom-sheet-scroll,
   nuri-bottom-sheet[detent="full"] nuri-bottom-sheet-scroll {
     flex: 1;
   }

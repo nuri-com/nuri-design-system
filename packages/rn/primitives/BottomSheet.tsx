@@ -9,12 +9,10 @@ import {
   Animated,
   Easing,
   KeyboardAvoidingView,
-  LayoutAnimation,
   Platform,
   Pressable as RNPressable,
   ScrollView as RNScrollView,
   StyleSheet,
-  UIManager,
   View as RNView,
   useWindowDimensions,
 } from 'react-native';
@@ -24,12 +22,7 @@ import { bottomSheetChrome } from '@nuri/spec/bottom-sheet-chrome';
 
 import { BottomSheetPanel as GeneratedBottomSheetPanel } from '../generated/components/bottom-sheet-panel';
 
-// LayoutAnimation is a no-op on old-arch Android unless enabled.
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
-
-export type BottomSheetDetent = 'content' | 'large' | 'full';
+export type BottomSheetDetent = 'content' | 'full';
 export type BottomSheetScrim = 'none' | 'dim';
 
 export type BottomSheetProps = {
@@ -50,7 +43,6 @@ export type BottomSheetScrollProps = {
 };
 
 const DETENT_FRACTION: Record<Exclude<BottomSheetDetent, 'content'>, number> = {
-  large: 0.8,
   full: 0.96,
 };
 const CONTENT_MAX_FRACTION = 0.82;
@@ -122,10 +114,8 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   const handleSheetLayout = React.useCallback((event: LayoutChangeEvent) => {
     const next = Math.round(event.nativeEvent.layout.height);
     if (measuredHeight.current === next) return;
-    // Content-driven height change while settled (v1 · buttery swaps deferred).
-    if (measuredHeight.current !== null) {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }
+    // Latch the measured height for the enter-slide travel distance. Content-swap /
+    // morph animation (content ↔ full) lands with D2 — see docs/bottom-sheet-improvements.md.
     measuredHeight.current = next;
     setSheetHeight(next);
   }, []);

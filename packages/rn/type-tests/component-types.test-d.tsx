@@ -150,6 +150,11 @@ export const bottomSheetOk = (
     </BottomSheetPanel>
   </BottomSheet>
 );
+// the two-detent surface: `content` and `full` are the whole set.
+export const bottomSheetContentOk = <BottomSheet open detent="content" />;
+export const bottomSheetFullOk = <BottomSheet open detent="full" />;
+// @ts-expect-error BottomSheet collapsed to two detents — `large` was dropped (D1).
+export const bottomSheetNoLargeDetent = <BottomSheet open detent="large" />;
 // @ts-expect-error BottomSheet intentionally does NOT expose raw engine snapPoints.
 export const bottomSheetNoSnapPoints = <BottomSheet open snapPoints={['25%', '75%']} />;
 // @ts-expect-error BottomSheet intentionally has no content-slot props; compose children instead.
