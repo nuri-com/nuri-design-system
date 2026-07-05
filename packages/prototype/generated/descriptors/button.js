@@ -29,18 +29,12 @@ export const buttonDescriptor = {
     variant: {
       solid: { root: { palette: { variant: 'solid' } } },
       soft: { root: { palette: { variant: 'soft' } } },
-      ghost: { root: { palette: { variant: 'ghost' } } },
     },
     size: {
       sm: {
-        root: { box: { minHeight: 'md', paddingX: 'md', radius: 'full' } },
+        root: { box: { minHeight: 'md', paddingX: 'lg', radius: 'full' } },
         label: { typography: { size: 'sm', emphasis: true, flow: 'truncate', lines: 1 } },
         icon: { box: { width: 'xs', height: 'xs' } },
-      },
-      md: {
-        root: { box: { minHeight: 'lg', paddingX: 'lg', radius: 'full' } },
-        label: { typography: { size: 'md', emphasis: true, flow: 'truncate', lines: 1 } },
-        icon: { box: { width: 'sm', height: 'sm' } },
       },
       lg: {
         root: { box: { minHeight: 'xl', paddingX: 'xl', radius: 'full' } },
@@ -58,9 +52,10 @@ export const buttonDescriptor = {
     },
   },
   // The PUBLIC defaults (R1.5 · N+50): an unset axis resolves to these — soft
-  // (NOT the variant-order first value `solid`), md (NOT `sm`). Both factories
-  // read this, so neither binding hand-passes a default (the web↔RN parity close).
-  defaults: { variant: 'soft', size: 'md', fill: 'natural' },
+  // (NOT the variant-order first value `solid`), lg (the large control · the two-
+  // size scale is sm/lg). Both factories read this, so neither binding hand-passes
+  // a default (the web↔RN parity close).
+  defaults: { variant: 'soft', size: 'lg', fill: 'natural' },
   // The PUBLIC API (Path C · Phase 1 · docs/archive/component-api-target.md). variant ×
   // size surface as style props; the root is the pressable target (all three
   // interactive channels are opted in on `structure.base`). Bare untagged

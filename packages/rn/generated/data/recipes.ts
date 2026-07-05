@@ -98,11 +98,6 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "size": {
             "sm": {
               "minHeight": 36,
-              "paddingHorizontal": 12,
-              "borderRadius": 9999
-            },
-            "md": {
-              "minHeight": 48,
               "paddingHorizontal": 18,
               "borderRadius": 9999
             },
@@ -137,12 +132,6 @@ export const recipes: Record<string, BakedComponentRecipe> = {
               "flow": "truncate",
               "lines": 1
             },
-            "md": {
-              "size": "md",
-              "emphasis": true,
-              "flow": "truncate",
-              "lines": 1
-            },
             "lg": {
               "size": "md",
               "emphasis": true,
@@ -162,10 +151,6 @@ export const recipes: Record<string, BakedComponentRecipe> = {
             "sm": {
               "width": 18,
               "height": 18
-            },
-            "md": {
-              "width": 24,
-              "height": 24
             },
             "lg": {
               "width": 24,

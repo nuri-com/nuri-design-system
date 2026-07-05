@@ -33,7 +33,7 @@
     </template>
   </nuri-demo>
 
-  <!-- sizes · sm + lg (no md · the default already shows the middle). -->
+  <!-- sizes · the two-size scale (sm · lg) — lg is the default (shown above). -->
   <nuri-demo layout="board" controls="device,theme,accent" label="sizes">
     <template>
       <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
@@ -43,14 +43,34 @@
     </template>
   </nuri-demo>
 
-  <!-- variant · solid · soft · ghost · + a per-instance accent override. -->
+  <!-- variant · solid · soft · + a per-instance accent override. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="variant">
     <template>
       <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
         <nuri-button variant="solid">Solid</nuri-button>
         <nuri-button variant="soft">Soft</nuri-button>
-        <nuri-button variant="ghost">Ghost</nuri-button>
-        <nuri-button variant="solid" accent="orange">Accent</nuri-button>
+        <nuri-button variant="solid" accent="orange">Solid accent</nuri-button>
+      </nuri-stack>
+    </template>
+  </nuri-demo>
+
+  <!-- with icons · ordered ButtonText + ButtonIcon lockups: leading icon · mid icon · trailing icon. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="with icons">
+    <template>
+      <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
+        <nuri-button size="sm" variant="soft">
+          <nuri-button-icon name="check-circle"></nuri-button-icon>
+          <nuri-button-text>copied</nuri-button-text>
+        </nuri-button>
+        <nuri-button size="sm" variant="solid">
+          <nuri-button-text>Buy Bitcoin</nuri-button-text>
+          <nuri-button-icon name="apple"></nuri-button-icon>
+          <nuri-button-text>Pay</nuri-button-text>
+        </nuri-button>
+        <nuri-button size="lg" variant="solid" accent="lilac">
+          <nuri-button-text>Sign in Browser</nuri-button-text>
+          <nuri-button-icon name="expand"></nuri-button-icon>
+        </nuri-button>
       </nuri-stack>
     </template>
   </nuri-demo>

@@ -142,47 +142,44 @@ describe('Button — the richest descriptor (every namespace + interactive · vi
     flattenPart(buttonDescriptor, theme, 'root', { variant, size: size_ }, state);
 
   test('root base = the stack composition (row · center · center) + the size box geometry', () => {
-    const style = rootCell('soft', 'md').style;
+    const style = rootCell('soft', 'lg').style;
     expect(style.flexDirection).toBe('row');
     expect(style.alignItems).toBe('center');
     expect(style.justifyContent).toBe('center');
-    // md → minHeight lg · paddingX lg · radius full (decision 41)
-    expect(style.minHeight).toBe(size.lg);
-    expect(style.paddingHorizontal).toBe(space.lg);
+    // lg → minHeight xl · paddingX xl · radius full (decision 41)
+    expect(style.minHeight).toBe(size.xl);
+    expect(style.paddingHorizontal).toBe(space.xl);
     expect(style.borderRadius).toBe(radius.full);
   });
 
   test('variant → backgroundColor (palette · spot-assert)', () => {
-    expect(rootCell('solid', 'md').style.backgroundColor).toBe(acc('lilac', 'solid', 'light'));
-    expect(rootCell('soft', 'md').style.backgroundColor).toBe(chrome.light.bgStrong);
-    expect(rootCell('ghost', 'md').style.backgroundColor).toBe('transparent');
+    expect(rootCell('solid', 'lg').style.backgroundColor).toBe(acc('lilac', 'solid', 'light'));
+    expect(rootCell('soft', 'lg').style.backgroundColor).toBe(chrome.light.bgStrong);
   });
 
-  test('size → box geometry patches (sm/md/lg · decision 41)', () => {
+  test('size → box geometry patches (sm/lg · decision 41)', () => {
     const geom = (s: string) => {
       const { minHeight, paddingHorizontal, borderRadius } = rootCell('soft', s).style as Record<string, unknown>;
       return { minHeight, paddingHorizontal, borderRadius };
     };
-    expect(geom('sm')).toEqual({ minHeight: size.md, paddingHorizontal: space.md, borderRadius: radius.full });
-    expect(geom('md')).toEqual({ minHeight: size.lg, paddingHorizontal: space.lg, borderRadius: radius.full });
+    // sm pads WIDER now (paddingX lg · not md); lg is the large control.
+    expect(geom('sm')).toEqual({ minHeight: size.md, paddingHorizontal: space.lg, borderRadius: radius.full });
     expect(geom('lg')).toEqual({ minHeight: size.xl, paddingHorizontal: space.xl, borderRadius: radius.full });
   });
 
   test('interactive transients — pressed colour per variant + scale + disabled opacity', () => {
-    expect(rootCell('solid', 'md', { pressed: true }).style.backgroundColor).toBe(acc('lilac', 'solidPressed', 'light'));
-    expect(rootCell('soft', 'md', { pressed: true }).style.backgroundColor).toBe(chrome.light.bgPressed);
-    expect(rootCell('ghost', 'md', { pressed: true }).style.backgroundColor).toBe(chrome.light.bgSubtle);
-    expect(rootCell('solid', 'md', { pressed: true }).style.transform).toEqual([{ scale: interactionTokens.pressScale }]);
-    expect(rootCell('solid', 'md', { disabled: true }).style.opacity).toBe(interactionTokens.disabledOpacity);
+    expect(rootCell('solid', 'lg', { pressed: true }).style.backgroundColor).toBe(acc('lilac', 'solidPressed', 'light'));
+    expect(rootCell('soft', 'lg', { pressed: true }).style.backgroundColor).toBe(chrome.light.bgPressed);
+    expect(rootCell('solid', 'lg', { pressed: true }).style.transform).toEqual([{ scale: interactionTokens.pressScale }]);
+    expect(rootCell('solid', 'lg', { disabled: true }).style.opacity).toBe(interactionTokens.disabledOpacity);
   });
 
   test('foreground flows by SCOPE — the variant fg is a node channel, NOT in the label patch (§12 · F-BOX-FG-1)', () => {
     // the root PROVIDES the surface fg per variant (scope-published · not a style patch)
-    expect(rootCell('solid', 'md').node.fg).toBe(acc('lilac', 'onSolid', 'light'));
-    expect(rootCell('soft', 'md').node.fg).toBe(chrome.light.textPrimary);
-    expect(rootCell('ghost', 'md').node.fg).toBe(chrome.light.textPrimary);
+    expect(rootCell('solid', 'lg').node.fg).toBe(acc('lilac', 'onSolid', 'light'));
+    expect(rootCell('soft', 'lg').node.fg).toBe(chrome.light.textPrimary);
     // the label part carries ONLY typography — no colour patch, no own fg.
-    const label = flattenPart(buttonDescriptor, theme, 'label', { size: 'md' }, {});
+    const label = flattenPart(buttonDescriptor, theme, 'label', { size: 'lg' }, {});
     expect(label.style).toEqual({});
     expect(label.node.fg).toBeUndefined();
   });
@@ -190,9 +187,8 @@ describe('Button — the richest descriptor (every namespace + interactive · vi
   test('label type tracks size — orthogonal {size, emphasis} (decision 55 · de-fused 77)', () => {
     const type = (s: string) => flattenPart(buttonDescriptor, theme, 'label', { size: s }, {}).node.type;
     // The fused `smEm`/`mdEm` is gone — each value is the two orthogonal inputs.
-    // Button is emphasis across all sizes; lg reuses md's step (decision 41/55).
+    // Button is emphasis across both sizes; lg reuses the `md` type step (decision 41/55).
     expect(type('sm')).toEqual({ size: 'sm', emphasis: true });
-    expect(type('md')).toEqual({ size: 'md', emphasis: true });
     expect(type('lg')).toEqual({ size: 'md', emphasis: true });
   });
 });
@@ -347,15 +343,15 @@ describe('genericity + the resolved geometry (three descriptors, ONE resolver)',
     expect(typeof style.aspectRatio).toBe('number'); // unitless · not '1.586px'
   });
 
-  test('flattenPart concrete cell — Button solid/md pressed (the render path anchor)', () => {
+  test('flattenPart concrete cell — Button solid/lg pressed (the render path anchor)', () => {
     const theme = buildNuriTheme('lilac', 'light');
-    const pressed = flattenPart(buttonDescriptor, theme, 'root', { variant: 'solid', size: 'md' }, { pressed: true }).style;
+    const pressed = flattenPart(buttonDescriptor, theme, 'root', { variant: 'solid', size: 'lg' }, { pressed: true }).style;
     expect(pressed).toEqual({
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      minHeight: size.lg,
-      paddingHorizontal: space.lg,
+      minHeight: size.xl,
+      paddingHorizontal: space.xl,
       borderRadius: radius.full,
       backgroundColor: acc('lilac', 'solidPressed', 'light'),
       transform: [{ scale: interactionTokens.pressScale }],

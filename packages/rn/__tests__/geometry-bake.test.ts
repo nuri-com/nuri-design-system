@@ -131,14 +131,14 @@ describe('geometry bake · guard 1 — ORACLE EQUIVALENCE (baked ≡ runtime res
 describe('geometry bake · guard 1 BINDS — mutation proof (a stale bake WOULD fail)', () => {
   test('mutating one descriptor box cell breaks the baked ≡ runtime equality', () => {
     const theme = buildNuriTheme('lilac', 'light');
-    const selection = { variant: 'solid', size: 'md' };
+    const selection = { variant: 'solid', size: 'lg' };
     const baked = flattenBakedPart(recipes['button'].root, buttonDescriptor, theme, 'root', selection, {}).style;
 
-    // A MUTATED descriptor: change size.md.box.minHeight 'lg' → 'xl'. The runtime
+    // A MUTATED descriptor: change size.lg.box.minHeight 'xl' → '2xl'. The runtime
     // resolver now diverges from the (unmutated) bake — proving the oracle is
     // sensitive to the actual descriptor geometry, not vacuously equal.
     const mutated = JSON.parse(JSON.stringify(buttonDescriptor)) as typeof buttonDescriptor;
-    (mutated.variants as unknown as { size: Record<string, { root: { box: { minHeight: string } } }> }).size.md.root.box.minHeight = 'xl';
+    (mutated.variants as unknown as { size: Record<string, { root: { box: { minHeight: string } } }> }).size.lg.root.box.minHeight = '2xl';
     expect(flattenPart(mutated, theme, 'root', selection, {}).style).not.toEqual(baked);
     // control — the unmutated runtime still matches (the divergence is the mutation's).
     expect(flattenPart(buttonDescriptor, theme, 'root', selection, {}).style).toEqual(baked);

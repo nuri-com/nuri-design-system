@@ -41,7 +41,7 @@ import {
 
 // ── Button — text sink · variant/size · NO icon (the soup is gone) ──
 // the real surface compiles: variant union + children text.
-export const buttonOk = <Button variant="solid" size="md" onPress={() => undefined}>Send</Button>;
+export const buttonOk = <Button variant="solid" size="lg" onPress={() => undefined}>Send</Button>;
 // bare children are the label sink.
 export const buttonChildrenOk = <Button>Buy</Button>;
 // composed ordered lockup: flat slot exports, icon slot uses `name`.

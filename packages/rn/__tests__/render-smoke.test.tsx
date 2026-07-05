@@ -90,7 +90,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
   test('Button — typed named props · interactive (Pressable) · label children', () => {
     const tr = render(
       <NuriThemeProvider>
-        <Button variant="solid" size="md" onPress={() => undefined}>
+        <Button variant="solid" size="lg" onPress={() => undefined}>
           Buy Bitcoin
         </Button>
       </NuriThemeProvider>,
@@ -120,7 +120,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
   test('Button — ordered composition renders text/icon/text through the root Pressable', () => {
     const tr = render(
       <NuriThemeProvider>
-        <Button variant="solid" size="md" disabled onPress={() => undefined}>
+        <Button variant="solid" size="lg" disabled onPress={() => undefined}>
           <ButtonText>Buy Bitcoin</ButtonText>
           <ButtonIcon name="apple" />
           <ButtonText>Pay</ButtonText>
@@ -221,7 +221,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     // so an interactive control stays in the a11y tree (it has a name + a role).
     const tr = render(
       <NuriThemeProvider>
-        <Button variant="solid" size="md" onPress={() => undefined}>
+        <Button variant="solid" size="lg" onPress={() => undefined}>
           Buy Bitcoin
         </Button>
       </NuriThemeProvider>,

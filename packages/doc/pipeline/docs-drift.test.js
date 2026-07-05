@@ -63,8 +63,9 @@ const PAGE_CONTRACT = {
     kind: 'api', source: 'button', title: 'Button', nav: 1,
     cells: [
       '### ButtonProps',
-      "| `variant` | no | `'solid' | 'soft' | 'ghost'` | style axis |",
-      "| `size` | no | `'sm' | 'md' | 'lg'` | style axis |",
+      "| `variant` | no | `'solid' | 'soft'` | style axis |",
+      "| `size` | no | `'sm' | 'lg'` | style axis |",
+      "| `fill` | no | `'natural' | 'even' | 'hug'` | style axis |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
       '| `onPress` | no | `() => void` | pressable behaviour |',
       '| `disabled` | no | `boolean` | pressable behaviour |',

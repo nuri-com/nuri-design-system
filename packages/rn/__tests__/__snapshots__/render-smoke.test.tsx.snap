@@ -248,7 +248,7 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
         "flexShrink": 0,
         "justifyContent": "center",
         "minHeight": 36,
-        "paddingHorizontal": 12,
+        "paddingHorizontal": 18,
       }
     }
   >
@@ -319,9 +319,9 @@ exports[`render-smoke — the ergonomic components mount headless Button — ord
       "borderRadius": 9999,
       "flexDirection": "row",
       "justifyContent": "center",
-      "minHeight": 48,
+      "minHeight": 54,
       "opacity": 0.4,
-      "paddingHorizontal": 18,
+      "paddingHorizontal": 24,
     }
   }
 >
@@ -472,8 +472,8 @@ exports[`render-smoke — the ergonomic components mount headless Button — typ
       "borderRadius": 9999,
       "flexDirection": "row",
       "justifyContent": "center",
-      "minHeight": 48,
-      "paddingHorizontal": 18,
+      "minHeight": 54,
+      "paddingHorizontal": 24,
     }
   }
 >

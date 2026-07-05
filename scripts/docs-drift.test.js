@@ -180,7 +180,7 @@ const EXPECTED_DESCRIPTORS = {
     interactive: [],
   },
   button: {
-    axes: { variant: ['solid', 'soft', 'ghost'], size: ['sm', 'md', 'lg'], fill: ['natural', 'even', 'hug'] },
+    axes: { variant: ['solid', 'soft'], size: ['sm', 'lg'], fill: ['natural', 'even', 'hug'] },
     parts: ['label', 'icon'], // the anatomy's non-root parts
     interactive: ['pressColor', 'pressScale', 'disabledOpacity'], // the collapsed root opt-in (§8 · no compound)
   },
@@ -386,7 +386,10 @@ test('icon-button stays size-coherent with button (height + corner + the square 
   const button = await loadTwin('button');
   const iconButton = await loadTwin('icon-button');
 
-  for (const sizeKey of ['sm', 'md', 'lg']) {
+  // Iterate BUTTON's actual sizes (sm · lg — `md` was dropped from Button): coherence
+  // is only meaningful where Button defines the size. icon-button may carry extra sizes
+  // (e.g. md) that simply have no Button row to align to.
+  for (const sizeKey of Object.keys(button.variants.size)) {
     const buttonBox = button.variants.size[sizeKey].root.box;
     const ibBox = iconButton.variants.size[sizeKey].root.box;
     // height + corner coherent with Button (the row alignment invariant).

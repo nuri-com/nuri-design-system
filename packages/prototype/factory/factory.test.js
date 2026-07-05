@@ -133,10 +133,10 @@ test('B · buildComponent(Button) · de-collapsed pressable tree · variant+size
   assert.deepEqual(classesOf(btn), ['nuri-box', 'nuri-interactive', 'nuri-palette', 'nuri-stack'], 'box ⊕ stack ⊕ palette merge onto the SAME interactive button');
 
   // R1.5 · the defaults resolve FROM the descriptor: variant→soft (not solid),
-  // size→md (not the order-first sm). md box geometry = minHeight lg · paddingX lg · radius full.
+  // size→lg (the large control · sm/lg scale). lg box geometry = minHeight xl · paddingX xl · radius full.
   assert.equal(btn.getAttribute('data-variant'), 'soft', 'variant defaults to soft from data');
-  assert.equal(btn.getAttribute('data-min-height'), 'lg', 'size defaults to md from data (minHeight lg)');
-  assert.equal(btn.getAttribute('data-padding-x'), 'lg');
+  assert.equal(btn.getAttribute('data-min-height'), 'xl', 'size defaults to lg from data (minHeight xl)');
+  assert.equal(btn.getAttribute('data-padding-x'), 'xl');
   assert.equal(btn.getAttribute('data-radius'), 'full');
 
   // the label part (text) is routed from `children` → nuri-typography, moved into the button.
