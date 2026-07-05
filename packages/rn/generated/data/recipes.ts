@@ -199,7 +199,8 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "gap": 6,
           "height": 54,
           "paddingStart": 18,
-          "paddingEnd": 18
+          "paddingEnd": 18,
+          "paddingTop": 6
         },
         "variants": {}
       }
@@ -254,30 +255,13 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "flexDirection": "row",
           "alignItems": "center",
           "justifyContent": "center",
-          "gap": 6
+          "gap": 6,
+          "minHeight": 48,
+          "minWidth": 48,
+          "paddingHorizontal": 12,
+          "borderRadius": 9999
         },
-        "variants": {
-          "size": {
-            "sm": {
-              "minHeight": 36,
-              "minWidth": 36,
-              "paddingHorizontal": 6,
-              "borderRadius": 9999
-            },
-            "md": {
-              "minHeight": 48,
-              "minWidth": 48,
-              "paddingHorizontal": 12,
-              "borderRadius": 9999
-            },
-            "lg": {
-              "minHeight": 54,
-              "minWidth": 54,
-              "paddingHorizontal": 12,
-              "borderRadius": 9999
-            }
-          }
-        }
+        "variants": {}
       },
       "interactive": {
         "base": {
@@ -290,23 +274,11 @@ export const recipes: Record<string, BakedComponentRecipe> = {
     "icon": {
       "el": "icon",
       "geometry": {
-        "base": {},
-        "variants": {
-          "size": {
-            "sm": {
-              "width": 18,
-              "height": 18
-            },
-            "md": {
-              "width": 24,
-              "height": 24
-            },
-            "lg": {
-              "width": 24,
-              "height": 24
-            }
-          }
-        }
+        "base": {
+          "width": 24,
+          "height": 24
+        },
+        "variants": {}
       }
     }
   },
@@ -475,10 +447,10 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "base": {
           "flexDirection": "row",
           "alignItems": "center",
-          "gap": 6,
           "height": 54,
-          "paddingHorizontal": 12,
-          "borderRadius": 12
+          "paddingStart": 12,
+          "paddingEnd": 6,
+          "borderRadius": 9
         },
         "variants": {}
       }

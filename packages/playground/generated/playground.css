@@ -959,7 +959,7 @@
   /* radius.sm   · tight softening · dense controls, inline chips */
   --nuri-radius-sm:   6px;
   /* radius.md   · default softening · cards, inputs, mid-scale controls */
-  --nuri-radius-md:   12px;
+  --nuri-radius-md:   9px;
   /* radius.lg   · roomy softening · primary action buttons, hero surfaces */
   --nuri-radius-lg:   18px;
   /* radius.full · literal 9999px sentinel · pills (rectangular) + circles (square w=h); browser clamps to min(width/2, height/2) */

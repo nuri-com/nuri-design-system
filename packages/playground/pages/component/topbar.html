@@ -17,80 +17,103 @@
 
 <nuri-playground-shell doc="Topbar">
 
-  <!-- app bar · the canonical pattern: a back affordance (leading) · a title
-       (center) · an action (trailing). The title lands at the bar's true centre. -->
-  <nuri-demo layout="board" controls="device,theme,accent" label="app bar">
+  <!-- topbar · brand mark (leading) · two default actions (trailing). Bare
+       icon-buttons in the trailing region space by the region's own gap. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="topbar">
     <template>
       <nuri-stack direction="column" align="stretch" justify="start" gap="md" fill>
         <nuri-topbar>
           <nuri-topbar-leading>
-            <nuri-icon-button icon="caret-left" variant="ghost" aria-label="Back"></nuri-icon-button>
+            <nuri-icon name="nuri"></nuri-icon>
           </nuri-topbar-leading>
-          <nuri-topbar-center>
-            <nuri-typography size="md" emphasis>Account</nuri-typography>
-          </nuri-topbar-center>
           <nuri-topbar-trailing>
-            <nuri-icon-button icon="card" variant="soft" aria-label="Wallet"></nuri-icon-button>
+            <nuri-icon-button icon="list-bullets" aria-label="List"></nuri-icon-button>
+            <nuri-icon-button icon="headphones" aria-label="Support"></nuri-icon-button>
           </nuri-topbar-trailing>
         </nuri-topbar>
       </nuri-stack>
     </template>
   </nuri-demo>
 
-  <!-- actions · a menu (leading) · a brand mark (center) · two trailing actions —
-       the trailing region holds more than the leading, yet the brand stays centred. -->
-  <nuri-demo layout="board" controls="device,theme,accent" label="actions">
+  <!-- centered · brand mark (leading) · a composed Button lockup (center) · a
+       default action (trailing). The centre button lands at the bar's true centre. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="centered">
     <template>
       <nuri-stack direction="column" align="stretch" justify="start" gap="md" fill>
         <nuri-topbar>
           <nuri-topbar-leading>
-            <nuri-icon-button icon="caret-left" variant="ghost" aria-label="Menu"></nuri-icon-button>
+            <nuri-icon name="nuri"></nuri-icon>
           </nuri-topbar-leading>
           <nuri-topbar-center>
-            <nuri-typography size="md" emphasis>Nuri</nuri-typography>
+            <nuri-button size="sm" variant="solid">
+              <nuri-button-text>Buy Bitcoin</nuri-button-text>
+              <nuri-button-icon name="apple"></nuri-button-icon>
+              <nuri-button-text>Pay</nuri-button-text>
+            </nuri-button>
           </nuri-topbar-center>
           <nuri-topbar-trailing>
-            <nuri-stack direction="row" align="center" gap="xs">
-              <nuri-button size="sm" variant="soft">Skip</nuri-button>
-              <nuri-button size="sm" variant="solid">Next</nuri-button>
-            </nuri-stack>
+            <nuri-icon-button icon="headphones" aria-label="Support"></nuri-icon-button>
           </nuri-topbar-trailing>
         </nuri-topbar>
       </nuri-stack>
     </template>
   </nuri-demo>
 
-  <!-- default slot · BARE children of <nuri-topbar> (no region wrapper) collect into
-       the trailing region — the "just actions" case. -->
-  <nuri-demo layout="board" controls="device,theme,accent" label="default slot">
+  <!-- modal · a single default close action. BARE child of <nuri-topbar> (no region
+       wrapper) sinks to the trailing region → right-aligned by the region's justify. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="modal">
     <template>
       <nuri-stack direction="column" align="stretch" justify="start" gap="md" fill>
         <nuri-topbar>
-          <nuri-button size="sm" variant="soft">Done</nuri-button>
+          <nuri-icon-button icon="cross" aria-label="Close"></nuri-icon-button>
         </nuri-topbar>
       </nuri-stack>
     </template>
   </nuri-demo>
 
-  <!-- TRUE CENTRE · the forcing function. Two bars share an identical centre glyph
-       (bitcoin). TOP bar: SYMMETRIC edges (a small icon each side). BOTTOM bar:
-       ASYMMETRIC edges (a tiny leading icon vs a LARGE trailing icon-button). The
-       two centre glyphs align on the SAME vertical line — proof that the asymmetric
-       edge does not shove the centre (the `even`-flex edges split the leftover row
-       equally · the centre is dead-centre regardless). -->
-  <nuri-demo layout="board" controls="device,theme,accent" label="true centre">
+  <!-- flow · a back + close pair. Both BARE children sink to the trailing region and
+       space by its gap; no wrapper stack. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="flow">
     <template>
-      <nuri-stack direction="column" align="stretch" justify="center" gap="lg" fill>
+      <nuri-stack direction="column" align="stretch" justify="start" gap="md" fill>
         <nuri-topbar>
-          <nuri-topbar-leading><nuri-icon name="caret-left"></nuri-icon></nuri-topbar-leading>
-          <nuri-topbar-center><nuri-icon name="bitcoin"></nuri-icon></nuri-topbar-center>
-          <nuri-topbar-trailing><nuri-icon name="card"></nuri-icon></nuri-topbar-trailing>
+          <nuri-icon-button icon="chevron-left" aria-label="Back"></nuri-icon-button>
+          <nuri-icon-button icon="cross" aria-label="Close"></nuri-icon-button>
         </nuri-topbar>
+      </nuri-stack>
+    </template>
+  </nuri-demo>
+
+  <!-- modal with title · a leading title (left) · a default close action (trailing). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="modal with title">
+    <template>
+      <nuri-stack direction="column" align="stretch" justify="start" gap="md" fill>
         <nuri-topbar>
-          <nuri-topbar-leading><nuri-icon name="caret-left"></nuri-icon></nuri-topbar-leading>
-          <nuri-topbar-center><nuri-icon name="bitcoin"></nuri-icon></nuri-topbar-center>
+          <nuri-topbar-leading>
+            <nuri-typography size="lg" emphasis>Settings</nuri-typography>
+          </nuri-topbar-leading>
           <nuri-topbar-trailing>
-            <nuri-icon-button size="lg" variant="solid" icon="apple" aria-label="Pay"></nuri-icon-button>
+            <nuri-icon-button icon="cross" aria-label="Close"></nuri-icon-button>
+          </nuri-topbar-trailing>
+        </nuri-topbar>
+      </nuri-stack>
+    </template>
+  </nuri-demo>
+
+  <!-- edit · a Cancel text button (leading) · a centred title (center) · a Save
+       solid button (trailing). The two even edges keep the title dead-centre. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="edit">
+    <template>
+      <nuri-stack direction="column" align="stretch" justify="start" gap="md" fill>
+        <nuri-topbar>
+          <nuri-topbar-leading>
+            <nuri-button size="sm">Cancel</nuri-button>
+          </nuri-topbar-leading>
+          <nuri-topbar-center>
+            <nuri-typography size="lg" emphasis>Edit</nuri-typography>
+          </nuri-topbar-center>
+          <nuri-topbar-trailing>
+            <nuri-button size="sm" variant="solid">Save</nuri-button>
           </nuri-topbar-trailing>
         </nuri-topbar>
       </nuri-stack>

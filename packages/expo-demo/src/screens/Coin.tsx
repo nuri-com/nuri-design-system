@@ -28,7 +28,7 @@ export const Coin: React.FC = () => (
         <Button size="sm" variant="solid">Euro → Bitcoin</Button>
       </TopbarCenter>
       <TopbarTrailing>
-        <IconButton icon="headphones" variant="soft" size="lg" accessibilityLabel="Support" />
+        <IconButton icon="headphones" variant="soft" accessibilityLabel="Support" />
       </TopbarTrailing>
     </Topbar>
 

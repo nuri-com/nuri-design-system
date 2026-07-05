@@ -353,8 +353,8 @@ const SEMANTIC_EXPECTED = {
   // Amendment 36.1 · N+6.1.1.
   '--nuri-radius-sm':   { neutral: { light: '6px',  dark: '6px'  },
                           lilac:   { light: '6px',  dark: '6px'  } },
-  '--nuri-radius-md':   { neutral: { light: '12px', dark: '12px' },
-                          lilac:   { light: '12px', dark: '12px' } },
+  '--nuri-radius-md':   { neutral: { light: '9px', dark: '9px' },
+                          lilac:   { light: '9px', dark: '9px' } },
   '--nuri-radius-lg':   { neutral: { light: '18px', dark: '18px' },
                           lilac:   { light: '18px', dark: '18px' } },
   '--nuri-radius-full': { neutral: { light: '9999px', dark: '9999px' },

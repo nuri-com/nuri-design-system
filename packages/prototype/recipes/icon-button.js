@@ -4,8 +4,8 @@
  * <nuri-icon-button> is a single GENERIC registration over the web factory — the
  * conventional icon-ONLY glyph circle: a lone `icon` part, so defineNuriComponent
  * routes the ergonomic `icon` attribute (the same-name shorthand · a scalar
- * icon-name) into it, on top of the usual axes (variant · size · accent ·
- * disabled) and the aria-label a11y name — all from the FROZEN icon-button
+ * icon-name) into it, on top of the axes (variant · accent · disabled — size is
+ * retired, one fixed 48 base) and the aria-label a11y name — all from the icon-button
  * descriptor (generated/descriptors/icon-button.js · the authored SoT · decision
  * 69). Zero hand code. (The anchored mid-text lockup relocated to composable
  * Button · Path C Phase 4 · docs/archive/component-api-target.md.)
@@ -15,9 +15,9 @@
  * namespace CSS (box/stack/palette/interactive). factory.js + the descriptor twin
  * arrive via this module's imports.
  *
- * Public API — <nuri-icon-button icon="x" variant size accent aria-label>:
+ * Public API — <nuri-icon-button icon="x" variant accent aria-label>:
  *   icon    → the glyph NAME (the whole control · required)
- *   variant → "soft" (default) | "solid" | "ghost"   · size → "md" (default) | "sm" | "lg"
+ *   variant → "soft" (default) | "solid" | "ghost"   · size → retired (one fixed 48 base)
  *   accent  → Tier-2 self-scope (threaded as a prop · data-accent on the merged node)
  *   aria-label → the accessible name (icon-only · there is no visible text to name it).
  * ────────────────────────────────────────────────────────────── */

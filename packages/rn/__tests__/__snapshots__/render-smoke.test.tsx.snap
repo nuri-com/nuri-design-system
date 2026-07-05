@@ -2054,6 +2054,7 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — BAR
       "height": 54,
       "paddingEnd": 18,
       "paddingStart": 18,
+      "paddingTop": 6,
     }
   }
 >
@@ -2110,6 +2111,7 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — COM
       "height": 54,
       "paddingEnd": 18,
       "paddingStart": 18,
+      "paddingTop": 6,
     }
   }
 >

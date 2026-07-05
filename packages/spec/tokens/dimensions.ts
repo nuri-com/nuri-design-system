@@ -43,7 +43,7 @@ export const size = {
 // the literal 9999px sentinel (a pill for rectangles, a circle when w=h).
 export const radius = {
   sm:   { value: 6, unit: 'px' },
-  md:   { value: 12, unit: 'px' },
+  md:   { value: 9, unit: 'px' },
   lg:   { value: 18, unit: 'px' },
   full: { value: 9999, unit: 'px' },
 } as const satisfies Record<string, Leaf>;

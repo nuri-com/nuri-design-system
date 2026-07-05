@@ -573,7 +573,6 @@ test('C6 · <nuri-text-field> secure/disabled/button delegation and aria-label o
   const iconAction = field.querySelector('nuri-icon-button');
   assert.ok(iconAction, 'TextFieldIconButton delegates to the real nuri-icon-button element');
   assert.equal(iconAction.getAttribute('variant'), 'ghost');
-  assert.equal(iconAction.getAttribute('size'), 'md');
   assert.equal(iconAction.getAttribute('icon'), 'eye-hidden');
   assert.equal(iconAction.getAttribute('aria-label'), 'Hide account number');
 });
@@ -643,17 +642,17 @@ test('C8 · <nuri-text-field> missing required label fails named', () => {
 // shorthand routes into the lone `icon` part · the square-floor geometry · a11y
 // ══════════════════════════════════════════════════════════════════
 test('E · buildComponent(icon-button) · the icon-only circle — just the glyph · square floor · aria-label', async () => {
-  const el = mount(buildComponent(iconButtonDescriptor, { variant: 'solid', size: 'md' }, { icon: 'apple', accessibilityLabel: 'Buy Bitcoin' }));
+  const el = mount(buildComponent(iconButtonDescriptor, { variant: 'solid' }, { icon: 'apple', accessibilityLabel: 'Buy Bitcoin' }));
   assert.equal(el.tagName.toLowerCase(), 'nuri-pressable', "el:'pressable' root → nuri-pressable host");
   await tick();
 
   const btn = el.querySelector('button.nuri-interactive');
   assert.ok(btn, 'the pressable owns the inner interactive button');
-  // md box: minHeight lg (coherent w/ Button) + minWidth lg (the square floor) +
-  // a SMALL sm ring (paddingX) + radius full + solid.
-  assert.equal(btn.getAttribute('data-min-height'), 'lg', 'size md → minHeight lg (coherent w/ Button)');
+  // the fixed 48 base box: minHeight lg + minWidth lg (the square floor) +
+  // a md ring (paddingX) + radius full + solid.
+  assert.equal(btn.getAttribute('data-min-height'), 'lg', 'the fixed 48 base → minHeight lg');
   assert.equal(btn.getAttribute('data-min-width'), 'lg', 'the square floor · minWidth = minHeight');
-  assert.equal(btn.getAttribute('data-padding-x'), 'md', 'the icon edge ring (md/lg → md · paddingX diverges from Button by design)');
+  assert.equal(btn.getAttribute('data-padding-x'), 'md', 'the icon edge ring (md · paddingX diverges from Button by design)');
   assert.equal(btn.getAttribute('data-radius'), 'full');
   assert.equal(btn.getAttribute('data-variant'), 'solid');
   assert.equal(btn.hasAttribute('data-press-scale'), true, 'icon-button opts into the tactile press scale');
@@ -668,28 +667,24 @@ test('E · buildComponent(icon-button) · the icon-only circle — just the glyp
   assert.equal(btn.getAttribute('aria-label'), 'Buy Bitcoin', 'the accessible name rides aria-label on the focusable button (F-ARIA-LABEL-1)');
 });
 
-test('E2 · buildComponent(icon-button) · sm · the square-floor geometry + the glyph size leaf', async () => {
-  const el = mount(buildComponent(iconButtonDescriptor, { size: 'sm' }, { icon: 'bitcoin', accessibilityLabel: 'Buy Bitcoin' }));
+test('E2 · buildComponent(icon-button) · the glyph size leaf (the fixed 48 base)', async () => {
+  const el = mount(buildComponent(iconButtonDescriptor, {}, { icon: 'bitcoin', accessibilityLabel: 'Buy Bitcoin' }));
   await tick();
   const btn = el.querySelector('button.nuri-interactive');
 
   const kids = [...btn.children];
   assert.deepEqual(kids.map((k) => k.tagName.toLowerCase()), ['nuri-icon'], 'just the glyph');
-  // the square floor squares the control: sm → minWidth md (= minHeight md),
-  // a small sm ring; the glyph centres (border-box absorbs the ring).
-  assert.equal(btn.getAttribute('data-min-height'), 'md', 'sm → minHeight md');
-  assert.equal(btn.getAttribute('data-min-width'), 'md', 'sm → minWidth md (the square floor · = minHeight)');
-  assert.equal(btn.getAttribute('data-padding-x'), 'sm', 'the small icon ring');
-  // sm icon glyph = the xs size leaf (18px · the icon-arc shared box axis).
-  assert.equal(kids[0].getAttribute('data-width'), 'xs');
+  // the icon glyph = the sm size leaf (24px · the icon-arc shared box axis).
+  assert.equal(kids[0].getAttribute('data-width'), 'sm');
+  assert.equal(kids[0].getAttribute('data-height'), 'sm');
 });
 
 test('E3 · defineNuriComponent(icon-button) · observedAttributes derive the icon-only + a11y surface', () => {
-  // axes (variant·size) ∪ accent ∪ disabled (interactive) ∪ the lone `icon` part
-  // ∪ aria-label (interactive, no text primary).
+  // axes (variant · size retired) ∪ accent ∪ disabled (interactive) ∪ the lone `icon`
+  // part ∪ aria-label (interactive, no text primary).
   assert.deepEqual(
     [...customElements.get('nuri-icon-button').observedAttributes].sort(),
-    ['accent', 'aria-label', 'disabled', 'icon', 'size', 'variant'],
+    ['accent', 'aria-label', 'disabled', 'icon', 'variant'],
     'the icon-only API: axes + accent + disabled + icon + aria-label',
   );
 });
