@@ -2,8 +2,8 @@
  * NURI · COMPONENT DESCRIPTOR · TEXT-FIELD · AUTHORED SOURCE
  *
  * Descriptor-backed one-line text field: a required label, an outlined field
- * box, the new contentless input control, and an optional trailing action that
- * delegates to the real Button. Errors remain external composition via Alert.
+ * box, the new contentless input control, and optional trailing controls that
+ * delegate to the real Button / IconButton. Errors remain external composition via Alert.
  * ────────────────────────────────────────────────────────────── */
 
 import type { Descriptor } from './schema';
@@ -20,12 +20,23 @@ export const textFieldDescriptor: Descriptor<TextFieldAxes> = {
           el: 'view',
           parts: {
             input: { el: 'input' },
-            action: {
+            button: {
               component: 'button',
               props: {
                 variant: 'soft',
                 size: 'sm',
                 children: '$slot.children',
+                onPress: '$slot.onPress',
+                disabled: '$slot.disabled',
+                accessibilityLabel: '$slot.accessibilityLabel',
+              },
+            },
+            iconButton: {
+              component: 'icon-button',
+              props: {
+                variant: 'ghost',
+                size: 'md',
+                icon: '$slot.name',
                 onPress: '$slot.onPress',
                 disabled: '$slot.disabled',
                 accessibilityLabel: '$slot.accessibilityLabel',
@@ -78,7 +89,8 @@ export const textFieldDescriptor: Descriptor<TextFieldAxes> = {
     },
     slots: {
       label: { part: 'label', kind: 'text', component: true, required: true },
-      action: { part: 'action', kind: 'children', component: true },
+      button: { part: 'button', kind: 'children', component: true },
+      iconButton: { part: 'iconButton', kind: 'icon-name', component: true },
     },
   },
 };

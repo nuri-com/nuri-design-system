@@ -25,12 +25,23 @@ export const textFieldDescriptor = {
           el: 'view',
           parts: {
             input: { el: 'input' },
-            action: {
+            button: {
               component: 'button',
               props: {
                 variant: 'soft',
                 size: 'sm',
                 children: '$slot.children',
+                onPress: '$slot.onPress',
+                disabled: '$slot.disabled',
+                accessibilityLabel: '$slot.accessibilityLabel',
+              },
+            },
+            iconButton: {
+              component: 'icon-button',
+              props: {
+                variant: 'ghost',
+                size: 'md',
+                icon: '$slot.name',
                 onPress: '$slot.onPress',
                 disabled: '$slot.disabled',
                 accessibilityLabel: '$slot.accessibilityLabel',
@@ -83,7 +94,8 @@ export const textFieldDescriptor = {
     },
     slots: {
       label: { part: 'label', kind: 'text', component: true, required: true },
-      action: { part: 'action', kind: 'children', component: true },
+      button: { part: 'button', kind: 'children', component: true },
+      iconButton: { part: 'iconButton', kind: 'icon-name', component: true },
     },
   },
 };

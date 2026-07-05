@@ -18,7 +18,9 @@ import { textFieldDescriptor } from '@nuri/spec/descriptors/text-field';
 import { recipes } from '../data/recipes';
 import { NuriScope } from '../../theme';
 import type { Accent } from '../data/tokens';
+import type { IconName } from '../data/icons';
 import { Button } from './button';
+import { IconButton } from './icon-button';
 
 export type TextFieldProps = {
   accent?: Accent;
@@ -34,23 +36,32 @@ export type TextFieldProps = {
   children?: React.ReactNode;
 };
 
-type TextFieldPart = 'root' | 'label' | 'box' | 'input' | 'action';
+type TextFieldPart = 'root' | 'label' | 'box' | 'input' | 'button' | 'iconButton';
 
 const textFieldDisplayName = nuriNames('text-field').rn;
 const componentRegistry = {
   "button": Button as React.ComponentType<Record<string, unknown>>,
+  "icon-button": IconButton as React.ComponentType<Record<string, unknown>>,
 };
 export type TextFieldLabelProps = {
   children: string;
 };
 export const TextFieldLabel = createNuriSlot<TextFieldLabelProps>("label", `${textFieldDisplayName}Label`, 'children', textFieldDisplayName);
-export type TextFieldActionProps = {
+export type TextFieldButtonProps = {
   children?: React.ReactNode;
   onPress?: () => void;
   disabled?: boolean;
   accessibilityLabel?: string;
 };
-export const TextFieldAction = createNuriSlot<TextFieldActionProps>("action", `${textFieldDisplayName}Action`, 'children', textFieldDisplayName);
+export const TextFieldButton = createNuriSlot<TextFieldButtonProps>("button", `${textFieldDisplayName}Button`, 'children', textFieldDisplayName);
+export type TextFieldIconButtonProps = {
+  name: IconName;
+  onPress?: () => void;
+  disabled?: boolean;
+  accessibilityLabel?: string;
+  children?: never;
+};
+export const TextFieldIconButton = createNuriSlot<TextFieldIconButtonProps>("iconButton", `${textFieldDisplayName}IconButton`, 'name', textFieldDisplayName);
 
 const TextFieldInner: React.FC<TextFieldProps> = (props) => {
   const selection: Record<string, string> = {

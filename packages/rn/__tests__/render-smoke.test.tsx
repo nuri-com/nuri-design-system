@@ -42,7 +42,8 @@ import {
   ListActionTrailIcon,
   TextField,
   TextFieldLabel,
-  TextFieldAction,
+  TextFieldButton,
+  TextFieldIconButton,
   TabBar,
   TabBarItem,
   NuriIcon,
@@ -520,13 +521,14 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(onChangeText).toHaveBeenCalledWith('DE123');
   });
 
-  test('TextField — secure, disabled, trailing action, and external ghost Alert compose', () => {
+  test('TextField — secure, disabled, trailing controls, and external ghost Alert compose', () => {
     const tr = render(
       <NuriThemeProvider>
         <>
           <TextField value="secret" secureTextEntry disabled accessibilityLabel="Account number">
             <TextFieldLabel>IBAN</TextFieldLabel>
-            <TextFieldAction onPress={() => undefined} accessibilityLabel="Paste name">Paste</TextFieldAction>
+            <TextFieldButton onPress={() => undefined} accessibilityLabel="Paste name">Paste</TextFieldButton>
+            <TextFieldIconButton name="eye-hidden" onPress={() => undefined} accessibilityLabel="Hide account number" />
           </TextField>
           <Alert variant="ghost">
             <AlertIcon name="warning-circle" />
@@ -545,7 +547,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(input.props.accessibilityLabel).toBe('Account number');
     expect(inputStyle.opacity).toBe(0.4);
     expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toContain('Paste');
-    expect(pressableActions(tr)).toHaveLength(1);
+    expect(pressableActions(tr)).toHaveLength(2);
     expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toContain('Please enter a valid IBAN');
   });
 

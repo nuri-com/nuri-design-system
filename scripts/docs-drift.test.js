@@ -234,7 +234,7 @@ const EXPECTED_DESCRIPTORS = {
   },
   'text-field': {
     axes: {},
-    parts: ['label', 'box', 'input', 'action'],
+    parts: ['label', 'box', 'input', 'button', 'iconButton'],
     interactive: [],
   },
   // tab-bar-item (the bottom-bar ITEM · presentation only) — icon-over-label, the

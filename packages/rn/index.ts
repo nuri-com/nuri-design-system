@@ -133,7 +133,8 @@ export {
   ListActionTrailIcon,
   TextField,
   TextFieldLabel,
-  TextFieldAction,
+  TextFieldButton,
+  TextFieldIconButton,
   TabBarItem,
   TabBar,
 } from './generated/components';
@@ -157,7 +158,8 @@ export type {
   ListActionTrailIconProps,
   TextFieldProps,
   TextFieldLabelProps,
-  TextFieldActionProps,
+  TextFieldButtonProps,
+  TextFieldIconButtonProps,
   TabBarItemProps,
   TabBarProps,
 } from './generated/components';

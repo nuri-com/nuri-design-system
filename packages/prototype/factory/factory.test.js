@@ -547,14 +547,15 @@ test('C5 · <nuri-text-field> input props reach the native input and label names
   assert.equal(input.getAttribute('aria-label'), 'IBAN', 'plain label content names the native input');
 });
 
-test('C6 · <nuri-text-field> secure/disabled/action delegation and aria-label override', async () => {
+test('C6 · <nuri-text-field> secure/disabled/button delegation and aria-label override', async () => {
   const field = dom.window.document.createElement('nuri-text-field');
   field.setAttribute('secure-text-entry', '');
   field.setAttribute('disabled', '');
   field.setAttribute('aria-label', 'Account number');
   field.innerHTML = [
     '<nuri-text-field-label>IBAN</nuri-text-field-label>',
-    '<nuri-text-field-action aria-label="Paste name">Paste</nuri-text-field-action>',
+    '<nuri-text-field-button aria-label="Paste name">Paste</nuri-text-field-button>',
+    '<nuri-text-field-icon-button name="eye-hidden" aria-label="Hide account number"></nuri-text-field-icon-button>',
   ].join('');
   mount(field);
   await tick();
@@ -564,11 +565,17 @@ test('C6 · <nuri-text-field> secure/disabled/action delegation and aria-label o
   assert.equal(input?.disabled, true);
   assert.equal(input?.getAttribute('aria-label'), 'Account number');
   const action = field.querySelector('nuri-button');
-  assert.ok(action, 'TextFieldAction delegates to the real nuri-button element');
+  assert.ok(action, 'TextFieldButton delegates to the real nuri-button element');
   assert.equal(action.getAttribute('variant'), 'soft');
   assert.equal(action.getAttribute('size'), 'sm');
   assert.equal(action.getAttribute('aria-label'), 'Paste name');
   assert.equal(action.querySelector('nuri-typography')?.textContent, 'Paste');
+  const iconAction = field.querySelector('nuri-icon-button');
+  assert.ok(iconAction, 'TextFieldIconButton delegates to the real nuri-icon-button element');
+  assert.equal(iconAction.getAttribute('variant'), 'ghost');
+  assert.equal(iconAction.getAttribute('size'), 'md');
+  assert.equal(iconAction.getAttribute('icon'), 'eye-hidden');
+  assert.equal(iconAction.getAttribute('aria-label'), 'Hide account number');
 });
 
 test('C7 · <nuri-text-field> native input event calls onChangeText property handler', async () => {
@@ -592,7 +599,7 @@ test('C7b · <nuri-text-field> input focus owns the field focus state', async ()
   field.onBlur = () => seen.push('blur');
   field.innerHTML = [
     '<nuri-text-field-label>First name</nuri-text-field-label>',
-    '<nuri-text-field-action>Paste</nuri-text-field-action>',
+    '<nuri-text-field-button>Paste</nuri-text-field-button>',
   ].join('');
   mount(field);
   await tick();
@@ -602,7 +609,7 @@ test('C7b · <nuri-text-field> input focus owns the field focus state', async ()
   const actionButton = field.querySelector('nuri-button button.nuri-interactive');
   assert.ok(box, 'the field box is the descriptor-declared focus target');
   assert.ok(input, 'TextField renders a native input');
-  assert.ok(actionButton, 'TextFieldAction delegates to a native Button focus target');
+  assert.ok(actionButton, 'TextFieldButton delegates to a native Button focus target');
 
   input.dispatchEvent(new dom.window.Event('focus'));
   assert.equal(box.hasAttribute('data-nuri-input-focused'), true, 'input focus marks the field box focused');

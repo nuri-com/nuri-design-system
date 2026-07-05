@@ -30,7 +30,8 @@ import {
   ListActionText,
   ListSeparator,
   TextField,
-  TextFieldAction,
+  TextFieldButton,
+  TextFieldIconButton,
   TextFieldLabel,
   TabBarItem,
   BottomSheet,
@@ -85,16 +86,22 @@ export const listActionBadVariant = <ListAction variant="plaid" />;
 // @ts-expect-error ListSeparator v1 has no knobs; it is the preset.
 export const listSeparatorNoProps = <ListSeparator ySpace="sm" />;
 
-// ── TextField — input allowlist + label/action composition ──
+// ── TextField — input allowlist + label/button/icon-button composition ──
 export const textFieldOk = (
   <TextField value="DE12" onChangeText={() => undefined} placeholder="DE..." inputMode="numeric">
     <TextFieldLabel>IBAN</TextFieldLabel>
   </TextField>
 );
-export const textFieldActionOk = (
+export const textFieldButtonOk = (
   <TextField value="Ada" onChangeText={() => undefined}>
     <TextFieldLabel>First name</TextFieldLabel>
-    <TextFieldAction onPress={() => undefined} accessibilityLabel="Paste name">Paste</TextFieldAction>
+    <TextFieldButton onPress={() => undefined} accessibilityLabel="Paste name">Paste</TextFieldButton>
+  </TextField>
+);
+export const textFieldIconButtonOk = (
+  <TextField value="secret" secureTextEntry>
+    <TextFieldLabel>Recovery code</TextFieldLabel>
+    <TextFieldIconButton name="eye-hidden" onPress={() => undefined} accessibilityLabel="Hide recovery code" />
   </TextField>
 );
 // @ts-expect-error TextFieldLabel requires visible label content.
@@ -119,8 +126,12 @@ export const textFieldNoHelper = <TextField helper="Use IBAN"><TextFieldLabel>IB
 export const textFieldNoSize = <TextField size="sm"><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
 // @ts-expect-error TextField v1 has no variant axis.
 export const textFieldNoVariant = <TextField variant="soft"><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
-// @ts-expect-error TextFieldAction delegates to Button text; it does not expose an icon prop.
-export const textFieldActionNoIcon = <TextFieldAction icon="apple">Paste</TextFieldAction>;
+// @ts-expect-error TextFieldButton delegates to Button text; it does not expose an icon prop.
+export const textFieldButtonNoIcon = <TextFieldButton icon="apple">Paste</TextFieldButton>;
+// @ts-expect-error TextFieldIconButton requires the generated icon-name prop.
+export const textFieldIconButtonMissingName = <TextFieldIconButton accessibilityLabel="Hide" />;
+// @ts-expect-error TextFieldIconButton is icon-only and forbids children.
+export const textFieldIconButtonNoChildren = <TextFieldIconButton name="eye-hidden">Hide</TextFieldIconButton>;
 
 // ── TabBarItem — selected bridge + onPress/a11yLabel · icon/label · no disabled ──
 export const tabItemOk = <TabBarItem icon="card" label="Wallet" selected onPress={() => undefined} />;

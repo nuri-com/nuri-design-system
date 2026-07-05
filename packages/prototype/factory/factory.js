@@ -290,19 +290,23 @@ function harvestComposition(host, slotTagToSpec, fallbackPart, regionTagToPart =
         const tag = child.tagName.toLowerCase();
         const spec = slotTagToSpec[tag];
         if (spec) {
-          if (spec.kind === 'icon-name') {
-            const name = child.getAttribute('name');
-            list.push({ part: spec.part, content: name, props: { name } });
-          } else {
-            const tpl = document.createElement('template');
-            while (child.firstChild) tpl.content.append(child.firstChild);
-            const props = { children: tpl };
+          const propsFromAttrs = () => {
+            const props = {};
             for (const attr of child.attributes) {
               const prop = attr.name === 'aria-label'
                 ? 'accessibilityLabel'
                 : attr.name.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
               props[prop] = attr.value === '' ? true : attr.value;
             }
+            return props;
+          };
+          if (spec.kind === 'icon-name') {
+            const name = child.getAttribute('name');
+            list.push({ part: spec.part, content: name, props: { name, ...propsFromAttrs() } });
+          } else {
+            const tpl = document.createElement('template');
+            while (child.firstChild) tpl.content.append(child.firstChild);
+            const props = { children: tpl, ...propsFromAttrs() };
             list.push({ part: spec.part, content: tpl, props });
           }
           continue;

@@ -33,7 +33,7 @@ nav_order: 6
 | --- | --- | --- | --- |
 | `children` | yes | `string` | slot content |
 
-### TextFieldActionProps
+### TextFieldButtonProps
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
@@ -41,3 +41,14 @@ nav_order: 6
 | `onPress` | no | `() => void` | pressable behaviour |
 | `disabled` | no | `boolean` | pressable behaviour |
 | `accessibilityLabel` | no | `string` | pressable behaviour |
+
+### TextFieldIconButtonProps
+
+| Prop | Required | Type | Notes |
+| --- | --- | --- | --- |
+| `name` | yes | `IconName` | scalar icon name |
+| `onPress` | no | `() => void` | pressable behaviour |
+| `disabled` | no | `boolean` | pressable behaviour |
+| `accessibilityLabel` | no | `string` | pressable behaviour |
+
+> `children` is not accepted (`children?: never`).

@@ -464,9 +464,13 @@ export function emitComponentFile(spec, descriptor) {
       const slotPropNames = slotPropNamesForComponentRef(refsByPart.get(slot.part));
       if (slot.kind === 'icon-name') {
         const nameRequired = slotPropNames.includes('name') || slot.kind === 'icon-name';
+        const propLines = [`  name${nameRequired ? '' : '?'}: IconName;`];
+        for (const prop of slotPropNames.filter((p) => p !== 'name')) {
+          propLines.push(`  ${prop}?: ${SLOT_PROP_TS[prop] || 'unknown'};`);
+        }
         body.push(
           `export type ${Pascal}${slotPascal}Props = {`,
-          `  name${nameRequired ? '' : '?'}: IconName;`,
+          ...propLines,
           '  children?: never;',
           '};',
           `export const ${Pascal}${slotPascal} = createNuriSlot<${Pascal}${slotPascal}Props>(${q(slot.part)}, \`${'${'}${displayNameConst}}${slotPascal}\`, 'name', ${displayNameConst});`,

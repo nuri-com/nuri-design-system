@@ -25,12 +25,12 @@
     </template>
   </nuri-demo>
 
-  <nuri-demo layout="board" controls="device,theme,accent" label="value / action">
+  <nuri-demo layout="board" controls="device,theme,accent" label="value / button">
     <template>
       <nuri-view direction="column" justify="start" gap="xl" fill padding-x="lg" padding-top="lg">
         <nuri-text-field value="dario@nuri.com" input-mode="email" placeholder="Email">
           <nuri-text-field-label>Email</nuri-text-field-label>
-          <nuri-text-field-action>Paste</nuri-text-field-action>
+          <nuri-text-field-button>Paste</nuri-text-field-button>
         </nuri-text-field>
       </nuri-view>
     </template>
@@ -41,7 +41,7 @@
       <nuri-view direction="column" justify="start" gap="xl" fill padding-x="lg" padding-top="lg">
         <nuri-text-field secure-text-entry value="ABCD-1234-EFGH" placeholder="Recovery code">
           <nuri-text-field-label>Recovery code</nuri-text-field-label>
-          <nuri-text-field-action>Copy</nuri-text-field-action>
+          <nuri-text-field-icon-button name="eye-hidden" aria-label="Hide recovery code"></nuri-text-field-icon-button>
         </nuri-text-field>
         <nuri-text-field disabled value="Unavailable">
           <nuri-text-field-label>Reference</nuri-text-field-label>
@@ -56,7 +56,7 @@
         <nuri-view direction="column" justify="start" gap="md" fill>
           <nuri-text-field value="DE89" input-mode="text" placeholder="IBAN">
             <nuri-text-field-label>Recipient IBAN</nuri-text-field-label>
-            <nuri-text-field-action>Scan</nuri-text-field-action>
+            <nuri-text-field-button>Scan</nuri-text-field-button>
           </nuri-text-field>
           <nuri-alert variant="ghost">
             <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
