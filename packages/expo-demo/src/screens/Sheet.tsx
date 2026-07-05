@@ -36,10 +36,30 @@ type OpenSheet = 'none' | 'choice' | 'form';
 
 const ACCOUNTS = ['Main wallet', 'Savings', 'Trading', 'Travel card', 'Cold storage'];
 
+// Enough fields that the full-screen form overflows — so BottomSheetScroll (and
+// its keyboard-inset scrolling) is actually exercised, not just present.
+type FormField = {
+  id: string;
+  label: string;
+  placeholder: string;
+  inputMode?: React.ComponentProps<typeof TextField>['inputMode'];
+};
+const FORM_FIELDS: readonly FormField[] = [
+  { id: 'recipient', label: 'Recipient', placeholder: 'Name' },
+  { id: 'amount', label: 'Amount', placeholder: '0.00', inputMode: 'decimal' },
+  { id: 'reference', label: 'Reference', placeholder: 'Invoice #' },
+  { id: 'iban', label: 'IBAN', placeholder: 'DE00 0000 0000 0000' },
+  { id: 'bic', label: 'BIC', placeholder: 'NURIDEXXX' },
+  { id: 'note', label: 'Note', placeholder: 'Optional message' },
+];
+
 export const Sheet: React.FC = () => {
   const [open, setOpen] = React.useState<OpenSheet>('none');
-  const [recipient, setRecipient] = React.useState('');
-  const [amount, setAmount] = React.useState('');
+  const [values, setValues] = React.useState<Record<string, string>>({});
+  const setField = React.useCallback(
+    (id: string) => (text: string) => setValues((prev) => ({ ...prev, [id]: text })),
+    [],
+  );
   const close = React.useCallback(() => setOpen('none'), []);
 
   return (
@@ -80,12 +100,17 @@ export const Sheet: React.FC = () => {
           <BottomSheetScroll>
             <View direction="column" align="stretch" gap="md" padding="lg">
               <Text size="lg" emphasis>Add recipient</Text>
-              <TextField value={recipient} onChangeText={setRecipient} placeholder="Name">
-                <TextFieldLabel>Recipient</TextFieldLabel>
-              </TextField>
-              <TextField value={amount} onChangeText={setAmount} placeholder="0.00" inputMode="decimal">
-                <TextFieldLabel>Amount</TextFieldLabel>
-              </TextField>
+              {FORM_FIELDS.map((field) => (
+                <TextField
+                  key={field.id}
+                  value={values[field.id] ?? ''}
+                  onChangeText={setField(field.id)}
+                  placeholder={field.placeholder}
+                  inputMode={field.inputMode}
+                >
+                  <TextFieldLabel>{field.label}</TextFieldLabel>
+                </TextField>
+              ))}
               <Button size="lg" variant="solid" onPress={close}>Save</Button>
             </View>
           </BottomSheetScroll>
