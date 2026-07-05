@@ -561,6 +561,7 @@ function renderPart<A extends Axes>(
             flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis) : null,
             fg ? { color: fg } : null,
             { flexShrink: 1, padding: 0 },
+            inputDisabled ? { opacity: ctx.theme.interaction.disabledOpacity } : null,
             flat.style,
           ]}
         />

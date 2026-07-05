@@ -465,6 +465,8 @@ test('C2 · <nuri-button disabled> · disabled reflects to the interactive host 
   const btn = b.querySelector('button.nuri-interactive');
   assert.ok(btn, 'the registered element mounts the factory tree');
   assert.equal(btn.hasAttribute('disabled'), true, 'disabled reflects to the native button (generic to any interactive component)');
+  assert.equal(btn.hasAttribute('data-press-scale'), false, 'disabled native button does not advertise the press-scale gate');
+  assert.equal(btn.hasAttribute('data-press-color'), false, 'disabled native button does not advertise the press-colour gate');
   assert.equal(btn.getAttribute('data-variant'), 'soft', 'no variant attr → the descriptor default (soft) · no hand default at the binding');
   assert.equal(b.hasAttribute('aria-hidden'), false, 'a non-decorative component is NOT aria-hidden');
 });
@@ -686,7 +688,8 @@ test('E4 · <nuri-icon-button> · the registered element renders the glyph + ref
   const btn = ib.querySelector('button.nuri-interactive');
   assert.ok(btn, 'the registered element mounts the factory tree');
   assert.equal(btn.hasAttribute('disabled'), true, 'disabled reflects to the native button');
-  assert.equal(btn.hasAttribute('data-press-scale'), true, 'the registered icon-button keeps the press-scale gate on the native button');
+  assert.equal(btn.hasAttribute('data-press-scale'), false, 'disabled icon-button drops the press-scale gate on the native button');
+  assert.equal(btn.hasAttribute('data-press-color'), false, 'disabled icon-button drops the press-colour gate on the native button');
   const kids = [...btn.children];
   assert.deepEqual(kids.map((k) => k.tagName.toLowerCase()), ['nuri-icon'], 'just the glyph');
   // the VALUE path (registered element · #113): the `icon` attribute routes the glyph

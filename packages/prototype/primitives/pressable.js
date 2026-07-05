@@ -102,16 +102,17 @@
     }
 
     #sync() {
+      const disabled = this.hasAttribute('disabled');
       // Interactive channels (decision 65.4 · per-part opt-in gates).
       // Presence is the gate — interactive.css / palette.css match the bare
       // [data-press-*] on :active; a static surface carries no marker.
-      this.#btn.toggleAttribute('data-press-scale', this.hasAttribute('press-scale'));
-      this.#btn.toggleAttribute('data-press-color', this.hasAttribute('press-color'));
+      this.#btn.toggleAttribute('data-press-scale', !disabled && this.hasAttribute('press-scale'));
+      this.#btn.toggleAttribute('data-press-color', !disabled && this.hasAttribute('press-color'));
 
       // disabled → native <button disabled>: interactive.css dims to the
       // shared opacity, and a native disabled button never fires :active, so
       // the press scale reverts for free (interactive.css comment).
-      this.#btn.toggleAttribute('disabled', this.hasAttribute('disabled'));
+      this.#btn.toggleAttribute('disabled', disabled);
       if (this.#btn.disabled) this.#clearPressed();
 
       // Tier-2 self-scope (decision 27 / 62 · like button.js): when `accent`

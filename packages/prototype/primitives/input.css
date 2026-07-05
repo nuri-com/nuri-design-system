@@ -29,6 +29,11 @@
     opacity: 1;
   }
 
+  nuri-input > input.nuri-input:disabled {
+    opacity: var(--nuri-interaction-disabled-opacity);
+    -webkit-text-fill-color: currentColor;
+  }
+
   .nuri-palette[data-nuri-focus-target][data-nuri-input-focused],
   [data-nuri-focus-target][data-nuri-input-focused] {
     outline: 2px solid var(--nuri-focus-ring);

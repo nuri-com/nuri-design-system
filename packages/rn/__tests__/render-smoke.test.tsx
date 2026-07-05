@@ -537,9 +537,13 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     );
 
     const input = tr.root.findByType(TextInput);
+    const inputStyle = Array.isArray(input.props.style)
+      ? Object.assign({}, ...input.props.style.filter(Boolean))
+      : input.props.style;
     expect(input.props.secureTextEntry).toBe(true);
     expect(input.props.editable).toBe(false);
     expect(input.props.accessibilityLabel).toBe('Account number');
+    expect(inputStyle.opacity).toBe(0.4);
     expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toContain('Paste');
     expect(pressableActions(tr)).toHaveLength(1);
     expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toContain('Please enter a valid IBAN');
