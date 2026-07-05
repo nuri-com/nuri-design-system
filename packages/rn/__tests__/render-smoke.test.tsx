@@ -15,7 +15,7 @@
 
 import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, TextInput, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { NuriThemeProvider, typeStyle } from '../theme';
 import {
@@ -40,6 +40,10 @@ import {
   ListActionTrailingText,
   ListActionTrailingTextMuted,
   ListActionTrailIcon,
+  TextField,
+  TextFieldLabel,
+  TextFieldButton,
+  TextFieldIconButton,
   TabBar,
   TabBarItem,
   NuriIcon,
@@ -496,6 +500,84 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     // so the button paints DIFFERENT colours — the Alert's accent scopes the
     // AlertButton for free (form-kit-spec §1.1), not just the alert surface.
     expect(buttonBg('lilac')).not.toBe(buttonBg('orange'));
+  });
+
+  test('TextField — value props reach the native TextInput and label names it', () => {
+    const onChangeText = jest.fn();
+    const tr = render(
+      <NuriThemeProvider>
+        <TextField value="DE12" onChangeText={onChangeText} placeholder="DE..." inputMode="numeric">
+          <TextFieldLabel>IBAN</TextFieldLabel>
+        </TextField>
+      </NuriThemeProvider>,
+    );
+
+    const input = tr.root.findByType(TextInput);
+    expect(input.props.value).toBe('DE12');
+    expect(input.props.placeholder).toBe('DE...');
+    expect(input.props.inputMode).toBe('numeric');
+    expect(input.props.accessibilityLabel).toBe('IBAN');
+    act(() => input.props.onChangeText('DE123'));
+    expect(onChangeText).toHaveBeenCalledWith('DE123');
+  });
+
+  test('TextField — secure, disabled, trailing controls, and external ghost Alert compose', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <>
+          <TextField value="secret" secureTextEntry disabled accessibilityLabel="Account number">
+            <TextFieldLabel>IBAN</TextFieldLabel>
+            <TextFieldButton onPress={() => undefined} accessibilityLabel="Paste name">Paste</TextFieldButton>
+            <TextFieldIconButton name="eye-hidden" onPress={() => undefined} accessibilityLabel="Hide account number" />
+          </TextField>
+          <Alert variant="ghost">
+            <AlertIcon name="warning-circle" />
+            Please enter a valid IBAN
+          </Alert>
+        </>
+      </NuriThemeProvider>,
+    );
+
+    const input = tr.root.findByType(TextInput);
+    const inputStyle = Array.isArray(input.props.style)
+      ? Object.assign({}, ...input.props.style.filter(Boolean))
+      : input.props.style;
+    expect(input.props.secureTextEntry).toBe(true);
+    expect(input.props.editable).toBe(false);
+    expect(input.props.accessibilityLabel).toBe('Account number');
+    expect(inputStyle.opacity).toBe(0.4);
+    expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toContain('Paste');
+    expect(pressableActions(tr)).toHaveLength(2);
+    expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toContain('Please enter a valid IBAN');
+  });
+
+  test('TextField — focus handlers fire and the focus ring lands on the box part', () => {
+    const onFocus = jest.fn();
+    const onBlur = jest.fn();
+    const tr = render(
+      <NuriThemeProvider>
+        <TextField value="Ada" onFocus={onFocus} onBlur={onBlur}>
+          <TextFieldLabel>First name</TextFieldLabel>
+        </TextField>
+      </NuriThemeProvider>,
+    );
+
+    const input = tr.root.findByType(TextInput);
+    const boxStyle = () => {
+      const boxes = tr.root.findAllByType(View).map((node) => {
+        const style = node.props.style as unknown;
+        return Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : (style as Record<string, unknown>);
+      });
+      return boxes.find((style) => style.borderWidth === 1 && style.height === 54);
+    };
+
+    expect(boxStyle()?.borderColor).toBe('#dddac9');
+    act(() => input.props.onFocus());
+    expect(onFocus).toHaveBeenCalledTimes(1);
+    expect(boxStyle()?.borderColor).toBe('#ae91ff');
+    act(() => input.props.onBlur());
+    expect(onBlur).toHaveBeenCalledTimes(1);
+    expect(boxStyle()?.borderColor).toBe('#dddac9');
   });
 
   test('ListAction — direct row slots render avatar, content, trailing value, and trail icon', () => {

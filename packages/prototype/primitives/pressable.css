@@ -30,4 +30,8 @@
   nuri-pressable {
     display: contents;
   }
+
+  nuri-pressable > .nuri-interactive:disabled {
+    cursor: default;
+  }
 }

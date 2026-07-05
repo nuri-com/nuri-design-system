@@ -1,7 +1,7 @@
 ---
 title: Icon
 layout: default
-nav_order: 12
+nav_order: 13
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/primitives/NuriIcon.tsx

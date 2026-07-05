@@ -232,6 +232,11 @@ const EXPECTED_DESCRIPTORS = {
     ],
     interactive: ['pressColor', 'disabledOpacity'],
   },
+  'text-field': {
+    axes: {},
+    parts: ['label', 'box', 'input', 'button', 'iconButton'],
+    interactive: [],
+  },
   // tab-bar-item (the bottom-bar ITEM · presentation only) — icon-over-label, the
   // `state` 2-value appearance axis (selected ghost / unselected subtle · the
   // colour-only muted treatment · icon weights dropped at decision 38), pressScale
@@ -545,6 +550,17 @@ const FROZEN_SCHEMA = {
     // "palette outline = reserved, mapped-not-built".
     PaletteVariant: ['solid', 'soft', 'ghost', 'subtle', 'outline'],
     PaletteChrome: ['canvas', 'subtle', 'strong', 'transparent'],
+    InputBehaviourProp: [
+      'value',
+      'onChangeText',
+      'placeholder',
+      'inputMode',
+      'secureTextEntry',
+      'disabled',
+      'onFocus',
+      'onBlur',
+      'accessibilityLabel',
+    ],
   },
   // The scale-derived leaves are pinned by DECLARATION FORM. Re-homed at N+61
   // (Slice 3b·2b·i) off build/tokens onto the TS SoTs (../dimensions · ../colours
@@ -577,7 +593,7 @@ const FROZEN_SCHEMA = {
   // `behaviour.pressable.target` ≡ the `interactive`-flagged parts. This
   // discharges primitives-contract §0.1's "adding one is a versioned Guard-F
   // bump" reservation — 4 El cases now, 4 parity primitives.
-  El: ['view', 'text', 'icon', 'pressable'],
+  El: ['view', 'text', 'icon', 'pressable', 'input'],
   NS: { 'stack?': 'StackNS', 'box?': 'BoxNS', 'typography?': 'TypographyNS', 'palette?': 'PaletteNS', 'interactive?': 'InteractiveNS', 'effect?': 'EffectNS' },
   ComponentRef: {
     'component': 'string',
@@ -613,7 +629,7 @@ const FROZEN_SCHEMA = {
   ComponentApi: {
     'axes': 'string[]',
     'themeScope?': '{ accent: true }',
-    'behaviour?': "{ pressable?: { target: P; props: ('onPress' | 'disabled' | 'accessibilityLabel')[] } }",
+    'behaviour?': "{ pressable?: { target: P; props: ('onPress' | 'disabled' | 'accessibilityLabel')[] }; input?: { target: P; focusTarget?: P; labelPart?: P; props: InputBehaviourProp[] }; }",
     'propMaps?': '{ selected?: { axis: string; true: string; false: string } }',
     'slots': 'Record<string, SlotSpec<P>>',
   },

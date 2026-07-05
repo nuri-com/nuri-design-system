@@ -24,25 +24,25 @@
        (form-kit-spec §1.4). soft is the DEFAULT variant (omitted here). -->
   <nuri-demo layout="board" controls="device,theme,accent" label="soft / action">
     <template>
-      <nuri-stack direction="column" justify="start" gap="md" fill padding-x="lg" padding-top="lg">
+      <nuri-view direction="column" justify="start" gap="md" fill padding-x="lg" padding-top="lg">
         <nuri-alert>
           <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
           Total balance insufficient
           <nuri-alert-button>Top up</nuri-alert-button>
         </nuri-alert>
-      </nuri-stack>
+      </nuri-view>
     </template>
   </nuri-demo>
 
   <!-- soft / no action · the same raised bar as a plain notice (icon + message). -->
   <nuri-demo layout="board" controls="device,theme,accent" label="soft / no action">
     <template>
-      <nuri-stack direction="column" justify="start" gap="md" fill padding-x="lg" padding-top="lg">
+      <nuri-view direction="column" justify="start" gap="md" fill padding-x="lg" padding-top="lg">
         <nuri-alert>
           <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
           Your payment is being processed
         </nuri-alert>
-      </nuri-stack>
+      </nuri-view>
     </template>
   </nuri-demo>
 
@@ -50,25 +50,25 @@
        padding — a bare icon + message line to sit under a text field (§3.2). -->
   <nuri-demo layout="board" controls="device,theme,accent" label="ghost / error line">
     <template>
-      <nuri-stack direction="column" justify="start" gap="md" fill padding-x="lg" padding-top="lg">
+      <nuri-view direction="column" justify="start" gap="md" fill padding-x="lg" padding-top="lg">
         <nuri-alert variant="ghost">
           <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
           Please enter a valid IBAN
         </nuri-alert>
-      </nuri-stack>
+      </nuri-view>
     </template>
   </nuri-demo>
 
   <!-- ghost / action · the transparent variant still admits the sanctioned action. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="ghost / action">
     <template>
-      <nuri-stack direction="column" justify="start" gap="md" fill padding-x="lg" padding-top="lg">
+      <nuri-view direction="column" justify="start" gap="md" fill padding-x="lg" padding-top="lg">
         <nuri-alert variant="ghost">
           <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
           Connection lost — showing cached balances
           <nuri-alert-button>Retry</nuri-alert-button>
         </nuri-alert>
-      </nuri-stack>
+      </nuri-view>
     </template>
   </nuri-demo>
 
@@ -76,13 +76,13 @@
        AlertButton for free (themeScope.accent · §1.1). A per-instance override. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="accent (lilac)">
     <template>
-      <nuri-stack direction="column" justify="start" gap="md" fill padding-x="lg" padding-top="lg">
+      <nuri-view direction="column" justify="start" gap="md" fill padding-x="lg" padding-top="lg">
         <nuri-alert accent="lilac">
           <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
           Verify your identity to raise limits
           <nuri-alert-button>Verify</nuri-alert-button>
         </nuri-alert>
-      </nuri-stack>
+      </nuri-view>
     </template>
   </nuri-demo>
 

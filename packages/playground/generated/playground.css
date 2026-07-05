@@ -2546,6 +2546,51 @@ nuri-demo:not(:defined) {
 }
 
 
+/* @nuri/prototype primitive input · primitives/input.css */
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · INPUT  (native form-control host)
+ *
+ * Plumbing CSS for the descriptor `input` el. Design decisions still come from
+ * namespace classes/data attrs the factory applies to <nuri-input>.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer rules {
+  nuri-input {
+    display: block;
+    min-inline-size: 0;
+    color: inherit;
+  }
+
+  nuri-input > input.nuri-input {
+    inline-size: 100%;
+    min-inline-size: 0;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    outline: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+  }
+
+  nuri-input > input.nuri-input::placeholder {
+    color: var(--nuri-text-muted);
+    opacity: 1;
+  }
+
+  nuri-input > input.nuri-input:disabled {
+    opacity: var(--nuri-interaction-disabled-opacity);
+    -webkit-text-fill-color: currentColor;
+  }
+
+  .nuri-palette[data-nuri-focus-target][data-nuri-input-focused],
+  [data-nuri-focus-target][data-nuri-input-focused] {
+    outline: 2px solid var(--nuri-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+
 /* @nuri/prototype primitive pressable · primitives/pressable.css */
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · PRESSABLE  (the interactive el-host · S2 · decision 67)
@@ -2578,6 +2623,10 @@ nuri-demo:not(:defined) {
    * same display:contents wrapper pattern as nuri-button (button.css:134). */
   nuri-pressable {
     display: contents;
+  }
+
+  nuri-pressable > .nuri-interactive:disabled {
+    cursor: default;
   }
 }
 

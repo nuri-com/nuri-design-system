@@ -29,6 +29,10 @@ import {
   ListActionLeadingAvatar,
   ListActionText,
   ListSeparator,
+  TextField,
+  TextFieldButton,
+  TextFieldIconButton,
+  TextFieldLabel,
   TabBarItem,
   BottomSheet,
   BottomSheetPanel,
@@ -81,6 +85,55 @@ export const listOk = (
 export const listActionBadVariant = <ListAction variant="plaid" />;
 // @ts-expect-error ListSeparator v1 has no knobs; it is the preset.
 export const listSeparatorNoProps = <ListSeparator ySpace="sm" />;
+
+// ── TextField — input allowlist + label/button/icon-button composition ──
+export const textFieldOk = (
+  <TextField value="DE12" onChangeText={() => undefined} placeholder="DE..." inputMode="numeric">
+    <TextFieldLabel>IBAN</TextFieldLabel>
+  </TextField>
+);
+export const textFieldButtonOk = (
+  <TextField value="Ada" onChangeText={() => undefined}>
+    <TextFieldLabel>First name</TextFieldLabel>
+    <TextFieldButton onPress={() => undefined} accessibilityLabel="Paste name">Paste</TextFieldButton>
+  </TextField>
+);
+export const textFieldIconButtonOk = (
+  <TextField value="secret" secureTextEntry>
+    <TextFieldLabel>Recovery code</TextFieldLabel>
+    <TextFieldIconButton name="eye-hidden" onPress={() => undefined} accessibilityLabel="Hide recovery code" />
+  </TextField>
+);
+// @ts-expect-error TextFieldLabel requires visible label content.
+export const textFieldLabelRequiresChildren = <TextFieldLabel />;
+// @ts-expect-error TextFieldLabel feeds the native input label and is string-only in PR2.
+export const textFieldLabelNoMixedChildren = <TextFieldLabel>First {'name'}</TextFieldLabel>;
+// @ts-expect-error TextFieldLabel feeds the native input label and does not accept rich label nodes.
+export const textFieldLabelNoRichChildren = <TextFieldLabel>{<>Name</>}</TextFieldLabel>;
+// @ts-expect-error TextField has no label prop; labels are public composition via TextFieldLabel.
+export const textFieldNoLabelProp = <TextField label="IBAN" />;
+// @ts-expect-error TextField v1 exposes inputMode, not RN keyboardType.
+export const textFieldNoKeyboardType = <TextField keyboardType="numeric"><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
+// @ts-expect-error disabled is the public prop; editable is not exposed.
+export const textFieldNoEditable = <TextField editable={false}><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
+// @ts-expect-error autoCapitalize is intentionally out of the v1 input allowlist.
+export const textFieldNoAutoCapitalize = <TextField autoCapitalize="words"><TextFieldLabel>Name</TextFieldLabel></TextField>;
+// @ts-expect-error error is external Alert composition, not a TextField prop.
+export const textFieldNoError = <TextField error><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
+// @ts-expect-error helper text is out of scope for v1.
+export const textFieldNoHelper = <TextField helper="Use IBAN"><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
+// @ts-expect-error TextField v1 has no size axis.
+export const textFieldNoSize = <TextField size="sm"><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
+// @ts-expect-error TextField v1 has no variant axis.
+export const textFieldNoVariant = <TextField variant="soft"><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
+// @ts-expect-error TextFieldButton delegates to Button text; it does not expose an icon prop.
+export const textFieldButtonNoIcon = <TextFieldButton icon="apple">Paste</TextFieldButton>;
+// @ts-expect-error TextFieldIconButton requires the generated icon-name prop.
+export const textFieldIconButtonMissingName = <TextFieldIconButton accessibilityLabel="Hide" />;
+// @ts-expect-error TextFieldIconButton is icon-only and requires an accessible label.
+export const textFieldIconButtonMissingAccessibilityLabel = <TextFieldIconButton name="eye-hidden" />;
+// @ts-expect-error TextFieldIconButton is icon-only and forbids children.
+export const textFieldIconButtonNoChildren = <TextFieldIconButton name="eye-hidden">Hide</TextFieldIconButton>;
 
 // ── TabBarItem — selected bridge + onPress/a11yLabel · icon/label · no disabled ──
 export const tabItemOk = <TabBarItem icon="card" label="Wallet" selected onPress={() => undefined} />;

@@ -62,4 +62,5 @@ export const DOC_COMPONENTS = [
   { name: 'button', source: 'button' },
   { name: 'icon-avatar', source: 'icon-avatar' },
   { name: 'topbar', source: 'topbar' },
+  { name: 'text-field', source: 'text-field' },
 ];

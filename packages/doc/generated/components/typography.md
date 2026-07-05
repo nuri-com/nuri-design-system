@@ -1,7 +1,7 @@
 ---
 title: Typography
 layout: default
-nav_order: 11
+nav_order: 12
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/primitives/Text.tsx

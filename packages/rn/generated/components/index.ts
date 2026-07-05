@@ -19,6 +19,8 @@ export { List } from './list';
 export type { ListProps } from './list';
 export { ListAction, ListActionContent, ListActionTrailing, ListActionLeadingAvatar, ListActionText, ListActionTextMuted, ListActionTrailingText, ListActionTrailingTextMuted, ListActionTrailIcon } from './list-action';
 export type { ListActionProps, ListActionLeadingAvatarProps, ListActionTextProps, ListActionTextMutedProps, ListActionTrailingTextProps, ListActionTrailingTextMutedProps, ListActionTrailIconProps } from './list-action';
+export { TextField, TextFieldLabel, TextFieldButton, TextFieldIconButton } from './text-field';
+export type { TextFieldProps, TextFieldLabelProps, TextFieldButtonProps, TextFieldIconButtonProps } from './text-field';
 export { TabBarItem } from './tab-bar-item';
 export type { TabBarItemProps } from './tab-bar-item';
 export { TabBar } from './tab-bar';

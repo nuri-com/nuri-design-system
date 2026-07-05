@@ -43,7 +43,7 @@ export const COMPONENT_API_DOCS = [
     source: 'tab-bar',
     name: 'tab-bar',
     title: 'Tab Bar',
-    nav: 6,
+    nav: 7,
     file: 'packages/rn/generated/components/tab-bar.ts',
     type: 'TabBarProps',
     relatedPrefix: 'TabBar',
@@ -58,10 +58,19 @@ export const COMPONENT_API_DOCS = [
     relatedPrefix: 'ListAction',
   },
   {
+    source: 'text-field',
+    name: 'text-field',
+    title: 'Text Field',
+    nav: 6,
+    file: 'packages/rn/generated/components/text-field.ts',
+    type: 'TextFieldProps',
+    relatedPrefix: 'TextField',
+  },
+  {
     source: 'tab-bar-item',
     name: 'tab-bar-item',
     title: 'Tab Bar Item',
-    nav: 7,
+    nav: 8,
     file: 'packages/rn/generated/components/tab-bar-item.ts',
     type: 'TabBarItemProps',
     relatedPrefix: 'TabBarItem',
@@ -70,7 +79,7 @@ export const COMPONENT_API_DOCS = [
     source: 'topbar',
     name: 'topbar',
     title: 'Topbar',
-    nav: 8,
+    nav: 9,
     file: 'packages/rn/generated/components/topbar.ts',
     type: 'TopbarProps',
     relatedPrefix: 'Topbar',
@@ -78,28 +87,28 @@ export const COMPONENT_API_DOCS = [
   {
     source: 'stack',
     title: 'Stack',
-    nav: 9,
+    nav: 10,
     file: 'packages/rn/primitives/Stack.tsx',
     type: 'StackProps',
   },
   {
     source: 'view',
     title: 'View',
-    nav: 10,
+    nav: 11,
     file: 'packages/rn/primitives/View.tsx',
     type: 'ViewProps',
   },
   {
     source: 'typography',
     title: 'Typography',
-    nav: 11,
+    nav: 12,
     file: 'packages/rn/primitives/Text.tsx',
     type: 'TextProps',
   },
   {
     source: 'icon',
     title: 'Icon',
-    nav: 12,
+    nav: 13,
     file: 'packages/rn/primitives/NuriIcon.tsx',
     type: 'NuriIconProps',
   },
@@ -136,6 +145,13 @@ const NOTE_BY_PROP = {
   onPress: 'pressable behaviour',
   disabled: 'pressable behaviour',
   accessibilityLabel: 'pressable behaviour',
+  value: 'input behaviour',
+  onChangeText: 'input behaviour',
+  placeholder: 'input behaviour',
+  inputMode: 'input behaviour',
+  secureTextEntry: 'input behaviour',
+  onFocus: 'input behaviour',
+  onBlur: 'input behaviour',
   selected: 'state axis',
   icon: 'scalar icon name',
   name: 'scalar icon name',
@@ -155,13 +171,15 @@ export function componentPropTypeName(name) {
   return `${pascal(name)}Props`;
 }
 
-function noteForProp(name, type, isPrimaryType, childrenNote) {
+function noteForProp(name, type, typeName, isPrimaryType, childrenNote, behaviourNotes = {}) {
   // The primary type's `children` note is DATA-derived (componentApiIrFromFile
   // reads the descriptor's api.slots): a declared `default: true` sink is a
   // 'default content slot'; children accepted only for typed slot/region
   // composition are 'composition children' — the docs never promise a bare-
   // children sink the engine does not have.
   if (name === 'children') return isPrimaryType ? (childrenNote ?? 'default content slot') : 'slot content';
+  if (isPrimaryType && behaviourNotes.inputProps?.includes(name)) return 'input behaviour';
+  if (isPrimaryType && behaviourNotes.pressableProps?.includes(name)) return 'pressable behaviour';
   if (NOTE_BY_PROP[name]) return NOTE_BY_PROP[name];
   if (type === 'IconName') return 'scalar icon name';
   return 'component prop';
@@ -265,7 +283,7 @@ function parsePropObject(spec, typeName, body, isPrimaryType, aliases) {
       name,
       required: optional !== '?',
       type,
-      note: noteForProp(name, type, isPrimaryType, spec.childrenNote),
+      note: noteForProp(name, type, typeName, isPrimaryType, spec.childrenNote, spec.behaviourNotes),
     };
     if (type === 'never') forbidden.push(entry);
     else props.push(entry);
@@ -363,6 +381,7 @@ export async function componentApiIrFromFile(spec, repoRoot) {
   // `default: true` slot is a real bare-children sink; slots without one accept
   // children for typed composition only.
   let childrenNote;
+  let behaviourNotes;
   if (spec.name) {
     const twin = pathToFileURL(resolve(repoRoot, `packages/prototype/generated/descriptors/${spec.name}.js`)).href;
     const descriptor = (await import(twin))[`${camel(spec.name)}Descriptor`];
@@ -370,6 +389,10 @@ export async function componentApiIrFromFile(spec, repoRoot) {
     if (slots.length) {
       childrenNote = slots.some((slot) => slot.default === true) ? 'default content slot' : 'composition children';
     }
+    behaviourNotes = {
+      inputProps: descriptor?.api?.behaviour?.input?.props ?? [],
+      pressableProps: descriptor?.api?.behaviour?.pressable?.props ?? [],
+    };
   }
-  return componentApiIrFromSource({ ...spec, childrenNote }, source, extraSources);
+  return componentApiIrFromSource({ ...spec, childrenNote, behaviourNotes }, source, extraSources);
 }

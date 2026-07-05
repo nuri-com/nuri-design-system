@@ -442,6 +442,66 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       }
     }
   },
+  "text-field": {
+    "root": {
+      "el": "view",
+      "geometry": {
+        "base": {
+          "flexDirection": "column",
+          "alignItems": "stretch",
+          "gap": 12
+        },
+        "variants": {}
+      }
+    },
+    "label": {
+      "el": "text",
+      "geometry": {
+        "base": {},
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "sm",
+          "emphasis": true,
+          "align": "start",
+          "flow": "truncate",
+          "lines": 1
+        }
+      }
+    },
+    "box": {
+      "el": "view",
+      "geometry": {
+        "base": {
+          "flexDirection": "row",
+          "alignItems": "center",
+          "gap": 6,
+          "height": 54,
+          "paddingHorizontal": 12,
+          "borderRadius": 12
+        },
+        "variants": {}
+      }
+    },
+    "input": {
+      "el": "input",
+      "geometry": {
+        "base": {
+          "flexGrow": 1,
+          "flexShrink": 1,
+          "minWidth": 0
+        },
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "md",
+          "align": "start"
+        }
+      }
+    }
+  },
   "tab-bar-item": {
     "root": {
       "el": "pressable",

@@ -21,6 +21,17 @@ const q = (value) => JSON.stringify(value);
 
 const PRESSABLE_TS = { onPress: '() => void', disabled: 'boolean', accessibilityLabel: 'string' };
 const SLOT_PROP_TS = { onPress: '() => void', disabled: 'boolean', accessibilityLabel: 'string' };
+const INPUT_TS = {
+  value: 'string',
+  onChangeText: '(text: string) => void',
+  placeholder: 'string',
+  inputMode: "'text' | 'decimal' | 'numeric' | 'tel' | 'email' | 'url' | 'search'",
+  secureTextEntry: 'boolean',
+  disabled: 'boolean',
+  onFocus: '() => void',
+  onBlur: '() => void',
+  accessibilityLabel: 'string',
+};
 
 // The HOST half of the frozen `El` host/leaf partition — the script-side mirror
 // of schema.ts's totality-pinned HOST_ELS (the parser runs synchronously at emit
@@ -83,6 +94,7 @@ function publicPropsForDescriptor(descriptor) {
   const props = new Set(descriptor.api.axes || []);
   if (descriptor.api.themeScope?.accent) props.add('accent');
   for (const prop of descriptor.api.behaviour?.pressable?.props || []) props.add(prop);
+  for (const prop of descriptor.api.behaviour?.input?.props || []) props.add(prop);
   for (const prop of Object.keys(descriptor.api.propMaps || {})) props.add(prop);
   for (const [slotName, slot] of Object.entries(descriptor.api.slots || {})) {
     if (slot.default === true) props.add('children');
@@ -184,6 +196,10 @@ export function validateDescriptorLocalParts(name, descriptor) {
 
   const target = descriptor.api?.behaviour?.pressable?.target;
   if (target !== undefined) assertLocalPart(name, partSet, target, 'api.behaviour.pressable.target');
+  const input = descriptor.api?.behaviour?.input;
+  if (input?.target !== undefined) assertLocalPart(name, partSet, input.target, 'api.behaviour.input.target');
+  if (input?.focusTarget !== undefined) assertLocalPart(name, partSet, input.focusTarget, 'api.behaviour.input.focusTarget');
+  if (input?.labelPart !== undefined) assertLocalPart(name, partSet, input.labelPart, 'api.behaviour.input.labelPart');
 
   return parts;
 }
@@ -209,6 +225,12 @@ function slotPropNamesForComponentRef(ref) {
   return [...new Set(names)];
 }
 
+function requiredSlotPropNamesForComponentRef(ref, slot) {
+  const names = slotPropNamesForComponentRef(ref);
+  if (slot?.kind !== 'icon-name') return [];
+  return names.filter((name) => name === 'accessibilityLabel');
+}
+
 function buildProps(api, variants, descriptor) {
   const lines = [];
   let usesAccent = false;
@@ -231,6 +253,8 @@ function buildProps(api, variants, descriptor) {
 
   const pressableProps = (api.behaviour && api.behaviour.pressable && api.behaviour.pressable.props) || [];
   for (const p of pressableProps) lines.push(`  ${p}?: ${PRESSABLE_TS[p]};`);
+  const inputProps = (api.behaviour && api.behaviour.input && api.behaviour.input.props) || [];
+  for (const p of inputProps) lines.push(`  ${p}?: ${INPUT_TS[p]};`);
 
   if (api.propMaps && api.propMaps.selected) lines.push('  selected?: boolean;');
 
@@ -294,7 +318,9 @@ function emitContent(api, partTypeName, displayNameConst) {
   const lines = [`  const content: Partial<Record<${partTypeName}, React.ReactNode>> = {};`];
   const regionSlots = Object.values(api.slots).filter((slot) => slot.kind === 'region');
   const fallbackRegion = Object.values(api.slots).find((slot) => slot.kind === 'region' && slot.default === true);
-  const componentSlots = Object.values(api.slots).filter((slot) => slot.component === true);
+  const componentSlots = Object.entries(api.slots)
+    .filter(([, slot]) => slot.component === true)
+    .map(([slotName, slot]) => ({ slotName, ...slot }));
   const fallbackSlot = Object.values(api.slots).find((slot) => slot.default === true);
 
   // Regions WITHOUT component slots (Topbar) use the wholesale per-region
@@ -314,6 +340,13 @@ function emitContent(api, partTypeName, displayNameConst) {
     lines.push('  if (harvestedComposition.hasSlots) {');
     lines.push('    composition.root = harvestedComposition.items;');
     lines.push('  }');
+    for (const slot of componentSlots.filter((s) => s.required)) {
+      lines.push(
+        `  if (!harvestedComposition.items.some((entry) => entry.part === ${q(slot.part)})) {`,
+        `    throw new Error(\`nuri-factory: '\${${displayNameConst}}' requires ${pascalPart(slot.slotName)}\`);`,
+        '  }',
+      );
+    }
   }
 
   for (const [slotName, slot] of Object.entries(api.slots)) {
@@ -335,12 +368,21 @@ function emitContent(api, partTypeName, displayNameConst) {
 
 function emitBehaviour(api, partTypeName) {
   const pressable = api.behaviour && api.behaviour.pressable;
+  const input = api.behaviour && api.behaviour.input;
   const lines = [`  const behaviour: NuriBehaviour<${partTypeName}> = {};`];
-  if (!pressable) return lines;
-
-  lines.push('  behaviour.pressable = {', `    target: ${q(pressable.target)},`);
-  for (const prop of pressable.props) lines.push(`    ${prop}: props.${prop},`);
-  lines.push('  };');
+  if (pressable) {
+    lines.push('  behaviour.pressable = {', `    target: ${q(pressable.target)},`);
+    for (const prop of pressable.props) lines.push(`    ${prop}: props.${prop},`);
+    lines.push('  };');
+  }
+  if (input) {
+    lines.push('  behaviour.input = {', `    target: ${q(input.target)},`);
+    if (input.focusTarget) lines.push(`    focusTarget: ${q(input.focusTarget)},`);
+    if (input.labelPart) lines.push(`    labelPart: ${q(input.labelPart)},`);
+    lines.push('    props: {');
+    for (const prop of input.props) lines.push(`      ${prop}: props.${prop},`);
+    lines.push('    },', '  };');
+  }
   return lines;
 }
 
@@ -425,18 +467,29 @@ export function emitComponentFile(spec, descriptor) {
   if (hasComponentSlots) {
     for (const slot of componentSlots) {
       const slotPascal = pascalPart(slot.slotName);
-      const slotPropNames = slotPropNamesForComponentRef(refsByPart.get(slot.part));
+      const ref = refsByPart.get(slot.part);
+      const slotPropNames = slotPropNamesForComponentRef(ref);
+      const requiredSlotPropNames = new Set(requiredSlotPropNamesForComponentRef(ref, slot));
       if (slot.kind === 'icon-name') {
         const nameRequired = slotPropNames.includes('name') || slot.kind === 'icon-name';
+        const propLines = [`  name${nameRequired ? '' : '?'}: IconName;`];
+        for (const prop of slotPropNames.filter((p) => p !== 'name')) {
+          propLines.push(`  ${prop}${requiredSlotPropNames.has(prop) ? '' : '?'}: ${SLOT_PROP_TS[prop] || 'unknown'};`);
+        }
         body.push(
           `export type ${Pascal}${slotPascal}Props = {`,
-          `  name${nameRequired ? '' : '?'}: IconName;`,
+          ...propLines,
           '  children?: never;',
           '};',
           `export const ${Pascal}${slotPascal} = createNuriSlot<${Pascal}${slotPascal}Props>(${q(slot.part)}, \`${'${'}${displayNameConst}}${slotPascal}\`, 'name', ${displayNameConst});`,
         );
       } else {
-        const propLines = ['  children?: React.ReactNode;'];
+        const isInputLabelSlot =
+          slot.kind === 'text' &&
+          slot.required === true &&
+          descriptor.api.behaviour?.input?.labelPart === slot.part;
+        const childrenType = isInputLabelSlot ? 'string' : 'React.ReactNode';
+        const propLines = [`  children${slot.required ? '' : '?'}: ${childrenType};`];
         for (const prop of slotPropNames.filter((p) => p !== 'children')) {
           propLines.push(`  ${prop}?: ${SLOT_PROP_TS[prop] || 'unknown'};`);
         }
