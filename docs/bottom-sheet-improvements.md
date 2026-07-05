@@ -141,12 +141,18 @@ engineering, interacts with D2/D3. **Deferred** to the flow/motion arc.
 > now uses TWO layout effects (mirroring `LayerHost`): one upserts the fresh node WITHOUT cleanup, one
 > unregisters only on close/unmount. A single register-with-cleanup effect re-appended a re-rendering
 > lower layer to the top (latent with one sheet; the imminent toast trips it). Locked by an effect-level
-> re-render-in-isolation test. (2) **Keyboard** — the Android `KeyboardAvoidingView` arm was a no-op
-> (`undefined`); it is now `'height'` (the `ModalSheet` reference), the demo's form sheet is `detent="full"`
-> (the real full-screen keyboard case, operator's call), and the fields + Save stay reachable via
-> `BottomSheetScroll`. Expo default `windowSoftInputMode=adjustResize` is compatible — no global window
-> mode needed. Keyboard reachability on a real device is **operator-verified residue** (the harness can't
-> prove the keyboard push — that's how it first slipped through). TextField focus parity is tracked in a
+> re-render-in-isolation test. (2) **Keyboard (full-screen sheet)** — a `full` sheet must never be *pushed*
+> by `KeyboardAvoidingView`: it already fills the screen, so a height/padding push double-counts against
+> Android `adjustResize` and shoves the panel off the top (title clipped, janky on blur — the regression an
+> interim `behavior='height'` introduced). The correct model, mirroring nuri-expo `ModalSheet`'s full-page
+> case: **make room by shrinking the window, not moving the panel.** The `full` `sizeStyle` is now
+> `{ flexGrow: 1, maxHeight: 0.96 × window }` (fills at ~96% normally, keeps the top peek, and shrinks with
+> the `adjustResize`-resized window when the keyboard opens) instead of a fixed height; `KeyboardAvoidingView`
+> only pushes the small bottom-anchored `content` sheet (`detent === 'content' && iOS ? 'padding' :
+> undefined`); `BottomSheetScroll` sets `automaticallyAdjustKeyboardInsets` (iOS) to scroll the focused
+> field above the keyboard; and `app.json` sets `android.softwareKeyboardLayoutMode: "resize"` explicitly.
+> Keyboard reachability on a real device is **operator-verified residue** (the harness can't prove the
+> keyboard push — that's how the regression first slipped through). TextField focus parity is tracked in a
 > separate brief.
 
 ## The decision: a general overlay layer, not a sheet patch

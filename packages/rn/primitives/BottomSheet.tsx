@@ -146,10 +146,16 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     [progress, sheetHeight, windowHeight],
   );
 
+  // `content` hugs its content, bottom-anchored (maxHeight cap). `full` must
+  // FILL-and-SHRINK, not sit at a fixed height: a fixed 96%-of-window panel
+  // cannot fit once the keyboard shrinks the window (Android adjustResize), so
+  // `justify: flex-end` would shove it off the top. flexGrow fills the host
+  // (capped at 96% so the top peek stays), and shrinks with the resized window
+  // when the keyboard opens — the ScrollView then scrolls the field into view.
   const sizeStyle: ViewStyle =
     detent === 'content'
       ? { maxHeight: Math.round(windowHeight * CONTENT_MAX_FRACTION) }
-      : { height: Math.round(windowHeight * DETENT_FRACTION[detent]) };
+      : { flexGrow: 1, maxHeight: Math.round(windowHeight * DETENT_FRACTION.full) };
 
   // The overlay subtree — identical to the old inline return (scrim +
   // KeyboardAvoidingView + the measured, translateY-slid Animated.View). It is
@@ -168,7 +174,11 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
         />
       ) : null}
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        // Only PUSH the small bottom-anchored `content` sheet (iOS padding). A
+        // `full` sheet already fills the screen — pushing it (height/padding)
+        // double-counts against Android adjustResize and shoves it off the top;
+        // it makes room by shrinking (sizeStyle flexGrow) + the ScrollView.
+        behavior={detent === 'content' && Platform.OS === 'ios' ? 'padding' : undefined}
         pointerEvents="box-none"
         style={styles.host}
       >
@@ -213,7 +223,13 @@ export const BottomSheetPanel: React.FC<BottomSheetPanelProps> = ({ children }) 
 BottomSheetPanel.displayName = 'BottomSheetPanel';
 
 export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }) => (
-  <RNScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+  <RNScrollView
+    contentContainerStyle={styles.scrollContent}
+    keyboardShouldPersistTaps="handled"
+    // iOS: scroll the focused field above the keyboard (replaces the KAV push
+    // for the scrolling form). Android makes room via adjustResize (app.json).
+    automaticallyAdjustKeyboardInsets
+  >
     {children}
   </RNScrollView>
 );
