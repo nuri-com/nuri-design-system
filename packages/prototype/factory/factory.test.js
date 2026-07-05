@@ -425,11 +425,11 @@ test('B11 · a FOREIGN component\'s slot marker fails named', () => {
 // C · defineNuriComponent · the registered elements (API derivation · reflection)
 // ══════════════════════════════════════════════════════════════════
 test('C · observedAttributes are DERIVED from the descriptor (axes ∪ accent ∪ disabled? ∪ icon?)', () => {
-  // Button: interactive + text primary + pressable accessibilityLabel → variant·size·accent·disabled·aria-label (NO icon).
+  // Button: interactive + text primary + pressable accessibilityLabel → variant·size·fill·accent·disabled·aria-label (NO icon).
   assert.deepEqual(
     [...customElements.get('nuri-button').observedAttributes].sort(),
-    ['accent', 'aria-label', 'disabled', 'size', 'variant'],
-    'button observes its axes + accent + disabled (interactive) + aria-label (pressable API), not icon',
+    ['accent', 'aria-label', 'disabled', 'fill', 'size', 'variant'],
+    'button observes its axes (variant·size·fill) + accent + disabled (interactive) + aria-label (pressable API), not icon',
   );
   // IconAvatar: static + icon part → variant·accent·icon (the component `icon` prop ·
   // NOT `name`, which is the primitive <nuri-icon>'s attr · NO disabled, NO size).

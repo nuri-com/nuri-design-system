@@ -83,6 +83,18 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "justifyContent": "center"
         },
         "variants": {
+          "fill": {
+            "even": {
+              "flexGrow": 1,
+              "flexShrink": 1,
+              "flexBasis": 0,
+              "minWidth": 0
+            },
+            "hug": {
+              "flexGrow": 0,
+              "flexShrink": 0
+            }
+          },
           "size": {
             "sm": {
               "minHeight": 36,

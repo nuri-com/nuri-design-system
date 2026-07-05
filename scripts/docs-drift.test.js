@@ -180,7 +180,7 @@ const EXPECTED_DESCRIPTORS = {
     interactive: [],
   },
   button: {
-    axes: { variant: ['solid', 'soft', 'ghost'], size: ['sm', 'md', 'lg'] },
+    axes: { variant: ['solid', 'soft', 'ghost'], size: ['sm', 'md', 'lg'], fill: ['natural', 'even', 'hug'] },
     parts: ['label', 'icon'], // the anatomy's non-root parts
     interactive: ['pressColor', 'pressScale', 'disabledOpacity'], // the collapsed root opt-in (§8 · no compound)
   },

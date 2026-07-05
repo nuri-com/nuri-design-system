@@ -244,6 +244,8 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
         "backgroundColor": "#beaaff",
         "borderRadius": 9999,
         "flexDirection": "row",
+        "flexGrow": 0,
+        "flexShrink": 0,
         "justifyContent": "center",
         "minHeight": 36,
         "paddingHorizontal": 12,

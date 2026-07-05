@@ -32,6 +32,16 @@ import type { Descriptor } from './schema';
 type ButtonAxes = {
   variant: 'solid' | 'soft' | 'ghost';
   size: 'sm' | 'md' | 'lg';
+  // How the button sits as a flex child of its parent row (the root's stack.fill).
+  // `natural` (default) composes nothing → the bare flex 0 1 auto: hugs its label,
+  // MAY shrink+truncate under row pressure, and a column parent's `align:stretch`
+  // already gives it full width (so a full-width CTA needs NO fill). `even` = take
+  // an equal share of a ROW (flex 1 1 0 · the split-button pair · usually the
+  // parent's `distribute` owns this, this is the per-instance escape hatch). `hug` =
+  // hug the label and NEVER shrink (flex 0 0 auto · the alert/field trailing action,
+  // set in the parent's composition via props). NOT `grow`/`grow-shrink` — those are
+  // layout-container concerns, not a leaf control's.
+  fill: 'natural' | 'even' | 'hug';
 };
 
 export const buttonDescriptor: Descriptor<ButtonAxes> = {
@@ -67,11 +77,19 @@ export const buttonDescriptor: Descriptor<ButtonAxes> = {
         icon: { box: { width: 'sm', height: 'sm' } },
       },
     },
+    // The parent-row fill axis (see ButtonAxes). `natural` is the no-op default
+    // (composes nothing → the bare flex 0 1 auto); `even`/`hug` set the root's
+    // stack.fill. Layered onto variant × size, not crossed (per-axis composition).
+    fill: {
+      natural: {},
+      even: { root: { stack: { fill: 'even' } } },
+      hug: { root: { stack: { fill: 'hug' } } },
+    },
   },
   // The PUBLIC defaults (R1.5 · N+50): an unset axis resolves to these — soft
   // (NOT the variant-order first value `solid`), md (NOT `sm`). Both factories
   // read this, so neither binding hand-passes a default (the web↔RN parity close).
-  defaults: { variant: 'soft', size: 'md' },
+  defaults: { variant: 'soft', size: 'md', fill: 'natural' },
   // The PUBLIC API (Path C · Phase 1 · docs/archive/component-api-target.md). variant ×
   // size surface as style props; the root is the pressable target (all three
   // interactive channels are opted in on `structure.base`). Bare untagged
@@ -79,7 +97,7 @@ export const buttonDescriptor: Descriptor<ButtonAxes> = {
   // lockup uses ordered, repeatable generated leaves:
   // `<Button><ButtonText>Buy</ButtonText><ButtonIcon name="apple" /></Button>`.
   api: {
-    axes: ['variant', 'size'],
+    axes: ['variant', 'size', 'fill'],
     themeScope: { accent: true },
     behaviour: { pressable: { target: 'root', props: ['onPress', 'disabled', 'accessibilityLabel'] } },
     slots: {

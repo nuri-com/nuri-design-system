@@ -37,6 +37,12 @@ export const alertDescriptor = {
           props: {
             variant: 'solid',
             size: 'sm',
+            // HUG (flex 0 0 auto): the action never shrinks, so ALL row shrink lands
+            // on the `grow-shrink` message (it truncates) and the button always shows
+            // its full label. Passed as a button PROP — the parent can't style a
+            // nested component's part directly ("the referenced component owns its
+            // contract"); its fill axis is the sanctioned channel.
+            fill: 'hug',
             children: '$slot.children',
             disabled: '$slot.disabled',
             onPress: '$slot.onPress',

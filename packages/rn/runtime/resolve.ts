@@ -531,10 +531,12 @@ function mergedPaletteNSForPart<A extends Axes>(
   return out;
 }
 
-// composeGeometry · base ⊕ each selected axis's geometry patch (axis-declaration
-// order · later wins). The catalog's base + variant geometry touch DISJOINT keys
-// (base = stack · the size variant = box · verified), so the spread reproduces the
-// resolver's field-table key order — pinned by the key-order guard (geometry-bake test).
+// composeGeometry · base ⊕ each selected axis's geometry patch (in geometry.variants
+// key order · later wins). base + variant geometry touch DISJOINT keys (base = stack ·
+// a variant patch = one namespace), and the emitter (recipes.js) ORDERS geometry.variants
+// by namespace (NS_ORDER: stack before box), so a stack-contributing variant (button's
+// `fill`) lands before a box-contributing one (`size`) — the in-order spread reproduces
+// the resolver's namespace key order. Pinned by the key-order guard (geometry-bake test).
 function composeGeometry(geometry: BakedPartRecipe['geometry'], selection: Selection): ViewStyle {
   let out: ViewStyle = { ...geometry.base };
   for (const axis of Object.keys(geometry.variants)) {
