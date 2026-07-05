@@ -136,6 +136,18 @@ engineering, interacts with D2/D3. **Deferred** to the flow/motion arc.
 > `packages/rn/__tests__/overlay-provider.test.tsx` (registry · two-layer stacking · back routing ·
 > registrar · keyboard-reachable composition). **Native residue (operator-owned):** the true status-bar
 > dim + the keyboard push on a real iOS/Android device are not verifiable in the web/expo-web harness.
+>
+> **Follow-up fixes (coordinator review + operator device test):** (1) **Stacking order** — the registrar
+> now uses TWO layout effects (mirroring `LayerHost`): one upserts the fresh node WITHOUT cleanup, one
+> unregisters only on close/unmount. A single register-with-cleanup effect re-appended a re-rendering
+> lower layer to the top (latent with one sheet; the imminent toast trips it). Locked by an effect-level
+> re-render-in-isolation test. (2) **Keyboard** — the Android `KeyboardAvoidingView` arm was a no-op
+> (`undefined`); it is now `'height'` (the `ModalSheet` reference), the demo's form sheet is `detent="full"`
+> (the real full-screen keyboard case, operator's call), and the fields + Save stay reachable via
+> `BottomSheetScroll`. Expo default `windowSoftInputMode=adjustResize` is compatible — no global window
+> mode needed. Keyboard reachability on a real device is **operator-verified residue** (the harness can't
+> prove the keyboard push — that's how it first slipped through). TextField focus parity is tracked in a
+> separate brief.
 
 ## The decision: a general overlay layer, not a sheet patch
 

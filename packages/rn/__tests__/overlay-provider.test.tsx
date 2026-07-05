@@ -98,6 +98,24 @@ describe('OverlayProvider — registry runtime', () => {
       .filter((z): z is number => typeof z === 'number' && z < 1000);
     expect(zIndexes).toEqual([0, 1]);
   });
+
+  test('re-registering a lower layer keeps its slot (stacking survives a re-render)', () => {
+    // The regression lock: a lower layer that re-renders (keyboard/content/parent)
+    // must NOT jump above an upper layer. register upserts in place; the registrar
+    // never unregisters-then-re-registers on a node change (two effects, not one).
+    let api!: OverlayApi;
+    const tr = render(<OverlayProvider><ApiProbe onReady={(a) => (api = a)} /></OverlayProvider>);
+
+    act(() => api.register('sheet', <Text>Sheet v1</Text>));
+    act(() => api.register('toast', <Text>Toast</Text>));
+    expect(textsInTree(tr)).toEqual(['Sheet v1', 'Toast']);
+
+    // Re-register the LOWER layer with a fresh node (what a re-render does).
+    act(() => api.register('sheet', <Text>Sheet v2</Text>));
+
+    // Node refreshed in place; order unchanged — 'sheet' did NOT jump to the top.
+    expect(textsInTree(tr)).toEqual(['Sheet v2', 'Toast']);
+  });
 });
 
 describe('OverlayProvider — hardware-back routing', () => {
@@ -187,6 +205,44 @@ describe('BottomSheet — registers into the overlay outlet', () => {
       return Boolean(flat) && typeof flat === 'object' && 'transform' in (flat as Record<string, unknown>);
     });
     expect(slid.length).toBeGreaterThan(0);
+  });
+
+  test('a lower sheet re-rendering IN ISOLATION does NOT jump above an upper sheet (effect-level lock)', () => {
+    // Reproduces the real regression: with a single register-with-cleanup effect,
+    // re-rendering ONLY the lower sheet ran unregister→register and re-appended it
+    // on top. The upper sheet's element is kept STABLE so it bails out of the
+    // re-render (mirroring the real trigger — a sheet re-rendering on its OWN
+    // state: keyboard/height/content — while an upper layer sits still). The lower
+    // sheet must keep its slot: [lower, upper], not [upper, lower].
+    const upper = (
+      <BottomSheet open detent="content">
+        <BottomSheetPanel><Text>Upper</Text></BottomSheetPanel>
+      </BottomSheet>
+    );
+    function Harness({ lowerLabel }: { lowerLabel: string }) {
+      return (
+        <NuriThemeProvider>
+          <OverlayProvider>
+            <BottomSheet open detent="content">
+              <BottomSheetPanel><Text>{lowerLabel}</Text></BottomSheetPanel>
+            </BottomSheet>
+            {upper}
+          </OverlayProvider>
+        </NuriThemeProvider>
+      );
+    }
+    let tr!: TestRenderer.ReactTestRenderer;
+    act(() => {
+      tr = TestRenderer.create(<Harness lowerLabel="Lower v1" />);
+    });
+    expect(textsInTree(tr)).toEqual(['Lower v1', 'Upper']);
+
+    // Only the lower sheet re-renders (the upper element is referentially stable
+    // → React bails on it → only the lower's effect runs).
+    act(() => {
+      tr.update(<Harness lowerLabel="Lower v2" />);
+    });
+    expect(textsInTree(tr)).toEqual(['Lower v2', 'Upper']);
   });
 
   test('unmounting the sheet unregisters its layer (the removal path)', () => {

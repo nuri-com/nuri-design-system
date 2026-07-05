@@ -168,7 +168,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
         />
       ) : null}
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         pointerEvents="box-none"
         style={styles.host}
       >
@@ -181,18 +181,27 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
 
   // Register the subtree into the overlay layer while mounted (the <Layer>
   // pattern): the outlet renders it full-window, above the safe-area padding.
-  // useLayoutEffect keyed on the node + dismissible upserts it before paint;
-  // the cleanup unregisters on close/unmount so a dismissed sheet leaves no
-  // layer behind. A non-dim/non-dismissible sheet passes onRequestClose only
-  // when dismissible, so hardware-back respects `dismissible`.
+  // TWO effects, NOT one (mirrors LayerHost.tsx) — this split is load-bearing
+  // for stacking order. A single register-with-cleanup effect would, on every
+  // re-render, run cleanup (unregister) then body (register), and register
+  // re-APPENDS a fresh id to the TOP — so a lower sheet that re-renders (keyboard,
+  // content, height, any parent re-render) would jump above an upper layer,
+  // inverting the mount-order guarantee. Splitting fixes it:
+  //   A · upsert the fresh node WITHOUT cleanup — register upserts in place, so
+  //       a re-render refreshes the node and keeps its slot in the stack.
   React.useLayoutEffect(() => {
-    if (!mounted) return undefined;
+    if (!mounted) return;
     overlay.register(layerId, overlayNode, {
       dismissible,
       onRequestClose: dismissible ? requestClose : undefined,
     });
-    return () => overlay.unregister(layerId);
   }, [mounted, overlayNode, dismissible, requestClose, overlay, layerId]);
+  //   B · the ONLY place the layer leaves the stack — on close (!mounted) or
+  //       unmount. Never runs on a node/dismissible change, so order is stable.
+  React.useLayoutEffect(() => {
+    if (!mounted) overlay.unregister(layerId);
+    return () => overlay.unregister(layerId);
+  }, [mounted, layerId, overlay]);
 
   return null;
 };

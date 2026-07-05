@@ -71,9 +71,11 @@ export const Sheet: React.FC = () => {
         </BottomSheetPanel>
       </BottomSheet>
 
-      {/* FORM · TextFields + footer, scrollable so they stay reachable with the
-          keyboard up (validated on a real device). */}
-      <BottomSheet open={open === 'form'} detent="content" onOpenChange={(next) => !next && close()}>
+      {/* FORM · full-screen (operator's call — the real keyboard case), with
+          TextFields + footer wrapped in BottomSheetScroll so the fields scroll
+          above the keyboard and Save stays reachable (validated on a real
+          device — the harness can't prove the keyboard push). */}
+      <BottomSheet open={open === 'form'} detent="full" onOpenChange={(next) => !next && close()}>
         <BottomSheetPanel>
           <BottomSheetScroll>
             <View direction="column" align="stretch" gap="md" padding="lg">
