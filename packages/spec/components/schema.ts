@@ -119,7 +119,7 @@ export type StackNS = {
   justify?: 'start' | 'center' | 'end' | 'between' | 'around';
   gap?: SpaceLeaf;
   wrap?: boolean;
-  fill?: 'grow' | 'grow-shrink' | 'even';
+  fill?: 'grow' | 'grow-shrink' | 'even' | 'hug';
 };
 
 // `box` — the element's own visual box: GEOMETRY ONLY, no colour

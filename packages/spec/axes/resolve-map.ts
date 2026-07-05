@@ -89,10 +89,16 @@ const JUSTIFY: Record<NonNullable<StackNS['justify']>, string> = {
 // centre). Each projection spells this neutral intent locally. A mechanism
 // difference, not a name → NOT a registry entry (decision 73 cl.2). Was
 // resolveFill's switch.
+// `hug` = the NO-FILL floor (web flex:0 0 auto · basis auto ⇒ content size, and
+// grow 0 + shrink 0 so the node NEITHER stretches NOR collapses below its content
+// — the "trailing action hugs its label" case · alert's AlertButton). Distinct
+// from the bare no-`fill` default (flex 0 1 auto · shrinks under row pressure);
+// `hug` is the explicit opt-out of that shrink. The 3rd versioned StackNS.fill add.
 const FILL: Record<NonNullable<StackNS['fill']>, FillCase> = {
   grow: { grow: 1, shrink: 0 },
   'grow-shrink': { grow: 1, shrink: 1, minInline: 0 },
   even: { grow: 1, shrink: 1, basis: 0, minInline: 0 },
+  hug: { grow: 0, shrink: 0 },
 };
 
 // ── stack → flex · the mapping as DATA (was resolveStack's if-wall · mirrors

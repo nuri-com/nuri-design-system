@@ -502,7 +502,9 @@ const FROZEN_SCHEMA = {
       'wrap?': 'boolean',
       // `even` ADDED at the topbar-slots slice (the 2nd post-freeze StackNS add ·
       // the equal-basis-0 edge for true centring · decision 65 "versioned").
-      'fill?': "'grow' | 'grow-shrink' | 'even'",
+      // `hug` ADDED at the trailing-action slice (the 3rd versioned StackNS.fill
+      // add · flex:0 0 auto — the no-shrink content floor · alert's AlertButton).
+      'fill?': "'grow' | 'grow-shrink' | 'even' | 'hug'",
     },
     // `minWidth` ADDED at P11 (the icon-button slice · the 2nd deliberate
     // post-freeze BoxNS add · decision 65 "post-freeze changes are versioned"):

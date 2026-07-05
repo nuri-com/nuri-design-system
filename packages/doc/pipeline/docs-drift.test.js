@@ -184,7 +184,7 @@ const PAGE_CONTRACT = {
     cells: [
       "| `direction` | no | `'row' | 'column'` | style axis |",
       "| `gap` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |",
-      "| `fill` | no | `'grow' | 'grow-shrink' | 'even'` | style axis |",
+      "| `fill` | no | `'grow' | 'grow-shrink' | 'even' | 'hug'` | style axis |",
       '| `children` | no | `React.ReactNode` | default content slot |',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
@@ -291,7 +291,7 @@ const AXIS_CONTRACT = {
       '| `align` | `align-items` | `alignItems` | `start` → `flex-start`<br>`center` → `center`<br>`end` → `flex-end`<br>`stretch` → `stretch`<br>`baseline` → `baseline` |',
       // the mechanism-divergent expand arm (fill · no registry entry · rn → em-dash) ·
       // `even` (the topbar-slots slice · the equal-basis-0 edge for true centring)
-      '| `fill` | `flex` | — | `grow` → `grow: 1` · `shrink: 0`<br>`grow-shrink` → `grow: 1` · `shrink: 1` · `minInline: 0`<br>`even` → `grow: 1` · `shrink: 1` · `basis: 0` · `minInline: 0` |',
+      '| `fill` | `flex` | — | `grow` → `grow: 1` · `shrink: 0`<br>`grow-shrink` → `grow: 1` · `shrink: 1` · `minInline: 0`<br>`even` → `grow: 1` · `shrink: 1` · `basis: 0` · `minInline: 0`<br>`hug` → `grow: 0` · `shrink: 0` |',
     ],
     includes: ['| Input | Web | RN | Value |'], // the locked grammar (CSS → Web · the N+47 rename)
   },
