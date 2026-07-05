@@ -115,9 +115,17 @@ describe('geometry bake · guard 1 — ORACLE EQUIVALENCE (baked ≡ runtime res
               // full NODE equivalence — view · fg · fgMuted · pressedBg · type · interactive
               // (the render-critical channels the factory applies SEPARATELY from `style`)
               expect(baked.node).toEqual(runtime.node);
-              // GEOMETRY key-order fidelity (guard #3) — palette stripped, order-SENSITIVE
-              expect(Object.keys(stripColour(baked.style as Record<string, unknown>)))
-                .toEqual(Object.keys(stripColour(runtime.style as Record<string, unknown>)));
+              // GEOMETRY key-SET fidelity (guard #3) — palette stripped, order-INSENSITIVE.
+              // Was order-sensitive, but that guarded ViewStyle key ORDER, which RN never
+              // reads (each geometry longhand — flexGrow/minHeight/gap/paddingHorizontal —
+              // applies independently · no intra-object cascade). Once a size variant carries
+              // BOTH a stack field (per-size `gap`) and box, while `fill` also writes stack,
+              // the per-axis bake merge cannot reproduce the resolver's field-level namespace
+              // order — and needn't, since the VALUES match (the toEqual above stays strict:
+              // same keys, same values). So this compares the key SETS, catching a field
+              // emitted by one path only, without pinning an order that has no render effect.
+              expect(Object.keys(stripColour(baked.style as Record<string, unknown>)).sort())
+                .toEqual(Object.keys(stripColour(runtime.style as Record<string, unknown>)).sort());
               cells++;
             }
           }

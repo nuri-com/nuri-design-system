@@ -83,6 +83,20 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "justifyContent": "center"
         },
         "variants": {
+          "size": {
+            "sm": {
+              "gap": 4,
+              "minHeight": 36,
+              "paddingHorizontal": 18,
+              "borderRadius": 9999
+            },
+            "lg": {
+              "gap": 6,
+              "minHeight": 54,
+              "paddingHorizontal": 24,
+              "borderRadius": 9999
+            }
+          },
           "fill": {
             "even": {
               "flexGrow": 1,
@@ -93,18 +107,6 @@ export const recipes: Record<string, BakedComponentRecipe> = {
             "hug": {
               "flexGrow": 0,
               "flexShrink": 0
-            }
-          },
-          "size": {
-            "sm": {
-              "minHeight": 36,
-              "paddingHorizontal": 18,
-              "borderRadius": 9999
-            },
-            "lg": {
-              "minHeight": 54,
-              "paddingHorizontal": 24,
-              "borderRadius": 9999
             }
           }
         }

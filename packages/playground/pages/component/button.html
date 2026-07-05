@@ -54,13 +54,13 @@
     </template>
   </nuri-demo>
 
-  <!-- with icons · ordered ButtonText + ButtonIcon lockups: leading icon · mid icon · trailing icon. -->
+  <!-- with icons · ordered ButtonText + ButtonIcon lockups: trailing icon · mid icon · leading icon. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="with icons">
     <template>
       <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
         <nuri-button size="sm" variant="soft">
+          <nuri-button-text>Copied</nuri-button-text>
           <nuri-button-icon name="check-circle"></nuri-button-icon>
-          <nuri-button-text>copied</nuri-button-text>
         </nuri-button>
         <nuri-button size="sm" variant="solid">
           <nuri-button-text>Buy Bitcoin</nuri-button-text>
@@ -68,8 +68,8 @@
           <nuri-button-text>Pay</nuri-button-text>
         </nuri-button>
         <nuri-button size="lg" variant="solid" accent="lilac">
-          <nuri-button-text>Sign in Browser</nuri-button-text>
-          <nuri-button-icon name="expand"></nuri-button-icon>
+          <nuri-button-icon name="plus"></nuri-button-icon>
+          <nuri-button-text>Add contact</nuri-button-text>
         </nuri-button>
       </nuri-stack>
     </template>

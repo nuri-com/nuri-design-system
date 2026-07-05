@@ -61,12 +61,12 @@ export const buttonDescriptor: Descriptor<ButtonAxes> = {
     },
     size: {
       sm: {
-        root: { box: { minHeight: 'md', paddingX: 'lg', radius: 'full' } },
+        root: { stack: { gap: 'xs' }, box: { minHeight: 'md', paddingX: 'lg', radius: 'full' } },
         label: { typography: { size: 'sm', emphasis: true, flow: 'truncate', lines: 1 } },
         icon: { box: { width: 'xs', height: 'xs' } },
       },
       lg: {
-        root: { box: { minHeight: 'xl', paddingX: 'xl', radius: 'full' } },
+        root: { stack: { gap: 'sm' }, box: { minHeight: 'xl', paddingX: 'xl', radius: 'full' } },
         label: { typography: { size: 'md', emphasis: true, flow: 'truncate', lines: 1 } },
         icon: { box: { width: 'sm', height: 'sm' } },
       },
