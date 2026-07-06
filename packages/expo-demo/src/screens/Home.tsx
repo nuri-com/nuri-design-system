@@ -10,7 +10,7 @@ import {
   TopbarTrailing,
   View,
 } from '@ds';
-import { WalletTabs, type WalletTab } from './components/WalletTabs';
+import { WalletTabs, type WalletTab } from '../components/WalletTabs';
 
 export function Home({
   selectedTab,

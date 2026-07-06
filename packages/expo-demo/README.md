@@ -8,16 +8,19 @@ the Activity, Amount, Actions, and Form sheet examples.
 ```
 src/
   screens/
-    BottomSheetDemo.tsx
-                       route/controller for the bottom-sheet demo. Owns the
+    index.tsx          route/controller for the bottom-sheet demo. Owns the
                        app state: page, selected wallet tab, open sheet, and
                        sample form values.
-    bottom-sheet-demo/
-      Home.tsx         wallet/status home surface.
-      Menu.tsx         button stack that opens each sheet example.
-      components/      app-owned wrappers over stateless DS components, such as
-                       WalletTabs mapping selected/onSelect into TabBarItem.
-      sheets/          Activity, Amount, Actions, and Form sheet examples.
+    Home.tsx           wallet/status home surface.
+    Menu.tsx           button stack that opens each sheet example.
+  components/
+    WalletTabs.tsx     app-owned wrapper over stateless DS TabBar/TabBarItem,
+                       mapping selected/onSelect into selected/onPress.
+  sheets/
+    ActivitySheet.tsx
+    AmountSheet.tsx
+    ActionsSheet.tsx
+    FormSheet.tsx
 App.tsx                the navigator role: safe-area ownership (decision 58),
                        the NuriThemeProvider root, OverlayProvider placement,
                        and the app-owned demo state. Dark mode remains wired as

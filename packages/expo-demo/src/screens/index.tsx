@@ -8,13 +8,13 @@
 import * as React from 'react';
 
 import { View } from '@ds';
-import { Home } from './bottom-sheet-demo/Home';
-import { Menu } from './bottom-sheet-demo/Menu';
-import { ActionsSheet } from './bottom-sheet-demo/sheets/ActionsSheet';
-import { ActivitySheet } from './bottom-sheet-demo/sheets/ActivitySheet';
-import { AmountSheet } from './bottom-sheet-demo/sheets/AmountSheet';
-import { FormSheet } from './bottom-sheet-demo/sheets/FormSheet';
-import type { WalletTab } from './bottom-sheet-demo/components/WalletTabs';
+import { Home } from './Home';
+import { Menu } from './Menu';
+import { ActionsSheet } from '../sheets/ActionsSheet';
+import { ActivitySheet } from '../sheets/ActivitySheet';
+import { AmountSheet } from '../sheets/AmountSheet';
+import { FormSheet } from '../sheets/FormSheet';
+import type { WalletTab } from '../components/WalletTabs';
 
 type Page = 'wallet' | 'sheetMenu';
 type OpenSheet = 'none' | 'activity' | 'amount' | 'actions' | 'form';
