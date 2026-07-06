@@ -315,7 +315,7 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
         if (visibleHeight > 0) {
           const visibleTop = FOCUS_TOP_MARGIN;
           const visibleBottom = visibleHeight - FOCUS_BOTTOM_MARGIN;
-          const inputTop = y - currentY;
+          const inputTop = y;
           const inputBottom = inputTop + height;
           if (inputBottom > visibleBottom) {
             nextY = currentY + inputBottom - visibleBottom;
