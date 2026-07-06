@@ -8,7 +8,7 @@
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { Platform, Pressable, Text, TextInput, View } from 'react-native';
 import type { StyleProp, TextStyle } from 'react-native';
 import { LEAF_ELS } from '@nuri/spec/descriptors/schema';
 import type { Accent, Descriptor, Axes, IconName, PartId } from '../contract';
@@ -22,6 +22,26 @@ import { useFocusScroll, type FocusScrollApi } from './focus-scroll';
 // §12 surface context — the resolved foreground a surface provides to propless
 // descendants (colour-from-scope · F-BOX-FG-1).
 export const NuriSurfaceContext = React.createContext<{ foreground?: string }>({});
+
+// ── FOCUS RING · parity with web (packages/prototype/primitives/input.css ·
+// `[data-nuri-focus-target][data-nuri-input-focused] { outline: 2px solid
+// var(--nuri-focus-ring); outline-offset: 2px }`). Web draws a 2px ring standing
+// 2px OFF the focus target's border box, in the focusRing token colour, WITHOUT
+// recolouring the target's own border. RN has no `outline`/`outline-offset`, so we
+// overlay an absolutely-positioned bordered view inset OUTSIDE the target's border
+// box — same look, and (like `outline`) zero layout impact so the field never
+// shifts on focus. The 2px width/offset is the web design constant (not a token);
+// mirror it literally for exact parity.
+const FOCUS_RING_WIDTH = 2;
+const FOCUS_RING_OFFSET = 2;
+
+// react-native-web renders the input to a DOM <input> that carries the browser's
+// default :focus outline — a SECOND ring on top of the DS focus ring (the expo-web
+// "double ring"). Suppress it on web only; native TextInput has no outline concept.
+// `outlineStyle` is a react-native-web style key absent from RN's TextStyle, hence
+// the cast (the value is inert on native and never reached there anyway).
+const WEB_INPUT_OUTLINE_RESET: TextStyle | null =
+  Platform.OS === 'web' ? ({ outlineStyle: 'none' } as unknown as TextStyle) : null;
 
 // A generated marker component (TopbarLeading/Center/Trailing regions and ordered
 // leaves like ButtonText/ButtonIcon). Rendered alone it yields its children;
@@ -262,6 +282,9 @@ function DescriptorTextInput({
         { flexShrink: 1, padding: 0 },
         disabledStyle,
         flatStyle,
+        // Suppress the browser :focus outline on react-native-web so only the
+        // DS focus ring shows (no-op on native · see WEB_INPUT_OUTLINE_RESET).
+        WEB_INPUT_OUTLINE_RESET,
       ]}
     />
   );
@@ -336,10 +359,30 @@ function renderPart<A extends Axes>(
     pressed: false,
     disabled,
   });
-  if (focusedByInput) {
-    flat.style = { ...flat.style, borderColor: ctx.theme.focusRing };
-    flat.node.view = { ...flat.node.view, borderColor: ctx.theme.focusRing };
-  }
+  // The offset focus ring (see FOCUS_RING_* above) overlays the focus target
+  // WITHOUT recolouring its own border — matching web, where `outline` is drawn
+  // separately from the box border. Rendered in the `view` case below.
+  const focusRing = focusedByInput ? (
+    <View
+      key="__nuri-focus-ring"
+      pointerEvents="none"
+      style={{
+        position: 'absolute',
+        top: -(FOCUS_RING_OFFSET + FOCUS_RING_WIDTH),
+        left: -(FOCUS_RING_OFFSET + FOCUS_RING_WIDTH),
+        right: -(FOCUS_RING_OFFSET + FOCUS_RING_WIDTH),
+        bottom: -(FOCUS_RING_OFFSET + FOCUS_RING_WIDTH),
+        borderWidth: FOCUS_RING_WIDTH,
+        borderColor: ctx.theme.focusRing,
+        // Concentric with the target's rounded corners: outer radius = the
+        // target's radius pushed out by the offset + ring width.
+        borderRadius:
+          (typeof flat.style.borderRadius === 'number' ? flat.style.borderRadius : 0) +
+          FOCUS_RING_OFFSET +
+          FOCUS_RING_WIDTH,
+      }}
+    />
+  ) : null;
   const fg = flat.node.fg ?? inheritedFg;
 
   // F-DECORATIVE-1 · a decorative descriptor hides the whole host subtree from
@@ -526,6 +569,7 @@ function renderPart<A extends Axes>(
     case 'view': {
       return (
         <View key={node.name} style={flat.style} {...a11yHide}>
+          {focusRing}
           {renderHostBody()}
         </View>
       );

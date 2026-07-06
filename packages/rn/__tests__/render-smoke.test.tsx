@@ -564,7 +564,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toContain('Please enter a valid IBAN');
   });
 
-  test('TextField — focus handlers fire and the focus ring lands on the box part', () => {
+  test('TextField — focus handlers fire and an offset focus ring overlays the box (web parity)', () => {
     const onFocus = jest.fn();
     const onBlur = jest.fn();
     const tr = render(
@@ -576,21 +576,42 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     );
 
     const input = tr.root.findByType(TextInput);
-    const boxStyle = () => {
-      const boxes = tr.root.findAllByType(View).map((node) => {
+    const flatViewStyles = () =>
+      tr.root.findAllByType(View).map((node) => {
         const style = node.props.style as unknown;
-        return Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : (style as Record<string, unknown>);
+        return Array.isArray(style)
+          ? (Object.assign({}, ...style.filter(Boolean)) as Record<string, unknown>)
+          : ((style ?? {}) as Record<string, unknown>);
       });
-      return boxes.find((style) => style.borderWidth === 1 && style.height === 54);
-    };
+    // The outlined box: the field's 1px-bordered, 54-tall host.
+    const boxStyle = () => flatViewStyles().find((style) => style.borderWidth === 1 && style.height === 54);
+    // The focus ring: the absolutely-positioned 2px overlay in the focusRing colour
+    // (mirrors web's `outline: 2px solid var(--nuri-focus-ring); outline-offset: 2px`).
+    const focusRing = () =>
+      flatViewStyles().find(
+        (style) => style.position === 'absolute' && style.borderWidth === 2 && style.borderColor === '#ae91ff',
+      );
 
+    // Unfocused: neutral border, no ring.
     expect(boxStyle()?.borderColor).toBe('#dddac9');
+    expect(focusRing()).toBeUndefined();
+
     act(() => input.props.onFocus());
     expect(onFocus).toHaveBeenCalledTimes(1);
-    expect(boxStyle()?.borderColor).toBe('#ae91ff');
+    // Focused: the box border stays neutral (web does NOT recolour it); the offset
+    // ring appears, standing 2px off the box (inset −4 = −(offset + width)).
+    expect(boxStyle()?.borderColor).toBe('#dddac9');
+    const ring = focusRing();
+    expect(ring).toBeDefined();
+    expect(ring?.top).toBe(-4);
+    expect(ring?.left).toBe(-4);
+    expect(ring?.right).toBe(-4);
+    expect(ring?.bottom).toBe(-4);
+
     act(() => input.props.onBlur());
     expect(onBlur).toHaveBeenCalledTimes(1);
     expect(boxStyle()?.borderColor).toBe('#dddac9');
+    expect(focusRing()).toBeUndefined();
   });
 
   test('ListAction — direct row slots render avatar, content, trailing value, and trail icon', () => {
