@@ -28,11 +28,9 @@ export function FormSheet({
     firstName: string;
     secondName: string;
     reference: string;
-    email: string;
-    note: string;
   };
   onChangeField: (
-    id: 'iban' | 'firstName' | 'secondName' | 'reference' | 'email' | 'note',
+    id: 'iban' | 'firstName' | 'secondName' | 'reference',
   ) => (value: string) => void;
   onClose: () => void;
 }) {
@@ -68,14 +66,6 @@ export function FormSheet({
 
               <TextField value={values.reference} onChangeText={onChangeField('reference')} placeholder="Optional">
                 <TextFieldLabel>Reference</TextFieldLabel>
-              </TextField>
-
-              <TextField value={values.email} onChangeText={onChangeField('email')} placeholder="name@example.com" inputMode="email">
-                <TextFieldLabel>Email</TextFieldLabel>
-              </TextField>
-
-              <TextField value={values.note} onChangeText={onChangeField('note')} placeholder="Add a short note">
-                <TextFieldLabel>Note</TextFieldLabel>
               </TextField>
             </View>
           </View>

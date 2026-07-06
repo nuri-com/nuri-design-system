@@ -23,8 +23,6 @@ type FormValues = {
   firstName: string;
   secondName: string;
   reference: string;
-  email: string;
-  note: string;
 };
 
 export const BottomSheetDemo: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme }) => {
@@ -36,8 +34,6 @@ export const BottomSheetDemo: React.FC<{ onToggleTheme: () => void }> = ({ onTog
     firstName: '',
     secondName: '',
     reference: '',
-    email: '',
-    note: '',
   });
 
   const closeSheet = React.useCallback(() => setOpenSheet('none'), []);
