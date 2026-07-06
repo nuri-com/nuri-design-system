@@ -362,7 +362,11 @@ describe('render-smoke — the ergonomic components mount headless', () => {
 
     expect(tr.toJSON()).toBeTruthy();
     expect(JSON.stringify(tr.toJSON())).toContain('"backgroundColor":"transparent"');
-    expect(tr.root.findByType(ScrollView).props.contentContainerStyle).toEqual({ flexGrow: 1 });
+    const scrollContentStyle = tr.root.findByType(ScrollView).props.contentContainerStyle as unknown;
+    const flatScrollContentStyle = Array.isArray(scrollContentStyle)
+      ? Object.assign({}, ...scrollContentStyle.filter(Boolean))
+      : scrollContentStyle;
+    expect(flatScrollContentStyle).toEqual({ flexGrow: 1 });
   });
 
   test('BottomSheet — structural host renders descriptor-backed panel and core-RN scroll wrapper', () => {
@@ -393,7 +397,11 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       return flat.borderTopLeftRadius === 18 && flat.borderTopRightRadius === 18;
     });
     expect(panelChrome).toBeTruthy();
-    expect(tr.root.findByType(ScrollView).props.contentContainerStyle).toEqual({ flexGrow: 1 });
+    const scrollContentStyle = tr.root.findByType(ScrollView).props.contentContainerStyle as unknown;
+    const flatScrollContentStyle = Array.isArray(scrollContentStyle)
+      ? Object.assign({}, ...scrollContentStyle.filter(Boolean))
+      : scrollContentStyle;
+    expect(flatScrollContentStyle).toEqual({ flexGrow: 1 });
   });
 
   test('BottomSheet — closed means no mounted engine surface', () => {

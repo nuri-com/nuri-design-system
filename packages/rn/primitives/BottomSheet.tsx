@@ -16,6 +16,7 @@ import * as React from 'react';
 import {
   Animated,
   Easing,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable as RNPressable,
@@ -24,12 +25,13 @@ import {
   View as RNView,
   useWindowDimensions,
 } from 'react-native';
-import type { LayoutChangeEvent, ViewStyle } from 'react-native';
+import type { KeyboardEvent, LayoutChangeEvent, NativeScrollEvent, NativeSyntheticEvent, TextInput, ViewStyle } from 'react-native';
 import { blackAlpha } from '@nuri/spec/colours';
 import { bottomSheetChrome } from '@nuri/spec/bottom-sheet-chrome';
 
 import { useOverlay } from '../overlay';
 import { BottomSheetPanel as GeneratedBottomSheetPanel } from '../generated/components/bottom-sheet-panel';
+import { FocusScrollProvider, type FocusScrollApi } from '../runtime/focus-scroll';
 
 export type BottomSheetDetent = 'content' | 'full';
 export type BottomSheetScrim = 'none' | 'dim';
@@ -73,6 +75,10 @@ const RN_SCRIM = {
 } as const;
 
 const AnimatedPressable = Animated.createAnimatedComponent(RNPressable);
+const FOCUS_TOP_MARGIN = 16;
+const FOCUS_BOTTOM_MARGIN = 24;
+const FOCUS_SCROLL_DELAY_MS = 80;
+const FOCUS_SCROLL_REPEAT_DELAY_MS = 180;
 
 // The sheet's available content height, threaded to BottomSheetScroll via
 // context. The panel descriptor is `fill: grow` (flexGrow 1, flexShrink 0) with
@@ -248,16 +254,119 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
   // bounded height on its own (see BottomSheetLayoutContext). Outside a
   // BottomSheet the cap is absent and it scrolls its parent's bounds as before.
   const { scrollMaxHeight } = React.useContext(BottomSheetLayoutContext);
+  const scrollRef = React.useRef<React.ElementRef<typeof RNScrollView>>(null);
+  const scrollY = React.useRef(0);
+  const viewportHeight = React.useRef(0);
+  const keyboardHeight = React.useRef(0);
+  const focusedInput = React.useRef<TextInput | null>(null);
+  const rafs = React.useRef<number[]>([]);
+  const timers = React.useRef<Array<ReturnType<typeof setTimeout>>>([]);
+  const [keyboardPadding, setKeyboardPadding] = React.useState(0);
+
+  const clearScheduledScrolls = React.useCallback(() => {
+    for (const raf of rafs.current) cancelAnimationFrame(raf);
+    for (const timer of timers.current) clearTimeout(timer);
+    rafs.current = [];
+    timers.current = [];
+  }, []);
+
+  const performScrollToInput = React.useCallback((input: TextInput | null) => {
+    const scroll = scrollRef.current;
+    if (!input || !scroll) return;
+
+    const relativeNode = scroll.getInnerViewNode?.();
+    if (relativeNode == null || typeof input.measureLayout !== 'function') return;
+
+    input.measureLayout(
+      relativeNode,
+      (_x, y, _width, height) => {
+        const measuredViewport = viewportHeight.current || scrollMaxHeight || 0;
+        const keyboardOcclusion = Platform.OS === 'ios' ? keyboardHeight.current : 0;
+        const visibleHeight = Math.max(0, measuredViewport - keyboardOcclusion);
+        const currentY = scrollY.current;
+        const inputTop = y;
+        const inputBottom = y + height;
+
+        let nextY = currentY;
+        if (visibleHeight > 0) {
+          const visibleTop = currentY + FOCUS_TOP_MARGIN;
+          const visibleBottom = currentY + visibleHeight - FOCUS_BOTTOM_MARGIN;
+          if (inputBottom > visibleBottom) {
+            nextY = inputBottom - visibleHeight + FOCUS_BOTTOM_MARGIN;
+          } else if (inputTop < visibleTop) {
+            nextY = inputTop - FOCUS_TOP_MARGIN;
+          }
+        } else {
+          nextY = inputTop - FOCUS_TOP_MARGIN;
+        }
+
+        const clampedY = Math.max(0, Math.round(nextY));
+        if (Math.abs(clampedY - currentY) < 1) return;
+        scroll.scrollTo({ y: clampedY, animated: true });
+        scrollY.current = clampedY;
+      },
+      () => undefined,
+    );
+  }, [scrollMaxHeight]);
+
+  const scheduleScrollToInput = React.useCallback((input: TextInput | null, delay = FOCUS_SCROLL_DELAY_MS) => {
+    if (!input) return;
+    focusedInput.current = input;
+    const raf = requestAnimationFrame(() => {
+      rafs.current = rafs.current.filter((item) => item !== raf);
+      const timer = setTimeout(() => {
+        timers.current = timers.current.filter((item) => item !== timer);
+        performScrollToInput(input);
+      }, delay);
+      timers.current.push(timer);
+    });
+    rafs.current.push(raf);
+  }, [performScrollToInput]);
+
+  React.useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, (event: KeyboardEvent) => {
+      keyboardHeight.current = event.endCoordinates.height;
+      setKeyboardPadding(Platform.OS === 'ios' ? event.endCoordinates.height + FOCUS_BOTTOM_MARGIN : FOCUS_BOTTOM_MARGIN);
+      // Re-run after the keyboard transition because a focus event can arrive
+      // before native has delivered stable layout measurements.
+      scheduleScrollToInput(focusedInput.current, FOCUS_SCROLL_REPEAT_DELAY_MS);
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      keyboardHeight.current = 0;
+      setKeyboardPadding(0);
+    });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+      clearScheduledScrolls();
+    };
+  }, [clearScheduledScrolls, scheduleScrollToInput]);
+
+  const focusScrollApi = React.useMemo<FocusScrollApi>(() => ({
+    requestScrollToFocusedInput: (input) => scheduleScrollToInput(input),
+  }), [scheduleScrollToInput]);
+
+  const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
+    viewportHeight.current = event.nativeEvent.layout.height;
+  }, []);
+
+  const handleScroll = React.useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    scrollY.current = event.nativeEvent.contentOffset.y;
+  }, []);
+
   return (
     <RNScrollView
+      ref={scrollRef}
       style={scrollMaxHeight !== undefined ? { maxHeight: scrollMaxHeight } : undefined}
-      contentContainerStyle={styles.scrollContent}
+      contentContainerStyle={[styles.scrollContent, keyboardPadding > 0 ? { paddingBottom: keyboardPadding } : null]}
       keyboardShouldPersistTaps="handled"
-      // iOS: scroll the focused field above the keyboard (replaces the KAV push
-      // for the scrolling form). Android makes room via adjustResize (app.json).
-      automaticallyAdjustKeyboardInsets
+      onLayout={handleLayout}
+      onScroll={handleScroll}
+      scrollEventThrottle={16}
     >
-      {children}
+      <FocusScrollProvider value={focusScrollApi}>{children}</FocusScrollProvider>
     </RNScrollView>
   );
 };

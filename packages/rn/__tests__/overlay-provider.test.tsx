@@ -15,7 +15,7 @@
 
 import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { BackHandler, KeyboardAvoidingView, Text, TextInput, View } from 'react-native';
+import { BackHandler, KeyboardAvoidingView, ScrollView, Text, TextInput, View } from 'react-native';
 import { NuriThemeProvider } from '../theme';
 import {
   BottomSheet,
@@ -28,6 +28,7 @@ import {
   useOverlay,
 } from '../index';
 import type { OverlayApi } from '../index';
+import { type FocusScrollApi, useFocusScroll } from '../runtime/focus-scroll';
 
 function render(node: React.ReactElement): TestRenderer.ReactTestRenderer {
   let tr!: TestRenderer.ReactTestRenderer;
@@ -49,6 +50,18 @@ function ApiProbe({ onReady }: { onReady: (api: OverlayApi) => void }): null {
 
 function textsInTree(tr: TestRenderer.ReactTestRenderer): string[] {
   return tr.root.findAllByType(Text).map((n) => n.props.children as string);
+}
+
+function FocusScrollProbe({ onReady }: { onReady: (api: FocusScrollApi | null) => void }): null {
+  const api = useFocusScroll();
+  React.useEffect(() => {
+    onReady(api);
+  }, [api, onReady]);
+  return null;
+}
+
+function expectFocusScrollApi(api: FocusScrollApi | null): asserts api is FocusScrollApi {
+  expect(api).not.toBeNull();
 }
 
 describe('OverlayProvider — registry runtime', () => {
@@ -316,5 +329,121 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     expect(tr.root.findAllByType(TextInput).length).toBeGreaterThan(0);
     expect(textsInTree(tr)).toContain('Save');
     expect(textsInTree(tr)).toContain('Recipient');
+  });
+
+  test('BottomSheetScroll provides the internal focus-scroll coordinator', () => {
+    const captured = { api: null as FocusScrollApi | null };
+    render(
+      <NuriThemeProvider>
+        <BottomSheetScroll>
+          <FocusScrollProbe onReady={(next) => (captured.api = next)} />
+        </BottomSheetScroll>
+      </NuriThemeProvider>,
+    );
+
+    const api = captured.api;
+    expectFocusScrollApi(api);
+    expect(api.requestScrollToFocusedInput).toEqual(expect.any(Function));
+  });
+
+  test('BottomSheetScroll coordinator measures the focused input and scrolls just enough', () => {
+    jest.useFakeTimers();
+    const originalRequestAnimationFrame = global.requestAnimationFrame;
+    const originalCancelAnimationFrame = global.cancelAnimationFrame;
+    global.requestAnimationFrame = ((cb: FrameRequestCallback) => setTimeout(() => cb(0), 0) as unknown as number);
+    global.cancelAnimationFrame = ((id: number) => clearTimeout(id as unknown as ReturnType<typeof setTimeout>));
+
+    const innerNode = {};
+    const scrollTo = jest.fn();
+    const getInnerViewNodeSpy = jest.spyOn(ScrollView.prototype, 'getInnerViewNode').mockReturnValue(innerNode);
+    const scrollToSpy = jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(scrollTo);
+    const measureLayout = jest.fn((_relativeNode, onSuccess: (x: number, y: number, width: number, height: number) => void) => {
+      onSuccess(0, 360, 120, 54);
+    });
+    const captured = { api: null as FocusScrollApi | null };
+
+    try {
+      let tr!: TestRenderer.ReactTestRenderer;
+      act(() => {
+        tr = TestRenderer.create(
+          <NuriThemeProvider>
+            <BottomSheetScroll>
+              <FocusScrollProbe onReady={(next) => (captured.api = next)} />
+            </BottomSheetScroll>
+          </NuriThemeProvider>,
+        );
+      });
+
+      const scroll = tr.root.findByType(ScrollView);
+      act(() => {
+        scroll.props.onLayout({ nativeEvent: { layout: { height: 300 } } });
+      });
+
+      const api = captured.api;
+      expectFocusScrollApi(api);
+      act(() => {
+        api.requestScrollToFocusedInput({ measureLayout } as unknown as TextInput);
+      });
+
+      act(() => {
+        jest.runAllTimers();
+      });
+
+      expect(measureLayout).toHaveBeenCalledTimes(1);
+      expect(measureLayout.mock.calls[0][0]).toBe(innerNode);
+      expect(scrollTo).toHaveBeenCalledWith({ y: 138, animated: true });
+      expect(scrollToSpy).toHaveBeenCalledTimes(1);
+    } finally {
+      getInnerViewNodeSpy.mockRestore();
+      scrollToSpy.mockRestore();
+      jest.useRealTimers();
+      global.requestAnimationFrame = originalRequestAnimationFrame;
+      global.cancelAnimationFrame = originalCancelAnimationFrame;
+    }
+  });
+
+  test('focusing a descriptor TextField inside BottomSheetScroll requests the coordinator and preserves public onFocus', () => {
+    const captured = { api: null as FocusScrollApi | null };
+    const requestScrollToFocusedInput = jest.fn();
+    const onFocus = jest.fn();
+    const tr = render(
+      <NuriThemeProvider>
+        <BottomSheetScroll>
+          <FocusScrollProbe onReady={(next) => (captured.api = next)} />
+          <TextField value="" onFocus={onFocus} placeholder="Name">
+            <TextFieldLabel>Recipient</TextFieldLabel>
+          </TextField>
+        </BottomSheetScroll>
+      </NuriThemeProvider>,
+    );
+
+    const api = captured.api;
+    expectFocusScrollApi(api);
+    api.requestScrollToFocusedInput = requestScrollToFocusedInput;
+
+    const input = tr.root.findByType(TextInput);
+    act(() => {
+      input.props.onFocus();
+    });
+
+    expect(requestScrollToFocusedInput).toHaveBeenCalledTimes(1);
+    expect(onFocus).toHaveBeenCalledTimes(1);
+  });
+
+  test('without BottomSheetScroll, TextField focus remains a normal public focus event', () => {
+    const onFocus = jest.fn();
+    const tr = render(
+      <NuriThemeProvider>
+        <TextField value="" onFocus={onFocus}>
+          <TextFieldLabel>Recipient</TextFieldLabel>
+        </TextField>
+      </NuriThemeProvider>,
+    );
+
+    const input = tr.root.findByType(TextInput);
+    act(() => {
+      input.props.onFocus();
+    });
+    expect(onFocus).toHaveBeenCalledTimes(1);
   });
 });
