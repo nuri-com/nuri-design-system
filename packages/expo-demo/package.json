@@ -2,7 +2,7 @@
   "name": "@nuri/expo-demo",
   "version": "1.0.0",
   "private": true,
-  "description": "Nuri expo-demo · the consumable example app for the bottom-sheet demo, built on @nuri/rn through the @ds alias with app-owned state mapped into stateless DS components.",
+  "description": "Nuri expo-demo · the consumable playground-parity example app, built on @nuri/rn through the @ds alias with small app-owned state mapped into stateless DS components.",
   "main": "index.ts",
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",

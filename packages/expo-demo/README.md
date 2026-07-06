@@ -1,17 +1,20 @@
 # @nuri/expo-demo
 
 The consumable **example app** — the canonical "how an app consumes the DS".
-The app currently opens directly to the bottom-sheet demo: wallet tabs live
-inside that screen, the list icon opens the sheet menu, and the menu launches
-the Activity, Amount, Actions, and Form sheet examples.
+The app opens directly to the playground screens surface. Wallet tabs switch
+between static mockup files, the list icon opens the sheet menu, and the menu
+launches the Activity, Amount, Actions, and Form sheet examples.
 
 ```
 src/
   screens/
-    index.tsx          route/controller for the bottom-sheet demo. Owns the
+    index.tsx          route/controller for the demo. Owns the
                        app state: page, selected wallet tab, open sheet, and
                        sample form values.
     Home.tsx           wallet/status home surface.
+    Coin.tsx           static bitcoin tab mockup.
+    Wallet.tsx         static bank tab mockup.
+    Cash.tsx           static euro tab mockup.
     Menu.tsx           button stack that opens each sheet example.
   components/
     WalletTabs.tsx     app-owned wrapper over stateless DS TabBar/TabBarItem,

@@ -1,8 +1,8 @@
 /* ──────────────────────────────────────────────────────────────
- * BOTTOM SHEET DEMO · current-API bottom-sheet demo.
+ * SCREENS · playground-parity RN demo surface.
  *
- * Screen-local product/demo composition only: this file owns page state,
- * selected wallet tab, sheet-open state, and sample form values.
+ * This file owns only the tiny state needed to switch visible mockups and
+ * launch sheet examples. The mockup chunks themselves stay in separate files.
  * ────────────────────────────────────────────────────────────── */
 
 import * as React from 'react';
@@ -25,7 +25,7 @@ type FormValues = {
   reference: string;
 };
 
-export const BottomSheetDemo: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme }) => {
+export const Screens: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme }) => {
   const [page, setPage] = React.useState<Page>('wallet');
   const [wallet, setWallet] = React.useState<WalletTab>('euro');
   const [openSheet, setOpenSheet] = React.useState<OpenSheet>('none');
