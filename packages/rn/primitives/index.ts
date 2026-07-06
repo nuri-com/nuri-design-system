@@ -55,11 +55,13 @@ export { Separator } from './Separator';
 export type { SeparatorProps, SeparatorYSpace } from './Separator';
 export { ListSeparator } from './ListSeparator';
 export type { ListSeparatorProps } from './ListSeparator';
-export { BottomSheet, BottomSheetPanel, BottomSheetScroll } from './BottomSheet';
+export { BottomSheet, BottomSheetPanel, BottomSheetTopbar, BottomSheetScroll, BottomSheetFooter } from './BottomSheet';
 export type {
   BottomSheetProps,
   BottomSheetDetent,
   BottomSheetScrim,
   BottomSheetPanelProps,
+  BottomSheetTopbarProps,
   BottomSheetScrollProps,
+  BottomSheetFooterProps,
 } from './BottomSheet';

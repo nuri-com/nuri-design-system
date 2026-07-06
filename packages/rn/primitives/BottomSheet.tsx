@@ -38,7 +38,9 @@ import { bottomSheetChrome } from '@nuri/spec/bottom-sheet-chrome';
 
 import { useOverlay } from '../overlay';
 import { BottomSheetPanel as GeneratedBottomSheetPanel } from '../generated/components/bottom-sheet-panel';
+import { Topbar as GeneratedTopbar, type TopbarProps } from '../generated/components/topbar';
 import { FocusScrollProvider, type FocusScrollApi } from '../runtime/focus-scroll';
+import { space } from '../generated/data/tokens';
 
 type ScrollViewInstance = React.ElementRef<typeof RNScrollView>;
 type ScrollContentRef = ReturnType<ScrollViewInstance['getNativeScrollRef']>;
@@ -62,6 +64,12 @@ export type BottomSheetProps = {
 };
 
 export type BottomSheetPanelProps = {
+  children?: React.ReactNode;
+};
+
+export type BottomSheetTopbarProps = TopbarProps;
+
+export type BottomSheetFooterProps = {
   children?: React.ReactNode;
 };
 
@@ -107,7 +115,24 @@ const FOCUS_SCROLL_REPEAT_DELAY_MS = 60;
 // sheet's height, so it hands the scroll region an explicit maxHeight instead.
 // It tracks windowHeight, which SHRINKS under Android adjustResize when the
 // keyboard opens — so the field scrolls into reach without pushing the panel.
-const BottomSheetLayoutContext = React.createContext<{ scrollMaxHeight?: number }>({});
+type BottomSheetLayoutValue = {
+  scrollMaxHeight?: number;
+  topbarHeight: number;
+  footerHeight: number;
+  footerKeyboardOffset: number;
+  setTopbarHeight: (height: number) => void;
+  setFooterHeight: (height: number) => void;
+};
+
+const DEFAULT_LAYOUT_VALUE: BottomSheetLayoutValue = {
+  topbarHeight: 0,
+  footerHeight: 0,
+  footerKeyboardOffset: 0,
+  setTopbarHeight: () => undefined,
+  setFooterHeight: () => undefined,
+};
+
+const BottomSheetLayoutContext = React.createContext<BottomSheetLayoutValue>(DEFAULT_LAYOUT_VALUE);
 
 export const BottomSheet: React.FC<BottomSheetProps> = ({
   open = false,
@@ -125,6 +150,9 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   // Measured sheet height doubles as the "ready to animate in" latch: the
   // enter slide waits for first layout so the travel distance is exact.
   const [sheetHeight, setSheetHeight] = React.useState<number | null>(null);
+  const [topbarHeight, setTopbarHeight] = React.useState(0);
+  const [footerHeight, setFooterHeight] = React.useState(0);
+  const [footerKeyboardOffset, setFooterKeyboardOffset] = React.useState(0);
   const measuredHeight = React.useRef<number | null>(null);
   const openNotified = React.useRef(false);
   // Latest-callback ref: keeps onOpenChange out of the animation effects'
@@ -163,6 +191,23 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     });
   }, [open, mounted, sheetHeight, progress]);
 
+  React.useEffect(() => {
+    if (!mounted || detent !== 'full' || Platform.OS !== 'ios') {
+      setFooterKeyboardOffset(0);
+      return;
+    }
+    const showSub = Keyboard.addListener('keyboardWillShow', (event: KeyboardEvent) => {
+      setFooterKeyboardOffset(event.endCoordinates.height);
+    });
+    const hideSub = Keyboard.addListener('keyboardWillHide', () => {
+      setFooterKeyboardOffset(0);
+    });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, [mounted, detent]);
+
   const handleSheetLayout = React.useCallback((event: LayoutChangeEvent) => {
     const next = Math.round(event.nativeEvent.layout.height);
     if (measuredHeight.current === next) return;
@@ -199,6 +244,17 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   // scroll to nothing — no cap until a real height is known.
   const scrollMaxHeight =
     windowHeight > 0 ? (detent === 'content' ? Math.round(windowHeight * CONTENT_MAX_FRACTION) : fullMaxHeight) : undefined;
+  const layoutValue = React.useMemo<BottomSheetLayoutValue>(
+    () => ({
+      scrollMaxHeight,
+      topbarHeight,
+      footerHeight,
+      footerKeyboardOffset,
+      setTopbarHeight,
+      setFooterHeight,
+    }),
+    [scrollMaxHeight, topbarHeight, footerHeight, footerKeyboardOffset],
+  );
 
   // The overlay subtree — identical to the old inline return (scrim +
   // KeyboardAvoidingView + the measured, translateY-slid Animated.View). It is
@@ -226,7 +282,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
         style={styles.host}
       >
         <Animated.View onLayout={handleSheetLayout} style={[sizeStyle, { transform: [{ translateY }] }]}>
-          <BottomSheetLayoutContext.Provider value={{ scrollMaxHeight }}>
+          <BottomSheetLayoutContext.Provider value={layoutValue}>
             {children}
           </BottomSheetLayoutContext.Provider>
         </Animated.View>
@@ -267,12 +323,54 @@ export const BottomSheetPanel: React.FC<BottomSheetPanelProps> = ({ children }) 
 );
 BottomSheetPanel.displayName = 'BottomSheetPanel';
 
+export const BottomSheetTopbar: React.FC<BottomSheetTopbarProps> = ({ children, surface = 'transparent', ...props }) => {
+  const { setTopbarHeight } = React.useContext(BottomSheetLayoutContext);
+  const measuredHeight = React.useRef(0);
+
+  React.useEffect(() => () => setTopbarHeight(0), [setTopbarHeight]);
+
+  const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
+    const next = Math.round(event.nativeEvent.layout.height);
+    if (measuredHeight.current === next) return;
+    measuredHeight.current = next;
+    setTopbarHeight(next);
+  }, [setTopbarHeight]);
+
+  return (
+    <RNView onLayout={handleLayout} style={styles.topbar}>
+      <GeneratedTopbar {...props} surface={surface}>{children}</GeneratedTopbar>
+    </RNView>
+  );
+};
+BottomSheetTopbar.displayName = 'BottomSheetTopbar';
+
+export const BottomSheetFooter: React.FC<BottomSheetFooterProps> = ({ children }) => {
+  const { footerKeyboardOffset, setFooterHeight } = React.useContext(BottomSheetLayoutContext);
+  const measuredHeight = React.useRef(0);
+
+  React.useEffect(() => () => setFooterHeight(0), [setFooterHeight]);
+
+  const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
+    const next = Math.round(event.nativeEvent.layout.height);
+    if (measuredHeight.current === next) return;
+    measuredHeight.current = next;
+    setFooterHeight(next);
+  }, [setFooterHeight]);
+
+  return (
+    <RNView onLayout={handleLayout} style={[styles.footer, footerKeyboardOffset > 0 ? { bottom: footerKeyboardOffset } : null]}>
+      {children}
+    </RNView>
+  );
+};
+BottomSheetFooter.displayName = 'BottomSheetFooter';
+
 export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }) => {
   // Bound the scroll to the sheet's available height (from the primitive via
   // context) so its overflow actually scrolls — the panel can't provide a
   // bounded height on its own (see BottomSheetLayoutContext). Outside a
   // BottomSheet the cap is absent and it scrolls its parent's bounds as before.
-  const { scrollMaxHeight } = React.useContext(BottomSheetLayoutContext);
+  const { scrollMaxHeight, topbarHeight, footerHeight, footerKeyboardOffset } = React.useContext(BottomSheetLayoutContext);
   const scrollRef = React.useRef<React.ElementRef<typeof RNScrollView>>(null);
   const scrollY = React.useRef(0);
   const viewportHeight = React.useRef(0);
@@ -313,7 +411,7 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
     const measuredViewport = viewportHeight.current || scrollMaxHeight || 0;
     const visibleHeight = Math.max(0, measuredViewport - keyboardOcclusion());
     const currentY = scrollY.current;
-    const targetTop = FOCUS_TOP_MARGIN;
+    const targetTop = topbarHeight + FOCUS_TOP_MARGIN;
     const targetBottom = Math.max(targetTop, visibleHeight - FOCUS_BOTTOM_MARGIN);
     const scrollToNextY = (nextY: number): void => {
       const clampedY = Math.max(0, Math.round(nextY));
@@ -365,13 +463,13 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
       (_x, y, _width, height) => {
         let nextY = currentY;
         if (visibleHeight > 0) {
-          const viewportTop = currentY;
+          const safeTop = currentY + targetTop;
           const safeBottom = currentY + targetBottom;
           const inputTop = y;
           const inputBottom = inputTop + height;
           if (inputBottom > safeBottom) {
             nextY = inputBottom - targetBottom;
-          } else if (inputTop < viewportTop) {
+          } else if (inputTop < safeTop) {
             nextY = inputTop - targetTop;
           }
         } else {
@@ -382,7 +480,7 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
       },
       () => undefined,
     );
-  }, [keyboardOcclusion, scrollMaxHeight]);
+  }, [keyboardOcclusion, scrollMaxHeight, topbarHeight]);
 
   const scheduleScrollToInput = React.useCallback((input: TextInput | null, delay = FOCUS_SCROLL_DELAY_MS) => {
     if (!input) return;
@@ -442,8 +540,12 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
   return (
     <RNScrollView
       ref={scrollRef}
-      style={scrollMaxHeight !== undefined ? { maxHeight: scrollMaxHeight } : undefined}
-      contentContainerStyle={[styles.scrollContent, keyboardPadding > 0 ? { paddingBottom: keyboardPadding } : null]}
+      style={scrollMaxHeight !== undefined ? { maxHeight: Math.max(0, scrollMaxHeight - footerHeight - footerKeyboardOffset) } : undefined}
+      contentContainerStyle={[
+        styles.scrollContent,
+        topbarHeight > 0 ? { paddingTop: topbarHeight } : null,
+        footerHeight + keyboardPadding > 0 ? { paddingBottom: footerHeight + keyboardPadding } : null,
+      ]}
       keyboardShouldPersistTaps="handled"
       onLayout={handleLayout}
       onScroll={handleScroll}
@@ -463,6 +565,23 @@ const styles = StyleSheet.create({
   host: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
+  },
+  topbar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 2,
+  },
+  footer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 2,
+    paddingHorizontal: space.lg,
+    paddingTop: space.md,
+    paddingBottom: space.lg,
   },
   scrollContent: {
     flexGrow: 1,

@@ -4,6 +4,7 @@ import {
   BottomSheet,
   BottomSheetPanel,
   BottomSheetScroll,
+  BottomSheetTopbar,
   IconButton,
   List,
   ListAction,
@@ -14,7 +15,6 @@ import {
   ListActionTrailingTextMuted,
   ListSeparator,
   Text,
-  Topbar,
   TopbarTrailing,
   View,
 } from '../../components/ui';
@@ -24,12 +24,12 @@ export function ActivitySheet({ open, onClose }: { open: boolean; onClose: () =>
   return (
     <BottomSheet open={open} detent="full" onOpenChange={(next) => !next && onClose()}>
       <BottomSheetPanel>
-        <Topbar>
+        <BottomSheetTopbar>
           <TopbarTrailing>
             <IconButton icon="download" variant="soft" accessibilityLabel="Download activity" />
             <IconButton icon="cross" variant="soft" accessibilityLabel="Close activity sheet" onPress={onClose} />
           </TopbarTrailing>
-        </Topbar>
+        </BottomSheetTopbar>
 
         <BottomSheetScroll>
           <View direction="column" align="stretch" justify="start" gap="xl" paddingBottom="xl">

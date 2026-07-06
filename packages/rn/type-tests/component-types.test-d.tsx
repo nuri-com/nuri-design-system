@@ -35,8 +35,11 @@ import {
   TextFieldLabel,
   TabBarItem,
   BottomSheet,
+  BottomSheetFooter,
   BottomSheetPanel,
   BottomSheetScroll,
+  BottomSheetTopbar,
+  TopbarCenter,
 } from '../index';
 
 // ── Button — text sink · variant/size · NO icon (the soup is gone) ──
@@ -146,9 +149,15 @@ export const tabItemNoDisabled = <TabBarItem icon="card" label="Wallet" disabled
 export const bottomSheetOk = (
   <BottomSheet open detent="content" scrim="dim" dismissible>
     <BottomSheetPanel>
+      <BottomSheetTopbar>
+        <TopbarCenter>Address</TopbarCenter>
+      </BottomSheetTopbar>
       <BottomSheetScroll>
         <Button>Paste Bitcoin Address</Button>
       </BottomSheetScroll>
+      <BottomSheetFooter>
+        <Button>Continue</Button>
+      </BottomSheetFooter>
     </BottomSheetPanel>
   </BottomSheet>
 );
@@ -159,7 +168,13 @@ export const bottomSheetFullOk = <BottomSheet open detent="full" />;
 export const bottomSheetNoLargeDetent = <BottomSheet open detent="large" />;
 // @ts-expect-error BottomSheet intentionally does NOT expose raw engine snapPoints.
 export const bottomSheetNoSnapPoints = <BottomSheet open snapPoints={['25%', '75%']} />;
+// @ts-expect-error BottomSheet intentionally has no header slot prop; compose BottomSheetTopbar instead.
+export const bottomSheetNoHeaderProp = <BottomSheet open header={<Button>Done</Button>} />;
 // @ts-expect-error BottomSheet intentionally has no content-slot props; compose children instead.
 export const bottomSheetNoFooterProp = <BottomSheet open footer={<Button>Done</Button>} />;
 // @ts-expect-error BottomSheetPanel is visual content only; detents live on BottomSheet.
 export const bottomSheetPanelNoDetent = <BottomSheetPanel detent="full" />;
+// @ts-expect-error BottomSheetPanel intentionally has no header slot prop; compose BottomSheetTopbar instead.
+export const bottomSheetPanelNoHeaderProp = <BottomSheetPanel header={<Button>Done</Button>} />;
+// @ts-expect-error BottomSheetPanel intentionally has no footer slot prop; compose BottomSheetFooter instead.
+export const bottomSheetPanelNoFooterProp = <BottomSheetPanel footer={<Button>Done</Button>} />;

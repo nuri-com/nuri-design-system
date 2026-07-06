@@ -2,12 +2,14 @@ import * as React from 'react';
 
 import {
   BottomSheet,
+  BottomSheetFooter,
   BottomSheetPanel,
+  BottomSheetScroll,
+  BottomSheetTopbar,
   Button,
   ButtonIcon,
   IconButton,
   Text,
-  Topbar,
   TopbarTrailing,
   View,
 } from '../../components/ui';
@@ -23,14 +25,14 @@ export function AmountSheet({ open, onClose }: { open: boolean; onClose: () => v
   return (
     <BottomSheet open={open} detent="full" onOpenChange={(next) => !next && onClose()}>
       <BottomSheetPanel>
-        <View direction="column" align="stretch" justify="start" fill="grow-shrink">
-          <Topbar>
-            <TopbarTrailing>
-              <IconButton icon="cross" variant="soft" accessibilityLabel="Close amount sheet" onPress={onClose} />
-            </TopbarTrailing>
-          </Topbar>
+        <BottomSheetTopbar>
+          <TopbarTrailing>
+            <IconButton icon="cross" variant="soft" accessibilityLabel="Close amount sheet" onPress={onClose} />
+          </TopbarTrailing>
+        </BottomSheetTopbar>
 
-          <View direction="column" align="stretch" justify="between" gap="lg" paddingX="lg" paddingBottom="lg" fill="grow-shrink">
+        <BottomSheetScroll>
+          <View direction="column" align="stretch" justify="between" gap="lg" paddingX="lg" fill="grow-shrink">
             <View direction="column" align="stretch" justify="start" gap="sm">
               <Text size="lg" emphasis>How much do you want to send?</Text>
               <Text size="md" muted>€207 available in your cash account</Text>
@@ -74,11 +76,13 @@ export function AmountSheet({ open, onClose }: { open: boolean; onClose: () => v
                   </View>
                 </View>
               </View>
-
-              <Button size="lg" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
             </View>
           </View>
-        </View>
+        </BottomSheetScroll>
+
+        <BottomSheetFooter>
+          <Button size="lg" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
+        </BottomSheetFooter>
       </BottomSheetPanel>
     </BottomSheet>
   );

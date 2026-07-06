@@ -84,7 +84,9 @@ export {
   ListSeparator,
   BottomSheet,
   BottomSheetPanel,
+  BottomSheetTopbar,
   BottomSheetScroll,
+  BottomSheetFooter,
 } from './primitives';
 export type {
   ViewProps,
@@ -101,7 +103,9 @@ export type {
   BottomSheetDetent,
   BottomSheetScrim,
   BottomSheetPanelProps,
+  BottomSheetTopbarProps,
   BottomSheetScrollProps,
+  BottomSheetFooterProps,
 } from './primitives';
 
 // Generated component adapters (Path C · Phase 3). Each descriptor's `api` emits
