@@ -105,8 +105,8 @@ export function AmountSheet({ open, onClose }: { open: boolean; onClose: () => v
         </BottomSheetScroll>
 
         <BottomSheetFooter>
-          <View chrome="strong" direction="row" align="center" justify="end" paddingY="sm" paddingX="lg">
-            <Button size="sm" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
+          <View direction="column" align="stretch" paddingY="sm" paddingX="lg">
+            <Button size="lg" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
           </View>
         </BottomSheetFooter>
       </BottomSheetPanel>
