@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
   BottomSheet,
@@ -28,11 +30,9 @@ export function FormSheet({
     firstName: string;
     secondName: string;
     reference: string;
-    email: string;
-    note: string;
   };
   onChangeField: (
-    id: 'iban' | 'firstName' | 'secondName' | 'reference' | 'email' | 'note',
+    id: 'iban' | 'firstName' | 'secondName' | 'reference',
   ) => (value: string) => void;
   onClose: () => void;
 }) {
@@ -69,24 +69,26 @@ export function FormSheet({
               <TextField value={values.reference} onChangeText={onChangeField('reference')} placeholder="Optional">
                 <TextFieldLabel>Reference</TextFieldLabel>
               </TextField>
-
-              <TextField value={values.email} onChangeText={onChangeField('email')} placeholder="name@example.com" inputMode="email">
-                <TextFieldLabel>Email</TextFieldLabel>
-              </TextField>
-
-              <TextField value={values.note} onChangeText={onChangeField('note')} placeholder="Add a short note">
-                <TextFieldLabel>Note</TextFieldLabel>
-              </TextField>
             </View>
           </View>
         </BottomSheetScroll>
 
         <BottomSheetFooter>
-          <View chrome="strong" direction="row" align="center" justify="end" paddingY="sm" paddingX="lg">
-            <Button size="sm" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
+          <View chrome="strong" direction="column" align="stretch" paddingY="sm" paddingX="lg">
+            <SafeAreaView edges={['bottom']} style={styles.footerSafeArea}>
+              <View direction="row" align="center" justify="end">
+                <Button size="sm" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
+              </View>
+            </SafeAreaView>
           </View>
         </BottomSheetFooter>
       </BottomSheetPanel>
     </BottomSheet>
   );
 }
+
+const styles = StyleSheet.create({
+  footerSafeArea: {
+    width: '100%',
+  },
+});

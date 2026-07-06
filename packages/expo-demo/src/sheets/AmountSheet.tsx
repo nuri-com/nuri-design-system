@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
   BottomSheet,
@@ -105,11 +107,21 @@ export function AmountSheet({ open, onClose }: { open: boolean; onClose: () => v
         </BottomSheetScroll>
 
         <BottomSheetFooter>
-          <View chrome="strong" direction="row" align="center" justify="end" paddingY="sm" paddingX="lg">
-            <Button size="sm" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
+          <View direction="column" align="stretch" paddingY="sm" paddingX="lg">
+            <SafeAreaView edges={['bottom']} style={styles.footerSafeArea}>
+              <View direction="column" align="stretch">
+                <Button size="lg" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
+              </View>
+            </SafeAreaView>
           </View>
         </BottomSheetFooter>
       </BottomSheetPanel>
     </BottomSheet>
   );
 }
+
+const styles = StyleSheet.create({
+  footerSafeArea: {
+    width: '100%',
+  },
+});

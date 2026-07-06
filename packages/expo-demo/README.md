@@ -1,28 +1,29 @@
 # @nuri/expo-demo
 
 The consumable **example app** — the canonical "how an app consumes the DS".
-The app currently opens directly to the sheet-gallery wallet/status surface:
-wallet tabs live inside that screen, the list icon opens the sheet menu, and
-the menu launches the Activity, Amount, Actions, and Form sheet examples. The
-older `Wallet` / `Coin` / `Cash` screen files remain in the package for now,
-but they are not the routed home surface in the current demo pass.
+The app opens directly to the playground screens surface. Wallet tabs switch
+between static mockup files, the list icon opens the sheet menu, and the menu
+launches the Activity, Amount, Actions, and Form sheet examples.
 
 ```
 src/
-  components/
-    ui/index.ts        the DS MANIFEST — import from '@nuri/rn', re-export,
-                       NOTHING ELSE. One file = the consumed DS surface.
-    BottomBar.tsx      the app-owned stateful wrapper over the dumb DS bar
-                       (items config + selected key + onSelect — the DS
-                       tab-bar carries no value/state/routing). Not currently
-                       routed by App.tsx.
   screens/
-    Sheet.tsx          compatibility export for the current home surface.
-    sheet-gallery/     screen-local product/demo composition: wallet/status
-                       home, internal wallet tabs, sheet menu, individual sheet
-                       examples, and local sample data.
-    Wallet.tsx · Coin.tsx · Cash.tsx    older pure DS composition screens kept
-                       for reference, not currently routed.
+    index.tsx          route/controller for the demo. Owns the
+                       app state: page, selected wallet tab, open sheet, and
+                       sample form values.
+    Home.tsx           wallet/status home surface.
+    Coin.tsx           static bitcoin tab mockup.
+    Wallet.tsx         static bank tab mockup.
+    Cash.tsx           static euro tab mockup.
+    Menu.tsx           button stack that opens each sheet example.
+  components/
+    WalletTabs.tsx     app-owned wrapper over stateless DS TabBar/TabBarItem,
+                       mapping selected/onSelect into selected/onPress.
+  sheets/
+    ActivitySheet.tsx
+    AmountSheet.tsx
+    ActionsSheet.tsx
+    FormSheet.tsx
 App.tsx                the navigator role: safe-area ownership (decision 58),
                        the NuriThemeProvider root, OverlayProvider placement,
                        and the app-owned demo state. Dark mode remains wired as
