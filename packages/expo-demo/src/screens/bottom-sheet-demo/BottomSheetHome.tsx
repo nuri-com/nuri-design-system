@@ -13,7 +13,7 @@ import {
   View,
 } from '@ds';
 
-export function WalletHome({
+export function BottomSheetHome({
   selectedTab,
   onSelectTab,
   onOpenMenu,

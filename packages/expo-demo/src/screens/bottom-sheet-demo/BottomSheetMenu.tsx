@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Button, IconButton, Topbar, View } from '@ds';
 
-export function SheetMenu({
+export function BottomSheetMenu({
   onBack,
   onOpenSheet,
 }: {

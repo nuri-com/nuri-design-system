@@ -1,5 +1,5 @@
 /* ──────────────────────────────────────────────────────────────
- * SHEET GALLERY · current-API bottom-sheet demo.
+ * BOTTOM SHEET DEMO · current-API bottom-sheet demo.
  *
  * Screen-local product/demo composition only: this file owns page state,
  * selected wallet tab, sheet-open state, and sample form values.
@@ -12,8 +12,8 @@ import { ActionsSheet } from './ActionsSheet';
 import { ActivitySheet } from './ActivitySheet';
 import { AmountSheet } from './AmountSheet';
 import { FormSheet } from './FormSheet';
-import { SheetMenu } from './SheetMenu';
-import { WalletHome } from './WalletHome';
+import { BottomSheetMenu } from './BottomSheetMenu';
+import { BottomSheetHome } from './BottomSheetHome';
 
 type Page = 'wallet' | 'sheetMenu';
 type WalletTab = 'bitcoin' | 'bank' | 'euro';
@@ -27,7 +27,7 @@ type FormValues = {
   note: string;
 };
 
-export const SheetGallery: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme }) => {
+export const BottomSheetDemo: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme }) => {
   const [page, setPage] = React.useState<Page>('wallet');
   const [wallet, setWallet] = React.useState<WalletTab>('euro');
   const [openSheet, setOpenSheet] = React.useState<OpenSheet>('none');
@@ -49,14 +49,14 @@ export const SheetGallery: React.FC<{ onToggleTheme: () => void }> = ({ onToggle
   return (
     <View direction="column" align="stretch" justify="start" fill="grow" chrome="canvas">
       {page === 'wallet' ? (
-        <WalletHome
+        <BottomSheetHome
           selectedTab={wallet}
           onSelectTab={setWallet}
           onOpenMenu={() => setPage('sheetMenu')}
           onToggleTheme={onToggleTheme}
         />
       ) : (
-        <SheetMenu
+        <BottomSheetMenu
           onBack={() => setPage('wallet')}
           onOpenSheet={setOpenSheet}
         />

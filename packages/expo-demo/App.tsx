@@ -6,8 +6,8 @@
  * root pads the status-bar inset at top and the home-indicator at bottom
  * (insets are 0 on web). App also owns everything the DS deliberately
  * does NOT: the <NuriThemeProvider> root, the route state, and the
- * tab-items DATA. For the sheet-gallery device pass, the sheet gallery is the
- * home surface: it owns the wallet tabs and sheet examples directly. No
+ * tab-items DATA. For the bottom-sheet demo pass, the demo is the home
+ * surface: it owns the wallet tabs and sheet examples directly. No
  * navigation library.
  *
  * accent="neutral" mirrors the playground page scope (the tab-bar boards
@@ -21,9 +21,9 @@ import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { NuriThemeProvider, OverlayProvider, useNuriTheme } from './src/components/ui';
-import type { Theme } from './src/components/ui';
-import { Sheet } from './src/screens/Sheet';
+import { NuriThemeProvider, OverlayProvider, useNuriTheme } from '@ds';
+import type { Theme } from '@ds';
+import { BottomSheetDemo } from './src/screens/bottom-sheet-demo/BottomSheetDemo';
 
 function ThemedRoot({
   mode,
@@ -47,7 +47,7 @@ function ThemedRoot({
       ]}
     >
       <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
-      <Sheet onToggleTheme={onToggleTheme} />
+      <BottomSheetDemo onToggleTheme={onToggleTheme} />
     </View>
   );
 }
