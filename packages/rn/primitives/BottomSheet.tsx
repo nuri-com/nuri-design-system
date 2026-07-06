@@ -83,9 +83,13 @@ const RN_SCRIM = {
 
 const AnimatedPressable = Animated.createAnimatedComponent(RNPressable);
 const FOCUS_TOP_MARGIN = 16;
-const FOCUS_BOTTOM_MARGIN = 24;
-const FOCUS_SCROLL_DELAY_MS = 80;
-const FOCUS_SCROLL_REPEAT_DELAY_MS = 180;
+// Keep the focused field comfortably above the keyboard/accessory strip, not
+// merely one pixel visible at the viewport edge. Android keyboard metrics can
+// exclude parts of the IME chrome, so this margin intentionally absorbs that
+// uncertainty while giving the cursor breathing room.
+const FOCUS_BOTTOM_MARGIN = 88;
+const FOCUS_SCROLL_DELAY_MS = 32;
+const FOCUS_SCROLL_REPEAT_DELAY_MS = 60;
 
 // The sheet's available content height, threaded to BottomSheetScroll via
 // context. The panel descriptor is `fill: grow` (flexGrow 1, flexShrink 0) with
@@ -311,12 +315,12 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
         if (visibleHeight > 0) {
           const visibleTop = FOCUS_TOP_MARGIN;
           const visibleBottom = visibleHeight - FOCUS_BOTTOM_MARGIN;
-          const inputTop = y;
-          const inputBottom = y + height;
+          const inputTop = y - currentY;
+          const inputBottom = inputTop + height;
           if (inputBottom > visibleBottom) {
-            nextY = currentY + inputBottom - visibleHeight + FOCUS_BOTTOM_MARGIN;
+            nextY = currentY + inputBottom - visibleBottom;
           } else if (inputTop < visibleTop) {
-            nextY = currentY + inputTop - FOCUS_TOP_MARGIN;
+            nextY = currentY + inputTop - visibleTop;
           }
         } else {
           nextY = currentY + y - FOCUS_TOP_MARGIN;
@@ -333,6 +337,7 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
 
   const scheduleScrollToInput = React.useCallback((input: TextInput | null, delay = FOCUS_SCROLL_DELAY_MS) => {
     if (!input) return;
+    clearScheduledScrolls();
     focusedInput.current = input;
     const raf = requestAnimationFrame(() => {
       rafs.current = rafs.current.filter((item) => item !== raf);
@@ -343,7 +348,7 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
       timers.current.push(timer);
     });
     rafs.current.push(raf);
-  }, [performScrollToInput]);
+  }, [clearScheduledScrolls, performScrollToInput]);
 
   React.useEffect(() => {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
