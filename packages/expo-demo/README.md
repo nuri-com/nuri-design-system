@@ -1,10 +1,11 @@
 # @nuri/expo-demo
 
 The consumable **example app** — the canonical "how an app consumes the DS".
-Three real screens (**wallet · coin · cash**, translated from the playground's
-[`screens` boards](../playground/pages/screens.html)) built _only_ on
-[`@nuri/rn`](../rn), wired by an app-owned bottom bar. The structure IS the
-example:
+The app currently opens directly to the sheet-gallery wallet/status surface:
+wallet tabs live inside that screen, the list icon opens the sheet menu, and
+the menu launches the Activity, Amount, Actions, and Form sheet examples. The
+older `Wallet` / `Coin` / `Cash` screen files remain in the package for now,
+but they are not the routed home surface in the current demo pass.
 
 ```
 src/
@@ -13,15 +14,20 @@ src/
                        NOTHING ELSE. One file = the consumed DS surface.
     BottomBar.tsx      the app-owned stateful wrapper over the dumb DS bar
                        (items config + selected key + onSelect — the DS
-                       tab-bar carries no value/state/routing).
+                       tab-bar carries no value/state/routing). Not currently
+                       routed by App.tsx.
   screens/
-    Wallet.tsx · Coin.tsx · Cash.tsx    pure DS composition — primitives +
-                       generated components + their typed props ONLY (no
-                       StyleSheet, no raw RN hosts, no magic numbers).
+    Sheet.tsx          compatibility export for the current home surface.
+    sheet-gallery/     screen-local product/demo composition: wallet/status
+                       home, internal wallet tabs, sheet menu, individual sheet
+                       examples, and local sample data.
+    Wallet.tsx · Coin.tsx · Cash.tsx    older pure DS composition screens kept
+                       for reference, not currently routed.
 App.tsx                the navigator role: safe-area ownership (decision 58),
-                       the NuriThemeProvider root, the route state + tab-items
-                       DATA, and the theme-toggle HARNESS strip (the one
-                       sanctioned non-DS spot).
+                       the NuriThemeProvider root, OverlayProvider placement,
+                       and the app-owned demo state. Dark mode remains wired as
+                       an internal affordance for future proofing, not an
+                       exposed product feature.
 ```
 
 Run it from the repo root:
