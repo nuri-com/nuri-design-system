@@ -296,30 +296,29 @@ test('B5 · <nuri-list-action> direct typed slots route through their ancestor r
   assert.equal(btn.children[3].getAttribute('name'), 'chevron-right');
 });
 
-test('B5b · <nuri-list-action> variant defaults to outline and can route solid to the avatar', async () => {
+test('B5b · <nuri-list-action-leading-avatar> owns avatar variant and accent', async () => {
   const outline = dom.window.document.createElement('nuri-list-action');
-  outline.innerHTML = '<nuri-list-action-leading-avatar name="bank"></nuri-list-action-leading-avatar><nuri-list-action-text>Bank</nuri-list-action-text>';
+  outline.innerHTML = '<nuri-list-action-leading-avatar name="bank" variant="outline"></nuri-list-action-leading-avatar><nuri-list-action-text>Bank</nuri-list-action-text>';
   mount(outline);
   await tick();
   const outlineAvatar = outline.querySelector('button.nuri-interactive > nuri-icon-avatar nuri-view');
-  assert.equal(outlineAvatar?.getAttribute('data-variant'), 'outline', 'default variant routes to leading avatar');
+  assert.equal(outlineAvatar?.getAttribute('data-variant'), 'outline', 'avatar marker variant routes to leading avatar');
 
   const solid = dom.window.document.createElement('nuri-list-action');
-  solid.setAttribute('variant', 'solid');
-  solid.setAttribute('accent', 'orange');
-  solid.innerHTML = '<nuri-list-action-leading-avatar name="arrow-up"></nuri-list-action-leading-avatar><nuri-list-action-text>Orange</nuri-list-action-text>';
+  solid.innerHTML = '<nuri-list-action-leading-avatar name="arrow-up" variant="solid" accent="orange"></nuri-list-action-leading-avatar><nuri-list-action-text>Orange</nuri-list-action-text>';
   mount(solid);
   await tick();
   const solidAvatar = solid.querySelector('button.nuri-interactive > nuri-icon-avatar nuri-view');
+  const solidIconAvatar = solid.querySelector('button.nuri-interactive > nuri-icon-avatar');
   const solidButton = solid.querySelector('button.nuri-interactive');
-  assert.equal(solidAvatar?.getAttribute('data-variant'), 'solid', 'explicit variant routes to leading avatar');
-  assert.equal(solidButton?.getAttribute('data-accent'), 'orange', 'accent scope lands on the row painting node');
+  assert.equal(solidAvatar?.getAttribute('data-variant'), 'solid', 'avatar marker variant routes to leading avatar');
+  assert.equal(solidIconAvatar?.getAttribute('accent'), 'orange', 'avatar marker accent stays on the delegated avatar');
+  assert.equal(solidButton?.getAttribute('data-accent'), null, 'row painting node does not receive avatar accent');
 });
 
 test('B5d · <nuri-list-action> leading avatar uses the real icon-avatar element contract', async () => {
   const row = dom.window.document.createElement('nuri-list-action');
-  row.setAttribute('variant', 'solid');
-  row.innerHTML = '<nuri-list-action-leading-avatar name="bank"></nuri-list-action-leading-avatar>';
+  row.innerHTML = '<nuri-list-action-leading-avatar name="bank" variant="solid"></nuri-list-action-leading-avatar>';
   mount(row);
   await tick();
 

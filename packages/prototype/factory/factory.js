@@ -439,6 +439,12 @@ function plainTextContent(value) {
   return undefined;
 }
 
+function parseSlotBinding(value) {
+  const body = value.slice('$slot.'.length);
+  const [prop, ...fallbackParts] = body.split('|');
+  return { prop, fallback: fallbackParts.length ? fallbackParts.join('|') : undefined };
+}
+
 function resolveComponentProps(node, entry, ctx) {
   const slotProps = ctx.slotProps?.[node.name] || {};
   const own = ctx.content?.[node.name];
@@ -447,10 +453,10 @@ function resolveComponentProps(node, entry, ctx) {
     if (typeof value === 'string' && value.startsWith('$axis.')) {
       out[prop] = ctx.selection[value.slice('$axis.'.length)];
     } else if (typeof value === 'string' && value.startsWith('$slot.')) {
-      const slotProp = value.slice('$slot.'.length);
-      out[prop] = slotProp === 'children'
+      const slotBinding = parseSlotBinding(value);
+      out[prop] = slotBinding.prop === 'children'
         ? (slotProps.children ?? own ?? entry?.content)
-        : (slotProps[slotProp] ?? (slotProp === 'name' ? own ?? entry?.content : undefined));
+        : (slotProps[slotBinding.prop] ?? (slotBinding.prop === 'name' ? own ?? entry?.content : undefined) ?? slotBinding.fallback);
     } else {
       out[prop] = value;
     }

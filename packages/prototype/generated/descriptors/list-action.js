@@ -23,7 +23,8 @@ export const listActionDescriptor = {
         leadingAvatar: {
           component: 'icon-avatar',
           props: {
-            variant: '$axis.variant',
+            variant: '$slot.variant|outline',
+            accent: '$slot.accent',
             icon: '$slot.name',
           },
         },
@@ -52,21 +53,8 @@ export const listActionDescriptor = {
       trailIcon: { box: { width: 'xs', height: 'xs' }, palette: { variant: 'subtle' } },
     },
   },
-  variants: {
-    // The row stays a ghost surface; variant is routed deliberately to the
-    // leading avatar so grouped row surfaces can belong to a future list-group.
-    variant: {
-      outline: {},
-      solid: {},
-      soft: {},
-      ghost: {},
-      subtle: {},
-    },
-  },
-  defaults: { variant: 'outline' },
   api: {
-    axes: ['variant'],
-    themeScope: { accent: true },
+    axes: [],
     behaviour: { pressable: { target: 'root', props: ['onPress', 'disabled', 'accessibilityLabel'] } },
     slots: {
       leadingAvatar: { part: 'leadingAvatar', kind: 'icon-name', component: true },

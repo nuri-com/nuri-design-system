@@ -388,7 +388,8 @@ export type SlotSpec<P extends PartId = PartId> = {
 // The component's declared public API (v1 · docs/archive/component-api-target.md
 // §"The canonical `api` shape"). `axes` = which VARIANT axes surface as public
 // style props (the default already lives in `defaults`); `themeScope.accent` =
-// the universal-but-DECLARED accent scope (Option 1); `behaviour.pressable` =
+// the component-local accent scope when a component exposes one;
+// `behaviour.pressable` =
 // the press affordance, ONLY where declared and the target part is `interactive`;
 // `propMaps.selected` = the `selected`→state-axis bridge as DATA (kills the
 // `'state' extends keyof A` factory magic); `slots` = the content entry points.

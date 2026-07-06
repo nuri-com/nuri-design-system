@@ -60,9 +60,7 @@ export type BottomSheetScrollProps = {
   children?: React.ReactNode;
 };
 
-const DETENT_FRACTION: Record<Exclude<BottomSheetDetent, 'content'>, number> = {
-  full: 0.96,
-};
+const FULL_TOP_OFFSET = 40;
 const CONTENT_MAX_FRACTION = 0.82;
 
 const ENTER_TIMING: Omit<Animated.TimingAnimationConfig, 'toValue'> = {
@@ -174,23 +172,24 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     [progress, sheetHeight, windowHeight],
   );
 
-  // `content` hugs its content, bottom-anchored (maxHeight cap). `full` must
-  // FILL-and-SHRINK, not sit at a fixed height: a fixed 96%-of-window panel
-  // cannot fit once the keyboard shrinks the window (Android adjustResize), so
-  // `justify: flex-end` would shove it off the top. flexGrow fills the host
-  // (capped at 96% so the top peek stays), and shrinks with the resized window
-  // when the keyboard opens — the ScrollView then scrolls the field into view.
-  const detentFraction = detent === 'content' ? CONTENT_MAX_FRACTION : DETENT_FRACTION.full;
+  // `content` hugs its content, bottom-anchored (maxHeight cap). `full` keeps a
+  // 40px top offset while still FILL-and-SHRINK: a fixed height panel cannot fit
+  // once the keyboard shrinks the window (Android adjustResize), so `justify:
+  // flex-end` would shove it off the top. flexGrow fills the available host and
+  // shrinks with the resized window when the keyboard opens — the ScrollView
+  // then scrolls the field into view.
+  const fullMaxHeight = Math.max(0, Math.round(windowHeight - FULL_TOP_OFFSET));
   const sizeStyle: ViewStyle =
     detent === 'content'
       ? { maxHeight: Math.round(windowHeight * CONTENT_MAX_FRACTION) }
-      : { flexGrow: 1, maxHeight: Math.round(windowHeight * DETENT_FRACTION.full) };
+      : { flexGrow: 1, maxHeight: fullMaxHeight };
   // The scroll region's cap = the sheet's max height (padding lives inside the
   // scroll's content container, so panel ≈ scroll). Bounds the ScrollView so its
   // overflow scrolls; shrinks with the keyboard-resized window. Guard a
   // degenerate windowHeight (0 during init) so the cap never collapses the
   // scroll to nothing — no cap until a real height is known.
-  const scrollMaxHeight = windowHeight > 0 ? Math.round(windowHeight * detentFraction) : undefined;
+  const scrollMaxHeight =
+    windowHeight > 0 ? (detent === 'content' ? Math.round(windowHeight * CONTENT_MAX_FRACTION) : fullMaxHeight) : undefined;
 
   // The overlay subtree — identical to the old inline return (scrim +
   // KeyboardAvoidingView + the measured, translateY-slid Animated.View). It is

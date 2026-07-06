@@ -140,6 +140,12 @@ export function validateComponentReferences(catalog) {
               }
             }
           }
+        } else if (typeof value === 'string' && value.startsWith('$slot.')) {
+          const { fallback } = parseSlotBinding(value);
+          const targetValues = Object.keys(target.variants?.[prop] || {});
+          if (fallback !== undefined && targetValues.length && !targetValues.includes(fallback)) {
+            throw new Error(`[components-api] ${name}: component-ref '${ref.part}' slot fallback '${prop}' value '${fallback}' is not valid for '${ref.component}.${prop}'`);
+          }
         } else if (typeof value === 'string' && !value.startsWith('$slot.') && target.variants?.[prop]) {
           const targetValues = Object.keys(target.variants[prop] || {});
           if (!targetValues.includes(value)) {
@@ -220,7 +226,7 @@ function slotPropNamesForComponentRef(ref) {
   if (!ref) return [];
   const names = [];
   for (const value of Object.values(ref.props || {})) {
-    if (typeof value === 'string' && value.startsWith('$slot.')) names.push(value.slice('$slot.'.length));
+    if (typeof value === 'string' && value.startsWith('$slot.')) names.push(parseSlotBinding(value).prop);
   }
   return [...new Set(names)];
 }
@@ -229,6 +235,21 @@ function requiredSlotPropNamesForComponentRef(ref, slot) {
   const names = slotPropNamesForComponentRef(ref);
   if (slot?.kind !== 'icon-name') return [];
   return names.filter((name) => name === 'accessibilityLabel');
+}
+
+function parseSlotBinding(value) {
+  const body = value.slice('$slot.'.length);
+  const [prop, ...fallbackParts] = body.split('|');
+  return { prop, fallback: fallbackParts.length ? fallbackParts.join('|') : undefined };
+}
+
+function slotPropTs(prop, ref, catalog) {
+  if (prop === 'accent') return 'Accent';
+  if (prop === 'variant') {
+    const values = Object.keys(catalog?.[ref?.component]?.variants?.variant || {});
+    if (values.length) return values.map((v) => `'${v}'`).join(' | ');
+  }
+  return SLOT_PROP_TS[prop] || 'unknown';
 }
 
 function buildProps(api, variants, descriptor) {
@@ -394,7 +415,7 @@ function fileHeader(name) {
     ` * The exact public export for \`${name}\` (Path C component-API). \`{Name}Props\``,
     " * is emitted from the descriptor's `api` (packages/spec/components/" + name + '.ts);',
     ' * the component adapter normalizes public props into selection, content,',
-    ' * behaviour, and accent scope before calling the shared descriptor renderer.',
+    ' * behaviour, and optional accent scope before calling the shared descriptor renderer.',
     ' *',
     ' * Source · the authored descriptor `api`+`variants`. Emitter · scripts/parsers/',
     ' * components-api.js — run `npm run build`. Committed (decision 35) · the re-emit',
@@ -404,7 +425,7 @@ function fileHeader(name) {
   ].join('\n');
 }
 
-export function emitComponentFile(spec, descriptor) {
+export function emitComponentFile(spec, descriptor, catalog = {}) {
   const name = spec.name;
   const Pascal = pascalCase(name);
   const local = lowerFirst(Pascal);
@@ -415,6 +436,9 @@ export function emitComponentFile(spec, descriptor) {
   const refs = componentRefs(descriptor);
   const refsByPart = componentRefsByPart(descriptor);
   const refComponents = [...new Set(refs.map((ref) => ref.component))];
+  const usesSlotAccent = refs.some((ref) =>
+    Object.values(ref.props || {}).some((value) => typeof value === 'string' && value.startsWith('$slot.') && parseSlotBinding(value).prop === 'accent'),
+  );
   const hasRegions = regionParts.length > 0;
   const hasComponentSlots = componentSlots.length > 0;
 
@@ -433,6 +457,8 @@ export function emitComponentFile(spec, descriptor) {
   ];
   if (usesAccent) {
     imports.push("import { NuriScope } from '../../theme';");
+    imports.push("import type { Accent } from '../data/tokens';");
+  } else if (usesSlotAccent) {
     imports.push("import type { Accent } from '../data/tokens';");
   }
   if (usesIcon) imports.push("import type { IconName } from '../data/icons';");
@@ -474,7 +500,7 @@ export function emitComponentFile(spec, descriptor) {
         const nameRequired = slotPropNames.includes('name') || slot.kind === 'icon-name';
         const propLines = [`  name${nameRequired ? '' : '?'}: IconName;`];
         for (const prop of slotPropNames.filter((p) => p !== 'name')) {
-          propLines.push(`  ${prop}${requiredSlotPropNames.has(prop) ? '' : '?'}: ${SLOT_PROP_TS[prop] || 'unknown'};`);
+          propLines.push(`  ${prop}${requiredSlotPropNames.has(prop) ? '' : '?'}: ${slotPropTs(prop, ref, catalog)};`);
         }
         body.push(
           `export type ${Pascal}${slotPascal}Props = {`,
@@ -491,7 +517,7 @@ export function emitComponentFile(spec, descriptor) {
         const childrenType = isInputLabelSlot ? 'string' : 'React.ReactNode';
         const propLines = [`  children${slot.required ? '' : '?'}: ${childrenType};`];
         for (const prop of slotPropNames.filter((p) => p !== 'children')) {
-          propLines.push(`  ${prop}?: ${SLOT_PROP_TS[prop] || 'unknown'};`);
+          propLines.push(`  ${prop}?: ${slotPropTs(prop, ref, catalog)};`);
         }
         body.push(
           `export type ${Pascal}${slotPascal}Props = {`,
@@ -568,10 +594,11 @@ export async function emitComponentApi({ descriptorComponents, descriptorsDir })
     const descriptor = await loadDescriptor(spec, source);
     loaded.push({ spec, descriptor });
   }
-  validateComponentReferences(Object.fromEntries(loaded.map(({ spec, descriptor }) => [spec.name, descriptor])));
+  const catalog = Object.fromEntries(loaded.map(({ spec, descriptor }) => [spec.name, descriptor]));
+  validateComponentReferences(catalog);
 
   for (const { spec, descriptor } of loaded) {
-    files.push({ filename: `${spec.name}.ts`, source: emitComponentFile(spec, descriptor) });
+    files.push({ filename: `${spec.name}.ts`, source: emitComponentFile(spec, descriptor, catalog) });
     const Pascal = pascalCase(spec.name);
     const regionSubs = Object.values(descriptor.api.slots)
       .filter((s) => s.kind === 'region')

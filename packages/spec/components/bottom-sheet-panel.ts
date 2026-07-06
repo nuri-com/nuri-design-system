@@ -23,7 +23,7 @@ export const bottomSheetPanelDescriptor: Descriptor<BottomSheetPanelAxes> = {
       root: {
         stack: { direction: 'column', align: 'stretch', fill: 'grow' },
         palette: { chrome: 'canvas' },
-        box: { radiusTop: 'lg' },
+        box: { radiusTop: 'lg', paddingTop: 'md', paddingBottom: 'lg' },
         effect: { elevation: 'raised' },
       },
     },
