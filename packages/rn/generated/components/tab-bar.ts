@@ -4,7 +4,7 @@
  * The exact public export for `tab-bar` (Path C component-API). `{Name}Props`
  * is emitted from the descriptor's `api` (packages/spec/components/tab-bar.ts);
  * the component adapter normalizes public props into selection, content,
- * behaviour, and accent scope before calling the shared descriptor renderer.
+ * behaviour, and optional accent scope before calling the shared descriptor renderer.
  *
  * Source · the authored descriptor `api`+`variants`. Emitter · scripts/parsers/
  * components-api.js — run `npm run build`. Committed (decision 35) · the re-emit

@@ -40,7 +40,7 @@
  *       component slot;
  *   7.  `prop` (the scalar shorthand) ONLY on a SINGULAR `kind: 'icon-name'` slot
  *       (Overrides §1a · never text/node/region/children · never a `multiple` slot);
- *   8.  `themeScope.accent` is declared `true` on every descriptor (universal · §2);
+ *   8.  `themeScope.accent`, when declared, is exactly `true` (§2);
  *   9.  `default: true` is MUTUALLY EXCLUSIVE with `prop` (Option A · §1c — a default
  *       slot is children-delivered, a prop slot is prop-delivered · Phase-2 codegen);
  *   10. `default: true` only on a CHILDREN-deliverable kind — text/node/region/children,
@@ -529,17 +529,15 @@ test('component-api · default:true only on a text/node/region/children slot', (
   }
 });
 
-// ── Channel 8 · themeScope.accent is DECLARED on every descriptor (universal) ──
-// accent is Option 1 — universal-but-DECLARED (Overrides §2 · docs/archive/component-api-target.md):
-// every component carries the accent scope, and the honest shape is to DECLARE it
-// (not hard-code a global ThemeScopeProps). So every descriptor must set it.
-test('component-api · themeScope.accent is declared true on every descriptor', () => {
+// ── Channel 8 · themeScope.accent declarations are explicit ──
+// Accent is a component-local public scope. Components that expose it declare it
+// as `true`; components that only delegate accent through a typed slot omit it.
+test('component-api · themeScope.accent declarations are true when present', () => {
   for (const name of NAMES) {
-    assert.equal(
-      CATALOG[name].api.themeScope?.accent,
-      true,
-      `${name}: api.themeScope.accent must be \`true\` — accent is universal-but-DECLARED (Overrides §2)`,
-    );
+    const scope = CATALOG[name].api.themeScope;
+    if (scope !== undefined) {
+      assert.equal(scope.accent, true, `${name}: api.themeScope.accent must be \`true\` when declared`);
+    }
   }
 });
 

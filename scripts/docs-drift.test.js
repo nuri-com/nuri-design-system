@@ -219,7 +219,7 @@ const EXPECTED_DESCRIPTORS = {
   // pressColor-only row with nested containers for leading avatar, content,
   // trailing value stack, and trailing icon.
   'list-action': {
-    axes: { variant: ['outline', 'solid', 'soft', 'ghost', 'subtle'] },
+    axes: {},
     parts: [
       'leadingAvatar',
       'content',

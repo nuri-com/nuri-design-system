@@ -310,6 +310,12 @@ function isMultiPart<A extends Axes>(descriptor: Descriptor<A>, part: PartId): b
   return Object.values(descriptor.api?.slots ?? {}).some((slot) => slot.part === part && slot.multiple === true);
 }
 
+function parseSlotBinding(value: string): { prop: string; fallback?: string } {
+  const body = value.slice('$slot.'.length);
+  const [prop, ...fallbackParts] = body.split('|');
+  return { prop, fallback: fallbackParts.length ? fallbackParts.join('|') : undefined };
+}
+
 function renderPart<A extends Axes>(
   node: AnatomyNode,
   ctx: RenderCtx<A>,
@@ -329,10 +335,10 @@ function renderPart<A extends Axes>(
         const axis = value.slice('$axis.'.length);
         mapped[prop] = ctx.selection[axis];
       } else if (typeof value === 'string' && value.startsWith('$slot.')) {
-        const slotProp = value.slice('$slot.'.length);
-        mapped[prop] = slotProp === 'children'
+        const slotBinding = parseSlotBinding(value);
+        mapped[prop] = slotBinding.prop === 'children'
           ? (slotProps.children ?? content)
-          : (slotProps[slotProp] ?? (slotProp === 'name' ? content : undefined));
+          : (slotProps[slotBinding.prop] ?? (slotBinding.prop === 'name' ? content : undefined) ?? slotBinding.fallback);
       } else {
         mapped[prop] = value;
       }

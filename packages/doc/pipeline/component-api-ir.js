@@ -178,6 +178,7 @@ function noteForProp(name, type, typeName, isPrimaryType, childrenNote, behaviou
   // composition are 'composition children' — the docs never promise a bare-
   // children sink the engine does not have.
   if (name === 'children') return isPrimaryType ? (childrenNote ?? 'default content slot') : 'slot content';
+  if (!isPrimaryType && (name === 'variant' || name === 'accent')) return 'delegated component prop';
   if (isPrimaryType && behaviourNotes.inputProps?.includes(name)) return 'input behaviour';
   if (isPrimaryType && behaviourNotes.pressableProps?.includes(name)) return 'pressable behaviour';
   if (NOTE_BY_PROP[name]) return NOTE_BY_PROP[name];

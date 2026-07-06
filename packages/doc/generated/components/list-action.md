@@ -15,8 +15,6 @@ nav_order: 5
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
-| `variant` | no | `'outline' | 'solid' | 'soft' | 'ghost' | 'subtle'` | style axis |
-| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `onPress` | no | `() => void` | pressable behaviour |
 | `disabled` | no | `boolean` | pressable behaviour |
 | `accessibilityLabel` | no | `string` | pressable behaviour |
@@ -27,6 +25,8 @@ nav_order: 5
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `name` | yes | `IconName` | scalar icon name |
+| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | delegated component prop |
+| `accent` | no | `'neutral' | 'lilac' | 'orange'` | delegated component prop |
 
 > `children` is not accepted (`children?: never`).
 

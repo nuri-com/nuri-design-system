@@ -74,15 +74,17 @@ export const iconAvatarNoChildren = <IconAvatar icon="settings">x</IconAvatar>;
 // ── List family — open host + pressable row + preset separator ──
 export const listOk = (
   <List>
-    <ListAction variant="solid" accent="orange" accessibilityLabel="Bank" onPress={() => undefined}>
-      <ListActionLeadingAvatar name="bank" />
+    <ListAction accessibilityLabel="Bank" onPress={() => undefined}>
+      <ListActionLeadingAvatar name="bank" variant="solid" accent="orange" />
       <ListActionText>Bank account</ListActionText>
     </ListAction>
     <ListSeparator />
   </List>
 );
-// @ts-expect-error ListAction variant is the closed PaletteVariant set.
-export const listActionBadVariant = <ListAction variant="plaid" />;
+// @ts-expect-error ListAction no longer exposes avatar styling props.
+export const listActionNoVariant = <ListAction variant="solid" />;
+// @ts-expect-error ListActionLeadingAvatar variant is the closed IconAvatar variant set.
+export const listActionAvatarBadVariant = <ListActionLeadingAvatar name="bank" variant="plaid" />;
 // @ts-expect-error ListSeparator v1 has no knobs; it is the preset.
 export const listSeparatorNoProps = <ListSeparator ySpace="sm" />;
 

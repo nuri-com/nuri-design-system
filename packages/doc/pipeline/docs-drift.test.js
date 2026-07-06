@@ -109,8 +109,6 @@ const PAGE_CONTRACT = {
   'list-action': {
     kind: 'api', source: 'list-action', title: 'List Action', nav: 5,
     cells: [
-      "| `variant` | no | `'outline' | 'solid' | 'soft' | 'ghost' | 'subtle'` | style axis |",
-      "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
       '| `onPress` | no | `() => void` | pressable behaviour |',
       '| `disabled` | no | `boolean` | pressable behaviour |',
       '| `accessibilityLabel` | no | `string` | pressable behaviour |',
@@ -119,6 +117,8 @@ const PAGE_CONTRACT = {
       '| `children` | no | `React.ReactNode` | composition children |',
       '### ListActionLeadingAvatarProps',
       '| `name` | yes | `IconName` | scalar icon name |',
+      "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | delegated component prop |",
+      "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | delegated component prop |",
       '### ListActionTextMutedProps',
       '| `children` | no | `React.ReactNode` | slot content |',
       '### ListActionTrailingTextMutedProps',

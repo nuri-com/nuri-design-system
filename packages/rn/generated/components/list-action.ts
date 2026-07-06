@@ -4,7 +4,7 @@
  * The exact public export for `list-action` (Path C component-API). `{Name}Props`
  * is emitted from the descriptor's `api` (packages/spec/components/list-action.ts);
  * the component adapter normalizes public props into selection, content,
- * behaviour, and accent scope before calling the shared descriptor renderer.
+ * behaviour, and optional accent scope before calling the shared descriptor renderer.
  *
  * Source · the authored descriptor `api`+`variants`. Emitter · scripts/parsers/
  * components-api.js — run `npm run build`. Committed (decision 35) · the re-emit
@@ -16,14 +16,11 @@ import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriComposi
 import type { NuriBehaviour, NuriCompositionEntry } from '../../runtime/renderer';
 import { listActionDescriptor } from '@nuri/spec/descriptors/list-action';
 import { recipes } from '../data/recipes';
-import { NuriScope } from '../../theme';
 import type { Accent } from '../data/tokens';
 import type { IconName } from '../data/icons';
 import { IconAvatar } from './icon-avatar';
 
 export type ListActionProps = {
-  variant?: 'outline' | 'solid' | 'soft' | 'ghost' | 'subtle';
-  accent?: Accent;
   onPress?: () => void;
   disabled?: boolean;
   accessibilityLabel?: string;
@@ -40,6 +37,8 @@ export const ListActionContent = createNuriSlot("content", `${listActionDisplayN
 export const ListActionTrailing = createNuriSlot("trailing", `${listActionDisplayName}Trailing`, 'children', listActionDisplayName);
 export type ListActionLeadingAvatarProps = {
   name: IconName;
+  variant?: 'solid' | 'soft' | 'ghost' | 'subtle' | 'outline';
+  accent?: Accent;
   children?: never;
 };
 export const ListActionLeadingAvatar = createNuriSlot<ListActionLeadingAvatarProps>("leadingAvatar", `${listActionDisplayName}LeadingAvatar`, 'name', listActionDisplayName);
@@ -67,7 +66,6 @@ export const ListActionTrailIcon = createNuriSlot<ListActionTrailIconProps>("tra
 
 const ListActionInner: React.FC<ListActionProps> = (props) => {
   const selection: Record<string, string> = {
-    "variant": props.variant ?? "outline",
   };
   const content: Partial<Record<ListActionPart, React.ReactNode>> = {};
   const composition: Partial<Record<ListActionPart, NuriCompositionEntry<ListActionPart>[]>> = {};
@@ -96,8 +94,4 @@ const ListActionInner: React.FC<ListActionProps> = (props) => {
 };
 ListActionInner.displayName = `${listActionDisplayName}Inner`;
 
-export const ListAction: React.FC<ListActionProps> = (props) =>
-  props.accent !== undefined
-    ? React.createElement(NuriScope, { accent: props.accent, children: React.createElement(ListActionInner, props) })
-    : React.createElement(ListActionInner, props);
-ListAction.displayName = listActionDisplayName;
+export const ListAction: React.FC<ListActionProps> = ListActionInner;

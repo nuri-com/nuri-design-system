@@ -4,7 +4,7 @@
  * The exact public export for `bottom-sheet-panel` (Path C component-API). `{Name}Props`
  * is emitted from the descriptor's `api` (packages/spec/components/bottom-sheet-panel.ts);
  * the component adapter normalizes public props into selection, content,
- * behaviour, and accent scope before calling the shared descriptor renderer.
+ * behaviour, and optional accent scope before calling the shared descriptor renderer.
  *
  * Source · the authored descriptor `api`+`variants`. Emitter · scripts/parsers/
  * components-api.js — run `npm run build`. Committed (decision 35) · the re-emit

@@ -652,8 +652,8 @@ describe('render-smoke — the ergonomic components mount headless', () => {
 
     const solidOrange = render(
       <NuriThemeProvider>
-        <ListAction variant="solid" accent="orange" accessibilityLabel="Solid" onPress={() => undefined}>
-          <ListActionLeadingAvatar name="arrow-up" />
+        <ListAction accessibilityLabel="Solid" onPress={() => undefined}>
+          <ListActionLeadingAvatar name="arrow-up" variant="solid" accent="orange" />
           <ListActionText>Orange solid</ListActionText>
         </ListAction>
       </NuriThemeProvider>,

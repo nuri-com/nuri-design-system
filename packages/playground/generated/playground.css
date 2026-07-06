@@ -3532,8 +3532,8 @@ nuri-demo:not(:defined) {
   }
 
   nuri-bottom-sheet[detent="full"] > nuri-bottom-sheet-panel {
-    block-size: calc(100% - 12px);
-    max-block-size: calc(100% - 12px);
+    block-size: calc(100% - 40px);
+    max-block-size: calc(100% - 40px);
   }
 
   nuri-bottom-sheet-scroll {
