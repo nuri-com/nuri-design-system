@@ -43,12 +43,16 @@ import { space } from '../generated/data/tokens';
 import { FocusScrollProvider, type FocusScrollApi } from '../runtime/focus-scroll';
 
 type ScrollViewInstance = React.ElementRef<typeof RNScrollView>;
-type ScrollContentRef = ReturnType<ScrollViewInstance['getNativeScrollRef']>;
-type ScrollViewWithInnerRef = ScrollViewInstance & {
-  getInnerViewRef?: () => ScrollContentRef;
+type ScrollContentRef = NonNullable<Parameters<TextInput['measureLayout']>[0]>;
+type ScrollViewWithNativeRef = ScrollViewInstance & {
+  getNativeScrollRef?: () => ScrollContentRef | null;
 };
+type ScrollViewWithInnerRef = ScrollViewInstance & {
+  getInnerViewRef?: () => ScrollContentRef | null;
+};
+type MeasureInWindowCallback = (x: number, y: number, width: number, height: number) => void;
 type NativeMeasurable = {
-  measureInWindow?: (callback: (x: number, y: number, width: number, height: number) => void) => void;
+  measureInWindow?: (callback: MeasureInWindowCallback) => void;
 };
 
 export type BottomSheetDetent = 'content' | 'full';
@@ -431,7 +435,8 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
       scrollY.current = clampedY;
     };
 
-    const scrollNativeRef = scroll.getNativeScrollRef?.();
+    const scrollWithNativeRef = scroll as ScrollViewWithNativeRef;
+    const scrollNativeRef = scrollWithNativeRef.getNativeScrollRef?.();
     const scrollWindowMeasurable = scrollNativeRef as NativeMeasurable | null | undefined;
     const inputWindowMeasurable = input as NativeMeasurable;
     if (
@@ -439,8 +444,10 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
       typeof scrollWindowMeasurable?.measureInWindow === 'function' &&
       typeof inputWindowMeasurable.measureInWindow === 'function'
     ) {
-      const measureScrollInWindow = scrollWindowMeasurable.measureInWindow.bind(scrollWindowMeasurable);
-      const measureInputInWindow = inputWindowMeasurable.measureInWindow.bind(inputWindowMeasurable);
+      const measureScrollInWindow: (callback: MeasureInWindowCallback) => void =
+        scrollWindowMeasurable.measureInWindow.bind(scrollWindowMeasurable);
+      const measureInputInWindow: (callback: MeasureInWindowCallback) => void =
+        inputWindowMeasurable.measureInWindow.bind(inputWindowMeasurable);
       measureScrollInWindow((_scrollX, scrollWindowY, _scrollWidth, scrollWindowHeight) => {
         measureInputInWindow((_inputX, inputWindowY, _inputWidth, inputHeight) => {
           const viewportWindowHeight = measuredViewport || scrollWindowHeight;
@@ -466,7 +473,7 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
     const scrollContentRef =
       typeof scrollWithInnerRef.getInnerViewRef === 'function'
         ? scrollWithInnerRef.getInnerViewRef()
-        : scroll.getNativeScrollRef?.();
+        : scrollWithNativeRef.getNativeScrollRef?.();
     if (scrollContentRef == null || typeof input.measureLayout !== 'function') return;
 
     input.measureLayout(
