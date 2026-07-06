@@ -4,23 +4,22 @@ import {
   Button,
   IconButton,
   NuriIcon,
-  TabBar,
-  TabBarItem,
   Text,
   Topbar,
   TopbarLeading,
   TopbarTrailing,
   View,
 } from '@ds';
+import { WalletTabs, type WalletTab } from './components/WalletTabs';
 
-export function BottomSheetHome({
+export function Home({
   selectedTab,
   onSelectTab,
   onOpenMenu,
   onToggleTheme,
 }: {
-  selectedTab: 'bitcoin' | 'bank' | 'euro';
-  onSelectTab: (tab: 'bitcoin' | 'bank' | 'euro') => void;
+  selectedTab: WalletTab;
+  onSelectTab: (tab: WalletTab) => void;
   onOpenMenu: () => void;
   onToggleTheme: () => void;
 }) {
@@ -57,26 +56,7 @@ export function BottomSheetHome({
         </View>
       </View>
 
-      <TabBar>
-        <TabBarItem
-          icon="bitcoin-wallet"
-          label="€ 36.50"
-          selected={selectedTab === 'bitcoin'}
-          onPress={() => onSelectTab('bitcoin')}
-        />
-        <TabBarItem
-          icon="bank"
-          label="€ 18.90"
-          selected={selectedTab === 'bank'}
-          onPress={() => onSelectTab('bank')}
-        />
-        <TabBarItem
-          icon="euro-wallet"
-          label="€ 25.70"
-          selected={selectedTab === 'euro'}
-          onPress={() => onSelectTab('euro')}
-        />
-      </TabBar>
+      <WalletTabs selectedTab={selectedTab} onSelectTab={onSelectTab} />
     </>
   );
 }

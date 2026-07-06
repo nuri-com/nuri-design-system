@@ -8,15 +8,15 @@
 import * as React from 'react';
 
 import { View } from '@ds';
-import { ActionsSheet } from './ActionsSheet';
-import { ActivitySheet } from './ActivitySheet';
-import { AmountSheet } from './AmountSheet';
-import { FormSheet } from './FormSheet';
-import { BottomSheetMenu } from './BottomSheetMenu';
-import { BottomSheetHome } from './BottomSheetHome';
+import { Home } from './bottom-sheet-demo/Home';
+import { Menu } from './bottom-sheet-demo/Menu';
+import { ActionsSheet } from './bottom-sheet-demo/sheets/ActionsSheet';
+import { ActivitySheet } from './bottom-sheet-demo/sheets/ActivitySheet';
+import { AmountSheet } from './bottom-sheet-demo/sheets/AmountSheet';
+import { FormSheet } from './bottom-sheet-demo/sheets/FormSheet';
+import type { WalletTab } from './bottom-sheet-demo/components/WalletTabs';
 
 type Page = 'wallet' | 'sheetMenu';
-type WalletTab = 'bitcoin' | 'bank' | 'euro';
 type OpenSheet = 'none' | 'activity' | 'amount' | 'actions' | 'form';
 type FormValues = {
   iban: string;
@@ -49,14 +49,14 @@ export const BottomSheetDemo: React.FC<{ onToggleTheme: () => void }> = ({ onTog
   return (
     <View direction="column" align="stretch" justify="start" fill="grow" chrome="canvas">
       {page === 'wallet' ? (
-        <BottomSheetHome
+        <Home
           selectedTab={wallet}
           onSelectTab={setWallet}
           onOpenMenu={() => setPage('sheetMenu')}
           onToggleTheme={onToggleTheme}
         />
       ) : (
-        <BottomSheetMenu
+        <Menu
           onBack={() => setPage('wallet')}
           onOpenSheet={setOpenSheet}
         />

@@ -23,7 +23,7 @@ import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-cont
 
 import { NuriThemeProvider, OverlayProvider, useNuriTheme } from '@ds';
 import type { Theme } from '@ds';
-import { BottomSheetDemo } from './src/screens/bottom-sheet-demo/BottomSheetDemo';
+import { BottomSheetDemo } from './src/screens/BottomSheetDemo';
 
 function ThemedRoot({
   mode,

@@ -8,10 +8,16 @@ the Activity, Amount, Actions, and Form sheet examples.
 ```
 src/
   screens/
-    bottom-sheet-demo/ screen-local product/demo composition: wallet/status
-                       home, internal wallet tabs, sheet menu, individual sheet
-                       examples, and local sample form state. Files import the
-                       design-system surface from the Metro/TS `@ds` alias.
+    BottomSheetDemo.tsx
+                       route/controller for the bottom-sheet demo. Owns the
+                       app state: page, selected wallet tab, open sheet, and
+                       sample form values.
+    bottom-sheet-demo/
+      Home.tsx         wallet/status home surface.
+      Menu.tsx         button stack that opens each sheet example.
+      components/      app-owned wrappers over stateless DS components, such as
+                       WalletTabs mapping selected/onSelect into TabBarItem.
+      sheets/          Activity, Amount, Actions, and Form sheet examples.
 App.tsx                the navigator role: safe-area ownership (decision 58),
                        the NuriThemeProvider root, OverlayProvider placement,
                        and the app-owned demo state. Dark mode remains wired as
