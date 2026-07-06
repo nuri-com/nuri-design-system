@@ -19,9 +19,7 @@ src/
                        generated components + their typed props ONLY (no
                        StyleSheet, no raw RN hosts, no magic numbers).
 App.tsx                the navigator role: safe-area ownership (decision 58),
-                       the NuriThemeProvider root, the route state + tab-items
-                       DATA, and the theme-toggle HARNESS strip (the one
-                       sanctioned non-DS spot).
+                       the NuriThemeProvider root, and the app-owned demo state.
 ```
 
 Run it from the repo root:

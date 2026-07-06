@@ -6,51 +6,24 @@
  * root pads the status-bar inset at top and the home-indicator at bottom
  * (insets are 0 on web). App also owns everything the DS deliberately
  * does NOT: the <NuriThemeProvider> root, the route state, and the
- * tab-items DATA — the screens are pure DS composition (topbar + content)
- * and <BottomBar> is the app-owned stateful wrapper over the dumb DS bar,
- * rendered ONCE below the active screen. No navigation library.
+ * tab-items DATA. For the sheet-gallery device pass, the sheet gallery is the
+ * home surface: it owns the wallet tabs and sheet examples directly. No
+ * navigation library.
  *
  * accent="neutral" mirrors the playground page scope (the tab-bar boards
  * render under accent=neutral — the accent pops are the screens' OWN
  * accent="orange"/"lilac" props).
  *
- * HARNESS: the theme-toggle strip is demo chrome — the RN twin of the
- * playground's board controls, NOT part of the consumption example. It is
- * the one sanctioned non-DS spot (raw RN + StyleSheet · the settled
- * harness/screen split).
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { NuriThemeProvider, OverlayProvider, useNuriTheme } from './src/components/ui';
-import type { IconName, Theme } from './src/components/ui';
-import { BottomBar } from './src/components/BottomBar';
-import { Wallet } from './src/screens/Wallet';
-import { Coin } from './src/screens/Coin';
-import { Cash } from './src/screens/Cash';
+import type { Theme } from './src/components/ui';
 import { Sheet } from './src/screens/Sheet';
-
-// ── the app DATA the DS never owns: the routes and their tab items (the
-// playground's three boards · one interactive bar, plus the overlay demo).
-// `selected` follows the route state; the DS bar just paints it. ──
-type Route = 'wallet' | 'coin' | 'cash' | 'sheet';
-
-const TAB_ITEMS: readonly { key: Route; icon: IconName; label: string }[] = [
-  { key: 'wallet', icon: 'wallet', label: '€ 36.50' },
-  { key: 'coin', icon: 'card', label: '€ 18.90' },
-  { key: 'cash', icon: 'bank', label: '€ 25.70' },
-  { key: 'sheet', icon: 'list-bullets', label: 'Overlay' },
-];
-
-const SCREENS: Record<Route, React.FC> = {
-  wallet: Wallet,
-  coin: Coin,
-  cash: Cash,
-  sheet: Sheet,
-};
 
 function ThemedRoot({
   mode,
@@ -62,9 +35,6 @@ function ThemedRoot({
   const theme = useNuriTheme();
   // The ONE place safe-area is owned (decision 58 · navigator role).
   const insets = useSafeAreaInsets();
-  const [route, setRoute] = React.useState<Route>('wallet');
-  const ActiveScreen = SCREENS[route];
-
   return (
     <View
       style={[
@@ -77,16 +47,7 @@ function ThemedRoot({
       ]}
     >
       <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
-      {/* HARNESS · theme toggle — demo chrome, not the DS. */}
-      <View style={styles.harness}>
-        <Pressable onPress={onToggleTheme} hitSlop={8}>
-          <Text style={[styles.harnessText, { color: theme.text.muted }]}>
-            theme: {mode} ⇄
-          </Text>
-        </Pressable>
-      </View>
-      <ActiveScreen />
-      <BottomBar items={TAB_ITEMS} selected={route} onSelect={setRoute} />
+      <Sheet onToggleTheme={onToggleTheme} />
     </View>
   );
 }
@@ -121,9 +82,6 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   root: { flex: 1 },
-  // HARNESS chrome only (the sanctioned non-DS spot).
-  harness: { flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 16, paddingVertical: 4 },
-  harnessText: { fontSize: 12 },
-});
+};

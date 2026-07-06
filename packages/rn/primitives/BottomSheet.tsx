@@ -40,6 +40,15 @@ import { useOverlay } from '../overlay';
 import { BottomSheetPanel as GeneratedBottomSheetPanel } from '../generated/components/bottom-sheet-panel';
 import { FocusScrollProvider, type FocusScrollApi } from '../runtime/focus-scroll';
 
+type ScrollViewInstance = React.ElementRef<typeof RNScrollView>;
+type ScrollContentRef = ReturnType<ScrollViewInstance['getNativeScrollRef']>;
+type ScrollViewWithInnerRef = ScrollViewInstance & {
+  getInnerViewRef?: () => ScrollContentRef;
+};
+type NativeMeasurable = {
+  measureInWindow?: (callback: (x: number, y: number, width: number, height: number) => void) => void;
+};
+
 export type BottomSheetDetent = 'content' | 'full';
 export type BottomSheetScrim = 'none' | 'dim';
 
@@ -269,6 +278,7 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
   const viewportHeight = React.useRef(0);
   const preKeyboardViewportHeight = React.useRef(0);
   const keyboardHeight = React.useRef(0);
+  const keyboardScreenY = React.useRef<number | null>(null);
   const focusedInput = React.useRef<TextInput | null>(null);
   const rafs = React.useRef<number[]>([]);
   const timers = React.useRef<Array<ReturnType<typeof setTimeout>>>([]);
@@ -300,35 +310,75 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
     const scroll = scrollRef.current;
     if (!input || !scroll) return;
 
+    const measuredViewport = viewportHeight.current || scrollMaxHeight || 0;
+    const visibleHeight = Math.max(0, measuredViewport - keyboardOcclusion());
+    const currentY = scrollY.current;
+    const targetTop = FOCUS_TOP_MARGIN;
+    const targetBottom = Math.max(targetTop, visibleHeight - FOCUS_BOTTOM_MARGIN);
+    const scrollToNextY = (nextY: number): void => {
+      const clampedY = Math.max(0, Math.round(nextY));
+      if (Math.abs(clampedY - scrollY.current) < 1) return;
+      scroll.scrollTo({ y: clampedY, animated: true });
+      scrollY.current = clampedY;
+    };
+
     const scrollNativeRef = scroll.getNativeScrollRef?.();
-    if (scrollNativeRef == null || typeof input.measureLayout !== 'function') return;
+    const scrollWindowMeasurable = scrollNativeRef as NativeMeasurable | null | undefined;
+    const inputWindowMeasurable = input as NativeMeasurable;
+    if (
+      visibleHeight > 0 &&
+      typeof scrollWindowMeasurable?.measureInWindow === 'function' &&
+      typeof inputWindowMeasurable.measureInWindow === 'function'
+    ) {
+      const measureScrollInWindow = scrollWindowMeasurable.measureInWindow.bind(scrollWindowMeasurable);
+      const measureInputInWindow = inputWindowMeasurable.measureInWindow.bind(inputWindowMeasurable);
+      measureScrollInWindow((_scrollX, scrollWindowY, _scrollWidth, scrollWindowHeight) => {
+        measureInputInWindow((_inputX, inputWindowY, _inputWidth, inputHeight) => {
+          const viewportWindowHeight = measuredViewport || scrollWindowHeight;
+          const viewportWindowBottom = scrollWindowY + viewportWindowHeight;
+          const keyboardWindowTop = keyboardScreenY.current ?? (scrollWindowY + visibleHeight);
+          const safeWindowTop = scrollWindowY + targetTop;
+          const safeWindowBottom = Math.max(safeWindowTop, Math.min(viewportWindowBottom, keyboardWindowTop) - FOCUS_BOTTOM_MARGIN);
+          const inputWindowBottom = inputWindowY + inputHeight;
+
+          let nextY = currentY;
+          if (inputWindowBottom > safeWindowBottom) {
+            nextY = currentY + inputWindowBottom - safeWindowBottom;
+          } else if (inputWindowY < safeWindowTop) {
+            nextY = currentY + inputWindowY - safeWindowTop;
+          }
+          scrollToNextY(nextY);
+        });
+      });
+      return;
+    }
+
+    const scrollWithInnerRef = scroll as ScrollViewWithInnerRef;
+    const scrollContentRef =
+      typeof scrollWithInnerRef.getInnerViewRef === 'function'
+        ? scrollWithInnerRef.getInnerViewRef()
+        : scroll.getNativeScrollRef?.();
+    if (scrollContentRef == null || typeof input.measureLayout !== 'function') return;
 
     input.measureLayout(
-      scrollNativeRef,
+      scrollContentRef,
       (_x, y, _width, height) => {
-        const measuredViewport = viewportHeight.current || scrollMaxHeight || 0;
-        const visibleHeight = Math.max(0, measuredViewport - keyboardOcclusion());
-        const currentY = scrollY.current;
-
         let nextY = currentY;
         if (visibleHeight > 0) {
-          const visibleTop = FOCUS_TOP_MARGIN;
-          const visibleBottom = visibleHeight - FOCUS_BOTTOM_MARGIN;
+          const viewportTop = currentY;
+          const safeBottom = currentY + targetBottom;
           const inputTop = y;
           const inputBottom = inputTop + height;
-          if (inputBottom > visibleBottom) {
-            nextY = currentY + inputBottom - visibleBottom;
-          } else if (inputTop < visibleTop) {
-            nextY = currentY + inputTop - visibleTop;
+          if (inputBottom > safeBottom) {
+            nextY = inputBottom - targetBottom;
+          } else if (inputTop < viewportTop) {
+            nextY = inputTop - targetTop;
           }
         } else {
           nextY = currentY + y - FOCUS_TOP_MARGIN;
         }
 
-        const clampedY = Math.max(0, Math.round(nextY));
-        if (Math.abs(clampedY - currentY) < 1) return;
-        scroll.scrollTo({ y: clampedY, animated: true });
-        scrollY.current = clampedY;
+        scrollToNextY(nextY);
       },
       () => undefined,
     );
@@ -357,6 +407,7 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
         preKeyboardViewportHeight.current = viewportHeight.current || scrollMaxHeight || 0;
       }
       keyboardHeight.current = event.endCoordinates.height;
+      keyboardScreenY.current = event.endCoordinates.screenY > 0 ? event.endCoordinates.screenY : null;
       updateKeyboardPadding();
       // Re-run after the keyboard transition because a focus event can arrive
       // before native has delivered stable layout measurements.
@@ -365,6 +416,7 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
     const hideSub = Keyboard.addListener(hideEvent, () => {
       preKeyboardViewportHeight.current = 0;
       keyboardHeight.current = 0;
+      keyboardScreenY.current = null;
       setKeyboardPadding(0);
     });
     return () => {

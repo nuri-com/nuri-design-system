@@ -30,6 +30,16 @@ import {
 import type { OverlayApi } from '../index';
 import { type FocusScrollApi, useFocusScroll } from '../runtime/focus-scroll';
 
+type ScrollViewWithInnerRef = ScrollView & {
+  getInnerViewRef: () => unknown;
+};
+type NativeMeasurable = {
+  measureInWindow: (callback: (x: number, y: number, width: number, height: number) => void) => void;
+};
+type WindowMeasuredRef = NativeMeasurable & {
+  frame: readonly [number, number, number, number];
+};
+
 function render(node: React.ReactElement): TestRenderer.ReactTestRenderer {
   let tr!: TestRenderer.ReactTestRenderer;
   act(() => {
@@ -353,11 +363,11 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     global.requestAnimationFrame = ((cb: FrameRequestCallback) => setTimeout(() => cb(0), 0) as unknown as number);
     global.cancelAnimationFrame = ((id: number) => clearTimeout(id as unknown as ReturnType<typeof setTimeout>));
 
-    const nativeScrollRef = {};
+    const scrollContentRef = {};
     const scrollTo = jest.fn();
-    const getNativeScrollRefSpy = jest
-      .spyOn(ScrollView.prototype, 'getNativeScrollRef')
-      .mockReturnValue(nativeScrollRef as never);
+    const getInnerViewRefSpy = jest
+      .spyOn(ScrollView.prototype as ScrollViewWithInnerRef, 'getInnerViewRef')
+      .mockReturnValue(scrollContentRef as never);
     const scrollToSpy = jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(scrollTo);
     const measureLayout = jest.fn((_relativeNode, onSuccess: (x: number, y: number, width: number, height: number) => void) => {
       onSuccess(0, 360, 120, 54);
@@ -392,11 +402,11 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       });
 
       expect(measureLayout).toHaveBeenCalledTimes(1);
-      expect(measureLayout.mock.calls[0][0]).toBe(nativeScrollRef);
+      expect(measureLayout.mock.calls[0][0]).toBe(scrollContentRef);
       expect(scrollTo).toHaveBeenCalledWith({ y: 202, animated: true });
       expect(scrollToSpy).toHaveBeenCalledTimes(1);
     } finally {
-      getNativeScrollRefSpy.mockRestore();
+      getInnerViewRefSpy.mockRestore();
       scrollToSpy.mockRestore();
       jest.useRealTimers();
       global.requestAnimationFrame = originalRequestAnimationFrame;
@@ -404,7 +414,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     }
   });
 
-  test('BottomSheetScroll scrolls a focused field away from the keyboard edge', () => {
+  test('BottomSheetScroll scrolls a focused field away from the keyboard safe edge', () => {
     jest.useFakeTimers();
     const originalRequestAnimationFrame = global.requestAnimationFrame;
     const originalCancelAnimationFrame = global.cancelAnimationFrame;
@@ -412,7 +422,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     global.cancelAnimationFrame = ((id: number) => clearTimeout(id as unknown as ReturnType<typeof setTimeout>));
 
     const keyboardHandlers: Record<string, (event: { endCoordinates: { height: number } }) => void> = {};
-    const nativeScrollRef = {};
+    const scrollContentRef = {};
     const scrollTo = jest.fn();
     const addSpy = jest
       .spyOn(Keyboard, 'addListener')
@@ -420,14 +430,14 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
         keyboardHandlers[eventName] = cb as (event: { endCoordinates: { height: number } }) => void;
         return { remove: () => undefined } as never;
       });
-    const getNativeScrollRefSpy = jest
-      .spyOn(ScrollView.prototype, 'getNativeScrollRef')
-      .mockReturnValue(nativeScrollRef as never);
+    const getInnerViewRefSpy = jest
+      .spyOn(ScrollView.prototype as ScrollViewWithInnerRef, 'getInnerViewRef')
+      .mockReturnValue(scrollContentRef as never);
     const scrollToSpy = jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(scrollTo);
     const measureLayout = jest.fn((_relativeNode, onSuccess: (x: number, y: number, width: number, height: number) => void) => {
-      // With a 600px scroll viewport and a 280px overlaid keyboard, y=242/h=54
-      // leaves the field's bottom exactly at the old 24px threshold. That was
-      // technically "visible" but still pressed against the keyboard chrome.
+      // Measured against the scroll content, y=242/h=54 is inside the raw
+      // 320px keyboard-safe viewport, but too close to the keyboard/accessory
+      // edge. The active bottom margin should lift it to the safe line.
       onSuccess(0, 242, 120, 54);
     });
     const captured = { api: null as FocusScrollApi | null };
@@ -466,7 +476,93 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       expect(scrollToSpy).toHaveBeenCalled();
     } finally {
       addSpy.mockRestore();
+      getInnerViewRefSpy.mockRestore();
+      scrollToSpy.mockRestore();
+      jest.useRealTimers();
+      global.requestAnimationFrame = originalRequestAnimationFrame;
+      global.cancelAnimationFrame = originalCancelAnimationFrame;
+    }
+  });
+
+  test('BottomSheetScroll uses window coordinates to clear the keyboard edge', () => {
+    jest.useFakeTimers();
+    const originalRequestAnimationFrame = global.requestAnimationFrame;
+    const originalCancelAnimationFrame = global.cancelAnimationFrame;
+    global.requestAnimationFrame = ((cb: FrameRequestCallback) => setTimeout(() => cb(0), 0) as unknown as number);
+    global.cancelAnimationFrame = ((id: number) => clearTimeout(id as unknown as ReturnType<typeof setTimeout>));
+
+    const keyboardHandlers: Record<string, (event: { endCoordinates: { height: number; screenY: number } }) => void> = {};
+    const scrollNativeRef: WindowMeasuredRef = {
+      frame: [0, 40, 360, 600],
+      measureInWindow: jest.fn(function (this: WindowMeasuredRef, _cb) {
+        _cb(...this.frame);
+      }),
+    };
+    const scrollContentRef = {};
+    const scrollTo = jest.fn();
+    const addSpy = jest
+      .spyOn(Keyboard, 'addListener')
+      .mockImplementation((eventName, cb) => {
+        keyboardHandlers[eventName] = cb as (event: { endCoordinates: { height: number; screenY: number } }) => void;
+        return { remove: () => undefined } as never;
+      });
+    const getNativeScrollRefSpy = jest
+      .spyOn(ScrollView.prototype, 'getNativeScrollRef')
+      .mockReturnValue(scrollNativeRef as never);
+    const getInnerViewRefSpy = jest
+      .spyOn(ScrollView.prototype as ScrollViewWithInnerRef, 'getInnerViewRef')
+      .mockReturnValue(scrollContentRef as never);
+    const scrollToSpy = jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(scrollTo);
+    const measureLayout = jest.fn();
+    const inputRef: WindowMeasuredRef = {
+      frame: [0, 300, 320, 54],
+      // The input bottom is at 354px in the window, while the keyboard/accessory
+      // starts at 360px. The safe line is 360 - 88 = 272, so it must scroll by 82.
+      measureInWindow: jest.fn(function (this: WindowMeasuredRef, _cb) {
+        _cb(...this.frame);
+      }),
+    };
+    const captured = { api: null as FocusScrollApi | null };
+
+    try {
+      let tr!: TestRenderer.ReactTestRenderer;
+      act(() => {
+        tr = TestRenderer.create(
+          <NuriThemeProvider>
+            <BottomSheetScroll>
+              <FocusScrollProbe onReady={(next) => (captured.api = next)} />
+            </BottomSheetScroll>
+          </NuriThemeProvider>,
+        );
+      });
+
+      const scroll = tr.root.findByType(ScrollView);
+      act(() => {
+        scroll.props.onLayout({ nativeEvent: { layout: { height: 600 } } });
+      });
+      act(() => {
+        const show = keyboardHandlers.keyboardWillShow ?? keyboardHandlers.keyboardDidShow;
+        show({ endCoordinates: { height: 280, screenY: 360 } });
+      });
+
+      const api = captured.api;
+      expectFocusScrollApi(api);
+      act(() => {
+        api.requestScrollToFocusedInput(Object.assign(inputRef, { measureLayout }) as unknown as TextInput);
+      });
+      act(() => {
+        jest.runAllTimers();
+      });
+
+      expect(scrollNativeRef.measureInWindow).toHaveBeenCalledTimes(1);
+      expect(inputRef.measureInWindow).toHaveBeenCalledTimes(1);
+      expect(measureLayout).not.toHaveBeenCalled();
+      expect(scrollTo).toHaveBeenCalledWith({ y: 82, animated: true });
+      expect(scrollToSpy).toHaveBeenCalledTimes(1);
+    } finally {
+      addSpy.mockRestore();
       getNativeScrollRefSpy.mockRestore();
+      getInnerViewRefSpy.mockRestore();
       scrollToSpy.mockRestore();
       jest.useRealTimers();
       global.requestAnimationFrame = originalRequestAnimationFrame;
@@ -482,7 +578,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     global.cancelAnimationFrame = ((id: number) => clearTimeout(id as unknown as ReturnType<typeof setTimeout>));
 
     const keyboardHandlers: Record<string, (event: { endCoordinates: { height: number } }) => void> = {};
-    const nativeScrollRef = {};
+    const scrollContentRef = {};
     const scrollTo = jest.fn();
     const addSpy = jest
       .spyOn(Keyboard, 'addListener')
@@ -490,14 +586,14 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
         keyboardHandlers[eventName] = cb as (event: { endCoordinates: { height: number } }) => void;
         return { remove: () => undefined } as never;
       });
-    const getNativeScrollRefSpy = jest
-      .spyOn(ScrollView.prototype, 'getNativeScrollRef')
-      .mockReturnValue(nativeScrollRef as never);
+    const getInnerViewRefSpy = jest
+      .spyOn(ScrollView.prototype as ScrollViewWithInnerRef, 'getInnerViewRef')
+      .mockReturnValue(scrollContentRef as never);
     const scrollToSpy = jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(scrollTo);
     const measureLayout = jest.fn((_relativeNode, onSuccess: (x: number, y: number, width: number, height: number) => void) => {
-      // Measured against the native scroll ref, y is viewport-relative. The
-      // field sits at y=150..204; with a 320px keyboard-safe viewport and an
-      // 88px bottom comfort margin, it is already fully visible (threshold 232).
+      // Measured against the scroll content, y is content-relative. With
+      // scrollY=100, the visible content window is 100..420, so 150..204 is
+      // already fully inside the viewport.
       onSuccess(0, 150, 120, 54);
     });
     const captured = { api: null as FocusScrollApi | null };
@@ -540,7 +636,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       expect(scrollToSpy).not.toHaveBeenCalled();
     } finally {
       addSpy.mockRestore();
-      getNativeScrollRefSpy.mockRestore();
+      getInnerViewRefSpy.mockRestore();
       scrollToSpy.mockRestore();
       jest.useRealTimers();
       global.requestAnimationFrame = originalRequestAnimationFrame;
@@ -548,7 +644,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     }
   });
 
-  test('BottomSheetScroll scrolls a bottom-edge field with existing scroll offset', () => {
+  test('BottomSheetScroll scrolls a hidden bottom-edge field with existing scroll offset', () => {
     jest.useFakeTimers();
     const originalRequestAnimationFrame = global.requestAnimationFrame;
     const originalCancelAnimationFrame = global.cancelAnimationFrame;
@@ -556,7 +652,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     global.cancelAnimationFrame = ((id: number) => clearTimeout(id as unknown as ReturnType<typeof setTimeout>));
 
     const keyboardHandlers: Record<string, (event: { endCoordinates: { height: number } }) => void> = {};
-    const nativeScrollRef = {};
+    const scrollContentRef = {};
     const scrollTo = jest.fn();
     const addSpy = jest
       .spyOn(Keyboard, 'addListener')
@@ -564,15 +660,15 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
         keyboardHandlers[eventName] = cb as (event: { endCoordinates: { height: number } }) => void;
         return { remove: () => undefined } as never;
       });
-    const getNativeScrollRefSpy = jest
-      .spyOn(ScrollView.prototype, 'getNativeScrollRef')
-      .mockReturnValue(nativeScrollRef as never);
+    const getInnerViewRefSpy = jest
+      .spyOn(ScrollView.prototype as ScrollViewWithInnerRef, 'getInnerViewRef')
+      .mockReturnValue(scrollContentRef as never);
     const scrollToSpy = jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(scrollTo);
     const measureLayout = jest.fn((_relativeNode, onSuccess: (x: number, y: number, width: number, height: number) => void) => {
-      // This is viewport-relative y from the native scroll ref, not content y.
-      // With scrollY=100, y=250/h=54 and visible bottom=232, the field overflows
-      // by 72px and must scroll to 172.
-      onSuccess(0, 250, 120, 54);
+      // Measured against the scroll content, y is content-relative. With
+      // scrollY=100, the visible content window is 100..420; y=450/h=54 sits
+      // below it and scrolls to leave the configured bottom comfort margin.
+      onSuccess(0, 450, 120, 54);
     });
     const captured = { api: null as FocusScrollApi | null };
 
@@ -610,11 +706,11 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       });
 
       expect(measureLayout).toHaveBeenCalledTimes(1);
-      expect(scrollTo).toHaveBeenCalledWith({ y: 172, animated: true });
+      expect(scrollTo).toHaveBeenCalledWith({ y: 272, animated: true });
       expect(scrollToSpy).toHaveBeenCalledTimes(1);
     } finally {
       addSpy.mockRestore();
-      getNativeScrollRefSpy.mockRestore();
+      getInnerViewRefSpy.mockRestore();
       scrollToSpy.mockRestore();
       jest.useRealTimers();
       global.requestAnimationFrame = originalRequestAnimationFrame;
