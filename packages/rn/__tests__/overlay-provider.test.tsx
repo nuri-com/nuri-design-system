@@ -353,9 +353,11 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     global.requestAnimationFrame = ((cb: FrameRequestCallback) => setTimeout(() => cb(0), 0) as unknown as number);
     global.cancelAnimationFrame = ((id: number) => clearTimeout(id as unknown as ReturnType<typeof setTimeout>));
 
-    const innerNode = {};
+    const nativeScrollRef = {};
     const scrollTo = jest.fn();
-    const getInnerViewNodeSpy = jest.spyOn(ScrollView.prototype, 'getInnerViewNode').mockReturnValue(innerNode);
+    const getNativeScrollRefSpy = jest
+      .spyOn(ScrollView.prototype, 'getNativeScrollRef')
+      .mockReturnValue(nativeScrollRef as never);
     const scrollToSpy = jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(scrollTo);
     const measureLayout = jest.fn((_relativeNode, onSuccess: (x: number, y: number, width: number, height: number) => void) => {
       onSuccess(0, 360, 120, 54);
@@ -390,11 +392,11 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       });
 
       expect(measureLayout).toHaveBeenCalledTimes(1);
-      expect(measureLayout.mock.calls[0][0]).toBe(innerNode);
+      expect(measureLayout.mock.calls[0][0]).toBe(nativeScrollRef);
       expect(scrollTo).toHaveBeenCalledWith({ y: 138, animated: true });
       expect(scrollToSpy).toHaveBeenCalledTimes(1);
     } finally {
-      getInnerViewNodeSpy.mockRestore();
+      getNativeScrollRefSpy.mockRestore();
       scrollToSpy.mockRestore();
       jest.useRealTimers();
       global.requestAnimationFrame = originalRequestAnimationFrame;

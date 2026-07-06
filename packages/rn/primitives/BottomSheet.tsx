@@ -25,7 +25,14 @@ import {
   View as RNView,
   useWindowDimensions,
 } from 'react-native';
-import type { KeyboardEvent, LayoutChangeEvent, NativeScrollEvent, NativeSyntheticEvent, TextInput, ViewStyle } from 'react-native';
+import type {
+  KeyboardEvent,
+  LayoutChangeEvent,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  TextInput,
+  ViewStyle,
+} from 'react-native';
 import { blackAlpha } from '@nuri/spec/colours';
 import { bottomSheetChrome } from '@nuri/spec/bottom-sheet-chrome';
 
@@ -274,30 +281,30 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
     const scroll = scrollRef.current;
     if (!input || !scroll) return;
 
-    const relativeNode = scroll.getInnerViewNode?.();
-    if (relativeNode == null || typeof input.measureLayout !== 'function') return;
+    const scrollNativeRef = scroll.getNativeScrollRef?.();
+    if (scrollNativeRef == null || typeof input.measureLayout !== 'function') return;
 
     input.measureLayout(
-      relativeNode,
+      scrollNativeRef,
       (_x, y, _width, height) => {
         const measuredViewport = viewportHeight.current || scrollMaxHeight || 0;
         const keyboardOcclusion = Platform.OS === 'ios' ? keyboardHeight.current : 0;
         const visibleHeight = Math.max(0, measuredViewport - keyboardOcclusion);
         const currentY = scrollY.current;
-        const inputTop = y;
-        const inputBottom = y + height;
 
         let nextY = currentY;
         if (visibleHeight > 0) {
-          const visibleTop = currentY + FOCUS_TOP_MARGIN;
-          const visibleBottom = currentY + visibleHeight - FOCUS_BOTTOM_MARGIN;
+          const visibleTop = FOCUS_TOP_MARGIN;
+          const visibleBottom = visibleHeight - FOCUS_BOTTOM_MARGIN;
+          const inputTop = y;
+          const inputBottom = y + height;
           if (inputBottom > visibleBottom) {
-            nextY = inputBottom - visibleHeight + FOCUS_BOTTOM_MARGIN;
+            nextY = currentY + inputBottom - visibleHeight + FOCUS_BOTTOM_MARGIN;
           } else if (inputTop < visibleTop) {
-            nextY = inputTop - FOCUS_TOP_MARGIN;
+            nextY = currentY + inputTop - FOCUS_TOP_MARGIN;
           }
         } else {
-          nextY = inputTop - FOCUS_TOP_MARGIN;
+          nextY = currentY + y - FOCUS_TOP_MARGIN;
         }
 
         const clampedY = Math.max(0, Math.round(nextY));
