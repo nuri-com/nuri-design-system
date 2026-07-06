@@ -9,7 +9,7 @@
 
 import * as React from 'react';
 import { Platform, Pressable, Text, TextInput, View } from 'react-native';
-import type { TextStyle } from 'react-native';
+import type { StyleProp, TextStyle } from 'react-native';
 import { LEAF_ELS } from '@nuri/spec/descriptors/schema';
 import type { Accent, Descriptor, Axes, IconName, PartId } from '../contract';
 import { typeStyle, useNuriTheme, NuriScope } from '../theme';
@@ -17,6 +17,7 @@ import type { NuriTheme } from './theme-payload';
 import { resolveAnatomy, flattenBakedPart, assertNever } from './resolve';
 import type { AnatomyNode, Selection, BakedComponentRecipe } from './resolve';
 import { NuriIcon } from '../primitives/NuriIcon';
+import { useFocusScroll, type FocusScrollApi } from './focus-scroll';
 
 // §12 surface context — the resolved foreground a surface provides to propless
 // descendants (colour-from-scope · F-BOX-FG-1).
@@ -200,6 +201,7 @@ type RenderCtx<A extends Axes> = {
   slotProps: Partial<Record<string, Record<string, unknown>>>;
   components: Record<string, React.ComponentType<Record<string, unknown>>>;
   behaviour: NuriBehaviour<string>;
+  focusScroll: FocusScrollApi | null;
   focusedInput: boolean;
   setFocusedInput: (focused: boolean) => void;
   // STATIC api facts, computed once per instance render: `slotted` = the
@@ -209,6 +211,84 @@ type RenderCtx<A extends Axes> = {
   slotted: boolean;
   owner: string;
 };
+
+type DescriptorTextInputProps = {
+  value?: string;
+  onChangeText?: (text: string) => void;
+  placeholder?: string;
+  inputMode?: 'text' | 'decimal' | 'numeric' | 'tel' | 'email' | 'url' | 'search';
+  secureTextEntry?: boolean;
+  inputDisabled: boolean;
+  accessibilityLabel?: string;
+  derivedLabel?: string;
+  placeholderTextColor: string;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  flowProps: { numberOfLines?: number };
+  typeStyleValue: ReturnType<typeof typeStyle> | null;
+  foregroundStyle: { color: string } | null;
+  disabledStyle: { opacity: number } | null;
+  flatStyle: StyleProp<TextStyle>;
+  setFocusedInput: (focused: boolean) => void;
+  focusScroll: FocusScrollApi | null;
+};
+
+function DescriptorTextInput({
+  value,
+  onChangeText,
+  placeholder,
+  inputMode,
+  secureTextEntry,
+  inputDisabled,
+  accessibilityLabel,
+  derivedLabel,
+  placeholderTextColor,
+  onFocus,
+  onBlur,
+  flowProps,
+  typeStyleValue,
+  foregroundStyle,
+  disabledStyle,
+  flatStyle,
+  setFocusedInput,
+  focusScroll,
+}: DescriptorTextInputProps): React.ReactElement {
+  const inputRef = React.useRef<TextInput>(null);
+  return (
+    <TextInput
+      ref={inputRef}
+      value={value}
+      onChangeText={onChangeText}
+      placeholder={placeholder}
+      inputMode={inputMode}
+      secureTextEntry={secureTextEntry}
+      editable={!inputDisabled}
+      accessibilityLabel={accessibilityLabel ?? derivedLabel}
+      accessibilityState={{ disabled: inputDisabled }}
+      placeholderTextColor={placeholderTextColor}
+      onFocus={() => {
+        setFocusedInput(true);
+        focusScroll?.requestScrollToFocusedInput(inputRef.current);
+        onFocus?.();
+      }}
+      onBlur={() => {
+        setFocusedInput(false);
+        onBlur?.();
+      }}
+      {...flowProps}
+      style={[
+        typeStyleValue,
+        foregroundStyle,
+        { flexShrink: 1, padding: 0 },
+        disabledStyle,
+        flatStyle,
+        // Suppress the browser :focus outline on react-native-web so only the
+        // DS focus ring shows (no-op on native · see WEB_INPUT_OUTLINE_RESET).
+        WEB_INPUT_OUTLINE_RESET,
+      ]}
+    />
+  );
+}
 
 function findChildPath(node: AnatomyNode, part: PartId): AnatomyNode[] | undefined {
   for (const child of node.children) {
@@ -579,36 +659,26 @@ function renderPart<A extends Axes>(
           ? { numberOfLines: flat.node.textFlow.lines }
           : {};
       return (
-        <TextInput
+        <DescriptorTextInput
           key={node.name}
           value={inputProps.value}
           onChangeText={inputProps.onChangeText}
           placeholder={inputProps.placeholder}
           inputMode={inputProps.inputMode}
           secureTextEntry={inputProps.secureTextEntry}
-          editable={!inputDisabled}
+          inputDisabled={inputDisabled}
           accessibilityLabel={inputProps.accessibilityLabel ?? derivedLabel}
-          accessibilityState={{ disabled: inputDisabled }}
+          derivedLabel={derivedLabel}
           placeholderTextColor={ctx.theme.text.muted}
-          onFocus={() => {
-            ctx.setFocusedInput(true);
-            inputProps.onFocus?.();
-          }}
-          onBlur={() => {
-            ctx.setFocusedInput(false);
-            inputProps.onBlur?.();
-          }}
-          {...flowProps}
-          style={[
-            flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis) : null,
-            fg ? { color: fg } : null,
-            { flexShrink: 1, padding: 0 },
-            inputDisabled ? { opacity: ctx.theme.interaction.disabledOpacity } : null,
-            flat.style,
-            // Suppress the browser :focus outline on react-native-web so only the
-            // DS focus ring shows (no-op on native · see WEB_INPUT_OUTLINE_RESET).
-            WEB_INPUT_OUTLINE_RESET,
-          ]}
+          onFocus={inputProps.onFocus}
+          onBlur={inputProps.onBlur}
+          flowProps={flowProps}
+          typeStyleValue={flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis) : null}
+          foregroundStyle={fg ? { color: fg } : null}
+          disabledStyle={inputDisabled ? { opacity: ctx.theme.interaction.disabledOpacity } : null}
+          flatStyle={flat.style as StyleProp<TextStyle>}
+          setFocusedInput={ctx.setFocusedInput}
+          focusScroll={ctx.focusScroll}
         />
       );
     }
@@ -632,6 +702,7 @@ export function renderDescriptorInstance<A extends Axes, PId extends PartId = Pa
   const anatomy = resolveAnatomy(descriptor);
   const theme = useNuriTheme();
   const ambient = React.useContext(NuriSurfaceContext);
+  const focusScroll = useFocusScroll();
   const [focusedInput, setFocusedInput] = React.useState(false);
   // The static api fact gating the render-time nested harvest — only a
   // descriptor that declares component slots can carry nested composition.
@@ -648,6 +719,7 @@ export function renderDescriptorInstance<A extends Axes, PId extends PartId = Pa
       slotProps: {},
       components,
       behaviour,
+      focusScroll,
       focusedInput,
       setFocusedInput,
       slotted,

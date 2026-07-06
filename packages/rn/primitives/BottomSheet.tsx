@@ -1,13 +1,22 @@
 // ════════════════════════════════════════════════════════════════
-// BottomSheet family — public Nuri API over the hidden core-RN engine.
+// BottomSheet family — public Nuri API, a REGISTRAR into the overlay layer.
 // No gestures by design (nuri-expo removed swipe-dismiss): scrim tap is
 // the only built-in dismissal, so Animated/Pressable/ScrollView suffice —
 // zero native deps beyond react-native itself.
+//
+// <BottomSheet open> stays the authored, DECLARATIVE API, but instead of
+// drawing its absoluteFill overlay inline it REGISTERS that subtree into the
+// OverlayProvider (the LayerHost <Layer> pattern) and returns null. The
+// provider's outlet renders it full-window, ABOVE the consumer's safe-area
+// padding — so the scrim covers the status bar and overlays can stack. The
+// enter/exit slide + the sheet-height measurement latch are unchanged; only
+// WHERE the subtree renders moved (inline → the provider outlet).
 // ════════════════════════════════════════════════════════════════
 import * as React from 'react';
 import {
   Animated,
   Easing,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable as RNPressable,
@@ -16,11 +25,20 @@ import {
   View as RNView,
   useWindowDimensions,
 } from 'react-native';
-import type { LayoutChangeEvent, ViewStyle } from 'react-native';
+import type {
+  KeyboardEvent,
+  LayoutChangeEvent,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  TextInput,
+  ViewStyle,
+} from 'react-native';
 import { blackAlpha } from '@nuri/spec/colours';
 import { bottomSheetChrome } from '@nuri/spec/bottom-sheet-chrome';
 
+import { useOverlay } from '../overlay';
 import { BottomSheetPanel as GeneratedBottomSheetPanel } from '../generated/components/bottom-sheet-panel';
+import { FocusScrollProvider, type FocusScrollApi } from '../runtime/focus-scroll';
 
 export type BottomSheetDetent = 'content' | 'full';
 export type BottomSheetScrim = 'none' | 'dim';
@@ -64,6 +82,25 @@ const RN_SCRIM = {
 } as const;
 
 const AnimatedPressable = Animated.createAnimatedComponent(RNPressable);
+const FOCUS_TOP_MARGIN = 16;
+// Keep the focused field comfortably above the keyboard/accessory strip, not
+// merely one pixel visible at the viewport edge. Android keyboard metrics can
+// exclude parts of the IME chrome, so this margin intentionally absorbs that
+// uncertainty while giving the cursor breathing room.
+const FOCUS_BOTTOM_MARGIN = 88;
+const FOCUS_SCROLL_DELAY_MS = 32;
+const FOCUS_SCROLL_REPEAT_DELAY_MS = 60;
+
+// The sheet's available content height, threaded to BottomSheetScroll via
+// context. The panel descriptor is `fill: grow` (flexGrow 1, flexShrink 0) with
+// no main-axis `minHeight: 0` — and the axis vocabulary can't express one (the
+// size scale has no zero) — so a flex chain alone can't bound the ScrollView
+// for a tall (overflowing / keyboard-shrunk) full sheet: the panel refuses to
+// shrink below its content and the scroll never scrolls. The primitive owns the
+// sheet's height, so it hands the scroll region an explicit maxHeight instead.
+// It tracks windowHeight, which SHRINKS under Android adjustResize when the
+// keyboard opens — so the field scrolls into reach without pushing the panel.
+const BottomSheetLayoutContext = React.createContext<{ scrollMaxHeight?: number }>({});
 
 export const BottomSheet: React.FC<BottomSheetProps> = ({
   open = false,
@@ -73,6 +110,8 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   onOpenChange,
   children,
 }) => {
+  const overlay = useOverlay();
+  const layerId = React.useId();
   const { height: windowHeight } = useWindowDimensions();
   const progress = React.useRef(new Animated.Value(0)).current;
   const [mounted, setMounted] = React.useState(open);
@@ -85,6 +124,12 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   // deps so a parent's inline lambda can't restart a running animation.
   const onOpenChangeRef = React.useRef(onOpenChange);
   onOpenChangeRef.current = onOpenChange;
+  // Stable close handler for scrim tap AND hardware-back routing (the overlay
+  // layer calls it on the topmost dismissible layer). Reads the latest callback
+  // via the ref so its identity never changes.
+  const requestClose = React.useCallback(() => {
+    onOpenChangeRef.current?.(false);
+  }, []);
 
   React.useEffect(() => {
     if (open) {
@@ -129,37 +174,83 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     [progress, sheetHeight, windowHeight],
   );
 
-  if (!mounted) return null;
-
+  // `content` hugs its content, bottom-anchored (maxHeight cap). `full` must
+  // FILL-and-SHRINK, not sit at a fixed height: a fixed 96%-of-window panel
+  // cannot fit once the keyboard shrinks the window (Android adjustResize), so
+  // `justify: flex-end` would shove it off the top. flexGrow fills the host
+  // (capped at 96% so the top peek stays), and shrinks with the resized window
+  // when the keyboard opens — the ScrollView then scrolls the field into view.
+  const detentFraction = detent === 'content' ? CONTENT_MAX_FRACTION : DETENT_FRACTION.full;
   const sizeStyle: ViewStyle =
     detent === 'content'
       ? { maxHeight: Math.round(windowHeight * CONTENT_MAX_FRACTION) }
-      : { height: Math.round(windowHeight * DETENT_FRACTION[detent]) };
+      : { flexGrow: 1, maxHeight: Math.round(windowHeight * DETENT_FRACTION.full) };
+  // The scroll region's cap = the sheet's max height (padding lives inside the
+  // scroll's content container, so panel ≈ scroll). Bounds the ScrollView so its
+  // overflow scrolls; shrinks with the keyboard-resized window. Guard a
+  // degenerate windowHeight (0 during init) so the cap never collapses the
+  // scroll to nothing — no cap until a real height is known.
+  const scrollMaxHeight = windowHeight > 0 ? Math.round(windowHeight * detentFraction) : undefined;
 
-  const scrimNode =
-    scrim === 'dim' ? (
-      <AnimatedPressable
-        accessibilityRole={dismissible ? 'button' : undefined}
-        disabled={!dismissible}
-        onPress={dismissible ? () => onOpenChange?.(false) : undefined}
-        style={[styles.scrim, { opacity: progress }]}
-      />
-    ) : null;
-
-  return (
+  // The overlay subtree — identical to the old inline return (scrim +
+  // KeyboardAvoidingView + the measured, translateY-slid Animated.View). It is
+  // rebuilt each render (fresh translateY on a height/detent change) and
+  // re-registered so the outlet shows the current node; the progress/translateY
+  // Animated values are stable refs, so the enter/exit slide runs native-driven
+  // on the already-mounted node without a re-render. Only built while mounted.
+  const overlayNode = mounted ? (
     <RNView pointerEvents="box-none" style={StyleSheet.absoluteFill}>
-      {scrimNode}
+      {scrim === 'dim' ? (
+        <AnimatedPressable
+          accessibilityRole={dismissible ? 'button' : undefined}
+          disabled={!dismissible}
+          onPress={dismissible ? requestClose : undefined}
+          style={[styles.scrim, { opacity: progress }]}
+        />
+      ) : null}
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        // Only PUSH the small bottom-anchored `content` sheet (iOS padding). A
+        // `full` sheet already fills the screen — pushing it (height/padding)
+        // double-counts against Android adjustResize and shoves it off the top;
+        // it makes room by shrinking (sizeStyle flexGrow) + the ScrollView.
+        behavior={detent === 'content' && Platform.OS === 'ios' ? 'padding' : undefined}
         pointerEvents="box-none"
         style={styles.host}
       >
         <Animated.View onLayout={handleSheetLayout} style={[sizeStyle, { transform: [{ translateY }] }]}>
-          {children}
+          <BottomSheetLayoutContext.Provider value={{ scrollMaxHeight }}>
+            {children}
+          </BottomSheetLayoutContext.Provider>
         </Animated.View>
       </KeyboardAvoidingView>
     </RNView>
-  );
+  ) : null;
+
+  // Register the subtree into the overlay layer while mounted (the <Layer>
+  // pattern): the outlet renders it full-window, above the safe-area padding.
+  // TWO effects, NOT one (mirrors LayerHost.tsx) — this split is load-bearing
+  // for stacking order. A single register-with-cleanup effect would, on every
+  // re-render, run cleanup (unregister) then body (register), and register
+  // re-APPENDS a fresh id to the TOP — so a lower sheet that re-renders (keyboard,
+  // content, height, any parent re-render) would jump above an upper layer,
+  // inverting the mount-order guarantee. Splitting fixes it:
+  //   A · upsert the fresh node WITHOUT cleanup — register upserts in place, so
+  //       a re-render refreshes the node and keeps its slot in the stack.
+  React.useLayoutEffect(() => {
+    if (!mounted) return;
+    overlay.register(layerId, overlayNode, {
+      dismissible,
+      onRequestClose: dismissible ? requestClose : undefined,
+    });
+  }, [mounted, overlayNode, dismissible, requestClose, overlay, layerId]);
+  //   B · the ONLY place the layer leaves the stack — on close (!mounted) or
+  //       unmount. Never runs on a node/dismissible change, so order is stable.
+  React.useLayoutEffect(() => {
+    if (!mounted) overlay.unregister(layerId);
+    return () => overlay.unregister(layerId);
+  }, [mounted, layerId, overlay]);
+
+  return null;
 };
 BottomSheet.displayName = 'BottomSheet';
 
@@ -168,11 +259,149 @@ export const BottomSheetPanel: React.FC<BottomSheetPanelProps> = ({ children }) 
 );
 BottomSheetPanel.displayName = 'BottomSheetPanel';
 
-export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }) => (
-  <RNScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-    {children}
-  </RNScrollView>
-);
+export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }) => {
+  // Bound the scroll to the sheet's available height (from the primitive via
+  // context) so its overflow actually scrolls — the panel can't provide a
+  // bounded height on its own (see BottomSheetLayoutContext). Outside a
+  // BottomSheet the cap is absent and it scrolls its parent's bounds as before.
+  const { scrollMaxHeight } = React.useContext(BottomSheetLayoutContext);
+  const scrollRef = React.useRef<React.ElementRef<typeof RNScrollView>>(null);
+  const scrollY = React.useRef(0);
+  const viewportHeight = React.useRef(0);
+  const preKeyboardViewportHeight = React.useRef(0);
+  const keyboardHeight = React.useRef(0);
+  const focusedInput = React.useRef<TextInput | null>(null);
+  const rafs = React.useRef<number[]>([]);
+  const timers = React.useRef<Array<ReturnType<typeof setTimeout>>>([]);
+  const [keyboardPadding, setKeyboardPadding] = React.useState(0);
+
+  const clearScheduledScrolls = React.useCallback(() => {
+    for (const raf of rafs.current) cancelAnimationFrame(raf);
+    for (const timer of timers.current) clearTimeout(timer);
+    rafs.current = [];
+    timers.current = [];
+  }, []);
+
+  const keyboardOcclusion = React.useCallback(() => {
+    const measuredViewport = viewportHeight.current || scrollMaxHeight || 0;
+    const beforeKeyboard = preKeyboardViewportHeight.current || measuredViewport;
+    const viewportShrink = Math.max(0, beforeKeyboard - measuredViewport);
+    return Math.max(0, keyboardHeight.current - viewportShrink);
+  }, [scrollMaxHeight]);
+
+  const updateKeyboardPadding = React.useCallback(() => {
+    if (keyboardHeight.current <= 0) {
+      setKeyboardPadding(0);
+      return;
+    }
+    setKeyboardPadding(keyboardOcclusion() + FOCUS_BOTTOM_MARGIN);
+  }, [keyboardOcclusion]);
+
+  const performScrollToInput = React.useCallback((input: TextInput | null) => {
+    const scroll = scrollRef.current;
+    if (!input || !scroll) return;
+
+    const scrollNativeRef = scroll.getNativeScrollRef?.();
+    if (scrollNativeRef == null || typeof input.measureLayout !== 'function') return;
+
+    input.measureLayout(
+      scrollNativeRef,
+      (_x, y, _width, height) => {
+        const measuredViewport = viewportHeight.current || scrollMaxHeight || 0;
+        const visibleHeight = Math.max(0, measuredViewport - keyboardOcclusion());
+        const currentY = scrollY.current;
+
+        let nextY = currentY;
+        if (visibleHeight > 0) {
+          const visibleTop = FOCUS_TOP_MARGIN;
+          const visibleBottom = visibleHeight - FOCUS_BOTTOM_MARGIN;
+          const inputTop = y;
+          const inputBottom = inputTop + height;
+          if (inputBottom > visibleBottom) {
+            nextY = currentY + inputBottom - visibleBottom;
+          } else if (inputTop < visibleTop) {
+            nextY = currentY + inputTop - visibleTop;
+          }
+        } else {
+          nextY = currentY + y - FOCUS_TOP_MARGIN;
+        }
+
+        const clampedY = Math.max(0, Math.round(nextY));
+        if (Math.abs(clampedY - currentY) < 1) return;
+        scroll.scrollTo({ y: clampedY, animated: true });
+        scrollY.current = clampedY;
+      },
+      () => undefined,
+    );
+  }, [keyboardOcclusion, scrollMaxHeight]);
+
+  const scheduleScrollToInput = React.useCallback((input: TextInput | null, delay = FOCUS_SCROLL_DELAY_MS) => {
+    if (!input) return;
+    clearScheduledScrolls();
+    focusedInput.current = input;
+    const raf = requestAnimationFrame(() => {
+      rafs.current = rafs.current.filter((item) => item !== raf);
+      const timer = setTimeout(() => {
+        timers.current = timers.current.filter((item) => item !== timer);
+        performScrollToInput(input);
+      }, delay);
+      timers.current.push(timer);
+    });
+    rafs.current.push(raf);
+  }, [clearScheduledScrolls, performScrollToInput]);
+
+  React.useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, (event: KeyboardEvent) => {
+      if (preKeyboardViewportHeight.current === 0) {
+        preKeyboardViewportHeight.current = viewportHeight.current || scrollMaxHeight || 0;
+      }
+      keyboardHeight.current = event.endCoordinates.height;
+      updateKeyboardPadding();
+      // Re-run after the keyboard transition because a focus event can arrive
+      // before native has delivered stable layout measurements.
+      scheduleScrollToInput(focusedInput.current, FOCUS_SCROLL_REPEAT_DELAY_MS);
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      preKeyboardViewportHeight.current = 0;
+      keyboardHeight.current = 0;
+      setKeyboardPadding(0);
+    });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+      clearScheduledScrolls();
+    };
+  }, [clearScheduledScrolls, scheduleScrollToInput]);
+
+  const focusScrollApi = React.useMemo<FocusScrollApi>(() => ({
+    requestScrollToFocusedInput: (input) => scheduleScrollToInput(input),
+  }), [scheduleScrollToInput]);
+
+  const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
+    viewportHeight.current = event.nativeEvent.layout.height;
+    if (keyboardHeight.current > 0) updateKeyboardPadding();
+  }, [updateKeyboardPadding]);
+
+  const handleScroll = React.useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    scrollY.current = event.nativeEvent.contentOffset.y;
+  }, []);
+
+  return (
+    <RNScrollView
+      ref={scrollRef}
+      style={scrollMaxHeight !== undefined ? { maxHeight: scrollMaxHeight } : undefined}
+      contentContainerStyle={[styles.scrollContent, keyboardPadding > 0 ? { paddingBottom: keyboardPadding } : null]}
+      keyboardShouldPersistTaps="handled"
+      onLayout={handleLayout}
+      onScroll={handleScroll}
+      scrollEventThrottle={16}
+    >
+      <FocusScrollProvider value={focusScrollApi}>{children}</FocusScrollProvider>
+    </RNScrollView>
+  );
+};
 BottomSheetScroll.displayName = 'BottomSheetScroll';
 
 const styles = StyleSheet.create({

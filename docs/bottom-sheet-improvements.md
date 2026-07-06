@@ -113,3 +113,120 @@ engineering, interacts with D2/D3. **Deferred** to the flow/motion arc.
 
 **Now:** D1 (simplification + ordering bug) → D3-cleanup (remove dead arming).
 **Flow/motion arc (later):** D4 (foundations exist) → D2 + D5 (morph + step motion, together).
+
+---
+
+# Overlay layer architecture — route B via `OverlayProvider` (LANDED)
+
+> **Status:** **LANDED** (`feat/overlay-provider`) · design lock 2026-07-05.
+> **Subsumes D4.** The status-bar-dim fidelity gap and keyboard avoidance are two faces of one problem —
+> the sheet's relationship to the window insets (top edge: status bar; bottom edge: keyboard). Both are
+> solved by relocating the overlay *above* the safe-area padding. Design locked with the operator; this
+> is the backbone of `prompts/brief-overlay-provider.md`.
+>
+> **What shipped:** `packages/rn/overlay.tsx` — `OverlayProvider` / `useOverlay` (a root provider mirroring
+> `theme.tsx`: a state-held layer registry, mount-order z-stacking, and hardware-back routing to the
+> topmost dismissible layer). `BottomSheet` became a REGISTRAR (registers its unchanged scrim + KAV +
+> `translateY` subtree into the provider outlet, returns `null`); the enter/exit slide + the sheet-height
+> measurement latch are byte-for-byte unchanged. Zero new native deps — the outlet is inset-agnostic and
+> covers the status bar because the consumer mounts the provider above their own safe-area padding
+> (expo-demo `App.tsx`). Web: a `data-overlay` device-frame mode (`demo.js`/`demo.css`) pins the status
+> bar + home affordance above the sheet so the static scrim dims the full screen. Validation: the
+> `packages/expo-demo` **Overlay** screen (a choice-list sheet + a `TextField` form sheet) and
+> `packages/rn/__tests__/overlay-provider.test.tsx` (registry · two-layer stacking · back routing ·
+> registrar · keyboard-reachable composition). **Native residue (operator-owned):** the true status-bar
+> dim + the keyboard push on a real iOS/Android device are not verifiable in the web/expo-web harness.
+>
+> **Follow-up fixes (coordinator review + operator device test):** (1) **Stacking order** — the registrar
+> now uses TWO layout effects (mirroring `LayerHost`): one upserts the fresh node WITHOUT cleanup, one
+> unregisters only on close/unmount. A single register-with-cleanup effect re-appended a re-rendering
+> lower layer to the top (latent with one sheet; the imminent toast trips it). Locked by an effect-level
+> re-render-in-isolation test. (2) **Keyboard (full-screen sheet)** — a `full` sheet must never be *pushed*
+> by `KeyboardAvoidingView`: it already fills the screen, so a height/padding push double-counts against
+> Android `adjustResize` and shoves the panel off the top (title clipped, janky on blur — the regression an
+> interim `behavior='height'` introduced). The correct model, mirroring nuri-expo `ModalSheet`'s full-page
+> case: **make room by shrinking the window, not moving the panel.** The `full` `sizeStyle` is now
+> `{ flexGrow: 1, maxHeight: 0.96 × window }` (fills at ~96% normally, keeps the top peek, and shrinks with
+> the `adjustResize`-resized window when the keyboard opens) instead of a fixed height; `KeyboardAvoidingView`
+> only pushes the small bottom-anchored `content` sheet (`detent === 'content' && iOS ? 'padding' :
+> undefined`); `BottomSheetScroll` sets `automaticallyAdjustKeyboardInsets` (iOS) to scroll the focused
+> field above the keyboard; and `app.json` sets `android.softwareKeyboardLayoutMode: "resize"` explicitly.
+> Keyboard reachability on a real device is **operator-verified residue** (the harness can't prove the
+> keyboard push — that's how the regression first slipped through). TextField focus parity is tracked in a
+> separate brief.
+
+## The decision: a general overlay layer, not a sheet patch
+
+The sheet's inline overlay is bounded by the safe-area-padded root, so its dim can't cover the status
+bar. The fix is route B — hoist the overlay above the padding. But the operator foresees **overlays that
+stack** (a toast on top of a sheet; later, flow-engine `pushFlow` interrupts). Inline-extend (option B
+in the review) can't stack; a native `<Modal>` (option A) forks web/RN and was rejected in production.
+So we introduce the DS **overlay layer**: one host that stacks tenants in mount order.
+
+- **Tenants:** BottomSheet (now · tenant #1) → toast (soon · tenant #2, imperative) → flow-engine sheet
+  (postponed · tenant #3). We build the *layer*, not the tenants beyond the sheet.
+
+## RN — `OverlayProvider` (mirrors the theme provider)
+
+- A root provider, same shape as `packages/rn/theme.tsx` (`createContext` + `Provider` + `use*` hook).
+  Named **`OverlayProvider`** (no `Nuri` prefix — that convention is web-only). Consumer mounts it once
+  at the app root, like `NuriThemeProvider`.
+- It owns the overlay **runtime**: the registry of active layers, z-stacking (mount order), the scrim,
+  and back/dismiss routing to the **topmost** dismissible layer.
+- `<BottomSheet open>` stays the authored, **declarative** API — but instead of drawing its `absoluteFill`
+  inline, it **registers into the provider via context** and renders in the provider's outlet at the top
+  of the tree (above the padding, stackable). Today's inline overlay logic (scrim, `absoluteFill`,
+  `KeyboardAvoidingView`, `translateY` enter/exit) **migrates into the provider's outlet**; `BottomSheet`
+  becomes a thin registrar.
+
+## Zero-native-dep preserved (the sharp constraint)
+
+The provider must **NOT** depend on `react-native-safe-area-context` (it is not a `packages/rn` dep, and
+the sheet's founding principle is *no native deps beyond react-native*). It doesn't need to: like
+nuri-expo's `LayerHost`, the overlay is **inset-agnostic** — it covers the status bar *because* the
+consumer mounts the provider **above their own safe-area padding**, so the outlet's `absoluteFill` fills
+the whole window. The consumer owns insets (decision 58 relocated: the provider outlet becomes the one
+place above the padding). If a bottom inset is ever needed for the panel, it comes via an optional prop,
+never a hard safe-area dependency.
+
+## Web — a static device-frame layer
+
+Web is static mockup (no interaction), so there is **no provider runtime on web**. The static playground
+renders the **panel descriptor** (`bottom-sheet-panel`) in the device-frame overlay layer; stacking is
+z-index in static HTML. Ensuring the scrim covers the simulated status-bar strip is a **harness-level**
+adjustment (device-frame territory), not page-local CSS faking a component.
+
+## Behavior/data split (why this is on-architecture, not a special case)
+
+| Layer | Kind | Home | Platforms |
+|---|---|---|---|
+| `OverlayProvider` | runtime **behavior** (portal, stacking, inset, dismiss) | RN provider (like theme) | RN only |
+| panel | static **presentation** = data | `bottom-sheet-panel` descriptor | shared (web + RN) |
+
+Parity lives at the **descriptor** (the panel looks identical); the provider is RN-only behavior with no
+web equivalent required (behavior ≠ data; web is static). The consumer still owns `open`/`onClose`
+(business state); the provider owns only presentation infrastructure — exactly like the theme provider
+owns theme, not your data. Inside the DS boundary.
+
+## Forward-compat (design for, don't build)
+
+The host API is **general** — `register / update / unregister` a layer with `{ kind, dismissible }`,
+z-order by mount, topmost-owns-back. Prove generality with a test that a **second layer stacks above a
+sheet** (the toast case), but do NOT build the toast or the flow engine here. When the flow engine is
+un-postponed, its persistent sheet + `pushFlow` interrupts mount into this same layer with no rewrite —
+this overlay layer is the shared substrate all three tenants need.
+
+## Validation split
+
+- **Web**: static playground shows the composition (sheet open + dim over the status-bar strip in the
+  device frame; a stacked second layer).
+- **RN**: a new **sheet-bearing demo screen in `expo-demo`** (the sheet isn't mounted there yet) exercises
+  open/close, a form input (keyboard), and a stacked second layer. Expo web preview verifies layout;
+  **the status-bar dim + keyboard on a real iOS/Android device is operator-owned residue** (the web
+  harness can't prove native status-bar behavior).
+
+## Reference implementation
+
+nuri-expo `components/LayerHost.tsx` (the registry + host) + `components/ModalSheet.tsx` (the in-tree
+overlay, hoisted via LayerHost, `KeyboardAvoidingView`, `applyTopInset={false}`). Port the pattern; the
+new work is the web/RN-parity framing (descriptor panel + RN provider) and the zero-dep inset stance.

@@ -51,6 +51,7 @@ import {
   BottomSheet,
   BottomSheetPanel,
   BottomSheetScroll,
+  OverlayProvider,
 } from '../index';
 import { icons } from '../contract';
 import type { Descriptor, Axes, TypographyNS } from '../contract';
@@ -361,24 +362,30 @@ describe('render-smoke — the ergonomic components mount headless', () => {
 
     expect(tr.toJSON()).toBeTruthy();
     expect(JSON.stringify(tr.toJSON())).toContain('"backgroundColor":"transparent"');
-    expect(tr.root.findByType(ScrollView).props.contentContainerStyle).toEqual({ flexGrow: 1 });
+    const scrollContentStyle = tr.root.findByType(ScrollView).props.contentContainerStyle as unknown;
+    const flatScrollContentStyle = Array.isArray(scrollContentStyle)
+      ? Object.assign({}, ...scrollContentStyle.filter(Boolean))
+      : scrollContentStyle;
+    expect(flatScrollContentStyle).toEqual({ flexGrow: 1 });
   });
 
   test('BottomSheet — structural host renders descriptor-backed panel and core-RN scroll wrapper', () => {
     const tr = render(
       <NuriThemeProvider>
-        <NuriScreen>
-          <BottomSheet open detent="content" scrim="dim" dismissible>
-            <BottomSheetPanel>
-              <Topbar surface="transparent">
-                <TopbarCenter><Text>Receive</Text></TopbarCenter>
-              </Topbar>
-              <BottomSheetScroll>
-                <Button variant="solid">Paste Bitcoin Address</Button>
-              </BottomSheetScroll>
-            </BottomSheetPanel>
-          </BottomSheet>
-        </NuriScreen>
+        <OverlayProvider>
+          <NuriScreen>
+            <BottomSheet open detent="content" scrim="dim" dismissible>
+              <BottomSheetPanel>
+                <Topbar surface="transparent">
+                  <TopbarCenter><Text>Receive</Text></TopbarCenter>
+                </Topbar>
+                <BottomSheetScroll>
+                  <Button variant="solid">Paste Bitcoin Address</Button>
+                </BottomSheetScroll>
+              </BottomSheetPanel>
+            </BottomSheet>
+          </NuriScreen>
+        </OverlayProvider>
       </NuriThemeProvider>,
     );
 
@@ -390,15 +397,21 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       return flat.borderTopLeftRadius === 18 && flat.borderTopRightRadius === 18;
     });
     expect(panelChrome).toBeTruthy();
-    expect(tr.root.findByType(ScrollView).props.contentContainerStyle).toEqual({ flexGrow: 1 });
+    const scrollContentStyle = tr.root.findByType(ScrollView).props.contentContainerStyle as unknown;
+    const flatScrollContentStyle = Array.isArray(scrollContentStyle)
+      ? Object.assign({}, ...scrollContentStyle.filter(Boolean))
+      : scrollContentStyle;
+    expect(flatScrollContentStyle).toEqual({ flexGrow: 1 });
   });
 
   test('BottomSheet — closed means no mounted engine surface', () => {
     const tr = render(
       <NuriThemeProvider>
-        <BottomSheet open={false}>
-          <BottomSheetPanel><Text>Hidden</Text></BottomSheetPanel>
-        </BottomSheet>
+        <OverlayProvider>
+          <BottomSheet open={false}>
+            <BottomSheetPanel><Text>Hidden</Text></BottomSheetPanel>
+          </BottomSheet>
+        </OverlayProvider>
       </NuriThemeProvider>,
     );
     expect(tr.toJSON()).toBeNull();
