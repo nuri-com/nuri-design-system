@@ -15,7 +15,7 @@
 
 import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { BackHandler, KeyboardAvoidingView, ScrollView, Text, TextInput, View } from 'react-native';
+import { BackHandler, Keyboard, KeyboardAvoidingView, ScrollView, Text, TextInput, View } from 'react-native';
 import { NuriThemeProvider } from '../theme';
 import {
   BottomSheet,
@@ -401,6 +401,41 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       jest.useRealTimers();
       global.requestAnimationFrame = originalRequestAnimationFrame;
       global.cancelAnimationFrame = originalCancelAnimationFrame;
+    }
+  });
+
+  test('BottomSheetScroll adds keyboard bottom padding when the viewport does not resize', () => {
+    const keyboardHandlers: Record<string, (event: { endCoordinates: { height: number } }) => void> = {};
+    const addSpy = jest
+      .spyOn(Keyboard, 'addListener')
+      .mockImplementation((eventName, cb) => {
+        keyboardHandlers[eventName] = cb as (event: { endCoordinates: { height: number } }) => void;
+        return { remove: () => undefined } as never;
+      });
+
+    try {
+      const tr = render(
+        <NuriThemeProvider>
+          <BottomSheetScroll>
+            <Text>Field</Text>
+          </BottomSheetScroll>
+        </NuriThemeProvider>,
+      );
+
+      const scroll = tr.root.findByType(ScrollView);
+      act(() => {
+        scroll.props.onLayout({ nativeEvent: { layout: { height: 600 } } });
+      });
+      act(() => {
+        const show = keyboardHandlers.keyboardWillShow ?? keyboardHandlers.keyboardDidShow;
+        show({ endCoordinates: { height: 280 } });
+      });
+
+      const contentStyle = scroll.props.contentContainerStyle as unknown[];
+      const flat = Object.assign({}, ...contentStyle.filter(Boolean));
+      expect(flat.paddingBottom).toBe(304);
+    } finally {
+      addSpy.mockRestore();
     }
   });
 

@@ -264,6 +264,7 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
   const scrollRef = React.useRef<React.ElementRef<typeof RNScrollView>>(null);
   const scrollY = React.useRef(0);
   const viewportHeight = React.useRef(0);
+  const preKeyboardViewportHeight = React.useRef(0);
   const keyboardHeight = React.useRef(0);
   const focusedInput = React.useRef<TextInput | null>(null);
   const rafs = React.useRef<number[]>([]);
@@ -277,6 +278,21 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
     timers.current = [];
   }, []);
 
+  const keyboardOcclusion = React.useCallback(() => {
+    const measuredViewport = viewportHeight.current || scrollMaxHeight || 0;
+    const beforeKeyboard = preKeyboardViewportHeight.current || measuredViewport;
+    const viewportShrink = Math.max(0, beforeKeyboard - measuredViewport);
+    return Math.max(0, keyboardHeight.current - viewportShrink);
+  }, [scrollMaxHeight]);
+
+  const updateKeyboardPadding = React.useCallback(() => {
+    if (keyboardHeight.current <= 0) {
+      setKeyboardPadding(0);
+      return;
+    }
+    setKeyboardPadding(keyboardOcclusion() + FOCUS_BOTTOM_MARGIN);
+  }, [keyboardOcclusion]);
+
   const performScrollToInput = React.useCallback((input: TextInput | null) => {
     const scroll = scrollRef.current;
     if (!input || !scroll) return;
@@ -288,8 +304,7 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
       scrollNativeRef,
       (_x, y, _width, height) => {
         const measuredViewport = viewportHeight.current || scrollMaxHeight || 0;
-        const keyboardOcclusion = Platform.OS === 'ios' ? keyboardHeight.current : 0;
-        const visibleHeight = Math.max(0, measuredViewport - keyboardOcclusion);
+        const visibleHeight = Math.max(0, measuredViewport - keyboardOcclusion());
         const currentY = scrollY.current;
 
         let nextY = currentY;
@@ -314,7 +329,7 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
       },
       () => undefined,
     );
-  }, [scrollMaxHeight]);
+  }, [keyboardOcclusion, scrollMaxHeight]);
 
   const scheduleScrollToInput = React.useCallback((input: TextInput | null, delay = FOCUS_SCROLL_DELAY_MS) => {
     if (!input) return;
@@ -334,13 +349,17 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
     const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
     const showSub = Keyboard.addListener(showEvent, (event: KeyboardEvent) => {
+      if (preKeyboardViewportHeight.current === 0) {
+        preKeyboardViewportHeight.current = viewportHeight.current || scrollMaxHeight || 0;
+      }
       keyboardHeight.current = event.endCoordinates.height;
-      setKeyboardPadding(Platform.OS === 'ios' ? event.endCoordinates.height + FOCUS_BOTTOM_MARGIN : FOCUS_BOTTOM_MARGIN);
+      updateKeyboardPadding();
       // Re-run after the keyboard transition because a focus event can arrive
       // before native has delivered stable layout measurements.
       scheduleScrollToInput(focusedInput.current, FOCUS_SCROLL_REPEAT_DELAY_MS);
     });
     const hideSub = Keyboard.addListener(hideEvent, () => {
+      preKeyboardViewportHeight.current = 0;
       keyboardHeight.current = 0;
       setKeyboardPadding(0);
     });
@@ -357,7 +376,8 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
 
   const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
     viewportHeight.current = event.nativeEvent.layout.height;
-  }, []);
+    if (keyboardHeight.current > 0) updateKeyboardPadding();
+  }, [updateKeyboardPadding]);
 
   const handleScroll = React.useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     scrollY.current = event.nativeEvent.contentOffset.y;
