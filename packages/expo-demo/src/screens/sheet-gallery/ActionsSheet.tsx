@@ -15,8 +15,7 @@ import {
   Text,
   TopbarTrailing,
   View,
-} from '../../components/ui';
-import { METHODS } from './data';
+} from '@ds';
 
 export function ActionsSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
@@ -36,20 +35,23 @@ export function ActionsSheet({ open, onClose }: { open: boolean; onClose: () => 
             </View>
 
             <List>
-              {METHODS.map((method, index) => (
-                <React.Fragment key={method.label}>
-                  {index > 0 ? <ListSeparator /> : null}
-                  <ListAction accessibilityLabel={method.label} onPress={onClose}>
-                    {method.accent ? (
-                      <ListActionLeadingAvatar name={method.icon} variant="solid" accent={method.accent} />
-                    ) : (
-                      <ListActionLeadingAvatar name={method.icon} variant="solid" />
-                    )}
-                    <ListActionText>{method.label}</ListActionText>
-                    <ListActionTrailIcon name="chevron-right" />
-                  </ListAction>
-                </React.Fragment>
-              ))}
+              <ListAction accessibilityLabel="Bitcoin wallet" onPress={onClose}>
+                <ListActionLeadingAvatar name="wallet" variant="solid" accent="orange" />
+                <ListActionText>Bitcoin wallet</ListActionText>
+                <ListActionTrailIcon name="chevron-right" />
+              </ListAction>
+              <ListSeparator />
+              <ListAction accessibilityLabel="Credit card" onPress={onClose}>
+                <ListActionLeadingAvatar name="card" variant="solid" accent="lilac" />
+                <ListActionText>Credit card</ListActionText>
+                <ListActionTrailIcon name="chevron-right" />
+              </ListAction>
+              <ListSeparator />
+              <ListAction accessibilityLabel="Convert to euro" onPress={onClose}>
+                <ListActionLeadingAvatar name="transfer-horizontal" variant="solid" />
+                <ListActionText>Convert to euro</ListActionText>
+                <ListActionTrailIcon name="chevron-right" />
+              </ListAction>
             </List>
           </View>
         </BottomSheetScroll>

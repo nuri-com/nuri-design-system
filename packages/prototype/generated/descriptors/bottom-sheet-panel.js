@@ -25,7 +25,7 @@ export const bottomSheetPanelDescriptor = {
       root: {
         stack: { direction: 'column', align: 'stretch', fill: 'grow' },
         palette: { chrome: 'canvas' },
-        box: { radiusTop: 'lg', paddingTop: 'md', paddingBottom: 'lg' },
+        box: { radiusTop: 'lg', paddingBottom: 'lg' },
         effect: { elevation: 'raised' },
       },
     },

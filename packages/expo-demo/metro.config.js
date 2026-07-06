@@ -14,6 +14,7 @@ const path = require('path');
 
 const projectRoot = __dirname;
 const monorepoRoot = path.resolve(projectRoot, '../..');
+const dsEntry = path.resolve(monorepoRoot, 'packages/rn/index.ts');
 
 const config = getDefaultConfig(projectRoot);
 
@@ -46,6 +47,10 @@ config.resolver.nodeModulesPaths = [
 // are version-identical, bundling two `react-native` module instances on Android
 // can double-run global exception/devtools setup before the app paints.
 config.resolver.resolveRequest = (context, moduleName, platform) => {
+  if (moduleName === '@ds') {
+    return { type: 'sourceFile', filePath: dsEntry };
+  }
+
   if (
     moduleName === 'react' ||
     moduleName === 'react-dom' ||

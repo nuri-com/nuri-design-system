@@ -15,7 +15,7 @@
 
 import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { BackHandler, Keyboard, KeyboardAvoidingView, ScrollView, Text, TextInput, View } from 'react-native';
+import { BackHandler, Keyboard, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from 'react-native';
 import { NuriThemeProvider } from '../theme';
 import {
   BottomSheet,
@@ -30,6 +30,7 @@ import {
   useOverlay,
 } from '../index';
 import type { OverlayApi } from '../index';
+import { space } from '../generated/data/tokens';
 import { type FocusScrollApi, useFocusScroll } from '../runtime/focus-scroll';
 
 type ScrollViewWithInnerRef = ScrollView & {
@@ -402,6 +403,12 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       });
     expect(topbarHost).toBeTruthy();
     expect(footerHost).toBeTruthy();
+    expect(flatStyle(topbarHost!.props.style).paddingTop).toBe(space.lg);
+    const footerHostStyle = flatStyle(footerHost!.props.style);
+    expect(footerHostStyle).not.toHaveProperty('paddingHorizontal');
+    expect(footerHostStyle).not.toHaveProperty('paddingTop');
+    expect(footerHostStyle).not.toHaveProperty('paddingBottom');
+    const scrollMaxHeightBeforeFooterMeasure = flatStyle(tr.root.findByType(ScrollView).props.style).maxHeight;
 
     act(() => {
       topbarHost!.props.onLayout({ nativeEvent: { layout: { height: 56 } } });
@@ -412,7 +419,117 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     const contentStyle = flatStyle(scroll.props.contentContainerStyle);
     expect(contentStyle.paddingTop).toBe(56);
     expect(contentStyle.paddingBottom).toBe(72);
-    expect(flatStyle(scroll.props.style).maxHeight).toEqual(expect.any(Number));
+    expect(flatStyle(scroll.props.style).maxHeight).toBe(scrollMaxHeightBeforeFooterMeasure);
+  });
+
+  test('BottomSheetFooter follows the keyboard on full sheets', () => {
+    const keyboardHandlers: Record<string, Array<(event: { endCoordinates: { height: number; screenY: number } }) => void>> = {};
+    const addSpy = jest
+      .spyOn(Keyboard, 'addListener')
+      .mockImplementation((eventName, cb) => {
+        keyboardHandlers[eventName] ??= [];
+        keyboardHandlers[eventName].push(cb as (event: { endCoordinates: { height: number; screenY: number } }) => void);
+        return { remove: () => undefined } as never;
+      });
+
+    try {
+      const tr = render(
+        <NuriThemeProvider>
+          <OverlayProvider>
+            <BottomSheet open detent="full">
+              <BottomSheetPanel>
+                <BottomSheetScroll>
+                  <Text>Body</Text>
+                </BottomSheetScroll>
+                <BottomSheetFooter>
+                  <Button variant="solid">Continue</Button>
+                </BottomSheetFooter>
+              </BottomSheetPanel>
+            </BottomSheet>
+          </OverlayProvider>
+        </NuriThemeProvider>,
+      );
+
+      const findFooterHost = () => tr.root
+        .findAllByType(View)
+        .find((node) => {
+          const style = flatStyle(node.props.style);
+          return typeof node.props.onLayout === 'function' && style.zIndex === 2 && style.left === 0 && style.right === 0;
+        });
+
+      expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(0);
+
+      act(() => {
+        const showHandlers = keyboardHandlers.keyboardWillShow ?? keyboardHandlers.keyboardDidShow;
+        for (const show of showHandlers) show({ endCoordinates: { height: 280, screenY: 0 } });
+      });
+      expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(280);
+
+      act(() => {
+        const hideHandlers = keyboardHandlers.keyboardWillHide ?? keyboardHandlers.keyboardDidHide;
+        for (const hide of hideHandlers) hide({ endCoordinates: { height: 0, screenY: 0 } });
+      });
+      expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(0);
+    } finally {
+      addSpy.mockRestore();
+    }
+  });
+
+  test('BottomSheetFooter does not double-count Android adjustResize', () => {
+    const originalPlatformOS = Platform.OS;
+    Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'android' });
+
+    const keyboardHandlers: Record<string, Array<(event: { endCoordinates: { height: number; screenY: number } }) => void>> = {};
+    const addSpy = jest
+      .spyOn(Keyboard, 'addListener')
+      .mockImplementation((eventName, cb) => {
+        keyboardHandlers[eventName] ??= [];
+        keyboardHandlers[eventName].push(cb as (event: { endCoordinates: { height: number; screenY: number } }) => void);
+        return { remove: () => undefined } as never;
+      });
+
+    try {
+      const tr = render(
+        <NuriThemeProvider>
+          <OverlayProvider>
+            <BottomSheet open detent="full">
+              <BottomSheetPanel>
+                <BottomSheetScroll>
+                  <Text>Body</Text>
+                </BottomSheetScroll>
+                <BottomSheetFooter>
+                  <Button variant="solid">Continue</Button>
+                </BottomSheetFooter>
+              </BottomSheetPanel>
+            </BottomSheet>
+          </OverlayProvider>
+        </NuriThemeProvider>,
+      );
+
+      const findFooterHost = () => tr.root
+        .findAllByType(View)
+        .find((node) => {
+          const style = flatStyle(node.props.style);
+          return typeof node.props.onLayout === 'function' && style.zIndex === 2 && style.left === 0 && style.right === 0;
+        });
+
+      expect(keyboardHandlers.keyboardDidShow).toBeTruthy();
+      expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(0);
+
+      const scrollMaxHeight = flatStyle(tr.root.findByType(ScrollView).props.style).maxHeight;
+      expect(scrollMaxHeight).toEqual(expect.any(Number));
+      const resizedWindowBottom = (scrollMaxHeight as number) + 40;
+
+      act(() => {
+        for (const show of keyboardHandlers.keyboardDidShow!) {
+          show({ endCoordinates: { height: 280, screenY: resizedWindowBottom } });
+        }
+      });
+      expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(0);
+    } finally {
+      addSpy.mockRestore();
+      Object.defineProperty(Platform, 'OS', { configurable: true, get: () => originalPlatformOS });
+    }
   });
 
   test('BottomSheetScroll coordinator measures the focused input and scrolls just enough', () => {

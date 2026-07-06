@@ -14,8 +14,7 @@ import {
   TextFieldLabel,
   TopbarTrailing,
   View,
-} from '../../components/ui';
-import { FORM_FIELDS } from './data';
+} from '@ds';
 
 export function FormSheet({
   open,
@@ -24,8 +23,17 @@ export function FormSheet({
   onClose,
 }: {
   open: boolean;
-  values: Record<string, string>;
-  onChangeField: (id: string) => (value: string) => void;
+  values: {
+    iban: string;
+    firstName: string;
+    secondName: string;
+    reference: string;
+    email: string;
+    note: string;
+  };
+  onChangeField: (
+    id: 'iban' | 'firstName' | 'secondName' | 'reference' | 'email' | 'note',
+  ) => (value: string) => void;
   onClose: () => void;
 }) {
   return (
@@ -45,26 +53,38 @@ export function FormSheet({
             </View>
 
             <View direction="column" align="stretch" justify="start" gap="xl">
-              {FORM_FIELDS.map((field) => (
-                <TextField
-                  key={field.id}
-                  value={values[field.id] ?? ''}
-                  onChangeText={onChangeField(field.id)}
-                  placeholder={field.placeholder}
-                  inputMode={field.inputMode}
-                >
-                  <TextFieldLabel>{field.label}</TextFieldLabel>
-                  {field.action ? (
-                    <TextFieldButton accessibilityLabel={field.action}>{field.action}</TextFieldButton>
-                  ) : null}
-                </TextField>
-              ))}
+              <TextField value={values.iban} onChangeText={onChangeField('iban')} placeholder="IBAN">
+                <TextFieldLabel>IBAN*</TextFieldLabel>
+                <TextFieldButton accessibilityLabel="Paste IBAN">Paste</TextFieldButton>
+              </TextField>
+
+              <TextField value={values.firstName} onChangeText={onChangeField('firstName')} placeholder="eg. Satoshi">
+                <TextFieldLabel>First name*</TextFieldLabel>
+              </TextField>
+
+              <TextField value={values.secondName} onChangeText={onChangeField('secondName')} placeholder="eg. Nakamoto">
+                <TextFieldLabel>Second name*</TextFieldLabel>
+              </TextField>
+
+              <TextField value={values.reference} onChangeText={onChangeField('reference')} placeholder="Optional">
+                <TextFieldLabel>Reference</TextFieldLabel>
+              </TextField>
+
+              <TextField value={values.email} onChangeText={onChangeField('email')} placeholder="name@example.com" inputMode="email">
+                <TextFieldLabel>Email</TextFieldLabel>
+              </TextField>
+
+              <TextField value={values.note} onChangeText={onChangeField('note')} placeholder="Add a short note">
+                <TextFieldLabel>Note</TextFieldLabel>
+              </TextField>
             </View>
           </View>
         </BottomSheetScroll>
 
         <BottomSheetFooter>
-          <Button size="lg" variant="solid" accent="lilac" onPress={onClose}>Save recipient</Button>
+          <View chrome="strong" direction="row" align="center" justify="end" paddingY="sm" paddingX="lg">
+            <Button size="sm" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
+          </View>
         </BottomSheetFooter>
       </BottomSheetPanel>
     </BottomSheet>
