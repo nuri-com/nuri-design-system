@@ -8,8 +8,10 @@
 
 export {
   BottomSheet,
+  BottomSheetFooter,
   BottomSheetPanel,
   BottomSheetScroll,
+  BottomSheetTopbar,
   Button,
   ButtonIcon,
   IconButton,

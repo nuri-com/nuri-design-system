@@ -63,12 +63,12 @@
 
         <nuri-bottom-sheet open detent="full" scrim="dim">
           <nuri-bottom-sheet-panel>
-          <nuri-topbar surface="transparent">
+          <nuri-bottom-sheet-topbar surface="transparent">
             <nuri-topbar-trailing>
               <nuri-icon-button icon="download" variant="soft" aria-label="Download"></nuri-icon-button>
               <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
             </nuri-topbar-trailing>
-          </nuri-topbar>
+          </nuri-bottom-sheet-topbar>
 
           <nuri-bottom-sheet-scroll>
           <nuri-view direction="column" align="stretch" justify="start" gap="xl" padding-bottom="lg">
@@ -240,15 +240,15 @@
 
         <nuri-bottom-sheet open detent="full" scrim="dim">
           <nuri-bottom-sheet-panel>
-            <nuri-view direction="column" align="stretch" justify="start" gap="none" fill>
-          <nuri-topbar surface="transparent">
+          <nuri-bottom-sheet-topbar surface="transparent">
             <nuri-topbar-trailing>
               <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
               <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
             </nuri-topbar-trailing>
-          </nuri-topbar>
+          </nuri-bottom-sheet-topbar>
 
-          <nuri-view direction="column" align="stretch" justify="between" gap="xl" padding-x="lg" padding-bottom="lg" fill>
+          <nuri-bottom-sheet-scroll>
+          <nuri-view direction="column" align="stretch" justify="between" gap="xl" padding-x="lg" fill>
             <nuri-view direction="column" align="stretch" justify="start" gap="sm">
               <nuri-typography size="lg" emphasis>How much do you want to send?</nuri-typography>
               <nuri-typography size="md" muted>€207 available in your cash account</nuri-typography>
@@ -289,11 +289,13 @@
                   <nuri-button><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
                 </nuri-view>
               </nuri-view>
-
-              <nuri-button variant="solid" accent="lilac">Next</nuri-button>
             </nuri-view>
           </nuri-view>
-        </nuri-view>
+          </nuri-bottom-sheet-scroll>
+
+          <nuri-bottom-sheet-footer>
+            <nuri-button variant="solid" accent="lilac">Next</nuri-button>
+          </nuri-bottom-sheet-footer>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>
       </nuri-stack>
@@ -333,40 +335,40 @@
 
         <nuri-bottom-sheet open detent="content" scrim="dim">
           <nuri-bottom-sheet-panel>
-            <nuri-view direction="column" align="stretch" justify="start" gap="xl" padding-bottom="lg">
-              <nuri-view direction="column" align="stretch" justify="start" gap="none">
-          <nuri-topbar surface="transparent">
+          <nuri-bottom-sheet-topbar surface="transparent">
             <nuri-topbar-trailing>
               <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
             </nuri-topbar-trailing>
-          </nuri-topbar>
+          </nuri-bottom-sheet-topbar>
 
-          <nuri-view direction="column" align="stretch" justify="start" gap="sm" padding-x="lg">
-            <nuri-typography size="lg" emphasis>Where do you want to send it?</nuri-typography>
-            <nuri-typography size="md" muted>Choose a transfer method</nuri-typography>
+          <nuri-bottom-sheet-scroll>
+          <nuri-view direction="column" align="stretch" justify="start" gap="xl" padding-bottom="lg">
+            <nuri-view direction="column" align="stretch" justify="start" gap="sm" padding-x="lg">
+              <nuri-typography size="lg" emphasis>Where do you want to send it?</nuri-typography>
+              <nuri-typography size="md" muted>Choose a transfer method</nuri-typography>
+            </nuri-view>
+
+            <nuri-list>
+              <nuri-list-action aria-label="Bitcoin wallet">
+                <nuri-list-action-leading-avatar name="wallet" variant="solid" accent="orange"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Bitcoin wallet</nuri-list-action-text>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-separator></nuri-list-separator>
+              <nuri-list-action aria-label="Credit card">
+                <nuri-list-action-leading-avatar name="card" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Credit card</nuri-list-action-text>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-separator></nuri-list-separator>
+              <nuri-list-action aria-label="Convert to euro">
+                <nuri-list-action-leading-avatar name="transfer-horizontal" variant="solid"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Convert to euro</nuri-list-action-text>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
           </nuri-view>
-        </nuri-view>
-
-        <nuri-list>
-          <nuri-list-action aria-label="Bitcoin wallet">
-            <nuri-list-action-leading-avatar name="wallet" variant="solid" accent="orange"></nuri-list-action-leading-avatar>
-            <nuri-list-action-text>Bitcoin wallet</nuri-list-action-text>
-            <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
-          </nuri-list-action>
-          <nuri-list-separator></nuri-list-separator>
-          <nuri-list-action aria-label="Credit card">
-            <nuri-list-action-leading-avatar name="card" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
-            <nuri-list-action-text>Credit card</nuri-list-action-text>
-            <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
-          </nuri-list-action>
-          <nuri-list-separator></nuri-list-separator>
-          <nuri-list-action aria-label="Convert to euro">
-            <nuri-list-action-leading-avatar name="transfer-horizontal" variant="solid"></nuri-list-action-leading-avatar>
-            <nuri-list-action-text>Convert to euro</nuri-list-action-text>
-            <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
-          </nuri-list-action>
-        </nuri-list>
-      </nuri-view>
+          </nuri-bottom-sheet-scroll>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>
       </nuri-stack>
@@ -406,14 +408,14 @@
 
         <nuri-bottom-sheet open detent="full" scrim="dim">
           <nuri-bottom-sheet-panel>
-            <nuri-view direction="column" align="stretch" justify="start" gap="none" fill>
-          <nuri-topbar surface="transparent">
+          <nuri-bottom-sheet-topbar surface="transparent">
             <nuri-topbar-trailing>
               <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
             </nuri-topbar-trailing>
-          </nuri-topbar>
+          </nuri-bottom-sheet-topbar>
 
-          <nuri-view direction="column" align="stretch" justify="start" gap="xl" padding-x="lg" padding-bottom="lg" fill>
+          <nuri-bottom-sheet-scroll>
+          <nuri-view direction="column" align="stretch" justify="start" gap="xl" padding-x="lg" fill>
             <nuri-view direction="column" align="stretch" justify="start" gap="sm">
               <nuri-typography size="lg" emphasis>Who is your recipient?</nuri-typography>
               <nuri-typography size="md" muted>Enter their bank account details</nuri-typography>
@@ -438,7 +440,11 @@
               </nuri-text-field>
             </nuri-view>
           </nuri-view>
-        </nuri-view>
+          </nuri-bottom-sheet-scroll>
+
+          <nuri-bottom-sheet-footer>
+            <nuri-button variant="solid" accent="lilac">Save recipient</nuri-button>
+          </nuri-bottom-sheet-footer>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>
       </nuri-stack>

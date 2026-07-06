@@ -3495,6 +3495,8 @@ nuri-demo:not(:defined) {
   nuri-bottom-sheet {
     --nuri-bottom-sheet-scrim-none: transparent;
     --nuri-bottom-sheet-scrim-dim: transparent;
+    --nuri-bottom-sheet-topbar-block: 0px;
+    --nuri-bottom-sheet-footer-block: 0px;
 
     position: absolute;
     inset: 0;
@@ -3531,6 +3533,23 @@ nuri-demo:not(:defined) {
     pointer-events: auto;
   }
 
+  nuri-bottom-sheet-topbar {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    z-index: 2;
+    display: block;
+  }
+
+  nuri-bottom-sheet-footer {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    z-index: 2;
+    display: block;
+    padding: var(--nuri-space-md) var(--nuri-space-lg) var(--nuri-space-lg);
+  }
+
   nuri-bottom-sheet[detent="full"] > nuri-bottom-sheet-panel {
     block-size: calc(100% - 40px);
     max-block-size: calc(100% - 40px);
@@ -3539,6 +3558,9 @@ nuri-demo:not(:defined) {
   nuri-bottom-sheet-scroll {
     display: block;
     min-block-size: 0;
+    max-block-size: calc(100% - var(--nuri-bottom-sheet-footer-block));
+    padding-block-start: var(--nuri-bottom-sheet-topbar-block);
+    padding-block-end: var(--nuri-bottom-sheet-footer-block);
     overflow: auto;
     -webkit-overflow-scrolling: touch;
   }

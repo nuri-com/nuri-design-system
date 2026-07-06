@@ -49,8 +49,10 @@ import {
   NuriIcon,
   ListSeparator,
   BottomSheet,
+  BottomSheetFooter,
   BottomSheetPanel,
   BottomSheetScroll,
+  BottomSheetTopbar,
   OverlayProvider,
 } from '../index';
 import { icons } from '../contract';
@@ -369,19 +371,22 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(flatScrollContentStyle).toEqual({ flexGrow: 1 });
   });
 
-  test('BottomSheet — structural host renders descriptor-backed panel and core-RN scroll wrapper', () => {
+  test('BottomSheet — structural host renders sticky topbar, body scroll, and fixed footer', () => {
     const tr = render(
       <NuriThemeProvider>
         <OverlayProvider>
           <NuriScreen>
             <BottomSheet open detent="content" scrim="dim" dismissible>
               <BottomSheetPanel>
-                <Topbar surface="transparent">
+                <BottomSheetTopbar surface="transparent">
                   <TopbarCenter><Text>Receive</Text></TopbarCenter>
-                </Topbar>
+                </BottomSheetTopbar>
                 <BottomSheetScroll>
                   <Button variant="solid">Paste Bitcoin Address</Button>
                 </BottomSheetScroll>
+                <BottomSheetFooter>
+                  <Button variant="solid">Continue</Button>
+                </BottomSheetFooter>
               </BottomSheetPanel>
             </BottomSheet>
           </NuriScreen>
@@ -390,7 +395,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     );
 
     expect(tr.toJSON()).toBeTruthy();
-    expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toEqual(['Receive', 'Paste Bitcoin Address']);
+    expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toEqual(['Receive', 'Paste Bitcoin Address', 'Continue']);
     const panelChrome = tr.root.findAllByType(View).find((node) => {
       const style = node.props.style as unknown;
       const flat = Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : (style as Record<string, unknown>);

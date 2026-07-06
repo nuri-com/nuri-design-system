@@ -19,8 +19,10 @@ import { BackHandler, Keyboard, KeyboardAvoidingView, ScrollView, Text, TextInpu
 import { NuriThemeProvider } from '../theme';
 import {
   BottomSheet,
+  BottomSheetFooter,
   BottomSheetPanel,
   BottomSheetScroll,
+  BottomSheetTopbar,
   Button,
   OverlayProvider,
   TextField,
@@ -72,6 +74,12 @@ function FocusScrollProbe({ onReady }: { onReady: (api: FocusScrollApi | null) =
 
 function expectFocusScrollApi(api: FocusScrollApi | null): asserts api is FocusScrollApi {
   expect(api).not.toBeNull();
+}
+
+function flatStyle(style: unknown): Record<string, unknown> {
+  return Array.isArray(style)
+    ? Object.assign({}, ...style.filter(Boolean))
+    : ((style ?? {}) as Record<string, unknown>);
 }
 
 describe('OverlayProvider — registry runtime', () => {
@@ -307,13 +315,14 @@ describe('BottomSheet — registers into the overlay outlet', () => {
 
 describe('BottomSheet — keyboard-reachable form composition', () => {
   // The migrated overlay subtree keeps its KeyboardAvoidingView, and composing
-  // BottomSheetScroll keeps the fields AND the footer in one scrollable panel.
+  // BottomSheetScroll keeps fields in the body scroll while BottomSheetFooter is
+  // fixed outside it; measured footer height becomes the scroll's bottom inset.
   // LIMITATION (stated honestly): the actual keyboard push — KAV translating the
   // panel and the ScrollView scrolling the focused field above the keyboard — is
   // a native/layout behaviour the headless harness cannot compute. This asserts
   // the COMPOSED STRUCTURE that makes it reachable (a real-device check owns the
   // rest — see App / the expo-demo Sheet screen).
-  test('a form sheet mounts a KeyboardAvoidingView wrapping fields + footer', () => {
+  test('a form sheet mounts a KeyboardAvoidingView wrapping body fields and fixed footer', () => {
     const tr = render(
       <NuriThemeProvider>
         <OverlayProvider>
@@ -323,8 +332,10 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
                 <TextField value="" placeholder="Name">
                   <TextFieldLabel>Recipient</TextFieldLabel>
                 </TextField>
-                <Button variant="solid">Save</Button>
               </BottomSheetScroll>
+              <BottomSheetFooter>
+                <Button variant="solid">Save</Button>
+              </BottomSheetFooter>
             </BottomSheetPanel>
           </BottomSheet>
         </OverlayProvider>
@@ -333,9 +344,9 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
 
     // The keyboard-avoidance host is present in the mounted overlay subtree…
     expect(tr.root.findAllByType(KeyboardAvoidingView).length).toBeGreaterThan(0);
-    // …and the field's input AND the footer button label coexist under it (both
-    // reachable in one scroll region — the D4 "2-field form step stays reachable"
-    // shape, now with a consuming composition).
+    // …and the field's input plus fixed footer button label coexist under it;
+    // BottomSheetScroll owns field focus-scroll while the footer is represented
+    // as measured bottom inset.
     expect(tr.root.findAllByType(TextInput).length).toBeGreaterThan(0);
     expect(textsInTree(tr)).toContain('Save');
     expect(textsInTree(tr)).toContain('Recipient');
@@ -354,6 +365,54 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     const api = captured.api;
     expectFocusScrollApi(api);
     expect(api.requestScrollToFocusedInput).toEqual(expect.any(Function));
+  });
+
+  test('BottomSheetTopbar and BottomSheetFooter measure into BottomSheetScroll insets', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <OverlayProvider>
+          <BottomSheet open detent="full">
+            <BottomSheetPanel>
+              <BottomSheetTopbar>
+                <Button>Close</Button>
+              </BottomSheetTopbar>
+              <BottomSheetScroll>
+                <Text>Body</Text>
+              </BottomSheetScroll>
+              <BottomSheetFooter>
+                <Button variant="solid">Continue</Button>
+              </BottomSheetFooter>
+            </BottomSheetPanel>
+          </BottomSheet>
+        </OverlayProvider>
+      </NuriThemeProvider>,
+    );
+
+    const topbarHost = tr.root
+      .findAllByType(View)
+      .find((node) => {
+        const style = flatStyle(node.props.style);
+        return typeof node.props.onLayout === 'function' && style.top === 0 && style.zIndex === 2;
+      });
+    const footerHost = tr.root
+      .findAllByType(View)
+      .find((node) => {
+        const style = flatStyle(node.props.style);
+        return typeof node.props.onLayout === 'function' && style.bottom === 0 && style.zIndex === 2;
+      });
+    expect(topbarHost).toBeTruthy();
+    expect(footerHost).toBeTruthy();
+
+    act(() => {
+      topbarHost!.props.onLayout({ nativeEvent: { layout: { height: 56 } } });
+      footerHost!.props.onLayout({ nativeEvent: { layout: { height: 72 } } });
+    });
+
+    const scroll = tr.root.findByType(ScrollView);
+    const contentStyle = flatStyle(scroll.props.contentContainerStyle);
+    expect(contentStyle.paddingTop).toBe(56);
+    expect(contentStyle.paddingBottom).toBe(72);
+    expect(flatStyle(scroll.props.style).maxHeight).toEqual(expect.any(Number));
   });
 
   test('BottomSheetScroll coordinator measures the focused input and scrolls just enough', () => {
@@ -710,6 +769,81 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       expect(scrollToSpy).toHaveBeenCalledTimes(1);
     } finally {
       addSpy.mockRestore();
+      getInnerViewRefSpy.mockRestore();
+      scrollToSpy.mockRestore();
+      jest.useRealTimers();
+      global.requestAnimationFrame = originalRequestAnimationFrame;
+      global.cancelAnimationFrame = originalCancelAnimationFrame;
+    }
+  });
+
+  test('BottomSheetScroll focus-scroll safe top accounts for sticky topbar height', () => {
+    jest.useFakeTimers();
+    const originalRequestAnimationFrame = global.requestAnimationFrame;
+    const originalCancelAnimationFrame = global.cancelAnimationFrame;
+    global.requestAnimationFrame = ((cb: FrameRequestCallback) => setTimeout(() => cb(0), 0) as unknown as number);
+    global.cancelAnimationFrame = ((id: number) => clearTimeout(id as unknown as ReturnType<typeof setTimeout>));
+
+    const scrollContentRef = {};
+    const scrollTo = jest.fn();
+    const getInnerViewRefSpy = jest
+      .spyOn(ScrollView.prototype as ScrollViewWithInnerRef, 'getInnerViewRef')
+      .mockReturnValue(scrollContentRef as never);
+    const scrollToSpy = jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(scrollTo);
+    const measureLayout = jest.fn((_relativeNode, onSuccess: (x: number, y: number, width: number, height: number) => void) => {
+      onSuccess(0, 110, 120, 44);
+    });
+    const captured = { api: null as FocusScrollApi | null };
+
+    try {
+      let tr!: TestRenderer.ReactTestRenderer;
+      act(() => {
+        tr = TestRenderer.create(
+          <NuriThemeProvider>
+            <OverlayProvider>
+              <BottomSheet open detent="full">
+                <BottomSheetPanel>
+                  <BottomSheetTopbar>
+                    <Button>Close</Button>
+                  </BottomSheetTopbar>
+                  <BottomSheetScroll>
+                    <FocusScrollProbe onReady={(next) => (captured.api = next)} />
+                  </BottomSheetScroll>
+                </BottomSheetPanel>
+              </BottomSheet>
+            </OverlayProvider>
+          </NuriThemeProvider>,
+        );
+      });
+
+      const topbarHost = tr.root
+        .findAllByType(View)
+        .find((node) => {
+          const style = flatStyle(node.props.style);
+          return typeof node.props.onLayout === 'function' && style.top === 0 && style.zIndex === 2;
+        });
+      act(() => {
+        topbarHost!.props.onLayout({ nativeEvent: { layout: { height: 56 } } });
+      });
+
+      const scroll = tr.root.findByType(ScrollView);
+      act(() => {
+        scroll.props.onLayout({ nativeEvent: { layout: { height: 600 } } });
+        scroll.props.onScroll({ nativeEvent: { contentOffset: { y: 100 } } });
+      });
+
+      const api = captured.api;
+      expectFocusScrollApi(api);
+      act(() => {
+        api.requestScrollToFocusedInput({ measureLayout } as unknown as TextInput);
+      });
+      act(() => {
+        jest.runAllTimers();
+      });
+
+      expect(scrollTo).toHaveBeenCalledWith({ y: 38, animated: true });
+      expect(scrollToSpy).toHaveBeenCalledTimes(1);
+    } finally {
       getInnerViewRefSpy.mockRestore();
       scrollToSpy.mockRestore();
       jest.useRealTimers();
