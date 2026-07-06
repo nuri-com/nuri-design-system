@@ -7,26 +7,42 @@
 
 import * as React from 'react';
 
-import { View } from '../../components/ui';
+import { View } from '@ds';
 import { ActionsSheet } from './ActionsSheet';
 import { ActivitySheet } from './ActivitySheet';
 import { AmountSheet } from './AmountSheet';
 import { FormSheet } from './FormSheet';
 import { SheetMenu } from './SheetMenu';
 import { WalletHome } from './WalletHome';
-import { INITIAL_FORM_VALUES, WALLETS } from './data';
-import type { OpenSheet, Page, WalletTab } from './types';
+
+type Page = 'wallet' | 'sheetMenu';
+type WalletTab = 'bitcoin' | 'bank' | 'euro';
+type OpenSheet = 'none' | 'activity' | 'amount' | 'actions' | 'form';
+type FormValues = {
+  iban: string;
+  firstName: string;
+  secondName: string;
+  reference: string;
+  email: string;
+  note: string;
+};
 
 export const SheetGallery: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme }) => {
   const [page, setPage] = React.useState<Page>('wallet');
   const [wallet, setWallet] = React.useState<WalletTab>('euro');
   const [openSheet, setOpenSheet] = React.useState<OpenSheet>('none');
-  const [formValues, setFormValues] = React.useState<Record<string, string>>(INITIAL_FORM_VALUES);
+  const [formValues, setFormValues] = React.useState<FormValues>({
+    iban: 'DE06100110012625717344',
+    firstName: '',
+    secondName: '',
+    reference: '',
+    email: '',
+    note: '',
+  });
 
-  const selectedWallet = WALLETS.find((item) => item.key === wallet) ?? WALLETS[0];
   const closeSheet = React.useCallback(() => setOpenSheet('none'), []);
   const setField = React.useCallback(
-    (id: string) => (value: string) => setFormValues((prev) => ({ ...prev, [id]: value })),
+    (id: keyof FormValues) => (value: string) => setFormValues((prev) => ({ ...prev, [id]: value })),
     [],
   );
 
@@ -34,7 +50,6 @@ export const SheetGallery: React.FC<{ onToggleTheme: () => void }> = ({ onToggle
     <View direction="column" align="stretch" justify="start" fill="grow" chrome="canvas">
       {page === 'wallet' ? (
         <WalletHome
-          selectedWallet={selectedWallet}
           selectedTab={wallet}
           onSelectTab={setWallet}
           onOpenMenu={() => setPage('sheetMenu')}

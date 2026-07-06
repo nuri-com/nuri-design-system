@@ -39,8 +39,8 @@ import { bottomSheetChrome } from '@nuri/spec/bottom-sheet-chrome';
 import { useOverlay } from '../overlay';
 import { BottomSheetPanel as GeneratedBottomSheetPanel } from '../generated/components/bottom-sheet-panel';
 import { Topbar as GeneratedTopbar, type TopbarProps } from '../generated/components/topbar';
-import { FocusScrollProvider, type FocusScrollApi } from '../runtime/focus-scroll';
 import { space } from '../generated/data/tokens';
+import { FocusScrollProvider, type FocusScrollApi } from '../runtime/focus-scroll';
 
 type ScrollViewInstance = React.ElementRef<typeof RNScrollView>;
 type ScrollContentRef = ReturnType<ScrollViewInstance['getNativeScrollRef']>;
@@ -191,22 +191,33 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     });
   }, [open, mounted, sheetHeight, progress]);
 
+  const resolveFooterKeyboardOffset = React.useCallback((event: KeyboardEvent): number => {
+    const { height, screenY } = event.endCoordinates;
+    if (Platform.OS === 'android' && screenY > 0) {
+      return Math.max(0, Math.round(windowHeight - screenY));
+    }
+    if (height > 0) return Math.round(height);
+    return screenY > 0 ? Math.max(0, Math.round(windowHeight - screenY)) : 0;
+  }, [windowHeight]);
+
   React.useEffect(() => {
-    if (!mounted || detent !== 'full' || Platform.OS !== 'ios') {
+    if (!mounted || detent !== 'full') {
       setFooterKeyboardOffset(0);
       return;
     }
-    const showSub = Keyboard.addListener('keyboardWillShow', (event: KeyboardEvent) => {
-      setFooterKeyboardOffset(event.endCoordinates.height);
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, (event: KeyboardEvent) => {
+      setFooterKeyboardOffset(resolveFooterKeyboardOffset(event));
     });
-    const hideSub = Keyboard.addListener('keyboardWillHide', () => {
+    const hideSub = Keyboard.addListener(hideEvent, () => {
       setFooterKeyboardOffset(0);
     });
     return () => {
       showSub.remove();
       hideSub.remove();
     };
-  }, [mounted, detent]);
+  }, [mounted, detent, resolveFooterKeyboardOffset]);
 
   const handleSheetLayout = React.useCallback((event: LayoutChangeEvent) => {
     const next = Math.round(event.nativeEvent.layout.height);
@@ -540,7 +551,7 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
   return (
     <RNScrollView
       ref={scrollRef}
-      style={scrollMaxHeight !== undefined ? { maxHeight: Math.max(0, scrollMaxHeight - footerHeight - footerKeyboardOffset) } : undefined}
+      style={scrollMaxHeight !== undefined ? { maxHeight: Math.max(0, scrollMaxHeight - footerKeyboardOffset) } : undefined}
       contentContainerStyle={[
         styles.scrollContent,
         topbarHeight > 0 ? { paddingTop: topbarHeight } : null,
@@ -572,6 +583,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 2,
+    paddingTop: space.lg,
   },
   footer: {
     position: 'absolute',
@@ -579,9 +591,6 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 2,
-    paddingHorizontal: space.lg,
-    paddingTop: space.md,
-    paddingBottom: space.lg,
   },
   scrollContent: {
     flexGrow: 1,

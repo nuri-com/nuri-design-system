@@ -1,15 +1,13 @@
 import * as React from 'react';
 
-import { Button, IconButton, Topbar, View } from '../../components/ui';
-import { SHEET_BUTTONS } from './data';
-import type { OpenSheet } from './types';
+import { Button, IconButton, Topbar, View } from '@ds';
 
 export function SheetMenu({
   onBack,
   onOpenSheet,
 }: {
   onBack: () => void;
-  onOpenSheet: (sheet: OpenSheet) => void;
+  onOpenSheet: (sheet: 'activity' | 'amount' | 'actions' | 'form') => void;
 }) {
   return (
     <>
@@ -18,11 +16,10 @@ export function SheetMenu({
       </Topbar>
 
       <View direction="column" align="stretch" justify="center" gap="md" paddingX="lg" paddingY="lg" fill="grow">
-        {SHEET_BUTTONS.map((item) => (
-          <Button key={item.key} size="lg" onPress={() => onOpenSheet(item.key)}>
-            {item.label}
-          </Button>
-        ))}
+        <Button size="lg" onPress={() => onOpenSheet('activity')}>Activity Sheet</Button>
+        <Button size="lg" onPress={() => onOpenSheet('amount')}>Amount Sheet</Button>
+        <Button size="lg" onPress={() => onOpenSheet('actions')}>Actions Sheet</Button>
+        <Button size="lg" onPress={() => onOpenSheet('form')}>Form Sheet</Button>
       </View>
     </>
   );

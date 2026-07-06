@@ -213,6 +213,7 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
   --nuri-device-frame-radius: 50px;
   --nuri-device-screen-radius: 40px;
   --nuri-device-bezel: 10px;
+  --nuri-device-safe-bottom: 22px;
 }
 .nuri-device[data-device="iphone-se"] {
   --nuri-device-width: 375px;
@@ -233,6 +234,7 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
   --nuri-device-frame-radius: 50px;
   --nuri-device-screen-radius: 40px;
   --nuri-device-bezel: 10px;
+  --nuri-device-safe-bottom: 22px;
 }
 .nuri-device[data-device="android"] {
   --nuri-device-width: 360px;
@@ -240,11 +242,16 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
   --nuri-device-frame-radius: 30px;
   --nuri-device-screen-radius: 20px;
   --nuri-device-bezel: 10px;
+  --nuri-device-safe-bottom: 40px;
   /* Taller chin for the 3-button nav band. */
   --nuri-device-bezel-bottom: 30px;
 }
 
 .nuri-device { flex: none; }
+
+.nuri-device:not([data-overlay]) {
+  --nuri-device-safe-bottom: 0px;
+}
 
 /* The bezel — a dark hardware slab. Fixed (theme-independent) by intent:
  * the phone shell stays the same whether the screen is light or dark. The

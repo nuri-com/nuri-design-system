@@ -24,42 +24,22 @@
       position: relative;
       z-index: 0;
     }
+
+    .sheet-footer-safe {
+      padding-block-end: var(--nuri-device-safe-bottom, 0px);
+    }
+
   </style>
 </head>
 <body>
 
 <nuri-playground-shell doc="Bottom Sheet">
 
-  <!-- ACTIVITY screen · month-grouped transactions with screen-local top chrome. -->
+  <!-- ACTIVITY sheet · month-grouped transactions. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="activity">
     <template>
       <nuri-stack class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
-        <nuri-view class="sheet-content" direction="column" align="stretch" justify="start" gap="none" padding-top="lg" fill>
-          <nuri-topbar surface="transparent">
-            <nuri-topbar-leading>
-              <nuri-icon name="nuri"></nuri-icon>
-            </nuri-topbar-leading>
-            <nuri-topbar-trailing>
-              <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
-              <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
-            </nuri-topbar-trailing>
-          </nuri-topbar>
-
-          <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
-            <nuri-view aspect-ratio="card" radius="lg"></nuri-view>
-            <nuri-typography size="3xl" align="center">€ 1 240.00</nuri-typography>
-            <nuri-view direction="row" align="center" gap="sm" distribute="even">
-              <nuri-button size="lg" variant="soft">Receive</nuri-button>
-              <nuri-button size="lg" variant="solid" accent="lilac">Send</nuri-button>
-            </nuri-view>
-          </nuri-view>
-
-          <nuri-tab-bar>
-            <nuri-tab-bar-item icon="bitcoin-wallet" label="€ 36.50"></nuri-tab-bar-item>
-            <nuri-tab-bar-item icon="bank" label="€ 18.90"></nuri-tab-bar-item>
-            <nuri-tab-bar-item icon="euro-wallet" label="€ 25.70" selected></nuri-tab-bar-item>
-          </nuri-tab-bar>
-        </nuri-view>
+        <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
 
         <nuri-bottom-sheet open detent="full" scrim="dim">
           <nuri-bottom-sheet-panel>
@@ -207,36 +187,11 @@
     </template>
   </nuri-demo>
 
-  <!-- SEND AMOUNT screen · amount entry with the shared button keypad layout. -->
+  <!-- SEND AMOUNT sheet · amount entry with the shared button keypad layout. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="send amount">
     <template>
       <nuri-stack class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
-        <nuri-view class="sheet-content" direction="column" align="stretch" justify="start" gap="none" padding-top="lg" fill>
-          <nuri-topbar surface="transparent">
-            <nuri-topbar-leading>
-              <nuri-icon name="nuri"></nuri-icon>
-            </nuri-topbar-leading>
-            <nuri-topbar-trailing>
-              <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
-              <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
-            </nuri-topbar-trailing>
-          </nuri-topbar>
-
-          <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
-            <nuri-view aspect-ratio="card" radius="lg"></nuri-view>
-            <nuri-typography size="3xl" align="center">€ 1 240.00</nuri-typography>
-            <nuri-view direction="row" align="center" gap="sm" distribute="even">
-              <nuri-button size="lg" variant="soft">Receive</nuri-button>
-              <nuri-button size="lg" variant="solid" accent="lilac">Send</nuri-button>
-            </nuri-view>
-          </nuri-view>
-
-          <nuri-tab-bar>
-            <nuri-tab-bar-item icon="bitcoin-wallet" label="€ 36.50"></nuri-tab-bar-item>
-            <nuri-tab-bar-item icon="bank" label="€ 18.90"></nuri-tab-bar-item>
-            <nuri-tab-bar-item icon="euro-wallet" label="€ 25.70" selected></nuri-tab-bar-item>
-          </nuri-tab-bar>
-        </nuri-view>
+        <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
 
         <nuri-bottom-sheet open detent="full" scrim="dim">
           <nuri-bottom-sheet-panel>
@@ -294,7 +249,17 @@
           </nuri-bottom-sheet-scroll>
 
           <nuri-bottom-sheet-footer>
-            <nuri-button variant="solid" accent="lilac">Next</nuri-button>
+            <nuri-view
+              class="sheet-footer-safe"
+              chrome="strong"
+              direction="row"
+              align="center"
+              justify="end"
+              padding-y="sm"
+              padding-x="lg"
+            >
+              <nuri-button size="sm" variant="solid" accent="lilac">Next</nuri-button>
+            </nuri-view>
           </nuri-bottom-sheet-footer>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>
@@ -302,36 +267,11 @@
     </template>
   </nuri-demo>
 
-  <!-- SEND METHOD screen · compact content-height method picker. -->
+  <!-- SEND METHOD sheet · compact content-height method picker. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="send method">
     <template>
       <nuri-stack class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
-        <nuri-view class="sheet-content" direction="column" align="stretch" justify="start" gap="none" padding-top="lg" fill>
-          <nuri-topbar surface="transparent">
-            <nuri-topbar-leading>
-              <nuri-icon name="nuri"></nuri-icon>
-            </nuri-topbar-leading>
-            <nuri-topbar-trailing>
-              <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
-              <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
-            </nuri-topbar-trailing>
-          </nuri-topbar>
-
-          <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
-            <nuri-view aspect-ratio="card" radius="lg"></nuri-view>
-            <nuri-typography size="3xl" align="center">€ 1 240.00</nuri-typography>
-            <nuri-view direction="row" align="center" gap="sm" distribute="even">
-              <nuri-button size="lg" variant="soft">Receive</nuri-button>
-              <nuri-button size="lg" variant="solid" accent="lilac">Send</nuri-button>
-            </nuri-view>
-          </nuri-view>
-
-          <nuri-tab-bar>
-            <nuri-tab-bar-item icon="bitcoin-wallet" label="€ 36.50"></nuri-tab-bar-item>
-            <nuri-tab-bar-item icon="bank" label="€ 18.90"></nuri-tab-bar-item>
-            <nuri-tab-bar-item icon="euro-wallet" label="€ 25.70" selected></nuri-tab-bar-item>
-          </nuri-tab-bar>
-        </nuri-view>
+        <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
 
         <nuri-bottom-sheet open detent="content" scrim="dim">
           <nuri-bottom-sheet-panel>
@@ -375,36 +315,11 @@
     </template>
   </nuri-demo>
 
-  <!-- BANK RECIPIENT screen · recipient details form using text-field slots. -->
+  <!-- BANK RECIPIENT sheet · recipient details form using text-field slots. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="bank recipient">
     <template>
       <nuri-stack class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
-        <nuri-view class="sheet-content" direction="column" align="stretch" justify="start" gap="none" padding-top="lg" fill>
-          <nuri-topbar surface="transparent">
-            <nuri-topbar-leading>
-              <nuri-icon name="nuri"></nuri-icon>
-            </nuri-topbar-leading>
-            <nuri-topbar-trailing>
-              <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
-              <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
-            </nuri-topbar-trailing>
-          </nuri-topbar>
-
-          <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
-            <nuri-view aspect-ratio="card" radius="lg"></nuri-view>
-            <nuri-typography size="3xl" align="center">€ 1 240.00</nuri-typography>
-            <nuri-view direction="row" align="center" gap="sm" distribute="even">
-              <nuri-button size="lg" variant="soft">Receive</nuri-button>
-              <nuri-button size="lg" variant="solid" accent="lilac">Send</nuri-button>
-            </nuri-view>
-          </nuri-view>
-
-          <nuri-tab-bar>
-            <nuri-tab-bar-item icon="bitcoin-wallet" label="€ 36.50"></nuri-tab-bar-item>
-            <nuri-tab-bar-item icon="bank" label="€ 18.90"></nuri-tab-bar-item>
-            <nuri-tab-bar-item icon="euro-wallet" label="€ 25.70" selected></nuri-tab-bar-item>
-          </nuri-tab-bar>
-        </nuri-view>
+        <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
 
         <nuri-bottom-sheet open detent="full" scrim="dim">
           <nuri-bottom-sheet-panel>
@@ -443,7 +358,17 @@
           </nuri-bottom-sheet-scroll>
 
           <nuri-bottom-sheet-footer>
-            <nuri-button variant="solid" accent="lilac">Save recipient</nuri-button>
+            <nuri-view
+              class="sheet-footer-safe"
+              chrome="strong"
+              direction="row"
+              align="center"
+              justify="end"
+              padding-y="sm"
+              padding-x="lg"
+            >
+              <nuri-button size="sm" variant="solid" accent="lilac">Next</nuri-button>
+            </nuri-view>
           </nuri-bottom-sheet-footer>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>

@@ -48,11 +48,13 @@
   }
 
   nuri-bottom-sheet-topbar {
+    box-sizing: border-box;
     position: absolute;
     inset-block-start: 0;
     inset-inline: 0;
     z-index: 2;
     display: block;
+    padding-block-start: var(--nuri-space-lg);
   }
 
   nuri-bottom-sheet-footer {
@@ -61,7 +63,6 @@
     inset-block-end: 0;
     z-index: 2;
     display: block;
-    padding: var(--nuri-space-md) var(--nuri-space-lg) var(--nuri-space-lg);
   }
 
   nuri-bottom-sheet[detent="full"] > nuri-bottom-sheet-panel {
@@ -70,9 +71,11 @@
   }
 
   nuri-bottom-sheet-scroll {
-    display: block;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
     min-block-size: 0;
-    max-block-size: calc(100% - var(--nuri-bottom-sheet-footer-block));
+    max-block-size: 100%;
     padding-block-start: var(--nuri-bottom-sheet-topbar-block);
     padding-block-end: var(--nuri-bottom-sheet-footer-block);
     overflow: auto;
@@ -81,5 +84,6 @@
 
   nuri-bottom-sheet[detent="full"] nuri-bottom-sheet-scroll {
     flex: 1;
+    block-size: 100%;
   }
 }
