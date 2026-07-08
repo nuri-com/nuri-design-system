@@ -110,12 +110,8 @@ export function AmountSheet({
           </View>
         </BottomSheetScroll>
 
-        <BottomSheetFooter>
-          <View direction="column" align="stretch" paddingY="sm" paddingX="lg">
-            <View direction="column" align="stretch">
-              <Button size="lg" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
-            </View>
-          </View>
+        <BottomSheetFooter direction="column" align="stretch" paddingY="sm" paddingX="lg">
+          <Button size="lg" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
         </BottomSheetFooter>
       </BottomSheetPanel>
     </BottomSheet>

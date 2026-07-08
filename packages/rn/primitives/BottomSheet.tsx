@@ -26,6 +26,11 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import type {
+  BoxNS,
+  PaletteNS,
+  StackNS,
+} from '../contract';
+import type {
   KeyboardEvent,
   LayoutChangeEvent,
   NativeScrollEvent,
@@ -42,6 +47,7 @@ import { BottomSheetPanel as GeneratedBottomSheetPanel } from '../generated/comp
 import { Topbar as GeneratedTopbar, type TopbarProps } from '../generated/components/topbar';
 import { space } from '../generated/data/tokens';
 import { FocusScrollProvider, type FocusScrollApi } from '../runtime/focus-scroll';
+import { useResolvedNode, withSurface } from './shared';
 
 type ScrollViewInstance = React.ElementRef<typeof RNScrollView>;
 type ScrollContentRef = NonNullable<Parameters<TextInput['measureLayout']>[0]>;
@@ -75,7 +81,12 @@ export type BottomSheetPanelProps = {
 
 export type BottomSheetTopbarProps = TopbarProps;
 
-export type BottomSheetFooterProps = {
+type BottomSheetFooterStyleProps =
+  Pick<PaletteNS, 'chrome'> &
+  Pick<StackNS, 'direction' | 'align' | 'justify' | 'gap'> &
+  Pick<BoxNS, 'paddingX' | 'paddingY' | 'paddingTop' | 'paddingBottom'>;
+
+export type BottomSheetFooterProps = BottomSheetFooterStyleProps & {
   children?: React.ReactNode;
 };
 
@@ -111,6 +122,11 @@ const FOCUS_TOP_MARGIN = 16;
 const FOCUS_BOTTOM_MARGIN = 88;
 const FOCUS_SCROLL_DELAY_MS = 32;
 const FOCUS_SCROLL_REPEAT_DELAY_MS = 60;
+
+function numericPadding(style: ViewStyle, key: 'paddingBottom' | 'paddingVertical'): number {
+  const value = style[key];
+  return typeof value === 'number' ? value : 0;
+}
 
 // The sheet's available content height, threaded to BottomSheetScroll via
 // context. The panel descriptor is `fill: grow` (flexGrow 1, flexShrink 0) with
@@ -366,9 +382,18 @@ export const BottomSheetTopbar: React.FC<BottomSheetTopbarProps> = ({ children, 
 };
 BottomSheetTopbar.displayName = 'BottomSheetTopbar';
 
-export const BottomSheetFooter: React.FC<BottomSheetFooterProps> = ({ children }) => {
+export const BottomSheetFooter: React.FC<BottomSheetFooterProps> = ({ children, ...props }) => {
   const { footerKeyboardOffset, footerSafeAreaBottom, setFooterHeight } = React.useContext(BottomSheetLayoutContext);
   const measuredHeight = React.useRef(0);
+  const { node } = useResolvedNode(props);
+  const resolvedViewStyle = node.view as ViewStyle;
+  const authoredPaddingBottom =
+    numericPadding(resolvedViewStyle, 'paddingBottom') || numericPadding(resolvedViewStyle, 'paddingVertical');
+  const effectiveSafeAreaBottom = footerKeyboardOffset > 0 ? 0 : footerSafeAreaBottom;
+  const composedPaddingBottom =
+    authoredPaddingBottom > 0 || effectiveSafeAreaBottom > 0
+      ? { paddingBottom: authoredPaddingBottom + effectiveSafeAreaBottom }
+      : null;
 
   React.useEffect(() => () => setFooterHeight(0), [setFooterHeight]);
 
@@ -384,13 +409,12 @@ export const BottomSheetFooter: React.FC<BottomSheetFooterProps> = ({ children }
       onLayout={handleLayout}
       style={[
         styles.footer,
+        node.view,
         footerKeyboardOffset > 0 ? { bottom: footerKeyboardOffset } : null,
-        // BottomSheet reads the Nuri safe-area provider only when the authored
-        // safeAreaBottom boolean asks for it, keeping the overlay scrim full-window.
-        footerSafeAreaBottom > 0 ? { paddingBottom: footerSafeAreaBottom } : null,
+        composedPaddingBottom,
       ]}
     >
-      {children}
+      {withSurface(node.fg, children)}
     </RNView>
   );
 };

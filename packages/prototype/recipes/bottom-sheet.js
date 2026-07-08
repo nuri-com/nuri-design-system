@@ -7,6 +7,7 @@
  * ────────────────────────────────────────────────────────────── */
 
 import { bottomSheetChrome } from '../generated/bottom-sheet-chrome.js';
+import '../primitives/view.js';
 import './bottom-sheet-panel.js';
 import './topbar.js';
 
@@ -88,6 +89,63 @@ class NuriBottomSheetTopbar extends HTMLElement {
   }
 }
 
+const FOOTER_VIEW_ATTRS = [
+  'chrome',
+  'direction',
+  'align',
+  'justify',
+  'gap',
+  'padding-x',
+  'padding-y',
+  'padding-top',
+  'padding-bottom',
+];
+
+class NuriBottomSheetFooter extends HTMLElement {
+  static get observedAttributes() {
+    return [...FOOTER_VIEW_ATTRS, 'safe-area-bottom'];
+  }
+
+  connectedCallback() {
+    this.#ensureView();
+    this.#syncViewAttrs();
+  }
+
+  attributeChangedCallback() {
+    this.#syncViewAttrs();
+  }
+
+  #ensureView() {
+    if (this.firstElementChild?.classList.contains('nuri-bottom-sheet-footer__view')) return;
+    const view = document.createElement('nuri-view');
+    view.className = 'nuri-bottom-sheet-footer__view';
+    while (this.firstChild) view.append(this.firstChild);
+    this.append(view);
+  }
+
+  #syncViewAttrs() {
+    const view = this.firstElementChild?.classList.contains('nuri-bottom-sheet-footer__view')
+      ? this.firstElementChild
+      : null;
+    if (!view) return;
+    for (const attr of FOOTER_VIEW_ATTRS) {
+      const value = this.getAttribute(attr);
+      if (value == null) view.removeAttribute(attr);
+      else view.setAttribute(attr, value);
+    }
+    view.toggleAttribute('data-safe-area-bottom', this.hasAttribute('safe-area-bottom'));
+    if (this.hasAttribute('safe-area-bottom')) {
+      const bottom = this.getAttribute('padding-bottom') ?? this.getAttribute('padding-y');
+      view.style.setProperty(
+        '--nuri-bottom-sheet-footer-padding-bottom',
+        bottom ? `var(--nuri-space-${bottom})` : '0px',
+      );
+    } else {
+      view.style.removeProperty('--nuri-bottom-sheet-footer-padding-bottom');
+    }
+  }
+}
+
 function defineOnce(tagName, element = class extends HTMLElement {}) {
   if (!customElements.get(tagName)) customElements.define(tagName, element);
 }
@@ -95,4 +153,4 @@ function defineOnce(tagName, element = class extends HTMLElement {}) {
 defineOnce('nuri-bottom-sheet', NuriBottomSheet);
 defineOnce('nuri-bottom-sheet-topbar', NuriBottomSheetTopbar);
 defineOnce('nuri-bottom-sheet-scroll');
-defineOnce('nuri-bottom-sheet-footer');
+defineOnce('nuri-bottom-sheet-footer', NuriBottomSheetFooter);

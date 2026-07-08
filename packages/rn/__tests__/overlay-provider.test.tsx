@@ -381,7 +381,15 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
               <BottomSheetScroll>
                 <Text>Body</Text>
               </BottomSheetScroll>
-              <BottomSheetFooter>
+              <BottomSheetFooter
+                chrome="strong"
+                direction="row"
+                align="center"
+                justify="end"
+                gap="sm"
+                paddingX="lg"
+                paddingY="xs"
+              >
                 <Button variant="solid">Continue</Button>
               </BottomSheetFooter>
             </BottomSheetPanel>
@@ -406,9 +414,14 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     expect(footerHost).toBeTruthy();
     expect(flatStyle(topbarHost!.props.style).paddingTop).toBe(space.lg);
     const footerHostStyle = flatStyle(footerHost!.props.style);
-    expect(footerHostStyle).not.toHaveProperty('paddingHorizontal');
-    expect(footerHostStyle).not.toHaveProperty('paddingTop');
-    expect(footerHostStyle).not.toHaveProperty('paddingBottom');
+    expect(footerHostStyle.flexDirection).toBe('row');
+    expect(footerHostStyle.alignItems).toBe('center');
+    expect(footerHostStyle.justifyContent).toBe('flex-end');
+    expect(footerHostStyle.gap).toBe(space.sm);
+    expect(footerHostStyle.paddingHorizontal).toBe(space.lg);
+    expect(footerHostStyle.paddingVertical).toBe(space.xs);
+    expect(footerHostStyle.paddingBottom).toBe(space.xs);
+    expect(footerHostStyle.backgroundColor).toEqual(expect.any(String));
     const scrollMaxHeightBeforeFooterMeasure = flatStyle(tr.root.findByType(ScrollView).props.style).maxHeight;
 
     act(() => {
@@ -423,7 +436,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     expect(flatStyle(scroll.props.style).maxHeight).toBe(scrollMaxHeightBeforeFooterMeasure);
   });
 
-  test('BottomSheet safeAreaBottom protects footer and scroll-only content without a native dependency', () => {
+  test('BottomSheetFooter composes authored bottom padding with safe-area bottom', () => {
     const tr = render(
       <NuriThemeProvider>
         <NuriSafeAreaProvider bottom={34}>
@@ -433,7 +446,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
                 <BottomSheetScroll>
                   <Text>Body</Text>
                 </BottomSheetScroll>
-                <BottomSheetFooter>
+                <BottomSheetFooter direction="column" align="stretch" paddingY="sm" paddingX="lg">
                   <Button variant="solid">Continue</Button>
                 </BottomSheetFooter>
               </BottomSheetPanel>
@@ -450,7 +463,11 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
         return typeof node.props.onLayout === 'function' && style.bottom === 0 && style.zIndex === 2;
       });
     expect(footerHost).toBeTruthy();
-    expect(flatStyle(footerHost!.props.style).paddingBottom).toBe(34);
+    const footerStyle = flatStyle(footerHost!.props.style);
+    expect(footerStyle.alignItems).toBe('stretch');
+    expect(footerStyle.paddingHorizontal).toBe(space.lg);
+    expect(footerStyle.paddingVertical).toBe(space.sm);
+    expect(footerStyle.paddingBottom).toBe(space.sm + 34);
     expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBe(34);
 
     act(() => {
@@ -472,18 +489,20 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     try {
       const tr = render(
         <NuriThemeProvider>
-          <OverlayProvider>
-            <BottomSheet open detent="full">
-              <BottomSheetPanel>
-                <BottomSheetScroll>
-                  <Text>Body</Text>
-                </BottomSheetScroll>
-                <BottomSheetFooter>
-                  <Button variant="solid">Continue</Button>
-                </BottomSheetFooter>
-              </BottomSheetPanel>
-            </BottomSheet>
-          </OverlayProvider>
+          <NuriSafeAreaProvider bottom={34}>
+            <OverlayProvider>
+              <BottomSheet open detent="full" safeAreaBottom>
+                <BottomSheetPanel>
+                  <BottomSheetScroll>
+                    <Text>Body</Text>
+                  </BottomSheetScroll>
+                  <BottomSheetFooter paddingY="sm">
+                    <Button variant="solid">Continue</Button>
+                  </BottomSheetFooter>
+                </BottomSheetPanel>
+              </BottomSheet>
+            </OverlayProvider>
+          </NuriSafeAreaProvider>
         </NuriThemeProvider>,
       );
 
@@ -495,12 +514,14 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
         });
 
       expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(0);
+      expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(space.sm + 34);
 
       act(() => {
         const showHandlers = keyboardHandlers.keyboardWillShow ?? keyboardHandlers.keyboardDidShow;
         for (const show of showHandlers) show({ endCoordinates: { height: 280, screenY: 0 } });
       });
       expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(280);
+      expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(space.sm);
 
       act(() => {
         const hideHandlers = keyboardHandlers.keyboardWillHide ?? keyboardHandlers.keyboardDidHide;

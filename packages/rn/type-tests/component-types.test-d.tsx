@@ -156,7 +156,15 @@ export const bottomSheetOk = (
       <BottomSheetScroll>
         <Button>Paste Bitcoin Address</Button>
       </BottomSheetScroll>
-      <BottomSheetFooter>
+      <BottomSheetFooter
+        chrome="strong"
+        direction="row"
+        align="center"
+        justify="end"
+        gap="sm"
+        paddingX="lg"
+        paddingY="xs"
+      >
         <Button>Continue</Button>
       </BottomSheetFooter>
     </BottomSheetPanel>
@@ -183,6 +191,12 @@ export const bottomSheetPanelNoDetent = <BottomSheetPanel detent="full" />;
 export const bottomSheetPanelNoHeaderProp = <BottomSheetPanel header={<Button>Done</Button>} />;
 // @ts-expect-error BottomSheetPanel intentionally has no footer slot prop; compose BottomSheetFooter instead.
 export const bottomSheetPanelNoFooterProp = <BottomSheetPanel footer={<Button>Done</Button>} />;
+// @ts-expect-error BottomSheetFooter owns a constrained tray/floating-action surface, not the full View radius axis.
+export const bottomSheetFooterNoRadius = <BottomSheetFooter radius="lg"><Button>Done</Button></BottomSheetFooter>;
+// @ts-expect-error BottomSheetFooter does not expose View fill/size layout escape hatches.
+export const bottomSheetFooterNoFill = <BottomSheetFooter fill="grow"><Button>Done</Button></BottomSheetFooter>;
+// @ts-expect-error BottomSheetFooter is not an interactive primitive.
+export const bottomSheetFooterNoPress = <BottomSheetFooter onPress={() => undefined}><Button>Done</Button></BottomSheetFooter>;
 
 // ── Screen — full-screen primitive requests provider safe-area by boolean intent ──
 export const screenSafeAreaOk = <Screen safeArea><Button>Done</Button></Screen>;

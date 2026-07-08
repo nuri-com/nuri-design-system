@@ -3569,6 +3569,17 @@ nuri-demo:not(:defined) {
     display: block;
   }
 
+  nuri-bottom-sheet-footer > .nuri-bottom-sheet-footer__view {
+    inline-size: 100%;
+  }
+
+  nuri-bottom-sheet-footer > .nuri-bottom-sheet-footer__view[data-safe-area-bottom] {
+    padding-block-end: calc(
+      var(--nuri-bottom-sheet-footer-padding-bottom, 0px) +
+      var(--nuri-device-safe-bottom, 0px)
+    );
+  }
+
   nuri-bottom-sheet[detent="full"] > nuri-bottom-sheet-panel {
     block-size: calc(100% - 40px);
     max-block-size: calc(100% - 40px);

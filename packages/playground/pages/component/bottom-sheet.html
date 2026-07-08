@@ -25,10 +25,6 @@
       z-index: 0;
     }
 
-    .sheet-footer-safe {
-      padding-block-end: var(--nuri-device-safe-bottom, 0px);
-    }
-
   </style>
 </head>
 <body>
@@ -248,18 +244,14 @@
           </nuri-view>
           </nuri-bottom-sheet-scroll>
 
-          <nuri-bottom-sheet-footer>
-            <nuri-view
-              class="sheet-footer-safe"
-              chrome="strong"
-              direction="row"
-              align="center"
-              justify="end"
-              padding-y="sm"
-              padding-x="lg"
-            >
-              <nuri-button size="sm" variant="solid" accent="lilac">Next</nuri-button>
-            </nuri-view>
+          <nuri-bottom-sheet-footer
+            direction="column"
+            align="stretch"
+            padding-y="sm"
+            padding-x="lg"
+            safe-area-bottom
+          >
+            <nuri-button size="lg" variant="solid" accent="lilac">Next</nuri-button>
           </nuri-bottom-sheet-footer>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>
@@ -357,18 +349,16 @@
           </nuri-view>
           </nuri-bottom-sheet-scroll>
 
-          <nuri-bottom-sheet-footer>
-            <nuri-view
-              class="sheet-footer-safe"
-              chrome="strong"
-              direction="row"
-              align="center"
-              justify="end"
-              padding-y="sm"
-              padding-x="lg"
-            >
-              <nuri-button size="sm" variant="solid" accent="lilac">Next</nuri-button>
-            </nuri-view>
+          <nuri-bottom-sheet-footer
+            chrome="strong"
+            direction="row"
+            align="center"
+            justify="end"
+            padding-y="xs"
+            padding-x="lg"
+            safe-area-bottom
+          >
+            <nuri-button size="sm" variant="solid" accent="lilac">Next</nuri-button>
           </nuri-bottom-sheet-footer>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>

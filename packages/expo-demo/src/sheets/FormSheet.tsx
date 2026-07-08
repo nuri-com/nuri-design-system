@@ -71,12 +71,15 @@ export function FormSheet({
           </View>
         </BottomSheetScroll>
 
-        <BottomSheetFooter>
-          <View chrome="strong" direction="column" align="stretch" paddingY="sm" paddingX="lg">
-            <View direction="row" align="center" justify="end">
-              <Button size="sm" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
-            </View>
-          </View>
+        <BottomSheetFooter
+          chrome="strong"
+          direction="row"
+          align="center"
+          justify="end"
+          paddingY="xs"
+          paddingX="lg"
+        >
+          <Button size="sm" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
         </BottomSheetFooter>
       </BottomSheetPanel>
     </BottomSheet>
