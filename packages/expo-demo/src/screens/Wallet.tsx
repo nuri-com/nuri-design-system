@@ -7,13 +7,9 @@ export function Wallet() {
     <View direction="column" align="stretch" justify="start" gap="lg" paddingX="lg" paddingY="md" fill="grow">
       <View aspectRatio="card" radius="lg" variant="soft" />
       <Text size="3xl" align="center">€ 25.87</Text>
-      <View direction="row" align="center" gap="sm">
-        <View fill="even">
-          <Button size="lg" variant="soft">Details</Button>
-        </View>
-        <View fill="even">
-          <Button size="lg" variant="solid" accent="lilac">Send</Button>
-        </View>
+      <View direction="row" align="center" gap="sm" distribute="even">
+        <Button size="lg" variant="soft">Details</Button>
+        <Button size="lg" variant="solid" accent="lilac">Send</Button>
       </View>
     </View>
   );

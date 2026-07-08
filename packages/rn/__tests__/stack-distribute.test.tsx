@@ -1,17 +1,19 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · STACK distribute="even" (react-test-renderer · headless)
+ * NURI · STACK/VIEW distribute="even" (react-test-renderer · headless)
  * ──────────────────────────────────────────────────────────────────
  * The RN projection of the parent-side even split. Web has no `> *` reach
  * through a display:contents component host, so BOTH platforms wrap each direct
- * child in a flex box: web injects a `.nuri-stack` div (view.js), RN injects a
- * flex <View> here (Stack.tsx). This guards the RN wrapping + that the per-child
- * flex is single-sourced from childFillStyle (the shared DISTRIBUTE table).
+ * child in a flex box: web injects a `.nuri-stack` div (view.js/stack.js), RN
+ * injects a flex <View> here (Stack.tsx/View.tsx). This guards the RN wrapping +
+ * that the per-child flex is single-sourced from childFillStyle (the shared
+ * DISTRIBUTE table).
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { Text, View } from 'react-native';
-import { Stack } from '../primitives';
+import { NuriThemeProvider } from '../theme';
+import { Stack, Text as NuriText, View as NuriView } from '../primitives';
 import { childFillStyle } from '../runtime/resolve';
 import { STACK_FIELDS } from '@nuri/spec/resolve-map';
 
@@ -28,7 +30,13 @@ const isEvenWrapper = (n: TestRenderer.ReactTestInstance): boolean =>
   n.type === View &&
   n.props?.style?.flexGrow === 1 &&
   n.props?.style?.flexShrink === 1 &&
-  n.props?.style?.flexBasis === 0;
+  n.props?.style?.flexBasis === 0 &&
+  n.props?.style?.minWidth === 0;
+
+const flatStyle = (style: unknown): Record<string, unknown> =>
+  Array.isArray(style)
+    ? Object.assign({}, ...style.filter(Boolean))
+    : ((style ?? {}) as Record<string, unknown>);
 
 test('distribute="even" wraps EACH direct child in a flex View (the RN twin of the web `> *`)', () => {
   const tr = render(
@@ -44,12 +52,41 @@ test('distribute="even" wraps EACH direct child in a flex View (the RN twin of t
   expect(wrappers[0].props.style).toEqual(childFillStyle('even'));
 });
 
+test('View distribute="even" wraps each non-empty direct child in a child-fill host View', () => {
+  const tr = render(
+    <NuriView direction="row" distribute="even">
+      <Text>A</Text>
+      {null}
+      {false}
+      <Text>Bee</Text>
+      <Text>Charlie</Text>
+    </NuriView>,
+  );
+  const wrappers = tr.root.findAll(isEvenWrapper);
+  expect(wrappers).toHaveLength(3);
+  expect(wrappers.map((w) => w.props.style)).toEqual([
+    childFillStyle('even'),
+    childFillStyle('even'),
+    childFillStyle('even'),
+  ]);
+});
+
 test('no distribute → children are NOT wrapped (byte-identical to a plain Stack)', () => {
   const tr = render(
     <Stack direction="row">
       <Text>A</Text>
       <Text>Bee</Text>
     </Stack>,
+  );
+  expect(tr.root.findAll(isEvenWrapper)).toHaveLength(0);
+});
+
+test('View without distribute renders direct children without child-fill wrappers', () => {
+  const tr = render(
+    <NuriView direction="row">
+      <Text>A</Text>
+      <Text>Bee</Text>
+    </NuriView>,
   );
   expect(tr.root.findAll(isEvenWrapper)).toHaveLength(0);
 });
@@ -68,4 +105,18 @@ test('childFillStyle("even") derives from the SHARED STACK_FIELDS.distribute sou
     flexBasis: even.basis,
     minWidth: even.minInline,
   });
+});
+
+test('View palette foreground still scopes through distribute wrappers', () => {
+  const tr = render(
+    <NuriThemeProvider>
+      <NuriView variant="soft" direction="row" distribute="even">
+        <NuriText size="md">A</NuriText>
+        <NuriText size="md">Bee</NuriText>
+      </NuriView>
+    </NuriThemeProvider>,
+  );
+  expect(tr.root.findAll(isEvenWrapper)).toHaveLength(2);
+  const labels = tr.root.findAllByType(Text);
+  expect(labels.map((label) => flatStyle(label.props.style).color)).toEqual(['#222013', '#222013']);
 });
