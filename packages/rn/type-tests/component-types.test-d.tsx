@@ -173,6 +173,7 @@ export const bottomSheetOk = (
 // the two-detent surface: `content` and `full` are the whole set.
 export const bottomSheetContentOk = <BottomSheet open detent="content" />;
 export const bottomSheetFullOk = <BottomSheet open detent="full" />;
+export const bottomSheetFooterExplicitZeroBottomOk = <BottomSheetFooter paddingY="sm" paddingBottom="none"><Button>Done</Button></BottomSheetFooter>;
 // @ts-expect-error BottomSheet safeAreaBottom is boolean intent, not a source token.
 export const bottomSheetNoStringSafeAreaBottom = <BottomSheet open safeAreaBottom="device" />;
 // @ts-expect-error BottomSheet does not expose numeric inset transport.

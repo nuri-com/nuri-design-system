@@ -496,7 +496,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
                   <BottomSheetScroll>
                     <Text>Body</Text>
                   </BottomSheetScroll>
-                  <BottomSheetFooter paddingY="sm">
+                  <BottomSheetFooter paddingY="sm" paddingBottom="none">
                     <Button variant="solid">Continue</Button>
                   </BottomSheetFooter>
                 </BottomSheetPanel>
@@ -514,20 +514,22 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
         });
 
       expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(0);
-      expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(space.sm + 34);
+      expect(flatStyle(findFooterHost()!.props.style).paddingVertical).toBe(space.sm);
+      expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(34);
 
       act(() => {
         const showHandlers = keyboardHandlers.keyboardWillShow ?? keyboardHandlers.keyboardDidShow;
         for (const show of showHandlers) show({ endCoordinates: { height: 280, screenY: 0 } });
       });
       expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(280);
-      expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(space.sm);
+      expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(0);
 
       act(() => {
         const hideHandlers = keyboardHandlers.keyboardWillHide ?? keyboardHandlers.keyboardDidHide;
         for (const hide of hideHandlers) hide({ endCoordinates: { height: 0, screenY: 0 } });
       });
       expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(0);
+      expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(34);
     } finally {
       addSpy.mockRestore();
     }

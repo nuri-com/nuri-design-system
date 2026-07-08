@@ -84,7 +84,9 @@ export type BottomSheetTopbarProps = TopbarProps;
 type BottomSheetFooterStyleProps =
   Pick<PaletteNS, 'chrome'> &
   Pick<StackNS, 'direction' | 'align' | 'justify' | 'gap'> &
-  Pick<BoxNS, 'paddingX' | 'paddingY' | 'paddingTop' | 'paddingBottom'>;
+  Pick<BoxNS, 'paddingX' | 'paddingY' | 'paddingTop'> & {
+    paddingBottom?: NonNullable<BoxNS['paddingBottom']> | 'none';
+  };
 
 export type BottomSheetFooterProps = BottomSheetFooterStyleProps & {
   children?: React.ReactNode;
@@ -388,7 +390,9 @@ export const BottomSheetFooter: React.FC<BottomSheetFooterProps> = ({ children, 
   const { node } = useResolvedNode(props);
   const resolvedViewStyle = node.view as ViewStyle;
   const authoredPaddingBottom =
-    numericPadding(resolvedViewStyle, 'paddingBottom') || numericPadding(resolvedViewStyle, 'paddingVertical');
+    props.paddingBottom !== undefined
+      ? numericPadding(resolvedViewStyle, 'paddingBottom')
+      : numericPadding(resolvedViewStyle, 'paddingVertical');
   const effectiveSafeAreaBottom = footerKeyboardOffset > 0 ? 0 : footerSafeAreaBottom;
   const composedPaddingBottom =
     authoredPaddingBottom > 0 || effectiveSafeAreaBottom > 0
