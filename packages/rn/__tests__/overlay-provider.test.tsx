@@ -24,6 +24,7 @@ import {
   BottomSheetScroll,
   BottomSheetTopbar,
   Button,
+  NuriSafeAreaProvider,
   OverlayProvider,
   TextField,
   TextFieldLabel,
@@ -420,6 +421,42 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     expect(contentStyle.paddingTop).toBe(56);
     expect(contentStyle.paddingBottom).toBe(72);
     expect(flatStyle(scroll.props.style).maxHeight).toBe(scrollMaxHeightBeforeFooterMeasure);
+  });
+
+  test('BottomSheet safeAreaBottom protects footer and scroll-only content without a native dependency', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <NuriSafeAreaProvider bottom={34}>
+          <OverlayProvider>
+            <BottomSheet open detent="full" safeAreaBottom>
+              <BottomSheetPanel>
+                <BottomSheetScroll>
+                  <Text>Body</Text>
+                </BottomSheetScroll>
+                <BottomSheetFooter>
+                  <Button variant="solid">Continue</Button>
+                </BottomSheetFooter>
+              </BottomSheetPanel>
+            </BottomSheet>
+          </OverlayProvider>
+        </NuriSafeAreaProvider>
+      </NuriThemeProvider>,
+    );
+
+    const footerHost = tr.root
+      .findAllByType(View)
+      .find((node) => {
+        const style = flatStyle(node.props.style);
+        return typeof node.props.onLayout === 'function' && style.bottom === 0 && style.zIndex === 2;
+      });
+    expect(footerHost).toBeTruthy();
+    expect(flatStyle(footerHost!.props.style).paddingBottom).toBe(34);
+    expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBe(34);
+
+    act(() => {
+      footerHost!.props.onLayout({ nativeEvent: { layout: { height: 90 } } });
+    });
+    expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBe(90);
   });
 
   test('BottomSheetFooter follows the keyboard on full sheets', () => {

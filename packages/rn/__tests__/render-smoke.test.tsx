@@ -18,6 +18,7 @@ import TestRenderer, { act } from 'react-test-renderer';
 import { ScrollView, Text, TextInput, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { NuriThemeProvider, typeStyle } from '../theme';
+import { NuriSafeAreaProvider } from '../safe-area';
 import {
   Alert,
   AlertIcon,
@@ -87,6 +88,12 @@ function pressableActions(tr: TestRenderer.ReactTestRenderer): TestRenderer.Reac
   return tr.root.findAll(
     (node) => node.props?.accessibilityRole === 'button' && typeof node.props?.style === 'function',
   );
+}
+
+function flatStyleForTest(style: unknown): Record<string, unknown> {
+  return Array.isArray(style)
+    ? Object.assign({}, ...style.filter(Boolean))
+    : ((style ?? {}) as Record<string, unknown>);
 }
 
 describe('render-smoke — the ergonomic components mount headless', () => {
@@ -879,6 +886,43 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const scroll = tr.root.findByType(ScrollView);
     expect(scroll.props.contentContainerStyle).toEqual({ flexGrow: 1 });
     expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('primitives — Screen safeArea applies both provider insets', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <NuriSafeAreaProvider top={12} bottom={34}>
+          <NuriScreen safeArea>
+            <NuriText>Body</NuriText>
+          </NuriScreen>
+        </NuriSafeAreaProvider>
+      </NuriThemeProvider>,
+    );
+    const screen = tr.root.findAllByType(View)[0];
+    const style = screen.props.style as unknown;
+    const flat = Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : style;
+    expect(flat).toMatchObject({ flex: 1, paddingTop: 12, paddingBottom: 34 });
+  });
+
+  test('primitives — Screen edge booleans apply only the requested provider inset', () => {
+    const renderScreen = (node: React.ReactElement) => {
+      const tr = render(
+        <NuriThemeProvider>
+          <NuriSafeAreaProvider top={12} bottom={34}>
+            {node}
+          </NuriSafeAreaProvider>
+        </NuriThemeProvider>,
+      );
+      return tr.root.findAllByType(View)[0];
+    };
+
+    const topOnly = flatStyleForTest(renderScreen(<NuriScreen safeAreaTop><NuriText>Top</NuriText></NuriScreen>).props.style);
+    expect(topOnly.paddingTop).toBe(12);
+    expect(topOnly).not.toHaveProperty('paddingBottom');
+
+    const bottomOnly = flatStyleForTest(renderScreen(<NuriScreen safeAreaBottom><NuriText>Bottom</NuriText></NuriScreen>).props.style);
+    expect(bottomOnly).not.toHaveProperty('paddingTop');
+    expect(bottomOnly.paddingBottom).toBe(34);
   });
 
   test('primitives — Pressable · interactive opt-in · pressed transient via the shared applier', () => {

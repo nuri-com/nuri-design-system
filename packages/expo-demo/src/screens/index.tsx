@@ -58,9 +58,18 @@ export const Screens: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme
         />
       )}
 
-      <ActivitySheet open={openSheet === 'activity'} onClose={closeSheet} />
-      <AmountSheet open={openSheet === 'amount'} onClose={closeSheet} />
-      <ActionsSheet open={openSheet === 'actions'} onClose={closeSheet} />
+      <ActivitySheet
+        open={openSheet === 'activity'}
+        onClose={closeSheet}
+      />
+      <AmountSheet
+        open={openSheet === 'amount'}
+        onClose={closeSheet}
+      />
+      <ActionsSheet
+        open={openSheet === 'actions'}
+        onClose={closeSheet}
+      />
       <FormSheet
         open={openSheet === 'form'}
         values={formValues}

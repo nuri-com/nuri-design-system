@@ -25,6 +25,8 @@
 
 export * from './contract';
 export * from './theme';
+export { NuriSafeAreaProvider, useNuriSafeAreaInsets } from './safe-area';
+export type { NuriSafeAreaInsets, NuriSafeAreaProviderProps } from './safe-area';
 
 // The overlay runtime — the DS overlay layer (route B · docs/bottom-sheet-
 // improvements.md). OverlayProvider is a root provider (like NuriThemeProvider)

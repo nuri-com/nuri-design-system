@@ -19,9 +19,15 @@ import {
   View,
 } from '@ds';
 
-export function ActivitySheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function ActivitySheet({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   return (
-    <BottomSheet open={open} detent="full" onOpenChange={(next) => !next && onClose()}>
+    <BottomSheet open={open} detent="full" safeAreaBottom onOpenChange={(next) => !next && onClose()}>
       <BottomSheetPanel>
         <BottomSheetTopbar>
           <TopbarTrailing>
