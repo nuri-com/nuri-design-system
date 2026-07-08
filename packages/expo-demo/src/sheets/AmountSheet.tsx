@@ -43,67 +43,35 @@ export function AmountSheet({
             </View>
 
             <View direction="column" align="stretch" justify="end" gap="md">
-              <View direction="row" gap="sm">
-                <View fill="even">
-                  <Button size="sm" variant="solid">€ 25</Button>
-                </View>
-                <View fill="even">
-                  <Button size="sm" variant="solid">€ 50</Button>
-                </View>
-                <View fill="even">
-                  <Button size="sm" variant="solid">€ 100</Button>
-                </View>
-                <View fill="even">
-                  <Button size="sm" variant="solid">€200</Button>
-                </View>
+              <View direction="row" gap="sm" distribute="even">
+                <Button size="sm" variant="solid">€ 25</Button>
+                <Button size="sm" variant="solid">€ 50</Button>
+                <Button size="sm" variant="solid">€ 100</Button>
+                <Button size="sm" variant="solid">€200</Button>
               </View>
 
               <View direction="column" gap="sm">
-                <View direction="row" gap="sm">
-                  <View fill="even">
-                    <Button size="lg">1</Button>
-                  </View>
-                  <View fill="even">
-                    <Button size="lg">2</Button>
-                  </View>
-                  <View fill="even">
-                    <Button size="lg">3</Button>
-                  </View>
+                <View direction="row" gap="sm" distribute="even">
+                  <Button size="lg">1</Button>
+                  <Button size="lg">2</Button>
+                  <Button size="lg">3</Button>
                 </View>
-                <View direction="row" gap="sm">
-                  <View fill="even">
-                    <Button size="lg">4</Button>
-                  </View>
-                  <View fill="even">
-                    <Button size="lg">5</Button>
-                  </View>
-                  <View fill="even">
-                    <Button size="lg">6</Button>
-                  </View>
+                <View direction="row" gap="sm" distribute="even">
+                  <Button size="lg">4</Button>
+                  <Button size="lg">5</Button>
+                  <Button size="lg">6</Button>
                 </View>
-                <View direction="row" gap="sm">
-                  <View fill="even">
-                    <Button size="lg">7</Button>
-                  </View>
-                  <View fill="even">
-                    <Button size="lg">8</Button>
-                  </View>
-                  <View fill="even">
-                    <Button size="lg">9</Button>
-                  </View>
+                <View direction="row" gap="sm" distribute="even">
+                  <Button size="lg">7</Button>
+                  <Button size="lg">8</Button>
+                  <Button size="lg">9</Button>
                 </View>
-                <View direction="row" gap="sm">
-                  <View fill="even">
-                    <Button size="lg">.</Button>
-                  </View>
-                  <View fill="even">
-                    <Button size="lg">0</Button>
-                  </View>
-                  <View fill="even">
-                    <Button size="lg" accessibilityLabel="Delete digit">
-                      <ButtonIcon name="chevron-left" />
-                    </Button>
-                  </View>
+                <View direction="row" gap="sm" distribute="even">
+                  <Button size="lg">.</Button>
+                  <Button size="lg">0</Button>
+                  <Button size="lg" accessibilityLabel="Delete digit">
+                    <ButtonIcon name="chevron-left" />
+                  </Button>
                 </View>
               </View>
             </View>

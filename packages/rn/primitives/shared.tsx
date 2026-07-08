@@ -7,11 +7,12 @@
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';
+import { View as RNView } from 'react-native';
 import type { ViewStyle } from 'react-native';
-import type { NS, Accent } from '../contract';
+import type { NS, Accent, StackNS } from '../contract';
 import { useNuriTheme, NuriScope } from '../theme';
 import type { NuriTheme } from '../runtime/theme-payload';
-import { resolveNS } from '../runtime/resolve';
+import { childFillStyle, resolveNS } from '../runtime/resolve';
 import type { ResolvedNode } from '../runtime/resolve';
 import { NuriSurfaceContext } from '../runtime/renderer';
 import { STACK_FIELDS, BOX_FIELDS } from '@nuri/spec/resolve-map';
@@ -105,6 +106,26 @@ export function withSurface(fg: string | undefined, children: React.ReactNode): 
     <NuriSurfaceContext.Provider value={{ foreground: fg }}>{children}</NuriSurfaceContext.Provider>
   ) : (
     children
+  );
+}
+
+// `distribute` is child-affecting (no node style · the childFill no-op). RN has no
+// `> *` combinator, so wrap each DIRECT child in a flex View carrying the per-child
+// style — the projection of the web child combinator (equal shares of the axis).
+// PARITY EDGE (latent): React.Children.map wraps each ELEMENT, so a Fragment child
+// (`<>…</>`) becomes ONE even cell — unlike web `> *`, where a fragment has no DOM
+// node and its members are the direct children (each its own cell). Author FLAT
+// children under a distribute container (no fragment grouping) to keep the two aligned.
+export function wrapDistributedChildren(
+  distribute: StackNS['distribute'],
+  children: React.ReactNode,
+): React.ReactNode {
+  if (distribute === undefined) return children;
+  const childStyle = childFillStyle(distribute);
+  return React.Children.map(children, (child) =>
+    child === null || child === undefined || child === false || child === true
+      ? child
+      : <RNView style={childStyle}>{child}</RNView>,
   );
 }
 
