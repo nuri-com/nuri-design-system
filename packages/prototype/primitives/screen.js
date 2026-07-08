@@ -1,6 +1,7 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · SCREEN · CUSTOM ELEMENT
- * <nuri-screen> mirrors the RN-side Screen API shape (just `as`)
+ * <nuri-screen> mirrors the RN-side Screen API shape (`as` plus explicit
+ * safe-area sources)
  * while delegating to a host element (default <div>; `as` overrides)
  * for the actual flex-column fill.
  *
@@ -11,12 +12,15 @@
  *
  * Defaults
  *   as → "div"
+ *   safe-area / safe-area-top / safe-area-bottom → absent
  * ────────────────────────────────────────────────────────────── */
 
 (() => {
+  const ATTRS = ['as', 'safe-area', 'safe-area-top', 'safe-area-bottom'];
+
   class NuriScreen extends HTMLElement {
     static get observedAttributes() {
-      return ['as'];
+      return ATTRS;
     }
 
     #inner = null;
@@ -51,6 +55,17 @@
 
     #sync() {
       this.#inner.className = 'nuri-screen';
+      this.#toggleDataset('safeArea', this.hasAttribute('safe-area'));
+      this.#toggleDataset('safeAreaTop', this.hasAttribute('safe-area-top'));
+      this.#toggleDataset('safeAreaBottom', this.hasAttribute('safe-area-bottom'));
+    }
+
+    #toggleDataset(name, on) {
+      if (on) {
+        this.#inner.dataset[name] = '';
+      } else {
+        delete this.#inner.dataset[name];
+      }
     }
   }
 

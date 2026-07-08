@@ -25,10 +25,6 @@
       z-index: 0;
     }
 
-    .sheet-footer-safe {
-      padding-block-end: var(--nuri-device-safe-bottom, 0px);
-    }
-
   </style>
 </head>
 <body>
@@ -248,16 +244,14 @@
           </nuri-view>
           </nuri-bottom-sheet-scroll>
 
-          <nuri-bottom-sheet-footer>
-            <nuri-view
-              class="sheet-footer-safe"
-              direction="column"
-              align="stretch"
-              padding-y="sm"
-              padding-x="lg"
-            >
-              <nuri-button size="lg" variant="solid" accent="lilac">Next</nuri-button>
-            </nuri-view>
+          <nuri-bottom-sheet-footer
+            direction="column"
+            align="stretch"
+            padding-y="sm"
+            padding-x="lg"
+            safe-area-bottom
+          >
+            <nuri-button size="lg" variant="solid" accent="lilac">Next</nuri-button>
           </nuri-bottom-sheet-footer>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>
@@ -355,18 +349,74 @@
           </nuri-view>
           </nuri-bottom-sheet-scroll>
 
-          <nuri-bottom-sheet-footer>
-            <nuri-view
-              class="sheet-footer-safe"
-              chrome="strong"
-              direction="row"
-              align="center"
-              justify="end"
-              padding-y="sm"
-              padding-x="lg"
-            >
-              <nuri-button size="sm" variant="solid" accent="lilac">Next</nuri-button>
+          <nuri-bottom-sheet-footer
+            chrome="strong"
+            direction="row"
+            align="center"
+            justify="end"
+            padding-y="xs"
+            padding-x="lg"
+            safe-area-bottom
+          >
+            <nuri-button size="sm" variant="solid" accent="lilac">Next</nuri-button>
+          </nuri-bottom-sheet-footer>
+          </nuri-bottom-sheet-panel>
+        </nuri-bottom-sheet>
+      </nuri-stack>
+    </template>
+  </nuri-demo>
+
+  <!-- FORM SHEET 2 · same form with a full-width footer CTA. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="form sheet 2">
+    <template>
+      <nuri-stack class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
+        <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
+
+        <nuri-bottom-sheet open detent="full" scrim="dim">
+          <nuri-bottom-sheet-panel>
+          <nuri-bottom-sheet-topbar surface="transparent">
+            <nuri-topbar-trailing>
+              <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+            </nuri-topbar-trailing>
+          </nuri-bottom-sheet-topbar>
+
+          <nuri-bottom-sheet-scroll>
+          <nuri-view direction="column" align="stretch" justify="start" gap="xl" padding-x="lg" fill>
+            <nuri-view direction="column" align="stretch" justify="start" gap="sm">
+              <nuri-typography size="lg" emphasis>Who is your recipient?</nuri-typography>
+              <nuri-typography size="md" muted>Enter their bank account details</nuri-typography>
             </nuri-view>
+
+            <nuri-view direction="column" align="stretch" justify="start" gap="xl">
+              <nuri-text-field value="DE06100110012625717344" input-mode="text" placeholder="IBAN">
+                <nuri-text-field-label>IBAN*</nuri-text-field-label>
+                <nuri-text-field-button>Paste</nuri-text-field-button>
+              </nuri-text-field>
+
+              <nuri-text-field placeholder="eg.Satoshi">
+                <nuri-text-field-label>First name*</nuri-text-field-label>
+              </nuri-text-field>
+
+              <nuri-text-field placeholder="eg.Nakamoto">
+                <nuri-text-field-label>Second name*</nuri-text-field-label>
+              </nuri-text-field>
+
+              <nuri-text-field placeholder="Optional">
+                <nuri-text-field-label>Reference</nuri-text-field-label>
+              </nuri-text-field>
+            </nuri-view>
+          </nuri-view>
+          </nuri-bottom-sheet-scroll>
+
+          <nuri-bottom-sheet-footer
+            chrome="canvas"
+            direction="column"
+            align="stretch"
+            padding-bottom="sm"
+            padding-x="lg"
+            safe-area-bottom
+          >
+            <nuri-button size="lg" variant="solid" accent="lilac">Next</nuri-button>
           </nuri-bottom-sheet-footer>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>

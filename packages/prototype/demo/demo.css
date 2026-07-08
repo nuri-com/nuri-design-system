@@ -249,7 +249,7 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
 
 .nuri-device { flex: none; }
 
-.nuri-device:not([data-overlay]) {
+.nuri-device:not([data-overlay]):not([data-screen-safe-area]) {
   --nuri-device-safe-bottom: 0px;
 }
 
@@ -289,6 +289,8 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
   overflow: hidden;
   background: var(--nuri-bg-canvas);
   color: var(--nuri-text-primary);
+  --nuri-device-safe-area-top: 38px;
+  --nuri-device-safe-area-bottom: var(--nuri-device-safe-bottom, 0px);
 }
 
 /* ── Top cutout · the sensor housing, overlaid at the top edge ────
@@ -399,21 +401,25 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
  * padding. z-index sits ABOVE the sheet (recipe z-index 20) so the OS chrome —
  * clock, signals, home pill — floats over the dim, as it does on a real device.
  * The frame owns this device-fill; the demo needs no page-local CSS. */
-.nuri-device[data-overlay] .nuri-device__status {
+.nuri-device[data-overlay] .nuri-device__status,
+.nuri-device[data-screen-safe-area] .nuri-device__status {
   position: absolute;
   inset-block-start: 0;
   inset-inline: 0;
   z-index: 30;
 }
 .nuri-device[data-overlay] .nuri-device__home,
-.nuri-device[data-overlay] .nuri-device__nav {
+.nuri-device[data-overlay] .nuri-device__nav,
+.nuri-device[data-screen-safe-area] .nuri-device__home,
+.nuri-device[data-screen-safe-area] .nuri-device__nav {
   position: absolute;
   inset-block-end: 0;
   inset-inline: 0;
   z-index: 30;
 }
 /* The sensor housing is a physical hole in the glass — always on top. */
-.nuri-device[data-overlay] .nuri-device__cutout {
+.nuri-device[data-overlay] .nuri-device__cutout,
+.nuri-device[data-screen-safe-area] .nuri-device__cutout {
   z-index: 31;
 }
 

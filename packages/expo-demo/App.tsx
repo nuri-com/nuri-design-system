@@ -1,11 +1,9 @@
 /* ══════════════════════════════════════════════════════════════════
  * APP · the Nuri consumption example, full-screen.
  * ──────────────────────────────────────────────────────────────────
- * The NAVIGATOR role (decision 58): safe-area is owned in ONE place —
- * here — so the Nuri components stay inset-agnostic. The canvas-coloured
- * root pads the status-bar inset at top and the home-indicator at bottom
- * (insets are 0 on web). App also owns everything the DS deliberately
- * does NOT: the <NuriThemeProvider> root, the route state, and the
+ * The NAVIGATOR role (decision 58): safe-area is READ in ONE place — here —
+ * and passed into Nuri's safe-area environment. App also owns everything the DS
+ * deliberately does NOT: the <NuriThemeProvider> root, the route state, and the
  * tab-items DATA. The demo opens on the playground screens surface, with a
  * simple menu for launching bottom-sheet examples. No navigation library.
  *
@@ -20,7 +18,13 @@ import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { NuriThemeProvider, OverlayProvider, useNuriTheme } from '@ds';
+import {
+  NuriSafeAreaProvider,
+  NuriThemeProvider,
+  OverlayProvider,
+  Screen,
+  useNuriTheme,
+} from '@ds';
 import type { Theme } from '@ds';
 import { Screens } from './src/screens';
 
@@ -38,15 +42,15 @@ function ThemedRoot({
     <View
       style={[
         styles.root,
-        {
-          backgroundColor: theme.chrome.canvas.bg,
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-        },
+        { backgroundColor: theme.chrome.canvas.bg },
       ]}
     >
       <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
-      <Screens onToggleTheme={onToggleTheme} />
+      <NuriSafeAreaProvider top={insets.top} bottom={insets.bottom}>
+        <Screen safeArea>
+          <Screens onToggleTheme={onToggleTheme} />
+        </Screen>
+      </NuriSafeAreaProvider>
     </View>
   );
 }
@@ -59,11 +63,10 @@ function Root() {
   );
 
   // <OverlayProvider> sits INSIDE the theme provider (so a registered sheet's
-  // panel themes through the same payload) but ABOVE the safe-area padding
-  // (it wraps ThemedRoot, which owns the padded root) — so the overlay outlet's
-  // absoluteFill fills the WHOLE window, and a sheet's scrim dims the status bar
-  // too. This is the inset-agnostic stance: the DS provider consumes no insets;
-  // the consumer's placement above the padding is what makes it full-frame.
+  // panel themes through the same payload) but ABOVE <Screen>'s safe-area
+  // padding — so the overlay outlet's absoluteFill fills the WHOLE window, and
+  // a sheet's scrim dims the status bar too. Sheet footer safe-area is requested
+  // with BottomSheet's boolean safeAreaBottom prop, not via a DS native dependency.
   return (
     <NuriThemeProvider mode={mode} accent="neutral">
       <OverlayProvider>

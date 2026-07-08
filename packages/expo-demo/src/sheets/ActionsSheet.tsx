@@ -17,9 +17,15 @@ import {
   View,
 } from '@ds';
 
-export function ActionsSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function ActionsSheet({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   return (
-    <BottomSheet open={open} detent="content" onOpenChange={(next) => !next && onClose()}>
+    <BottomSheet open={open} detent="content" safeAreaBottom onOpenChange={(next) => !next && onClose()}>
       <BottomSheetPanel>
         <BottomSheetTopbar>
           <TopbarTrailing>

@@ -1,6 +1,4 @@
 import * as React from 'react';
-import { StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
   BottomSheet,
@@ -16,9 +14,15 @@ import {
   View,
 } from '@ds';
 
-export function AmountSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function AmountSheet({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   return (
-    <BottomSheet open={open} detent="full" onOpenChange={(next) => !next && onClose()}>
+    <BottomSheet open={open} detent="full" safeAreaBottom onOpenChange={(next) => !next && onClose()}>
       <BottomSheetPanel>
         <BottomSheetTopbar>
           <TopbarTrailing>
@@ -106,22 +110,10 @@ export function AmountSheet({ open, onClose }: { open: boolean; onClose: () => v
           </View>
         </BottomSheetScroll>
 
-        <BottomSheetFooter>
-          <View direction="column" align="stretch" paddingY="sm" paddingX="lg">
-            <SafeAreaView edges={['bottom']} style={styles.footerSafeArea}>
-              <View direction="column" align="stretch">
-                <Button size="lg" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
-              </View>
-            </SafeAreaView>
-          </View>
+        <BottomSheetFooter direction="column" align="stretch" paddingY="sm" paddingX="lg">
+          <Button size="lg" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
         </BottomSheetFooter>
       </BottomSheetPanel>
     </BottomSheet>
   );
 }
-
-const styles = StyleSheet.create({
-  footerSafeArea: {
-    width: '100%',
-  },
-});

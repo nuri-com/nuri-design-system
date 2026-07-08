@@ -2705,17 +2705,20 @@ nuri-demo:not(:defined) {
  * the layout-primitive class, same as Stack / Box / Scroll).
  *
  * It is NOT the navigator. The app/navigator still owns route state and safe
- * area. Screen is the local containing scope for product-screen chrome: authored
- * content may include a semantic Dock child, and that dock reports its measured
- * inset to Scroll.
+ * area, but may pass already-known values into the safe-area environment /
+ * projection. Screen is the local containing scope for product-screen chrome:
+ * authored content may include a semantic Dock child, and that dock reports its
+ * measured inset to Scroll.
  *
  * API
  *   as?: string                                       host-resolved (default <div>)
+ *   safe-area?                                        top+bottom safe area
+ *   safe-area-top?                                    top safe area
+ *   safe-area-bottom?                                 bottom safe area
  *
  * RN mapping (R1): a thin component over `View {flex:1}` (later the
- * SafeAreaProvider's themed root). Safe-area is handled in ONE place
- * upstream (frame / navigator), so Screen stays inset-agnostic — no
- * env()/inset props (P11).
+ * SafeAreaProvider's themed root). The app/navigator reads native safe-area
+ * values into Nuri's safe-area environment; @nuri/rn stays dependency-free.
  *
  * Markup
  *   <nuri-screen>
@@ -2762,10 +2765,25 @@ nuri-demo:not(:defined) {
     flex-direction: column;
     flex: 1;
     min-block-size: 0;
+    box-sizing: border-box;
     position: relative;
     overflow: hidden;
+    padding-block-start: var(--nuri-screen-safe-area-top, 0px);
+    padding-block-end: var(--nuri-screen-safe-area-bottom, 0px);
+    --nuri-screen-safe-area-top: 0px;
+    --nuri-screen-safe-area-bottom: 0px;
     --nuri-screen-dock-top: 0px;
     --nuri-screen-dock-bottom: 0px;
+  }
+
+  .nuri-screen[data-safe-area],
+  .nuri-screen[data-safe-area-top] {
+    --nuri-screen-safe-area-top: var(--nuri-device-safe-area-top, 0px);
+  }
+
+  .nuri-screen[data-safe-area],
+  .nuri-screen[data-safe-area-bottom] {
+    --nuri-screen-safe-area-bottom: var(--nuri-device-safe-area-bottom, 0px);
   }
 }
 
@@ -3551,6 +3569,17 @@ nuri-demo:not(:defined) {
     display: block;
   }
 
+  nuri-bottom-sheet-footer > .nuri-bottom-sheet-footer__view {
+    inline-size: 100%;
+  }
+
+  nuri-bottom-sheet-footer > .nuri-bottom-sheet-footer__view[data-safe-area-bottom] {
+    padding-block-end: calc(
+      var(--nuri-bottom-sheet-footer-padding-bottom, 0px) +
+      var(--nuri-device-safe-bottom, 0px)
+    );
+  }
+
   nuri-bottom-sheet[detent="full"] > nuri-bottom-sheet-panel {
     block-size: calc(100% - 40px);
     max-block-size: calc(100% - 40px);
@@ -3898,7 +3927,7 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
 
 .nuri-device { flex: none; }
 
-.nuri-device:not([data-overlay]) {
+.nuri-device:not([data-overlay]):not([data-screen-safe-area]) {
   --nuri-device-safe-bottom: 0px;
 }
 
@@ -3938,6 +3967,8 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
   overflow: hidden;
   background: var(--nuri-bg-canvas);
   color: var(--nuri-text-primary);
+  --nuri-device-safe-area-top: 38px;
+  --nuri-device-safe-area-bottom: var(--nuri-device-safe-bottom, 0px);
 }
 
 /* ── Top cutout · the sensor housing, overlaid at the top edge ────
@@ -4048,21 +4079,25 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
  * padding. z-index sits ABOVE the sheet (recipe z-index 20) so the OS chrome —
  * clock, signals, home pill — floats over the dim, as it does on a real device.
  * The frame owns this device-fill; the demo needs no page-local CSS. */
-.nuri-device[data-overlay] .nuri-device__status {
+.nuri-device[data-overlay] .nuri-device__status,
+.nuri-device[data-screen-safe-area] .nuri-device__status {
   position: absolute;
   inset-block-start: 0;
   inset-inline: 0;
   z-index: 30;
 }
 .nuri-device[data-overlay] .nuri-device__home,
-.nuri-device[data-overlay] .nuri-device__nav {
+.nuri-device[data-overlay] .nuri-device__nav,
+.nuri-device[data-screen-safe-area] .nuri-device__home,
+.nuri-device[data-screen-safe-area] .nuri-device__nav {
   position: absolute;
   inset-block-end: 0;
   inset-inline: 0;
   z-index: 30;
 }
 /* The sensor housing is a physical hole in the glass — always on top. */
-.nuri-device[data-overlay] .nuri-device__cutout {
+.nuri-device[data-overlay] .nuri-device__cutout,
+.nuri-device[data-screen-safe-area] .nuri-device__cutout {
   z-index: 31;
 }
 

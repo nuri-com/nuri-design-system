@@ -24,6 +24,7 @@ import {
   BottomSheetScroll,
   BottomSheetTopbar,
   Button,
+  NuriSafeAreaProvider,
   OverlayProvider,
   TextField,
   TextFieldLabel,
@@ -380,7 +381,15 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
               <BottomSheetScroll>
                 <Text>Body</Text>
               </BottomSheetScroll>
-              <BottomSheetFooter>
+              <BottomSheetFooter
+                chrome="strong"
+                direction="row"
+                align="center"
+                justify="end"
+                gap="sm"
+                paddingX="lg"
+                paddingY="xs"
+              >
                 <Button variant="solid">Continue</Button>
               </BottomSheetFooter>
             </BottomSheetPanel>
@@ -405,9 +414,14 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     expect(footerHost).toBeTruthy();
     expect(flatStyle(topbarHost!.props.style).paddingTop).toBe(space.lg);
     const footerHostStyle = flatStyle(footerHost!.props.style);
-    expect(footerHostStyle).not.toHaveProperty('paddingHorizontal');
-    expect(footerHostStyle).not.toHaveProperty('paddingTop');
-    expect(footerHostStyle).not.toHaveProperty('paddingBottom');
+    expect(footerHostStyle.flexDirection).toBe('row');
+    expect(footerHostStyle.alignItems).toBe('center');
+    expect(footerHostStyle.justifyContent).toBe('flex-end');
+    expect(footerHostStyle.gap).toBe(space.sm);
+    expect(footerHostStyle.paddingHorizontal).toBe(space.lg);
+    expect(footerHostStyle.paddingVertical).toBe(space.xs);
+    expect(footerHostStyle.paddingBottom).toBe(space.xs);
+    expect(footerHostStyle.backgroundColor).toEqual(expect.any(String));
     const scrollMaxHeightBeforeFooterMeasure = flatStyle(tr.root.findByType(ScrollView).props.style).maxHeight;
 
     act(() => {
@@ -420,6 +434,46 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     expect(contentStyle.paddingTop).toBe(56);
     expect(contentStyle.paddingBottom).toBe(72);
     expect(flatStyle(scroll.props.style).maxHeight).toBe(scrollMaxHeightBeforeFooterMeasure);
+  });
+
+  test('BottomSheetFooter composes authored bottom padding with safe-area bottom', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <NuriSafeAreaProvider bottom={34}>
+          <OverlayProvider>
+            <BottomSheet open detent="full" safeAreaBottom>
+              <BottomSheetPanel>
+                <BottomSheetScroll>
+                  <Text>Body</Text>
+                </BottomSheetScroll>
+                <BottomSheetFooter direction="column" align="stretch" paddingY="sm" paddingX="lg">
+                  <Button variant="solid">Continue</Button>
+                </BottomSheetFooter>
+              </BottomSheetPanel>
+            </BottomSheet>
+          </OverlayProvider>
+        </NuriSafeAreaProvider>
+      </NuriThemeProvider>,
+    );
+
+    const footerHost = tr.root
+      .findAllByType(View)
+      .find((node) => {
+        const style = flatStyle(node.props.style);
+        return typeof node.props.onLayout === 'function' && style.bottom === 0 && style.zIndex === 2;
+      });
+    expect(footerHost).toBeTruthy();
+    const footerStyle = flatStyle(footerHost!.props.style);
+    expect(footerStyle.alignItems).toBe('stretch');
+    expect(footerStyle.paddingHorizontal).toBe(space.lg);
+    expect(footerStyle.paddingVertical).toBe(space.sm);
+    expect(footerStyle.paddingBottom).toBe(space.sm + 34);
+    expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBe(34);
+
+    act(() => {
+      footerHost!.props.onLayout({ nativeEvent: { layout: { height: 90 } } });
+    });
+    expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBe(90);
   });
 
   test('BottomSheetFooter follows the keyboard on full sheets', () => {
@@ -435,18 +489,20 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     try {
       const tr = render(
         <NuriThemeProvider>
-          <OverlayProvider>
-            <BottomSheet open detent="full">
-              <BottomSheetPanel>
-                <BottomSheetScroll>
-                  <Text>Body</Text>
-                </BottomSheetScroll>
-                <BottomSheetFooter>
-                  <Button variant="solid">Continue</Button>
-                </BottomSheetFooter>
-              </BottomSheetPanel>
-            </BottomSheet>
-          </OverlayProvider>
+          <NuriSafeAreaProvider bottom={34}>
+            <OverlayProvider>
+              <BottomSheet open detent="full" safeAreaBottom>
+                <BottomSheetPanel>
+                  <BottomSheetScroll>
+                    <Text>Body</Text>
+                  </BottomSheetScroll>
+                  <BottomSheetFooter paddingY="sm" paddingBottom="none">
+                    <Button variant="solid">Continue</Button>
+                  </BottomSheetFooter>
+                </BottomSheetPanel>
+              </BottomSheet>
+            </OverlayProvider>
+          </NuriSafeAreaProvider>
         </NuriThemeProvider>,
       );
 
@@ -458,18 +514,22 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
         });
 
       expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(0);
+      expect(flatStyle(findFooterHost()!.props.style).paddingVertical).toBe(space.sm);
+      expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(34);
 
       act(() => {
         const showHandlers = keyboardHandlers.keyboardWillShow ?? keyboardHandlers.keyboardDidShow;
         for (const show of showHandlers) show({ endCoordinates: { height: 280, screenY: 0 } });
       });
       expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(280);
+      expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(0);
 
       act(() => {
         const hideHandlers = keyboardHandlers.keyboardWillHide ?? keyboardHandlers.keyboardDidHide;
         for (const hide of hideHandlers) hide({ endCoordinates: { height: 0, screenY: 0 } });
       });
       expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(0);
+      expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(34);
     } finally {
       addSpy.mockRestore();
     }

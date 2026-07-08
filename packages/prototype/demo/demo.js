@@ -312,6 +312,7 @@
       // the dim exactly as it does on a real device. Non-sheet frames are
       // unaffected (they keep the in-flow safe-area chrome).
       const hasOverlay = /<nuri-bottom-sheet[\s/>]/.test(sourceHtml);
+      const hasScreenSafeArea = /<nuri-screen\b[^>]*\bsafe-area(?:-(?:top|bottom))?(?:=|\s|>)/.test(sourceHtml);
 
       // The themeable <nuri-scope> wraps the SCREEN (cutout + status + viewport
       // + bottom), not the bezel: the dark hardware slab is fixed chrome, while
@@ -319,7 +320,7 @@
       // controllable class so _wireControls writes the device theme/neutral/
       // font here — and nowhere else on the card.
       return `
-        <div class="nuri-device" data-device="${device}" data-platform="${platform}"${hasOverlay ? ' data-overlay' : ''}>
+        <div class="nuri-device" data-device="${device}" data-platform="${platform}"${hasOverlay ? ' data-overlay' : ''}${hasScreenSafeArea ? ' data-screen-safe-area' : ''}>
           <div class="nuri-device__frame">
             <nuri-scope class="nuri-demo-card__scope nuri-device__scope" ${scopeAttrs}>
               <div class="nuri-device__screen">

@@ -7,7 +7,7 @@ export function Menu({
   onOpenSheet,
 }: {
   onBack: () => void;
-  onOpenSheet: (sheet: 'activity' | 'amount' | 'actions' | 'form') => void;
+  onOpenSheet: (sheet: 'activity' | 'amount' | 'actions' | 'form' | 'form2') => void;
 }) {
   return (
     <>
@@ -20,6 +20,7 @@ export function Menu({
         <Button size="lg" onPress={() => onOpenSheet('amount')}>Amount Sheet</Button>
         <Button size="lg" onPress={() => onOpenSheet('actions')}>Actions Sheet</Button>
         <Button size="lg" onPress={() => onOpenSheet('form')}>Form Sheet</Button>
+        <Button size="lg" onPress={() => onOpenSheet('form2')}>Form Sheet 2</Button>
       </View>
     </>
   );

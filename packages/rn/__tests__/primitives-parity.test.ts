@@ -106,8 +106,8 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
     );
   });
 
-  test('Screen / ListSeparator are structural (no namespace props)', () => {
-    expect(Screen.propKeys).toEqual([]);
+  test('Screen exposes only its local safe-area contract; ListSeparator has no namespace props', () => {
+    expect(Screen.propKeys).toEqual(['safeArea', 'safeAreaTop', 'safeAreaBottom']);
     expect(ListSeparator.propKeys).toEqual([]);
   });
 
@@ -131,6 +131,11 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
 
   test('web <nuri-view> ATTRS ≡ box ∪ stack ∪ palette ∪ effect keys (the #102-deferred leg, now bidirectional)', () => {
     expect(sorted(viewAttrs())).toEqual(sorted(union(BOX_KEYS, STACK_KEYS, PALETTE_KEYS, EFFECT_KEYS).map(kebab)));
+  });
+
+  test('web <nuri-screen> ATTRS expose the local device safe-area contract', () => {
+    const attrs = webAttrs('screen.js').filter((a) => a !== 'as');
+    expect(attrs).toEqual(['safe-area', 'safe-area-top', 'safe-area-bottom']);
   });
 
   test('web <nuri-typography> namespace ATTRS are real schema keys (typography ∪ palette)', () => {
