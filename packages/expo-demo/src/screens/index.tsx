@@ -13,11 +13,11 @@ import { Menu } from './Menu';
 import { ActionsSheet } from '../sheets/ActionsSheet';
 import { ActivitySheet } from '../sheets/ActivitySheet';
 import { AmountSheet } from '../sheets/AmountSheet';
-import { FormSheet } from '../sheets/FormSheet';
+import { FormSheet, FormSheet2 } from '../sheets/FormSheet';
 import type { WalletTab } from '../components/WalletTabs';
 
 type Page = 'wallet' | 'sheetMenu';
-type OpenSheet = 'none' | 'activity' | 'amount' | 'actions' | 'form';
+type OpenSheet = 'none' | 'activity' | 'amount' | 'actions' | 'form' | 'form2';
 type FormValues = {
   iban: string;
   firstName: string;
@@ -72,6 +72,12 @@ export const Screens: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme
       />
       <FormSheet
         open={openSheet === 'form'}
+        values={formValues}
+        onChangeField={setField}
+        onClose={closeSheet}
+      />
+      <FormSheet2
+        open={openSheet === 'form2'}
         values={formValues}
         onChangeField={setField}
         onClose={closeSheet}
