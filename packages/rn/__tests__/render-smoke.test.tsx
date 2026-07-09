@@ -47,6 +47,8 @@ import {
   TextFieldIconButton,
   TabBar,
   TabBarItem,
+  TabBarItemIcon,
+  TabBarItemLabel,
   NuriIcon,
   ListSeparator,
   BottomSheet,
@@ -321,9 +323,18 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const tr = render(
       <NuriThemeProvider>
         <TabBar>
-          <TabBarItem icon="card" label="Wallet" selected onPress={() => undefined} />
-          <TabBarItem icon="bitcoin" label="Coin" onPress={() => undefined} />
-          <TabBarItem icon="euro" label="Cash" selected={false} onPress={() => undefined} />
+          <TabBarItem selected onPress={() => undefined} accessibilityLabel="Wallet">
+            <TabBarItemIcon name="card" />
+            <TabBarItemLabel>Wallet</TabBarItemLabel>
+          </TabBarItem>
+          <TabBarItem onPress={() => undefined} accessibilityLabel="Coin">
+            <TabBarItemIcon name="bitcoin" />
+            <TabBarItemLabel>Coin</TabBarItemLabel>
+          </TabBarItem>
+          <TabBarItem selected={false} onPress={() => undefined} accessibilityLabel="Cash">
+            <TabBarItemIcon name="euro" />
+            <TabBarItemLabel>Cash</TabBarItemLabel>
+          </TabBarItem>
         </TabBar>
       </NuriThemeProvider>,
     );
@@ -363,9 +374,18 @@ describe('render-smoke — the ergonomic components mount headless', () => {
           </NuriScroll>
           <NuriDock edge="bottom">
             <TabBar surface="transparent">
-              <TabBarItem icon="bitcoin-wallet" label="€ 36.50" selected />
-              <TabBarItem icon="bank" label="€ 18.90" />
-              <TabBarItem icon="euro-wallet" label="€ 25.70" />
+              <TabBarItem selected accessibilityLabel="Bitcoin wallet">
+                <TabBarItemIcon name="bitcoin-wallet" />
+                <TabBarItemLabel>€ 36.50</TabBarItemLabel>
+              </TabBarItem>
+              <TabBarItem accessibilityLabel="Bank account">
+                <TabBarItemIcon name="bank" />
+                <TabBarItemLabel>€ 18.90</TabBarItemLabel>
+              </TabBarItem>
+              <TabBarItem accessibilityLabel="Euro wallet">
+                <TabBarItemIcon name="euro-wallet" />
+                <TabBarItemLabel>€ 25.70</TabBarItemLabel>
+              </TabBarItem>
             </TabBar>
           </NuriDock>
         </NuriScreen>
@@ -1056,7 +1076,12 @@ describe('type-surface honesty (compile-time assertions · SEED-3 + D8)', () => 
     // SEED-3 · `selected` is GATED on a `state` axis. TabBarItem (tab.ts's
     // `state: 'selected' | 'unselected'`) is the lone state-axis descriptor →
     // it ACCEPTS the clean consumer boolean.
-    const ok = <TabBarItem icon="card" label="Wallet" selected onPress={() => undefined} />;
+    const ok = (
+      <TabBarItem selected onPress={() => undefined} accessibilityLabel="Wallet">
+        <TabBarItemIcon name="card" />
+        <TabBarItemLabel>Wallet</TabBarItemLabel>
+      </TabBarItem>
+    );
     void ok;
     const transparentTabBarOk = <TabBar surface="transparent" />;
     void transparentTabBarOk;

@@ -11,9 +11,10 @@
  *
  * Public API — composition via positional <nuri-tab-bar-item> children:
  *   <nuri-tab-bar>
- *     <nuri-tab-bar-item icon="card"    label="Wallet" selected></nuri-tab-bar-item>
- *     <nuri-tab-bar-item icon="bitcoin" label="Coin"></nuri-tab-bar-item>
- *     <nuri-tab-bar-item icon="euro"    label="Cash"></nuri-tab-bar-item>
+ *     <nuri-tab-bar-item selected aria-label="Wallet">
+ *       <nuri-tab-bar-item-icon name="card"></nuri-tab-bar-item-icon>
+ *       <nuri-tab-bar-item-label>Wallet</nuri-tab-bar-item-label>
+ *     </nuri-tab-bar-item>
  *   </nuri-tab-bar>
  *
  * The page MUST link the namespace CSS (box/stack/palette) the bar's merged node +

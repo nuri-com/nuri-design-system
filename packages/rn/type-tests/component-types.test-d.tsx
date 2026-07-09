@@ -34,6 +34,8 @@ import {
   TextFieldIconButton,
   TextFieldLabel,
   TabBarItem,
+  TabBarItemIcon,
+  TabBarItemLabel,
   BottomSheet,
   BottomSheetFooter,
   BottomSheetPanel,
@@ -144,10 +146,23 @@ export const textFieldIconButtonMissingAccessibilityLabel = <TextFieldIconButton
 // @ts-expect-error TextFieldIconButton is icon-only and forbids children.
 export const textFieldIconButtonNoChildren = <TextFieldIconButton name="eye-hidden">Hide</TextFieldIconButton>;
 
-// ── TabBarItem — selected bridge + onPress/a11yLabel · icon/label · no disabled ──
-export const tabItemOk = <TabBarItem icon="card" label="Wallet" selected onPress={() => undefined} />;
+// ── TabBarItem — selected bridge + onPress/a11yLabel · composed icon/label · no scalar props ──
+export const tabItemOk = (
+  <TabBarItem selected onPress={() => undefined} accessibilityLabel="Wallet">
+    <TabBarItemIcon name="card" />
+    <TabBarItemLabel>Wallet</TabBarItemLabel>
+  </TabBarItem>
+);
+// @ts-expect-error TabBarItem removed the old scalar `icon` prop; use TabBarItemIcon.
+export const tabItemNoScalarIcon = <TabBarItem icon="card" />;
+// @ts-expect-error TabBarItem removed the old scalar `label` prop; use TabBarItemLabel.
+export const tabItemNoScalarLabel = <TabBarItem label="Wallet" />;
 // @ts-expect-error TabBarItem declares no `disabled` — an unselected item stays tappable (the DS never blocks it).
-export const tabItemNoDisabled = <TabBarItem icon="card" label="Wallet" disabled />;
+export const tabItemNoDisabled = <TabBarItem disabled />;
+// @ts-expect-error TabBarItemIcon requires the generated icon-name prop.
+export const tabItemIconRequiresName = <TabBarItemIcon />;
+// @ts-expect-error TabBarItemIcon is icon-name only and rejects children.
+export const tabItemIconNoChildren = <TabBarItemIcon name="card">Wallet</TabBarItemIcon>;
 
 // ── BottomSheet family — Nuri contract, no raw engine surface ──
 export const bottomSheetOk = (

@@ -1599,6 +1599,7 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
   }
 >
   <View
+    accessibilityLabel="Wallet"
     accessibilityRole="button"
     accessibilityState={
       {
@@ -1779,6 +1780,7 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
     </Text>
   </View>
   <View
+    accessibilityLabel="Coin"
     accessibilityRole="button"
     accessibilityState={
       {
@@ -1910,6 +1912,7 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
     </Text>
   </View>
   <View
+    accessibilityLabel="Cash"
     accessibilityRole="button"
     accessibilityState={
       {

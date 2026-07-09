@@ -11,13 +11,26 @@ nav_order: 8
 
 ## API
 
+### TabBarItemProps
+
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `onPress` | no | `() => void` | pressable behaviour |
 | `accessibilityLabel` | no | `string` | pressable behaviour |
 | `selected` | no | `boolean` | state axis |
-| `icon` | no | `IconName` | scalar icon name |
-| `label` | no | `string` | scalar label |
+| `children` | no | `React.ReactNode` | composition children |
+
+### TabBarItemIconProps
+
+| Prop | Required | Type | Notes |
+| --- | --- | --- | --- |
+| `name` | yes | `IconName` | scalar icon name |
 
 > `children` is not accepted (`children?: never`).
+
+### TabBarItemLabelProps
+
+| Prop | Required | Type | Notes |
+| --- | --- | --- | --- |
+| `children` | no | `React.ReactNode` | slot content |

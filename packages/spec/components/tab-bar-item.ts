@@ -99,17 +99,17 @@ export const tabBarItemDescriptor: Descriptor<TabBarItemAxes> = {
   // (`propMaps.selected` · true→'selected' · false→'unselected'), which retires
   // the `'state' extends keyof A` factory magic. The root is pressable (onPress +
   // a11y label · NO `disabled` — an unselected item stays tappable, the DS never
-  // blocks it · matching the pressScale-only `interactive` opt-in). TWO composed
-  // slots (icon-over-label · NOT scalar `prop` shorthands — this icon is a lockup
-  // member, not a single-glyph control).
+  // blocks it · matching the pressScale-only `interactive` opt-in). TWO generated
+  // component slots (icon-over-label · NOT scalar `icon`/`label` props) keep this
+  // multipart lockup aligned with Button's composed API.
   api: {
     axes: [],
     themeScope: { accent: true },
     behaviour: { pressable: { target: 'root', props: ['onPress', 'accessibilityLabel'] } },
     propMaps: { selected: { axis: 'state', true: 'selected', false: 'unselected' } },
     slots: {
-      icon: { part: 'icon', kind: 'icon-name' },
-      label: { part: 'label', kind: 'text' },
+      icon: { part: 'icon', kind: 'icon-name', component: true },
+      label: { part: 'label', kind: 'text', component: true },
     },
   },
 };
