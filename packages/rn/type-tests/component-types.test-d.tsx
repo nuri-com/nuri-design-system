@@ -39,7 +39,10 @@ import {
   BottomSheetPanel,
   BottomSheetScroll,
   BottomSheetTopbar,
+  Footer,
+  Header,
   Screen,
+  Scroll,
   TopbarCenter,
 } from '../index';
 
@@ -202,7 +205,26 @@ export const bottomSheetFooterNoPress = <BottomSheetFooter onPress={() => undefi
 // ── Screen — full-screen primitive requests provider safe-area by boolean intent ──
 export const screenSafeAreaOk = <Screen safeArea><Button>Done</Button></Screen>;
 export const screenSafeAreaEdgesOk = <Screen safeAreaTop safeAreaBottom><Button>Done</Button></Screen>;
+export const fixedRegionLayoutOk = (
+  <Screen>
+    <Header safeAreaTop chrome="canvas" direction="column" align="stretch" paddingX="lg">
+      <TopbarCenter>Title</TopbarCenter>
+    </Header>
+    <Scroll safeAreaTop safeAreaBottom insetTop="dock" insetBottom="dock">
+      <Button>Done</Button>
+    </Scroll>
+    <Footer safeAreaBottom chrome="strong" direction="column" align="stretch" paddingY="sm">
+      <Button>Done</Button>
+    </Footer>
+  </Screen>
+);
 // @ts-expect-error Screen safeAreaTop is boolean intent, not a reader/source token.
 export const screenNoStringSafeAreaTop = <Screen safeAreaTop="device" />;
 // @ts-expect-error Screen does not expose numeric inset transport.
 export const screenNoNumericSafeAreaBottom = <Screen safeAreaBottom={34} />;
+// @ts-expect-error Header safeAreaTop is boolean intent, not a source token.
+export const headerNoStringSafeAreaTop = <Header safeAreaTop="device" />;
+// @ts-expect-error Footer safeAreaBottom is boolean intent, not a numeric inset.
+export const footerNoNumericSafeAreaBottom = <Footer safeAreaBottom={34} />;
+// @ts-expect-error Scroll insetTop is a closed local union.
+export const scrollNoOverlayInset = <Scroll insetTop="overlay" />;

@@ -24,8 +24,11 @@ import {
   BottomSheetScroll,
   BottomSheetTopbar,
   Button,
+  Footer,
+  Header,
   NuriSafeAreaProvider,
   OverlayProvider,
+  Scroll,
   TextField,
   TextFieldLabel,
   useOverlay,
@@ -476,6 +479,68 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBe(90);
   });
 
+  test('BottomSheetFooter keeps legacy root safe-area intent separate from raw host inset', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <NuriSafeAreaProvider bottom={34}>
+          <OverlayProvider>
+            <BottomSheet open detent="full">
+              <BottomSheetPanel>
+                <BottomSheetScroll>
+                  <Text>Body</Text>
+                </BottomSheetScroll>
+                <BottomSheetFooter paddingY="sm">
+                  <Button variant="solid">Continue</Button>
+                </BottomSheetFooter>
+              </BottomSheetPanel>
+            </BottomSheet>
+          </OverlayProvider>
+        </NuriSafeAreaProvider>
+      </NuriThemeProvider>,
+    );
+
+    const footerHost = tr.root
+      .findAllByType(View)
+      .find((node) => {
+        const style = flatStyle(node.props.style);
+        return typeof node.props.onLayout === 'function' && style.bottom === 0 && style.zIndex === 2;
+      });
+    expect(footerHost).toBeTruthy();
+    expect(flatStyle(footerHost!.props.style).paddingBottom).toBe(space.sm);
+    expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBeUndefined();
+  });
+
+  test('generic Footer and Scroll consume raw BottomSheet safe-area inset without the legacy root flag', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <NuriSafeAreaProvider bottom={34}>
+          <OverlayProvider>
+            <BottomSheet open detent="full">
+              <BottomSheetPanel>
+                <Scroll safeAreaBottom>
+                  <Text>Body</Text>
+                </Scroll>
+                <Footer safeAreaBottom paddingY="sm">
+                  <Button variant="solid">Continue</Button>
+                </Footer>
+              </BottomSheetPanel>
+            </BottomSheet>
+          </OverlayProvider>
+        </NuriSafeAreaProvider>
+      </NuriThemeProvider>,
+    );
+
+    const footerHost = tr.root
+      .findAllByType(View)
+      .find((node) => {
+        const style = flatStyle(node.props.style);
+        return typeof node.props.onLayout === 'function' && style.bottom === 0 && style.zIndex === 2;
+      });
+    expect(footerHost).toBeTruthy();
+    expect(flatStyle(footerHost!.props.style).paddingBottom).toBe(space.sm + 34);
+    expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBe(34);
+  });
+
   test('BottomSheet safeAreaBottom reserves scroll-only content when there is no footer', () => {
     const tr = render(
       <NuriThemeProvider>
@@ -494,6 +559,29 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     );
 
     expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBe(34);
+  });
+
+  test('BottomSheet content detent bounds Scroll without flex-filling the sheet', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <OverlayProvider>
+          <BottomSheet open detent="content">
+            <BottomSheetPanel>
+              <Header paddingTop="lg">
+                <Text>Actions</Text>
+              </Header>
+              <Scroll safeAreaBottom>
+                <Text>Choose a transfer method</Text>
+              </Scroll>
+            </BottomSheetPanel>
+          </BottomSheet>
+        </OverlayProvider>
+      </NuriThemeProvider>,
+    );
+
+    const scrollStyle = flatStyle(tr.root.findByType(ScrollView).props.style);
+    expect(scrollStyle.maxHeight).toEqual(expect.any(Number));
+    expect(scrollStyle.flex).toBeUndefined();
   });
 
   test('BottomSheetFooter follows the keyboard on full sheets', () => {

@@ -60,6 +60,7 @@ import { icons } from '../contract';
 import type { Descriptor, Axes, TypographyNS } from '../contract';
 import { renderDescriptorInstance } from '../runtime/renderer';
 import type { BakedComponentRecipe } from '../runtime/resolve';
+import { space } from '../generated/data/tokens';
 // The hand-authorable primitives (step ①) — aliased so the DS names don't clash
 // with the raw react-native View/Text imported above for the catalog tests.
 import {
@@ -68,7 +69,9 @@ import {
   Text as NuriText,
   Pressable as NuriPressable,
   Screen as NuriScreen,
+  Header as NuriHeader,
   Scroll as NuriScroll,
+  Footer as NuriFooter,
   Dock as NuriDock,
 } from '../primitives';
 
@@ -398,6 +401,50 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       flexGrow: 1,
       paddingTop: 64,
       paddingBottom: 72,
+    });
+  });
+
+  test('Screen + Header + Scroll + Footer measure structural clearance and paint safe areas', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <NuriSafeAreaProvider top={20} bottom={34}>
+          <NuriScreen>
+            <NuriHeader safeAreaTop chrome="canvas" paddingY="sm">
+              <Topbar>
+                <TopbarCenter><Text>Send</Text></TopbarCenter>
+              </Topbar>
+            </NuriHeader>
+            <NuriScroll>
+              <Text>Body</Text>
+            </NuriScroll>
+            <NuriFooter safeAreaBottom chrome="canvas" paddingY="sm" paddingX="lg">
+              <Button variant="solid">Continue</Button>
+            </NuriFooter>
+          </NuriScreen>
+        </NuriSafeAreaProvider>
+      </NuriThemeProvider>,
+    );
+
+    const fixedHosts = tr.root
+      .findAllByType(View)
+      .filter((node) => typeof node.props.onLayout === 'function')
+      .map((node) => ({ node, style: flatStyleForTest(node.props.style) }));
+    const headerHost = fixedHosts.find(({ style }) => style.top === 0 && style.zIndex === 2);
+    const footerHost = fixedHosts.find(({ style }) => style.bottom === 0 && style.zIndex === 2);
+    expect(headerHost).toBeTruthy();
+    expect(footerHost).toBeTruthy();
+    expect(headerHost!.style.paddingTop).toBe(space.sm + 20);
+    expect(footerHost!.style.paddingBottom).toBe(space.sm + 34);
+
+    act(() => {
+      headerHost!.node.props.onLayout({ nativeEvent: { layout: { height: 76 } } });
+      footerHost!.node.props.onLayout({ nativeEvent: { layout: { height: 90 } } });
+    });
+
+    expect(flatStyleForTest(tr.root.findByType(ScrollView).props.contentContainerStyle)).toMatchObject({
+      flexGrow: 1,
+      paddingTop: 76,
+      paddingBottom: 90,
     });
   });
 

@@ -16,11 +16,9 @@ import * as React from 'react';
 import {
   Animated,
   Easing,
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable as RNPressable,
-  ScrollView as RNScrollView,
   StyleSheet,
   View as RNView,
   useWindowDimensions,
@@ -31,11 +29,7 @@ import type {
   StackNS,
 } from '../contract';
 import type {
-  KeyboardEvent,
   LayoutChangeEvent,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  TextInput,
   ViewStyle,
 } from 'react-native';
 import { blackAlpha } from '@nuri/spec/colours';
@@ -45,23 +39,10 @@ import { useOverlay } from '../overlay';
 import { useNuriSafeAreaInsets } from '../safe-area';
 import { BottomSheetPanel as GeneratedBottomSheetPanel } from '../generated/components/bottom-sheet-panel';
 import { Topbar as GeneratedTopbar, type TopbarProps } from '../generated/components/topbar';
-import { space } from '../generated/data/tokens';
-import { FocusScrollProvider, type FocusScrollApi } from '../runtime/focus-scroll';
 import { FixedRegionLayoutProvider, useFixedRegionLayout } from './FixedRegionLayout';
+import { Header } from './Header';
+import { Scroll } from './Scroll';
 import { useResolvedNode, withSurface } from './shared';
-
-type ScrollViewInstance = React.ElementRef<typeof RNScrollView>;
-type ScrollContentRef = NonNullable<Parameters<TextInput['measureLayout']>[0]>;
-type ScrollViewWithNativeRef = ScrollViewInstance & {
-  getNativeScrollRef?: () => ScrollContentRef | null;
-};
-type ScrollViewWithInnerRef = ScrollViewInstance & {
-  getInnerViewRef?: () => ScrollContentRef | null;
-};
-type MeasureInWindowCallback = (x: number, y: number, width: number, height: number) => void;
-type NativeMeasurable = {
-  measureInWindow?: (callback: MeasureInWindowCallback) => void;
-};
 
 export type BottomSheetDetent = 'content' | 'full';
 export type BottomSheetScrim = 'none' | 'dim';
@@ -117,14 +98,6 @@ const RN_SCRIM = {
 } as const;
 
 const AnimatedPressable = Animated.createAnimatedComponent(RNPressable);
-const FOCUS_TOP_MARGIN = 16;
-// Keep the focused field comfortably above the keyboard/accessory strip, not
-// merely one pixel visible at the viewport edge. Android keyboard metrics can
-// exclude parts of the IME chrome, so this margin intentionally absorbs that
-// uncertainty while giving the cursor breathing room.
-const FOCUS_BOTTOM_MARGIN = 88;
-const FOCUS_SCROLL_DELAY_MS = 32;
-const FOCUS_SCROLL_REPEAT_DELAY_MS = 60;
 
 function numericPadding(style: ViewStyle, key: 'paddingBottom' | 'paddingVertical'): number {
   const value = style[key];
@@ -251,7 +224,8 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
         <Animated.View onLayout={handleSheetLayout} style={[sizeStyle, { transform: [{ translateY }] }]}>
           <FixedRegionLayoutProvider
             keyboardEnabled={detent === 'full'}
-            safeAreaBottom={safeAreaBottom ? safeAreaInsets.bottom : 0}
+            safeAreaBottom={safeAreaInsets.bottom}
+            legacySafeAreaBottom={safeAreaBottom ? safeAreaInsets.bottom : 0}
             scrollMaxHeight={scrollMaxHeight}
             windowHeight={windowHeight}
           >
@@ -296,28 +270,16 @@ export const BottomSheetPanel: React.FC<BottomSheetPanelProps> = ({ children }) 
 BottomSheetPanel.displayName = 'BottomSheetPanel';
 
 export const BottomSheetTopbar: React.FC<BottomSheetTopbarProps> = ({ children, surface = 'transparent', ...props }) => {
-  const { setHeaderHeight } = useFixedRegionLayout();
-  const measuredHeight = React.useRef(0);
-
-  React.useEffect(() => () => setHeaderHeight(0), [setHeaderHeight]);
-
-  const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
-    const next = Math.round(event.nativeEvent.layout.height);
-    if (measuredHeight.current === next) return;
-    measuredHeight.current = next;
-    setHeaderHeight(next);
-  }, [setHeaderHeight]);
-
   return (
-    <RNView onLayout={handleLayout} style={styles.topbar}>
+    <Header paddingTop="lg">
       <GeneratedTopbar {...props} surface={surface}>{children}</GeneratedTopbar>
-    </RNView>
+    </Header>
   );
 };
 BottomSheetTopbar.displayName = 'BottomSheetTopbar';
 
 export const BottomSheetFooter: React.FC<BottomSheetFooterProps> = ({ children, ...props }) => {
-  const { keyboardOffset, safeAreaBottom, setFooterHeight } = useFixedRegionLayout();
+  const { keyboardOffset, legacySafeAreaBottom, setFooterHeight } = useFixedRegionLayout();
   const measuredHeight = React.useRef(0);
   const { node } = useResolvedNode(props);
   const resolvedViewStyle = node.view as ViewStyle;
@@ -325,7 +287,7 @@ export const BottomSheetFooter: React.FC<BottomSheetFooterProps> = ({ children, 
     props.paddingBottom !== undefined
       ? numericPadding(resolvedViewStyle, 'paddingBottom')
       : numericPadding(resolvedViewStyle, 'paddingVertical');
-  const effectiveSafeAreaBottom = keyboardOffset > 0 ? 0 : safeAreaBottom;
+  const effectiveSafeAreaBottom = keyboardOffset > 0 ? 0 : legacySafeAreaBottom;
   const composedPaddingBottom =
     authoredPaddingBottom > 0 || effectiveSafeAreaBottom > 0
       ? { paddingBottom: authoredPaddingBottom + effectiveSafeAreaBottom }
@@ -357,201 +319,8 @@ export const BottomSheetFooter: React.FC<BottomSheetFooterProps> = ({ children, 
 BottomSheetFooter.displayName = 'BottomSheetFooter';
 
 export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }) => {
-  // Bound the scroll to the sheet's available height (from the host context)
-  // so its overflow actually scrolls — the panel can't provide a
-  // bounded height on its own. Outside a
-  // BottomSheet the cap is absent and it scrolls its parent's bounds as before.
-  const { scrollMaxHeight, headerHeight, footerHeight, keyboardOffset, safeAreaBottom } = useFixedRegionLayout();
-  const scrollRef = React.useRef<React.ElementRef<typeof RNScrollView>>(null);
-  const scrollY = React.useRef(0);
-  const viewportHeight = React.useRef(0);
-  const preKeyboardViewportHeight = React.useRef(0);
-  const keyboardHeight = React.useRef(0);
-  const keyboardScreenY = React.useRef<number | null>(null);
-  const focusedInput = React.useRef<TextInput | null>(null);
-  const rafs = React.useRef<number[]>([]);
-  const timers = React.useRef<Array<ReturnType<typeof setTimeout>>>([]);
-  const [keyboardPadding, setKeyboardPadding] = React.useState(0);
-
-  const clearScheduledScrolls = React.useCallback(() => {
-    for (const raf of rafs.current) cancelAnimationFrame(raf);
-    for (const timer of timers.current) clearTimeout(timer);
-    rafs.current = [];
-    timers.current = [];
-  }, []);
-
-  const keyboardOcclusion = React.useCallback(() => {
-    const measuredViewport = viewportHeight.current || scrollMaxHeight || 0;
-    const beforeKeyboard = preKeyboardViewportHeight.current || measuredViewport;
-    const viewportShrink = Math.max(0, beforeKeyboard - measuredViewport);
-    return Math.max(0, keyboardHeight.current - viewportShrink);
-  }, [scrollMaxHeight]);
-
-  const updateKeyboardPadding = React.useCallback(() => {
-    if (keyboardHeight.current <= 0) {
-      setKeyboardPadding(0);
-      return;
-    }
-    setKeyboardPadding(keyboardOcclusion() + FOCUS_BOTTOM_MARGIN);
-  }, [keyboardOcclusion]);
-
-  const performScrollToInput = React.useCallback((input: TextInput | null) => {
-    const scroll = scrollRef.current;
-    if (!input || !scroll) return;
-
-    const measuredViewport = viewportHeight.current || scrollMaxHeight || 0;
-    const visibleHeight = Math.max(0, measuredViewport - keyboardOcclusion());
-    const currentY = scrollY.current;
-    const targetTop = headerHeight + FOCUS_TOP_MARGIN;
-    const targetBottom = Math.max(targetTop, visibleHeight - FOCUS_BOTTOM_MARGIN);
-    const scrollToNextY = (nextY: number): void => {
-      const clampedY = Math.max(0, Math.round(nextY));
-      if (Math.abs(clampedY - scrollY.current) < 1) return;
-      scroll.scrollTo({ y: clampedY, animated: true });
-      scrollY.current = clampedY;
-    };
-
-    const scrollWithNativeRef = scroll as ScrollViewWithNativeRef;
-    const scrollNativeRef = scrollWithNativeRef.getNativeScrollRef?.();
-    const scrollWindowMeasurable = scrollNativeRef as NativeMeasurable | null | undefined;
-    const inputWindowMeasurable = input as NativeMeasurable;
-    if (
-      visibleHeight > 0 &&
-      typeof scrollWindowMeasurable?.measureInWindow === 'function' &&
-      typeof inputWindowMeasurable.measureInWindow === 'function'
-    ) {
-      const measureScrollInWindow: (callback: MeasureInWindowCallback) => void =
-        scrollWindowMeasurable.measureInWindow.bind(scrollWindowMeasurable);
-      const measureInputInWindow: (callback: MeasureInWindowCallback) => void =
-        inputWindowMeasurable.measureInWindow.bind(inputWindowMeasurable);
-      measureScrollInWindow((_scrollX, scrollWindowY, _scrollWidth, scrollWindowHeight) => {
-        measureInputInWindow((_inputX, inputWindowY, _inputWidth, inputHeight) => {
-          const viewportWindowHeight = measuredViewport || scrollWindowHeight;
-          const viewportWindowBottom = scrollWindowY + viewportWindowHeight;
-          const keyboardWindowTop = keyboardScreenY.current ?? (scrollWindowY + visibleHeight);
-          const safeWindowTop = scrollWindowY + targetTop;
-          const safeWindowBottom = Math.max(safeWindowTop, Math.min(viewportWindowBottom, keyboardWindowTop) - FOCUS_BOTTOM_MARGIN);
-          const inputWindowBottom = inputWindowY + inputHeight;
-
-          let nextY = currentY;
-          if (inputWindowBottom > safeWindowBottom) {
-            nextY = currentY + inputWindowBottom - safeWindowBottom;
-          } else if (inputWindowY < safeWindowTop) {
-            nextY = currentY + inputWindowY - safeWindowTop;
-          }
-          scrollToNextY(nextY);
-        });
-      });
-      return;
-    }
-
-    const scrollWithInnerRef = scroll as ScrollViewWithInnerRef;
-    const scrollContentRef =
-      typeof scrollWithInnerRef.getInnerViewRef === 'function'
-        ? scrollWithInnerRef.getInnerViewRef()
-        : scrollWithNativeRef.getNativeScrollRef?.();
-    if (scrollContentRef == null || typeof input.measureLayout !== 'function') return;
-
-    input.measureLayout(
-      scrollContentRef,
-      (_x, y, _width, height) => {
-        let nextY = currentY;
-        if (visibleHeight > 0) {
-          const safeTop = currentY + targetTop;
-          const safeBottom = currentY + targetBottom;
-          const inputTop = y;
-          const inputBottom = inputTop + height;
-          if (inputBottom > safeBottom) {
-            nextY = inputBottom - targetBottom;
-          } else if (inputTop < safeTop) {
-            nextY = inputTop - targetTop;
-          }
-        } else {
-          nextY = currentY + y - FOCUS_TOP_MARGIN;
-        }
-
-        scrollToNextY(nextY);
-      },
-      () => undefined,
-    );
-  }, [keyboardOcclusion, scrollMaxHeight, headerHeight]);
-
-  const scheduleScrollToInput = React.useCallback((input: TextInput | null, delay = FOCUS_SCROLL_DELAY_MS) => {
-    if (!input) return;
-    clearScheduledScrolls();
-    focusedInput.current = input;
-    const raf = requestAnimationFrame(() => {
-      rafs.current = rafs.current.filter((item) => item !== raf);
-      const timer = setTimeout(() => {
-        timers.current = timers.current.filter((item) => item !== timer);
-        performScrollToInput(input);
-      }, delay);
-      timers.current.push(timer);
-    });
-    rafs.current.push(raf);
-  }, [clearScheduledScrolls, performScrollToInput]);
-
-  React.useEffect(() => {
-    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
-    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
-    const showSub = Keyboard.addListener(showEvent, (event: KeyboardEvent) => {
-      if (preKeyboardViewportHeight.current === 0) {
-        preKeyboardViewportHeight.current = viewportHeight.current || scrollMaxHeight || 0;
-      }
-      keyboardHeight.current = event.endCoordinates.height;
-      keyboardScreenY.current = event.endCoordinates.screenY > 0 ? event.endCoordinates.screenY : null;
-      updateKeyboardPadding();
-      // Re-run after the keyboard transition because a focus event can arrive
-      // before native has delivered stable layout measurements.
-      scheduleScrollToInput(focusedInput.current, FOCUS_SCROLL_REPEAT_DELAY_MS);
-    });
-    const hideSub = Keyboard.addListener(hideEvent, () => {
-      preKeyboardViewportHeight.current = 0;
-      keyboardHeight.current = 0;
-      keyboardScreenY.current = null;
-      setKeyboardPadding(0);
-    });
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-      clearScheduledScrolls();
-    };
-  }, [clearScheduledScrolls, scheduleScrollToInput]);
-
-  const focusScrollApi = React.useMemo<FocusScrollApi>(() => ({
-    requestScrollToFocusedInput: (input) => scheduleScrollToInput(input),
-  }), [scheduleScrollToInput]);
-
-  const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
-    viewportHeight.current = event.nativeEvent.layout.height;
-    if (keyboardHeight.current > 0) updateKeyboardPadding();
-  }, [updateKeyboardPadding]);
-
-  const handleScroll = React.useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    scrollY.current = event.nativeEvent.contentOffset.y;
-  }, []);
-  // A footer reports its measured height into the scroll inset; when there is
-  // no footer, or before measurement has landed, the sheet safeAreaBottom
-  // still reserves the home-indicator zone for scroll-only content.
-  const bottomContentPadding = Math.max(footerHeight, safeAreaBottom) + keyboardPadding;
-
-  return (
-    <RNScrollView
-      ref={scrollRef}
-      style={scrollMaxHeight !== undefined ? { maxHeight: Math.max(0, scrollMaxHeight - keyboardOffset) } : undefined}
-      contentContainerStyle={[
-        styles.scrollContent,
-        headerHeight > 0 ? { paddingTop: headerHeight } : null,
-        bottomContentPadding > 0 ? { paddingBottom: bottomContentPadding } : null,
-      ]}
-      keyboardShouldPersistTaps="handled"
-      onLayout={handleLayout}
-      onScroll={handleScroll}
-      scrollEventThrottle={16}
-    >
-      <FocusScrollProvider value={focusScrollApi}>{children}</FocusScrollProvider>
-    </RNScrollView>
-  );
+  const { legacySafeAreaBottom } = useFixedRegionLayout();
+  return <Scroll safeAreaBottom={legacySafeAreaBottom > 0}>{children}</Scroll>;
 };
 BottomSheetScroll.displayName = 'BottomSheetScroll';
 
@@ -564,14 +333,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
   },
-  topbar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 2,
-    paddingTop: space.lg,
-  },
   footer: {
     position: 'absolute',
     left: 0,
@@ -579,7 +340,4 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 2,
   },
-  scrollContent: {
-    flexGrow: 1,
-  } satisfies ViewStyle,
 });
