@@ -1,7 +1,7 @@
 ---
 title: Colour Primitive
 layout: default
-nav_order: 1
+nav_order: 5
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/tokens/colours.ts

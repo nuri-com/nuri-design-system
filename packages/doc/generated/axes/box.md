@@ -1,13 +1,13 @@
 ---
-title: Box
+title: Box Axis
 layout: default
-nav_order: 2
+nav_order: 7
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/axes/resolve-map.ts · property-spelling.ts
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
-# Box
+# Box Axis
 
 The agnostic **box** namespace — geometry (sizing · padding · radii) as a Field table: one mapping, both targets.
 

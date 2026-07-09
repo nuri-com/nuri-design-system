@@ -116,18 +116,11 @@ export function foundationsTypographyIr(tokens) {
 // so the pages are agnostic by nature.  ──
 export const FOUNDATION_DOCS = [
   {
-    source: 'colour-primitive',
-    nav: 1,
-    src: 'packages/spec/tokens/colours.ts',
-    lead: 'The colour primitives — the cascade’s L1 raw catalog: the active **cream** neutral ramp (decision 31 · build-time `--neutral` selection), the **lilac** brand scale, and the black/white alpha overlays. Each is a theme-fixed literal (a hex / rgba · identical on both targets) shown as a swatch; the semantic roles that compose them live on the [Colour Semantic](colour-semantic.html) page.',
-    build: (d) => foundationsColourPrimitiveIr(d.colours),
-  },
-  {
-    source: 'colour-semantic',
+    source: 'typography',
     nav: 2,
-    src: 'packages/spec/tokens/colours.ts',
-    lead: 'The colour semantics — the cascade’s L2 role matrix, composed from the [primitives](colour-primitive.html) by reference: **chrome** (theme-only · the neutral surface) and **accent** (accent × theme). Each role names a primitive (the `{ref}` cascade) and resolves to a live `var()` swatch at the page scope (the default is neutral accent · light theme). This is the full set the palette **axis** samples a slice of.',
-    build: (d) => foundationsColourSemanticIr(d.colours, d.roleColor),
+    src: 'packages/rn/generated/data/tokens.ts · packages/prototype/generated/styles/typography.css · packages/prototype/generated/styles/tokens-primitive.css',
+    lead: 'The typography foundation — the six type-scale steps (`xs`…`3xl`), each a composite of font-size · line-height · weight · letter-spacing, plus the orthogonal **emphasis** weight override (decision 77). The scale stays **CSS-authored** (`styles/typography.css` · the honest asymmetry vs colour/dimension); this page reads the resolved composite from `@nuri/spec`. RN realizes a step via `typeStyle` (production); web via the `[data-type-style]` attribute (prototyping and these docs).',
+    build: (d) => foundationsTypographyIr(d.tokens),
   },
   {
     source: 'dimension',
@@ -137,10 +130,17 @@ export const FOUNDATION_DOCS = [
     build: (d) => foundationsDimensionIr(d.dimensions, d.tokens),
   },
   {
-    source: 'typography',
+    source: 'colour-semantic',
     nav: 4,
-    src: 'packages/rn/generated/data/tokens.ts · packages/prototype/generated/styles/typography.css · packages/prototype/generated/styles/tokens-primitive.css',
-    lead: 'The typography foundation — the six type-scale steps (`xs`…`3xl`), each a composite of font-size · line-height · weight · letter-spacing, plus the orthogonal **emphasis** weight override (decision 77). The scale stays **CSS-authored** (`styles/typography.css` · the honest asymmetry vs colour/dimension); this page reads the resolved composite from `@nuri/spec`. RN realizes a step via `typeStyle` (production); web via the `[data-type-style]` attribute (prototyping and these docs).',
-    build: (d) => foundationsTypographyIr(d.tokens),
+    src: 'packages/spec/tokens/colours.ts',
+    lead: 'The colour semantics — the cascade’s L2 role matrix, composed from the [primitives](colour-primitive.html) by reference: **chrome** (theme-only · the neutral surface) and **accent** (accent × theme). Each role names a primitive (the `{ref}` cascade) and resolves to a live `var()` swatch at the page scope (the default is neutral accent · light theme). This is the full set the palette **axis** samples a slice of.',
+    build: (d) => foundationsColourSemanticIr(d.colours, d.roleColor),
+  },
+  {
+    source: 'colour-primitive',
+    nav: 5,
+    src: 'packages/spec/tokens/colours.ts',
+    lead: 'The colour primitives — the cascade’s L1 raw catalog: the active **cream** neutral ramp (decision 31 · build-time `--neutral` selection), the **lilac** brand scale, and the black/white alpha overlays. Each is a theme-fixed literal (a hex / rgba · identical on both targets) shown as a swatch; the semantic roles that compose them live on the [Colour Semantic](colour-semantic.html) page.',
+    build: (d) => foundationsColourPrimitiveIr(d.colours),
   },
 ];

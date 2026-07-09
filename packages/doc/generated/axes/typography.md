@@ -1,13 +1,13 @@
 ---
-title: Typography
+title: Typography Axis
 layout: default
-nav_order: 5
+nav_order: 10
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/generated/data/tokens.ts · packages/prototype/generated/styles/typography.css · packages/rn/theme.tsx · packages/spec/axes/typography-axis.ts
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
-# Typography
+# Typography Axis
 
 The bespoke **typography** axis — two orthogonal inputs (decision 77): **`size`**, a foundation type-step, and **`emphasis`**, a boolean weight override. Both realize on either target (web a `data-*` attribute · RN `typeStyle`); each step’s resolved composite (font-size · line-height · weight · tracking) lives in the type **scale** (Foundations). The `nuri-typography` **wrapper** below is a separate **web-only** prose helper — muted tone + block alignment for authored content, with no RN analog.
 

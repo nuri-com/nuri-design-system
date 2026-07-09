@@ -22,119 +22,46 @@
   // ── Nav structure ────────────────────────────────────────────
   const NAV = [
     {
-      group: 'Get started',
+      group: 'Reference',
       items: [
-        { id: 'principles',           label: 'Principles',           href: 'pages/principles.html' },
-        { id: 'implementation-guide', label: 'Implementation guide', href: 'pages/implementation-guide.html' },
-        { id: 'changelog',            label: 'Changelog',            placeholder: true },
+        { id: 'components',        label: 'Components',       href: 'components.html' },
+        { id: 'typography',        label: 'Typography',       href: 'generated/foundations/typography.html' },
+        { id: 'dimension',         label: 'Dimension',        href: 'generated/foundations/dimension.html' },
+        { id: 'colour-semantic',   label: 'Colour Semantic',  href: 'generated/foundations/colour-semantic.html' },
+        { id: 'colour-primitive',  label: 'Colour Primitive', href: 'generated/foundations/colour-primitive.html' },
+        { id: 'stack-axis',        label: 'Stack Axis',       href: 'generated/axes/stack.html' },
+        { id: 'box-axis',          label: 'Box Axis',         href: 'generated/axes/box.html' },
+        { id: 'palette-axis',      label: 'Palette Axis',     href: 'generated/axes/palette.html' },
+        { id: 'interactive-axis',  label: 'Interactive Axis', href: 'generated/axes/interactive.html' },
+        { id: 'typography-axis',   label: 'Typography Axis',  href: 'generated/axes/typography.html' },
       ],
     },
     {
-      group: 'Foundations',
-      items: [
-        // "Colour" is a non-clickable section header (decision 23) — the
-        // sub-pages below are the real destinations. header: true renders
-        // as a non-interactive label, not a link. Order is canonical
-        // (primitive → semantic → exploration), NOT alphabetical: it
-        // reflects layer dependency and importance, matching the prose
-        // in decisionlog.md decision 23.
-        { id: 'foundations/colour',             label: 'Colour',      header: true },
-        { id: 'foundations/colour/primitive',   label: 'Primitive',   href: 'pages/foundations/colour/primitive.html',   nested: true },
-        { id: 'foundations/colour/semantic',    label: 'Semantic',    href: 'pages/foundations/colour/semantic.html',    nested: true },
-        { id: 'foundations/colour/exploration', label: 'Exploration', href: 'pages/foundations/colour/exploration.html', nested: true },
-        { id: 'foundations/typography',       label: 'Typography', href: 'pages/foundations/typography.html' },
-        // "Dimension" mirrors the "Colour" non-clickable section
-        // header (decision 23). Four children: Primitive first
-        // (foundation of the foundations — the --nuri-px-N scale
-        // that the three semantic vocabularies alias), then the
-        // three semantic dimension vocabularies — Spacing, Sizing
-        // (decision 36 · N+6.1), Radius (amendment 36.1 · N+6.1.1).
-        // All four pages live nested under foundations/dimension/
-        // — symmetric with the colour group's nested structure.
-        { id: 'foundations/dimension',           label: 'Dimension', header: true },
-        { id: 'foundations/dimension/primitive', label: 'Primitive', href: 'pages/foundations/dimension/primitive.html', nested: true },
-        { id: 'foundations/dimension/spacing',   label: 'Spacing',   href: 'pages/foundations/dimension/spacing.html',   nested: true },
-        { id: 'foundations/dimension/sizing',    label: 'Sizing',    href: 'pages/foundations/dimension/sizing.html',    nested: true },
-        { id: 'foundations/dimension/radius',    label: 'Radius',    href: 'pages/foundations/dimension/radius.html',    nested: true },
-        { id: 'foundations/elevation',        label: 'Elevation',  placeholder: true },
-        { id: 'foundations/motion',           label: 'Motion',     placeholder: true },
-        { id: 'foundations/iconography',      label: 'Iconography',href: 'pages/foundations/iconography.html' },
-      ],
-    },
-    {
-      // Single Components group with sub-section headers (Actions /
-      // Layout / Inputs / Display / Navigation / Data / Overlays)
-      // — same hierarchy shape as Foundations (Colour / Dimension
-      // as non-clickable headers above their nested children).
-      // Operator-locked post-N+6.5 NAV polish: collapses the
-      // previous 7 "Components · X" eyebrow groups into one to
-      // match the Foundations pattern.
       group: 'Components',
       items: [
-        // ── Theming · <nuri-scope> Tier 3 primitive (decisions 27/28 ·
-        //    web↔RN scope spec · the migration "start here") + Palette,
-        //    the colour namespace (65.3 §6 · class-layer dispatch · B2b) ──
-        { id: 'components/theming',     label: 'Theming',    header: true },
-        { id: 'components/scope',       label: 'Scope',      href: 'pages/components/scope.html', nested: true },
-        { id: 'components/palette',     label: 'Palette',    href: 'pages/components/palette.html', nested: true },
-
-        // ── Actions · Button (decisions 24/39/40/41 · IconButton archived → legacy · N+36) ──
-        { id: 'components/actions',     label: 'Actions',    header: true },
-        { id: 'components/button',      label: 'Button',     href: 'pages/components/button.html',      nested: true },
-
-        // ── Layout · Stack + Box + Screen + Scroll (decision 37 layout
-        //    primitives · decision 42 Box radius — bg removed, palette
-        //    owns colour (amendment 42.1) · decision 58 Screen/Scroll
-        //    scaffold · N+6.2 / N+6.5 / N+11 / N+19 U3) ──
-        { id: 'components/layout',      label: 'Layout',     header: true },
-        { id: 'components/stack',       label: 'Stack',      href: 'pages/components/stack.html',  nested: true },
-        { id: 'components/box',         label: 'Box',        href: 'pages/components/box.html',    nested: true },
-        { id: 'components/screen',      label: 'Screen',     href: 'pages/components/screen.html', nested: true },
-        { id: 'components/scroll',      label: 'Scroll',     href: 'pages/components/scroll.html', nested: true },
-        { id: 'components/spacer',      label: 'Spacer',     href: 'pages/components/spacer.html', nested: true },
-
-        // ── Inputs · all deferred (Switch archived → legacy · N+36) ──
-        { id: 'components/inputs',         label: 'Inputs',      header: true },
-        { id: 'components/input-field',    label: 'InputField',  placeholder: true, nested: true },
-        { id: 'components/amount-input',   label: 'AmountInput', placeholder: true, nested: true },
-        { id: 'components/dropdown',       label: 'Dropdown',    placeholder: true, nested: true },
-        { id: 'components/chip',           label: 'Chip',        placeholder: true, nested: true },
-
-        // ── Display · Typography live · others deferred ──
-        { id: 'components/display',          label: 'Display',          header: true },
-        { id: 'components/typography',       label: 'Typography',       href: 'pages/components/typography.html', nested: true },
-        { id: 'components/icon-avatar',      label: 'IconAvatar',       href: 'pages/components/icon-avatar.html', nested: true },
-        { id: 'components/separator',        label: 'Separator',        href: 'pages/components/separator.html', nested: true },
-        { id: 'components/card',             label: 'Card',             placeholder: true, nested: true },
-        { id: 'components/info-card',        label: 'InfoCard',         placeholder: true, nested: true },
-        { id: 'components/tag',              label: 'Tag',              placeholder: true, nested: true },
-        { id: 'components/label',            label: 'Label',            placeholder: true, nested: true },
-        { id: 'components/status-pill',      label: 'StatusPill',       placeholder: true, nested: true },
-        { id: 'components/notification-badge', label: 'NotificationBadge', placeholder: true, nested: true },
-        { id: 'components/progress-bar',     label: 'ProgressBar',      placeholder: true, nested: true },
-        { id: 'components/spinner',          label: 'Spinner',          placeholder: true, nested: true },
-        { id: 'components/address-display',  label: 'AddressDisplay',   placeholder: true, nested: true },
-        { id: 'components/qr-card',          label: 'QrCard',           placeholder: true, nested: true },
-
-        // ── Navigation · Topbar live · others deferred (Tabs · TabBar archived → legacy · N+36) ──
-        { id: 'components/navigation',    label: 'Navigation',   header: true },
-        { id: 'components/topbar',        label: 'Topbar',       href: 'pages/components/topbar.html', nested: true },
-        { id: 'components/icon-tab-row',  label: 'IconTabRow',   placeholder: true, nested: true },
-        { id: 'components/screen-header', label: 'ScreenHeader', placeholder: true, nested: true },
-        { id: 'components/modal-header',  label: 'ModalHeader',  placeholder: true, nested: true },
-
-        // ── Data · all deferred ──
-        { id: 'components/data',             label: 'Data',            header: true },
-        { id: 'components/balance-header',   label: 'BalanceHeader',   placeholder: true, nested: true },
-
-        // ── List · the List family (Base · NavItem) was archived → legacy
-        //    at N+36 (pre-axes hand recipes · rebuild-as-descriptor on demand). ──
-
-        // ── Overlays · all deferred ──
-        { id: 'components/overlays',        label: 'Overlays',       header: true },
-        { id: 'components/modal-sheet',     label: 'ModalSheet',     placeholder: true, nested: true },
-        { id: 'components/success-modal',   label: 'SuccessModal',   placeholder: true, nested: true },
-        { id: 'components/floating-status', label: 'FloatingStatus', placeholder: true, nested: true },
+        { id: 'components/button',             label: 'Button',             href: 'generated/components/button.html' },
+        { id: 'components/alert',              label: 'Alert',              href: 'generated/components/alert.html' },
+        { id: 'components/icon-button',        label: 'Icon Button',        href: 'generated/components/icon-button.html' },
+        { id: 'components/icon-avatar',        label: 'Icon Avatar',        href: 'generated/components/icon-avatar.html' },
+        { id: 'components/list',               label: 'List',               href: 'generated/components/list.html' },
+        { id: 'components/list-action',        label: 'List Action',        href: 'generated/components/list-action.html' },
+        { id: 'components/text-field',         label: 'Text Field',         href: 'generated/components/text-field.html' },
+        { id: 'components/tab-bar',            label: 'Tab Bar',            href: 'generated/components/tab-bar.html' },
+        { id: 'components/tab-bar-item',       label: 'Tab Bar Item',       href: 'generated/components/tab-bar-item.html' },
+        { id: 'components/topbar',             label: 'Topbar',             href: 'generated/components/topbar.html' },
+        { id: 'components/stack',              label: 'Stack',              href: 'generated/components/stack.html' },
+        { id: 'components/view',               label: 'View',               href: 'generated/components/view.html' },
+        { id: 'components/typography',         label: 'Typography',         href: 'generated/components/typography.html' },
+        { id: 'components/icon',               label: 'Icon',               href: 'generated/components/icon.html' },
+        { id: 'components/pressable',          label: 'Pressable',          href: 'generated/components/pressable.html' },
+        { id: 'components/screen',             label: 'Screen',             href: 'generated/components/screen.html' },
+        { id: 'components/header',             label: 'Header',             href: 'generated/components/header.html' },
+        { id: 'components/scroll',             label: 'Scroll',             href: 'generated/components/scroll.html' },
+        { id: 'components/footer',             label: 'Footer',             href: 'generated/components/footer.html' },
+        { id: 'components/dock',               label: 'Dock',               href: 'generated/components/dock.html' },
+        { id: 'components/separator',          label: 'Separator',          href: 'generated/components/separator.html' },
+        { id: 'components/bottom-sheet',       label: 'BottomSheet',        href: 'generated/components/bottom-sheet.html' },
+        { id: 'components/bottom-sheet-panel', label: 'BottomSheet Panel',  href: 'generated/components/bottom-sheet-panel.html' },
       ],
     },
   ];

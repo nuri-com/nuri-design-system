@@ -1,13 +1,13 @@
 ---
-title: Palette
+title: Palette Axis
 layout: default
-nav_order: 3
+nav_order: 8
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/axes/palette-surface.ts
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
-# Palette
+# Palette Axis
 
 The bespoke **palette** axis — the colour funnel: a surface role resolves a node’s complete pair (background + foreground) plus the optional pressed swap and the optional border stroke.
 

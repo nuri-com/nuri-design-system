@@ -11,7 +11,7 @@ nav_order: 1
 
 ## API
 
-### ButtonProps
+### Button Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
@@ -24,13 +24,13 @@ nav_order: 1
 | `accessibilityLabel` | no | `string` | pressable behaviour |
 | `children` | no | `React.ReactNode` | default content slot |
 
-### ButtonTextProps
+### Button Text Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `children` | no | `React.ReactNode` | slot content |
 
-### ButtonIconProps
+### Button Icon Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |

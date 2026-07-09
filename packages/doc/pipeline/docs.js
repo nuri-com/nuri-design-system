@@ -250,6 +250,10 @@ const NAV_ORDER = {
 
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const titleFor = (source) => source.split('-').map(cap).join(' ');
+const headingForType = (typeName) =>
+  typeName
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2');
 
 // `tokens` is OPTIONAL; when present, assert the leaf lives in its scale.
 // Accepts a Set or a plain object (Object.hasOwn) per scale.
@@ -510,7 +514,7 @@ export function emitComponentApiPage(ir) {
   lines.push('');
   for (const apiType of apiTypes) {
     if (apiTypes.length > 1) {
-      lines.push(`### ${apiType.typeName}`);
+      lines.push(`### ${headingForType(apiType.typeName)}`);
       lines.push('');
     }
     renderApiPropTable(lines, apiType);
@@ -528,7 +532,7 @@ export function emitComponentApiPage(ir) {
 // chrome) · `typography` (size + emphasis + the wrapper). Pure function of (ir · the manifest's
 // nav/src/lead) → byte-stable (decision 35 · the doc CI gate).
 export function emitAxisPage(ir, { nav, src, lead } = {}) {
-  const title = titleFor(ir.source);
+  const title = ir.title || titleFor(ir.source);
   const lines = [];
   lines.push(...frontMatter(title, nav));
   lines.push(...genHeader(src));
@@ -726,7 +730,7 @@ function renderTypography(ir, lines) {
 // `typography` (the type-step composites + the emphasis override). Pure function of
 // (ir · the manifest's nav/src/lead) → byte-stable (decision 35 · the doc CI gate).
 export function emitFoundationPage(ir, { nav, src, lead } = {}) {
-  const title = titleFor(ir.source);
+  const title = ir.title || titleFor(ir.source);
   const lines = [];
   lines.push(...frontMatter(title, nav));
   lines.push(...genHeader(src));

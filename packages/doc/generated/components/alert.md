@@ -11,7 +11,7 @@ nav_order: 2
 
 ## API
 
-### AlertProps
+### Alert Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
@@ -19,7 +19,7 @@ nav_order: 2
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `children` | no | `React.ReactNode` | default content slot |
 
-### AlertIconProps
+### Alert Icon Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
@@ -27,7 +27,7 @@ nav_order: 2
 
 > `children` is not accepted (`children?: never`).
 
-### AlertButtonProps
+### Alert Button Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |

@@ -1,17 +1,13 @@
 ---
 title: Components
 layout: default
-nav_order: 3
+nav_order: 1
 has_children: true
+has_toc: false
 ---
 
 # Components
 
-The current component-like public surfaces, **generated** from the RN consumer prop
-types on every build by `@nuri/doc`'s doc-gen (`pipeline/build.js`). Each page is
-API-only build output: props, required/optional state, type, and a short mechanical
-note.
-
-Generated descriptor components and the hand-authorable primitives live together
-here because consumers meet both as component APIs. The older authored component
-reference pages remain frozen under `archive/`.
+Public React Native component APIs generated from the shipped `@nuri/rn` surface.
+Descriptor components and hand-authored primitives live together here because app
+consumers import both as components.
