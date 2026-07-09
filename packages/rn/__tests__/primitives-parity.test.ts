@@ -31,7 +31,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { View, Stack, Text, Pressable, Screen, Scroll, Dock, Separator, ListSeparator } from '../primitives';
+import { View, Stack, Text, Pressable, Screen, Header, Scroll, Footer, Dock, Separator, ListSeparator } from '../primitives';
 import { STACK_FIELDS, BOX_FIELDS } from '@nuri/spec/resolve-map';
 import { opts as INTERACTIVE_OPTS } from '@nuri/spec/interactive-effects';
 import { PALETTE_KEYS, TYPOGRAPHY_KEYS, EFFECT_KEYS } from '@nuri/spec/descriptors/schema';
@@ -112,7 +112,34 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
   });
 
   test('Scroll props are its local inset contract', () => {
-    expect(Scroll.propKeys).toEqual(['insetTop', 'insetBottom']);
+    expect(Scroll.propKeys).toEqual(['safeAreaTop', 'safeAreaBottom', 'insetTop', 'insetBottom']);
+  });
+
+  test('Header and Footer expose their fixed-region visual contracts', () => {
+    expect(Header.propKeys).toEqual([
+      'safeAreaTop',
+      'chrome',
+      'direction',
+      'align',
+      'justify',
+      'gap',
+      'paddingX',
+      'paddingY',
+      'paddingTop',
+      'paddingBottom',
+    ]);
+    expect(Footer.propKeys).toEqual([
+      'safeAreaBottom',
+      'chrome',
+      'direction',
+      'align',
+      'justify',
+      'gap',
+      'paddingX',
+      'paddingY',
+      'paddingTop',
+      'paddingBottom',
+    ]);
   });
 
   test('Dock props are its local edge contract', () => {
@@ -157,7 +184,7 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
   });
 
   test('web <nuri-scroll> exposes its local inset attrs', () => {
-    expect(webAttrs('scroll.js')).toEqual(['as', 'inset-top', 'inset-bottom']);
+    expect(webAttrs('scroll.js')).toEqual(['as', 'safe-area-top', 'safe-area-bottom', 'inset-top', 'inset-bottom']);
   });
 
   test('web <nuri-dock> exposes its local edge attr', () => {

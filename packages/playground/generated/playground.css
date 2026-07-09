@@ -2803,6 +2803,8 @@ nuri-demo:not(:defined) {
  *
  * API
  *   as?: string                                       host-resolved (default <div>)
+ *   safe-area-top?                                    content padding source
+ *   safe-area-bottom?                                 content padding source
  *   inset-top?: "none" | "dock"                       content padding source
  *   inset-bottom?: "none" | "dock"                    content padding source
  *
@@ -2872,14 +2874,28 @@ nuri-demo:not(:defined) {
     flex-direction: column;
     flex: 1 0 auto;
     min-block-size: 100%;
+    --nuri-scroll-safe-area-top: 0px;
+    --nuri-scroll-safe-area-bottom: 0px;
+    --nuri-scroll-dock-top: 0px;
+    --nuri-scroll-dock-bottom: 0px;
+    padding-block-start: calc(var(--nuri-scroll-safe-area-top) + var(--nuri-scroll-dock-top));
+    padding-block-end: calc(var(--nuri-scroll-safe-area-bottom) + var(--nuri-scroll-dock-bottom));
   }
 
   .nuri-scroll[data-inset-top="dock"] > .nuri-scroll__content {
-    padding-block-start: var(--nuri-screen-dock-top, 0px);
+    --nuri-scroll-dock-top: var(--nuri-screen-dock-top, 0px);
   }
 
   .nuri-scroll[data-inset-bottom="dock"] > .nuri-scroll__content {
-    padding-block-end: var(--nuri-screen-dock-bottom, 0px);
+    --nuri-scroll-dock-bottom: var(--nuri-screen-dock-bottom, 0px);
+  }
+
+  .nuri-scroll[data-safe-area-top] > .nuri-scroll__content {
+    --nuri-scroll-safe-area-top: var(--nuri-device-safe-area-top, 0px);
+  }
+
+  .nuri-scroll[data-safe-area-bottom] > .nuri-scroll__content {
+    --nuri-scroll-safe-area-bottom: var(--nuri-device-safe-area-bottom, 0px);
   }
 }
 

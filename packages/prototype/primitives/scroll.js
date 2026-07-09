@@ -1,6 +1,6 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · SCROLL · CUSTOM ELEMENT
- * <nuri-scroll> mirrors the RN-side Scroll API shape (`as`, `inset-top`, `inset-bottom`)
+ * <nuri-scroll> mirrors the RN-side Scroll API shape (`as`, safe-area reserves, insets)
  * while delegating to a host element (default <div>; `as` overrides)
  * for the actual flex-fill + overflow scroll.
  *
@@ -16,7 +16,7 @@
  * ────────────────────────────────────────────────────────────── */
 
 (() => {
-  const ATTRS = ['as', 'inset-top', 'inset-bottom'];
+  const ATTRS = ['as', 'safe-area-top', 'safe-area-bottom', 'inset-top', 'inset-bottom'];
 
   class NuriScroll extends HTMLElement {
     static get observedAttributes() {
@@ -60,9 +60,19 @@
 
     #sync() {
       this.#inner.className = 'nuri-scroll';
+      this.#toggleDataset('safeAreaTop', this.hasAttribute('safe-area-top'));
+      this.#toggleDataset('safeAreaBottom', this.hasAttribute('safe-area-bottom'));
       this.#inner.dataset.insetTop = this.getAttribute('inset-top') || 'none';
       this.#inner.dataset.insetBottom = this.getAttribute('inset-bottom') || 'none';
       this.#content.className = 'nuri-scroll__content';
+    }
+
+    #toggleDataset(name, on) {
+      if (on) {
+        this.#inner.dataset[name] = '';
+      } else {
+        delete this.#inner.dataset[name];
+      }
     }
   }
 

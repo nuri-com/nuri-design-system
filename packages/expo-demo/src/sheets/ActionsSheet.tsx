@@ -3,8 +3,7 @@ import * as React from 'react';
 import {
   BottomSheet,
   BottomSheetPanel,
-  BottomSheetScroll,
-  BottomSheetTopbar,
+  Header,
   IconButton,
   List,
   ListAction,
@@ -12,7 +11,9 @@ import {
   ListActionText,
   ListActionTrailIcon,
   ListSeparator,
+  Scroll,
   Text,
+  Topbar,
   TopbarTrailing,
   View,
 } from '@ds';
@@ -25,15 +26,17 @@ export function ActionsSheet({
   onClose: () => void;
 }) {
   return (
-    <BottomSheet open={open} detent="content" safeAreaBottom onOpenChange={(next) => !next && onClose()}>
+    <BottomSheet open={open} detent="content" onOpenChange={(next) => !next && onClose()}>
       <BottomSheetPanel>
-        <BottomSheetTopbar>
-          <TopbarTrailing>
-            <IconButton icon="cross" variant="soft" accessibilityLabel="Close actions sheet" onPress={onClose} />
-          </TopbarTrailing>
-        </BottomSheetTopbar>
+        <Header paddingTop="lg">
+          <Topbar surface="transparent">
+            <TopbarTrailing>
+              <IconButton icon="cross" variant="soft" accessibilityLabel="Close actions sheet" onPress={onClose} />
+            </TopbarTrailing>
+          </Topbar>
+        </Header>
 
-        <BottomSheetScroll>
+        <Scroll safeAreaBottom>
           <View direction="column" align="stretch" justify="start" gap="xl" paddingBottom="lg">
             <View direction="column" align="stretch" justify="start" gap="sm" paddingX="lg">
               <Text size="lg" emphasis>Where do you want to send it?</Text>
@@ -60,7 +63,7 @@ export function ActionsSheet({
               </ListAction>
             </List>
           </View>
-        </BottomSheetScroll>
+        </Scroll>
       </BottomSheetPanel>
     </BottomSheet>
   );

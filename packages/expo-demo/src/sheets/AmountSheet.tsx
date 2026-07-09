@@ -2,14 +2,15 @@ import * as React from 'react';
 
 import {
   BottomSheet,
-  BottomSheetFooter,
   BottomSheetPanel,
-  BottomSheetScroll,
-  BottomSheetTopbar,
   Button,
   ButtonIcon,
+  Footer,
+  Header,
   IconButton,
+  Scroll,
   Text,
+  Topbar,
   TopbarTrailing,
   View,
 } from '@ds';
@@ -22,15 +23,17 @@ export function AmountSheet({
   onClose: () => void;
 }) {
   return (
-    <BottomSheet open={open} detent="full" safeAreaBottom onOpenChange={(next) => !next && onClose()}>
+    <BottomSheet open={open} detent="full" onOpenChange={(next) => !next && onClose()}>
       <BottomSheetPanel>
-        <BottomSheetTopbar>
-          <TopbarTrailing>
-            <IconButton icon="cross" variant="soft" accessibilityLabel="Close amount sheet" onPress={onClose} />
-          </TopbarTrailing>
-        </BottomSheetTopbar>
+        <Header paddingTop="lg">
+          <Topbar surface="transparent">
+            <TopbarTrailing>
+              <IconButton icon="cross" variant="soft" accessibilityLabel="Close amount sheet" onPress={onClose} />
+            </TopbarTrailing>
+          </Topbar>
+        </Header>
 
-        <BottomSheetScroll>
+        <Scroll>
           <View direction="column" align="stretch" justify="between" gap="xl" paddingX="lg" fill="grow">
             <View direction="column" align="stretch" justify="start" gap="sm">
               <Text size="lg" emphasis>How much do you want to send?</Text>
@@ -76,11 +79,11 @@ export function AmountSheet({
               </View>
             </View>
           </View>
-        </BottomSheetScroll>
+        </Scroll>
 
-        <BottomSheetFooter direction="column" align="stretch" paddingY="sm" paddingX="lg">
+        <Footer safeAreaBottom direction="column" align="stretch" paddingY="sm" paddingX="lg">
           <Button size="lg" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
-        </BottomSheetFooter>
+        </Footer>
       </BottomSheetPanel>
     </BottomSheet>
   );

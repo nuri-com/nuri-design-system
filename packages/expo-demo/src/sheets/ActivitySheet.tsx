@@ -3,8 +3,7 @@ import * as React from 'react';
 import {
   BottomSheet,
   BottomSheetPanel,
-  BottomSheetScroll,
-  BottomSheetTopbar,
+  Header,
   IconButton,
   List,
   ListAction,
@@ -14,7 +13,9 @@ import {
   ListActionTrailingText,
   ListActionTrailingTextMuted,
   ListSeparator,
+  Scroll,
   Text,
+  Topbar,
   TopbarTrailing,
   View,
 } from '@ds';
@@ -27,16 +28,18 @@ export function ActivitySheet({
   onClose: () => void;
 }) {
   return (
-    <BottomSheet open={open} detent="full" safeAreaBottom onOpenChange={(next) => !next && onClose()}>
+    <BottomSheet open={open} detent="full" onOpenChange={(next) => !next && onClose()}>
       <BottomSheetPanel>
-        <BottomSheetTopbar>
-          <TopbarTrailing>
-            <IconButton icon="download" variant="soft" accessibilityLabel="Download activity" />
-            <IconButton icon="cross" variant="soft" accessibilityLabel="Close activity sheet" onPress={onClose} />
-          </TopbarTrailing>
-        </BottomSheetTopbar>
+        <Header paddingTop="lg">
+          <Topbar surface="transparent">
+            <TopbarTrailing>
+              <IconButton icon="download" variant="soft" accessibilityLabel="Download activity" />
+              <IconButton icon="cross" variant="soft" accessibilityLabel="Close activity sheet" onPress={onClose} />
+            </TopbarTrailing>
+          </Topbar>
+        </Header>
 
-        <BottomSheetScroll>
+        <Scroll safeAreaBottom>
           <View direction="column" align="stretch" justify="start" gap="xl" paddingBottom="xl">
             <View direction="column" align="stretch" justify="start" gap="md">
               <View paddingX="lg">
@@ -168,7 +171,7 @@ export function ActivitySheet({
 
             <View height="2xl" />
           </View>
-        </BottomSheetScroll>
+        </Scroll>
       </BottomSheetPanel>
     </BottomSheet>
   );

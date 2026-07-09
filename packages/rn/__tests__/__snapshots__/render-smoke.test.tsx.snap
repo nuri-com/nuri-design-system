@@ -2242,6 +2242,10 @@ exports[`render-smoke — the ergonomic components mount headless primitives —
         "flexGrow": 1,
       }
     }
+    keyboardShouldPersistTaps="handled"
+    onLayout={[Function]}
+    onScroll={[Function]}
+    scrollEventThrottle={16}
     style={
       {
         "flex": 1,

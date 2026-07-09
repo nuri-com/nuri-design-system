@@ -2,16 +2,17 @@ import * as React from 'react';
 
 import {
   BottomSheet,
-  BottomSheetFooter,
   BottomSheetPanel,
-  BottomSheetScroll,
-  BottomSheetTopbar,
   Button,
+  Footer,
+  Header,
   IconButton,
+  Scroll,
   Text,
   TextField,
   TextFieldButton,
   TextFieldLabel,
+  Topbar,
   TopbarTrailing,
   View,
 } from '@ds';
@@ -35,7 +36,7 @@ function FormSheetFields({
   onChangeField,
 }: Pick<FormSheetProps, 'values' | 'onChangeField'>) {
   return (
-    <BottomSheetScroll>
+    <Scroll>
       <View direction="column" align="stretch" justify="start" gap="xl" paddingX="lg">
         <View direction="column" align="stretch" justify="start" gap="sm">
           <Text size="lg" emphasis>Who is your recipient?</Text>
@@ -61,7 +62,7 @@ function FormSheetFields({
           </TextField>
         </View>
       </View>
-    </BottomSheetScroll>
+    </Scroll>
   );
 }
 
@@ -72,17 +73,20 @@ export function FormSheet({
   onClose,
 }: FormSheetProps) {
   return (
-    <BottomSheet open={open} detent="full" safeAreaBottom onOpenChange={(next) => !next && onClose()}>
+    <BottomSheet open={open} detent="full" onOpenChange={(next) => !next && onClose()}>
       <BottomSheetPanel>
-        <BottomSheetTopbar>
-          <TopbarTrailing>
-            <IconButton icon="cross" variant="soft" accessibilityLabel="Close form sheet" onPress={onClose} />
-          </TopbarTrailing>
-        </BottomSheetTopbar>
+        <Header paddingTop="lg">
+          <Topbar surface="transparent">
+            <TopbarTrailing>
+              <IconButton icon="cross" variant="soft" accessibilityLabel="Close form sheet" onPress={onClose} />
+            </TopbarTrailing>
+          </Topbar>
+        </Header>
 
         <FormSheetFields values={values} onChangeField={onChangeField} />
 
-        <BottomSheetFooter
+        <Footer
+          safeAreaBottom
           chrome="strong"
           direction="row"
           align="center"
@@ -91,7 +95,7 @@ export function FormSheet({
           paddingX="lg"
         >
           <Button size="sm" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
-        </BottomSheetFooter>
+        </Footer>
       </BottomSheetPanel>
     </BottomSheet>
   );
@@ -104,17 +108,20 @@ export function FormSheet2({
   onClose,
 }: FormSheetProps) {
   return (
-    <BottomSheet open={open} detent="full" safeAreaBottom onOpenChange={(next) => !next && onClose()}>
+    <BottomSheet open={open} detent="full" onOpenChange={(next) => !next && onClose()}>
       <BottomSheetPanel>
-        <BottomSheetTopbar>
-          <TopbarTrailing>
-            <IconButton icon="cross" variant="soft" accessibilityLabel="Close form sheet 2" onPress={onClose} />
-          </TopbarTrailing>
-        </BottomSheetTopbar>
+        <Header paddingTop="lg">
+          <Topbar surface="transparent">
+            <TopbarTrailing>
+              <IconButton icon="cross" variant="soft" accessibilityLabel="Close form sheet 2" onPress={onClose} />
+            </TopbarTrailing>
+          </Topbar>
+        </Header>
 
         <FormSheetFields values={values} onChangeField={onChangeField} />
 
-        <BottomSheetFooter
+        <Footer
+          safeAreaBottom
           chrome="canvas"
           direction="column"
           align="stretch"
@@ -122,7 +129,7 @@ export function FormSheet2({
           paddingX="lg"
         >
           <Button size="lg" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
-        </BottomSheetFooter>
+        </Footer>
       </BottomSheetPanel>
     </BottomSheet>
   );
