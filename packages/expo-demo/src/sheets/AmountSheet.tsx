@@ -38,7 +38,7 @@ export function AmountSheet({
             </View>
 
             <View direction="column" align="center" justify="center" gap="sm" fill="grow">
-              <Text size="3xl" emphasis align="center">€ 25.87</Text>
+              <Text size="3xl" align="center">€ 25.87</Text>
               <Text size="md" align="center">₿ 5234</Text>
             </View>
 

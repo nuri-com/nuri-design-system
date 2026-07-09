@@ -376,6 +376,29 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       ? Object.assign({}, ...scrollContentStyle.filter(Boolean))
       : scrollContentStyle;
     expect(flatScrollContentStyle).toEqual({ flexGrow: 1 });
+
+    const topDock = tr.root.findAllByType(View).find((node) => {
+      const style = flatStyleForTest(node.props.style);
+      return typeof node.props.onLayout === 'function' && style.position === 'absolute' && style.top === 0 && style.zIndex === 1;
+    });
+    const bottomDock = tr.root.findAllByType(View).find((node) => {
+      const style = flatStyleForTest(node.props.style);
+      return typeof node.props.onLayout === 'function' && style.position === 'absolute' && style.bottom === 0 && style.zIndex === 1;
+    });
+    expect(topDock).toBeTruthy();
+    expect(bottomDock).toBeTruthy();
+
+    act(() => {
+      topDock!.props.onLayout({ nativeEvent: { layout: { height: 64 } } });
+      bottomDock!.props.onLayout({ nativeEvent: { layout: { height: 72 } } });
+    });
+
+    const measuredContentStyle = flatStyleForTest(tr.root.findByType(ScrollView).props.contentContainerStyle);
+    expect(measuredContentStyle).toMatchObject({
+      flexGrow: 1,
+      paddingTop: 64,
+      paddingBottom: 72,
+    });
   });
 
   test('BottomSheet — structural host renders sticky topbar, body scroll, and fixed footer', () => {

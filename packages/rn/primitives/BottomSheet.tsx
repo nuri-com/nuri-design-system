@@ -47,6 +47,7 @@ import { BottomSheetPanel as GeneratedBottomSheetPanel } from '../generated/comp
 import { Topbar as GeneratedTopbar, type TopbarProps } from '../generated/components/topbar';
 import { space } from '../generated/data/tokens';
 import { FocusScrollProvider, type FocusScrollApi } from '../runtime/focus-scroll';
+import { FixedRegionLayoutProvider, useFixedRegionLayout } from './FixedRegionLayout';
 import { useResolvedNode, withSurface } from './shared';
 
 type ScrollViewInstance = React.ElementRef<typeof RNScrollView>;
@@ -130,36 +131,6 @@ function numericPadding(style: ViewStyle, key: 'paddingBottom' | 'paddingVertica
   return typeof value === 'number' ? value : 0;
 }
 
-// The sheet's available content height, threaded to BottomSheetScroll via
-// context. The panel descriptor is `fill: grow` (flexGrow 1, flexShrink 0) with
-// no main-axis `minHeight: 0` — and the axis vocabulary can't express one (the
-// size scale has no zero) — so a flex chain alone can't bound the ScrollView
-// for a tall (overflowing / keyboard-shrunk) full sheet: the panel refuses to
-// shrink below its content and the scroll never scrolls. The primitive owns the
-// sheet's height, so it hands the scroll region an explicit maxHeight instead.
-// It tracks windowHeight, which SHRINKS under Android adjustResize when the
-// keyboard opens — so the field scrolls into reach without pushing the panel.
-type BottomSheetLayoutValue = {
-  scrollMaxHeight?: number;
-  topbarHeight: number;
-  footerHeight: number;
-  footerKeyboardOffset: number;
-  footerSafeAreaBottom: number;
-  setTopbarHeight: (height: number) => void;
-  setFooterHeight: (height: number) => void;
-};
-
-const DEFAULT_LAYOUT_VALUE: BottomSheetLayoutValue = {
-  topbarHeight: 0,
-  footerHeight: 0,
-  footerKeyboardOffset: 0,
-  footerSafeAreaBottom: 0,
-  setTopbarHeight: () => undefined,
-  setFooterHeight: () => undefined,
-};
-
-const BottomSheetLayoutContext = React.createContext<BottomSheetLayoutValue>(DEFAULT_LAYOUT_VALUE);
-
 export const BottomSheet: React.FC<BottomSheetProps> = ({
   open = false,
   detent = 'content',
@@ -178,9 +149,6 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   // Measured sheet height doubles as the "ready to animate in" latch: the
   // enter slide waits for first layout so the travel distance is exact.
   const [sheetHeight, setSheetHeight] = React.useState<number | null>(null);
-  const [topbarHeight, setTopbarHeight] = React.useState(0);
-  const [footerHeight, setFooterHeight] = React.useState(0);
-  const [footerKeyboardOffset, setFooterKeyboardOffset] = React.useState(0);
   const measuredHeight = React.useRef<number | null>(null);
   const openNotified = React.useRef(false);
   // Latest-callback ref: keeps onOpenChange out of the animation effects'
@@ -219,34 +187,6 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     });
   }, [open, mounted, sheetHeight, progress]);
 
-  const resolveFooterKeyboardOffset = React.useCallback((event: KeyboardEvent): number => {
-    const { height, screenY } = event.endCoordinates;
-    if (Platform.OS === 'android' && screenY > 0) {
-      return Math.max(0, Math.round(windowHeight - screenY));
-    }
-    if (height > 0) return Math.round(height);
-    return screenY > 0 ? Math.max(0, Math.round(windowHeight - screenY)) : 0;
-  }, [windowHeight]);
-
-  React.useEffect(() => {
-    if (!mounted || detent !== 'full') {
-      setFooterKeyboardOffset(0);
-      return;
-    }
-    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
-    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
-    const showSub = Keyboard.addListener(showEvent, (event: KeyboardEvent) => {
-      setFooterKeyboardOffset(resolveFooterKeyboardOffset(event));
-    });
-    const hideSub = Keyboard.addListener(hideEvent, () => {
-      setFooterKeyboardOffset(0);
-    });
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
-  }, [mounted, detent, resolveFooterKeyboardOffset]);
-
   const handleSheetLayout = React.useCallback((event: LayoutChangeEvent) => {
     const next = Math.round(event.nativeEvent.layout.height);
     if (measuredHeight.current === next) return;
@@ -283,19 +223,6 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   // scroll to nothing — no cap until a real height is known.
   const scrollMaxHeight =
     windowHeight > 0 ? (detent === 'content' ? Math.round(windowHeight * CONTENT_MAX_FRACTION) : fullMaxHeight) : undefined;
-  const layoutValue = React.useMemo<BottomSheetLayoutValue>(
-    () => ({
-      scrollMaxHeight,
-      topbarHeight,
-      footerHeight,
-      footerKeyboardOffset,
-      footerSafeAreaBottom: safeAreaBottom ? safeAreaInsets.bottom : 0,
-      setTopbarHeight,
-      setFooterHeight,
-    }),
-    [scrollMaxHeight, topbarHeight, footerHeight, footerKeyboardOffset, safeAreaBottom, safeAreaInsets.bottom],
-  );
-
   // The overlay subtree — identical to the old inline return (scrim +
   // KeyboardAvoidingView + the measured, translateY-slid Animated.View). It is
   // rebuilt each render (fresh translateY on a height/detent change) and
@@ -322,9 +249,14 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
         style={styles.host}
       >
         <Animated.View onLayout={handleSheetLayout} style={[sizeStyle, { transform: [{ translateY }] }]}>
-          <BottomSheetLayoutContext.Provider value={layoutValue}>
+          <FixedRegionLayoutProvider
+            keyboardEnabled={detent === 'full'}
+            safeAreaBottom={safeAreaBottom ? safeAreaInsets.bottom : 0}
+            scrollMaxHeight={scrollMaxHeight}
+            windowHeight={windowHeight}
+          >
             {children}
-          </BottomSheetLayoutContext.Provider>
+          </FixedRegionLayoutProvider>
         </Animated.View>
       </KeyboardAvoidingView>
     </RNView>
@@ -364,17 +296,17 @@ export const BottomSheetPanel: React.FC<BottomSheetPanelProps> = ({ children }) 
 BottomSheetPanel.displayName = 'BottomSheetPanel';
 
 export const BottomSheetTopbar: React.FC<BottomSheetTopbarProps> = ({ children, surface = 'transparent', ...props }) => {
-  const { setTopbarHeight } = React.useContext(BottomSheetLayoutContext);
+  const { setHeaderHeight } = useFixedRegionLayout();
   const measuredHeight = React.useRef(0);
 
-  React.useEffect(() => () => setTopbarHeight(0), [setTopbarHeight]);
+  React.useEffect(() => () => setHeaderHeight(0), [setHeaderHeight]);
 
   const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
     const next = Math.round(event.nativeEvent.layout.height);
     if (measuredHeight.current === next) return;
     measuredHeight.current = next;
-    setTopbarHeight(next);
-  }, [setTopbarHeight]);
+    setHeaderHeight(next);
+  }, [setHeaderHeight]);
 
   return (
     <RNView onLayout={handleLayout} style={styles.topbar}>
@@ -385,7 +317,7 @@ export const BottomSheetTopbar: React.FC<BottomSheetTopbarProps> = ({ children, 
 BottomSheetTopbar.displayName = 'BottomSheetTopbar';
 
 export const BottomSheetFooter: React.FC<BottomSheetFooterProps> = ({ children, ...props }) => {
-  const { footerKeyboardOffset, footerSafeAreaBottom, setFooterHeight } = React.useContext(BottomSheetLayoutContext);
+  const { keyboardOffset, safeAreaBottom, setFooterHeight } = useFixedRegionLayout();
   const measuredHeight = React.useRef(0);
   const { node } = useResolvedNode(props);
   const resolvedViewStyle = node.view as ViewStyle;
@@ -393,7 +325,7 @@ export const BottomSheetFooter: React.FC<BottomSheetFooterProps> = ({ children, 
     props.paddingBottom !== undefined
       ? numericPadding(resolvedViewStyle, 'paddingBottom')
       : numericPadding(resolvedViewStyle, 'paddingVertical');
-  const effectiveSafeAreaBottom = footerKeyboardOffset > 0 ? 0 : footerSafeAreaBottom;
+  const effectiveSafeAreaBottom = keyboardOffset > 0 ? 0 : safeAreaBottom;
   const composedPaddingBottom =
     authoredPaddingBottom > 0 || effectiveSafeAreaBottom > 0
       ? { paddingBottom: authoredPaddingBottom + effectiveSafeAreaBottom }
@@ -414,7 +346,7 @@ export const BottomSheetFooter: React.FC<BottomSheetFooterProps> = ({ children, 
       style={[
         styles.footer,
         node.view,
-        footerKeyboardOffset > 0 ? { bottom: footerKeyboardOffset } : null,
+        keyboardOffset > 0 ? { bottom: keyboardOffset } : null,
         composedPaddingBottom,
       ]}
     >
@@ -425,12 +357,11 @@ export const BottomSheetFooter: React.FC<BottomSheetFooterProps> = ({ children, 
 BottomSheetFooter.displayName = 'BottomSheetFooter';
 
 export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }) => {
-  // Bound the scroll to the sheet's available height (from the primitive via
-  // context) so its overflow actually scrolls — the panel can't provide a
-  // bounded height on its own (see BottomSheetLayoutContext). Outside a
+  // Bound the scroll to the sheet's available height (from the host context)
+  // so its overflow actually scrolls — the panel can't provide a
+  // bounded height on its own. Outside a
   // BottomSheet the cap is absent and it scrolls its parent's bounds as before.
-  const { scrollMaxHeight, topbarHeight, footerHeight, footerKeyboardOffset, footerSafeAreaBottom } =
-    React.useContext(BottomSheetLayoutContext);
+  const { scrollMaxHeight, headerHeight, footerHeight, keyboardOffset, safeAreaBottom } = useFixedRegionLayout();
   const scrollRef = React.useRef<React.ElementRef<typeof RNScrollView>>(null);
   const scrollY = React.useRef(0);
   const viewportHeight = React.useRef(0);
@@ -471,7 +402,7 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
     const measuredViewport = viewportHeight.current || scrollMaxHeight || 0;
     const visibleHeight = Math.max(0, measuredViewport - keyboardOcclusion());
     const currentY = scrollY.current;
-    const targetTop = topbarHeight + FOCUS_TOP_MARGIN;
+    const targetTop = headerHeight + FOCUS_TOP_MARGIN;
     const targetBottom = Math.max(targetTop, visibleHeight - FOCUS_BOTTOM_MARGIN);
     const scrollToNextY = (nextY: number): void => {
       const clampedY = Math.max(0, Math.round(nextY));
@@ -543,7 +474,7 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
       },
       () => undefined,
     );
-  }, [keyboardOcclusion, scrollMaxHeight, topbarHeight]);
+  }, [keyboardOcclusion, scrollMaxHeight, headerHeight]);
 
   const scheduleScrollToInput = React.useCallback((input: TextInput | null, delay = FOCUS_SCROLL_DELAY_MS) => {
     if (!input) return;
@@ -602,15 +533,15 @@ export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }
   // A footer reports its measured height into the scroll inset; when there is
   // no footer, or before measurement has landed, the sheet safeAreaBottom
   // still reserves the home-indicator zone for scroll-only content.
-  const bottomContentPadding = Math.max(footerHeight, footerSafeAreaBottom) + keyboardPadding;
+  const bottomContentPadding = Math.max(footerHeight, safeAreaBottom) + keyboardPadding;
 
   return (
     <RNScrollView
       ref={scrollRef}
-      style={scrollMaxHeight !== undefined ? { maxHeight: Math.max(0, scrollMaxHeight - footerKeyboardOffset) } : undefined}
+      style={scrollMaxHeight !== undefined ? { maxHeight: Math.max(0, scrollMaxHeight - keyboardOffset) } : undefined}
       contentContainerStyle={[
         styles.scrollContent,
-        topbarHeight > 0 ? { paddingTop: topbarHeight } : null,
+        headerHeight > 0 ? { paddingTop: headerHeight } : null,
         bottomContentPadding > 0 ? { paddingBottom: bottomContentPadding } : null,
       ]}
       keyboardShouldPersistTaps="handled"

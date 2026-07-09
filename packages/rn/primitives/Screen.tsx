@@ -8,6 +8,7 @@ import * as React from 'react';
 import { View as RNView } from 'react-native';
 import type { ViewStyle } from 'react-native';
 import { useNuriSafeAreaInsets } from '../safe-area';
+import { FixedRegionLayoutProvider } from './FixedRegionLayout';
 import { SCREEN_STYLE, withKeys } from './shared';
 
 export type ScreenProps = {
@@ -16,20 +17,6 @@ export type ScreenProps = {
   safeAreaBottom?: boolean;
   children?: React.ReactNode;
 };
-
-type ScreenDockContextValue = {
-  topInset: number;
-  bottomInset: number;
-  setTopInset: (height: number) => void;
-  setBottomInset: (height: number) => void;
-};
-
-export const ScreenDockContext = React.createContext<ScreenDockContextValue>({
-  topInset: 0,
-  bottomInset: 0,
-  setTopInset: () => undefined,
-  setBottomInset: () => undefined,
-});
 
 const SCREEN_DOCK_STYLE: ViewStyle = { ...SCREEN_STYLE, position: 'relative', overflow: 'hidden' };
 
@@ -40,21 +27,15 @@ const ScreenImpl: React.FC<ScreenProps> = ({
   children,
 }) => {
   const insets = useNuriSafeAreaInsets();
-  const [topInset, setTopInset] = React.useState(0);
-  const [bottomInset, setBottomInset] = React.useState(0);
-  const value = React.useMemo(
-    () => ({ topInset, bottomInset, setTopInset, setBottomInset }),
-    [topInset, bottomInset],
-  );
   const safeAreaStyle: ViewStyle = {};
   if ((safeArea || safeAreaTop) && insets.top > 0) safeAreaStyle.paddingTop = insets.top;
   if ((safeArea || safeAreaBottom) && insets.bottom > 0) safeAreaStyle.paddingBottom = insets.bottom;
   const style = Object.keys(safeAreaStyle).length ? [SCREEN_DOCK_STYLE, safeAreaStyle] : SCREEN_DOCK_STYLE;
 
   return (
-    <ScreenDockContext.Provider value={value}>
+    <FixedRegionLayoutProvider keyboardEnabled safeAreaTop={insets.top} safeAreaBottom={insets.bottom}>
       <RNView style={style}>{children}</RNView>
-    </ScreenDockContext.Provider>
+    </FixedRegionLayoutProvider>
   );
 };
 ScreenImpl.displayName = 'Screen';
