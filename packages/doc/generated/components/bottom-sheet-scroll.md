@@ -1,17 +1,16 @@
 ---
-title: List
+title: BottomSheet Scroll
 layout: default
-nav_order: 5
+nav_order: 24
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/generated/components/list.ts
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/primitives/BottomSheet.tsx
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
-# List
+# BottomSheet Scroll
 
 ## API
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
-| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `children` | no | `React.ReactNode` | default content slot |

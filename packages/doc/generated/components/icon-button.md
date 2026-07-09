@@ -1,7 +1,7 @@
 ---
 title: Icon Button
 layout: default
-nav_order: 2
+nav_order: 3
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/generated/components/icon-button.ts

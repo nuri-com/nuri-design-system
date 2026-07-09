@@ -1,7 +1,7 @@
 ---
 title: List Action
 layout: default
-nav_order: 5
+nav_order: 6
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/generated/components/list-action.ts
@@ -19,6 +19,18 @@ nav_order: 5
 | `disabled` | no | `boolean` | pressable behaviour |
 | `accessibilityLabel` | no | `string` | pressable behaviour |
 | `children` | no | `React.ReactNode` | composition children |
+
+### ListActionContentProps
+
+| Prop | Required | Type | Notes |
+| --- | --- | --- | --- |
+| `children` | no | `React.ReactNode` | slot content |
+
+### ListActionTrailingProps
+
+| Prop | Required | Type | Notes |
+| --- | --- | --- | --- |
+| `children` | no | `React.ReactNode` | slot content |
 
 ### ListActionLeadingAvatarProps
 

@@ -28,9 +28,18 @@ export type TopbarProps = {
 type TopbarPart = 'root' | 'leading' | 'center' | 'trailing';
 
 const topbarDisplayName = nuriNames('topbar').rn;
-export const TopbarLeading = createNuriSlot("leading", `${topbarDisplayName}Leading`, 'children', topbarDisplayName);
-export const TopbarCenter = createNuriSlot("center", `${topbarDisplayName}Center`, 'children', topbarDisplayName);
-export const TopbarTrailing = createNuriSlot("trailing", `${topbarDisplayName}Trailing`, 'children', topbarDisplayName);
+export type TopbarLeadingProps = {
+  children?: React.ReactNode;
+};
+export const TopbarLeading = createNuriSlot<TopbarLeadingProps>("leading", `${topbarDisplayName}Leading`, 'children', topbarDisplayName);
+export type TopbarCenterProps = {
+  children?: React.ReactNode;
+};
+export const TopbarCenter = createNuriSlot<TopbarCenterProps>("center", `${topbarDisplayName}Center`, 'children', topbarDisplayName);
+export type TopbarTrailingProps = {
+  children?: React.ReactNode;
+};
+export const TopbarTrailing = createNuriSlot<TopbarTrailingProps>("trailing", `${topbarDisplayName}Trailing`, 'children', topbarDisplayName);
 
 const TopbarInner: React.FC<TopbarProps> = (props) => {
   const selection: Record<string, string> = {

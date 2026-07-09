@@ -1,13 +1,13 @@
 ---
-title: View
+title: Pressable
 layout: default
-nav_order: 12
+nav_order: 15
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/primitives/View.tsx
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/primitives/Pressable.tsx
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
-# View
+# Pressable
 
 ## API
 
@@ -38,5 +38,10 @@ nav_order: 12
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `muted` | no | `boolean` | style axis |
 | `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | style axis |
-| `elevation` | no | `'none' | 'raised'` | style axis |
+| `pressColor` | no | `boolean` | component prop |
+| `pressScale` | no | `boolean` | component prop |
+| `disabledOpacity` | no | `boolean` | component prop |
 | `children` | no | `React.ReactNode` | default content slot |
+| `onPress` | no | `() => void` | pressable behaviour |
+| `disabled` | no | `boolean` | pressable behaviour |
+| `accessibilityLabel` | no | `string` | pressable behaviour |

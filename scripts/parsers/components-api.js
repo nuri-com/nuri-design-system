@@ -487,7 +487,13 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
 
   if (hasRegions) {
     for (const part of regionParts) {
-      body.push(`export const ${Pascal}${pascalPart(part)} = createNuriSlot(${q(part)}, \`${'${'}${displayNameConst}}${pascalPart(part)}\`, 'children', ${displayNameConst});`);
+      const subName = `${Pascal}${pascalPart(part)}`;
+      body.push(
+        `export type ${subName}Props = {`,
+        '  children?: React.ReactNode;',
+        '};',
+        `export const ${subName} = createNuriSlot<${subName}Props>(${q(part)}, \`${'${'}${displayNameConst}}${pascalPart(part)}\`, 'children', ${displayNameConst});`,
+      );
     }
   }
   if (hasComponentSlots) {
@@ -580,7 +586,7 @@ function emitIndex(entries) {
   for (const { name, Pascal, regionSubs, componentSubs } of entries) {
     const values = [Pascal, ...regionSubs, ...componentSubs].join(', ');
     lines.push(`export { ${values} } from './${name}';`);
-    lines.push(`export type { ${[`${Pascal}Props`, ...componentSubs.map((sub) => `${sub}Props`)].join(', ')} } from './${name}';`);
+    lines.push(`export type { ${[`${Pascal}Props`, ...regionSubs.map((sub) => `${sub}Props`), ...componentSubs.map((sub) => `${sub}Props`)].join(', ')} } from './${name}';`);
   }
   return header + '\n' + lines.join('\n') + '\n';
 }

@@ -1,7 +1,7 @@
 ---
 title: Icon Avatar
 layout: default
-nav_order: 3
+nav_order: 4
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/generated/components/icon-avatar.ts

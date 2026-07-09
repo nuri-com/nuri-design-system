@@ -79,8 +79,24 @@ const PAGE_CONTRACT = {
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
+  alert: {
+    kind: 'api', source: 'alert', title: 'Alert', nav: 2,
+    cells: [
+      '### AlertProps',
+      "| `variant` | no | `'soft' | 'ghost'` | style axis |",
+      "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
+      '| `children` | no | `React.ReactNode` | default content slot |',
+      '### AlertIconProps',
+      '| `name` | yes | `IconName` | scalar icon name |',
+      '### AlertButtonProps',
+      '| `onPress` | no | `() => void` | pressable behaviour |',
+      '| `accessibilityLabel` | no | `string` | pressable behaviour |',
+      '> `children` is not accepted (`children?: never`).',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
   'icon-button': {
-    kind: 'api', source: 'icon-button', title: 'Icon Button', nav: 2,
+    kind: 'api', source: 'icon-button', title: 'Icon Button', nav: 3,
     cells: [
       "| `variant` | no | `'solid' | 'soft' | 'ghost'` | style axis |",
       '| `icon` | yes | `IconName` | scalar icon name |',
@@ -89,7 +105,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   'icon-avatar': {
-    kind: 'api', source: 'icon-avatar', title: 'Icon Avatar', nav: 3,
+    kind: 'api', source: 'icon-avatar', title: 'Icon Avatar', nav: 4,
     cells: [
       "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
@@ -99,7 +115,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`onPress`', '`disabled`', '`accessibilityLabel`'],
   },
   list: {
-    kind: 'api', source: 'list', title: 'List', nav: 4,
+    kind: 'api', source: 'list', title: 'List', nav: 5,
     cells: [
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
       '| `children` | no | `React.ReactNode` | default content slot |',
@@ -107,7 +123,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`variant` |', '`onPress`'],
   },
   'list-action': {
-    kind: 'api', source: 'list-action', title: 'List Action', nav: 5,
+    kind: 'api', source: 'list-action', title: 'List Action', nav: 6,
     cells: [
       '| `onPress` | no | `() => void` | pressable behaviour |',
       '| `disabled` | no | `boolean` | pressable behaviour |',
@@ -115,6 +131,10 @@ const PAGE_CONTRACT = {
       // list-action has NO default:true sink — children exist for typed
       // slot/region composition only (the honest-children contract).
       '| `children` | no | `React.ReactNode` | composition children |',
+      '### ListActionContentProps',
+      '| `children` | no | `React.ReactNode` | slot content |',
+      '### ListActionTrailingProps',
+      '| `children` | no | `React.ReactNode` | slot content |',
       '### ListActionLeadingAvatarProps',
       '| `name` | yes | `IconName` | scalar icon name |',
       "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | delegated component prop |",
@@ -129,7 +149,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   'text-field': {
-    kind: 'api', source: 'text-field', title: 'Text Field', nav: 6,
+    kind: 'api', source: 'text-field', title: 'Text Field', nav: 7,
     cells: [
       '| `value` | no | `string` | input behaviour |',
       '| `onChangeText` | no | `(text: string) => void` | input behaviour |',
@@ -154,7 +174,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`variant` |', '`size` |', '`keyboardType`'],
   },
   'tab-bar': {
-    kind: 'api', source: 'tab-bar', title: 'Tab Bar', nav: 7,
+    kind: 'api', source: 'tab-bar', title: 'Tab Bar', nav: 8,
     cells: [
       "| `surface` | no | `'canvas' | 'transparent'` | component prop |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
@@ -163,7 +183,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   'tab-bar-item': {
-    kind: 'api', source: 'tab-bar-item', title: 'Tab Bar Item', nav: 8,
+    kind: 'api', source: 'tab-bar-item', title: 'Tab Bar Item', nav: 9,
     cells: [
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
       '| `onPress` | no | `() => void` | pressable behaviour |',
@@ -179,16 +199,20 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '| `icon` |', '| `label` | no | `string`'],
   },
   topbar: {
-    kind: 'api', source: 'topbar', title: 'Topbar', nav: 9,
+    kind: 'api', source: 'topbar', title: 'Topbar', nav: 10,
     cells: [
       "| `surface` | no | `'canvas' | 'transparent'` | component prop |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
       '| `children` | no | `React.ReactNode` | default content slot |',
+      '### TopbarLeadingProps',
+      '| `children` | no | `React.ReactNode` | slot content |',
+      '### TopbarCenterProps',
+      '### TopbarTrailingProps',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   stack: {
-    kind: 'api', source: 'stack', title: 'Stack', nav: 10,
+    kind: 'api', source: 'stack', title: 'Stack', nav: 11,
     cells: [
       "| `direction` | no | `'row' | 'column'` | style axis |",
       "| `gap` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |",
@@ -198,7 +222,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   view: {
-    kind: 'api', source: 'view', title: 'View', nav: 11,
+    kind: 'api', source: 'view', title: 'View', nav: 12,
     cells: [
       "| `width` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |",
       "| `radiusTop` | no | `'sm' | 'md' | 'lg' | 'full'` | style axis |",
@@ -210,7 +234,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   typography: {
-    kind: 'api', source: 'typography', title: 'Typography', nav: 12,
+    kind: 'api', source: 'typography', title: 'Typography', nav: 13,
     cells: [
       "| `size` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '3xl'` | style axis |",
       '| `emphasis` | no | `boolean` | style axis |',
@@ -221,11 +245,109 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   icon: {
-    kind: 'api', source: 'icon', title: 'Icon', nav: 13,
+    kind: 'api', source: 'icon', title: 'Icon', nav: 14,
     cells: [
       '| `name` | yes | `IconName` | scalar icon name |',
       '| `color` | no | `string` | glyph rendering |',
       '| `dimension` | no | `number` | glyph rendering |',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  pressable: {
+    kind: 'api', source: 'pressable', title: 'Pressable', nav: 15,
+    cells: [
+      "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |",
+      '| `pressScale` | no | `boolean` | component prop |',
+      '| `onPress` | no | `() => void` | pressable behaviour |',
+      '| `accessibilityLabel` | no | `string` | pressable behaviour |',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  screen: {
+    kind: 'api', source: 'screen', title: 'Screen', nav: 16,
+    cells: [
+      '| `safeArea` | no | `boolean` | safe-area reserve |',
+      '| `safeAreaTop` | no | `boolean` | safe-area reserve |',
+      '| `safeAreaBottom` | no | `boolean` | safe-area reserve |',
+      '| `children` | no | `React.ReactNode` | default content slot |',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  header: {
+    kind: 'api', source: 'header', title: 'Header', nav: 17,
+    cells: [
+      "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | style axis |",
+      "| `paddingBottom` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |",
+      '| `safeAreaTop` | no | `boolean` | safe-area reserve |',
+      '| `children` | no | `React.ReactNode` | default content slot |',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  scroll: {
+    kind: 'api', source: 'scroll', title: 'Scroll', nav: 18,
+    cells: [
+      '| `safeAreaTop` | no | `boolean` | safe-area reserve |',
+      "| `insetTop` | no | `'none' | 'dock'` | dock inset reserve |",
+      "| `insetBottom` | no | `'none' | 'dock'` | dock inset reserve |",
+      '| `children` | no | `React.ReactNode` | default content slot |',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  footer: {
+    kind: 'api', source: 'footer', title: 'Footer', nav: 19,
+    cells: [
+      "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | style axis |",
+      '| `safeAreaBottom` | no | `boolean` | safe-area reserve |',
+      '| `children` | no | `React.ReactNode` | default content slot |',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  dock: {
+    kind: 'api', source: 'dock', title: 'Dock', nav: 20,
+    cells: [
+      "| `edge` | yes | `'bottom' | 'top'` | dock placement |",
+      '| `children` | no | `React.ReactNode` | default content slot |',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  separator: {
+    kind: 'api', source: 'separator', title: 'Separator', nav: 21,
+    cells: [
+      "| `ySpace` | no | `'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'` | separator spacing |",
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  'bottom-sheet': {
+    kind: 'api', source: 'bottom-sheet', title: 'BottomSheet', nav: 22,
+    cells: [
+      '| `open` | no | `boolean` | sheet behaviour |',
+      "| `detent` | no | `'content' | 'full'` | sheet behaviour |",
+      "| `scrim` | no | `'none' | 'dim'` | sheet behaviour |",
+      '| `onOpenChange` | no | `(open: boolean) => void` | sheet behaviour |',
+      '| `children` | no | `React.ReactNode` | default content slot |',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  'bottom-sheet-panel': {
+    kind: 'api', source: 'bottom-sheet-panel', title: 'BottomSheet Panel', nav: 23,
+    cells: [
+      '| `children` | no | `React.ReactNode` | default content slot |',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  'bottom-sheet-scroll': {
+    kind: 'api', source: 'bottom-sheet-scroll', title: 'BottomSheet Scroll', nav: 24,
+    cells: [
+      '| `children` | no | `React.ReactNode` | default content slot |',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
+  'bottom-sheet-footer': {
+    kind: 'api', source: 'bottom-sheet-footer', title: 'BottomSheet Footer', nav: 25,
+    cells: [
+      "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | style axis |",
+      "| `paddingBottom` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'none'` | style axis |",
+      '| `children` | no | `React.ReactNode` | default content slot |',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
