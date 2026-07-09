@@ -1,17 +1,17 @@
 ---
-title: List
+title: Dock
 layout: default
-nav_order: 5
+nav_order: 20
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/generated/components/list.ts
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/primitives/Dock.tsx
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
-# List
+# Dock
 
 ## API
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
-| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
+| `edge` | yes | `'bottom' | 'top'` | dock placement |
 | `children` | no | `React.ReactNode` | default content slot |

@@ -1,27 +1,25 @@
 ---
-title: Tab Bar Item
+title: Alert
 layout: default
-nav_order: 9
+nav_order: 2
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/generated/components/tab-bar-item.ts
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/generated/components/alert.ts
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
-# Tab Bar Item
+# Alert
 
 ## API
 
-### TabBarItemProps
+### AlertProps
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
+| `variant` | no | `'soft' | 'ghost'` | style axis |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
-| `onPress` | no | `() => void` | pressable behaviour |
-| `accessibilityLabel` | no | `string` | pressable behaviour |
-| `selected` | no | `boolean` | state axis |
-| `children` | no | `React.ReactNode` | composition children |
+| `children` | no | `React.ReactNode` | default content slot |
 
-### TabBarItemIconProps
+### AlertIconProps
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
@@ -29,8 +27,11 @@ nav_order: 9
 
 > `children` is not accepted (`children?: never`).
 
-### TabBarItemLabelProps
+### AlertButtonProps
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `children` | no | `React.ReactNode` | slot content |
+| `disabled` | no | `boolean` | pressable behaviour |
+| `onPress` | no | `() => void` | pressable behaviour |
+| `accessibilityLabel` | no | `string` | pressable behaviour |

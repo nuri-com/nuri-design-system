@@ -13,10 +13,19 @@ export const COMPONENT_API_DOCS = [
     relatedPrefix: 'Button',
   },
   {
+    source: 'alert',
+    name: 'alert',
+    title: 'Alert',
+    nav: 2,
+    file: 'packages/rn/generated/components/alert.ts',
+    type: 'AlertProps',
+    relatedPrefix: 'Alert',
+  },
+  {
     source: 'icon-button',
     name: 'icon-button',
     title: 'Icon Button',
-    nav: 2,
+    nav: 3,
     file: 'packages/rn/generated/components/icon-button.ts',
     type: 'IconButtonProps',
     relatedPrefix: 'IconButton',
@@ -25,7 +34,7 @@ export const COMPONENT_API_DOCS = [
     source: 'icon-avatar',
     name: 'icon-avatar',
     title: 'Icon Avatar',
-    nav: 3,
+    nav: 4,
     file: 'packages/rn/generated/components/icon-avatar.ts',
     type: 'IconAvatarProps',
     relatedPrefix: 'IconAvatar',
@@ -34,25 +43,16 @@ export const COMPONENT_API_DOCS = [
     source: 'list',
     name: 'list',
     title: 'List',
-    nav: 4,
+    nav: 5,
     file: 'packages/rn/generated/components/list.ts',
     type: 'ListProps',
     relatedPrefix: 'List',
   },
   {
-    source: 'tab-bar',
-    name: 'tab-bar',
-    title: 'Tab Bar',
-    nav: 7,
-    file: 'packages/rn/generated/components/tab-bar.ts',
-    type: 'TabBarProps',
-    relatedPrefix: 'TabBar',
-  },
-  {
     source: 'list-action',
     name: 'list-action',
     title: 'List Action',
-    nav: 5,
+    nav: 6,
     file: 'packages/rn/generated/components/list-action.ts',
     type: 'ListActionProps',
     relatedPrefix: 'ListAction',
@@ -61,16 +61,25 @@ export const COMPONENT_API_DOCS = [
     source: 'text-field',
     name: 'text-field',
     title: 'Text Field',
-    nav: 6,
+    nav: 7,
     file: 'packages/rn/generated/components/text-field.ts',
     type: 'TextFieldProps',
     relatedPrefix: 'TextField',
   },
   {
+    source: 'tab-bar',
+    name: 'tab-bar',
+    title: 'Tab Bar',
+    nav: 8,
+    file: 'packages/rn/generated/components/tab-bar.ts',
+    type: 'TabBarProps',
+    relatedPrefix: 'TabBar',
+  },
+  {
     source: 'tab-bar-item',
     name: 'tab-bar-item',
     title: 'Tab Bar Item',
-    nav: 8,
+    nav: 9,
     file: 'packages/rn/generated/components/tab-bar-item.ts',
     type: 'TabBarItemProps',
     relatedPrefix: 'TabBarItem',
@@ -79,7 +88,7 @@ export const COMPONENT_API_DOCS = [
     source: 'topbar',
     name: 'topbar',
     title: 'Topbar',
-    nav: 9,
+    nav: 10,
     file: 'packages/rn/generated/components/topbar.ts',
     type: 'TopbarProps',
     relatedPrefix: 'Topbar',
@@ -87,30 +96,107 @@ export const COMPONENT_API_DOCS = [
   {
     source: 'stack',
     title: 'Stack',
-    nav: 10,
+    nav: 11,
     file: 'packages/rn/primitives/Stack.tsx',
     type: 'StackProps',
   },
   {
     source: 'view',
     title: 'View',
-    nav: 11,
+    nav: 12,
     file: 'packages/rn/primitives/View.tsx',
     type: 'ViewProps',
   },
   {
     source: 'typography',
     title: 'Typography',
-    nav: 12,
+    nav: 13,
     file: 'packages/rn/primitives/Text.tsx',
     type: 'TextProps',
   },
   {
     source: 'icon',
     title: 'Icon',
-    nav: 13,
+    nav: 14,
     file: 'packages/rn/primitives/NuriIcon.tsx',
     type: 'NuriIconProps',
+  },
+  {
+    source: 'pressable',
+    title: 'Pressable',
+    nav: 15,
+    file: 'packages/rn/primitives/Pressable.tsx',
+    type: 'PressableProps',
+  },
+  {
+    source: 'screen',
+    title: 'Screen',
+    nav: 16,
+    file: 'packages/rn/primitives/Screen.tsx',
+    type: 'ScreenProps',
+  },
+  {
+    source: 'header',
+    title: 'Header',
+    nav: 17,
+    file: 'packages/rn/primitives/Header.tsx',
+    type: 'HeaderProps',
+  },
+  {
+    source: 'scroll',
+    title: 'Scroll',
+    nav: 18,
+    file: 'packages/rn/primitives/Scroll.tsx',
+    type: 'ScrollProps',
+  },
+  {
+    source: 'footer',
+    title: 'Footer',
+    nav: 19,
+    file: 'packages/rn/primitives/Footer.tsx',
+    type: 'FooterProps',
+  },
+  {
+    source: 'dock',
+    title: 'Dock',
+    nav: 20,
+    file: 'packages/rn/primitives/Dock.tsx',
+    type: 'DockProps',
+  },
+  {
+    source: 'separator',
+    title: 'Separator',
+    nav: 21,
+    file: 'packages/rn/primitives/Separator.tsx',
+    type: 'SeparatorProps',
+  },
+  {
+    source: 'bottom-sheet',
+    title: 'BottomSheet',
+    nav: 22,
+    file: 'packages/rn/primitives/BottomSheet.tsx',
+    type: 'BottomSheetProps',
+  },
+  {
+    source: 'bottom-sheet-panel',
+    title: 'BottomSheet Panel',
+    nav: 23,
+    file: 'packages/rn/primitives/BottomSheet.tsx',
+    type: 'BottomSheetPanelProps',
+  },
+  {
+    source: 'bottom-sheet-scroll',
+    title: 'BottomSheet Scroll',
+    nav: 24,
+    file: 'packages/rn/primitives/BottomSheet.tsx',
+    type: 'BottomSheetScrollProps',
+  },
+  {
+    source: 'bottom-sheet-footer',
+    title: 'BottomSheet Footer',
+    nav: 25,
+    file: 'packages/rn/primitives/BottomSheet.tsx',
+    type: 'BottomSheetFooterProps',
   },
 ];
 
@@ -158,6 +244,18 @@ const NOTE_BY_PROP = {
   label: 'scalar label',
   color: 'glyph rendering',
   dimension: 'glyph rendering',
+  safeArea: 'safe-area reserve',
+  safeAreaTop: 'safe-area reserve',
+  safeAreaBottom: 'safe-area reserve',
+  insetTop: 'dock inset reserve',
+  insetBottom: 'dock inset reserve',
+  detent: 'sheet behaviour',
+  scrim: 'sheet behaviour',
+  open: 'sheet behaviour',
+  dismissible: 'sheet behaviour',
+  onOpenChange: 'sheet behaviour',
+  edge: 'dock placement',
+  ySpace: 'separator spacing',
 };
 
 const camel = (s) => s.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
@@ -221,7 +319,7 @@ function objectBody(expr) {
 function extractExportedTypeAliases(source) {
   const aliases = new Map();
   const scanSource = source.replace(/\/\/.*$/gm, '');
-  const marker = /export\s+type\s+([A-Za-z_$][\w$]*)\s*=/g;
+  const marker = /(?:export\s+)?type\s+([A-Za-z_$][\w$]*)\s*=/g;
   for (const match of scanSource.matchAll(marker)) {
     const [, typeName] = match;
     const start = match.index + match[0].length;
@@ -261,20 +359,59 @@ function objectKeysType(source, exportName) {
   return keys.length ? keys.map((k) => `'${k}'`).join(' | ') : null;
 }
 
+function propTypeFromAlias(sourceType, propName, aliases) {
+  const body = objectBody(aliases.get(sourceType) || '');
+  if (body == null) return null;
+  const memberSource = body
+    .split('\n')
+    .map((line) => line.replace(/\/\/.*$/, ''))
+    .join('\n');
+  for (const rawMember of splitTopLevel(memberSource, ';')) {
+    const line = rawMember.trim();
+    const prop = /^([A-Za-z_$][\w$]*)(\?)?:\s*([^;]+)$/.exec(line);
+    if (prop && prop[1] === propName) return prop[3].trim();
+  }
+  return null;
+}
+
 function displayType(rawType, aliases) {
-  const type = rawType.trim();
+  let type = rawType.trim();
+  type = type.replace(/NonNullable<\s*([A-Za-z_$][\w$]*)\[['"]([^'"]+)['"]\]\s*>/g, (match, sourceType, propName) => {
+    const propType = propTypeFromAlias(sourceType, propName, aliases);
+    return propType ? displayType(propType, aliases) : match;
+  });
+  type = type.replace(/([A-Za-z_$][\w$]*)\[['"]([^'"]+)['"]\]/g, (match, sourceType, propName) => {
+    const propType = propTypeFromAlias(sourceType, propName, aliases);
+    return propType ? displayType(propType, aliases) : match;
+  });
   const alias = aliases.get(type);
   if (!alias || objectBody(alias)) return type;
   return alias;
 }
 
+function parsePickExpression(expr) {
+  const match = /^Pick<\s*([A-Za-z_$][\w$]*)\s*,\s*([\s\S]+)\s*>$/.exec(expr.trim());
+  if (!match) return null;
+  const keys = splitTopLevel(match[2], '|').map((part) => {
+    const raw = part.trim();
+    const quoted = /^['"]([^'"]+)['"]$/.exec(raw);
+    if (!quoted) throw new Error(`[docs] unsupported Pick key '${raw}'`);
+    return quoted[1];
+  });
+  return { sourceType: match[1], keys };
+}
+
 function parsePropObject(spec, typeName, body, isPrimaryType, aliases) {
   const props = [];
   const forbidden = [];
-  for (const rawLine of body.split('\n')) {
-    const line = rawLine.replace(/\/\/.*$/, '').trim();
+  const memberSource = body
+    .split('\n')
+    .map((line) => line.replace(/\/\/.*$/, ''))
+    .join('\n');
+  for (const rawMember of splitTopLevel(memberSource, ';')) {
+    const line = rawMember.trim();
     if (!line || line.startsWith('//')) continue;
-    const prop = /^([A-Za-z_$][\w$]*)(\?)?:\s*([^;]+);?$/.exec(line);
+    const prop = /^([A-Za-z_$][\w$]*)(\?)?:\s*([^;]+)$/.exec(line);
     if (!prop) {
       throw new Error(`[docs] ${spec.name || spec.source}: unsupported ${typeName} member '${line}'`);
     }
@@ -299,7 +436,7 @@ function propsFromType(spec, typeName, aliases, seen = new Set()) {
   if (seen.has(typeName)) {
     throw new Error(`[docs] ${spec.source}: circular prop type alias '${typeName}'`);
   }
-  const expr = aliases.get(typeName);
+  const expr = aliases.get(typeName) ?? (parsePickExpression(typeName) ? typeName : undefined);
   if (!expr) {
     throw new Error(`[docs] ${spec.source}: source does not export '${typeName}'`);
   }
@@ -309,21 +446,37 @@ function propsFromType(spec, typeName, aliases, seen = new Set()) {
     if (body != null) return parsePropObject(spec, typeName, body, typeName === spec.type, aliases);
 
     const parts = splitTopLevel(expr, '&');
-    if (parts.length < 2) {
-      throw new Error(`[docs] ${spec.source}: '${typeName}' is not an object prop type or supported intersection`);
+    if (parts.length >= 2) {
+      const props = [];
+      const forbidden = [];
+      for (const part of parts) {
+        const inline = objectBody(part);
+        const parsed = inline != null
+          ? parsePropObject(spec, typeName, inline, typeName === spec.type, aliases)
+          : propsFromType({ ...spec, type: part }, part, aliases, seen);
+        props.push(...parsed.props);
+        forbidden.push(...(parsed.forbidden || []));
+      }
+      return { typeName, props, forbidden };
     }
 
-    const props = [];
-    const forbidden = [];
-    for (const part of parts) {
-      const inline = objectBody(part);
-      const parsed = inline != null
-        ? parsePropObject(spec, typeName, inline, typeName === spec.type, aliases)
-        : propsFromType({ ...spec, type: part }, part, aliases, seen);
-      props.push(...parsed.props);
-      forbidden.push(...(parsed.forbidden || []));
+    const pick = parsePickExpression(expr);
+    if (pick) {
+      const parsed = propsFromType({ ...spec, type: pick.sourceType }, pick.sourceType, aliases, seen);
+      const propsByName = new Map(parsed.props.map((prop) => [prop.name, prop]));
+      const forbiddenByName = new Map((parsed.forbidden || []).map((prop) => [prop.name, prop]));
+      const props = [];
+      const forbidden = [];
+      for (const key of pick.keys) {
+        const prop = propsByName.get(key);
+        const blocked = forbiddenByName.get(key);
+        if (prop) props.push(prop);
+        else if (blocked) forbidden.push(blocked);
+        else throw new Error(`[docs] ${spec.source}: Pick<${pick.sourceType}> references unknown prop '${key}'`);
+      }
+      return { typeName, props, forbidden };
     }
-    return { typeName, props, forbidden };
+    throw new Error(`[docs] ${spec.source}: '${typeName}' is not an object prop type or supported intersection`);
   } finally {
     seen.delete(typeName);
   }
