@@ -4,15 +4,15 @@
 import * as React from 'react';
 import { View as RNView } from 'react-native';
 import type { LayoutChangeEvent, ViewStyle } from 'react-native';
+import { useFixedRegionLayout } from './FixedRegionLayout';
 import { withKeys } from './shared';
-import { ScreenDockContext } from './Screen';
 
 export type DockEdge = 'bottom' | 'top';
 export type DockProps = { edge: DockEdge; children?: React.ReactNode };
 
 const DockImpl: React.FC<DockProps> = ({ edge, children }) => {
-  const { setTopInset, setBottomInset } = React.useContext(ScreenDockContext);
-  const setInset = edge === 'top' ? setTopInset : setBottomInset;
+  const { setDockTopInset, setDockBottomInset } = useFixedRegionLayout();
+  const setInset = edge === 'top' ? setDockTopInset : setDockBottomInset;
 
   React.useEffect(() => () => setInset(0), [setInset]);
 

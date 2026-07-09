@@ -476,6 +476,26 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBe(90);
   });
 
+  test('BottomSheet safeAreaBottom reserves scroll-only content when there is no footer', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <NuriSafeAreaProvider bottom={34}>
+          <OverlayProvider>
+            <BottomSheet open detent="full" safeAreaBottom>
+              <BottomSheetPanel>
+                <BottomSheetScroll>
+                  <Text>Body</Text>
+                </BottomSheetScroll>
+              </BottomSheetPanel>
+            </BottomSheet>
+          </OverlayProvider>
+        </NuriSafeAreaProvider>
+      </NuriThemeProvider>,
+    );
+
+    expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBe(34);
+  });
+
   test('BottomSheetFooter follows the keyboard on full sheets', () => {
     const keyboardHandlers: Record<string, Array<(event: { endCoordinates: { height: number; screenY: number } }) => void>> = {};
     const addSpy = jest
