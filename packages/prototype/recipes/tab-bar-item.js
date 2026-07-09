@@ -9,12 +9,14 @@
  * renders an item that LOOKS selected or not and fires its native press; it knows
  * nothing about which destination is active.
  *
- * Public API (the ergonomic per-part attrs + the appearance boolean):
- *   <nuri-tab-bar-item icon="card" label="Wallet" selected></nuri-tab-bar-item>
- *   — `icon` routes the register glyph · `label` the destination name · the
- *     `selected` boolean ATTR drives the `state` appearance axis (present = the
- *     ghost/text-primary look · absent = the subtle/border-strong receded look ·
- *     the factory's boolean→axis bridge). pressScale only (no bg change).
+ * Public API (generated component slots + the appearance boolean):
+ *   <nuri-tab-bar-item selected aria-label="Wallet">
+ *     <nuri-tab-bar-item-icon name="card"></nuri-tab-bar-item-icon>
+ *     <nuri-tab-bar-item-label>Wallet</nuri-tab-bar-item-label>
+ *   </nuri-tab-bar-item>
+ *   — `selected` drives the `state` appearance axis (present = the ghost/text-primary
+ *     look · absent = the subtle/border-strong receded look · the factory's
+ *     boolean→axis bridge). pressScale only (no bg change).
  *
  * The page MUST link the namespace CSS (box/stack/palette) the item's merged node
  * uses; the icon + typography primitives are self-imported below.

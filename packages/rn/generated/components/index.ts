@@ -21,8 +21,8 @@ export { ListAction, ListActionContent, ListActionTrailing, ListActionLeadingAva
 export type { ListActionProps, ListActionLeadingAvatarProps, ListActionTextProps, ListActionTextMutedProps, ListActionTrailingTextProps, ListActionTrailingTextMutedProps, ListActionTrailIconProps } from './list-action';
 export { TextField, TextFieldLabel, TextFieldButton, TextFieldIconButton } from './text-field';
 export type { TextFieldProps, TextFieldLabelProps, TextFieldButtonProps, TextFieldIconButtonProps } from './text-field';
-export { TabBarItem } from './tab-bar-item';
-export type { TabBarItemProps } from './tab-bar-item';
+export { TabBarItem, TabBarItemIcon, TabBarItemLabel } from './tab-bar-item';
+export type { TabBarItemProps, TabBarItemIconProps, TabBarItemLabelProps } from './tab-bar-item';
 export { TabBar } from './tab-bar';
 export type { TabBarProps } from './tab-bar';
 export { BottomSheetPanel } from './bottom-sheet-panel';

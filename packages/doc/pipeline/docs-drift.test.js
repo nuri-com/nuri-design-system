@@ -165,11 +165,18 @@ const PAGE_CONTRACT = {
   'tab-bar-item': {
     kind: 'api', source: 'tab-bar-item', title: 'Tab Bar Item', nav: 8,
     cells: [
+      "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
+      '| `onPress` | no | `() => void` | pressable behaviour |',
+      '| `accessibilityLabel` | no | `string` | pressable behaviour |',
       '| `selected` | no | `boolean` | state axis |',
-      '| `label` | no | `string` | scalar label |',
+      '| `children` | no | `React.ReactNode` | composition children |',
+      '### TabBarItemIconProps',
+      '| `name` | yes | `IconName` | scalar icon name |',
       '> `children` is not accepted (`children?: never`).',
+      '### TabBarItemLabelProps',
+      '| `children` | no | `React.ReactNode` | slot content |',
     ],
-    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '| `icon` |', '| `label` | no | `string`'],
   },
   topbar: {
     kind: 'api', source: 'topbar', title: 'Topbar', nav: 9,

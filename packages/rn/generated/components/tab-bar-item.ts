@@ -12,8 +12,8 @@
  * ────────────────────────────────────────────────────────────── */
 
 import * as React from 'react';
-import { nuriNames, renderDescriptorInstance } from '../../runtime/renderer';
-import type { NuriBehaviour } from '../../runtime/renderer';
+import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriComposition } from '../../runtime/renderer';
+import type { NuriBehaviour, NuriCompositionEntry } from '../../runtime/renderer';
 import { tabBarItemDescriptor } from '@nuri/spec/descriptors/tab-bar-item';
 import { recipes } from '../data/recipes';
 import { NuriScope } from '../../theme';
@@ -25,14 +25,21 @@ export type TabBarItemProps = {
   onPress?: () => void;
   accessibilityLabel?: string;
   selected?: boolean;
-  icon?: IconName;
-  label?: string;
-  children?: never;
+  children?: React.ReactNode;
 };
 
 type TabBarItemPart = 'root' | 'icon' | 'label';
 
 const tabBarItemDisplayName = nuriNames('tab-bar-item').rn;
+export type TabBarItemIconProps = {
+  name: IconName;
+  children?: never;
+};
+export const TabBarItemIcon = createNuriSlot<TabBarItemIconProps>("icon", `${tabBarItemDisplayName}Icon`, 'name', tabBarItemDisplayName);
+export type TabBarItemLabelProps = {
+  children?: React.ReactNode;
+};
+export const TabBarItemLabel = createNuriSlot<TabBarItemLabelProps>("label", `${tabBarItemDisplayName}Label`, 'children', tabBarItemDisplayName);
 
 const TabBarItemInner: React.FC<TabBarItemProps> = (props) => {
   const selection: Record<string, string> = {
@@ -42,8 +49,11 @@ const TabBarItemInner: React.FC<TabBarItemProps> = (props) => {
     selection["state"] = props.selected ? "selected" : "unselected";
   }
   const content: Partial<Record<TabBarItemPart, React.ReactNode>> = {};
-  if (props.icon !== undefined) content["icon"] = props.icon;
-  if (props.label !== undefined) content["label"] = props.label;
+  const composition: Partial<Record<TabBarItemPart, NuriCompositionEntry<TabBarItemPart>[]>> = {};
+  const harvestedComposition = harvestNuriComposition<TabBarItemPart>(props.children, undefined, tabBarItemDisplayName);
+  if (harvestedComposition.hasSlots) {
+    composition.root = harvestedComposition.items;
+  }
   const behaviour: NuriBehaviour<TabBarItemPart> = {};
   behaviour.pressable = {
     target: "root",
@@ -57,6 +67,7 @@ const TabBarItemInner: React.FC<TabBarItemProps> = (props) => {
     displayName: tabBarItemDisplayName,
     selection,
     content,
+    composition,
     behaviour,
   });
 };

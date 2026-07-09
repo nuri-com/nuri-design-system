@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { TabBar, TabBarItem } from '@ds';
+import { TabBar, TabBarItem, TabBarItemIcon, TabBarItemLabel } from '@ds';
 
 export type WalletTab = 'bitcoin' | 'bank' | 'euro';
 
@@ -14,23 +14,29 @@ export function WalletTabs({
   return (
     <TabBar>
       <TabBarItem
-        icon="bitcoin-wallet"
-        label="€ 36.50"
         selected={selectedTab === 'bitcoin'}
         onPress={() => onSelectTab('bitcoin')}
-      />
+        accessibilityLabel="Bitcoin wallet"
+      >
+        <TabBarItemIcon name="bitcoin-wallet" />
+        <TabBarItemLabel>€ 36.50</TabBarItemLabel>
+      </TabBarItem>
       <TabBarItem
-        icon="bank"
-        label="€ 18.90"
         selected={selectedTab === 'bank'}
         onPress={() => onSelectTab('bank')}
-      />
+        accessibilityLabel="Bank account"
+      >
+        <TabBarItemIcon name="bank" />
+        <TabBarItemLabel>€ 18.90</TabBarItemLabel>
+      </TabBarItem>
       <TabBarItem
-        icon="euro-wallet"
-        label="€ 25.70"
         selected={selectedTab === 'euro'}
         onPress={() => onSelectTab('euro')}
-      />
+        accessibilityLabel="Euro wallet"
+      >
+        <TabBarItemIcon name="euro-wallet" />
+        <TabBarItemLabel>€ 25.70</TabBarItemLabel>
+      </TabBarItem>
     </TabBar>
   );
 }

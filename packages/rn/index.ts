@@ -125,7 +125,7 @@ export type {
 //   <IconButton variant="soft" icon="apple" accessibilityLabel="Buy" onPress={…} />
 //   <List><ListAction><ListActionLeadingAvatar name="bank" />…</ListAction></List>
 //   <Topbar><TopbarLeading>…</TopbarLeading><TopbarCenter>…</TopbarCenter>…</Topbar>
-//   <TabBar><TabBarItem icon="card" label="Wallet" selected onPress={…} />…</TabBar>
+//   <TabBar><TabBarItem selected><TabBarItemIcon name="card" /><TabBarItemLabel>Wallet</TabBarItemLabel></TabBarItem>…</TabBar>
 export {
   Button,
   ButtonText,
@@ -154,6 +154,8 @@ export {
   TextFieldButton,
   TextFieldIconButton,
   TabBarItem,
+  TabBarItemIcon,
+  TabBarItemLabel,
   TabBar,
 } from './generated/components';
 export type {
@@ -179,5 +181,7 @@ export type {
   TextFieldButtonProps,
   TextFieldIconButtonProps,
   TabBarItemProps,
+  TabBarItemIconProps,
+  TabBarItemLabelProps,
   TabBarProps,
 } from './generated/components';
