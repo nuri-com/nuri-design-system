@@ -2,7 +2,8 @@
 
 The consumable **example app** — the canonical "how an app consumes the DS".
 The app opens directly to the playground screens surface. Wallet tabs switch
-between static mockup files, the list icon opens the sheet menu, and the menu
+between static mockup files inside the same `Screen` / `Scroll` scaffold as
+the playground screens page, the list icon opens the sheet menu, and the menu
 launches the Activity, Amount, Actions, and Form sheet examples.
 
 ```
@@ -11,7 +12,8 @@ src/
     index.tsx          route/controller for the demo. Owns the
                        app state: page, selected wallet tab, open sheet, and
                        sample form values.
-    Home.tsx           wallet/status home surface.
+    Home.tsx           wallet/status home surface. Owns the Screen, Topbar,
+                       Scroll body, and WalletTabs composition.
     Coin.tsx           static bitcoin tab mockup.
     Wallet.tsx         static bank tab mockup.
     Cash.tsx           static euro tab mockup.
@@ -24,10 +26,11 @@ src/
     AmountSheet.tsx
     ActionsSheet.tsx
     FormSheet.tsx
-App.tsx                the navigator role: safe-area ownership (decision 58),
-                       the NuriThemeProvider root, OverlayProvider placement,
-                       and the app-owned demo state. Dark mode remains wired as
-                       an internal affordance for future proofing, not an
+App.tsx                the navigator role: native safe-area reading
+                       (decision 58), the NuriThemeProvider root, and
+                       OverlayProvider placement. Route screens apply safe-area
+                       through the DS Screen primitive. Dark mode remains wired
+                       as an internal affordance for future proofing, not an
                        exposed product feature.
 ```
 

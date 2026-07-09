@@ -3,6 +3,8 @@ import * as React from 'react';
 import {
   IconButton,
   NuriIcon,
+  Screen,
+  Scroll,
   Topbar,
   TopbarLeading,
   TopbarTrailing,
@@ -24,7 +26,7 @@ export function Home({
   onToggleTheme: () => void;
 }) {
   return (
-    <>
+    <Screen safeArea>
       <Topbar>
         <TopbarLeading>
           <NuriIcon name="nuri" />
@@ -35,11 +37,13 @@ export function Home({
         </TopbarTrailing>
       </Topbar>
 
-      {selectedTab === 'bitcoin' ? <Coin /> : null}
-      {selectedTab === 'bank' ? <Wallet /> : null}
-      {selectedTab === 'euro' ? <Cash /> : null}
+      <Scroll>
+        {selectedTab === 'bitcoin' ? <Coin /> : null}
+        {selectedTab === 'bank' ? <Wallet /> : null}
+        {selectedTab === 'euro' ? <Cash /> : null}
+      </Scroll>
 
       <WalletTabs selectedTab={selectedTab} onSelectTab={onSelectTab} />
-    </>
+    </Screen>
   );
 }
