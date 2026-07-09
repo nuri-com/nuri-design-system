@@ -20,16 +20,18 @@
   <!-- BITCOIN screen · the bitcoin wallet destination is active. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="bitcoin">
     <template>
-      <nuri-screen safe-area>
-        <nuri-topbar surface="transparent">
-          <nuri-topbar-leading>
-            <nuri-icon name="nuri"></nuri-icon>
-          </nuri-topbar-leading>
-          <nuri-topbar-trailing>
-            <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
-            <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
-          </nuri-topbar-trailing>
-        </nuri-topbar>
+      <nuri-screen>
+        <nuri-header safe-area-top chrome="canvas">
+          <nuri-topbar>
+            <nuri-topbar-leading>
+              <nuri-icon name="nuri"></nuri-icon>
+            </nuri-topbar-leading>
+            <nuri-topbar-trailing>
+              <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
+              <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
+            </nuri-topbar-trailing>
+          </nuri-topbar>
+        </nuri-header>
 
         <nuri-scroll>
           <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
@@ -42,20 +44,22 @@
           </nuri-view>
         </nuri-scroll>
 
-        <nuri-tab-bar>
-          <nuri-tab-bar-item selected aria-label="Bitcoin wallet">
-            <nuri-tab-bar-item-icon name="bitcoin-wallet"></nuri-tab-bar-item-icon>
-            <nuri-tab-bar-item-label>€ 36.50</nuri-tab-bar-item-label>
-          </nuri-tab-bar-item>
-          <nuri-tab-bar-item aria-label="Bank account">
-            <nuri-tab-bar-item-icon name="bank"></nuri-tab-bar-item-icon>
-            <nuri-tab-bar-item-label>€ 18.90</nuri-tab-bar-item-label>
-          </nuri-tab-bar-item>
-          <nuri-tab-bar-item aria-label="Euro wallet">
-            <nuri-tab-bar-item-icon name="euro-wallet"></nuri-tab-bar-item-icon>
-            <nuri-tab-bar-item-label>€ 25.70</nuri-tab-bar-item-label>
-          </nuri-tab-bar-item>
-        </nuri-tab-bar>
+        <nuri-footer safe-area-bottom chrome="canvas">
+          <nuri-tab-bar>
+            <nuri-tab-bar-item selected aria-label="Bitcoin wallet">
+              <nuri-tab-bar-item-icon name="bitcoin-wallet"></nuri-tab-bar-item-icon>
+              <nuri-tab-bar-item-label>€ 36.50</nuri-tab-bar-item-label>
+            </nuri-tab-bar-item>
+            <nuri-tab-bar-item aria-label="Bank account">
+              <nuri-tab-bar-item-icon name="bank"></nuri-tab-bar-item-icon>
+              <nuri-tab-bar-item-label>€ 18.90</nuri-tab-bar-item-label>
+            </nuri-tab-bar-item>
+            <nuri-tab-bar-item aria-label="Euro wallet">
+              <nuri-tab-bar-item-icon name="euro-wallet"></nuri-tab-bar-item-icon>
+              <nuri-tab-bar-item-label>€ 25.70</nuri-tab-bar-item-label>
+            </nuri-tab-bar-item>
+          </nuri-tab-bar>
+        </nuri-footer>
       </nuri-screen>
     </template>
   </nuri-demo>
@@ -63,16 +67,18 @@
   <!-- BANK screen · the bank destination is active. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="bank">
     <template>
-      <nuri-screen safe-area>
-        <nuri-topbar>
-          <nuri-topbar-leading>
-            <nuri-icon name="nuri"></nuri-icon>
-          </nuri-topbar-leading>
-          <nuri-topbar-trailing>
-            <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
-            <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
-          </nuri-topbar-trailing>
-        </nuri-topbar>
+      <nuri-screen>
+        <nuri-header safe-area-top chrome="canvas">
+          <nuri-topbar>
+            <nuri-topbar-leading>
+              <nuri-icon name="nuri"></nuri-icon>
+            </nuri-topbar-leading>
+            <nuri-topbar-trailing>
+              <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
+              <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
+            </nuri-topbar-trailing>
+          </nuri-topbar>
+        </nuri-header>
 
         <nuri-scroll>
           <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
@@ -85,20 +91,22 @@
           </nuri-view>
         </nuri-scroll>
 
-        <nuri-tab-bar>
-          <nuri-tab-bar-item aria-label="Bitcoin wallet">
-            <nuri-tab-bar-item-icon name="bitcoin-wallet"></nuri-tab-bar-item-icon>
-            <nuri-tab-bar-item-label>€ 36.50</nuri-tab-bar-item-label>
-          </nuri-tab-bar-item>
-          <nuri-tab-bar-item selected aria-label="Bank account">
-            <nuri-tab-bar-item-icon name="bank"></nuri-tab-bar-item-icon>
-            <nuri-tab-bar-item-label>€ 18.90</nuri-tab-bar-item-label>
-          </nuri-tab-bar-item>
-          <nuri-tab-bar-item aria-label="Euro wallet">
-            <nuri-tab-bar-item-icon name="euro-wallet"></nuri-tab-bar-item-icon>
-            <nuri-tab-bar-item-label>€ 25.70</nuri-tab-bar-item-label>
-          </nuri-tab-bar-item>
-        </nuri-tab-bar>
+        <nuri-footer safe-area-bottom chrome="canvas">
+          <nuri-tab-bar>
+            <nuri-tab-bar-item aria-label="Bitcoin wallet">
+              <nuri-tab-bar-item-icon name="bitcoin-wallet"></nuri-tab-bar-item-icon>
+              <nuri-tab-bar-item-label>€ 36.50</nuri-tab-bar-item-label>
+            </nuri-tab-bar-item>
+            <nuri-tab-bar-item selected aria-label="Bank account">
+              <nuri-tab-bar-item-icon name="bank"></nuri-tab-bar-item-icon>
+              <nuri-tab-bar-item-label>€ 18.90</nuri-tab-bar-item-label>
+            </nuri-tab-bar-item>
+            <nuri-tab-bar-item aria-label="Euro wallet">
+              <nuri-tab-bar-item-icon name="euro-wallet"></nuri-tab-bar-item-icon>
+              <nuri-tab-bar-item-label>€ 25.70</nuri-tab-bar-item-label>
+            </nuri-tab-bar-item>
+          </nuri-tab-bar>
+        </nuri-footer>
       </nuri-screen>
     </template>
   </nuri-demo>
@@ -106,16 +114,18 @@
   <!-- EURO screen · the euro wallet destination is active. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="euro">
     <template>
-      <nuri-screen safe-area>
-        <nuri-topbar>
-          <nuri-topbar-leading>
-            <nuri-icon name="nuri"></nuri-icon>
-          </nuri-topbar-leading>
-          <nuri-topbar-trailing>
-            <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
-            <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
-          </nuri-topbar-trailing>
-        </nuri-topbar>
+      <nuri-screen>
+        <nuri-header safe-area-top chrome="canvas">
+          <nuri-topbar>
+            <nuri-topbar-leading>
+              <nuri-icon name="nuri"></nuri-icon>
+            </nuri-topbar-leading>
+            <nuri-topbar-trailing>
+              <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
+              <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
+            </nuri-topbar-trailing>
+          </nuri-topbar>
+        </nuri-header>
 
         <nuri-scroll>
           <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
@@ -128,20 +138,22 @@
           </nuri-view>
         </nuri-scroll>
 
-        <nuri-tab-bar>
-          <nuri-tab-bar-item aria-label="Bitcoin wallet">
-            <nuri-tab-bar-item-icon name="bitcoin-wallet"></nuri-tab-bar-item-icon>
-            <nuri-tab-bar-item-label>€ 36.50</nuri-tab-bar-item-label>
-          </nuri-tab-bar-item>
-          <nuri-tab-bar-item aria-label="Bank account">
-            <nuri-tab-bar-item-icon name="bank"></nuri-tab-bar-item-icon>
-            <nuri-tab-bar-item-label>€ 18.90</nuri-tab-bar-item-label>
-          </nuri-tab-bar-item>
-          <nuri-tab-bar-item selected aria-label="Euro wallet">
-            <nuri-tab-bar-item-icon name="euro-wallet"></nuri-tab-bar-item-icon>
-            <nuri-tab-bar-item-label>€ 25.70</nuri-tab-bar-item-label>
-          </nuri-tab-bar-item>
-        </nuri-tab-bar>
+        <nuri-footer safe-area-bottom chrome="canvas">
+          <nuri-tab-bar>
+            <nuri-tab-bar-item aria-label="Bitcoin wallet">
+              <nuri-tab-bar-item-icon name="bitcoin-wallet"></nuri-tab-bar-item-icon>
+              <nuri-tab-bar-item-label>€ 36.50</nuri-tab-bar-item-label>
+            </nuri-tab-bar-item>
+            <nuri-tab-bar-item aria-label="Bank account">
+              <nuri-tab-bar-item-icon name="bank"></nuri-tab-bar-item-icon>
+              <nuri-tab-bar-item-label>€ 18.90</nuri-tab-bar-item-label>
+            </nuri-tab-bar-item>
+            <nuri-tab-bar-item selected aria-label="Euro wallet">
+              <nuri-tab-bar-item-icon name="euro-wallet"></nuri-tab-bar-item-icon>
+              <nuri-tab-bar-item-label>€ 25.70</nuri-tab-bar-item-label>
+            </nuri-tab-bar-item>
+          </nuri-tab-bar>
+        </nuri-footer>
       </nuri-screen>
     </template>
   </nuri-demo>

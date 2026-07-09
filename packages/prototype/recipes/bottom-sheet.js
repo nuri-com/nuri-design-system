@@ -8,6 +8,9 @@
 
 import { bottomSheetChrome } from '../generated/bottom-sheet-chrome.js';
 import '../primitives/view.js';
+import '../primitives/header.js';
+import '../primitives/scroll.js';
+import '../primitives/footer.js';
 import './bottom-sheet-panel.js';
 import './topbar.js';
 

@@ -55,6 +55,39 @@ function mount(el) {
 }
 const classesOf = (el) => [...el.classList].sort();
 
+test('primitive TabBar · open host captures authored item slots before item upgrade', async () => {
+  document.body.innerHTML = `
+    <nuri-tab-bar>
+      <nuri-tab-bar-item selected aria-label="Wallet">
+        <nuri-tab-bar-item-icon name="bitcoin-wallet"></nuri-tab-bar-item-icon>
+        <nuri-tab-bar-item-label>€ 36.50</nuri-tab-bar-item-label>
+      </nuri-tab-bar-item>
+      <nuri-tab-bar-item aria-label="Bank">
+        <nuri-tab-bar-item-icon name="bank"></nuri-tab-bar-item-icon>
+        <nuri-tab-bar-item-label>€ 18.90</nuri-tab-bar-item-label>
+      </nuri-tab-bar-item>
+    </nuri-tab-bar>
+  `;
+
+  await import('../recipes/tab-bar.js');
+  await tick();
+
+  const tabBar = document.querySelector('nuri-tab-bar');
+  assert.ok(tabBar, 'the open tab-bar host upgrades');
+  assert.equal(tabBar.children.length, 2, 'the authored items remain the bar children');
+
+  const firstItem = tabBar.querySelector('nuri-tab-bar-item');
+  const button = firstItem?.querySelector('nuri-pressable > button.nuri-interactive');
+  assert.ok(button, 'the item owns one visible interactive button');
+  assert.equal(button.querySelector('button'), null, 'the item must not render a nested native button');
+  assert.deepEqual(
+    classesOf(button),
+    ['nuri-interactive', 'nuri-palette', 'nuri-stack'],
+    'the item root namespaces land on the painting button',
+  );
+  assert.equal(button.textContent.trim(), '€ 36.50');
+});
+
 test('primitive Scroll · dock insets reflect onto the content-inset path', () => {
   const scroll = document.createElement('nuri-scroll');
   scroll.setAttribute('inset-top', 'dock');
