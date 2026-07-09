@@ -1,7 +1,7 @@
 ---
 title: Typography
 layout: default
-nav_order: 4
+nav_order: 2
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/generated/data/tokens.ts · packages/prototype/generated/styles/typography.css · packages/prototype/generated/styles/tokens-primitive.css

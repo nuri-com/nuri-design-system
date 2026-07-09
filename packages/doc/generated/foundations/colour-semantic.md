@@ -1,7 +1,7 @@
 ---
 title: Colour Semantic
 layout: default
-nav_order: 2
+nav_order: 4
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/tokens/colours.ts

@@ -1,13 +1,13 @@
 ---
-title: Interactive
+title: Interactive Axis
 layout: default
-nav_order: 4
+nav_order: 9
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/axes/interactive-effects.ts
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
-# Interactive
+# Interactive Axis
 
 The bespoke **interactive** axis — interaction decomposed into independent opt-ins (`pressColor` · `pressScale` · `disabledOpacity`), each one source realized on both targets: RN in production, web for prototyping and these docs. The `nuri-interactive` **chrome** below (affordance · focus · the disabled guard) is web-only realization support, not part of the axis.
 

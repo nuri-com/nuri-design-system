@@ -11,7 +11,7 @@ nav_order: 6
 
 ## API
 
-### ListActionProps
+### List Action Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
@@ -20,7 +20,7 @@ nav_order: 6
 | `accessibilityLabel` | no | `string` | pressable behaviour |
 | `children` | no | `React.ReactNode` | composition children |
 
-### ListActionLeadingAvatarProps
+### List Action Leading Avatar Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
@@ -30,31 +30,31 @@ nav_order: 6
 
 > `children` is not accepted (`children?: never`).
 
-### ListActionTextProps
+### List Action Text Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `children` | no | `React.ReactNode` | slot content |
 
-### ListActionTextMutedProps
+### List Action Text Muted Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `children` | no | `React.ReactNode` | slot content |
 
-### ListActionTrailingTextProps
+### List Action Trailing Text Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `children` | no | `React.ReactNode` | slot content |
 
-### ListActionTrailingTextMutedProps
+### List Action Trailing Text Muted Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `children` | no | `React.ReactNode` | slot content |
 
-### ListActionTrailIconProps
+### List Action Trail Icon Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |

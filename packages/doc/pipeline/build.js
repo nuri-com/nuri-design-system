@@ -106,7 +106,7 @@ async function buildAxisDocs() {
   for (const entry of AXIS_DOCS) {
     const ir = entry.build(d);
     const out = resolve(AXES_OUT, `${entry.source}.md`);
-    await writeFile(out, emitAxisPage(ir, { nav: entry.nav, src: entry.src, lead: entry.lead }), 'utf8');
+    await writeFile(out, emitAxisPage({ ...ir, title: entry.title }, { nav: entry.nav, src: entry.src, lead: entry.lead }), 'utf8');
     reports.push({ family: 'axis', source: entry.source, detail: ir.kind, out });
   }
   return reports;

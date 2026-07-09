@@ -11,7 +11,7 @@ nav_order: 9
 
 ## API
 
-### TabBarItemProps
+### Tab Bar Item Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
@@ -21,7 +21,7 @@ nav_order: 9
 | `selected` | no | `boolean` | state axis |
 | `children` | no | `React.ReactNode` | composition children |
 
-### TabBarItemIconProps
+### Tab Bar Item Icon Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
@@ -29,7 +29,7 @@ nav_order: 9
 
 > `children` is not accepted (`children?: never`).
 
-### TabBarItemLabelProps
+### Tab Bar Item Label Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |

@@ -1,13 +1,13 @@
 ---
-title: Stack
+title: Stack Axis
 layout: default
-nav_order: 1
+nav_order: 6
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/spec/axes/resolve-map.ts · property-spelling.ts
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
-# Stack
+# Stack Axis
 
 The agnostic **stack** namespace — flexbox layout (direction · alignment · gap · wrap · fill) as a Field table: one mapping, both targets.
 

@@ -11,7 +11,7 @@ nav_order: 7
 
 ## API
 
-### TextFieldProps
+### Text Field Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
@@ -27,13 +27,13 @@ nav_order: 7
 | `accessibilityLabel` | no | `string` | input behaviour |
 | `children` | no | `React.ReactNode` | composition children |
 
-### TextFieldLabelProps
+### Text Field Label Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `children` | yes | `string` | slot content |
 
-### TextFieldButtonProps
+### Text Field Button Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
@@ -42,7 +42,7 @@ nav_order: 7
 | `disabled` | no | `boolean` | pressable behaviour |
 | `accessibilityLabel` | no | `string` | pressable behaviour |
 
-### TextFieldIconButtonProps
+### Text Field Icon Button Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |

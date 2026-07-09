@@ -11,7 +11,7 @@ nav_order: 10
 
 ## API
 
-### TopbarProps
+### Topbar Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
@@ -19,19 +19,19 @@ nav_order: 10
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `children` | no | `React.ReactNode` | default content slot |
 
-### TopbarLeadingProps
+### Topbar Leading Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `children` | no | `React.ReactNode` | slot content |
 
-### TopbarCenterProps
+### Topbar Center Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `children` | no | `React.ReactNode` | slot content |
 
-### TopbarTrailingProps
+### Topbar Trailing Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |

@@ -62,7 +62,7 @@ const PAGE_CONTRACT = {
   button: {
     kind: 'api', source: 'button', title: 'Button', nav: 1,
     cells: [
-      '### ButtonProps',
+      '### Button Props',
       "| `variant` | no | `'solid' | 'soft'` | style axis |",
       "| `size` | no | `'sm' | 'lg'` | style axis |",
       "| `fill` | no | `'natural' | 'even' | 'hug'` | style axis |",
@@ -71,9 +71,9 @@ const PAGE_CONTRACT = {
       '| `disabled` | no | `boolean` | pressable behaviour |',
       '| `accessibilityLabel` | no | `string` | pressable behaviour |',
       '| `children` | no | `React.ReactNode` | default content slot |',
-      '### ButtonTextProps',
+      '### Button Text Props',
       '| `children` | no | `React.ReactNode` | slot content |',
-      '### ButtonIconProps',
+      '### Button Icon Props',
       '| `name` | yes | `IconName` | scalar icon name |',
       '> `children` is not accepted (`children?: never`).',
     ],
@@ -82,13 +82,13 @@ const PAGE_CONTRACT = {
   alert: {
     kind: 'api', source: 'alert', title: 'Alert', nav: 2,
     cells: [
-      '### AlertProps',
+      '### Alert Props',
       "| `variant` | no | `'soft' | 'ghost'` | style axis |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
       '| `children` | no | `React.ReactNode` | default content slot |',
-      '### AlertIconProps',
+      '### Alert Icon Props',
       '| `name` | yes | `IconName` | scalar icon name |',
-      '### AlertButtonProps',
+      '### Alert Button Props',
       '| `onPress` | no | `() => void` | pressable behaviour |',
       '| `accessibilityLabel` | no | `string` | pressable behaviour |',
       '> `children` is not accepted (`children?: never`).',
@@ -131,18 +131,18 @@ const PAGE_CONTRACT = {
       // list-action has NO default:true sink — children exist for typed
       // leaf-slot composition only (the honest-children contract).
       '| `children` | no | `React.ReactNode` | composition children |',
-      '### ListActionLeadingAvatarProps',
+      '### List Action Leading Avatar Props',
       '| `name` | yes | `IconName` | scalar icon name |',
       "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | delegated component prop |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | delegated component prop |",
-      '### ListActionTextMutedProps',
+      '### List Action Text Muted Props',
       '| `children` | no | `React.ReactNode` | slot content |',
-      '### ListActionTrailingTextMutedProps',
+      '### List Action Trailing Text Muted Props',
       '| `children` | no | `React.ReactNode` | slot content |',
-      '### ListActionTrailIconProps',
+      '### List Action Trail Icon Props',
       '> `children` is not accepted (`children?: never`).',
     ],
-    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '### ListActionContentProps', '### ListActionTrailingProps'],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '### List Action Content Props', '### List Action Trailing Props'],
   },
   'text-field': {
     kind: 'api', source: 'text-field', title: 'Text Field', nav: 7,
@@ -156,12 +156,12 @@ const PAGE_CONTRACT = {
       '| `onFocus` | no | `() => void` | input behaviour |',
       '| `onBlur` | no | `() => void` | input behaviour |',
       '| `accessibilityLabel` | no | `string` | input behaviour |',
-      '### TextFieldLabelProps',
+      '### Text Field Label Props',
       '| `children` | yes | `string` | slot content |',
-      '### TextFieldButtonProps',
+      '### Text Field Button Props',
       '| `children` | no | `React.ReactNode` | slot content |',
       '| `onPress` | no | `() => void` | pressable behaviour |',
-      '### TextFieldIconButtonProps',
+      '### Text Field Icon Button Props',
       '| `name` | yes | `IconName` | scalar icon name |',
       '| `onPress` | no | `() => void` | pressable behaviour |',
       '| `accessibilityLabel` | yes | `string` | pressable behaviour |',
@@ -186,10 +186,10 @@ const PAGE_CONTRACT = {
       '| `accessibilityLabel` | no | `string` | pressable behaviour |',
       '| `selected` | no | `boolean` | state axis |',
       '| `children` | no | `React.ReactNode` | composition children |',
-      '### TabBarItemIconProps',
+      '### Tab Bar Item Icon Props',
       '| `name` | yes | `IconName` | scalar icon name |',
       '> `children` is not accepted (`children?: never`).',
-      '### TabBarItemLabelProps',
+      '### Tab Bar Item Label Props',
       '| `children` | no | `React.ReactNode` | slot content |',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '| `icon` |', '| `label` | no | `string`'],
@@ -200,10 +200,10 @@ const PAGE_CONTRACT = {
       "| `surface` | no | `'canvas' | 'transparent'` | component prop |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
       '| `children` | no | `React.ReactNode` | default content slot |',
-      '### TopbarLeadingProps',
+      '### Topbar Leading Props',
       '| `children` | no | `React.ReactNode` | slot content |',
-      '### TopbarCenterProps',
-      '### TopbarTrailingProps',
+      '### Topbar Center Props',
+      '### Topbar Trailing Props',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
@@ -395,7 +395,7 @@ test('G · each generated/components/*.md re-emits identically from its source s
 // (the order note a chrome caption · §76) · the typography wrapper dispatch (muted + align).
 const AXIS_CONTRACT = {
   stack: {
-    nav: 1, title: 'Stack', section: '## Fields',
+    nav: 6, title: 'Stack Axis', section: '## Fields',
     cells: [
       // the spelling table: input → web/rn + the keyword value-source map
       '| `align` | `align-items` | `alignItems` | `start` → `flex-start`<br>`center` → `center`<br>`end` → `flex-end`<br>`stretch` → `stretch`<br>`baseline` → `baseline` |',
@@ -406,7 +406,7 @@ const AXIS_CONTRACT = {
     includes: ['| Input | Web | RN | Value |'], // the locked grammar (CSS → Web · the N+47 rename)
   },
   box: {
-    nav: 2, title: 'Box', section: '## Fields',
+    nav: 7, title: 'Box Axis', section: '## Fields',
     cells: [
       // the canonical-id → per-target spelling (logical web · de-logicalized RN)
       '| `paddingX` | `padding-inline` | `paddingHorizontal` | `space` scale |',
@@ -416,7 +416,7 @@ const AXIS_CONTRACT = {
     includes: ['| Input | Web | RN | Value |'], // the locked grammar (CSS → Web · the N+47 rename)
   },
   palette: {
-    nav: 3, title: 'Palette', section: '## Variant',
+    nav: 8, title: 'Palette Axis', section: '## Variant',
     cells: [
       // a resolving swatch (live var() + role NAME + default-scope hex · all 4 channels
       // incl. the trailing Border em-dash — pinned to the row END so the Border cell
@@ -433,7 +433,7 @@ const AXIS_CONTRACT = {
   interactive: {
     // SEED-1a: agnostic opts come from spec; web selector/chrome/order facts come from
     // the prototype-owned web projection.
-    nav: 4, title: 'Interactive', section: '## Effects',
+    nav: 9, title: 'Interactive Axis', section: '## Effects',
     cells: [
       // the agnostic opt-in: assembled web selector → decl · the RN realization · the gate
       '| `pressScale` | `.nuri-interactive[data-press-scale]:active, .nuri-interactive[data-press-scale][data-pressed]` → `transform: scale(var(--nuri-interaction-press-scale))` | `transform: [{ scale }] ← interaction.pressScale` | opt-in · `[data-press-scale]` |',
@@ -455,7 +455,7 @@ const AXIS_CONTRACT = {
     // RE-POINTED (decision 77 · the de-fusion) — the PRIMARY section is now the agnostic
     // `size` type-step axis (the Input|Web|RN grammar this spike LOCKS for the fan-out);
     // the wrapper is demoted to a web-only prose section.
-    nav: 5, title: 'Typography', section: '## Size',
+    nav: 10, title: 'Typography Axis', section: '## Size',
     cells: [
       // the size axis (the spike): the type step → web [data-type-style] / RN typeStyle,
       // the Value a REFERENCE to the type scale (Foundations · A4c · not restated).
@@ -507,7 +507,7 @@ test('G · each generated/axes/*.md re-emits identically from its axis SoT', asy
     const ir = entry.build(d);
     assert.equal(
       readAxis(entry.source),
-      emitAxisPage(ir, { nav: entry.nav, src: entry.src, lead: entry.lead }),
+      emitAxisPage({ ...ir, title: entry.title }, { nav: entry.nav, src: entry.src, lead: entry.lead }),
       `generated/axes/${entry.source}.md is stale or hand-edited — run \`npm run build -w @nuri/doc\`.`,
     );
   }
@@ -558,7 +558,7 @@ test('G · each generated/axes/*.md re-emits identically from its axis SoT', asy
 // shape · decision 77 · 6 sizes + the orthogonal emphasis weight · NOT the old `Em` twins).
 const FOUNDATION_CONTRACT = {
   'colour-primitive': {
-    title: 'Colour Primitive', nav: 1, section: '## Neutral (cream)',
+    title: 'Colour Primitive', nav: 5, section: '## Neutral (cream)',
     cells: [
       // a themed literal swatch row (cream step 1 · light + dark · theme-FIXED literals)
       '| `1` | <span class="nuri-doc-swatch" style="background:#fffdf2"></span> `#fffdf2` | <span class="nuri-doc-swatch" style="background:#12110b"></span> `#12110b` |',
@@ -570,7 +570,7 @@ const FOUNDATION_CONTRACT = {
     includes: ['## Lilac', '## Black alpha', '## White alpha'],
   },
   'colour-semantic': {
-    title: 'Colour Semantic', nav: 2, section: '## Chrome',
+    title: 'Colour Semantic', nav: 4, section: '## Chrome',
     cells: [
       // a semantic role → the cascade ref + a LIVE var() swatch + the default-scope hex
       '| `bg-canvas` | `neutral.1.light` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-canvas)"></span> `#fffdf2` |',
@@ -594,7 +594,7 @@ const FOUNDATION_CONTRACT = {
     includes: ['## Size', '## Radius', '## Ratio', '## Border', '| Token | Cascade | Value |'],
   },
   typography: {
-    title: 'Typography', nav: 4, section: '## Scale',
+    title: 'Typography', nav: 2, section: '## Scale',
     cells: [
       // the type-step composite (the resolved DATA projection · units in the header)
       '| `md` | `17` | `1.29` | `400` | `-0.02` |',

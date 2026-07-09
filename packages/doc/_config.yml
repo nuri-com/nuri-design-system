@@ -9,11 +9,9 @@
 # assets/nuri/) so the <nuri-demo> stories hydrate. The stories are authored
 # partials under _includes/demo/ (a consumer story · decision 57.2 · NOT generated).
 #
-# Nav = 3 sections matching the cascade (Foundations · Axes · Components). The
-# generated component + axis + foundation pages are nested under "Components" / "Axes" /
-# "Foundations" via the front-matter DEFAULTS below (parent: …) — injected at Jekyll time
-# so the generated .md stay BYTE-IDENTICAL (doc-gen ⊥ Jekyll nav). All 3 families are now
-# generated (decision 75's set CLOSED · Foundations populated at A4c · N+48).
+# Nav = consumer reference first: Components is the only visible parent section.
+# Generated foundation and axis pages are top-level pages with explicit nav_order
+# values emitted by doc-gen, so there is no extra parent-page click.
 # ──────────────────────────────────────────────────────────────
 
 title: Nuri
@@ -44,24 +42,15 @@ nav_external_links:
     url: /assets/playground/pages/index.html
     hide_icon: false
 
-# Nest the GENERATED pages under their nav section WITHOUT editing them (the doc-gen
-# emits them byte-identical · the nav is a Jekyll-time concern). just-the-docs matches
-# a child's `parent` to a page's `title` (components.md · title: Components · axes.md ·
-# title: Axes · foundations.md · title: Foundations). The token family lands under the
-# same mechanism (scope: generated/foundations · A4c · N+48).
+# Nest the GENERATED component pages under Components WITHOUT editing them. Axis and
+# foundation pages intentionally have no parent: Just the Docs hides child pages when
+# their parent has `nav_exclude: true`, so top-level generated pages are the release
+# IA path.
 defaults:
   - scope:
       path: "generated/components"
     values:
       parent: Components
-  - scope:
-      path: "generated/axes"
-    values:
-      parent: Axes
-  - scope:
-      path: "generated/foundations"
-    values:
-      parent: Foundations
 
 # Keep Jekyll from emitting non-page files + the frozen / source / staged-source
 # trees as pages. (assets/nuri/** is the STAGED runtime static output — SERVED,
