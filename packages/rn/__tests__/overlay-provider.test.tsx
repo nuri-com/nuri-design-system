@@ -19,10 +19,7 @@ import { BackHandler, Keyboard, KeyboardAvoidingView, Platform, ScrollView, Text
 import { NuriThemeProvider } from '../theme';
 import {
   BottomSheet,
-  BottomSheetFooter,
   BottomSheetPanel,
-  BottomSheetScroll,
-  BottomSheetTopbar,
   Button,
   Footer,
   Header,
@@ -320,7 +317,7 @@ describe('BottomSheet — registers into the overlay outlet', () => {
 
 describe('BottomSheet — keyboard-reachable form composition', () => {
   // The migrated overlay subtree keeps its KeyboardAvoidingView, and composing
-  // BottomSheetScroll keeps fields in the body scroll while BottomSheetFooter is
+  // Scroll keeps fields in the body scroll while Footer is
   // fixed outside it; measured footer height becomes the scroll's bottom inset.
   // LIMITATION (stated honestly): the actual keyboard push — KAV translating the
   // panel and the ScrollView scrolling the focused field above the keyboard — is
@@ -333,14 +330,14 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
         <OverlayProvider>
           <BottomSheet open detent="content">
             <BottomSheetPanel>
-              <BottomSheetScroll>
+              <Scroll>
                 <TextField value="" placeholder="Name">
                   <TextFieldLabel>Recipient</TextFieldLabel>
                 </TextField>
-              </BottomSheetScroll>
-              <BottomSheetFooter>
+              </Scroll>
+              <Footer>
                 <Button variant="solid">Save</Button>
-              </BottomSheetFooter>
+              </Footer>
             </BottomSheetPanel>
           </BottomSheet>
         </OverlayProvider>
@@ -350,20 +347,20 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     // The keyboard-avoidance host is present in the mounted overlay subtree…
     expect(tr.root.findAllByType(KeyboardAvoidingView).length).toBeGreaterThan(0);
     // …and the field's input plus fixed footer button label coexist under it;
-    // BottomSheetScroll owns field focus-scroll while the footer is represented
+    // Scroll owns field focus-scroll while the footer is represented
     // as measured bottom inset.
     expect(tr.root.findAllByType(TextInput).length).toBeGreaterThan(0);
     expect(textsInTree(tr)).toContain('Save');
     expect(textsInTree(tr)).toContain('Recipient');
   });
 
-  test('BottomSheetScroll provides the internal focus-scroll coordinator', () => {
+  test('Scroll provides the internal focus-scroll coordinator', () => {
     const captured = { api: null as FocusScrollApi | null };
     render(
       <NuriThemeProvider>
-        <BottomSheetScroll>
+        <Scroll>
           <FocusScrollProbe onReady={(next) => (captured.api = next)} />
-        </BottomSheetScroll>
+        </Scroll>
       </NuriThemeProvider>,
     );
 
@@ -372,19 +369,19 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     expect(api.requestScrollToFocusedInput).toEqual(expect.any(Function));
   });
 
-  test('BottomSheetTopbar and BottomSheetFooter measure into BottomSheetScroll insets', () => {
+  test('Header and Footer measure into Scroll insets', () => {
     const tr = render(
       <NuriThemeProvider>
         <OverlayProvider>
           <BottomSheet open detent="full">
             <BottomSheetPanel>
-              <BottomSheetTopbar>
+              <Header paddingTop="lg">
                 <Button>Close</Button>
-              </BottomSheetTopbar>
-              <BottomSheetScroll>
+              </Header>
+              <Scroll>
                 <Text>Body</Text>
-              </BottomSheetScroll>
-              <BottomSheetFooter
+              </Scroll>
+              <Footer
                 chrome="strong"
                 direction="row"
                 align="center"
@@ -394,7 +391,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
                 paddingY="xs"
               >
                 <Button variant="solid">Continue</Button>
-              </BottomSheetFooter>
+              </Footer>
             </BottomSheetPanel>
           </BottomSheet>
         </OverlayProvider>
@@ -439,19 +436,19 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     expect(flatStyle(scroll.props.style).maxHeight).toBe(scrollMaxHeightBeforeFooterMeasure);
   });
 
-  test('BottomSheetFooter composes authored bottom padding with safe-area bottom', () => {
+  test('Footer composes authored bottom padding with safe-area bottom', () => {
     const tr = render(
       <NuriThemeProvider>
         <NuriSafeAreaProvider bottom={34}>
           <OverlayProvider>
-            <BottomSheet open detent="full" safeAreaBottom>
+            <BottomSheet open detent="full">
               <BottomSheetPanel>
-                <BottomSheetScroll>
+                <Scroll safeAreaBottom>
                   <Text>Body</Text>
-                </BottomSheetScroll>
-                <BottomSheetFooter direction="column" align="stretch" paddingY="sm" paddingX="lg">
+                </Scroll>
+                <Footer safeAreaBottom direction="column" align="stretch" paddingY="sm" paddingX="lg">
                   <Button variant="solid">Continue</Button>
-                </BottomSheetFooter>
+                </Footer>
               </BottomSheetPanel>
             </BottomSheet>
           </OverlayProvider>
@@ -479,19 +476,19 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBe(90);
   });
 
-  test('BottomSheetFooter keeps legacy root safe-area intent separate from raw host inset', () => {
+  test('Footer ignores raw host safe-area inset unless requested', () => {
     const tr = render(
       <NuriThemeProvider>
         <NuriSafeAreaProvider bottom={34}>
           <OverlayProvider>
             <BottomSheet open detent="full">
               <BottomSheetPanel>
-                <BottomSheetScroll>
+                <Scroll>
                   <Text>Body</Text>
-                </BottomSheetScroll>
-                <BottomSheetFooter paddingY="sm">
+                </Scroll>
+                <Footer paddingY="sm">
                   <Button variant="solid">Continue</Button>
-                </BottomSheetFooter>
+                </Footer>
               </BottomSheetPanel>
             </BottomSheet>
           </OverlayProvider>
@@ -541,16 +538,16 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBe(34);
   });
 
-  test('BottomSheet safeAreaBottom reserves scroll-only content when there is no footer', () => {
+  test('Scroll safeAreaBottom reserves scroll-only content when there is no footer', () => {
     const tr = render(
       <NuriThemeProvider>
         <NuriSafeAreaProvider bottom={34}>
           <OverlayProvider>
-            <BottomSheet open detent="full" safeAreaBottom>
+            <BottomSheet open detent="full">
               <BottomSheetPanel>
-                <BottomSheetScroll>
+                <Scroll safeAreaBottom>
                   <Text>Body</Text>
-                </BottomSheetScroll>
+                </Scroll>
               </BottomSheetPanel>
             </BottomSheet>
           </OverlayProvider>
@@ -584,7 +581,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     expect(scrollStyle.flex).toBeUndefined();
   });
 
-  test('BottomSheetFooter follows the keyboard on full sheets', () => {
+  test('Footer follows the keyboard on full sheets', () => {
     const keyboardHandlers: Record<string, Array<(event: { endCoordinates: { height: number; screenY: number } }) => void>> = {};
     const addSpy = jest
       .spyOn(Keyboard, 'addListener')
@@ -599,14 +596,14 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
         <NuriThemeProvider>
           <NuriSafeAreaProvider bottom={34}>
             <OverlayProvider>
-              <BottomSheet open detent="full" safeAreaBottom>
+              <BottomSheet open detent="full">
                 <BottomSheetPanel>
-                  <BottomSheetScroll>
+                  <Scroll>
                     <Text>Body</Text>
-                  </BottomSheetScroll>
-                  <BottomSheetFooter paddingY="sm" paddingBottom="none">
+                  </Scroll>
+                  <Footer safeAreaBottom paddingY="sm">
                     <Button variant="solid">Continue</Button>
-                  </BottomSheetFooter>
+                  </Footer>
                 </BottomSheetPanel>
               </BottomSheet>
             </OverlayProvider>
@@ -623,27 +620,27 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
 
       expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(0);
       expect(flatStyle(findFooterHost()!.props.style).paddingVertical).toBe(space.sm);
-      expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(34);
+      expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(space.sm + 34);
 
       act(() => {
         const showHandlers = keyboardHandlers.keyboardWillShow ?? keyboardHandlers.keyboardDidShow;
         for (const show of showHandlers) show({ endCoordinates: { height: 280, screenY: 0 } });
       });
       expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(280);
-      expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(0);
+      expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(space.sm);
 
       act(() => {
         const hideHandlers = keyboardHandlers.keyboardWillHide ?? keyboardHandlers.keyboardDidHide;
         for (const hide of hideHandlers) hide({ endCoordinates: { height: 0, screenY: 0 } });
       });
       expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(0);
-      expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(34);
+      expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(space.sm + 34);
     } finally {
       addSpy.mockRestore();
     }
   });
 
-  test('BottomSheetFooter does not double-count Android adjustResize', () => {
+  test('Footer does not double-count Android adjustResize', () => {
     const originalPlatformOS = Platform.OS;
     Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'android' });
 
@@ -662,12 +659,12 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
           <OverlayProvider>
             <BottomSheet open detent="full">
               <BottomSheetPanel>
-                <BottomSheetScroll>
+                <Scroll>
                   <Text>Body</Text>
-                </BottomSheetScroll>
-                <BottomSheetFooter>
+                </Scroll>
+                <Footer>
                   <Button variant="solid">Continue</Button>
-                </BottomSheetFooter>
+                </Footer>
               </BottomSheetPanel>
             </BottomSheet>
           </OverlayProvider>
@@ -700,7 +697,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     }
   });
 
-  test('BottomSheetScroll coordinator measures the focused input and scrolls just enough', () => {
+  test('Scroll coordinator measures the focused input and scrolls just enough', () => {
     jest.useFakeTimers();
     const originalRequestAnimationFrame = global.requestAnimationFrame;
     const originalCancelAnimationFrame = global.cancelAnimationFrame;
@@ -723,9 +720,9 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       act(() => {
         tr = TestRenderer.create(
           <NuriThemeProvider>
-            <BottomSheetScroll>
+            <Scroll>
               <FocusScrollProbe onReady={(next) => (captured.api = next)} />
-            </BottomSheetScroll>
+            </Scroll>
           </NuriThemeProvider>,
         );
       });
@@ -758,7 +755,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     }
   });
 
-  test('BottomSheetScroll scrolls a focused field away from the keyboard safe edge', () => {
+  test('Scroll scrolls a focused field away from the keyboard safe edge', () => {
     jest.useFakeTimers();
     const originalRequestAnimationFrame = global.requestAnimationFrame;
     const originalCancelAnimationFrame = global.cancelAnimationFrame;
@@ -791,9 +788,9 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       act(() => {
         tr = TestRenderer.create(
           <NuriThemeProvider>
-            <BottomSheetScroll>
+            <Scroll>
               <FocusScrollProbe onReady={(next) => (captured.api = next)} />
-            </BottomSheetScroll>
+            </Scroll>
           </NuriThemeProvider>,
         );
       });
@@ -828,7 +825,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     }
   });
 
-  test('BottomSheetScroll uses window coordinates to clear the keyboard edge', () => {
+  test('Scroll uses window coordinates to clear the keyboard edge', () => {
     jest.useFakeTimers();
     const originalRequestAnimationFrame = global.requestAnimationFrame;
     const originalCancelAnimationFrame = global.cancelAnimationFrame;
@@ -873,9 +870,9 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       act(() => {
         tr = TestRenderer.create(
           <NuriThemeProvider>
-            <BottomSheetScroll>
+            <Scroll>
               <FocusScrollProbe onReady={(next) => (captured.api = next)} />
-            </BottomSheetScroll>
+            </Scroll>
           </NuriThemeProvider>,
         );
       });
@@ -914,7 +911,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     }
   });
 
-  test('BottomSheetScroll does not scroll a focused field that is already visible after prior scroll', () => {
+  test('Scroll does not scroll a focused field that is already visible after prior scroll', () => {
     jest.useFakeTimers();
     const originalRequestAnimationFrame = global.requestAnimationFrame;
     const originalCancelAnimationFrame = global.cancelAnimationFrame;
@@ -947,9 +944,9 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       act(() => {
         tr = TestRenderer.create(
           <NuriThemeProvider>
-            <BottomSheetScroll>
+            <Scroll>
               <FocusScrollProbe onReady={(next) => (captured.api = next)} />
-            </BottomSheetScroll>
+            </Scroll>
           </NuriThemeProvider>,
         );
       });
@@ -988,7 +985,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     }
   });
 
-  test('BottomSheetScroll scrolls a hidden bottom-edge field with existing scroll offset', () => {
+  test('Scroll scrolls a hidden bottom-edge field with existing scroll offset', () => {
     jest.useFakeTimers();
     const originalRequestAnimationFrame = global.requestAnimationFrame;
     const originalCancelAnimationFrame = global.cancelAnimationFrame;
@@ -1021,9 +1018,9 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       act(() => {
         tr = TestRenderer.create(
           <NuriThemeProvider>
-            <BottomSheetScroll>
+            <Scroll>
               <FocusScrollProbe onReady={(next) => (captured.api = next)} />
-            </BottomSheetScroll>
+            </Scroll>
           </NuriThemeProvider>,
         );
       });
@@ -1062,7 +1059,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     }
   });
 
-  test('BottomSheetScroll focus-scroll safe top accounts for sticky topbar height', () => {
+  test('Scroll focus-scroll safe top accounts for sticky topbar height', () => {
     jest.useFakeTimers();
     const originalRequestAnimationFrame = global.requestAnimationFrame;
     const originalCancelAnimationFrame = global.cancelAnimationFrame;
@@ -1088,12 +1085,12 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
             <OverlayProvider>
               <BottomSheet open detent="full">
                 <BottomSheetPanel>
-                  <BottomSheetTopbar>
+                  <Header>
                     <Button>Close</Button>
-                  </BottomSheetTopbar>
-                  <BottomSheetScroll>
+                  </Header>
+                  <Scroll>
                     <FocusScrollProbe onReady={(next) => (captured.api = next)} />
-                  </BottomSheetScroll>
+                  </Scroll>
                 </BottomSheetPanel>
               </BottomSheet>
             </OverlayProvider>
@@ -1137,7 +1134,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     }
   });
 
-  test('BottomSheetScroll adds keyboard bottom padding when the viewport does not resize', () => {
+  test('Scroll adds keyboard bottom padding when the viewport does not resize', () => {
     const keyboardHandlers: Record<string, (event: { endCoordinates: { height: number } }) => void> = {};
     const addSpy = jest
       .spyOn(Keyboard, 'addListener')
@@ -1149,9 +1146,9 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     try {
       const tr = render(
         <NuriThemeProvider>
-          <BottomSheetScroll>
+          <Scroll>
             <Text>Field</Text>
-          </BottomSheetScroll>
+          </Scroll>
         </NuriThemeProvider>,
       );
 
@@ -1172,18 +1169,18 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     }
   });
 
-  test('focusing a descriptor TextField inside BottomSheetScroll requests the coordinator and preserves public onFocus', () => {
+  test('focusing a descriptor TextField inside Scroll requests the coordinator and preserves public onFocus', () => {
     const captured = { api: null as FocusScrollApi | null };
     const requestScrollToFocusedInput = jest.fn();
     const onFocus = jest.fn();
     const tr = render(
       <NuriThemeProvider>
-        <BottomSheetScroll>
+        <Scroll>
           <FocusScrollProbe onReady={(next) => (captured.api = next)} />
           <TextField value="" onFocus={onFocus} placeholder="Name">
             <TextFieldLabel>Recipient</TextFieldLabel>
           </TextField>
-        </BottomSheetScroll>
+        </Scroll>
       </NuriThemeProvider>,
     );
 
@@ -1200,7 +1197,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     expect(onFocus).toHaveBeenCalledTimes(1);
   });
 
-  test('without BottomSheetScroll, TextField focus remains a normal public focus event', () => {
+  test('without Scroll, TextField focus remains a normal public focus event', () => {
     const onFocus = jest.fn();
     const tr = render(
       <NuriThemeProvider>

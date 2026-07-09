@@ -184,20 +184,6 @@ export const COMPONENT_API_DOCS = [
     file: 'packages/rn/primitives/BottomSheet.tsx',
     type: 'BottomSheetPanelProps',
   },
-  {
-    source: 'bottom-sheet-scroll',
-    title: 'BottomSheet Scroll',
-    nav: 24,
-    file: 'packages/rn/primitives/BottomSheet.tsx',
-    type: 'BottomSheetScrollProps',
-  },
-  {
-    source: 'bottom-sheet-footer',
-    title: 'BottomSheet Footer',
-    nav: 25,
-    file: 'packages/rn/primitives/BottomSheet.tsx',
-    type: 'BottomSheetFooterProps',
-  },
 ];
 
 const NOTE_BY_PROP = {

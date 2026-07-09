@@ -33,14 +33,6 @@ const listActionDisplayName = nuriNames('list-action').rn;
 const componentRegistry = {
   "icon-avatar": IconAvatar as React.ComponentType<Record<string, unknown>>,
 };
-export type ListActionContentProps = {
-  children?: React.ReactNode;
-};
-export const ListActionContent = createNuriSlot<ListActionContentProps>("content", `${listActionDisplayName}Content`, 'children', listActionDisplayName);
-export type ListActionTrailingProps = {
-  children?: React.ReactNode;
-};
-export const ListActionTrailing = createNuriSlot<ListActionTrailingProps>("trailing", `${listActionDisplayName}Trailing`, 'children', listActionDisplayName);
 export type ListActionLeadingAvatarProps = {
   name: IconName;
   variant?: 'solid' | 'soft' | 'ghost' | 'subtle' | 'outline';

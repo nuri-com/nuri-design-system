@@ -37,14 +37,12 @@ import {
   TabBarItemIcon,
   TabBarItemLabel,
   BottomSheet,
-  BottomSheetFooter,
-  BottomSheetPanel,
-  BottomSheetScroll,
-  BottomSheetTopbar,
   Footer,
+  BottomSheetPanel,
+  Scroll,
   Header,
   Screen,
-  Scroll,
+  Topbar,
   TopbarCenter,
 } from '../index';
 
@@ -166,15 +164,18 @@ export const tabItemIconNoChildren = <TabBarItemIcon name="card">Wallet</TabBarI
 
 // ── BottomSheet family — Nuri contract, no raw engine surface ──
 export const bottomSheetOk = (
-  <BottomSheet open detent="content" scrim="dim" safeAreaBottom dismissible>
+  <BottomSheet open detent="content" scrim="dim" dismissible>
     <BottomSheetPanel>
-      <BottomSheetTopbar>
-        <TopbarCenter>Address</TopbarCenter>
-      </BottomSheetTopbar>
-      <BottomSheetScroll>
+      <Header paddingTop="lg">
+        <Topbar surface="transparent">
+          <TopbarCenter>Address</TopbarCenter>
+        </Topbar>
+      </Header>
+      <Scroll safeAreaBottom>
         <Button>Paste Bitcoin Address</Button>
-      </BottomSheetScroll>
-      <BottomSheetFooter
+      </Scroll>
+      <Footer
+        safeAreaBottom
         chrome="strong"
         direction="row"
         align="center"
@@ -184,38 +185,38 @@ export const bottomSheetOk = (
         paddingY="xs"
       >
         <Button>Continue</Button>
-      </BottomSheetFooter>
+      </Footer>
     </BottomSheetPanel>
   </BottomSheet>
 );
 // the two-detent surface: `content` and `full` are the whole set.
 export const bottomSheetContentOk = <BottomSheet open detent="content" />;
 export const bottomSheetFullOk = <BottomSheet open detent="full" />;
-export const bottomSheetFooterExplicitZeroBottomOk = <BottomSheetFooter paddingY="sm" paddingBottom="none"><Button>Done</Button></BottomSheetFooter>;
-// @ts-expect-error BottomSheet safeAreaBottom is boolean intent, not a source token.
-export const bottomSheetNoStringSafeAreaBottom = <BottomSheet open safeAreaBottom="device" />;
+export const bottomSheetFooterSafeAreaOk = <Footer safeAreaBottom paddingY="sm"><Button>Done</Button></Footer>;
+// @ts-expect-error BottomSheet no longer owns safe-area painting; use Scroll/Footer safeAreaBottom.
+export const bottomSheetNoSafeAreaBottom = <BottomSheet open safeAreaBottom />;
 // @ts-expect-error BottomSheet does not expose numeric inset transport.
 export const bottomSheetNoBottomInset = <BottomSheet open bottomInset={34} />;
 // @ts-expect-error BottomSheet collapsed to two detents — `large` was dropped (D1).
 export const bottomSheetNoLargeDetent = <BottomSheet open detent="large" />;
 // @ts-expect-error BottomSheet intentionally does NOT expose raw engine snapPoints.
 export const bottomSheetNoSnapPoints = <BottomSheet open snapPoints={['25%', '75%']} />;
-// @ts-expect-error BottomSheet intentionally has no header slot prop; compose BottomSheetTopbar instead.
+// @ts-expect-error BottomSheet intentionally has no header slot prop; compose Header instead.
 export const bottomSheetNoHeaderProp = <BottomSheet open header={<Button>Done</Button>} />;
 // @ts-expect-error BottomSheet intentionally has no content-slot props; compose children instead.
 export const bottomSheetNoFooterProp = <BottomSheet open footer={<Button>Done</Button>} />;
 // @ts-expect-error BottomSheetPanel is visual content only; detents live on BottomSheet.
 export const bottomSheetPanelNoDetent = <BottomSheetPanel detent="full" />;
-// @ts-expect-error BottomSheetPanel intentionally has no header slot prop; compose BottomSheetTopbar instead.
+// @ts-expect-error BottomSheetPanel intentionally has no header slot prop; compose Header instead.
 export const bottomSheetPanelNoHeaderProp = <BottomSheetPanel header={<Button>Done</Button>} />;
-// @ts-expect-error BottomSheetPanel intentionally has no footer slot prop; compose BottomSheetFooter instead.
+// @ts-expect-error BottomSheetPanel intentionally has no footer slot prop; compose Footer instead.
 export const bottomSheetPanelNoFooterProp = <BottomSheetPanel footer={<Button>Done</Button>} />;
-// @ts-expect-error BottomSheetFooter owns a constrained tray/floating-action surface, not the full View radius axis.
-export const bottomSheetFooterNoRadius = <BottomSheetFooter radius="lg"><Button>Done</Button></BottomSheetFooter>;
-// @ts-expect-error BottomSheetFooter does not expose View fill/size layout escape hatches.
-export const bottomSheetFooterNoFill = <BottomSheetFooter fill="grow"><Button>Done</Button></BottomSheetFooter>;
-// @ts-expect-error BottomSheetFooter is not an interactive primitive.
-export const bottomSheetFooterNoPress = <BottomSheetFooter onPress={() => undefined}><Button>Done</Button></BottomSheetFooter>;
+// @ts-expect-error Footer owns a constrained tray/floating-action surface, not the full View radius axis.
+export const bottomSheetFooterNoRadius = <Footer radius="lg"><Button>Done</Button></Footer>;
+// @ts-expect-error Footer does not expose View fill/size layout escape hatches.
+export const bottomSheetFooterNoFill = <Footer fill="grow"><Button>Done</Button></Footer>;
+// @ts-expect-error Footer is not an interactive primitive.
+export const bottomSheetFooterNoPress = <Footer onPress={() => undefined}><Button>Done</Button></Footer>;
 
 // ── Screen — full-screen primitive requests provider safe-area by boolean intent ──
 export const screenSafeAreaOk = <Screen safeArea><Button>Done</Button></Screen>;
