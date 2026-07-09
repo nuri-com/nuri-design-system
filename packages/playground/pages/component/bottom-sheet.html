@@ -39,14 +39,16 @@
 
         <nuri-bottom-sheet open detent="full" scrim="dim">
           <nuri-bottom-sheet-panel>
-          <nuri-bottom-sheet-topbar surface="transparent">
-            <nuri-topbar-trailing>
-              <nuri-icon-button icon="download" variant="soft" aria-label="Download"></nuri-icon-button>
-              <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
-            </nuri-topbar-trailing>
-          </nuri-bottom-sheet-topbar>
+          <nuri-header padding-top="lg">
+            <nuri-topbar surface="transparent">
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="download" variant="soft" aria-label="Download"></nuri-icon-button>
+                <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+          </nuri-header>
 
-          <nuri-bottom-sheet-scroll>
+          <nuri-scroll safe-area-bottom>
           <nuri-view direction="column" align="stretch" justify="start" gap="xl" padding-bottom="lg">
             <nuri-view direction="column" align="stretch" justify="start" gap="md">
               <nuri-view padding-x="lg">
@@ -176,7 +178,7 @@
               </nuri-list>
             </nuri-view>
           </nuri-view>
-          </nuri-bottom-sheet-scroll>
+          </nuri-scroll>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>
       </nuri-stack>
@@ -191,14 +193,16 @@
 
         <nuri-bottom-sheet open detent="full" scrim="dim">
           <nuri-bottom-sheet-panel>
-          <nuri-bottom-sheet-topbar surface="transparent">
-            <nuri-topbar-trailing>
-              <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
-              <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
-            </nuri-topbar-trailing>
-          </nuri-bottom-sheet-topbar>
+          <nuri-header padding-top="lg">
+            <nuri-topbar surface="transparent">
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+          </nuri-header>
 
-          <nuri-bottom-sheet-scroll>
+          <nuri-scroll safe-area-bottom>
           <nuri-view direction="column" align="stretch" justify="between" gap="xl" padding-x="lg" fill>
             <nuri-view direction="column" align="stretch" justify="start" gap="sm">
               <nuri-typography size="lg" emphasis>How much do you want to send?</nuri-typography>
@@ -242,9 +246,9 @@
               </nuri-view>
             </nuri-view>
           </nuri-view>
-          </nuri-bottom-sheet-scroll>
+          </nuri-scroll>
 
-          <nuri-bottom-sheet-footer
+          <nuri-footer
             direction="column"
             align="stretch"
             padding-y="sm"
@@ -252,7 +256,7 @@
             safe-area-bottom
           >
             <nuri-button size="lg" variant="solid" accent="lilac">Next</nuri-button>
-          </nuri-bottom-sheet-footer>
+          </nuri-footer>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>
       </nuri-stack>
@@ -267,13 +271,15 @@
 
         <nuri-bottom-sheet open detent="content" scrim="dim">
           <nuri-bottom-sheet-panel>
-          <nuri-bottom-sheet-topbar surface="transparent">
-            <nuri-topbar-trailing>
-              <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
-            </nuri-topbar-trailing>
-          </nuri-bottom-sheet-topbar>
+          <nuri-header padding-top="lg">
+            <nuri-topbar surface="transparent">
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+          </nuri-header>
 
-          <nuri-bottom-sheet-scroll>
+          <nuri-scroll safe-area-bottom>
           <nuri-view direction="column" align="stretch" justify="start" gap="xl" padding-bottom="lg">
             <nuri-view direction="column" align="stretch" justify="start" gap="sm" padding-x="lg">
               <nuri-typography size="lg" emphasis>Where do you want to send it?</nuri-typography>
@@ -300,7 +306,7 @@
               </nuri-list-action>
             </nuri-list>
           </nuri-view>
-          </nuri-bottom-sheet-scroll>
+          </nuri-scroll>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>
       </nuri-stack>
@@ -315,13 +321,15 @@
 
         <nuri-bottom-sheet open detent="full" scrim="dim">
           <nuri-bottom-sheet-panel>
-          <nuri-bottom-sheet-topbar surface="transparent">
-            <nuri-topbar-trailing>
-              <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
-            </nuri-topbar-trailing>
-          </nuri-bottom-sheet-topbar>
+          <nuri-header padding-top="lg">
+            <nuri-topbar surface="transparent">
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+          </nuri-header>
 
-          <nuri-bottom-sheet-scroll>
+          <nuri-scroll safe-area-bottom>
           <nuri-view direction="column" align="stretch" justify="start" gap="xl" padding-x="lg" fill>
             <nuri-view direction="column" align="stretch" justify="start" gap="sm">
               <nuri-typography size="lg" emphasis>Who is your recipient?</nuri-typography>
@@ -347,9 +355,9 @@
               </nuri-text-field>
             </nuri-view>
           </nuri-view>
-          </nuri-bottom-sheet-scroll>
+          </nuri-scroll>
 
-          <nuri-bottom-sheet-footer
+          <nuri-footer
             chrome="strong"
             direction="row"
             align="center"
@@ -359,7 +367,7 @@
             safe-area-bottom
           >
             <nuri-button size="sm" variant="solid" accent="lilac">Next</nuri-button>
-          </nuri-bottom-sheet-footer>
+          </nuri-footer>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>
       </nuri-stack>
@@ -374,13 +382,15 @@
 
         <nuri-bottom-sheet open detent="full" scrim="dim">
           <nuri-bottom-sheet-panel>
-          <nuri-bottom-sheet-topbar surface="transparent">
-            <nuri-topbar-trailing>
-              <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
-            </nuri-topbar-trailing>
-          </nuri-bottom-sheet-topbar>
+          <nuri-header padding-top="lg">
+            <nuri-topbar surface="transparent">
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+          </nuri-header>
 
-          <nuri-bottom-sheet-scroll>
+          <nuri-scroll safe-area-bottom>
           <nuri-view direction="column" align="stretch" justify="start" gap="xl" padding-x="lg" fill>
             <nuri-view direction="column" align="stretch" justify="start" gap="sm">
               <nuri-typography size="lg" emphasis>Who is your recipient?</nuri-typography>
@@ -406,9 +416,9 @@
               </nuri-text-field>
             </nuri-view>
           </nuri-view>
-          </nuri-bottom-sheet-scroll>
+          </nuri-scroll>
 
-          <nuri-bottom-sheet-footer
+          <nuri-footer
             chrome="canvas"
             direction="column"
             align="stretch"
@@ -417,7 +427,7 @@
             safe-area-bottom
           >
             <nuri-button size="lg" variant="solid" accent="lilac">Next</nuri-button>
-          </nuri-bottom-sheet-footer>
+          </nuri-footer>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>
       </nuri-stack>

@@ -2774,6 +2774,8 @@ nuri-demo:not(:defined) {
     --nuri-screen-safe-area-bottom: 0px;
     --nuri-screen-dock-top: 0px;
     --nuri-screen-dock-bottom: 0px;
+    --nuri-fixed-header-block: 0px;
+    --nuri-fixed-footer-block: 0px;
   }
 
   .nuri-screen[data-safe-area],
@@ -2784,6 +2786,39 @@ nuri-demo:not(:defined) {
   .nuri-screen[data-safe-area],
   .nuri-screen[data-safe-area-bottom] {
     --nuri-screen-safe-area-bottom: var(--nuri-device-safe-area-bottom, 0px);
+  }
+}
+
+
+/* @nuri/prototype primitive header · primitives/header.css */
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · HEADER
+ * Fixed top region for a local Screen or BottomSheetPanel.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design. Header composes box/stack/palette attrs and owns only
+   * structural fixed-region placement. */
+}
+
+@layer rules {
+  nuri-header {
+    display: contents;
+  }
+
+  nuri-header:not(:defined) {
+    display: block;
+  }
+
+  .nuri-header {
+    box-sizing: border-box;
+    inline-size: 100%;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 0;
+    z-index: 2;
   }
 }
 
@@ -2878,8 +2913,15 @@ nuri-demo:not(:defined) {
     --nuri-scroll-safe-area-bottom: 0px;
     --nuri-scroll-dock-top: 0px;
     --nuri-scroll-dock-bottom: 0px;
-    padding-block-start: calc(var(--nuri-scroll-safe-area-top) + var(--nuri-scroll-dock-top));
-    padding-block-end: calc(var(--nuri-scroll-safe-area-bottom) + var(--nuri-scroll-dock-bottom));
+    padding-block-start: calc(
+      var(--nuri-fixed-header-block, 0px) +
+      var(--nuri-scroll-safe-area-top) +
+      var(--nuri-scroll-dock-top)
+    );
+    padding-block-end: calc(
+      max(var(--nuri-fixed-footer-block, 0px), var(--nuri-scroll-safe-area-bottom)) +
+      var(--nuri-scroll-dock-bottom)
+    );
   }
 
   .nuri-scroll[data-inset-top="dock"] > .nuri-scroll__content {
@@ -2896,6 +2938,39 @@ nuri-demo:not(:defined) {
 
   .nuri-scroll[data-safe-area-bottom] > .nuri-scroll__content {
     --nuri-scroll-safe-area-bottom: var(--nuri-device-safe-area-bottom, 0px);
+  }
+}
+
+
+/* @nuri/prototype primitive footer · primitives/footer.css */
+/* ──────────────────────────────────────────────────────────────
+ * NURI · COMPONENT · FOOTER
+ * Fixed bottom region for a local Screen or BottomSheetPanel.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design. Footer composes box/stack/palette attrs and owns only
+   * structural fixed-region placement. */
+}
+
+@layer rules {
+  nuri-footer {
+    display: contents;
+  }
+
+  nuri-footer:not(:defined) {
+    display: block;
+  }
+
+  .nuri-footer {
+    box-sizing: border-box;
+    inline-size: 100%;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    z-index: 2;
   }
 }
 
@@ -3558,6 +3633,9 @@ nuri-demo:not(:defined) {
   }
 
   nuri-bottom-sheet > nuri-bottom-sheet-panel {
+    --nuri-fixed-header-block: 0px;
+    --nuri-fixed-footer-block: 0px;
+
     position: relative;
     z-index: 1;
     inline-size: 100%;
@@ -3599,6 +3677,15 @@ nuri-demo:not(:defined) {
   nuri-bottom-sheet[detent="full"] > nuri-bottom-sheet-panel {
     block-size: calc(100% - 40px);
     max-block-size: calc(100% - 40px);
+  }
+
+  nuri-bottom-sheet > nuri-bottom-sheet-panel > nuri-scroll {
+    max-block-size: 100%;
+  }
+
+  nuri-bottom-sheet[detent="full"] > nuri-bottom-sheet-panel > nuri-scroll {
+    flex: 1;
+    block-size: 100%;
   }
 
   nuri-bottom-sheet-scroll {

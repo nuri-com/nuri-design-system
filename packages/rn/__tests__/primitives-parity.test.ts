@@ -187,6 +187,38 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
     expect(webAttrs('scroll.js')).toEqual(['as', 'safe-area-top', 'safe-area-bottom', 'inset-top', 'inset-bottom']);
   });
 
+  test('web <nuri-header> exposes the fixed-region visual contract', () => {
+    expect(webAttrs('header.js')).toEqual([
+      'as',
+      'safe-area-top',
+      'chrome',
+      'direction',
+      'align',
+      'justify',
+      'gap',
+      'padding-x',
+      'padding-y',
+      'padding-top',
+      'padding-bottom',
+    ]);
+  });
+
+  test('web <nuri-footer> exposes the fixed-region visual contract', () => {
+    expect(webAttrs('footer.js')).toEqual([
+      'as',
+      'safe-area-bottom',
+      'chrome',
+      'direction',
+      'align',
+      'justify',
+      'gap',
+      'padding-x',
+      'padding-y',
+      'padding-top',
+      'padding-bottom',
+    ]);
+  });
+
   test('web <nuri-dock> exposes its local edge attr', () => {
     expect(webAttrs('dock.js')).toEqual(['edge']);
   });

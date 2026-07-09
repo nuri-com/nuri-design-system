@@ -77,6 +77,8 @@
     --nuri-screen-safe-area-bottom: 0px;
     --nuri-screen-dock-top: 0px;
     --nuri-screen-dock-bottom: 0px;
+    --nuri-fixed-header-block: 0px;
+    --nuri-fixed-footer-block: 0px;
   }
 
   .nuri-screen[data-safe-area],

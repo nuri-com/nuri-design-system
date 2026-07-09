@@ -87,8 +87,15 @@
     --nuri-scroll-safe-area-bottom: 0px;
     --nuri-scroll-dock-top: 0px;
     --nuri-scroll-dock-bottom: 0px;
-    padding-block-start: calc(var(--nuri-scroll-safe-area-top) + var(--nuri-scroll-dock-top));
-    padding-block-end: calc(var(--nuri-scroll-safe-area-bottom) + var(--nuri-scroll-dock-bottom));
+    padding-block-start: calc(
+      var(--nuri-fixed-header-block, 0px) +
+      var(--nuri-scroll-safe-area-top) +
+      var(--nuri-scroll-dock-top)
+    );
+    padding-block-end: calc(
+      max(var(--nuri-fixed-footer-block, 0px), var(--nuri-scroll-safe-area-bottom)) +
+      var(--nuri-scroll-dock-bottom)
+    );
   }
 
   .nuri-scroll[data-inset-top="dock"] > .nuri-scroll__content {

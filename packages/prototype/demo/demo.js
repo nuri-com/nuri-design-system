@@ -312,7 +312,9 @@
       // the dim exactly as it does on a real device. Non-sheet frames are
       // unaffected (they keep the in-flow safe-area chrome).
       const hasOverlay = /<nuri-bottom-sheet[\s/>]/.test(sourceHtml);
-      const hasScreenSafeArea = /<nuri-screen\b[^>]*\bsafe-area(?:-(?:top|bottom))?(?:=|\s|>)/.test(sourceHtml);
+      const hasScreenSafeArea =
+        /<nuri-screen\b[^>]*\bsafe-area(?:-(?:top|bottom))?(?:=|\s|>)/.test(sourceHtml) ||
+        /<nuri-(?:header|footer|scroll)\b[^>]*\bsafe-area(?:-(?:top|bottom))?(?:=|\s|>)/.test(sourceHtml);
 
       // The themeable <nuri-scope> wraps the SCREEN (cutout + status + viewport
       // + bottom), not the bezel: the dark hardware slab is fixed chrome, while
