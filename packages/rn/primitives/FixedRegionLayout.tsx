@@ -8,7 +8,6 @@ export type FixedRegionLayoutValue = {
   keyboardOffset: number;
   safeAreaTop: number;
   safeAreaBottom: number;
-  legacySafeAreaBottom: number;
   scrollMaxHeight?: number;
   dockTopInset: number;
   dockBottomInset: number;
@@ -23,7 +22,6 @@ export type FixedRegionLayoutProviderProps = {
   keyboardEnabled?: boolean;
   safeAreaTop?: number;
   safeAreaBottom?: number;
-  legacySafeAreaBottom?: number;
   scrollMaxHeight?: number;
   windowHeight?: number;
 };
@@ -34,7 +32,6 @@ const DEFAULT_LAYOUT_VALUE: FixedRegionLayoutValue = {
   keyboardOffset: 0,
   safeAreaTop: 0,
   safeAreaBottom: 0,
-  legacySafeAreaBottom: 0,
   dockTopInset: 0,
   dockBottomInset: 0,
   setHeaderHeight: () => undefined,
@@ -63,7 +60,6 @@ export const FixedRegionLayoutProvider: React.FC<FixedRegionLayoutProviderProps>
   keyboardEnabled = false,
   safeAreaTop = 0,
   safeAreaBottom = 0,
-  legacySafeAreaBottom,
   scrollMaxHeight,
   windowHeight,
 }) => {
@@ -101,7 +97,6 @@ export const FixedRegionLayoutProvider: React.FC<FixedRegionLayoutProviderProps>
       keyboardOffset,
       safeAreaTop: normalizeInset(safeAreaTop),
       safeAreaBottom: normalizeInset(safeAreaBottom),
-      legacySafeAreaBottom: normalizeInset(legacySafeAreaBottom ?? safeAreaBottom),
       scrollMaxHeight,
       dockTopInset,
       dockBottomInset,
@@ -116,7 +111,6 @@ export const FixedRegionLayoutProvider: React.FC<FixedRegionLayoutProviderProps>
       keyboardOffset,
       safeAreaTop,
       safeAreaBottom,
-      legacySafeAreaBottom,
       scrollMaxHeight,
       dockTopInset,
       dockBottomInset,

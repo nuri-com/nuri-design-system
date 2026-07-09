@@ -388,35 +388,33 @@ test('B5c · <nuri-list> preserves list-action children with shared nuri-list-* 
   assert.deepEqual([...list.querySelectorAll('nuri-icon')].map((el) => el.getAttribute('name')), ['bank', 'card']);
 });
 
-// ── The mixed-content / repetition contract (decision 83) — PAIRED with the RN
+// ── The grouping / repetition contract (decision 83) — PAIRED with the RN
 // render-smoke tests (packages/rn/__tests__/render-smoke.test.tsx · the
-// ListAction contract block): both engines resolve the same authored
-// composition to the same structure, or fail with the same named error.
-test('B6 · <nuri-list-action> · bare region children stay the region\'s own content, order preserved', async () => {
+// ListAction contract block): leaf slots auto-route through private anatomy
+// containers, while removed public region wrappers fail named.
+test('B6 · <nuri-list-action> · leaf slots auto-route into private content/trailing containers', async () => {
   const row = dom.window.document.createElement('nuri-list-action');
-  row.innerHTML = '<nuri-list-action-content>before<nuri-list-action-text>Bank account</nuri-list-action-text>after</nuri-list-action-content>';
+  row.innerHTML = [
+    '<nuri-list-action-text>Bank account</nuri-list-action-text>',
+    '<nuri-list-action-text-muted>Personal</nuri-list-action-text-muted>',
+    '<nuri-list-action-trailing-text>7.20 €</nuri-list-action-trailing-text>',
+    '<nuri-list-action-trailing-text-muted>13138 Sats</nuri-list-action-trailing-text-muted>',
+  ].join('');
   mount(row);
   await tick();
 
   const btn = row.querySelector('button.nuri-interactive');
   assert.ok(btn, 'the row mounts');
-  assert.equal(btn.children.length, 1, 'the content region renders exactly ONCE');
-  const region = btn.children[0];
-  assert.equal(region.tagName.toLowerCase(), 'nuri-view');
-  const sequence = [...region.childNodes].map((n) =>
-    n.nodeType === 3 ? `#text:${n.textContent}` : `${n.tagName.toLowerCase()}:${n.textContent}`,
-  );
-  assert.deepEqual(
-    sequence,
-    ['#text:before', 'nuri-typography:Bank account', '#text:after'],
-    'bare children mix with typed slots in authored order, inside the region',
-  );
+  assert.equal(btn.children.length, 2, 'content and trailing containers render exactly once');
+  assert.deepEqual([...btn.children].map((el) => el.tagName.toLowerCase()), ['nuri-view', 'nuri-view']);
+  assert.deepEqual([...btn.children[0].querySelectorAll('nuri-typography')].map((el) => el.textContent), ['Bank account', 'Personal']);
+  assert.deepEqual([...btn.children[1].querySelectorAll('nuri-typography')].map((el) => el.textContent), ['7.20 €', '13138 Sats']);
 });
 
-test('B7 · a typed slot targeting a part OUTSIDE its region fails named', () => {
+test('B7 · removed public content region wrapper fails named', () => {
   const row = dom.window.document.createElement('nuri-list-action');
-  row.innerHTML = '<nuri-list-action-content><nuri-list-action-trailing-text>Wrong</nuri-list-action-trailing-text></nuri-list-action-content>';
-  mountExpectingNamedError(row, /composition entry targets 'trailingText', which is not under 'content'/);
+  row.innerHTML = '<nuri-list-action-content><nuri-list-action-text>Bank account</nuri-list-action-text></nuri-list-action-content>';
+  mountExpectingNamedError(row, /'nuri-list-action' has no default content slot/);
 });
 
 test('B8 · a multiple:true slot repeats as a SEQUENCE of leaf instances', async () => {
@@ -449,7 +447,7 @@ test('B10 · bare children with NO default sink fail named', () => {
 
 test('B11 · a FOREIGN component\'s slot marker fails named', () => {
   const row = dom.window.document.createElement('nuri-list-action');
-  row.innerHTML = '<nuri-list-action-content><nuri-button-text>Wrong</nuri-button-text></nuri-list-action-content>';
+  row.innerHTML = '<nuri-button-text>Wrong</nuri-button-text>';
   mountExpectingNamedError(row, /foreign slot marker '<nuri-button-text>' — not a 'nuri-list-action' slot/);
 });
 

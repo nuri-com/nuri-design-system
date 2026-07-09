@@ -88,9 +88,6 @@ export {
   ListSeparator,
   BottomSheet,
   BottomSheetPanel,
-  BottomSheetTopbar,
-  BottomSheetScroll,
-  BottomSheetFooter,
 } from './primitives';
 export type {
   ViewProps,
@@ -109,9 +106,6 @@ export type {
   BottomSheetDetent,
   BottomSheetScrim,
   BottomSheetPanelProps,
-  BottomSheetTopbarProps,
-  BottomSheetScrollProps,
-  BottomSheetFooterProps,
 } from './primitives';
 
 // Generated component adapters (Path C · Phase 3). Each descriptor's `api` emits
@@ -141,11 +135,9 @@ export {
   IconButton,
   List,
   ListAction,
-  ListActionContent,
   ListActionLeadingAvatar,
   ListActionText,
   ListActionTextMuted,
-  ListActionTrailing,
   ListActionTrailingText,
   ListActionTrailingTextMuted,
   ListActionTrailIcon,
@@ -173,11 +165,9 @@ export type {
   IconButtonProps,
   ListProps,
   ListActionProps,
-  ListActionContentProps,
   ListActionLeadingAvatarProps,
   ListActionTextProps,
   ListActionTextMutedProps,
-  ListActionTrailingProps,
   ListActionTrailingTextProps,
   ListActionTrailingTextMutedProps,
   ListActionTrailIconProps,

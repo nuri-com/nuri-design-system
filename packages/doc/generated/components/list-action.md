@@ -20,18 +20,6 @@ nav_order: 6
 | `accessibilityLabel` | no | `string` | pressable behaviour |
 | `children` | no | `React.ReactNode` | composition children |
 
-### ListActionContentProps
-
-| Prop | Required | Type | Notes |
-| --- | --- | --- | --- |
-| `children` | no | `React.ReactNode` | slot content |
-
-### ListActionTrailingProps
-
-| Prop | Required | Type | Notes |
-| --- | --- | --- | --- |
-| `children` | no | `React.ReactNode` | slot content |
-
 ### ListActionLeadingAvatarProps
 
 | Prop | Required | Type | Notes |

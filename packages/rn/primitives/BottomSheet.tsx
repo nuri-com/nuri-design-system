@@ -24,11 +24,6 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import type {
-  BoxNS,
-  PaletteNS,
-  StackNS,
-} from '../contract';
-import type {
   LayoutChangeEvent,
   ViewStyle,
 } from 'react-native';
@@ -38,11 +33,7 @@ import { bottomSheetChrome } from '@nuri/spec/bottom-sheet-chrome';
 import { useOverlay } from '../overlay';
 import { useNuriSafeAreaInsets } from '../safe-area';
 import { BottomSheetPanel as GeneratedBottomSheetPanel } from '../generated/components/bottom-sheet-panel';
-import { Topbar as GeneratedTopbar, type TopbarProps } from '../generated/components/topbar';
-import { FixedRegionLayoutProvider, useFixedRegionLayout } from './FixedRegionLayout';
-import { Header } from './Header';
-import { Scroll } from './Scroll';
-import { useResolvedNode, withSurface } from './shared';
+import { FixedRegionLayoutProvider } from './FixedRegionLayout';
 
 export type BottomSheetDetent = 'content' | 'full';
 export type BottomSheetScrim = 'none' | 'dim';
@@ -51,30 +42,12 @@ export type BottomSheetProps = {
   open?: boolean;
   detent?: BottomSheetDetent;
   scrim?: BottomSheetScrim;
-  safeAreaBottom?: boolean;
   dismissible?: boolean;
   onOpenChange?: (open: boolean) => void;
   children?: React.ReactNode;
 };
 
 export type BottomSheetPanelProps = {
-  children?: React.ReactNode;
-};
-
-export type BottomSheetTopbarProps = TopbarProps;
-
-type BottomSheetFooterStyleProps =
-  Pick<PaletteNS, 'chrome'> &
-  Pick<StackNS, 'direction' | 'align' | 'justify' | 'gap'> &
-  Pick<BoxNS, 'paddingX' | 'paddingY' | 'paddingTop'> & {
-    paddingBottom?: NonNullable<BoxNS['paddingBottom']> | 'none';
-  };
-
-export type BottomSheetFooterProps = BottomSheetFooterStyleProps & {
-  children?: React.ReactNode;
-};
-
-export type BottomSheetScrollProps = {
   children?: React.ReactNode;
 };
 
@@ -99,16 +72,10 @@ const RN_SCRIM = {
 
 const AnimatedPressable = Animated.createAnimatedComponent(RNPressable);
 
-function numericPadding(style: ViewStyle, key: 'paddingBottom' | 'paddingVertical'): number {
-  const value = style[key];
-  return typeof value === 'number' ? value : 0;
-}
-
 export const BottomSheet: React.FC<BottomSheetProps> = ({
   open = false,
   detent = 'content',
   scrim = 'dim',
-  safeAreaBottom = false,
   dismissible = true,
   onOpenChange,
   children,
@@ -225,7 +192,6 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
           <FixedRegionLayoutProvider
             keyboardEnabled={detent === 'full'}
             safeAreaBottom={safeAreaInsets.bottom}
-            legacySafeAreaBottom={safeAreaBottom ? safeAreaInsets.bottom : 0}
             scrollMaxHeight={scrollMaxHeight}
             windowHeight={windowHeight}
           >
@@ -269,61 +235,6 @@ export const BottomSheetPanel: React.FC<BottomSheetPanelProps> = ({ children }) 
 );
 BottomSheetPanel.displayName = 'BottomSheetPanel';
 
-export const BottomSheetTopbar: React.FC<BottomSheetTopbarProps> = ({ children, surface = 'transparent', ...props }) => {
-  return (
-    <Header paddingTop="lg">
-      <GeneratedTopbar {...props} surface={surface}>{children}</GeneratedTopbar>
-    </Header>
-  );
-};
-BottomSheetTopbar.displayName = 'BottomSheetTopbar';
-
-export const BottomSheetFooter: React.FC<BottomSheetFooterProps> = ({ children, ...props }) => {
-  const { keyboardOffset, legacySafeAreaBottom, setFooterHeight } = useFixedRegionLayout();
-  const measuredHeight = React.useRef(0);
-  const { node } = useResolvedNode(props);
-  const resolvedViewStyle = node.view as ViewStyle;
-  const authoredPaddingBottom =
-    props.paddingBottom !== undefined
-      ? numericPadding(resolvedViewStyle, 'paddingBottom')
-      : numericPadding(resolvedViewStyle, 'paddingVertical');
-  const effectiveSafeAreaBottom = keyboardOffset > 0 ? 0 : legacySafeAreaBottom;
-  const composedPaddingBottom =
-    authoredPaddingBottom > 0 || effectiveSafeAreaBottom > 0
-      ? { paddingBottom: authoredPaddingBottom + effectiveSafeAreaBottom }
-      : null;
-
-  React.useEffect(() => () => setFooterHeight(0), [setFooterHeight]);
-
-  const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
-    const next = Math.round(event.nativeEvent.layout.height);
-    if (measuredHeight.current === next) return;
-    measuredHeight.current = next;
-    setFooterHeight(next);
-  }, [setFooterHeight]);
-
-  return (
-    <RNView
-      onLayout={handleLayout}
-      style={[
-        styles.footer,
-        node.view,
-        keyboardOffset > 0 ? { bottom: keyboardOffset } : null,
-        composedPaddingBottom,
-      ]}
-    >
-      {withSurface(node.fg, children)}
-    </RNView>
-  );
-};
-BottomSheetFooter.displayName = 'BottomSheetFooter';
-
-export const BottomSheetScroll: React.FC<BottomSheetScrollProps> = ({ children }) => {
-  const { legacySafeAreaBottom } = useFixedRegionLayout();
-  return <Scroll safeAreaBottom={legacySafeAreaBottom > 0}>{children}</Scroll>;
-};
-BottomSheetScroll.displayName = 'BottomSheetScroll';
-
 const styles = StyleSheet.create({
   scrim: {
     ...StyleSheet.absoluteFillObject,
@@ -332,12 +243,5 @@ const styles = StyleSheet.create({
   host: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
-  },
-  footer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 2,
   },
 });

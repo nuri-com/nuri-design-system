@@ -246,8 +246,6 @@ const NAV_ORDER = {
   separator: 21,
   'bottom-sheet': 22,
   'bottom-sheet-panel': 23,
-  'bottom-sheet-scroll': 24,
-  'bottom-sheet-footer': 25,
 };
 
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);

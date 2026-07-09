@@ -16,7 +16,6 @@ nav_order: 22
 | `open` | no | `boolean` | sheet behaviour |
 | `detent` | no | `'content' | 'full'` | sheet behaviour |
 | `scrim` | no | `'none' | 'dim'` | sheet behaviour |
-| `safeAreaBottom` | no | `boolean` | safe-area reserve |
 | `dismissible` | no | `boolean` | sheet behaviour |
 | `onOpenChange` | no | `(open: boolean) => void` | sheet behaviour |
 | `children` | no | `React.ReactNode` | default content slot |

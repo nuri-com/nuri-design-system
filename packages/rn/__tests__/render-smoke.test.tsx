@@ -34,7 +34,6 @@ import {
   TopbarTrailing,
   List,
   ListAction,
-  ListActionContent,
   ListActionLeadingAvatar,
   ListActionText,
   ListActionTextMuted,
@@ -52,10 +51,10 @@ import {
   NuriIcon,
   ListSeparator,
   BottomSheet,
-  BottomSheetFooter,
+  Footer,
   BottomSheetPanel,
-  BottomSheetScroll,
-  BottomSheetTopbar,
+  Scroll,
+  Header,
   OverlayProvider,
 } from '../index';
 import { icons } from '../contract';
@@ -475,15 +474,17 @@ describe('render-smoke — the ergonomic components mount headless', () => {
           <NuriScreen>
             <BottomSheet open detent="content" scrim="dim" dismissible>
               <BottomSheetPanel>
-                <BottomSheetTopbar surface="transparent">
-                  <TopbarCenter><Text>Receive</Text></TopbarCenter>
-                </BottomSheetTopbar>
-                <BottomSheetScroll>
+                <Header paddingTop="lg">
+                  <Topbar surface="transparent">
+                    <TopbarCenter><Text>Receive</Text></TopbarCenter>
+                  </Topbar>
+                </Header>
+                <Scroll>
                   <Button variant="solid">Paste Bitcoin Address</Button>
-                </BottomSheetScroll>
-                <BottomSheetFooter>
+                </Scroll>
+                <Footer>
                   <Button variant="solid">Continue</Button>
-                </BottomSheetFooter>
+                </Footer>
               </BottomSheetPanel>
             </BottomSheet>
           </NuriScreen>
@@ -829,46 +830,44 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(lineMargin(light)).toBe(6);
   });
 
-  // ── The mixed-content / repetition contract (decision 83) — PAIRED with the
+  // ── The grouping / repetition contract (decision 83) — PAIRED with the
   // web factory tests (packages/prototype/factory/factory.test.js B6–B11):
-  // both engines resolve the same authored composition to the same structure,
-  // or fail with the same named error.
-  test('ListAction — bare children inside a region stay that region\'s own content, order preserved', () => {
+  // leaf slots auto-route through private anatomy containers, or fail with the
+  // same named error.
+  test('ListAction — leaf slots auto-route into private content/trailing containers', () => {
     const tr = render(
       <NuriThemeProvider>
         <ListAction accessibilityLabel="Row" onPress={() => undefined}>
-          <ListActionContent>
-            before
-            <ListActionText>Bank account</ListActionText>
-            after
-          </ListActionContent>
+          <ListActionText>Bank account</ListActionText>
+          <ListActionTextMuted>Personal</ListActionTextMuted>
+          <ListActionTrailingText>7.20 €</ListActionTrailingText>
+          <ListActionTrailingTextMuted>13138 Sats</ListActionTrailingTextMuted>
         </ListAction>
       </NuriThemeProvider>,
     );
-    const text = tr.root.findByType(Text);
-    expect(text.props.children).toBe('Bank account');
-    const region = text.parent as NonNullable<typeof text.parent>;
-    expect(region.type).toBe('View');
-    expect(region.children.length).toBe(3);
-    expect(region.children[0]).toBe('before');
-    expect((region.children[1] as { type: unknown }).type).toBe(Text);
-    expect(region.children[2]).toBe('after');
+    const texts = tr.root.findAllByType(Text);
+    expect(texts.map((t) => t.props.children)).toEqual(['Bank account', 'Personal', '7.20 €', '13138 Sats']);
+    expect(texts[0].parent).toBe(texts[1].parent);
+    expect(texts[2].parent).toBe(texts[3].parent);
+    expect(texts[0].parent).not.toBe(texts[2].parent);
   });
 
-  test('ListAction — a typed slot targeting a part outside its region fails named', () => {
+  test('ListAction — removed public content region wrapper is not exported', () => {
     const quiet = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    const RemovedListActionContent = (() => null) as React.FC<{ children?: React.ReactNode }>;
+    RemovedListActionContent.displayName = 'ListActionContent';
     try {
       expect(() =>
         render(
           <NuriThemeProvider>
             <ListAction accessibilityLabel="Row" onPress={() => undefined}>
-              <ListActionContent>
-                <ListActionTrailingText>Wrong</ListActionTrailingText>
-              </ListActionContent>
+              <RemovedListActionContent>
+                <ListActionText>Bank account</ListActionText>
+              </RemovedListActionContent>
             </ListAction>
           </NuriThemeProvider>,
         ),
-      ).toThrow("nuri-factory: composition entry targets 'trailingText', which is not under 'content'");
+      ).toThrow("nuri-factory: 'ListAction' has no default content slot");
     } finally {
       quiet.mockRestore();
     }
@@ -932,9 +931,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
         render(
           <NuriThemeProvider>
             <ListAction accessibilityLabel="Row" onPress={() => undefined}>
-              <ListActionContent>
-                <ButtonText>Wrong</ButtonText>
-              </ListActionContent>
+              <ButtonText>Wrong</ButtonText>
             </ListAction>
           </NuriThemeProvider>,
         ),

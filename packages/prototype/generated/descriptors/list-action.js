@@ -58,10 +58,8 @@ export const listActionDescriptor = {
     behaviour: { pressable: { target: 'root', props: ['onPress', 'disabled', 'accessibilityLabel'] } },
     slots: {
       leadingAvatar: { part: 'leadingAvatar', kind: 'icon-name', component: true },
-      content: { part: 'content', kind: 'region' },
       text: { part: 'text', kind: 'text', component: true, multiple: true },
       textMuted: { part: 'textMuted', kind: 'text', component: true, multiple: true },
-      trailing: { part: 'trailing', kind: 'region' },
       trailingText: { part: 'trailingText', kind: 'text', component: true, multiple: true },
       trailingTextMuted: { part: 'trailingTextMuted', kind: 'text', component: true, multiple: true },
       trailIcon: { part: 'trailIcon', kind: 'icon-name', component: true },

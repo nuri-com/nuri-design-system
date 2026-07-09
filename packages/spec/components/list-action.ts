@@ -4,8 +4,10 @@
  * The pressable row of the LIST FAMILY (`list` · `list-action` ·
  * `list-separator` — the home/settings screens' row vocabulary · decision 84;
  * `list-item` is RESERVED for the future non-pressable row). One pressable row
- * with typed composition slots for leading glyph avatar, content text, optional
- * trailing value stack, and a trailing glyph. Grouping, first/last corners, and
+ * with typed composition slots for leading glyph avatar, content/trailing text
+ * leaves, and a trailing glyph. The content and trailing containers are internal
+ * anatomy: leaf slots auto-route into them, so authors never write region wrappers.
+ * Grouping, first/last corners, and
  * pressed bleed belong to a future list-group structure; separators are
  * author-placed `list-separator` siblings (decision 49 — never auto-inserted).
  * ────────────────────────────────────────────────────────────── */
@@ -57,10 +59,8 @@ export const listActionDescriptor: Descriptor<ListActionAxes> = {
     behaviour: { pressable: { target: 'root', props: ['onPress', 'disabled', 'accessibilityLabel'] } },
     slots: {
       leadingAvatar: { part: 'leadingAvatar', kind: 'icon-name', component: true },
-      content: { part: 'content', kind: 'region' },
       text: { part: 'text', kind: 'text', component: true, multiple: true },
       textMuted: { part: 'textMuted', kind: 'text', component: true, multiple: true },
-      trailing: { part: 'trailing', kind: 'region' },
       trailingText: { part: 'trailingText', kind: 'text', component: true, multiple: true },
       trailingTextMuted: { part: 'trailingTextMuted', kind: 'text', component: true, multiple: true },
       trailIcon: { part: 'trailIcon', kind: 'icon-name', component: true },

@@ -129,12 +129,8 @@ const PAGE_CONTRACT = {
       '| `disabled` | no | `boolean` | pressable behaviour |',
       '| `accessibilityLabel` | no | `string` | pressable behaviour |',
       // list-action has NO default:true sink — children exist for typed
-      // slot/region composition only (the honest-children contract).
+      // leaf-slot composition only (the honest-children contract).
       '| `children` | no | `React.ReactNode` | composition children |',
-      '### ListActionContentProps',
-      '| `children` | no | `React.ReactNode` | slot content |',
-      '### ListActionTrailingProps',
-      '| `children` | no | `React.ReactNode` | slot content |',
       '### ListActionLeadingAvatarProps',
       '| `name` | yes | `IconName` | scalar icon name |',
       "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | delegated component prop |",
@@ -146,7 +142,7 @@ const PAGE_CONTRACT = {
       '### ListActionTrailIconProps',
       '> `children` is not accepted (`children?: never`).',
     ],
-    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '### ListActionContentProps', '### ListActionTrailingProps'],
   },
   'text-field': {
     kind: 'api', source: 'text-field', title: 'Text Field', nav: 7,
@@ -331,22 +327,6 @@ const PAGE_CONTRACT = {
   'bottom-sheet-panel': {
     kind: 'api', source: 'bottom-sheet-panel', title: 'BottomSheet Panel', nav: 23,
     cells: [
-      '| `children` | no | `React.ReactNode` | default content slot |',
-    ],
-    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
-  },
-  'bottom-sheet-scroll': {
-    kind: 'api', source: 'bottom-sheet-scroll', title: 'BottomSheet Scroll', nav: 24,
-    cells: [
-      '| `children` | no | `React.ReactNode` | default content slot |',
-    ],
-    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
-  },
-  'bottom-sheet-footer': {
-    kind: 'api', source: 'bottom-sheet-footer', title: 'BottomSheet Footer', nav: 25,
-    cells: [
-      "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | style axis |",
-      "| `paddingBottom` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'none'` | style axis |",
       '| `children` | no | `React.ReactNode` | default content slot |',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
