@@ -22,7 +22,6 @@ import {
   NuriSafeAreaProvider,
   NuriThemeProvider,
   OverlayProvider,
-  Screen,
   useNuriTheme,
 } from '@ds';
 import type { Theme } from '@ds';
@@ -47,9 +46,7 @@ function ThemedRoot({
     >
       <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
       <NuriSafeAreaProvider top={insets.top} bottom={insets.bottom}>
-        <Screen safeArea>
-          <Screens onToggleTheme={onToggleTheme} />
-        </Screen>
+        <Screens onToggleTheme={onToggleTheme} />
       </NuriSafeAreaProvider>
     </View>
   );
@@ -63,7 +60,7 @@ function Root() {
   );
 
   // <OverlayProvider> sits INSIDE the theme provider (so a registered sheet's
-  // panel themes through the same payload) but ABOVE <Screen>'s safe-area
+  // panel themes through the same payload) but ABOVE the route screens' safe-area
   // padding — so the overlay outlet's absoluteFill fills the WHOLE window, and
   // a sheet's scrim dims the status bar too. Sheet footer safe-area is requested
   // with BottomSheet's boolean safeAreaBottom prop, not via a DS native dependency.

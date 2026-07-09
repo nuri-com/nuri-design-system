@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Button, IconButton, Topbar, View } from '@ds';
+import { Button, IconButton, Screen, Topbar, View } from '@ds';
 
 export function Menu({
   onBack,
@@ -10,7 +10,7 @@ export function Menu({
   onOpenSheet: (sheet: 'activity' | 'amount' | 'actions' | 'form' | 'form2') => void;
 }) {
   return (
-    <>
+    <Screen safeArea>
       <Topbar>
         <IconButton icon="chevron-left" variant="soft" accessibilityLabel="Back to wallet" onPress={onBack} />
       </Topbar>
@@ -22,6 +22,6 @@ export function Menu({
         <Button size="lg" onPress={() => onOpenSheet('form')}>Form Sheet</Button>
         <Button size="lg" onPress={() => onOpenSheet('form2')}>Form Sheet 2</Button>
       </View>
-    </>
+    </Screen>
   );
 }

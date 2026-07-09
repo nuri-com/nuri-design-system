@@ -7,7 +7,6 @@
 
 import * as React from 'react';
 
-import { View } from '@ds';
 import { Home } from './Home';
 import { Menu } from './Menu';
 import { ActionsSheet } from '../sheets/ActionsSheet';
@@ -43,7 +42,7 @@ export const Screens: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme
   );
 
   return (
-    <View direction="column" align="stretch" justify="start" fill="grow" chrome="canvas">
+    <>
       {page === 'wallet' ? (
         <Home
           selectedTab={wallet}
@@ -82,6 +81,6 @@ export const Screens: React.FC<{ onToggleTheme: () => void }> = ({ onToggleTheme
         onChangeField={setField}
         onClose={closeSheet}
       />
-    </View>
+    </>
   );
 };

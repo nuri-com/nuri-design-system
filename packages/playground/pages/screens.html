@@ -21,17 +21,17 @@
   <nuri-demo layout="board" controls="device,theme,accent" label="bitcoin">
     <template>
       <nuri-screen safe-area>
-        <nuri-stack direction="column" align="stretch" justify="start" gap="none" fill>
-          <nuri-topbar surface="transparent">
-            <nuri-topbar-leading>
-              <nuri-icon name="nuri"></nuri-icon>
-            </nuri-topbar-leading>
-            <nuri-topbar-trailing>
-              <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
-              <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
-            </nuri-topbar-trailing>
-          </nuri-topbar>
+        <nuri-topbar surface="transparent">
+          <nuri-topbar-leading>
+            <nuri-icon name="nuri"></nuri-icon>
+          </nuri-topbar-leading>
+          <nuri-topbar-trailing>
+            <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
+            <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
+          </nuri-topbar-trailing>
+        </nuri-topbar>
 
+        <nuri-scroll>
           <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
             <nuri-view aspect-ratio="card" radius="lg"></nuri-view>
             <nuri-typography size="3xl" align="center">₿ 0.0413</nuri-typography>
@@ -40,13 +40,13 @@
               <nuri-button size="lg" variant="solid" accent="orange">Send</nuri-button>
             </nuri-view>
           </nuri-view>
+        </nuri-scroll>
 
-          <nuri-tab-bar>
-            <nuri-tab-bar-item icon="bitcoin-wallet" label="€ 36.50" selected></nuri-tab-bar-item>
-            <nuri-tab-bar-item icon="bank" label="€ 18.90"></nuri-tab-bar-item>
-            <nuri-tab-bar-item icon="euro-wallet" label="€ 25.70"></nuri-tab-bar-item>
-          </nuri-tab-bar>
-        </nuri-stack>
+        <nuri-tab-bar>
+          <nuri-tab-bar-item icon="bitcoin-wallet" label="€ 36.50" selected></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="bank" label="€ 18.90"></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="euro-wallet" label="€ 25.70"></nuri-tab-bar-item>
+        </nuri-tab-bar>
       </nuri-screen>
     </template>
   </nuri-demo>
@@ -55,17 +55,17 @@
   <nuri-demo layout="board" controls="device,theme,accent" label="bank">
     <template>
       <nuri-screen safe-area>
-        <nuri-stack direction="column" align="stretch" justify="start" gap="none" fill>
-          <nuri-topbar>
-            <nuri-topbar-leading>
-              <nuri-icon name="nuri"></nuri-icon>
-            </nuri-topbar-leading>
-            <nuri-topbar-trailing>
-              <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
-              <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
-            </nuri-topbar-trailing>
-          </nuri-topbar>
+        <nuri-topbar>
+          <nuri-topbar-leading>
+            <nuri-icon name="nuri"></nuri-icon>
+          </nuri-topbar-leading>
+          <nuri-topbar-trailing>
+            <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
+            <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
+          </nuri-topbar-trailing>
+        </nuri-topbar>
 
+        <nuri-scroll>
           <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
             <nuri-view aspect-ratio="card" radius="lg" variant="soft"></nuri-view>
             <nuri-typography size="3xl" align="center">€ 25.87</nuri-typography>
@@ -74,13 +74,13 @@
               <nuri-button size="lg" variant="solid" accent="lilac">Send</nuri-button>
             </nuri-view>
           </nuri-view>
+        </nuri-scroll>
 
-          <nuri-tab-bar>
-            <nuri-tab-bar-item icon="bitcoin-wallet" label="€ 36.50"></nuri-tab-bar-item>
-            <nuri-tab-bar-item icon="bank" label="€ 18.90" selected></nuri-tab-bar-item>
-            <nuri-tab-bar-item icon="euro-wallet" label="€ 25.70"></nuri-tab-bar-item>
-          </nuri-tab-bar>
-        </nuri-stack>
+        <nuri-tab-bar>
+          <nuri-tab-bar-item icon="bitcoin-wallet" label="€ 36.50"></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="bank" label="€ 18.90" selected></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="euro-wallet" label="€ 25.70"></nuri-tab-bar-item>
+        </nuri-tab-bar>
       </nuri-screen>
     </template>
   </nuri-demo>
@@ -89,17 +89,17 @@
   <nuri-demo layout="board" controls="device,theme,accent" label="euro">
     <template>
       <nuri-screen safe-area>
-        <nuri-stack direction="column" align="stretch" justify="start" gap="none" fill>
-          <nuri-topbar>
-            <nuri-topbar-leading>
-              <nuri-icon name="nuri"></nuri-icon>
-            </nuri-topbar-leading>
-            <nuri-topbar-trailing>
-              <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
-              <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
-            </nuri-topbar-trailing>
-          </nuri-topbar>
+        <nuri-topbar>
+          <nuri-topbar-leading>
+            <nuri-icon name="nuri"></nuri-icon>
+          </nuri-topbar-leading>
+          <nuri-topbar-trailing>
+            <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
+            <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
+          </nuri-topbar-trailing>
+        </nuri-topbar>
 
+        <nuri-scroll>
           <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
             <nuri-view aspect-ratio="card" radius="lg"></nuri-view>
             <nuri-typography size="3xl" align="center">€ 1 240.00</nuri-typography>
@@ -108,13 +108,13 @@
               <nuri-button size="lg" variant="solid" accent="lilac">Send</nuri-button>
             </nuri-view>
           </nuri-view>
+        </nuri-scroll>
 
-          <nuri-tab-bar>
-            <nuri-tab-bar-item icon="bitcoin-wallet" label="€ 36.50"></nuri-tab-bar-item>
-            <nuri-tab-bar-item icon="bank" label="€ 18.90"></nuri-tab-bar-item>
-            <nuri-tab-bar-item icon="euro-wallet" label="€ 25.70" selected></nuri-tab-bar-item>
-          </nuri-tab-bar>
-        </nuri-stack>
+        <nuri-tab-bar>
+          <nuri-tab-bar-item icon="bitcoin-wallet" label="€ 36.50"></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="bank" label="€ 18.90"></nuri-tab-bar-item>
+          <nuri-tab-bar-item icon="euro-wallet" label="€ 25.70" selected></nuri-tab-bar-item>
+        </nuri-tab-bar>
       </nuri-screen>
     </template>
   </nuri-demo>
