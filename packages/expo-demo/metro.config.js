@@ -10,15 +10,22 @@
 // resolves @nuri/spec's `exports` subpaths via Metro's package-exports support
 // (on by default in Expo 54).
 const { getDefaultConfig } = require('expo/metro-config');
+const fs = require('fs');
 const path = require('path');
 
 const projectRoot = __dirname;
 const monorepoRoot = path.resolve(projectRoot, '../..');
 const dsEntry = path.resolve(monorepoRoot, 'packages/rn/index.ts');
+const resolveFromApp = (moduleName) => require.resolve(moduleName, { paths: [projectRoot] });
+const appNodeModules = path.resolve(projectRoot, 'node_modules');
+const appNodeModulesReal = fs.existsSync(appNodeModules)
+  ? fs.realpathSync(appNodeModules)
+  : appNodeModules;
+const reactPackageRoot = fs.realpathSync(path.dirname(resolveFromApp('react/package.json')));
 
 const config = getDefaultConfig(projectRoot);
 
-config.watchFolders = [monorepoRoot];
+config.watchFolders = Array.from(new Set([monorepoRoot, appNodeModulesReal, reactPackageRoot]));
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(monorepoRoot, 'node_modules'),
@@ -54,9 +61,14 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
   if (
     moduleName === 'react' ||
     moduleName === 'react-dom' ||
-    moduleName === 'react-native' ||
     moduleName.startsWith('react/') ||
-    moduleName.startsWith('react-dom/') ||
+    moduleName.startsWith('react-dom/')
+  ) {
+    return { type: 'sourceFile', filePath: resolveFromApp(moduleName) };
+  }
+
+  if (
+    moduleName === 'react-native' ||
     moduleName.startsWith('react-native/')
   ) {
     return context.resolveRequest(
