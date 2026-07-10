@@ -24,7 +24,8 @@ import {
 } from './shared';
 
 export type PressableProps = BoxNS &
-  StackNS &
+  // `distribute` needs child wrapping, which Pressable supports on neither engine.
+  Omit<StackNS, 'distribute'> &
   PaletteNS &
   InteractiveNS & {
     children?: React.ReactNode;
@@ -53,7 +54,7 @@ const PressableImpl: React.FC<PressableProps> = (props) => {
 PressableImpl.displayName = 'Pressable';
 export const Pressable = withKeys(scopedByAccent(PressableImpl), [
   ...BOX_KEYS,
-  ...STACK_KEYS,
+  ...STACK_KEYS.filter((key) => key !== 'distribute'),
   ...PALETTE_KEYS,
   ...INTERACTIVE_KEYS,
 ]);

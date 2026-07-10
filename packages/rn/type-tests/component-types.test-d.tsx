@@ -39,6 +39,7 @@ import {
   BottomSheet,
   Footer,
   BottomSheetPanel,
+  Pressable,
   Scroll,
   Header,
   Screen,
@@ -217,6 +218,9 @@ export const bottomSheetFooterNoRadius = <Footer radius="lg"><Button>Done</Butto
 export const bottomSheetFooterNoFill = <Footer fill="grow"><Button>Done</Button></Footer>;
 // @ts-expect-error Footer is not an interactive primitive.
 export const bottomSheetFooterNoPress = <Footer onPress={() => undefined}><Button>Done</Button></Footer>;
+
+// @ts-expect-error Pressable cannot distribute children on either engine; the prop never had runtime behavior.
+export const pressableNoDistribute = <Pressable distribute="even">Child</Pressable>;
 
 // ── Screen — full-screen primitive requests provider safe-area by boolean intent ──
 export const screenSafeAreaOk = <Screen safeArea><Button>Done</Button></Screen>;
