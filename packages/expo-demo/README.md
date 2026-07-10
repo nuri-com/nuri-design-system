@@ -9,29 +9,41 @@ launches the Activity, Amount, Actions, and Form sheet examples.
 ```
 src/
   screens/
-    index.tsx          route/controller for the demo. Owns the
-                       app state: page, selected wallet tab, open sheet, and
-                       sample form values.
+    index.tsx          the route surface. Owns ROUTING state only: the visible
+                       page and the selected wallet tab. Sheets and their
+                       state live with the screen that launches them.
     Home.tsx           wallet/status home surface. Owns the Screen, Topbar,
                        Scroll body, and WalletTabs composition.
-    Coin.tsx           static bitcoin tab mockup.
-    Wallet.tsx         static bank tab mockup.
-    Cash.tsx           static euro tab mockup.
-    Menu.tsx           button stack that opens each sheet example.
+    Bitcoin.tsx        static tab mockups — file ≡ component ≡ the WalletTab
+    Bank.tsx           value that renders it ('bitcoin' | 'bank' | 'euro').
+    Euro.tsx
+    Menu.tsx           the sheet launcher screen. Mounts each sheet NEXT TO
+                       its button (a <BottomSheet> registers into the
+                       OverlayProvider outlet from anywhere — nothing needs
+                       hoisting to the root) and owns the sample form values.
   components/
     WalletTabs.tsx     app-owned wrapper over stateless DS TabBar/TabBarItem,
                        mapping selected/onSelect into selected/onPress.
+  hooks/
+    useSheet.ts        DEMO-local prototype (deliberately NOT @ds): the
+                       open/show/onClose triple every declarative sheet
+                       consumer repeats. DS adoption is a separate decision,
+                       to be made on evidence from this usage.
   sheets/
     ActivitySheet.tsx
     AmountSheet.tsx
     ActionsSheet.tsx
     FormSheet.tsx
-App.tsx                the navigator role: native safe-area reading
-                       (decision 58), the NuriThemeProvider root, and
-                       OverlayProvider placement. Route screens apply safe-area
-                       through the DS Screen primitive. Dark mode remains wired
-                       as an internal affordance for future proofing, not an
-                       exposed product feature.
+App.tsx                the navigator role — exactly the seams the DS
+                       deliberately does not own: the native safe-area lib
+                       root + the ONE useSafeAreaInsets() read (decision 58 ·
+                       passed to NuriRoot as plain numbers), the Expo
+                       StatusBar, and the mode state. Everything else —
+                       theme, overlay, canvas paint, safe-area environment,
+                       and their load-bearing ORDER — is composed by the DS's
+                       <NuriRoot>. Dark mode remains wired as an internal
+                       affordance for future proofing, not an exposed product
+                       feature.
 ```
 
 Run it from the repo root:
