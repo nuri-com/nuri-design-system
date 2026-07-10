@@ -3,7 +3,7 @@ import { View as RNView } from 'react-native';
 import type { LayoutChangeEvent, ViewStyle } from 'react-native';
 import type { BoxNS, PaletteNS, StackNS } from '../contract';
 import { useFixedRegionLayout } from './FixedRegionLayout';
-import { useResolvedNode, withKeys, withSurface } from './shared';
+import { FIXED_REGION_STYLE_KEYS, numericPadding, useResolvedNode, withKeys, withSurface } from './shared';
 
 type HeaderStyleProps =
   Pick<PaletteNS, 'chrome'> &
@@ -14,11 +14,6 @@ export type HeaderProps = HeaderStyleProps & {
   safeAreaTop?: boolean;
   children?: React.ReactNode;
 };
-
-function numericPadding(style: ViewStyle, key: 'paddingTop' | 'paddingVertical'): number {
-  const value = style[key];
-  return typeof value === 'number' ? value : 0;
-}
 
 const HeaderImpl: React.FC<HeaderProps> = ({ safeAreaTop = false, children, ...props }) => {
   const { safeAreaTop: hostSafeAreaTop, setHeaderHeight } = useFixedRegionLayout();
@@ -54,15 +49,7 @@ HeaderImpl.displayName = 'Header';
 
 export const Header = withKeys(HeaderImpl, [
   'safeAreaTop',
-  'chrome',
-  'direction',
-  'align',
-  'justify',
-  'gap',
-  'paddingX',
-  'paddingY',
-  'paddingTop',
-  'paddingBottom',
+  ...FIXED_REGION_STYLE_KEYS,
 ]);
 
 const HEADER_STYLE: ViewStyle = {

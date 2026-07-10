@@ -131,3 +131,23 @@ export function wrapDistributedChildren(
 
 // The structural flex-column fill Screen + Scroll share.
 export const SCREEN_STYLE: ViewStyle = { flex: 1 };
+
+export const FIXED_REGION_STYLE_KEYS = [
+  'chrome',
+  'direction',
+  'align',
+  'justify',
+  'gap',
+  'paddingX',
+  'paddingY',
+  'paddingTop',
+  'paddingBottom',
+] as const;
+
+export function numericPadding(
+  style: ViewStyle,
+  key: 'paddingTop' | 'paddingBottom' | 'paddingVertical',
+): number {
+  const value = style[key];
+  return typeof value === 'number' ? value : 0;
+}
