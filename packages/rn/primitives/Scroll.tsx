@@ -43,6 +43,8 @@ const FOCUS_BOTTOM_MARGIN = 88;
 const FOCUS_SCROLL_DELAY_MS = 32;
 const FOCUS_SCROLL_REPEAT_DELAY_MS = 60;
 
+// Keyboard handling requires a FixedRegionLayoutProvider ancestor. Screen and
+// BottomSheet provide it; a bare Scroll intentionally degrades to no handling.
 const ScrollImpl: React.FC<ScrollProps> = ({
   safeAreaTop = false,
   safeAreaBottom = false,
