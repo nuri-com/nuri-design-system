@@ -78,3 +78,25 @@ test('allowed externals survive the gate', () => {
   ].join('\n');
   assert.deepEqual(findForbiddenSpecifiers(src), []);
 });
+
+test('case 4 · a plain-JS spec target ships its adjacent .d.ts companion (full run)', async () => {
+  // Regression: the spec-copy closure follows IMPORTS, but a .d.ts companion is
+  // discovered by tsc via ADJACENCY — no import names it. alpha.6's classifier
+  // (composition/classify.js + classify.d.ts) shipped typeless until the
+  // consumer's pull script patched around it (design-system-probe PR #3).
+  const { execFileSync } = await import('node:child_process');
+  const { mkdtempSync, rmSync, existsSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const out = mkdtempSync(join(tmpdir(), 'export-rn-dts-'));
+  try {
+    execFileSync('node', ['scripts/export-rn.mjs', out], { stdio: 'pipe' });
+    assert.ok(existsSync(join(out, 'internal', 'spec', 'composition', 'classify.js')), 'runtime .js exported');
+    assert.ok(
+      existsSync(join(out, 'internal', 'spec', 'composition', 'classify.d.ts')),
+      'the adjacent .d.ts companion must ship with a plain-JS spec target',
+    );
+  } finally {
+    rmSync(out, { recursive: true, force: true });
+  }
+});
