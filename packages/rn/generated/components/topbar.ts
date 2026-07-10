@@ -16,7 +16,7 @@ import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriSlots }
 import type { NuriBehaviour } from '../../runtime/renderer';
 import { topbarDescriptor } from '@nuri/spec/descriptors/topbar';
 import { recipes } from '../data/recipes';
-import { NuriScope } from '../../theme';
+import { scopedByAccent } from '../../primitives/shared';
 import type { Accent } from '../data/tokens';
 
 export type TopbarProps = {
@@ -63,8 +63,5 @@ const TopbarInner: React.FC<TopbarProps> = (props) => {
 };
 TopbarInner.displayName = `${topbarDisplayName}Inner`;
 
-export const Topbar: React.FC<TopbarProps> = (props) =>
-  props.accent !== undefined
-    ? React.createElement(NuriScope, { accent: props.accent, children: React.createElement(TopbarInner, props) })
-    : React.createElement(TopbarInner, props);
+export const Topbar = scopedByAccent(TopbarInner);
 Topbar.displayName = topbarDisplayName;

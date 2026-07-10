@@ -16,7 +16,7 @@ import { nuriNames, renderDescriptorInstance } from '../../runtime/renderer';
 import type { NuriBehaviour } from '../../runtime/renderer';
 import { iconAvatarDescriptor } from '@nuri/spec/descriptors/icon-avatar';
 import { recipes } from '../data/recipes';
-import { NuriScope } from '../../theme';
+import { scopedByAccent } from '../../primitives/shared';
 import type { Accent } from '../data/tokens';
 import type { IconName } from '../data/icons';
 
@@ -50,8 +50,5 @@ const IconAvatarInner: React.FC<IconAvatarProps> = (props) => {
 };
 IconAvatarInner.displayName = `${iconAvatarDisplayName}Inner`;
 
-export const IconAvatar: React.FC<IconAvatarProps> = (props) =>
-  props.accent !== undefined
-    ? React.createElement(NuriScope, { accent: props.accent, children: React.createElement(IconAvatarInner, props) })
-    : React.createElement(IconAvatarInner, props);
+export const IconAvatar = scopedByAccent(IconAvatarInner);
 IconAvatar.displayName = iconAvatarDisplayName;

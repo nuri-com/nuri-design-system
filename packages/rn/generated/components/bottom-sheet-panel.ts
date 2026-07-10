@@ -16,7 +16,7 @@ import { nuriNames, renderDescriptorInstance } from '../../runtime/renderer';
 import type { NuriBehaviour } from '../../runtime/renderer';
 import { bottomSheetPanelDescriptor } from '@nuri/spec/descriptors/bottom-sheet-panel';
 import { recipes } from '../data/recipes';
-import { NuriScope } from '../../theme';
+import { scopedByAccent } from '../../primitives/shared';
 import type { Accent } from '../data/tokens';
 
 export type BottomSheetPanelProps = {
@@ -46,8 +46,5 @@ const BottomSheetPanelInner: React.FC<BottomSheetPanelProps> = (props) => {
 };
 BottomSheetPanelInner.displayName = `${bottomSheetPanelDisplayName}Inner`;
 
-export const BottomSheetPanel: React.FC<BottomSheetPanelProps> = (props) =>
-  props.accent !== undefined
-    ? React.createElement(NuriScope, { accent: props.accent, children: React.createElement(BottomSheetPanelInner, props) })
-    : React.createElement(BottomSheetPanelInner, props);
+export const BottomSheetPanel = scopedByAccent(BottomSheetPanelInner);
 BottomSheetPanel.displayName = bottomSheetPanelDisplayName;

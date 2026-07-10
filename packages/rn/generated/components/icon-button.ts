@@ -16,7 +16,7 @@ import { nuriNames, renderDescriptorInstance } from '../../runtime/renderer';
 import type { NuriBehaviour } from '../../runtime/renderer';
 import { iconButtonDescriptor } from '@nuri/spec/descriptors/icon-button';
 import { recipes } from '../data/recipes';
-import { NuriScope } from '../../theme';
+import { scopedByAccent } from '../../primitives/shared';
 import type { Accent } from '../data/tokens';
 import type { IconName } from '../data/icons';
 
@@ -59,8 +59,5 @@ const IconButtonInner: React.FC<IconButtonProps> = (props) => {
 };
 IconButtonInner.displayName = `${iconButtonDisplayName}Inner`;
 
-export const IconButton: React.FC<IconButtonProps> = (props) =>
-  props.accent !== undefined
-    ? React.createElement(NuriScope, { accent: props.accent, children: React.createElement(IconButtonInner, props) })
-    : React.createElement(IconButtonInner, props);
+export const IconButton = scopedByAccent(IconButtonInner);
 IconButton.displayName = iconButtonDisplayName;

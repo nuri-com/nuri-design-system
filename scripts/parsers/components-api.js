@@ -456,7 +456,7 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
     "import { recipes } from '../data/recipes';",
   ];
   if (usesAccent) {
-    imports.push("import { NuriScope } from '../../theme';");
+    imports.push("import { scopedByAccent } from '../../primitives/shared';");
     imports.push("import type { Accent } from '../data/tokens';");
   } else if (usesSlotAccent) {
     imports.push("import type { Accent } from '../data/tokens';");
@@ -559,10 +559,7 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
 
   if (usesAccent) {
     body.push(
-      `export const ${Pascal}: React.FC<${Pascal}Props> = (props) =>`,
-      '  props.accent !== undefined',
-      `    ? React.createElement(NuriScope, { accent: props.accent, children: React.createElement(${innerName}, props) })`,
-      `    : React.createElement(${innerName}, props);`,
+      `export const ${Pascal} = scopedByAccent(${innerName});`,
       `${Pascal}.displayName = ${displayNameConst};`,
     );
   } else {

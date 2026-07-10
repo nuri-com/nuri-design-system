@@ -16,7 +16,7 @@ import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriComposi
 import type { NuriBehaviour, NuriCompositionEntry } from '../../runtime/renderer';
 import { alertDescriptor } from '@nuri/spec/descriptors/alert';
 import { recipes } from '../data/recipes';
-import { NuriScope } from '../../theme';
+import { scopedByAccent } from '../../primitives/shared';
 import type { Accent } from '../data/tokens';
 import type { IconName } from '../data/icons';
 import { Button } from './button';
@@ -72,8 +72,5 @@ const AlertInner: React.FC<AlertProps> = (props) => {
 };
 AlertInner.displayName = `${alertDisplayName}Inner`;
 
-export const Alert: React.FC<AlertProps> = (props) =>
-  props.accent !== undefined
-    ? React.createElement(NuriScope, { accent: props.accent, children: React.createElement(AlertInner, props) })
-    : React.createElement(AlertInner, props);
+export const Alert = scopedByAccent(AlertInner);
 Alert.displayName = alertDisplayName;
