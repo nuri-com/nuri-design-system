@@ -33,6 +33,7 @@ import {
 import type { OverlayApi } from '../index';
 import { space } from '../generated/data/tokens';
 import { type FocusScrollApi, useFocusScroll } from '../runtime/focus-scroll';
+import { FixedRegionLayoutProvider } from '../primitives/FixedRegionLayout';
 
 type ScrollViewWithInnerRef = ScrollView & {
   getInnerViewRef: () => unknown;
@@ -720,9 +721,11 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       act(() => {
         tr = TestRenderer.create(
           <NuriThemeProvider>
-            <Scroll>
-              <FocusScrollProbe onReady={(next) => (captured.api = next)} />
-            </Scroll>
+            <FixedRegionLayoutProvider keyboardEnabled>
+              <Scroll>
+                <FocusScrollProbe onReady={(next) => (captured.api = next)} />
+              </Scroll>
+            </FixedRegionLayoutProvider>
           </NuriThemeProvider>,
         );
       });
@@ -788,9 +791,11 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       act(() => {
         tr = TestRenderer.create(
           <NuriThemeProvider>
-            <Scroll>
-              <FocusScrollProbe onReady={(next) => (captured.api = next)} />
-            </Scroll>
+            <FixedRegionLayoutProvider keyboardEnabled>
+              <Scroll>
+                <FocusScrollProbe onReady={(next) => (captured.api = next)} />
+              </Scroll>
+            </FixedRegionLayoutProvider>
           </NuriThemeProvider>,
         );
       });
@@ -870,9 +875,11 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       act(() => {
         tr = TestRenderer.create(
           <NuriThemeProvider>
-            <Scroll>
-              <FocusScrollProbe onReady={(next) => (captured.api = next)} />
-            </Scroll>
+            <FixedRegionLayoutProvider keyboardEnabled>
+              <Scroll>
+                <FocusScrollProbe onReady={(next) => (captured.api = next)} />
+              </Scroll>
+            </FixedRegionLayoutProvider>
           </NuriThemeProvider>,
         );
       });
@@ -944,9 +951,11 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       act(() => {
         tr = TestRenderer.create(
           <NuriThemeProvider>
-            <Scroll>
-              <FocusScrollProbe onReady={(next) => (captured.api = next)} />
-            </Scroll>
+            <FixedRegionLayoutProvider keyboardEnabled>
+              <Scroll>
+                <FocusScrollProbe onReady={(next) => (captured.api = next)} />
+              </Scroll>
+            </FixedRegionLayoutProvider>
           </NuriThemeProvider>,
         );
       });
@@ -1018,9 +1027,11 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       act(() => {
         tr = TestRenderer.create(
           <NuriThemeProvider>
-            <Scroll>
-              <FocusScrollProbe onReady={(next) => (captured.api = next)} />
-            </Scroll>
+            <FixedRegionLayoutProvider keyboardEnabled>
+              <Scroll>
+                <FocusScrollProbe onReady={(next) => (captured.api = next)} />
+              </Scroll>
+            </FixedRegionLayoutProvider>
           </NuriThemeProvider>,
         );
       });
@@ -1134,7 +1145,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     }
   });
 
-  test('Scroll adds keyboard bottom padding when the viewport does not resize', () => {
+  test('content-detent Scroll keeps keyboard padding while its gated layout offset stays at rest', () => {
     const keyboardHandlers: Record<string, (event: { endCoordinates: { height: number } }) => void> = {};
     const addSpy = jest
       .spyOn(Keyboard, 'addListener')
@@ -1146,9 +1157,16 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     try {
       const tr = render(
         <NuriThemeProvider>
-          <Scroll>
-            <Text>Field</Text>
-          </Scroll>
+          <OverlayProvider>
+            <BottomSheet open detent="content">
+              <BottomSheetPanel>
+                <Scroll>
+                  <Text>Field</Text>
+                </Scroll>
+                <Footer><Button>Continue</Button></Footer>
+              </BottomSheetPanel>
+            </BottomSheet>
+          </OverlayProvider>
         </NuriThemeProvider>,
       );
 
@@ -1164,6 +1182,8 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       const contentStyle = scroll.props.contentContainerStyle as unknown[];
       const flat = Object.assign({}, ...contentStyle.filter(Boolean));
       expect(flat.paddingBottom).toBe(368);
+      const footer = tr.root.findAllByType(View).find((node) => flatStyle(node.props.style).zIndex === 2);
+      expect(flatStyle(footer!.props.style).bottom).toBe(0);
     } finally {
       addSpy.mockRestore();
     }
