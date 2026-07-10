@@ -178,6 +178,14 @@ export const COMPONENT_API_DOCS = [
     file: 'packages/rn/primitives/BottomSheet.tsx',
     type: 'BottomSheetPanelProps',
   },
+  {
+    source: 'nuri-root',
+    title: 'NuriRoot',
+    nav: 23,
+    lead: '`NuriRoot` composes `NuriThemeProvider` → `OverlayProvider` → the canvas `View` → `NuriSafeAreaProvider` in contractual order. The overlay shares the active theme while staying above safe-area padding, so its outlet covers the whole window; the DS View owns canvas background and foreground scope. Insets remain consumer-resolved plain numbers, and omitted edges default to `0`. This is provider composition, not a behavior controller: `NuriThemeProvider`, `OverlayProvider`, and `NuriSafeAreaProvider` remain public for supported piecemeal assembly.',
+    file: 'packages/rn/root.tsx',
+    type: 'NuriRootProps',
+  },
 ];
 
 const NOTE_BY_PROP = {
@@ -263,6 +271,9 @@ function noteForProp(name, type, typeName, isPrimaryType, childrenNote, behaviou
   // composition are 'composition children' — the docs never promise a bare-
   // children sink the engine does not have.
   if (name === 'children') return isPrimaryType ? (childrenNote ?? 'default content slot') : 'slot content';
+  if (typeName === 'NuriRootProps' && name === 'mode') return 'theme selection; defaults to light';
+  if (typeName === 'NuriRootProps' && name === 'accent') return 'theme selection; defaults to lilac';
+  if (typeName === 'NuriRootProps' && name === 'safeArea') return 'consumer-resolved inset numbers';
   if (typeName === 'TextProps' && name === 'accessibilityLabel') return 'read-out override';
   if (!isPrimaryType && (name === 'variant' || name === 'accent')) return 'delegated component prop';
   if (isPrimaryType && behaviourNotes.inputProps?.includes(name)) return 'input behaviour';
@@ -356,7 +367,7 @@ function propTypeFromAlias(sourceType, propName, aliases) {
     .join('\n');
   for (const rawMember of splitTopLevel(memberSource, ';')) {
     const line = rawMember.trim();
-    const prop = /^([A-Za-z_$][\w$]*)(\?)?:\s*([^;]+)$/.exec(line);
+    const prop = /^([A-Za-z_$][\w$]*)(\?)?:\s*([\s\S]+)$/.exec(line);
     if (prop && prop[1] === propName) return prop[3].trim();
   }
   return null;
@@ -411,7 +422,7 @@ function parsePropObject(spec, typeName, body, isPrimaryType, aliases) {
   for (const rawMember of splitTopLevel(memberSource, ';')) {
     const line = rawMember.trim();
     if (!line || line.startsWith('//')) continue;
-    const prop = /^([A-Za-z_$][\w$]*)(\?)?:\s*([^;]+)$/.exec(line);
+    const prop = /^([A-Za-z_$][\w$]*)(\?)?:\s*([\s\S]+)$/.exec(line);
     if (!prop) {
       throw new Error(`[docs] ${spec.name || spec.source}: unsupported ${typeName} member '${line}'`);
     }

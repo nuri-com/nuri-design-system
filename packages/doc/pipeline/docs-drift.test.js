@@ -351,6 +351,18 @@ const PAGE_CONTRACT = {
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
+  'nuri-root': {
+    kind: 'api', source: 'nuri-root', title: 'NuriRoot', nav: 23,
+    cells: [
+      '`NuriThemeProvider` → `OverlayProvider` → the canvas `View` → `NuriSafeAreaProvider` in contractual order',
+      '`NuriThemeProvider`, `OverlayProvider`, and `NuriSafeAreaProvider` remain public for supported piecemeal assembly',
+      "| `mode` | no | `'light' | 'dark'` | theme selection; defaults to light |",
+      "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme selection; defaults to lilac |",
+      '| `safeArea` | no | `{ top?: number; bottom?: number }` | consumer-resolved inset numbers |',
+      '| `children` | yes | `React.ReactNode` | default content slot |',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+  },
 };
 
 test('G · each generated/components/*.md re-emits identically from its source surface', async () => {

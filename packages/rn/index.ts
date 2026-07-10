@@ -19,6 +19,8 @@
  * no compat shim — @nuri/rn has no external consumer to break.
  * ────────────────────────────────────────────────────────────── */
 
+export { NuriRoot } from './root';
+export type { NuriRootProps } from './root';
 export { NuriThemeProvider, NuriScope, useNuriTheme, typeStyle } from './theme';
 export type { ThemePayload, SpaceLeaf, TypeKey, NuriThemeValue } from './theme';
 export type {

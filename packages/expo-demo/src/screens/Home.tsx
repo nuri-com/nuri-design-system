@@ -12,9 +12,10 @@ import {
   TopbarTrailing,
 } from '@ds';
 import { WalletTabs, type WalletTab } from '../components/WalletTabs';
-import { Cash } from './Cash';
-import { Coin } from './Coin';
-import { Wallet } from './Wallet';
+// One board per tab — file and component names MATCH the WalletTab values.
+import { Bitcoin } from './Bitcoin';
+import { Bank } from './Bank';
+import { Euro } from './Euro';
 
 export function Home({
   selectedTab,
@@ -42,9 +43,9 @@ export function Home({
       </Header>
 
       <Scroll>
-        {selectedTab === 'bitcoin' ? <Coin /> : null}
-        {selectedTab === 'bank' ? <Wallet /> : null}
-        {selectedTab === 'euro' ? <Cash /> : null}
+        {selectedTab === 'bitcoin' ? <Bitcoin /> : null}
+        {selectedTab === 'bank' ? <Bank /> : null}
+        {selectedTab === 'euro' ? <Euro /> : null}
       </Scroll>
 
       <Footer safeAreaBottom chrome="canvas">
