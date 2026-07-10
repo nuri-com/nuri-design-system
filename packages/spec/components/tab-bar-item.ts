@@ -105,7 +105,7 @@ export const tabBarItemDescriptor: Descriptor<TabBarItemAxes> = {
   api: {
     axes: [],
     themeScope: { accent: true },
-    behaviour: { pressable: { target: 'root', props: ['onPress', 'accessibilityLabel'] } },
+    behaviour: { pressable: { target: 'root', role: 'tab', props: ['onPress', 'accessibilityLabel'] } },
     propMaps: { selected: { axis: 'state', true: 'selected', false: 'unselected' } },
     slots: {
       icon: { part: 'icon', kind: 'icon-name', component: true },

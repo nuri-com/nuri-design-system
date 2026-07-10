@@ -615,8 +615,12 @@ const FROZEN_SCHEMA = {
   // PartAnatomy) — a field added/removed/renamed/retyped on either breaks here.
   ComponentApi: {
     'axes': 'string[]',
+    // `role` + `behaviour.pressable.role` ADDED at the pressable-a11y slice (the
+    // deliberate post-freeze semantic-role bump): the container declares its
+    // static tablist role and the pressable channel declares button|tab.
+    'role?': "'tablist'",
     'themeScope?': '{ accent: true }',
-    'behaviour?': "{ pressable?: { target: P; props: ('onPress' | 'disabled' | 'accessibilityLabel')[] }; input?: { target: P; focusTarget?: P; labelPart?: P; props: InputBehaviourProp[] }; }",
+    'behaviour?': "{ pressable?: { target: P; role?: 'button' | 'tab'; props: ('onPress' | 'disabled' | 'accessibilityLabel')[] }; input?: { target: P; focusTarget?: P; labelPart?: P; props: InputBehaviourProp[] }; }",
     'propMaps?': '{ selected?: { axis: string; true: string; false: string } }',
     'slots': 'Record<string, SlotSpec<P>>',
   },

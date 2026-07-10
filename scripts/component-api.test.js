@@ -332,9 +332,20 @@ test('component-api · behaviour.input focus/label targets and props are legal',
 // declared behaviour · a target that is a static view · interactive flags on a
 // non-pressable part · a pressable with no effects opt-in at all) fails on a
 // NAMED direction.
+function assertPressableRoleCoherence(name, descriptor) {
+  const pressable = descriptor.api.behaviour?.pressable;
+  if (pressable?.role === 'tab') {
+    assert.ok(
+      descriptor.api.propMaps?.selected,
+      `${name}: behaviour.pressable.role 'tab' requires a declared propMaps.selected bridge`,
+    );
+  }
+}
+
 test('component-api · behaviour.pressable, el:pressable anatomy, and interactive flags cohere', () => {
   for (const name of NAMES) {
     const d = CATALOG[name];
+    assertPressableRoleCoherence(name, d);
     const index = anatomyIndex(d.structure.anatomy);
     const interactive = interactiveParts(d);
     const pressableParts = [...index.entries()].filter(([, node]) => node.el === 'pressable').map(([part]) => part);
@@ -385,6 +396,15 @@ test('component-api · behaviour.pressable, el:pressable anatomy, and interactiv
       );
     }
   }
+});
+
+test("component-api · pressable role 'tab' requires propMaps.selected", () => {
+  const malformed = structuredClone(CATALOG['tab-bar-item']);
+  delete malformed.api.propMaps.selected;
+  assert.throws(
+    () => assertPressableRoleCoherence('malformed-tab', malformed),
+    /malformed-tab: behaviour\.pressable\.role 'tab' requires a declared propMaps\.selected bridge/,
+  );
 });
 
 test('component-api · component references are known, acyclic, and map legal compatible props', () => {
