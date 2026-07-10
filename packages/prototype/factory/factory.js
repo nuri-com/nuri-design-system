@@ -627,6 +627,7 @@ function appendComposition(host, node, ctx) {
 // el:'pressable' → <nuri-pressable> + the merged inner <button>.
 function renderInteractiveView(node, ns, ctx) {
   const host = document.createElement('nuri-pressable');
+  const pressable = ctx.descriptor.api?.behaviour?.pressable;
 
   // interactive opt-in → the pressable's gate attrs (decision 65.4 · N+26): for each
   // GATED opt that is on, set the host attr derived from the opt key (= opts[key].gate ·
@@ -644,6 +645,10 @@ function renderInteractiveView(node, ns, ctx) {
   if (ctx.base.disabled) host.setAttribute('disabled', '');
   if (ctx.base.accent) host.setAttribute('accent', ctx.base.accent); // Tier-2 self-scope
   if (ctx.base.accessibilityLabel) host.setAttribute('accessibility-label', ctx.base.accessibilityLabel);
+  if (pressable?.role && pressable.role !== 'button') host.setAttribute('role', pressable.role);
+  if (pressable && ctx.descriptor.api?.propMaps?.selected) {
+    host.setAttribute('aria-selected', String(ctx.base.selected === true));
+  }
 
   // children parts + this part's own routed content (appended to the host; the
   // pressable moves them INTO the inner <button> on connect).
@@ -670,6 +675,7 @@ function renderInteractiveView(node, ns, ctx) {
 // child parts render the same whether the host accepts positional children.
 function renderStaticView(node, ns, ctx) {
   const host = document.createElement('nuri-view');
+  if (node.name === 'root' && ctx.descriptor.api?.role) host.setAttribute('role', ctx.descriptor.api.role);
 
   // box ⊕ stack ⊕ palette → applied DIRECTLY (the element is the painting node;
   // mergeAttrs handles palette variant XOR chrome — IconAvatar uses variant,
@@ -813,11 +819,11 @@ export function buildComponent(descriptor, selection = {}, props = {}) {
           : (descriptor.defaults && descriptor.defaults[axis]) ?? Object.keys(descriptor.variants[axis])[0];
     }
   }
-  // THE `selected` BOOLEAN BRIDGE (the tab-item · the RN createNuriComponent mirror):
-  // a clean consumer boolean drives the 2-value `state` appearance axis (so the API
-  // is `selected`, not a stringly axis attr). No-op without a `state` axis.
-  if (typeof props.selected === 'boolean' && descriptor.variants && descriptor.variants.state) {
-    sel.state = props.selected ? 'selected' : 'unselected';
+  // THE `selected` BOOLEAN BRIDGE (the tab-item · the RN adapter mirror): a clean
+  // consumer boolean drives the authored two-arm axis mapping.
+  const selectedMap = descriptor.api?.propMaps?.selected;
+  if (typeof props.selected === 'boolean' && selectedMap) {
+    sel[selectedMap.axis] = props.selected ? selectedMap.true : selectedMap.false;
   }
 
   // `children` → the declared default slot (Button's label), unless `content`
@@ -986,8 +992,8 @@ export function defineNuriComponent(descriptor, tagName) {
   }
   // `selected` boolean ATTR → the `state` appearance axis (the tab-item · the
   // createNuriComponent boolean bridge). Observed so a live toggle re-renders.
-  const hasStateAxis = !!(descriptor.variants && descriptor.variants.state);
-  if (hasStateAxis) observed.push('selected');
+  const selectedMap = descriptor.api?.propMaps?.selected;
+  if (selectedMap) observed.push('selected');
   // a11y name — if the descriptor declares the RN pressable accessibilityLabel
   // prop, the web catalog twin accepts the platform-native aria-label override.
   if (supportsAccessibleName) observed.push('aria-label');
@@ -1078,7 +1084,7 @@ export function defineNuriComponent(descriptor, tagName) {
       if (interactive) props.disabled = this.hasAttribute('disabled');
       // `selected` boolean attr → props.selected (buildComponent bridges it to the
       // `state` axis · present = selected · absent = unselected).
-      if (hasStateAxis) props.selected = this.hasAttribute('selected');
+      if (selectedMap) props.selected = this.hasAttribute('selected');
       const accent = this.getAttribute('accent');
       if (accent) props.accent = accent; // Tier-2 self-scope (threaded to the merged node)
       // Ergonomic per-part attributes (prefix/suffix text · the `icon` glyph part) →
@@ -1120,6 +1126,7 @@ export function defineNuriComponent(descriptor, tagName) {
       // the factory's compound generation — descriptor-driven, not topbar-specific.
       if (isCompound) {
         applyHostNS(this, mergedNSForPart(descriptor, selection, 'root'), props.accent);
+        if (descriptor.api?.role) this.setAttribute('role', descriptor.api.role);
         const content = {};
         for (const [part, tpl] of Object.entries(this.#slots || {})) {
           content[part] = tpl.content.cloneNode(true); // a fresh fragment of clones
@@ -1138,6 +1145,7 @@ export function defineNuriComponent(descriptor, tagName) {
       // <nuri-view> wrapper, so the bar row + the items' `fill:even` flex line up).
       if (isOpenHost) {
         applyHostNS(this, mergedNSForPart(descriptor, selection, 'root'), props.accent);
+        if (descriptor.api?.role) this.setAttribute('role', descriptor.api.role);
         const kids = this.#openKids ? this.#openKids.content.cloneNode(true) : document.createDocumentFragment();
         this.replaceChildren(kids);
         return;

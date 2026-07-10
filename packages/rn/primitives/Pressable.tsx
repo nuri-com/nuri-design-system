@@ -9,9 +9,9 @@
 // the style is 100% runtime/resolve.ts.
 // ════════════════════════════════════════════════════════════════
 import * as React from 'react';
-import { Pressable as RNPressable } from 'react-native';
 import type { BoxNS, StackNS, PaletteNS, InteractiveNS } from '../contract';
 import { flattenInteractive } from '../runtime/resolve';
+import { PressableHost } from '../runtime/pressable-host';
 import { PALETTE_KEYS } from '@nuri/spec/descriptors/schema';
 import {
   BOX_KEYS,
@@ -39,16 +39,14 @@ const PressableImpl: React.FC<PressableProps> = (props) => {
   const { node, theme } = useResolvedNode(nsProps);
   const isDisabled = !!disabled;
   return (
-    <RNPressable
+    <PressableHost
       onPress={onPress}
       disabled={isDisabled}
-      accessibilityRole="button"
-      accessibilityState={{ disabled: isDisabled }}
       accessibilityLabel={accessibilityLabel}
       style={({ pressed }) => flattenInteractive(node, theme, { pressed, disabled: isDisabled })}
     >
       {withSurface(node.fg, children)}
-    </RNPressable>
+    </PressableHost>
   );
 };
 PressableImpl.displayName = 'Pressable';

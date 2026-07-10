@@ -393,6 +393,11 @@ function emitBehaviour(api, partTypeName) {
   const lines = [`  const behaviour: NuriBehaviour<${partTypeName}> = {};`];
   if (pressable) {
     lines.push('  behaviour.pressable = {', `    target: ${q(pressable.target)},`);
+    if (pressable.role) lines.push(`    role: ${q(pressable.role)},`);
+    // Coerce: the bridge declares both arms, so an OMITTED `selected` announces
+    // false — mirroring the web factory's `ctx.base.selected === true` (every tab
+    // carries the selected state; never a silent native/web divergence).
+    if (api.propMaps?.selected) lines.push('    selected: props.selected === true,');
     for (const prop of pressable.props) lines.push(`    ${prop}: props.${prop},`);
     lines.push('  };');
   }

@@ -74,18 +74,24 @@ test('primitive TabBar · open host captures authored item slots before item upg
 
   const tabBar = document.querySelector('nuri-tab-bar');
   assert.ok(tabBar, 'the open tab-bar host upgrades');
+  assert.equal(tabBar.getAttribute('role'), 'tablist', 'the open container carries its authored root role');
   assert.equal(tabBar.children.length, 2, 'the authored items remain the bar children');
 
   const firstItem = tabBar.querySelector('nuri-tab-bar-item');
   const button = firstItem?.querySelector('nuri-pressable > button.nuri-interactive');
   assert.ok(button, 'the item owns one visible interactive button');
   assert.equal(button.querySelector('button'), null, 'the item must not render a nested native button');
+  assert.equal(button.getAttribute('role'), 'tab', 'the selected item carries its authored pressable role');
+  assert.equal(button.getAttribute('aria-selected'), 'true', 'selected state is announced from the selected bridge');
   assert.deepEqual(
     classesOf(button),
     ['nuri-interactive', 'nuri-palette', 'nuri-stack'],
     'the item root namespaces land on the painting button',
   );
   assert.equal(button.textContent.trim(), '€ 36.50');
+  const secondButton = tabBar.querySelectorAll('nuri-tab-bar-item')[1]?.querySelector('nuri-pressable > button.nuri-interactive');
+  assert.equal(secondButton?.getAttribute('role'), 'tab');
+  assert.equal(secondButton?.getAttribute('aria-selected'), 'false', 'the false bridge arm is announced as unselected');
 });
 
 test('primitive Scroll · dock insets reflect onto the content-inset path', () => {
@@ -163,6 +169,8 @@ test('B · buildComponent(Button) · de-collapsed pressable tree · variant+size
 
   const btn = el.querySelector('button.nuri-interactive');
   assert.ok(btn, 'the pressable owns the inner native <button class="nuri-interactive">');
+  assert.equal(btn.getAttribute('role'), null, 'a Button keeps the native button implicit role');
+  assert.equal(btn.hasAttribute('aria-selected'), false, 'a descriptor without the selected bridge emits no selected state');
   assert.deepEqual(classesOf(btn), ['nuri-box', 'nuri-interactive', 'nuri-palette', 'nuri-stack'], 'box ⊕ stack ⊕ palette merge onto the SAME interactive button');
 
   // R1.5 · the defaults resolve FROM the descriptor: variant→soft (not solid),

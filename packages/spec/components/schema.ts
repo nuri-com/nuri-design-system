@@ -405,9 +405,10 @@ export type InputBehaviourProp = 'value'
 
 export type ComponentApi<P extends PartId = PartId> = {
   axes: string[];
+  role?: 'tablist';
   themeScope?: { accent: true };
   behaviour?: {
-    pressable?: { target: P; props: ('onPress' | 'disabled' | 'accessibilityLabel')[] };
+    pressable?: { target: P; role?: 'button' | 'tab'; props: ('onPress' | 'disabled' | 'accessibilityLabel')[] };
     input?: { target: P; focusTarget?: P; labelPart?: P; props: InputBehaviourProp[] };
   };
   propMaps?: { selected?: { axis: string; true: string; false: string } };

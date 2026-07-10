@@ -53,6 +53,7 @@ export const tabBarDescriptor = {
   // `default: true` on the `root` container part.
   api: {
     axes: ['surface'],
+    role: 'tablist',
     themeScope: { accent: true },
     slots: {
       default: { part: 'root', kind: 'children', default: true, multiple: true },

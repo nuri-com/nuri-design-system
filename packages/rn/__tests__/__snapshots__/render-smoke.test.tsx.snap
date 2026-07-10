@@ -1588,6 +1588,7 @@ exports[`render-smoke — the ergonomic components mount headless ListAction —
 
 exports[`render-smoke — the ergonomic components mount headless TabBar — OPEN container renders its positional Tab children · selected + unselected items 1`] = `
 <View
+  accessibilityRole="tablist"
   style={
     {
       "alignItems": "stretch",
@@ -1600,14 +1601,14 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
 >
   <View
     accessibilityLabel="Wallet"
-    accessibilityRole="button"
+    accessibilityRole="tab"
     accessibilityState={
       {
         "busy": undefined,
         "checked": undefined,
         "disabled": false,
         "expanded": undefined,
-        "selected": undefined,
+        "selected": true,
       }
     }
     accessibilityValue={
@@ -1781,14 +1782,14 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
   </View>
   <View
     accessibilityLabel="Coin"
-    accessibilityRole="button"
+    accessibilityRole="tab"
     accessibilityState={
       {
         "busy": undefined,
         "checked": undefined,
         "disabled": false,
         "expanded": undefined,
-        "selected": undefined,
+        "selected": false,
       }
     }
     accessibilityValue={
@@ -1913,14 +1914,14 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
   </View>
   <View
     accessibilityLabel="Cash"
-    accessibilityRole="button"
+    accessibilityRole="tab"
     accessibilityState={
       {
         "busy": undefined,
         "checked": undefined,
         "disabled": false,
         "expanded": undefined,
-        "selected": undefined,
+        "selected": false,
       }
     }
     accessibilityValue={
