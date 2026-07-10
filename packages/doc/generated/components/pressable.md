@@ -41,6 +41,14 @@ nav_order: 15
 | `pressScale` | no | `boolean` | component prop |
 | `disabledOpacity` | no | `boolean` | component prop |
 | `children` | no | `React.ReactNode` | default content slot |
-| `onPress` | no | `() => void` | pressable behaviour |
+| `onPress` | no | `(event: GestureResponderEvent) => void` | pressable behaviour |
+| `onLongPress` | no | `(event: GestureResponderEvent) => void` | RN-only long-press behaviour |
+| `hitSlop` | no | `number | Insets` | RN-only native touch target |
 | `disabled` | no | `boolean` | pressable behaviour |
+| `role` | no | `'button' | 'tab'` | pressable semantics |
+| `selected` | no | `boolean` | state axis |
 | `accessibilityLabel` | no | `string` | pressable behaviour |
+| `accessibilityHint` | no | `string` | pressable behaviour |
+| `testID` | no | `string` | native test hook |
+| `onLayout` | no | `(event: LayoutChangeEvent) => void` | RN-only native layout event |
+| `ref` | no | `React.Ref<React.ElementRef<typeof RNPressable>>` | RN-only native host ref |

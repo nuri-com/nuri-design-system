@@ -23,3 +23,7 @@ nav_order: 13
 | `muted` | no | `boolean` | style axis |
 | `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | style axis |
 | `children` | no | `React.ReactNode` | default content slot |
+| `testID` | no | `string` | native test hook |
+| `onLayout` | no | `(event: LayoutChangeEvent) => void` | RN-only native layout event |
+| `accessibilityLabel` | no | `string` | read-out override |
+| `ref` | no | `React.Ref<React.ElementRef<typeof RNText>>` | RN-only native host ref |
