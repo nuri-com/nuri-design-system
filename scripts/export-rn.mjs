@@ -128,6 +128,17 @@ function main() {
     if (specCopied.has(target)) continue;
     specCopied.add(target);
     cpSync(join(SPEC_SRC, target), join(internalDir, 'spec', target));
+    // A plain-JS target (the classifier pattern) types itself via an ADJACENT
+    // .d.ts that NO import ever names — TS discovers it by adjacency. Carry
+    // the companion, or the consumer's strict tsc sees the module as untyped.
+    if (target.endsWith('.js')) {
+      const companion = target.replace(/\.js$/, '.d.ts');
+      try {
+        if (statSync(join(SPEC_SRC, companion)).isFile()) {
+          cpSync(join(SPEC_SRC, companion), join(internalDir, 'spec', companion));
+        }
+      } catch { /* no companion — a typeless .js is its own problem downstream */ }
+    }
     const src = readFileSync(join(SPEC_SRC, target), 'utf8');
     // Both import forms: `from './x'` and the inline type form `import('./x')`.
     for (const [, , rel] of src.matchAll(/(from |import\()['"](\.\.?\/[^'"]+)['"]/g)) {
