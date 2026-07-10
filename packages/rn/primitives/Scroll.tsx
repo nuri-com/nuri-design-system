@@ -192,6 +192,7 @@ const ScrollImpl: React.FC<ScrollProps> = ({
   }, [clearScheduledScrolls, performScrollToInput]);
 
   React.useEffect(() => {
+    const previousHeight = keyboardHeight.current;
     const wasVisible = keyboardHeight.current > 0;
     const isVisible = contextKeyboardHeight > 0;
 
@@ -202,7 +203,7 @@ const ScrollImpl: React.FC<ScrollProps> = ({
       keyboardHeight.current = contextKeyboardHeight;
       keyboardScreenY.current = contextKeyboardScreenY;
       updateKeyboardPadding();
-      if (!wasVisible) {
+      if (!wasVisible || contextKeyboardHeight !== previousHeight) {
         scheduleScrollToInput(focusedInput.current, FOCUS_SCROLL_REPEAT_DELAY_MS);
       }
       return;

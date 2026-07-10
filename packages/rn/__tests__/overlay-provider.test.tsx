@@ -820,6 +820,17 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
 
       expect(scrollTo).toHaveBeenLastCalledWith({ y: 64, animated: true });
       expect(scrollToSpy).toHaveBeenCalled();
+
+      act(() => {
+        const show = keyboardHandlers.keyboardWillShow ?? keyboardHandlers.keyboardDidShow;
+        show({ endCoordinates: { height: 360 } });
+      });
+      act(() => {
+        jest.runAllTimers();
+      });
+
+      expect(scrollTo).toHaveBeenLastCalledWith({ y: 144, animated: true });
+      expect(scrollToSpy).toHaveBeenCalledTimes(2);
     } finally {
       addSpy.mockRestore();
       getInnerViewRefSpy.mockRestore();
