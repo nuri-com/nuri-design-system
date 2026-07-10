@@ -21,9 +21,6 @@
 }
 
 @layer rules {
-  nuri-stack { display: contents; }
-  nuri-stack:not(:defined) { display: flex; flex-direction: column; }
-  nuri-stack:not(:defined)[direction="row"] { flex-direction: row; }
   .nuri-stack { display: flex; flex-direction: column; min-width: 0; }
   .nuri-stack[data-direction="row"] { flex-direction: row; }
   .nuri-stack[data-direction="column"] { flex-direction: column; }
