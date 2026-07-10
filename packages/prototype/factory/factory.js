@@ -73,6 +73,8 @@
  * single line · the hand HTMLElement wrappers retired · N+50 · decision 65).
  * ────────────────────────────────────────────────────────────── */
 
+import { classifyComposition } from '../generated/composition-classify.js';
+
 // The canonical namespace merge order (resolve.ts NS_ORDER · load-bearing: the
 // merge inserts keys in THIS order). The web emit reads stack/box/palette as
 // merged-node classes+data-*; typography is the label el; interactive is the
@@ -109,12 +111,6 @@ const HOST_ELS = ['view', 'pressable'];
 // same policy off the marker's __nuriSlotOwner).
 const NURI_SLOT_TAGS = new Set();
 const NURI_COMPONENT_TAGS = new Map();
-
-// A part accepts REPEATED composition entries only where the descriptor's api
-// declares a slot targeting it `multiple: true` (the sequence contract —
-// repeats render as a sequence of instances, never a concatenated leaf).
-const isMultiPart = (descriptor, part) =>
-  Object.values(descriptor.api?.slots || {}).some((slot) => slot.part === part && slot.multiple === true);
 
 function componentRefsByPart(descriptor) {
   const refs = new Map();
@@ -401,20 +397,6 @@ function renderPart(node, ctx) {
   }
 }
 
-function findChildPath(node, part) {
-  for (const child of node.children) {
-    if (child.name === part) return [child];
-    const nested = findChildPath(child, part);
-    if (nested) return [child, ...nested];
-  }
-  return null;
-}
-
-function subtreeHasPart(node, part) {
-  if (node.name === part) return true;
-  return node.children.some((child) => subtreeHasPart(child, part));
-}
-
 function cloneEntryContent(value) {
   const isTemplate = value && value.nodeType === 1 && value.tagName === 'TEMPLATE';
   return isTemplate ? value.content.cloneNode(true) : value;
@@ -522,11 +504,7 @@ function wrapProseNodes(value, donor, ctx) {
   return value;
 }
 
-// ── THE GROUPING WALKER · mirrored across engines — edit in LOCKSTEP with
-// packages/rn/runtime/renderer.tsx renderHostBody#appendCompositionEntries (full
-// dedup is a named follow-up). The shared contract is pinned per-cell by the
-// composition-envelope suites (packages/prototype/factory/composition-envelope
-// .test.js · packages/rn/__tests__/composition-envelope.test.tsx).
+// Classification = @nuri/spec/composition-classify; only the render tail is engine-local.
 // Entry classification against THIS host:
 //   · own    — entry.part === this host: bare content of a region scope,
 //     rendered in place (bare children inside a region stay that region's own
@@ -543,59 +521,19 @@ function wrapProseNodes(value, donor, ctx) {
 function appendComposition(host, node, ctx) {
   const entries = ctx.composition && ctx.composition[node.name];
   if (!entries) return false;
-  const ambientContent = { ...ctx.content };
-  const labelPart = ctx.inputBehaviour?.labelPart;
-  if (labelPart && ambientContent[labelPart] === undefined) {
-    const labelEntry = entries.find((entry) => entry.part === labelPart);
-    if (labelEntry) ambientContent[labelPart] = labelEntry.content;
-  }
+  const { ordered, grouped, ambientContent } = classifyComposition(node, entries, {
+    ambientContent: ctx.content,
+    isHostEl: (el) => HOST_ELS.includes(el),
+    isMultiPart: (part) => Object.values(ctx.descriptor.api?.slots || {})
+      .some((slot) => slot.part === part && slot.multiple === true),
+    inputTarget: ctx.inputBehaviour?.target,
+    labelPart: ctx.inputBehaviour?.labelPart,
+    errorPrefix: '[nuri-factory]',
+  });
   const ambientCtx = { ...ctx, content: ambientContent };
   // The host's prose donor (null for a host with none) — styles this host's bare
   // string content via the prose-children rule.
   const donor = proseDonorNode(node, ctx);
-  const grouped = new Map();
-  const targets = new Map();
-  const ordered = [];
-  const childIndex = new Map(node.children.map((child, index) => [child.name, index]));
-  for (const [index, entry] of entries.entries()) {
-    if (entry.part === node.name) {
-      ordered.push({ kind: 'own', entry, index });
-      continue;
-    }
-    const path = findChildPath(node, entry.part);
-    if (!path) throw new Error(`[nuri-factory] composition entry targets '${entry.part}', which is not under '${node.name}'`);
-    const childNode = path[0];
-    if (path.length > 1 && HOST_ELS.includes(childNode.el)) {
-      let group = grouped.get(childNode.name);
-      if (!group) {
-        group = { child: childNode, entries: [] };
-        grouped.set(childNode.name, group);
-        ordered.push({ kind: 'group', part: childNode.name });
-        targets.set(childNode.name, (targets.get(childNode.name) ?? 0) + 1);
-      }
-      group.entries.push(entry);
-      continue;
-    }
-    ordered.push({ kind: 'direct', child: childNode, entry, index });
-    targets.set(entry.part, (targets.get(entry.part) ?? 0) + 1);
-  }
-  for (const child of node.children) {
-    if (targets.has(child.name)) continue;
-    if (!ctx.inputBehaviour?.target || !subtreeHasPart(child, ctx.inputBehaviour.target)) continue;
-    const staticItem = { kind: 'static', child };
-    const staticIndex = childIndex.get(child.name);
-    const before = ordered.findIndex((item) => {
-      const part = item.kind === 'group' ? item.part : item.kind === 'direct' ? item.child.name : null;
-      return part != null && childIndex.get(part) > staticIndex;
-    });
-    if (before === -1) ordered.push(staticItem);
-    else ordered.splice(before, 0, staticItem);
-  }
-  for (const [part, count] of targets) {
-    if (count > 1 && !isMultiPart(ctx.descriptor, part)) {
-      throw new Error(`[nuri-factory] slot targeting part '${part}' is singular — it appears ${count} times under '${node.name}'`);
-    }
-  }
   for (const item of ordered) {
     if (item.kind === 'own') {
       const value = wrapProseNodes(cloneEntryContent(item.entry.content), donor, ctx);
