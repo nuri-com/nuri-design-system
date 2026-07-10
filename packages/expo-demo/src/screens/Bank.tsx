@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Button, Text, View } from '@ds';
 
-export function Wallet() {
+export function Bank() {
   return (
     <View direction="column" align="stretch" justify="start" gap="lg" paddingX="lg" paddingY="md" fill="grow">
       <View aspectRatio="card" radius="lg" variant="soft" />
