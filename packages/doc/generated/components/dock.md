@@ -15,3 +15,6 @@ nav_order: 20
 | --- | --- | --- | --- |
 | `edge` | yes | `'bottom' | 'top'` | dock placement |
 | `children` | no | `React.ReactNode` | default content slot |
+| `testID` | no | `string` | native test hook |
+| `onLayout` | no | `(event: LayoutChangeEvent) => void` | RN-only native layout event |
+| `ref` | no | `React.Ref<React.ElementRef<typeof RNView>>` | RN-only native host ref |

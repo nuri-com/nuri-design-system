@@ -8,27 +8,39 @@ import { useFixedRegionLayout } from './FixedRegionLayout';
 import { withKeys } from './shared';
 
 export type DockEdge = 'bottom' | 'top';
-export type DockProps = { edge: DockEdge; children?: React.ReactNode };
+export type DockProps = {
+  edge: DockEdge;
+  children?: React.ReactNode;
+  testID?: string;
+  onLayout?: (event: LayoutChangeEvent) => void;
+  ref?: React.Ref<React.ElementRef<typeof RNView>>;
+};
 
-const DockImpl: React.FC<DockProps> = ({ edge, children }) => {
+const DockImpl = React.forwardRef<React.ElementRef<typeof RNView>, DockProps>(({
+  edge,
+  children,
+  testID,
+  onLayout,
+}, ref) => {
   const { setDockTopInset, setDockBottomInset } = useFixedRegionLayout();
   const setInset = edge === 'top' ? setDockTopInset : setDockBottomInset;
 
   React.useEffect(() => () => setInset(0), [setInset]);
 
-  const onLayout = React.useCallback(
+  const handleLayout = React.useCallback(
     (event: LayoutChangeEvent) => {
       setInset(event.nativeEvent.layout.height);
+      onLayout?.(event);
     },
-    [setInset],
+    [onLayout, setInset],
   );
 
   return (
-    <RNView onLayout={onLayout} style={edge === 'top' ? DOCK_TOP_STYLE : DOCK_BOTTOM_STYLE}>
+    <RNView ref={ref} testID={testID} onLayout={handleLayout} style={edge === 'top' ? DOCK_TOP_STYLE : DOCK_BOTTOM_STYLE}>
       {children}
     </RNView>
   );
-};
+});
 DockImpl.displayName = 'Dock';
 export const Dock = withKeys(DockImpl, ['edge']);
 

@@ -371,18 +371,21 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
   });
 
   test('Header and Footer measure into Scroll insets', () => {
+    const onHeaderLayout = jest.fn();
+    const onFooterLayout = jest.fn();
     const tr = render(
       <NuriThemeProvider>
         <OverlayProvider>
           <BottomSheet open detent="full">
             <BottomSheetPanel>
-              <Header paddingTop="lg">
+              <Header paddingTop="lg" onLayout={onHeaderLayout}>
                 <Button>Close</Button>
               </Header>
               <Scroll>
                 <Text>Body</Text>
               </Scroll>
               <Footer
+                onLayout={onFooterLayout}
                 chrome="strong"
                 direction="row"
                 align="center"
@@ -435,6 +438,8 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     expect(contentStyle.paddingTop).toBe(56);
     expect(contentStyle.paddingBottom).toBe(72);
     expect(flatStyle(scroll.props.style).maxHeight).toBe(scrollMaxHeightBeforeFooterMeasure);
+    expect(onHeaderLayout).toHaveBeenCalledTimes(1);
+    expect(onFooterLayout).toHaveBeenCalledTimes(1);
   });
 
   test('Footer composes authored bottom padding with safe-area bottom', () => {
@@ -715,6 +720,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       onSuccess(0, 360, 120, 54);
     });
     const captured = { api: null as FocusScrollApi | null };
+    const onScrollLayout = jest.fn();
 
     try {
       let tr!: TestRenderer.ReactTestRenderer;
@@ -722,7 +728,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
         tr = TestRenderer.create(
           <NuriThemeProvider>
             <FixedRegionLayoutProvider keyboardEnabled>
-              <Scroll>
+              <Scroll onLayout={onScrollLayout}>
                 <FocusScrollProbe onReady={(next) => (captured.api = next)} />
               </Scroll>
             </FixedRegionLayoutProvider>
@@ -749,6 +755,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       expect(measureLayout.mock.calls[0][0]).toBe(scrollContentRef);
       expect(scrollTo).toHaveBeenCalledWith({ y: 202, animated: true });
       expect(scrollToSpy).toHaveBeenCalledTimes(1);
+      expect(onScrollLayout).toHaveBeenCalledTimes(1);
     } finally {
       getInnerViewRefSpy.mockRestore();
       scrollToSpy.mockRestore();

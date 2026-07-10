@@ -217,6 +217,13 @@ const NOTE_BY_PROP = {
   onPress: 'pressable behaviour',
   disabled: 'pressable behaviour',
   accessibilityLabel: 'pressable behaviour',
+  accessibilityHint: 'pressable behaviour',
+  role: 'pressable semantics',
+  testID: 'native test hook',
+  onLayout: 'RN-only native layout event',
+  onLongPress: 'RN-only long-press behaviour',
+  hitSlop: 'RN-only native touch target',
+  ref: 'RN-only native host ref',
   value: 'input behaviour',
   onChangeText: 'input behaviour',
   placeholder: 'input behaviour',
@@ -262,6 +269,7 @@ function noteForProp(name, type, typeName, isPrimaryType, childrenNote, behaviou
   // composition are 'composition children' — the docs never promise a bare-
   // children sink the engine does not have.
   if (name === 'children') return isPrimaryType ? (childrenNote ?? 'default content slot') : 'slot content';
+  if (typeName === 'TextProps' && name === 'accessibilityLabel') return 'read-out override';
   if (!isPrimaryType && (name === 'variant' || name === 'accent')) return 'delegated component prop';
   if (isPrimaryType && behaviourNotes.inputProps?.includes(name)) return 'input behaviour';
   if (isPrimaryType && behaviourNotes.pressableProps?.includes(name)) return 'pressable behaviour';
@@ -542,6 +550,7 @@ export async function componentApiIrFromFile(spec, repoRoot) {
   const extraSources = await Promise.all([
     readFile(resolve(repoRoot, 'packages/spec/components/schema.ts'), 'utf8'),
     readFile(resolve(repoRoot, 'packages/rn/generated/data/tokens.ts'), 'utf8'),
+    readFile(resolve(repoRoot, 'packages/rn/runtime/pressable-host.tsx'), 'utf8'),
   ]);
   // Descriptor-backed pages derive the primary `children` note from the api
   // DATA (the browser-ESM descriptor twin — the same read docs.js uses): a

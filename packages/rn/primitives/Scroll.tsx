@@ -23,6 +23,9 @@ export type ScrollProps = {
   insetTop?: ScrollInsetTop;
   insetBottom?: ScrollInsetBottom;
   children?: React.ReactNode;
+  testID?: string;
+  onLayout?: (event: LayoutChangeEvent) => void;
+  ref?: React.Ref<React.ElementRef<typeof RNScrollView>>;
 };
 
 type ScrollViewInstance = React.ElementRef<typeof RNScrollView>;
@@ -45,13 +48,15 @@ const FOCUS_SCROLL_REPEAT_DELAY_MS = 60;
 
 // Keyboard handling requires a FixedRegionLayoutProvider ancestor. Screen and
 // BottomSheet provide it; a bare Scroll intentionally degrades to no handling.
-const ScrollImpl: React.FC<ScrollProps> = ({
+const ScrollImpl = React.forwardRef<React.ElementRef<typeof RNScrollView>, ScrollProps>(({
   safeAreaTop = false,
   safeAreaBottom = false,
   insetTop = 'none',
   insetBottom = 'none',
   children,
-}) => {
+  testID,
+  onLayout,
+}, forwardedRef) => {
   const {
     scrollMaxHeight,
     headerHeight,
@@ -74,6 +79,12 @@ const ScrollImpl: React.FC<ScrollProps> = ({
   const rafs = React.useRef<number[]>([]);
   const timers = React.useRef<Array<ReturnType<typeof setTimeout>>>([]);
   const [keyboardPadding, setKeyboardPadding] = React.useState(0);
+
+  const setScrollRef = React.useCallback((instance: ScrollViewInstance | null) => {
+    scrollRef.current = instance;
+    if (typeof forwardedRef === 'function') forwardedRef(instance);
+    else if (forwardedRef) forwardedRef.current = instance;
+  }, [forwardedRef]);
 
   const clearScheduledScrolls = React.useCallback(() => {
     for (const raf of rafs.current) cancelAnimationFrame(raf);
@@ -228,7 +239,8 @@ const ScrollImpl: React.FC<ScrollProps> = ({
   const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
     viewportHeight.current = event.nativeEvent.layout.height;
     if (keyboardHeight.current > 0) updateKeyboardPadding();
-  }, [updateKeyboardPadding]);
+    onLayout?.(event);
+  }, [onLayout, updateKeyboardPadding]);
 
   const handleScroll = React.useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     scrollY.current = event.nativeEvent.contentOffset.y;
@@ -257,7 +269,8 @@ const ScrollImpl: React.FC<ScrollProps> = ({
 
   return (
     <RNScrollView
-      ref={scrollRef}
+      ref={setScrollRef}
+      testID={testID}
       style={scrollStyle}
       contentContainerStyle={contentStyle}
       keyboardShouldPersistTaps="handled"
@@ -268,7 +281,7 @@ const ScrollImpl: React.FC<ScrollProps> = ({
       <FocusScrollProvider value={focusScrollApi}>{children}</FocusScrollProvider>
     </RNScrollView>
   );
-};
+});
 ScrollImpl.displayName = 'Scroll';
 export const Scroll = withKeys(ScrollImpl, ['safeAreaTop', 'safeAreaBottom', 'insetTop', 'insetBottom']);
 const SCROLL_CONTENT_STYLE: ViewStyle = { flexGrow: 1 };
