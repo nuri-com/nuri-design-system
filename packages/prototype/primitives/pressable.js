@@ -52,7 +52,7 @@
 (() => {
   // Web custom-element attribute names use kebab-case; accessibility-label
   // is the find-replace mirror of RN's accessibilityLabel (decision 21).
-  const ATTRS = ['press-scale', 'press-color', 'disabled', 'accent', 'accessibility-label'];
+  const ATTRS = ['press-scale', 'press-color', 'disabled', 'accent', 'accessibility-label', 'role', 'aria-selected'];
 
   class NuriPressable extends HTMLElement {
     static get observedAttributes() {
@@ -133,6 +133,21 @@
         this.#btn.setAttribute('aria-label', label);
       } else {
         this.#btn.removeAttribute('aria-label');
+      }
+
+      // Semantic overrides are descriptor-authored by the factory. A plain
+      // button keeps its native implicit role; only non-button roles are set.
+      const role = this.getAttribute('role');
+      if (role && role !== 'button') {
+        this.#btn.setAttribute('role', role);
+      } else {
+        this.#btn.removeAttribute('role');
+      }
+      const selected = this.getAttribute('aria-selected');
+      if (selected != null) {
+        this.#btn.setAttribute('aria-selected', selected);
+      } else {
+        this.#btn.removeAttribute('aria-selected');
       }
     }
   }
