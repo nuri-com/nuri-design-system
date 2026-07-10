@@ -207,21 +207,8 @@ const PAGE_CONTRACT = {
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
-  stack: {
-    kind: 'api', source: 'stack', title: 'Stack', nav: 11,
-    cells: [
-      "| `direction` | no | `'row' | 'column'` | style axis |",
-      "| `gap` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |",
-      "| `fill` | no | `'grow' | 'grow-shrink' | 'even' | 'hug'` | style axis |",
-      '| `children` | no | `React.ReactNode` | default content slot |',
-      '| `testID` | no | `string` | native test hook |',
-      '| `onLayout` | no | `(event: LayoutChangeEvent) => void` | RN-only native layout event |',
-      '| `ref` | no | `React.Ref<React.ElementRef<typeof RNView>>` | RN-only native host ref |',
-    ],
-    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
-  },
   view: {
-    kind: 'api', source: 'view', title: 'View', nav: 12,
+    kind: 'api', source: 'view', title: 'View', nav: 11,
     cells: [
       "| `width` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |",
       "| `radiusTop` | no | `'sm' | 'md' | 'lg' | 'full'` | style axis |",
@@ -229,6 +216,7 @@ const PAGE_CONTRACT = {
       "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
       "| `elevation` | no | `'none' | 'raised'` | style axis |",
+      'Column layout uses `<View>` with the schema default direction; rows use `direction="row"`.',
       '| `testID` | no | `string` | native test hook |',
       '| `onLayout` | no | `(event: LayoutChangeEvent) => void` | RN-only native layout event |',
       '| `ref` | no | `React.Ref<React.ElementRef<typeof RNView>>` | RN-only native host ref |',
@@ -236,7 +224,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   typography: {
-    kind: 'api', source: 'typography', title: 'Typography', nav: 13,
+    kind: 'api', source: 'typography', title: 'Typography', nav: 12,
     cells: [
       "| `size` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '3xl'` | style axis |",
       '| `emphasis` | no | `boolean` | style axis |',
@@ -250,7 +238,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   icon: {
-    kind: 'api', source: 'icon', title: 'Icon', nav: 14,
+    kind: 'api', source: 'icon', title: 'Icon', nav: 13,
     cells: [
       '| `name` | yes | `IconName` | scalar icon name |',
       '| `color` | no | `string` | glyph rendering |',
@@ -259,7 +247,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   pressable: {
-    kind: 'api', source: 'pressable', title: 'Pressable', nav: 15,
+    kind: 'api', source: 'pressable', title: 'Pressable', nav: 14,
     cells: [
       "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |",
       '| `pressScale` | no | `boolean` | component prop |',
@@ -277,7 +265,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '| `distribute` |'],
   },
   screen: {
-    kind: 'api', source: 'screen', title: 'Screen', nav: 16,
+    kind: 'api', source: 'screen', title: 'Screen', nav: 15,
     cells: [
       '| `safeArea` | no | `boolean` | safe-area reserve |',
       '| `safeAreaTop` | no | `boolean` | safe-area reserve |',
@@ -290,7 +278,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   header: {
-    kind: 'api', source: 'header', title: 'Header', nav: 17,
+    kind: 'api', source: 'header', title: 'Header', nav: 16,
     cells: [
       "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | style axis |",
       "| `paddingBottom` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |",
@@ -303,7 +291,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   scroll: {
-    kind: 'api', source: 'scroll', title: 'Scroll', nav: 18,
+    kind: 'api', source: 'scroll', title: 'Scroll', nav: 17,
     cells: [
       '| `safeAreaTop` | no | `boolean` | safe-area reserve |',
       "| `insetTop` | no | `'none' | 'dock'` | dock inset reserve |",
@@ -316,7 +304,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   footer: {
-    kind: 'api', source: 'footer', title: 'Footer', nav: 19,
+    kind: 'api', source: 'footer', title: 'Footer', nav: 18,
     cells: [
       "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | style axis |",
       '| `safeAreaBottom` | no | `boolean` | safe-area reserve |',
@@ -328,7 +316,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   dock: {
-    kind: 'api', source: 'dock', title: 'Dock', nav: 20,
+    kind: 'api', source: 'dock', title: 'Dock', nav: 19,
     cells: [
       "| `edge` | yes | `'bottom' | 'top'` | dock placement |",
       '| `children` | no | `React.ReactNode` | default content slot |',
@@ -339,14 +327,14 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   separator: {
-    kind: 'api', source: 'separator', title: 'Separator', nav: 21,
+    kind: 'api', source: 'separator', title: 'Separator', nav: 20,
     cells: [
       "| `ySpace` | no | `'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'` | separator spacing |",
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   'bottom-sheet': {
-    kind: 'api', source: 'bottom-sheet', title: 'BottomSheet', nav: 22,
+    kind: 'api', source: 'bottom-sheet', title: 'BottomSheet', nav: 21,
     cells: [
       '| `open` | no | `boolean` | sheet behaviour |',
       "| `detent` | no | `'content' | 'full'` | sheet behaviour |",
@@ -357,7 +345,7 @@ const PAGE_CONTRACT = {
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
   'bottom-sheet-panel': {
-    kind: 'api', source: 'bottom-sheet-panel', title: 'BottomSheet Panel', nav: 23,
+    kind: 'api', source: 'bottom-sheet-panel', title: 'BottomSheet Panel', nav: 22,
     cells: [
       '| `children` | no | `React.ReactNode` | default content slot |',
     ],

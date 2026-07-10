@@ -49,7 +49,6 @@
         { id: 'components/tab-bar',            label: 'Tab Bar',            href: 'generated/components/tab-bar.html' },
         { id: 'components/tab-bar-item',       label: 'Tab Bar Item',       href: 'generated/components/tab-bar-item.html' },
         { id: 'components/topbar',             label: 'Topbar',             href: 'generated/components/topbar.html' },
-        { id: 'components/stack',              label: 'Stack',              href: 'generated/components/stack.html' },
         { id: 'components/view',               label: 'View',               href: 'generated/components/view.html' },
         { id: 'components/typography',         label: 'Typography',         href: 'generated/components/typography.html' },
         { id: 'components/icon',               label: 'Icon',               href: 'generated/components/icon.html' },

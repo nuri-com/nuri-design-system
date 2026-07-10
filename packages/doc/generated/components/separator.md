@@ -1,7 +1,7 @@
 ---
 title: Separator
 layout: default
-nav_order: 21
+nav_order: 20
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/primitives/Separator.tsx

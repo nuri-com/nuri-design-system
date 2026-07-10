@@ -510,6 +510,10 @@ export function emitComponentApiPage(ir) {
   lines.push('');
   lines.push(`# ${title}`);
   lines.push('');
+  if (ir.lead) {
+    lines.push(ir.lead);
+    lines.push('');
+  }
   lines.push('## API');
   lines.push('');
   for (const apiType of apiTypes) {

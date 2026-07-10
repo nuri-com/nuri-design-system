@@ -1,7 +1,7 @@
 ---
 title: Pressable
 layout: default
-nav_order: 15
+nav_order: 14
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/primitives/Pressable.tsx
