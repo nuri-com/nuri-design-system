@@ -107,9 +107,6 @@ const selectorFor = (ns, key, value) => `.nuri-${ns}[data-${kebab(key)}="${value
 const SHELLS = {
   stack: {
     pre: [
-      { sel: 'nuri-stack', decls: [['display', 'contents']] },
-      { sel: 'nuri-stack:not(:defined)', decls: [['display', 'flex'], ['flex-direction', 'column']] },
-      { sel: 'nuri-stack:not(:defined)[direction="row"]', decls: [['flex-direction', 'row']] },
       { sel: '.nuri-stack', decls: [['display', 'flex'], ['flex-direction', 'column'], ['min-width', '0']] },
     ],
     post: [],

@@ -5,8 +5,8 @@
  * display:contents component host, so the layout primitives WRAP each direct
  * child in a real `.nuri-stack` box the `[data-distribute="even"] > *` rule sizes
  * (the CSS half is pinned in pipeline/css-preview.test.js). This exercises the
- * `#syncDistribute` add + remove paths in view.js and stack.js — the wrap on
- * connect, and the unwrap when `distribute` is flipped off. Computed flex is NOT
+ * `#syncDistribute` add + remove paths in view.js — the wrap on connect, and the
+ * unwrap when `distribute` is flipped off. Computed flex is NOT
  * assertable in jsdom (no stylesheet application), so this asserts the STRUCTURE;
  * the CSS test proves the `> *` rule that sizes the wrappers.
  * ══════════════════════════════════════════════════════════════════ */
@@ -21,7 +21,6 @@ for (const key of ['window', 'document', 'customElements', 'HTMLElement', 'Mutat
   globalThis[key] = key === 'window' ? dom.window : dom.window[key];
 }
 await import('../primitives/view.js');  // registers <nuri-view>
-await import('../primitives/stack.js'); // registers <nuri-stack>
 
 const mount = (el) => { dom.window.document.body.appendChild(el); return el; };
 const isWrapper = (el) => el.dataset.nuriDistributeWrapper !== undefined;
@@ -65,19 +64,4 @@ test('flipping distribute OFF UNWRAPS — the original children return as direct
   assert.equal(kids.length, 2, 'the two originals are back as direct children');
   assert.ok(kids.every((k) => !isWrapper(k)), 'no distribute wrappers remain');
   assert.deepEqual(kids.map((k) => [k.tagName, k.textContent]), [['BUTTON', 'One'], ['BUTTON', 'Two']]);
-});
-
-test('<nuri-stack distribute="even"> wraps each child of its #inner host too (the other primitive)', () => {
-  const s = document.createElement('nuri-stack');
-  s.setAttribute('direction', 'row');
-  s.setAttribute('distribute', 'even');
-  makeChildren(s, ['x', 'y', 'z']);
-  mount(s); // connectedCallback moves children into #inner, then #syncDistribute wraps them
-
-  const inner = s.querySelector('.nuri-stack'); // the #inner host (class set in #sync)
-  assert.ok(inner, 'nuri-stack builds its inner host');
-  const wrappers = [...inner.children];
-  assert.equal(wrappers.length, 3, 'one wrapper per child inside #inner');
-  assert.ok(wrappers.every(isWrapper), 'each #inner child is wrapped');
-  assert.ok(wrappers.every((w) => w.firstElementChild?.tagName === 'BUTTON'), 'each wrapper holds its original child');
 });

@@ -1,7 +1,7 @@
 ---
 title: BottomSheet
 layout: default
-nav_order: 22
+nav_order: 21
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/primitives/BottomSheet.tsx

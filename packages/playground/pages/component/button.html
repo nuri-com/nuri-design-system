@@ -10,7 +10,7 @@
     /* Page-local CHROME tweaks ONLY (the board row · the topbar) — NOT the
        device frame's content layout, which must stay RN-faithful (a screen
        fills the viewport, content flows from the top). Centering is done IN
-       each example's composition instead (a filling, centering <nuri-stack> ·
+       each example's composition instead (a filling, centering <nuri-view> ·
        the web mirror of an RN <View flex:1 + center>):
          · the board panels butt together (no inter-panel gutter)
          · this bench is self-contained — hide the shell's DS cross-link */
@@ -23,42 +23,42 @@
 <nuri-playground-shell doc="Button">
 
   <!-- default · the Button with no axes set (resolves to the descriptor defaults).
-       The <nuri-stack fill justify/align center> fills the screen and centers its
+       The <nuri-view fill justify/align center> fills the screen and centers its
        content — the web mirror of an RN <View flex:1 + center>. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="default">
     <template>
-      <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
+      <nuri-view direction="column" align="center" justify="center" gap="md" fill>
         <nuri-button>Button</nuri-button>
-      </nuri-stack>
+      </nuri-view>
     </template>
   </nuri-demo>
 
   <!-- sizes · the two-size scale (sm · lg) — lg is the default (shown above). -->
   <nuri-demo layout="board" controls="device,theme,accent" label="sizes">
     <template>
-      <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
+      <nuri-view direction="column" align="center" justify="center" gap="md" fill>
         <nuri-button size="sm">Small</nuri-button>
         <nuri-button size="lg">Large</nuri-button>
-      </nuri-stack>
+      </nuri-view>
     </template>
   </nuri-demo>
 
   <!-- variant · solid · soft · a per-instance accent override · a disabled solid. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="variant">
     <template>
-      <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
+      <nuri-view direction="column" align="center" justify="center" gap="md" fill>
         <nuri-button variant="solid">Solid</nuri-button>
         <nuri-button variant="soft">Soft</nuri-button>
         <nuri-button variant="solid" accent="orange">Solid accent</nuri-button>
         <nuri-button variant="solid" disabled>Disabled</nuri-button>
-      </nuri-stack>
+      </nuri-view>
     </template>
   </nuri-demo>
 
   <!-- with icons · ordered ButtonText + ButtonIcon lockups: trailing icon · mid icon · leading icon. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="with icons">
     <template>
-      <nuri-stack direction="column" align="center" justify="center" gap="md" fill>
+      <nuri-view direction="column" align="center" justify="center" gap="md" fill>
         <nuri-button size="sm" variant="soft">
           <nuri-button-text>Copied</nuri-button-text>
           <nuri-button-icon name="check-circle"></nuri-button-icon>
@@ -72,7 +72,7 @@
           <nuri-button-icon name="plus"></nuri-button-icon>
           <nuri-button-text>Add contact</nuri-button-text>
         </nuri-button>
-      </nuri-stack>
+      </nuri-view>
     </template>
   </nuri-demo>
 

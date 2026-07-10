@@ -2,7 +2,7 @@
  * NURI · COMPONENT · VIEW  (the static merged-node host · S4 · decision 67)
  *
  * The host rule for <nuri-view> (view.js). Unlike <nuri-box> /
- * <nuri-stack> / <nuri-pressable> — which are display:contents
+ * <nuri-pressable> — which is a display:contents
  * wrappers around an inner painting node — <nuri-view> IS the
  * painting node: the web factory applies the merged box ⊕ stack ⊕
  * palette classes + data-* directly ONTO this element (the merged-node

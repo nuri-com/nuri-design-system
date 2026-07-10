@@ -39,7 +39,7 @@
  * .nuri-palette` + `data-{kebab}` are byte-identical to the factory's. The CSS
  * (box.css / stack.css / palette.css) dispatches unchanged; this file adds an
  * attr READER, not new styling. The boolean/enum NORMALIZATION (wrap → 'true',
- * bare `fill` → 'grow') mirrors the live <nuri-stack> hand-authorable element.
+ * bare `fill` → 'grow') preserves the stack namespace's authoring semantics.
  *
  * @layer host default lives in view.css (the RN <View> Yoga box · flex column,
  * flex-shrink:0). accent self-scope (Tier-2 · decision 27/62) rides the token
@@ -57,7 +57,7 @@ import { mergeAttrs } from '../factory/factory.js';
 // parity gate (primitives-parity.test.ts) reads these namespace literals and asserts
 // their union ≡ the schema namespace keys (kebab) — a CHECKED projection, not a
 // trusted hand list (contract §3.2). `as` is NOT here: <nuri-view> IS the painting
-// node (no inner host element to override · unlike <nuri-stack>).
+// node (no inner host element to override).
 const BOX_ATTRS = [
   'width', 'height', 'min-height', 'min-width',
   'padding', 'padding-x', 'padding-y', 'padding-start', 'padding-end', 'padding-top', 'padding-bottom',
@@ -80,7 +80,7 @@ const MANAGED_DATA = [
   'data-variant', 'data-chrome', 'data-accent',
 ];
 
-// fill · enum grow | grow-shrink | even (the <nuri-stack> normalization · B1.5 §3):
+// fill · enum grow | grow-shrink | even (the stack namespace normalization · B1.5 §3):
 // a bare `fill` (or `fill="grow"`) means grow; `grow-shrink` / `even` pass through;
 // anything else present defaults to grow. The factory never emits bare fill (its
 // descriptors are explicit), so this normalization is the hand-author's alone.

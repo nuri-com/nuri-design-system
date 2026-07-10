@@ -24,7 +24,7 @@
  *
  * Markup
  *   <nuri-scroll>
- *     <nuri-view padding="lg"><nuri-stack>…</nuri-stack></nuri-view>
+ *     <nuri-view padding="lg"><nuri-view>…</nuri-view></nuri-view>
  *   </nuri-scroll>
  *
  * No `@layer tokens` block — Scroll bakes only structural CSS

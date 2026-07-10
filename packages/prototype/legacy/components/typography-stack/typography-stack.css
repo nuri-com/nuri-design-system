@@ -29,7 +29,7 @@
  * axis (CSS reads the attribute directly — it is static, not JS-
  * computed). The container's only job is the OWNED inter-line rhythm
  * (column 2xs / row xs gap) — that is its reason to exist vs reusing
- * <nuri-stack> (decision 47). Colour + metrics belong to the composed
+ * <nuri-view> layout composition. Colour + metrics belong to the composed
  * <nuri-typography> children, not the stack.
  * ────────────────────────────────────────────────────────────── */
 
@@ -47,7 +47,7 @@
    * column (default) → tight vertical leading; row → inline gutter +
    * baseline so mixed-size lines sit on a shared text baseline. The gap
    * is OWNED (not a `gap` prop) — that is what distinguishes this from
-   * <nuri-stack> (decision 47). */
+   * <nuri-view>. */
   nuri-typography-stack {
     display: flex;
     flex-direction: column;

@@ -1,7 +1,7 @@
 ---
 title: Footer
 layout: default
-nav_order: 19
+nav_order: 18
 ---
 
 <!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/primitives/Footer.tsx

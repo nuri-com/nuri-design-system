@@ -60,7 +60,7 @@
   TypographyStack is a SINGLE-element rhythm container (decision 53
   reversed decision 47's two-element compound): <nuri-typography-stack>
   is the flex container that OWNS the inter-line rhythm (its reason to
-  exist vs reusing <nuri-stack>); it wraps plain <nuri-typography> lines
+  exist vs reusing <nuri-view>); it wraps plain <nuri-typography> lines
   whose size / emphasis / muted carry what the eliminated
   <nuri-typography-stack-element>'s `level` sub-scale used to. The old
   5-level scale is NOT replaced by a guidance table — a size/emphasis/
@@ -170,7 +170,7 @@
       attribute by CSS (no <code>data-*</code>, because it is static, not
       JS-computed). It <strong>owns the inter-line rhythm</strong> (the
       gap is not parameterised — that is what distinguishes it from
-      <code>&lt;nuri-stack&gt;</code>). The lines are plain
+      <code>&lt;nuri-view&gt;</code>). The lines are plain
       <code>&lt;nuri-typography&gt;</code>; their <code>size</code> /
       <code>emphasis</code> / <code>muted</code> carry the hierarchy
       (decision 53 eliminated the former

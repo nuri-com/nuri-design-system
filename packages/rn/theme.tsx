@@ -41,7 +41,7 @@ import type { ThemePayload } from './runtime/theme-payload';
 export type { ThemePayload } from './runtime/theme-payload';
 
 // ── SpaceLeaf · the 5-leaf semantic space subset the layout primitives
-// expose (Stack gap, Box padding*, Spacer size · decision 36/37). ──
+// expose (View gap/padding*, Spacer size · decision 36/37). ──
 export type SpaceLeaf = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 // ── TypeKey · a step in the type scale (decision 54 · de-fused 77). The fused

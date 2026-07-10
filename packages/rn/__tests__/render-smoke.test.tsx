@@ -66,7 +66,6 @@ import { space } from '../generated/data/tokens';
 // with the raw react-native View/Text imported above for the catalog tests.
 import {
   View as NuriView,
-  Stack as NuriStack,
   Text as NuriText,
   Pressable as NuriPressable,
   Screen as NuriScreen,
@@ -967,17 +966,17 @@ describe('render-smoke — the ergonomic components mount headless', () => {
   // primitive-side · contract §3.3b). A View carrying a palette delivers its fg
   // by scope into a nested Text (proving the primitives reuse the factory's §12
   // colour-by-scope, not a parallel mechanism).
-  test('primitives — View ⊃ Stack ⊃ Text compose · merged box⊕stack⊕palette + colour-by-scope', () => {
+  test('primitives — View ⊃ View ⊃ Text compose · merged box⊕stack⊕palette + colour-by-scope', () => {
     const tr = render(
       <NuriThemeProvider>
         <NuriScreen>
           <NuriScroll>
             <NuriView variant="soft" padding="md" radius="lg">
-              <NuriStack direction="row" gap="sm" align="center">
+              <NuriView direction="row" gap="sm" align="center">
                 <NuriText size="md" emphasis>
                   Wallet
                 </NuriText>
-              </NuriStack>
+              </NuriView>
             </NuriView>
           </NuriScroll>
         </NuriScreen>

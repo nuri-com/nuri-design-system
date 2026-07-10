@@ -21,7 +21,7 @@
        icon-buttons in the trailing region space by the region's own gap. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="topbar">
     <template>
-      <nuri-stack direction="column" align="stretch" justify="start" gap="md" fill>
+      <nuri-view direction="column" align="stretch" justify="start" gap="md" fill>
         <nuri-topbar>
           <nuri-topbar-leading>
             <nuri-icon name="nuri"></nuri-icon>
@@ -31,7 +31,7 @@
             <nuri-icon-button icon="headphones" aria-label="Support"></nuri-icon-button>
           </nuri-topbar-trailing>
         </nuri-topbar>
-      </nuri-stack>
+      </nuri-view>
     </template>
   </nuri-demo>
 
@@ -39,7 +39,7 @@
        default action (trailing). The centre button lands at the bar's true centre. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="centered">
     <template>
-      <nuri-stack direction="column" align="stretch" justify="start" gap="md" fill>
+      <nuri-view direction="column" align="stretch" justify="start" gap="md" fill>
         <nuri-topbar>
           <nuri-topbar-leading>
             <nuri-icon name="nuri"></nuri-icon>
@@ -55,7 +55,7 @@
             <nuri-icon-button icon="headphones" aria-label="Support"></nuri-icon-button>
           </nuri-topbar-trailing>
         </nuri-topbar>
-      </nuri-stack>
+      </nuri-view>
     </template>
   </nuri-demo>
 
@@ -63,11 +63,11 @@
        wrapper) sinks to the trailing region → right-aligned by the region's justify. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="modal">
     <template>
-      <nuri-stack direction="column" align="stretch" justify="start" gap="md" fill>
+      <nuri-view direction="column" align="stretch" justify="start" gap="md" fill>
         <nuri-topbar>
           <nuri-icon-button icon="cross" aria-label="Close"></nuri-icon-button>
         </nuri-topbar>
-      </nuri-stack>
+      </nuri-view>
     </template>
   </nuri-demo>
 
@@ -75,19 +75,19 @@
        space by its gap; no wrapper stack. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="flow">
     <template>
-      <nuri-stack direction="column" align="stretch" justify="start" gap="md" fill>
+      <nuri-view direction="column" align="stretch" justify="start" gap="md" fill>
         <nuri-topbar>
           <nuri-icon-button icon="chevron-left" aria-label="Back"></nuri-icon-button>
           <nuri-icon-button icon="cross" aria-label="Close"></nuri-icon-button>
         </nuri-topbar>
-      </nuri-stack>
+      </nuri-view>
     </template>
   </nuri-demo>
 
   <!-- modal with title · a leading title (left) · a default close action (trailing). -->
   <nuri-demo layout="board" controls="device,theme,accent" label="modal with title">
     <template>
-      <nuri-stack direction="column" align="stretch" justify="start" gap="md" fill>
+      <nuri-view direction="column" align="stretch" justify="start" gap="md" fill>
         <nuri-topbar>
           <nuri-topbar-leading>
             <nuri-typography size="lg" emphasis>Settings</nuri-typography>
@@ -96,7 +96,7 @@
             <nuri-icon-button icon="cross" aria-label="Close"></nuri-icon-button>
           </nuri-topbar-trailing>
         </nuri-topbar>
-      </nuri-stack>
+      </nuri-view>
     </template>
   </nuri-demo>
 
@@ -104,7 +104,7 @@
        solid button (trailing). The two even edges keep the title dead-centre. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="edit">
     <template>
-      <nuri-stack direction="column" align="stretch" justify="start" gap="md" fill>
+      <nuri-view direction="column" align="stretch" justify="start" gap="md" fill>
         <nuri-topbar>
           <nuri-topbar-leading>
             <nuri-button size="sm">Cancel</nuri-button>
@@ -116,7 +116,7 @@
             <nuri-button size="sm" variant="solid">Save</nuri-button>
           </nuri-topbar-trailing>
         </nuri-topbar>
-      </nuri-stack>
+      </nuri-view>
     </template>
   </nuri-demo>
 

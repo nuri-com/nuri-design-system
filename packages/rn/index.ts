@@ -3,18 +3,14 @@
  * Import Nuri from here: `import { Button, NuriThemeProvider } from './src/nuri'`.
  *
  * The clean factory example (R1.5): the contract seam + the theme runtime +
- * generated descriptor adapters (Button / IconAvatar / Topbar / ...) over a
- * shared normalized renderer. The hand-written migration mirrors are retired.
+ * generated descriptor adapters (Button / IconAvatar / Topbar / ...) over an
+ * internal shared renderer.
  *
- * PUBLIC SURFACE (SEED-4 · completion): the theming API (NuriThemeProvider · NuriScope ·
- * useNuriTheme · typeStyle · the ThemePayload type), the
- * components + renderer helpers (nuriNames · NuriSurfaceContext · the
- * Button/IconAvatar/Topbar/… instances), NuriIcon, and the
- * hand-authorable primitives (View/Stack/Text/Pressable/Screen/Scroll/Dock). The generic
- * descriptor ENGINE (resolveNS · flattenPart · flattenBakedPart · buildNuriTheme ·
- * the palette MAPPING · the baked geometry recipe + the resolver intermediate types)
- * is deliberately INTERNAL — intra-package module exports only (runtime/), not on
- * this barrel.
+ * PUBLIC SURFACE: theme/safe-area/overlay runtimes, generated components and
+ * slot markers, hand-authorable primitives, NuriIcon, their Props types, and
+ * the semantic leaf types those Props expose. Descriptor data, scale tables,
+ * renderer helpers, contexts, resolution functions, and intermediate engine
+ * types are intra-package imports only.
  *
  * ⚠ Arc 1 INTENTIONALLY RESHAPED THE RN API (Option B · resolve colour once at the
  * provider): the payload now lives in context and the engine left the public
@@ -23,8 +19,22 @@
  * no compat shim — @nuri/rn has no external consumer to break.
  * ────────────────────────────────────────────────────────────── */
 
-export * from './contract';
-export * from './theme';
+export { NuriThemeProvider, NuriScope, useNuriTheme, typeStyle } from './theme';
+export type { ThemePayload, SpaceLeaf, TypeKey, NuriThemeValue } from './theme';
+export type {
+  Accent,
+  Theme,
+  TypeSize,
+  TypeWeight,
+  TypeStep,
+  IconName,
+  SizeLeaf,
+  RadiusLeaf,
+  RatioLeaf,
+  PaletteVariant,
+  PaletteChrome,
+  Elevation,
+} from './contract';
 export { NuriSafeAreaProvider, useNuriSafeAreaInsets } from './safe-area';
 export type { NuriSafeAreaInsets, NuriSafeAreaProviderProps } from './safe-area';
 
@@ -33,36 +43,12 @@ export type { NuriSafeAreaInsets, NuriSafeAreaProviderProps } from './safe-area'
 // the consumer mounts once, ABOVE their safe-area padding; <BottomSheet>
 // registers its subtree into it via useOverlay. RN-only runtime behaviour (no
 // web equivalent — web is a static device-frame layer).
-export { OverlayProvider, useOverlay, OverlayContext } from './overlay';
+export { OverlayProvider, useOverlay } from './overlay';
 export type { OverlayApi, OverlayLayerOptions } from './overlay';
 
-// The theme PAYLOAD shape (typed) + the interaction baseline are public; the
-// PAYLOAD BUILDER (`buildNuriTheme`) is an internal engine detail (SEED-4 · Arc 1)
-// — the provider/scope drive it, consumers never call it — so it is NOT re-exported
-// (still an intra-package export off ./runtime/theme-payload for the resolution
-// tests + the provider).
-export { INTERACTION_BASELINE } from './runtime/theme-payload';
+// Resolved theme shapes are public because useNuriTheme returns them. The
+// payload builder and interaction baseline remain internal engine details.
 export type { NuriTheme, SurfaceRole, ChromeRole } from './runtime/theme-payload';
-
-// The generic descriptor ENGINE (resolveNS · flattenPart · flattenBakedPart ·
-// assertNever + their intermediate types ResolvedNode/ResolvedPalette/PartFlat/
-// BakedPartRecipe/BakedComponentRecipe) is INTERNAL (SEED-4 · Arc 1 · @nuri/rn has
-// no external consumer). It stays a plain module export off ./runtime/resolve
-// (imported directly by the renderer/primitives + the tests), NOT part of the
-// public barrel. Only the anatomy walk + the Selection/State value types stay public.
-export { resolveAnatomy } from './runtime/resolve';
-export type { AnatomyNode, Selection, State } from './runtime/resolve';
-
-export {
-  NuriSurfaceContext,
-  nuriNames,
-  pascalCase,
-  createNuriSlot,
-  harvestNuriSlots,
-  harvestNuriComposition,
-  renderDescriptorInstance,
-} from './runtime/renderer';
-export type { NuriSlot, NuriCompositionEntry, NuriBehaviour, NuriDescriptorInstance } from './runtime/renderer';
 
 // The DS-owned RN glyph renderer (the icon contract): resolves a typed `IconName`
 // → the register glyph → react-native-svg. The renderer's icon part renders this;
@@ -71,12 +57,11 @@ export { NuriIcon } from './primitives';
 export type { NuriIconProps } from './primitives';
 
 // The hand-authorable OPEN primitive layer — the RN twins of the web
-// `<nuri-stack/view/typography/pressable/screen/scroll/dock>` (primitives-contract §1.A ·
+// `<nuri-view/typography/pressable/screen/scroll/dock>` (primitives-contract §1 ·
 // the §2 parity gap · step ①). Thin wrappers forwarding namespace props through the
 // SAME runtime/resolve.ts appliers (no second mapping · the drift rule). NOT descriptors.
 export {
   View,
-  Stack,
   Text,
   Pressable,
   Screen,
@@ -91,14 +76,16 @@ export {
 } from './primitives';
 export type {
   ViewProps,
-  StackProps,
   TextProps,
   PressableProps,
   ScreenProps,
   HeaderProps,
   ScrollProps,
+  ScrollInsetTop,
+  ScrollInsetBottom,
   FooterProps,
   DockProps,
+  DockEdge,
   SeparatorProps,
   SeparatorYSpace,
   ListSeparatorProps,

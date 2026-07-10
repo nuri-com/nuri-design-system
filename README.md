@@ -36,7 +36,7 @@ target's output is *generated* from it.
     components/     the per-descriptor API adapters (Path C)
   contract.ts       imports ./generated/data/*
   runtime/          the INTERNAL engine: resolve · renderer · theme-payload builder
-  primitives/       the open primitive layer (View/Stack/Text/Pressable/Screen/Scroll · NuriIcon)
+  primitives/       the open primitive layer (View/Text/Pressable/Screen/Scroll · NuriIcon)
   theme.tsx         NuriThemeProvider / NuriScope / the resolved theme payload
 
 @nuri/prototype     the WEB projection (prototyping + the doc surface's components)

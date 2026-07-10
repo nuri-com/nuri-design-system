@@ -2230,7 +2230,7 @@ exports[`render-smoke — the ergonomic components mount headless primitives —
 </View>
 `;
 
-exports[`render-smoke — the ergonomic components mount headless primitives — View ⊃ Stack ⊃ Text compose · merged box⊕stack⊕palette + colour-by-scope 1`] = `
+exports[`render-smoke — the ergonomic components mount headless primitives — View ⊃ View ⊃ Text compose · merged box⊕stack⊕palette + colour-by-scope 1`] = `
 <View
   style={
     {

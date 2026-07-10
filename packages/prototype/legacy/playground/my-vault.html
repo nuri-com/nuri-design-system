@@ -78,7 +78,6 @@
   <script src="../../lib/components/typography/typography.js" defer></script>
   <script src="../../lib/components/typography-stack/typography-stack.js" defer></script>
   <script src="../../lib/components/box/box.js" defer></script>
-  <script src="../../lib/components/stack/stack.js" defer></script>
   <script src="../../lib/components/screen/screen.js" defer></script>
   <script src="../../lib/components/scroll/scroll.js" defer></script>
   <script src="../../lib/components/spacer/spacer.js" defer></script>
@@ -144,8 +143,8 @@
              (flex column) + data-fill="grow" ≡ the old box `fill`
              (flex: 1 0 auto · amendment 60.1 — fill is stack-only). -->
         <nuri-scroll>
-          <div class="nuri-box nuri-stack" data-padding-x="lg" data-padding-top="md" data-fill="grow">
-            <nuri-stack direction="column" gap="sm" fill>
+          <div class="nuri-box nuri-view" data-padding-x="lg" data-padding-top="md" data-fill="grow">
+            <nuri-view direction="column" gap="sm" fill>
 
               <!-- Bitcoin line -->
               <nuri-typography-stack direction="row">
@@ -156,11 +155,11 @@
               </nuri-typography-stack>
 
               <!-- Swap affordance · button flanked by hairlines -->
-              <nuri-stack direction="row" gap="sm" align="center">
+              <nuri-view direction="row" gap="sm" align="center">
                 <nuri-separator y-space="none"></nuri-separator>
                 <nuri-icon-button name="arrows-down-up" variant="solid" accent="neutral" label="Swap Bitcoin and Euro"></nuri-icon-button>
                 <nuri-separator y-space="none"></nuri-separator>
-              </nuri-stack>
+              </nuri-view>
 
               <!-- Euro line -->
               <nuri-typography-stack direction="row">
@@ -187,10 +186,10 @@
               <nuri-spacer grow="2"></nuri-spacer>
               <nuri-button variant="soft" size="lg">Add crypto funds</nuri-button>
               <nuri-button variant="solid" size="lg">
-                <nuri-stack direction="row" gap="xs" align="center">Buy Bitcoin with<nuri-icon name="apple-logo" size="sm" fill></nuri-icon>Pay</nuri-stack>
+                <nuri-view direction="row" gap="xs" align="center">Buy Bitcoin with<nuri-icon name="apple-logo" size="sm" fill></nuri-icon>Pay</nuri-view>
               </nuri-button>
 
-            </nuri-stack>
+            </nuri-view>
           </div>
         </nuri-scroll>
       </nuri-screen>

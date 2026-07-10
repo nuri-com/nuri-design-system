@@ -47,7 +47,6 @@ const BOOT_IMPORTS = [
   '../../prototype/primitives/pressable.js',
   '../../prototype/primitives/view.js',
   '../../prototype/primitives/typography.js',
-  '../../prototype/primitives/stack.js',
   '../../prototype/primitives/screen.js',
   '../../prototype/primitives/header.js',
   '../../prototype/primitives/scroll.js',
