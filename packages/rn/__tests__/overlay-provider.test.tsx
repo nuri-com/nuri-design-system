@@ -367,7 +367,8 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
 
     const api = captured.api;
     expectFocusScrollApi(api);
-    expect(api.requestScrollToFocusedInput).toEqual(expect.any(Function));
+    expect(api.onInputFocus).toEqual(expect.any(Function));
+    expect(api.onInputBlur).toEqual(expect.any(Function));
   });
 
   test('Header and Footer measure into Scroll insets', () => {
@@ -744,7 +745,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       const api = captured.api;
       expectFocusScrollApi(api);
       act(() => {
-        api.requestScrollToFocusedInput({ measureLayout } as unknown as TextInput);
+        api.onInputFocus({ measureLayout } as unknown as TextInput);
       });
 
       act(() => {
@@ -815,7 +816,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       const api = captured.api;
       expectFocusScrollApi(api);
       act(() => {
-        api.requestScrollToFocusedInput({ measureLayout } as unknown as TextInput);
+        api.onInputFocus({ measureLayout } as unknown as TextInput);
       });
       act(() => {
         const show = keyboardHandlers.keyboardWillShow ?? keyboardHandlers.keyboardDidShow;
@@ -838,6 +839,132 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
 
       expect(scrollTo).toHaveBeenLastCalledWith({ y: 144, animated: true });
       expect(scrollToSpy).toHaveBeenCalledTimes(2);
+    } finally {
+      addSpy.mockRestore();
+      getInnerViewRefSpy.mockRestore();
+      scrollToSpy.mockRestore();
+      jest.useRealTimers();
+      global.requestAnimationFrame = originalRequestAnimationFrame;
+      global.cancelAnimationFrame = originalCancelAnimationFrame;
+    }
+  });
+
+  test('blur clears the current focus target before later keyboard growth', () => {
+    jest.useFakeTimers();
+    const originalRequestAnimationFrame = global.requestAnimationFrame;
+    const originalCancelAnimationFrame = global.cancelAnimationFrame;
+    global.requestAnimationFrame = ((cb: FrameRequestCallback) => setTimeout(() => cb(0), 0) as unknown as number);
+    global.cancelAnimationFrame = ((id: number) => clearTimeout(id as unknown as ReturnType<typeof setTimeout>));
+
+    const keyboardHandlers: Record<string, (event: { endCoordinates: { height: number } }) => void> = {};
+    const scrollContentRef = {};
+    const addSpy = jest
+      .spyOn(Keyboard, 'addListener')
+      .mockImplementation((eventName, cb) => {
+        keyboardHandlers[eventName] = cb as (event: { endCoordinates: { height: number } }) => void;
+        return { remove: () => undefined } as never;
+      });
+    const getInnerViewRefSpy = jest
+      .spyOn(ScrollView.prototype as ScrollViewWithInnerRef, 'getInnerViewRef')
+      .mockReturnValue(scrollContentRef as never);
+    const scrollToSpy = jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(() => undefined);
+    const measureLayout = jest.fn((_relativeNode, onSuccess: (x: number, y: number, width: number, height: number) => void) => {
+      onSuccess(0, 360, 120, 54);
+    });
+    const input = { measureLayout } as unknown as TextInput;
+    const captured = { api: null as FocusScrollApi | null };
+
+    try {
+      const tr = render(
+        <NuriThemeProvider>
+          <FixedRegionLayoutProvider keyboardEnabled>
+            <Scroll>
+              <FocusScrollProbe onReady={(next) => (captured.api = next)} />
+            </Scroll>
+          </FixedRegionLayoutProvider>
+        </NuriThemeProvider>,
+      );
+      act(() => {
+        tr.root.findByType(ScrollView).props.onLayout({ nativeEvent: { layout: { height: 600 } } });
+      });
+
+      const api = captured.api;
+      expectFocusScrollApi(api);
+      act(() => api.onInputFocus(input));
+      act(() => jest.runAllTimers());
+      expect(measureLayout).toHaveBeenCalledTimes(1);
+
+      act(() => api.onInputBlur(input));
+      act(() => {
+        const show = keyboardHandlers.keyboardWillShow ?? keyboardHandlers.keyboardDidShow;
+        show({ endCoordinates: { height: 280 } });
+      });
+      act(() => jest.runAllTimers());
+
+      expect(measureLayout).toHaveBeenCalledTimes(1);
+    } finally {
+      addSpy.mockRestore();
+      getInnerViewRefSpy.mockRestore();
+      scrollToSpy.mockRestore();
+      jest.useRealTimers();
+      global.requestAnimationFrame = originalRequestAnimationFrame;
+      global.cancelAnimationFrame = originalCancelAnimationFrame;
+    }
+  });
+
+  test('blur from the previous input does not clear the newer focus target', () => {
+    jest.useFakeTimers();
+    const originalRequestAnimationFrame = global.requestAnimationFrame;
+    const originalCancelAnimationFrame = global.cancelAnimationFrame;
+    global.requestAnimationFrame = ((cb: FrameRequestCallback) => setTimeout(() => cb(0), 0) as unknown as number);
+    global.cancelAnimationFrame = ((id: number) => clearTimeout(id as unknown as ReturnType<typeof setTimeout>));
+
+    const keyboardHandlers: Record<string, (event: { endCoordinates: { height: number } }) => void> = {};
+    const addSpy = jest
+      .spyOn(Keyboard, 'addListener')
+      .mockImplementation((eventName, cb) => {
+        keyboardHandlers[eventName] = cb as (event: { endCoordinates: { height: number } }) => void;
+        return { remove: () => undefined } as never;
+      });
+    const getInnerViewRefSpy = jest
+      .spyOn(ScrollView.prototype as ScrollViewWithInnerRef, 'getInnerViewRef')
+      .mockReturnValue({} as never);
+    const scrollToSpy = jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(() => undefined);
+    const measureA = jest.fn();
+    const measureB = jest.fn((_relativeNode, onSuccess: (x: number, y: number, width: number, height: number) => void) => {
+      onSuccess(0, 360, 120, 54);
+    });
+    const inputA = { measureLayout: measureA } as unknown as TextInput;
+    const inputB = { measureLayout: measureB } as unknown as TextInput;
+    const captured = { api: null as FocusScrollApi | null };
+
+    try {
+      const tr = render(
+        <NuriThemeProvider>
+          <FixedRegionLayoutProvider keyboardEnabled>
+            <Scroll>
+              <FocusScrollProbe onReady={(next) => (captured.api = next)} />
+            </Scroll>
+          </FixedRegionLayoutProvider>
+        </NuriThemeProvider>,
+      );
+      act(() => {
+        tr.root.findByType(ScrollView).props.onLayout({ nativeEvent: { layout: { height: 600 } } });
+      });
+
+      const api = captured.api;
+      expectFocusScrollApi(api);
+      act(() => {
+        api.onInputFocus(inputA);
+        api.onInputFocus(inputB);
+        api.onInputBlur(inputA);
+        const show = keyboardHandlers.keyboardWillShow ?? keyboardHandlers.keyboardDidShow;
+        show({ endCoordinates: { height: 280 } });
+      });
+      act(() => jest.runAllTimers());
+
+      expect(measureA).not.toHaveBeenCalled();
+      expect(measureB).toHaveBeenCalledTimes(1);
     } finally {
       addSpy.mockRestore();
       getInnerViewRefSpy.mockRestore();
@@ -914,7 +1041,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       const api = captured.api;
       expectFocusScrollApi(api);
       act(() => {
-        api.requestScrollToFocusedInput(Object.assign(inputRef, { measureLayout }) as unknown as TextInput);
+        api.onInputFocus(Object.assign(inputRef, { measureLayout }) as unknown as TextInput);
       });
       act(() => {
         jest.runAllTimers();
@@ -993,7 +1120,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       const api = captured.api;
       expectFocusScrollApi(api);
       act(() => {
-        api.requestScrollToFocusedInput({ measureLayout } as unknown as TextInput);
+        api.onInputFocus({ measureLayout } as unknown as TextInput);
       });
       act(() => {
         jest.runAllTimers();
@@ -1069,7 +1196,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       const api = captured.api;
       expectFocusScrollApi(api);
       act(() => {
-        api.requestScrollToFocusedInput({ measureLayout } as unknown as TextInput);
+        api.onInputFocus({ measureLayout } as unknown as TextInput);
       });
       act(() => {
         jest.runAllTimers();
@@ -1146,7 +1273,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       const api = captured.api;
       expectFocusScrollApi(api);
       act(() => {
-        api.requestScrollToFocusedInput({ measureLayout } as unknown as TextInput);
+        api.onInputFocus({ measureLayout } as unknown as TextInput);
       });
       act(() => {
         jest.runAllTimers();
@@ -1207,15 +1334,17 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     }
   });
 
-  test('focusing a descriptor TextField inside Scroll requests the coordinator and preserves public onFocus', () => {
+  test('one TextField focus event registers, toggles the ring, and calls the consumer', () => {
     const captured = { api: null as FocusScrollApi | null };
-    const requestScrollToFocusedInput = jest.fn();
+    const onInputFocus = jest.fn();
+    const onInputBlur = jest.fn();
     const onFocus = jest.fn();
+    const onBlur = jest.fn();
     const tr = render(
       <NuriThemeProvider>
         <Scroll>
           <FocusScrollProbe onReady={(next) => (captured.api = next)} />
-          <TextField value="" onFocus={onFocus} placeholder="Name">
+          <TextField value="" onFocus={onFocus} onBlur={onBlur} placeholder="Name">
             <TextFieldLabel>Recipient</TextFieldLabel>
           </TextField>
         </Scroll>
@@ -1224,15 +1353,73 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
 
     const api = captured.api;
     expectFocusScrollApi(api);
-    api.requestScrollToFocusedInput = requestScrollToFocusedInput;
+    api.onInputFocus = onInputFocus;
+    api.onInputBlur = onInputBlur;
 
     const input = tr.root.findByType(TextInput);
     act(() => {
       input.props.onFocus();
     });
 
-    expect(requestScrollToFocusedInput).toHaveBeenCalledTimes(1);
+    expect(onInputFocus).toHaveBeenCalledTimes(1);
     expect(onFocus).toHaveBeenCalledTimes(1);
+    expect(
+      tr.root.findAllByType(View).some((node) => {
+        const style = flatStyle(node.props.style);
+        return style.position === 'absolute' && style.borderWidth === 2;
+      }),
+    ).toBe(true);
+
+    act(() => input.props.onBlur());
+    expect(onInputBlur).toHaveBeenCalledTimes(1);
+    expect(onBlur).toHaveBeenCalledTimes(1);
+    expect(
+      tr.root.findAllByType(View).some((node) => {
+        const style = flatStyle(node.props.style);
+        return style.position === 'absolute' && style.borderWidth === 2;
+      }),
+    ).toBe(false);
+  });
+
+  test('a throwing consumer onFocus cannot prevent registration or the focus ring', () => {
+    const captured = { api: null as FocusScrollApi | null };
+    const onInputFocus = jest.fn();
+    const consumerError = new Error('consumer focus failure');
+    const onFocus = jest.fn(() => {
+      throw consumerError;
+    });
+    const tr = render(
+      <NuriThemeProvider>
+        <Scroll>
+          <FocusScrollProbe onReady={(next) => (captured.api = next)} />
+          <TextField value="" onFocus={onFocus}>
+            <TextFieldLabel>Recipient</TextFieldLabel>
+          </TextField>
+        </Scroll>
+      </NuriThemeProvider>,
+    );
+
+    const api = captured.api;
+    expectFocusScrollApi(api);
+    api.onInputFocus = onInputFocus;
+    let thrown: unknown;
+    act(() => {
+      try {
+        tr.root.findByType(TextInput).props.onFocus();
+      } catch (error) {
+        thrown = error;
+      }
+    });
+
+    expect(thrown).toBe(consumerError);
+    expect(onInputFocus).toHaveBeenCalledTimes(1);
+    expect(onFocus).toHaveBeenCalledTimes(1);
+    expect(
+      tr.root.findAllByType(View).some((node) => {
+        const style = flatStyle(node.props.style);
+        return style.position === 'absolute' && style.borderWidth === 2;
+      }),
+    ).toBe(true);
   });
 
   test('without Scroll, TextField focus remains a normal public focus event', () => {
