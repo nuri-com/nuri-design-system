@@ -10,6 +10,7 @@
 import * as React from 'react';
 import { Platform, Text, TextInput, View } from 'react-native';
 import type { StyleProp, TextStyle } from 'react-native';
+import { classifyComposition } from '@nuri/spec/composition-classify';
 import { LEAF_ELS } from '@nuri/spec/descriptors/schema';
 import type { Descriptor, Axes, IconName, PartId } from '../contract';
 import { typeStyle, useNuriTheme } from '../theme';
@@ -293,26 +294,6 @@ function DescriptorTextInput({
   );
 }
 
-function findChildPath(node: AnatomyNode, part: PartId): AnatomyNode[] | undefined {
-  for (const child of node.children) {
-    if (child.name === part) return [child];
-    const nested = findChildPath(child, part);
-    if (nested) return [child, ...nested];
-  }
-  return undefined;
-}
-
-function subtreeHasPart(node: AnatomyNode, part: PartId): boolean {
-  return node.name === part || node.children.some((child) => subtreeHasPart(child, part));
-}
-
-// A part accepts REPEATED composition entries only where the descriptor's api
-// declares a slot targeting it `multiple: true` (the sequence contract —
-// repeats render as a sequence of instances, never a concatenated leaf).
-function isMultiPart<A extends Axes>(descriptor: Descriptor<A>, part: PartId): boolean {
-  return Object.values(descriptor.api?.slots ?? {}).some((slot) => slot.part === part && slot.multiple === true);
-}
-
 function parseSlotBinding(value: string): { prop: string; fallback?: string } {
   const body = value.slice('$slot.'.length);
   const [prop, ...fallbackParts] = body.split('|');
@@ -431,11 +412,7 @@ function renderPart<A extends Axes>(
   // ELEMENT differs, and that is the switch's decision (el is structure data).
   const renderHostBody = (): React.ReactNode => {
     const kids: React.ReactNode[] = [];
-    // ── THE GROUPING WALKER · mirrored across engines — edit in LOCKSTEP with
-    // packages/prototype/factory/factory.js#appendComposition (full dedup is a
-    // named follow-up). The shared contract is pinned per-cell by the
-    // composition-envelope suites (packages/rn/__tests__/composition-envelope
-    // .test.tsx · packages/prototype/factory/composition-envelope.test.js).
+    // Classification = @nuri/spec/composition-classify; only the render tail is engine-local.
     // Entry classification against THIS host:
     //   · own    — entry.part === this host: bare content of a region scope,
     //     rendered in place (bare children inside a region stay that region's
@@ -450,61 +427,16 @@ function renderPart<A extends Axes>(
     // (including a region marker mixed with loose slots for the same region)
     // fails named — never silent concatenation, never last-wins.
     const appendCompositionEntries = (composition: NuriCompositionEntry<string>[]): void => {
-      const ambientContent = { ...ctx.content };
-      const labelPart = ctx.behaviour.input?.labelPart;
-      if (labelPart && ambientContent[labelPart] === undefined) {
-        const labelEntry = composition.find((entry) => entry.part === labelPart);
-        if (labelEntry) ambientContent[labelPart] = labelEntry.content;
-      }
-      const ambientCtx = { ...ctx, content: ambientContent };
-      const grouped = new Map<string, { child: AnatomyNode; entries: NuriCompositionEntry<string>[] }>();
-      const targets = new Map<string, number>();
-      const childIndex = new Map(node.children.map((child, index) => [child.name, index]));
-      const ordered: Array<
-        | { kind: 'own'; entry: NuriCompositionEntry<string>; index: number }
-        | { kind: 'direct'; child: AnatomyNode; entry: NuriCompositionEntry<string>; index: number }
-        | { kind: 'group'; part: string }
-        | { kind: 'static'; child: AnatomyNode }
-      > = [];
-      composition.forEach((entry, index) => {
-        if (entry.part === node.name) {
-          ordered.push({ kind: 'own', entry, index });
-          return;
-        }
-        const path = findChildPath(node, entry.part);
-        if (!path) throw new Error(`nuri-factory: composition entry targets '${entry.part}', which is not under '${node.name}'`);
-        const childNode = path[0];
-        if (path.length > 1 && childNode.el && !LEAF_ELS.includes(childNode.el)) {
-          let group = grouped.get(childNode.name);
-          if (!group) {
-            group = { child: childNode, entries: [] };
-            grouped.set(childNode.name, group);
-            ordered.push({ kind: 'group', part: childNode.name });
-            targets.set(childNode.name, (targets.get(childNode.name) ?? 0) + 1);
-          }
-          group.entries.push(entry);
-          return;
-        }
-        ordered.push({ kind: 'direct', child: childNode, entry, index });
-        targets.set(entry.part, (targets.get(entry.part) ?? 0) + 1);
+      const { ordered, grouped, ambientContent } = classifyComposition(node, composition, {
+        ambientContent: ctx.content,
+        isHostEl: (el) => Boolean(el && !LEAF_ELS.includes(el as typeof LEAF_ELS[number])),
+        isMultiPart: (part) => Object.values(ctx.descriptor.api?.slots ?? {})
+          .some((slot) => slot.part === part && slot.multiple === true),
+        inputTarget: ctx.behaviour.input?.target,
+        labelPart: ctx.behaviour.input?.labelPart,
+        errorPrefix: 'nuri-factory:',
       });
-      for (const child of node.children) {
-        if (targets.has(child.name)) continue;
-        if (!ctx.behaviour.input?.target || !subtreeHasPart(child, ctx.behaviour.input.target)) continue;
-        const staticItem = { kind: 'static' as const, child };
-        const staticIndex = childIndex.get(child.name) ?? 0;
-        const before = ordered.findIndex((item) => {
-          const part = item.kind === 'group' ? item.part : item.kind === 'direct' ? item.child.name : undefined;
-          return part !== undefined && (childIndex.get(part) ?? 0) > staticIndex;
-        });
-        if (before === -1) ordered.push(staticItem);
-        else ordered.splice(before, 0, staticItem);
-      }
-      for (const [part, count] of targets) {
-        if (count > 1 && !isMultiPart(ctx.descriptor, part)) {
-          throw new Error(`nuri-factory: slot targeting part '${part}' is singular — it appears ${count} times under '${node.name}'`);
-        }
-      }
+      const ambientCtx = { ...ctx, content: ambientContent };
       for (const item of ordered) {
         if (item.kind === 'own') {
           kids.push(<React.Fragment key={`own:${item.index}`}>{wrapProse(item.entry.content)}</React.Fragment>);

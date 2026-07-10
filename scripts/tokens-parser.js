@@ -194,6 +194,7 @@ const RESOLVE_MAP_SRC     = resolve(SPEC_ROOT, 'axes/resolve-map.ts');
 const PROPERTY_SPELLING_SRC = resolve(SPEC_ROOT, 'axes/property-spelling.ts');
 const DESCRIPTORS_SRC  = resolve(SPEC_ROOT, 'components');
 const BOTTOM_SHEET_CHROME_SRC = resolve(SPEC_ROOT, 'components/bottom-sheet-chrome.ts');
+const COMPOSITION_CLASSIFY_SRC = resolve(SPEC_ROOT, 'composition/classify.js');
 const ICONS_DIR        = resolve(SPEC_ROOT, 'icons');
 // ── outputs · the RN projection (committed · Movement A) ──
 // The six DATA tables land under generated/data/; the per-component API
@@ -210,6 +211,7 @@ const JSON_OUT         = resolve(PROTO_GENERATED, 'tokens.json');
 const TOKEN_VARS_OUT   = resolve(PROTO_GENERATED, 'token-vars.ts');
 const DESCRIPTORS_OUT  = resolve(PROTO_GENERATED, 'descriptors');
 const BOTTOM_SHEET_CHROME_JS_OUT = resolve(PROTO_GENERATED, 'bottom-sheet-chrome.js');
+const COMPOSITION_CLASSIFY_JS_OUT = resolve(PROTO_GENERATED, 'composition-classify.js');
 const ICONS_JS_OUT     = resolve(PROTO_GENERATED, 'icons.js');
 const ACCENTS_JS_OUT   = resolve(PROTO_GENERATED, 'accents.js');
 // (build/docs · DOC_COMPONENTS · MOVED to @nuri/doc at N+42 · the A4 carve. The
@@ -222,6 +224,19 @@ const ACCENTS_JS_OUT   = resolve(PROTO_GENERATED, 'accents.js');
 // frozen descriptor) — so it DERIVES from the one build-side roster rather than
 // restating the names (deterministic-naming · D7 · same scripts/ boundary).
 const BROWSER_DESCRIPTOR_COMPONENTS = DESCRIPTOR_COMPONENTS.map((spec) => spec.name);
+
+function emitCompositionClassifierJs(source) {
+  const header = [
+    `/* ──────────────────────────────────────────────────────────────`,
+    ` * NURI · COMPOSITION CLASSIFIER · BROWSER ESM · GENERATED · DO NOT EDIT BY HAND`,
+    ` *`,
+    ` * Verbatim browser twin of packages/spec/composition/classify.js.`,
+    ` * Emitter · scripts/tokens-parser.js — \`npm run build\`.`,
+    ` * NEVER hand-edit generated/ — edit the authored source above.`,
+    ` * ────────────────────────────────────────────────────────────── */`,
+  ].join('\n');
+  return `${header}\n\n${source}`;
+}
 
 function emitBottomSheetChromeJs(source) {
   const body = source
@@ -520,6 +535,11 @@ async function main() {
   }
 
   await writeFile(BOTTOM_SHEET_CHROME_JS_OUT, emitBottomSheetChromeJs(await readFile(BOTTOM_SHEET_CHROME_SRC, 'utf8')), 'utf8');
+  await writeFile(
+    COMPOSITION_CLASSIFY_JS_OUT,
+    emitCompositionClassifierJs(await readFile(COMPOSITION_CLASSIFY_SRC, 'utf8')),
+    'utf8',
+  );
 
   // ── Slice 8 · palette mapping emit (N+19 B2b · decision 65.3 §6 · re-sourced N+40) ──
   // ADDITIVE at packages/rn/generated/data/palette.ts: the {variant | chrome} → {bg, fg,
@@ -606,6 +626,7 @@ async function main() {
     descriptorReports.map((r) =>
       `\n[tokens-parser] wrote descriptor '${r.name}' browser-ESM twin (.ts copy dropped · rn imports source) → ${r.out}`,
     ).join('') +
+    `\n[tokens-parser] wrote composition classifier browser-ESM twin (verbatim below header) → ${COMPOSITION_CLASSIFY_JS_OUT}` +
     `\n[tokens-parser] wrote palette mapping (${paletteRowCount} rows · SoT-asserted) → ${PALETTE_OUT}` +
     `\n[tokens-parser] wrote baked geometry recipes (${coverage.length} components · geometry-only · Arc 2) → ${RECIPES_OUT}` +
     `\n[tokens-parser] wrote component-API RN adapters (${componentCoverage.length} components + index · Path C) → ${COMPONENTS_OUT}`,
