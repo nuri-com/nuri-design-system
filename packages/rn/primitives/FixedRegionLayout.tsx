@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Keyboard, Platform, useWindowDimensions } from 'react-native';
-import type { KeyboardEvent } from 'react-native';
+import type { KeyboardEvent, LayoutChangeEvent } from 'react-native';
 
 export type FixedRegionLayoutValue = {
   headerHeight: number;
@@ -137,4 +137,47 @@ FixedRegionLayoutProvider.displayName = 'FixedRegionLayoutProvider';
 
 export function useFixedRegionLayout(): FixedRegionLayoutValue {
   return React.useContext(FixedRegionLayoutContext);
+}
+
+type FixedRegionKind = 'header' | 'footer' | 'dockTop' | 'dockBottom';
+
+export function useRegisterRegion(
+  kind: FixedRegionKind,
+  consumerOnLayout?: (event: LayoutChangeEvent) => void,
+): (event: LayoutChangeEvent) => void {
+  const {
+    setHeaderHeight,
+    setFooterHeight,
+    setDockTopInset,
+    setDockBottomInset,
+  } = useFixedRegionLayout();
+  const report =
+    kind === 'header'
+      ? setHeaderHeight
+      : kind === 'footer'
+        ? setFooterHeight
+        : kind === 'dockTop'
+          ? setDockTopInset
+          : setDockBottomInset;
+  const measuredHeight = React.useRef(0);
+
+  React.useEffect(
+    () => () => {
+      measuredHeight.current = 0;
+      report(0);
+    },
+    [report],
+  );
+
+  return React.useCallback(
+    (event: LayoutChangeEvent) => {
+      const next = Math.round(event.nativeEvent.layout.height);
+      if (measuredHeight.current !== next) {
+        measuredHeight.current = next;
+        report(next);
+      }
+      consumerOnLayout?.(event);
+    },
+    [consumerOnLayout, report],
+  );
 }

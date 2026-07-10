@@ -192,7 +192,6 @@ const ScrollImpl = React.forwardRef<React.ElementRef<typeof RNScrollView>, Scrol
   const scheduleScrollToInput = React.useCallback((input: TextInput | null, delay = FOCUS_SCROLL_DELAY_MS) => {
     if (!input) return;
     clearScheduledScrolls();
-    focusedInput.current = input;
     const raf = requestAnimationFrame(() => {
       rafs.current = rafs.current.filter((item) => item !== raf);
       const timer = setTimeout(() => {
@@ -233,7 +232,13 @@ const ScrollImpl = React.forwardRef<React.ElementRef<typeof RNScrollView>, Scrol
   React.useEffect(() => clearScheduledScrolls, [clearScheduledScrolls]);
 
   const focusScrollApi = React.useMemo<FocusScrollApi>(() => ({
-    requestScrollToFocusedInput: (input) => scheduleScrollToInput(input),
+    onInputFocus: (input) => {
+      focusedInput.current = input;
+      scheduleScrollToInput(input);
+    },
+    onInputBlur: (input) => {
+      if (focusedInput.current === input) focusedInput.current = null;
+    },
   }), [scheduleScrollToInput]);
 
   const handleLayout = React.useCallback((event: LayoutChangeEvent) => {

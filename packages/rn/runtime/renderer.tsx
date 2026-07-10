@@ -18,7 +18,7 @@ import type { NuriTheme } from './theme-payload';
 import { resolveAnatomy, flattenBakedPart, assertNever } from './resolve';
 import type { AnatomyNode, Selection, BakedComponentRecipe } from './resolve';
 import { NuriIcon } from '../primitives/NuriIcon';
-import { useFocusScroll, type FocusScrollApi } from './focus-scroll';
+import { useFocusable } from './focus-scroll';
 import { PressableHost } from './pressable-host';
 
 // §12 surface context — the resolved foreground a surface provides to propless
@@ -205,9 +205,12 @@ type RenderCtx<A extends Axes> = {
   slotProps: Partial<Record<string, Record<string, unknown>>>;
   components: Record<string, React.ComponentType<Record<string, unknown>>>;
   behaviour: NuriBehaviour<string>;
-  focusScroll: FocusScrollApi | null;
   focusedInput: boolean;
-  setFocusedInput: (focused: boolean) => void;
+  inputRef: React.RefObject<TextInput | null>;
+  inputFocusHandlers: {
+    onFocus: () => void;
+    onBlur: () => void;
+  };
   // STATIC api facts, computed once per instance render: `slotted` = the
   // descriptor declares component slots at all (the render-time nested-harvest
   // gate — an unslotted component never pays a per-host children walk);
@@ -226,15 +229,16 @@ type DescriptorTextInputProps = {
   accessibilityLabel?: string;
   derivedLabel?: string;
   placeholderTextColor: string;
-  onFocus?: () => void;
-  onBlur?: () => void;
   flowProps: { numberOfLines?: number };
   typeStyleValue: ReturnType<typeof typeStyle> | null;
   foregroundStyle: { color: string } | null;
   disabledStyle: { opacity: number } | null;
   flatStyle: StyleProp<TextStyle>;
-  setFocusedInput: (focused: boolean) => void;
-  focusScroll: FocusScrollApi | null;
+  inputRef: React.RefObject<TextInput | null>;
+  inputFocusHandlers: {
+    onFocus: () => void;
+    onBlur: () => void;
+  };
 };
 
 function DescriptorTextInput({
@@ -247,17 +251,14 @@ function DescriptorTextInput({
   accessibilityLabel,
   derivedLabel,
   placeholderTextColor,
-  onFocus,
-  onBlur,
   flowProps,
   typeStyleValue,
   foregroundStyle,
   disabledStyle,
   flatStyle,
-  setFocusedInput,
-  focusScroll,
+  inputRef,
+  inputFocusHandlers,
 }: DescriptorTextInputProps): React.ReactElement {
-  const inputRef = React.useRef<TextInput>(null);
   return (
     <TextInput
       ref={inputRef}
@@ -270,15 +271,8 @@ function DescriptorTextInput({
       accessibilityLabel={accessibilityLabel ?? derivedLabel}
       accessibilityState={{ disabled: inputDisabled }}
       placeholderTextColor={placeholderTextColor}
-      onFocus={() => {
-        setFocusedInput(true);
-        focusScroll?.requestScrollToFocusedInput(inputRef.current);
-        onFocus?.();
-      }}
-      onBlur={() => {
-        setFocusedInput(false);
-        onBlur?.();
-      }}
+      onFocus={inputFocusHandlers.onFocus}
+      onBlur={inputFocusHandlers.onBlur}
       {...flowProps}
       style={[
         typeStyleValue,
@@ -616,15 +610,13 @@ function renderPart<A extends Axes>(
           accessibilityLabel={inputProps.accessibilityLabel ?? derivedLabel}
           derivedLabel={derivedLabel}
           placeholderTextColor={ctx.theme.text.muted}
-          onFocus={inputProps.onFocus}
-          onBlur={inputProps.onBlur}
           flowProps={flowProps}
           typeStyleValue={flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis) : null}
           foregroundStyle={fg ? { color: fg } : null}
           disabledStyle={inputDisabled ? { opacity: ctx.theme.interaction.disabledOpacity } : null}
           flatStyle={flat.style as StyleProp<TextStyle>}
-          setFocusedInput={ctx.setFocusedInput}
-          focusScroll={ctx.focusScroll}
+          inputRef={ctx.inputRef}
+          inputFocusHandlers={ctx.inputFocusHandlers}
         />
       );
     }
@@ -648,8 +640,11 @@ export function renderDescriptorInstance<A extends Axes, PId extends PartId = Pa
   const anatomy = resolveAnatomy(descriptor);
   const theme = useNuriTheme();
   const ambient = React.useContext(NuriSurfaceContext);
-  const focusScroll = useFocusScroll();
-  const [focusedInput, setFocusedInput] = React.useState(false);
+  const inputRef = React.useRef<TextInput>(null);
+  const inputFocus = useFocusable(inputRef, {
+    onFocus: behaviour.input?.props.onFocus,
+    onBlur: behaviour.input?.props.onBlur,
+  });
   // The static api fact gating the render-time nested harvest — only a
   // descriptor that declares component slots can carry nested composition.
   const slotted = Object.values(descriptor.api?.slots ?? {}).some((slot) => slot.component === true);
@@ -665,9 +660,9 @@ export function renderDescriptorInstance<A extends Axes, PId extends PartId = Pa
       slotProps: {},
       components,
       behaviour,
-      focusScroll,
-      focusedInput,
-      setFocusedInput,
+      focusedInput: inputFocus.focused,
+      inputRef,
+      inputFocusHandlers: inputFocus,
       slotted,
       owner: displayName,
     } as RenderCtx<A>,

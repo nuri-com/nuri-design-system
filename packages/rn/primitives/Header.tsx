@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View as RNView } from 'react-native';
 import type { LayoutChangeEvent, ViewStyle } from 'react-native';
 import type { BoxNS, PaletteNS, StackNS } from '../contract';
-import { useFixedRegionLayout } from './FixedRegionLayout';
+import { useFixedRegionLayout, useRegisterRegion } from './FixedRegionLayout';
 import { FIXED_REGION_STYLE_KEYS, numericPadding, useResolvedNode, withKeys, withSurface } from './shared';
 
 type HeaderStyleProps =
@@ -25,8 +25,8 @@ const HeaderImpl = React.forwardRef<React.ElementRef<typeof RNView>, HeaderProps
   onLayout,
   ...props
 }, ref) => {
-  const { safeAreaTop: hostSafeAreaTop, setHeaderHeight } = useFixedRegionLayout();
-  const measuredHeight = React.useRef(0);
+  const { safeAreaTop: hostSafeAreaTop } = useFixedRegionLayout();
+  const handleLayout = useRegisterRegion('header', onLayout);
   const { node } = useResolvedNode(props);
   const resolvedViewStyle = node.view as ViewStyle;
   const authoredPaddingTop =
@@ -38,17 +38,6 @@ const HeaderImpl = React.forwardRef<React.ElementRef<typeof RNView>, HeaderProps
     authoredPaddingTop > 0 || effectiveSafeAreaTop > 0
       ? { paddingTop: authoredPaddingTop + effectiveSafeAreaTop }
       : null;
-
-  React.useEffect(() => () => setHeaderHeight(0), [setHeaderHeight]);
-
-  const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
-    const next = Math.round(event.nativeEvent.layout.height);
-    if (measuredHeight.current !== next) {
-      measuredHeight.current = next;
-      setHeaderHeight(next);
-    }
-    onLayout?.(event);
-  }, [onLayout, setHeaderHeight]);
 
   return (
     <RNView ref={ref} testID={testID} onLayout={handleLayout} style={[HEADER_STYLE, node.view, composedPaddingTop]}>
