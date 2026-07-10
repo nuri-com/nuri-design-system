@@ -5,8 +5,8 @@
  * It interprets the frozen descriptor `{ structure:{anatomy,base}, variants }`
  * by resolving the FIVE disjoint SEMANTIC namespaces (65.3 §6) onto RN:
  *
- *   stack       → flex container       (matches the hand Stack primitive)
- *   box         → sizing · padding · radii   (matches the hand Box primitive)
+ *   stack       → flex-container vocabulary carried by View
+ *   box         → sizing · padding · radii carried by View
  *   typography  → a type STEP ref the factory expands via typeStyle (54/55)
  *   palette     → colour via theme.surface / theme.chrome (packages/rn/generated/data/palette.ts)
  *   interactive → press/disabled transients (the structured opt-in · 65.4)
@@ -102,7 +102,7 @@ function fillCaseToRn(fill: FillCase): ViewStyle {
 }
 
 // childFillStyle · the per-child ViewStyle for a stack `distribute` value — the RN
-// twin of the web `.nuri-stack[data-distribute] > *` combinator. The Stack primitive
+// twin of the web `.nuri-stack[data-distribute] > *` combinator. The View primitive
 // wraps each direct child in a View carrying this. Single-sourced from the same
 // DISTRIBUTE table (via STACK_FIELDS) the web CSS emits from, so the two never drift.
 export function childFillStyle(distribute: NonNullable<StackNS['distribute']>): ViewStyle {
@@ -153,9 +153,9 @@ function applyFields(fields: Record<string, Field>, ns: Record<string, unknown>)
         break;
       case 'childFill':
         // child-affecting (distribute) — NO node style; the per-child flex is
-        // injected by the Stack primitive (childFillStyle), not here.
-        // SCOPE (latent): `distribute` is a Stack-PRIMITIVE-only prop today — the
-        // hand-authorable <Stack> (RN) / <nuri-view>/<nuri-stack> (web) wrap their
+        // injected by the View primitive (childFillStyle), not here.
+        // SCOPE (latent): `distribute` is a View-primitive prop today — the
+        // hand-authorable <View> (RN) / <nuri-view> (web) wrap their
         // children. NO descriptor sets it, and it is NOT wired through the
         // descriptor→projection paths: the web factory's mergeAttrs would emit
         // data-distribute, but the RN renderer (renderer.tsx) has no distribute

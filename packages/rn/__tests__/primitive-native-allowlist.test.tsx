@@ -14,7 +14,6 @@ import {
   Pressable,
   Screen,
   Scroll,
-  Stack,
   Text,
   View,
 } from '../primitives';
@@ -23,7 +22,6 @@ describe('open primitives — curated native allowlist', () => {
   test('every primitive ref reaches its native host, including accent-scoped wrappers', () => {
     const refs = {
       view: React.createRef<React.ElementRef<typeof RNView>>(),
-      stack: React.createRef<React.ElementRef<typeof RNView>>(),
       text: React.createRef<React.ElementRef<typeof RNText>>(),
       pressable: React.createRef<React.ElementRef<typeof RNPressable>>(),
       screen: React.createRef<React.ElementRef<typeof RNView>>(),
@@ -39,10 +37,8 @@ describe('open primitives — curated native allowlist', () => {
             <Header ref={refs.header} testID="header" />
             <Scroll ref={refs.scroll} testID="scroll">
               <View ref={refs.view} testID="view" accent="orange">
-                <Stack ref={refs.stack} testID="stack">
-                  <Text ref={refs.text} testID="text" accent="lilac">Label</Text>
-                  <Pressable ref={refs.pressable} testID="pressable" accent="orange" />
-                </Stack>
+                <Text ref={refs.text} testID="text" accent="lilac">Label</Text>
+                <Pressable ref={refs.pressable} testID="pressable" accent="orange" />
               </View>
             </Scroll>
             <Footer ref={refs.footer} testID="footer" />
@@ -63,7 +59,6 @@ describe('open primitives — curated native allowlist', () => {
       expect((ref.current as unknown as { props: { testID?: string } }).props.testID).toBe(name);
     }
     expect(refs.view.current).toBeInstanceOf(RNView);
-    expect(refs.stack.current).toBeInstanceOf(RNView);
     expect(refs.text.current).toBeInstanceOf(RNText);
     expect(refs.pressable.current).toBeInstanceOf(RNView);
     expect(refs.screen.current).toBeInstanceOf(RNView);

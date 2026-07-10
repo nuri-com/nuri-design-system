@@ -40,7 +40,6 @@ import {
   Footer,
   BottomSheetPanel,
   View,
-  Stack,
   Text,
   Pressable,
   Scroll,
@@ -228,7 +227,6 @@ export const pressableNoDistribute = <Pressable distribute="even">Child</Pressab
 
 // ── Open primitives — curated native plumbing, never appearance ──
 export const viewNativePlumbingOk = <View testID="view" onLayout={() => undefined} ref={React.createRef()} />;
-export const stackNativePlumbingOk = <Stack testID="stack" onLayout={() => undefined} ref={React.createRef()} />;
 export const textNativePlumbingOk = <Text testID="amount" accessibilityLabel="3,433 satoshis" onLayout={() => undefined} ref={React.createRef()}>3433 Sats</Text>;
 export const screenNativePlumbingOk = <Screen testID="screen" onLayout={() => undefined} ref={React.createRef()} />;
 export const headerNativePlumbingOk = <Header testID="header" onLayout={() => undefined} ref={React.createRef()} />;

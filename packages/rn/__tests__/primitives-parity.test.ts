@@ -13,9 +13,9 @@
  * `ATTRS` arrays become a CHECKED projection, not a trusted hand list — the
  * analogue of the descriptor anatomy-vs-addressed-parts agreement check.
  *
- * SCOPE NOTE (the web leg). The fully-current web mirrors are `<nuri-stack>`
- * (single-namespace) and `<nuri-view>` (box ∪ stack ∪ palette) — both checked
- * BIDIRECTIONALLY below. `<nuri-view>` became hand-authorable in ③ (view.js
+ * SCOPE NOTE (the web leg). The fully-current layout mirror is `<nuri-view>`
+ * (box ∪ stack ∪ palette), checked BIDIRECTIONALLY below. `<nuri-view>`
+ * became hand-authorable in ③ (view.js
  * gained a public attr surface that self-derives the merged box⊕stack⊕palette
  * classes + data-* via the factory's own mergeAttrs · the dual-mode mirror of
  * the RN View primitive), so View now has a real element-ATTRS oracle — closing
@@ -31,7 +31,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { View, Stack, Text, Pressable, Screen, Header, Scroll, Footer, Dock, Separator, ListSeparator } from '../primitives';
+import { View, Text, Pressable, Screen, Header, Scroll, Footer, Dock, Separator, ListSeparator } from '../primitives';
 import { STACK_FIELDS, BOX_FIELDS } from '@nuri/spec/resolve-map';
 import { opts as INTERACTIVE_OPTS } from '@nuri/spec/interactive-effects';
 import { PALETTE_KEYS, TYPOGRAPHY_KEYS, EFFECT_KEYS } from '@nuri/spec/descriptors/schema';
@@ -88,10 +88,6 @@ function viewAttrs(): string[] {
 
 describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', () => {
   // ── RN props ≡ schema NS keys (the drift guard · every primitive) ──
-  test('Stack props ≡ StackNS keys', () => {
-    expect(sorted(Stack.propKeys)).toEqual(sorted(STACK_KEYS));
-  });
-
   test('View props ≡ box ∪ stack ∪ palette ∪ effect keys', () => {
     expect(sorted(View.propKeys)).toEqual(union(BOX_KEYS, STACK_KEYS, PALETTE_KEYS, EFFECT_KEYS));
   });
@@ -153,11 +149,6 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
   });
 
   // ── web ATTRS leg ──
-  test('web <nuri-stack> ATTRS (minus the web-only `as` host hatch) ≡ StackNS keys', () => {
-    const attrs = webAttrs('stack.js').filter((a) => a !== 'as');
-    expect(sorted(attrs)).toEqual(sorted(STACK_KEYS.map(kebab)));
-  });
-
   test('web <nuri-view> ATTRS ≡ box ∪ stack ∪ palette ∪ effect keys (the #102-deferred leg, now bidirectional)', () => {
     expect(sorted(viewAttrs())).toEqual(sorted(union(BOX_KEYS, STACK_KEYS, PALETTE_KEYS, EFFECT_KEYS).map(kebab)));
   });

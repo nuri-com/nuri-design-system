@@ -1,10 +1,10 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · STACK/VIEW distribute="even" (react-test-renderer · headless)
+ * NURI · VIEW distribute="even" (react-test-renderer · headless)
  * ──────────────────────────────────────────────────────────────────
  * The RN projection of the parent-side even split. Web has no `> *` reach
  * through a display:contents component host, so BOTH platforms wrap each direct
- * child in a flex box: web injects a `.nuri-stack` div (view.js/stack.js), RN
- * injects a flex <View> here (Stack.tsx/View.tsx). This guards the RN wrapping +
+ * child in a flex box: web injects a `.nuri-stack` div (view.js), RN injects a
+ * flex <View> here (View.tsx). This guards the RN wrapping +
  * that the per-child flex is single-sourced from childFillStyle (the shared
  * DISTRIBUTE table).
  * ══════════════════════════════════════════════════════════════════ */
@@ -13,7 +13,7 @@ import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { Text, View } from 'react-native';
 import { NuriThemeProvider } from '../theme';
-import { Stack, Text as NuriText, View as NuriView } from '../primitives';
+import { Text as NuriText, View as NuriView } from '../primitives';
 import { childFillStyle } from '../runtime/resolve';
 import { STACK_FIELDS } from '@nuri/spec/resolve-map';
 
@@ -40,11 +40,11 @@ const flatStyle = (style: unknown): Record<string, unknown> =>
 
 test('distribute="even" wraps EACH direct child in a flex View (the RN twin of the web `> *`)', () => {
   const tr = render(
-    <Stack direction="row" distribute="even">
+    <NuriView direction="row" distribute="even">
       <Text>A</Text>
       <Text>Bee</Text>
       <Text>Charlie</Text>
-    </Stack>,
+    </NuriView>,
   );
   const wrappers = tr.root.findAll(isEvenWrapper);
   expect(wrappers).toHaveLength(3);
@@ -71,12 +71,12 @@ test('View distribute="even" wraps each non-empty direct child in a child-fill h
   ]);
 });
 
-test('no distribute → children are NOT wrapped (byte-identical to a plain Stack)', () => {
+test('no distribute → children are NOT wrapped (byte-identical to a plain View)', () => {
   const tr = render(
-    <Stack direction="row">
+    <NuriView direction="row">
       <Text>A</Text>
       <Text>Bee</Text>
-    </Stack>,
+    </NuriView>,
   );
   expect(tr.root.findAll(isEvenWrapper)).toHaveLength(0);
 });

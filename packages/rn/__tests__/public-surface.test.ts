@@ -1,0 +1,148 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as ts from 'typescript';
+
+const EXPECTED_RUNTIME_EXPORTS = [
+  'Alert',
+  'AlertButton',
+  'AlertIcon',
+  'BottomSheet',
+  'BottomSheetPanel',
+  'Button',
+  'ButtonIcon',
+  'ButtonText',
+  'Dock',
+  'Footer',
+  'Header',
+  'IconAvatar',
+  'IconButton',
+  'List',
+  'ListAction',
+  'ListActionLeadingAvatar',
+  'ListActionText',
+  'ListActionTextMuted',
+  'ListActionTrailIcon',
+  'ListActionTrailingText',
+  'ListActionTrailingTextMuted',
+  'ListSeparator',
+  'NuriIcon',
+  'NuriSafeAreaProvider',
+  'NuriScope',
+  'NuriThemeProvider',
+  'OverlayProvider',
+  'Pressable',
+  'Screen',
+  'Scroll',
+  'Separator',
+  'TabBar',
+  'TabBarItem',
+  'TabBarItemIcon',
+  'TabBarItemLabel',
+  'Text',
+  'TextField',
+  'TextFieldButton',
+  'TextFieldIconButton',
+  'TextFieldLabel',
+  'Topbar',
+  'TopbarCenter',
+  'TopbarLeading',
+  'TopbarTrailing',
+  'View',
+  'typeStyle',
+  'useNuriSafeAreaInsets',
+  'useNuriTheme',
+  'useOverlay',
+] as const;
+
+const EXPECTED_TYPE_EXPORTS = [
+  'Accent',
+  'AlertButtonProps',
+  'AlertIconProps',
+  'AlertProps',
+  'BottomSheetDetent',
+  'BottomSheetPanelProps',
+  'BottomSheetProps',
+  'BottomSheetScrim',
+  'ButtonIconProps',
+  'ButtonProps',
+  'ButtonTextProps',
+  'ChromeRole',
+  'DockEdge',
+  'DockProps',
+  'Elevation',
+  'FooterProps',
+  'HeaderProps',
+  'IconAvatarProps',
+  'IconButtonProps',
+  'IconName',
+  'ListActionLeadingAvatarProps',
+  'ListActionProps',
+  'ListActionTextMutedProps',
+  'ListActionTextProps',
+  'ListActionTrailIconProps',
+  'ListActionTrailingTextMutedProps',
+  'ListActionTrailingTextProps',
+  'ListProps',
+  'ListSeparatorProps',
+  'NuriIconProps',
+  'NuriSafeAreaInsets',
+  'NuriSafeAreaProviderProps',
+  'NuriTheme',
+  'NuriThemeValue',
+  'OverlayApi',
+  'OverlayLayerOptions',
+  'PaletteChrome',
+  'PaletteVariant',
+  'PressableProps',
+  'RadiusLeaf',
+  'RatioLeaf',
+  'ScreenProps',
+  'ScrollInsetBottom',
+  'ScrollInsetTop',
+  'ScrollProps',
+  'SeparatorProps',
+  'SeparatorYSpace',
+  'SizeLeaf',
+  'SpaceLeaf',
+  'SurfaceRole',
+  'TabBarItemIconProps',
+  'TabBarItemLabelProps',
+  'TabBarItemProps',
+  'TabBarProps',
+  'TextFieldButtonProps',
+  'TextFieldIconButtonProps',
+  'TextFieldLabelProps',
+  'TextFieldProps',
+  'TextProps',
+  'Theme',
+  'ThemePayload',
+  'TopbarCenterProps',
+  'TopbarLeadingProps',
+  'TopbarProps',
+  'TopbarTrailingProps',
+  'TypeKey',
+  'TypeSize',
+  'TypeStep',
+  'TypeWeight',
+  'ViewProps',
+] as const;
+
+test('the public barrel matches the deliberate runtime + type export pin', () => {
+  const source = fs.readFileSync(path.resolve(__dirname, '../index.ts'), 'utf8');
+  const file = ts.createSourceFile('index.ts', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const runtime: string[] = [];
+  const types: string[] = [];
+
+  for (const statement of file.statements) {
+    if (!ts.isExportDeclaration(statement)) continue;
+    expect(statement.exportClause && ts.isNamedExports(statement.exportClause)).toBe(true);
+    if (!statement.exportClause || !ts.isNamedExports(statement.exportClause)) continue;
+    for (const specifier of statement.exportClause.elements) {
+      const bucket = statement.isTypeOnly || specifier.isTypeOnly ? types : runtime;
+      bucket.push(specifier.name.text);
+    }
+  }
+
+  expect(runtime.sort()).toEqual([...EXPECTED_RUNTIME_EXPORTS].sort());
+  expect(types.sort()).toEqual([...EXPECTED_TYPE_EXPORTS].sort());
+});

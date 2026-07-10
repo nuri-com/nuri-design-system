@@ -2,7 +2,7 @@
  * NURI · PRIMITIVES · THE HAND-AUTHORABLE PRIMITIVE LAYER (RN)
  * ──────────────────────────────────────────────────────────────────
  * The OPEN primitives a consumer composes screens with — the RN twins of
- * the web `<nuri-stack>` / `<nuri-view>` / `<nuri-typography>` /
+ * the web `<nuri-view>` / `<nuri-typography>` /
  * `<nuri-pressable>` / `<nuri-screen>` / `<nuri-scroll>` custom elements
  * (docs/primitives-contract.md §1.A · the §2 web↔RN parity gap · step ①).
  *
@@ -11,8 +11,8 @@
  * A primitive is the OPEN raw-axis passthrough: typed flat props = the schema
  * namespaces (schema.ts), forwarded through the EXISTING runtime/resolve.ts
  * appliers → an RN host. The merged View carries box ⊕ stack ⊕ palette;
- * Stack the stack slice; Text typography (+ palette colour); Pressable adds
- * the interactive opt-in; Screen/Scroll are structural.
+ * Text carries typography (+ palette colour); Pressable adds the interactive
+ * opt-in; Screen/Scroll are structural.
  *
  * ⚠ THE DRIFT RULE (the named risk · contract §4 ①). Every prop→style path
  * here goes through `resolveNS` (which itself drives `applyFields` over the
@@ -24,7 +24,7 @@
  * runtime key tables (Object.keys(STACK_FIELDS) etc. · shared.tsx) — a key-set
  * classification, not a style mapping.
  *
- * NAME COLLISION: the DS exports are View/Stack/Text/Pressable/Screen/Scroll
+ * NAME COLLISION: the DS exports are View/Text/Pressable/Screen/Scroll
  * (the Pascal of the public names · the deterministic-naming convention). The
  * react-native hosts are aliased (View as RNView, …) so the DS `View` wraps the
  * RN `RNView`.
@@ -37,8 +37,6 @@
 
 export { View } from './View';
 export type { ViewProps } from './View';
-export { Stack } from './Stack';
-export type { StackProps } from './Stack';
 export { Text } from './Text';
 export type { TextProps } from './Text';
 export { Pressable } from './Pressable';
