@@ -5,6 +5,8 @@ import type { KeyboardEvent } from 'react-native';
 export type FixedRegionLayoutValue = {
   headerHeight: number;
   footerHeight: number;
+  keyboardHeight: number;
+  keyboardScreenY: number | null;
   keyboardOffset: number;
   safeAreaTop: number;
   safeAreaBottom: number;
@@ -29,6 +31,8 @@ export type FixedRegionLayoutProviderProps = {
 const DEFAULT_LAYOUT_VALUE: FixedRegionLayoutValue = {
   headerHeight: 0,
   footerHeight: 0,
+  keyboardHeight: 0,
+  keyboardScreenY: null,
   keyboardOffset: 0,
   safeAreaTop: 0,
   safeAreaBottom: 0,
@@ -46,13 +50,12 @@ function normalizeInset(value: number | undefined): number {
   return Number.isFinite(value) ? Math.max(0, Math.round(value ?? 0)) : 0;
 }
 
-function resolveKeyboardOffset(event: KeyboardEvent, windowHeight: number): number {
-  const { height, screenY } = event.endCoordinates;
-  if (Platform.OS === 'android' && screenY > 0) {
+function resolveKeyboardOffset(height: number, screenY: number | null, windowHeight: number): number {
+  if (Platform.OS === 'android' && screenY !== null) {
     return Math.max(0, Math.round(windowHeight - screenY));
   }
   if (height > 0) return Math.round(height);
-  return screenY > 0 ? Math.max(0, Math.round(windowHeight - screenY)) : 0;
+  return screenY !== null ? Math.max(0, Math.round(windowHeight - screenY)) : 0;
 }
 
 export const FixedRegionLayoutProvider: React.FC<FixedRegionLayoutProviderProps> = ({
@@ -69,31 +72,36 @@ export const FixedRegionLayoutProvider: React.FC<FixedRegionLayoutProviderProps>
   const [footerHeight, setFooterHeight] = React.useState(0);
   const [dockTopInset, setDockTopInset] = React.useState(0);
   const [dockBottomInset, setDockBottomInset] = React.useState(0);
-  const [keyboardOffset, setKeyboardOffset] = React.useState(0);
+  const [keyboardHeight, setKeyboardHeight] = React.useState(0);
+  const [keyboardScreenY, setKeyboardScreenY] = React.useState<number | null>(null);
 
   React.useEffect(() => {
-    if (!keyboardEnabled) {
-      setKeyboardOffset(0);
-      return;
-    }
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
     const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
     const showSub = Keyboard.addListener(showEvent, (event: KeyboardEvent) => {
-      setKeyboardOffset(resolveKeyboardOffset(event, effectiveWindowHeight));
+      setKeyboardHeight(event.endCoordinates.height);
+      setKeyboardScreenY(event.endCoordinates.screenY > 0 ? event.endCoordinates.screenY : null);
     });
     const hideSub = Keyboard.addListener(hideEvent, () => {
-      setKeyboardOffset(0);
+      setKeyboardHeight(0);
+      setKeyboardScreenY(null);
     });
     return () => {
       showSub.remove();
       hideSub.remove();
     };
-  }, [effectiveWindowHeight, keyboardEnabled]);
+  }, []);
+
+  const keyboardOffset = keyboardEnabled
+    ? resolveKeyboardOffset(keyboardHeight, keyboardScreenY, effectiveWindowHeight)
+    : 0;
 
   const value = React.useMemo<FixedRegionLayoutValue>(
     () => ({
       headerHeight,
       footerHeight,
+      keyboardHeight,
+      keyboardScreenY,
       keyboardOffset,
       safeAreaTop: normalizeInset(safeAreaTop),
       safeAreaBottom: normalizeInset(safeAreaBottom),
@@ -108,6 +116,8 @@ export const FixedRegionLayoutProvider: React.FC<FixedRegionLayoutProviderProps>
     [
       headerHeight,
       footerHeight,
+      keyboardHeight,
+      keyboardScreenY,
       keyboardOffset,
       safeAreaTop,
       safeAreaBottom,

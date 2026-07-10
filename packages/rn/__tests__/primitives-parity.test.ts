@@ -100,9 +100,11 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
     expect(sorted(Text.propKeys)).toEqual(union(TYPOGRAPHY_KEYS, PALETTE_KEYS));
   });
 
-  test('Pressable props ≡ box ∪ stack ∪ palette ∪ interactive keys', () => {
+  test('Pressable props ≡ box ∪ stack-minus-distribute ∪ palette ∪ interactive keys', () => {
+    // Deliberate exclusion: Pressable wraps no children on either engine. Wiring
+    // distribute is a future both-engines change, not an RN-only surface claim.
     expect(sorted(Pressable.propKeys)).toEqual(
-      union(BOX_KEYS, STACK_KEYS, PALETTE_KEYS, INTERACTIVE_KEYS),
+      union(BOX_KEYS, STACK_KEYS.filter((key) => key !== 'distribute'), PALETTE_KEYS, INTERACTIVE_KEYS),
     );
   });
 

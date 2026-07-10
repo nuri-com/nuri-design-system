@@ -3,7 +3,7 @@ import { View as RNView } from 'react-native';
 import type { LayoutChangeEvent, ViewStyle } from 'react-native';
 import type { BoxNS, PaletteNS, StackNS } from '../contract';
 import { useFixedRegionLayout } from './FixedRegionLayout';
-import { useResolvedNode, withKeys, withSurface } from './shared';
+import { FIXED_REGION_STYLE_KEYS, numericPadding, useResolvedNode, withKeys, withSurface } from './shared';
 
 type FooterStyleProps =
   Pick<PaletteNS, 'chrome'> &
@@ -14,11 +14,6 @@ export type FooterProps = FooterStyleProps & {
   safeAreaBottom?: boolean;
   children?: React.ReactNode;
 };
-
-function numericPadding(style: ViewStyle, key: 'paddingBottom' | 'paddingVertical'): number {
-  const value = style[key];
-  return typeof value === 'number' ? value : 0;
-}
 
 const FooterImpl: React.FC<FooterProps> = ({ safeAreaBottom = false, children, ...props }) => {
   const { keyboardOffset, safeAreaBottom: hostSafeAreaBottom, setFooterHeight } = useFixedRegionLayout();
@@ -62,15 +57,7 @@ FooterImpl.displayName = 'Footer';
 
 export const Footer = withKeys(FooterImpl, [
   'safeAreaBottom',
-  'chrome',
-  'direction',
-  'align',
-  'justify',
-  'gap',
-  'paddingX',
-  'paddingY',
-  'paddingTop',
-  'paddingBottom',
+  ...FIXED_REGION_STYLE_KEYS,
 ]);
 
 const FOOTER_STYLE: ViewStyle = {

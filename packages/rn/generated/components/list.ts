@@ -16,7 +16,7 @@ import { nuriNames, renderDescriptorInstance } from '../../runtime/renderer';
 import type { NuriBehaviour } from '../../runtime/renderer';
 import { listDescriptor } from '@nuri/spec/descriptors/list';
 import { recipes } from '../data/recipes';
-import { NuriScope } from '../../theme';
+import { scopedByAccent } from '../../primitives/shared';
 import type { Accent } from '../data/tokens';
 
 export type ListProps = {
@@ -46,8 +46,5 @@ const ListInner: React.FC<ListProps> = (props) => {
 };
 ListInner.displayName = `${listDisplayName}Inner`;
 
-export const List: React.FC<ListProps> = (props) =>
-  props.accent !== undefined
-    ? React.createElement(NuriScope, { accent: props.accent, children: React.createElement(ListInner, props) })
-    : React.createElement(ListInner, props);
+export const List = scopedByAccent(ListInner);
 List.displayName = listDisplayName;

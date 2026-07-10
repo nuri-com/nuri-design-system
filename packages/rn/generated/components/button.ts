@@ -16,7 +16,7 @@ import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriComposi
 import type { NuriBehaviour, NuriCompositionEntry } from '../../runtime/renderer';
 import { buttonDescriptor } from '@nuri/spec/descriptors/button';
 import { recipes } from '../data/recipes';
-import { NuriScope } from '../../theme';
+import { scopedByAccent } from '../../primitives/shared';
 import type { Accent } from '../data/tokens';
 import type { IconName } from '../data/icons';
 
@@ -77,8 +77,5 @@ const ButtonInner: React.FC<ButtonProps> = (props) => {
 };
 ButtonInner.displayName = `${buttonDisplayName}Inner`;
 
-export const Button: React.FC<ButtonProps> = (props) =>
-  props.accent !== undefined
-    ? React.createElement(NuriScope, { accent: props.accent, children: React.createElement(ButtonInner, props) })
-    : React.createElement(ButtonInner, props);
+export const Button = scopedByAccent(ButtonInner);
 Button.displayName = buttonDisplayName;

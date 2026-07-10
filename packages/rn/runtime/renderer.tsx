@@ -11,8 +11,8 @@ import * as React from 'react';
 import { Platform, Pressable, Text, TextInput, View } from 'react-native';
 import type { StyleProp, TextStyle } from 'react-native';
 import { LEAF_ELS } from '@nuri/spec/descriptors/schema';
-import type { Accent, Descriptor, Axes, IconName, PartId } from '../contract';
-import { typeStyle, useNuriTheme, NuriScope } from '../theme';
+import type { Descriptor, Axes, IconName, PartId } from '../contract';
+import { typeStyle, useNuriTheme } from '../theme';
 import type { NuriTheme } from './theme-payload';
 import { resolveAnatomy, flattenBakedPart, assertNever } from './resolve';
 import type { AnatomyNode, Selection, BakedComponentRecipe } from './resolve';
@@ -734,8 +734,4 @@ export function renderDescriptorInstance<A extends Axes, PId extends PartId = Pa
     ambient.foreground,
     true,
   ) as React.ReactElement;
-}
-
-export function renderWithNuriScope(accent: Accent | undefined, child: React.ReactElement): React.ReactElement {
-  return accent !== undefined ? <NuriScope accent={accent}>{child}</NuriScope> : child;
 }

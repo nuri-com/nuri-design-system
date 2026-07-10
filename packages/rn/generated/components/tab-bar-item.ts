@@ -16,7 +16,7 @@ import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriComposi
 import type { NuriBehaviour, NuriCompositionEntry } from '../../runtime/renderer';
 import { tabBarItemDescriptor } from '@nuri/spec/descriptors/tab-bar-item';
 import { recipes } from '../data/recipes';
-import { NuriScope } from '../../theme';
+import { scopedByAccent } from '../../primitives/shared';
 import type { Accent } from '../data/tokens';
 import type { IconName } from '../data/icons';
 
@@ -73,8 +73,5 @@ const TabBarItemInner: React.FC<TabBarItemProps> = (props) => {
 };
 TabBarItemInner.displayName = `${tabBarItemDisplayName}Inner`;
 
-export const TabBarItem: React.FC<TabBarItemProps> = (props) =>
-  props.accent !== undefined
-    ? React.createElement(NuriScope, { accent: props.accent, children: React.createElement(TabBarItemInner, props) })
-    : React.createElement(TabBarItemInner, props);
+export const TabBarItem = scopedByAccent(TabBarItemInner);
 TabBarItem.displayName = tabBarItemDisplayName;

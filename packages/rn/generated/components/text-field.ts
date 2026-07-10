@@ -16,7 +16,7 @@ import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriComposi
 import type { NuriBehaviour, NuriCompositionEntry } from '../../runtime/renderer';
 import { textFieldDescriptor } from '@nuri/spec/descriptors/text-field';
 import { recipes } from '../data/recipes';
-import { NuriScope } from '../../theme';
+import { scopedByAccent } from '../../primitives/shared';
 import type { Accent } from '../data/tokens';
 import type { IconName } from '../data/icons';
 import { Button } from './button';
@@ -106,8 +106,5 @@ const TextFieldInner: React.FC<TextFieldProps> = (props) => {
 };
 TextFieldInner.displayName = `${textFieldDisplayName}Inner`;
 
-export const TextField: React.FC<TextFieldProps> = (props) =>
-  props.accent !== undefined
-    ? React.createElement(NuriScope, { accent: props.accent, children: React.createElement(TextFieldInner, props) })
-    : React.createElement(TextFieldInner, props);
+export const TextField = scopedByAccent(TextFieldInner);
 TextField.displayName = textFieldDisplayName;

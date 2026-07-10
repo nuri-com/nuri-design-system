@@ -257,7 +257,7 @@ const PAGE_CONTRACT = {
       '| `onPress` | no | `() => void` | pressable behaviour |',
       '| `accessibilityLabel` | no | `string` | pressable behaviour |',
     ],
-    excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '| `distribute` |'],
   },
   screen: {
     kind: 'api', source: 'screen', title: 'Screen', nav: 16,

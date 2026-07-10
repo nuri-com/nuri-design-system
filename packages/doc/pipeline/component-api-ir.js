@@ -387,6 +387,18 @@ function parsePickExpression(expr) {
   return { sourceType: match[1], keys };
 }
 
+function parseOmitExpression(expr) {
+  const match = /^Omit<\s*([A-Za-z_$][\w$]*)\s*,\s*([\s\S]+)\s*>$/.exec(expr.trim());
+  if (!match) return null;
+  const keys = splitTopLevel(match[2], '|').map((part) => {
+    const raw = part.trim();
+    const quoted = /^['"]([^'"]+)['"]$/.exec(raw);
+    if (!quoted) throw new Error(`[docs] unsupported Omit key '${raw}'`);
+    return quoted[1];
+  });
+  return { sourceType: match[1], keys };
+}
+
 function parsePropObject(spec, typeName, body, isPrimaryType, aliases) {
   const props = [];
   const forbidden = [];
@@ -422,7 +434,8 @@ function propsFromType(spec, typeName, aliases, seen = new Set()) {
   if (seen.has(typeName)) {
     throw new Error(`[docs] ${spec.source}: circular prop type alias '${typeName}'`);
   }
-  const expr = aliases.get(typeName) ?? (parsePickExpression(typeName) ? typeName : undefined);
+  const expr = aliases.get(typeName) ??
+    (parsePickExpression(typeName) || parseOmitExpression(typeName) ? typeName : undefined);
   if (!expr) {
     throw new Error(`[docs] ${spec.source}: source does not export '${typeName}'`);
   }
@@ -461,6 +474,20 @@ function propsFromType(spec, typeName, aliases, seen = new Set()) {
         else throw new Error(`[docs] ${spec.source}: Pick<${pick.sourceType}> references unknown prop '${key}'`);
       }
       return { typeName, props, forbidden };
+    }
+    const omit = parseOmitExpression(expr);
+    if (omit) {
+      const parsed = propsFromType({ ...spec, type: omit.sourceType }, omit.sourceType, aliases, seen);
+      const known = new Set([...parsed.props, ...(parsed.forbidden || [])].map((prop) => prop.name));
+      for (const key of omit.keys) {
+        if (!known.has(key)) throw new Error(`[docs] ${spec.source}: Omit<${omit.sourceType}> references unknown prop '${key}'`);
+      }
+      const omitted = new Set(omit.keys);
+      return {
+        typeName,
+        props: parsed.props.filter((prop) => !omitted.has(prop.name)),
+        forbidden: (parsed.forbidden || []).filter((prop) => !omitted.has(prop.name)),
+      };
     }
     throw new Error(`[docs] ${spec.source}: '${typeName}' is not an object prop type or supported intersection`);
   } finally {

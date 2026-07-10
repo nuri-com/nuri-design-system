@@ -3,9 +3,8 @@
 // (scroll.js:8 · "a thin component over <ScrollView>") · no namespace.
 // ════════════════════════════════════════════════════════════════
 import * as React from 'react';
-import { Keyboard, Platform, ScrollView as RNScrollView } from 'react-native';
+import { ScrollView as RNScrollView } from 'react-native';
 import type {
-  KeyboardEvent,
   LayoutChangeEvent,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -44,6 +43,8 @@ const FOCUS_BOTTOM_MARGIN = 88;
 const FOCUS_SCROLL_DELAY_MS = 32;
 const FOCUS_SCROLL_REPEAT_DELAY_MS = 60;
 
+// Keyboard handling requires a FixedRegionLayoutProvider ancestor. Screen and
+// BottomSheet provide it; a bare Scroll intentionally degrades to no handling.
 const ScrollImpl: React.FC<ScrollProps> = ({
   safeAreaTop = false,
   safeAreaBottom = false,
@@ -55,6 +56,8 @@ const ScrollImpl: React.FC<ScrollProps> = ({
     scrollMaxHeight,
     headerHeight,
     footerHeight,
+    keyboardHeight: contextKeyboardHeight,
+    keyboardScreenY: contextKeyboardScreenY,
     keyboardOffset,
     safeAreaTop: hostSafeAreaTop,
     safeAreaBottom: hostSafeAreaBottom,
@@ -191,29 +194,32 @@ const ScrollImpl: React.FC<ScrollProps> = ({
   }, [clearScheduledScrolls, performScrollToInput]);
 
   React.useEffect(() => {
-    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
-    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
-    const showSub = Keyboard.addListener(showEvent, (event: KeyboardEvent) => {
+    const previousHeight = keyboardHeight.current;
+    const wasVisible = keyboardHeight.current > 0;
+    const isVisible = contextKeyboardHeight > 0;
+
+    if (isVisible) {
       if (preKeyboardViewportHeight.current === 0) {
         preKeyboardViewportHeight.current = viewportHeight.current || scrollMaxHeight || 0;
       }
-      keyboardHeight.current = event.endCoordinates.height;
-      keyboardScreenY.current = event.endCoordinates.screenY > 0 ? event.endCoordinates.screenY : null;
+      keyboardHeight.current = contextKeyboardHeight;
+      keyboardScreenY.current = contextKeyboardScreenY;
       updateKeyboardPadding();
-      scheduleScrollToInput(focusedInput.current, FOCUS_SCROLL_REPEAT_DELAY_MS);
-    });
-    const hideSub = Keyboard.addListener(hideEvent, () => {
+      if (!wasVisible || contextKeyboardHeight !== previousHeight) {
+        scheduleScrollToInput(focusedInput.current, FOCUS_SCROLL_REPEAT_DELAY_MS);
+      }
+      return;
+    }
+
+    if (wasVisible) {
       preKeyboardViewportHeight.current = 0;
       keyboardHeight.current = 0;
       keyboardScreenY.current = null;
       setKeyboardPadding(0);
-    });
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-      clearScheduledScrolls();
-    };
-  }, [clearScheduledScrolls, scheduleScrollToInput, scrollMaxHeight, updateKeyboardPadding]);
+    }
+  }, [contextKeyboardHeight, contextKeyboardScreenY, scheduleScrollToInput, scrollMaxHeight, updateKeyboardPadding]);
+
+  React.useEffect(() => clearScheduledScrolls, [clearScheduledScrolls]);
 
   const focusScrollApi = React.useMemo<FocusScrollApi>(() => ({
     requestScrollToFocusedInput: (input) => scheduleScrollToInput(input),
