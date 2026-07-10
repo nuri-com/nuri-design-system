@@ -39,10 +39,14 @@ import {
   BottomSheet,
   Footer,
   BottomSheetPanel,
+  View,
+  Stack,
+  Text,
   Pressable,
   Scroll,
   Header,
   Screen,
+  Dock,
   Topbar,
   TopbarCenter,
 } from '../index';
@@ -221,6 +225,41 @@ export const bottomSheetFooterNoPress = <Footer onPress={() => undefined}><Butto
 
 // @ts-expect-error Pressable cannot distribute children on either engine; the prop never had runtime behavior.
 export const pressableNoDistribute = <Pressable distribute="even">Child</Pressable>;
+
+// ── Open primitives — curated native plumbing, never appearance ──
+export const viewNativePlumbingOk = <View testID="view" onLayout={() => undefined} ref={React.createRef()} />;
+export const stackNativePlumbingOk = <Stack testID="stack" onLayout={() => undefined} ref={React.createRef()} />;
+export const textNativePlumbingOk = <Text testID="amount" accessibilityLabel="3,433 satoshis" onLayout={() => undefined} ref={React.createRef()}>3433 Sats</Text>;
+export const screenNativePlumbingOk = <Screen testID="screen" onLayout={() => undefined} ref={React.createRef()} />;
+export const headerNativePlumbingOk = <Header testID="header" onLayout={() => undefined} ref={React.createRef()} />;
+export const scrollNativePlumbingOk = <Scroll testID="scroll" onLayout={() => undefined} ref={React.createRef()} />;
+export const footerNativePlumbingOk = <Footer testID="footer" onLayout={() => undefined} ref={React.createRef()} />;
+export const dockNativePlumbingOk = <Dock edge="bottom" testID="dock" onLayout={() => undefined} ref={React.createRef()} />;
+export const pressableNativePlumbingOk = (
+  <Pressable
+    role="tab"
+    selected
+    testID="tab"
+    accessibilityHint="Opens wallet"
+    hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+    onLayout={() => undefined}
+    onPress={(event) => event.preventDefault()}
+    onLongPress={(event) => event.preventDefault()}
+    ref={React.createRef()}
+  />
+);
+export const pressableUniformHitSlopOk = <Pressable hitSlop={8} />;
+export const pressableLegacyNoArgHandlerOk = <Pressable onPress={() => undefined} />;
+// @ts-expect-error hitSlop is Pressable-only.
+export const viewNoHitSlop = <View hitSlop={8} />;
+// @ts-expect-error onLongPress is Pressable-only.
+export const textNoLongPress = <Text onLongPress={() => undefined} />;
+// @ts-expect-error Pressable roles are a closed button/tab union.
+export const pressableNoTablistRole = <Pressable role="tablist" />;
+// @ts-expect-error raw style is permanently outside the primitive surface.
+export const viewNoRawStyle = <View style={{ opacity: 0.5 }} />;
+// @ts-expect-error DS-owned press feedback is not native plumbing.
+export const pressableNoPressIn = <Pressable onPressIn={() => undefined} />;
 
 // ── Screen — full-screen primitive requests provider safe-area by boolean intent ──
 export const screenSafeAreaOk = <Screen safeArea><Button>Done</Button></Screen>;

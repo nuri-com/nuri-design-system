@@ -370,10 +370,12 @@ describe('render-smoke — the ergonomic components mount headless', () => {
   });
 
   test('Screen + Scroll dock insets + Dock mount with transparent Topbar/TabBar', () => {
+    const onTopDockLayout = jest.fn();
+    const onBottomDockLayout = jest.fn();
     const tr = render(
       <NuriThemeProvider>
         <NuriScreen>
-          <NuriDock edge="top">
+          <NuriDock edge="top" onLayout={onTopDockLayout}>
             <Topbar surface="transparent">
               <IconButton icon="list-bullets" variant="soft" accessibilityLabel="Activity" />
               <IconButton icon="headphones" variant="soft" accessibilityLabel="Support" />
@@ -388,7 +390,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
               </ListAction>
             </List>
           </NuriScroll>
-          <NuriDock edge="bottom">
+          <NuriDock edge="bottom" onLayout={onBottomDockLayout}>
             <TabBar surface="transparent">
               <TabBarItem selected accessibilityLabel="Bitcoin wallet">
                 <TabBarItemIcon name="bitcoin-wallet" />
@@ -438,6 +440,8 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       paddingTop: 64,
       paddingBottom: 72,
     });
+    expect(onTopDockLayout).toHaveBeenCalledTimes(1);
+    expect(onBottomDockLayout).toHaveBeenCalledTimes(1);
   });
 
   test('Screen + Header + Scroll + Footer measure structural clearance and paint safe areas', () => {

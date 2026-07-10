@@ -71,10 +71,10 @@ export function useResolvedNode(nsProps: Record<string, unknown>): {
 // A primitive carries its NAMESPACE prop-key list as a runtime array — the
 // parity gate (contract §3.3a) reads it to assert web-ATTRS ≡ RN-props ≡
 // schema-NS-keys without trusting a hand list.
-type Primitive<P> = React.FC<P> & { propKeys: readonly string[] };
+type Primitive<C> = C & { propKeys: readonly string[] };
 
-export const withKeys = <P,>(component: React.FC<P>, propKeys: readonly string[]): Primitive<P> => {
-  const c = component as Primitive<P>;
+export const withKeys = <C,>(component: C, propKeys: readonly string[]): Primitive<C> => {
+  const c = component as Primitive<C>;
   c.propKeys = propKeys;
   return c;
 };
@@ -86,16 +86,19 @@ export const withKeys = <P,>(component: React.FC<P>, propKeys: readonly string[]
 // silently paint the AMBIENT accent (the ns.accent field is now honoured by the
 // scope, never a per-node buildNuriTheme rebuild). No accent → no wrapper (the
 // Impl reads the ambient payload · snapshots for accent-less primitives unchanged).
-export function scopedByAccent<P extends { accent?: Accent }>(Impl: React.FC<P>): React.FC<P> {
-  const Scoped: React.FC<P> = (props) =>
-    props.accent !== undefined ? (
-      <NuriScope accent={props.accent}>
-        <Impl {...props} />
-      </NuriScope>
-    ) : (
-      <Impl {...props} />
-    );
-  Scoped.displayName = Impl.displayName;
+type ForwardComponent<T, P> = React.ForwardRefExoticComponent<React.PropsWithoutRef<P> & React.RefAttributes<T>>;
+
+export function scopedByAccent<T, P extends { accent?: Accent }>(Impl: ForwardComponent<T, P>): ForwardComponent<T, P>;
+export function scopedByAccent<P extends { accent?: Accent }>(Impl: React.FC<P>): React.FC<P>;
+export function scopedByAccent<P extends { accent?: Accent }>(
+  Impl: React.ElementType,
+): React.FC<P> | ForwardComponent<unknown, P> {
+  const Scoped = React.forwardRef<unknown, P>((props, ref) => {
+    const Component = Impl as React.ComponentType<P & React.RefAttributes<unknown>>;
+    const child = React.createElement(Component, { ...props, ref } as P & React.RefAttributes<unknown>);
+    return props.accent !== undefined ? <NuriScope accent={props.accent}>{child}</NuriScope> : child;
+  });
+  Scoped.displayName = (Impl as { displayName?: string }).displayName;
   return Scoped;
 }
 

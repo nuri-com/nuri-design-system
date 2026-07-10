@@ -13,9 +13,18 @@ type HeaderStyleProps =
 export type HeaderProps = HeaderStyleProps & {
   safeAreaTop?: boolean;
   children?: React.ReactNode;
+  testID?: string;
+  onLayout?: (event: LayoutChangeEvent) => void;
+  ref?: React.Ref<React.ElementRef<typeof RNView>>;
 };
 
-const HeaderImpl: React.FC<HeaderProps> = ({ safeAreaTop = false, children, ...props }) => {
+const HeaderImpl = React.forwardRef<React.ElementRef<typeof RNView>, HeaderProps>(({
+  safeAreaTop = false,
+  children,
+  testID,
+  onLayout,
+  ...props
+}, ref) => {
   const { safeAreaTop: hostSafeAreaTop, setHeaderHeight } = useFixedRegionLayout();
   const measuredHeight = React.useRef(0);
   const { node } = useResolvedNode(props);
@@ -34,17 +43,19 @@ const HeaderImpl: React.FC<HeaderProps> = ({ safeAreaTop = false, children, ...p
 
   const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
     const next = Math.round(event.nativeEvent.layout.height);
-    if (measuredHeight.current === next) return;
-    measuredHeight.current = next;
-    setHeaderHeight(next);
-  }, [setHeaderHeight]);
+    if (measuredHeight.current !== next) {
+      measuredHeight.current = next;
+      setHeaderHeight(next);
+    }
+    onLayout?.(event);
+  }, [onLayout, setHeaderHeight]);
 
   return (
-    <RNView onLayout={handleLayout} style={[HEADER_STYLE, node.view, composedPaddingTop]}>
+    <RNView ref={ref} testID={testID} onLayout={handleLayout} style={[HEADER_STYLE, node.view, composedPaddingTop]}>
       {withSurface(node.fg, children)}
     </RNView>
   );
-};
+});
 HeaderImpl.displayName = 'Header';
 
 export const Header = withKeys(HeaderImpl, [
