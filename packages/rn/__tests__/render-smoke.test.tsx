@@ -110,6 +110,10 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       </NuriThemeProvider>,
     );
     expect(tr.toJSON()).toBeTruthy();
+    const [button] = pressableActions(tr);
+    expect(button.props.accessibilityRole).toBe('button');
+    expect(button.props.accessibilityState).toEqual({ disabled: false });
+    expect(button.props.accessibilityState).not.toHaveProperty('selected');
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
@@ -349,6 +353,19 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const unselectedGlyph = tr.root.findAllByType(NuriIcon).find((g) => g.props.name === 'bitcoin');
     expect(selectedGlyph!.props.color).toBe('#222013');
     expect(unselectedGlyph!.props.color).not.toBe('#222013');
+    const tabList = tr.root.find(
+      (node) => node.props?.accessibilityRole === 'tablist' && typeof node.props?.style !== 'function',
+    );
+    expect(tabList).toBeTruthy();
+    const tabs = tr.root.findAll(
+      (node) => node.props?.accessibilityRole === 'tab' && typeof node.props?.style === 'function',
+    );
+    expect(tabs).toHaveLength(3);
+    expect(tabs[0].props.accessibilityState).toEqual({ disabled: false, selected: true });
+    // The OMITTED-selected item announces false (the bridge declares both arms;
+    // mirrors the web factory's coercion) — not a silent undefined.
+    expect(tabs[1].props.accessibilityState).toEqual({ disabled: false, selected: false });
+    expect(tabs[2].props.accessibilityState).toEqual({ disabled: false, selected: false });
     expect(tr.toJSON()).toMatchSnapshot();
   });
 

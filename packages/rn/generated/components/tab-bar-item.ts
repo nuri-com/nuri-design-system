@@ -57,6 +57,8 @@ const TabBarItemInner: React.FC<TabBarItemProps> = (props) => {
   const behaviour: NuriBehaviour<TabBarItemPart> = {};
   behaviour.pressable = {
     target: "root",
+    role: "tab",
+    selected: props.selected === true,
     onPress: props.onPress,
     accessibilityLabel: props.accessibilityLabel,
   };

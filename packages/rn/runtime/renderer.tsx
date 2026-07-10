@@ -8,7 +8,7 @@
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';
-import { Platform, Pressable, Text, TextInput, View } from 'react-native';
+import { Platform, Text, TextInput, View } from 'react-native';
 import type { StyleProp, TextStyle } from 'react-native';
 import { LEAF_ELS } from '@nuri/spec/descriptors/schema';
 import type { Descriptor, Axes, IconName, PartId } from '../contract';
@@ -18,6 +18,7 @@ import { resolveAnatomy, flattenBakedPart, assertNever } from './resolve';
 import type { AnatomyNode, Selection, BakedComponentRecipe } from './resolve';
 import { NuriIcon } from '../primitives/NuriIcon';
 import { useFocusScroll, type FocusScrollApi } from './focus-scroll';
+import { PressableHost } from './pressable-host';
 
 // §12 surface context — the resolved foreground a surface provides to propless
 // descendants (colour-from-scope · F-BOX-FG-1).
@@ -158,6 +159,8 @@ export function harvestNuriComposition<PId extends PartId = PartId>(
 export type NuriBehaviour<PId extends PartId = PartId> = {
   pressable?: {
     target: PId;
+    role?: 'button' | 'tab';
+    selected?: boolean;
     onPress?: () => void;
     disabled?: boolean;
     accessibilityLabel?: string;
@@ -574,7 +577,12 @@ function renderPart<A extends Axes>(
   switch (node.el) {
     case 'view': {
       return (
-        <View key={node.name} style={flat.style} {...a11yHide}>
+        <View
+          key={node.name}
+          style={flat.style}
+          accessibilityRole={isRoot ? ctx.descriptor.api.role : undefined}
+          {...a11yHide}
+        >
           {focusRing}
           {renderHostBody()}
         </View>
@@ -593,12 +601,12 @@ function renderPart<A extends Axes>(
         throw new Error(`nuri-factory: part '${node.name}' is el:'pressable' but behaviour.pressable does not target it`);
       }
       return (
-        <Pressable
+        <PressableHost
           key={node.name}
           onPress={pressable.onPress}
           disabled={disabled}
-          accessibilityRole="button"
-          accessibilityState={{ disabled }}
+          role={pressable.role}
+          selected={pressable.selected}
           accessibilityLabel={pressable.accessibilityLabel}
           {...a11yHide}
           style={({ pressed }) =>
@@ -609,7 +617,7 @@ function renderPart<A extends Axes>(
           }
         >
           {renderHostBody()}
-        </Pressable>
+        </PressableHost>
       );
     }
 
