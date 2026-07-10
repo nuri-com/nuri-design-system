@@ -61,6 +61,7 @@
         { id: 'components/separator',          label: 'Separator',          href: 'generated/components/separator.html' },
         { id: 'components/bottom-sheet',       label: 'BottomSheet',        href: 'generated/components/bottom-sheet.html' },
         { id: 'components/bottom-sheet-panel', label: 'BottomSheet Panel',  href: 'generated/components/bottom-sheet-panel.html' },
+        { id: 'components/nuri-root',          label: 'NuriRoot',           href: 'generated/components/nuri-root.html' },
       ],
     },
   ];

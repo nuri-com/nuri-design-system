@@ -46,9 +46,20 @@ import {
   Header,
   Screen,
   Dock,
+  NuriRoot,
   Topbar,
   TopbarCenter,
 } from '../index';
+
+// ── NuriRoot — composed root, structural safe-area transport, closed theme axes ──
+const nativeInsetsShape = { top: 59, bottom: 34, left: 0, right: 0 };
+export const nuriRootDefaultsOk = <NuriRoot><Screen /></NuriRoot>;
+export const nuriRootNativeInsetsShapeOk = <NuriRoot safeArea={nativeInsetsShape}><Screen safeArea /></NuriRoot>;
+export const nuriRootAxesOk = <NuriRoot mode="dark" accent="orange"><Screen /></NuriRoot>;
+// @ts-expect-error mode is the closed Theme union.
+export const nuriRootBadMode = <NuriRoot mode="sepia"><Screen /></NuriRoot>;
+// @ts-expect-error accent is the closed Accent union.
+export const nuriRootBadAccent = <NuriRoot accent="teal"><Screen /></NuriRoot>;
 
 // ── Button — text sink · variant/size · NO icon (the soup is gone) ──
 // the real surface compiles: variant union + children text.
