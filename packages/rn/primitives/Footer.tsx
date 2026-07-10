@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View as RNView } from 'react-native';
 import type { LayoutChangeEvent, ViewStyle } from 'react-native';
 import type { BoxNS, PaletteNS, StackNS } from '../contract';
-import { useFixedRegionLayout } from './FixedRegionLayout';
+import { useFixedRegionLayout, useRegisterRegion } from './FixedRegionLayout';
 import { FIXED_REGION_STYLE_KEYS, numericPadding, useResolvedNode, withKeys, withSurface } from './shared';
 
 type FooterStyleProps =
@@ -25,8 +25,8 @@ const FooterImpl = React.forwardRef<React.ElementRef<typeof RNView>, FooterProps
   onLayout,
   ...props
 }, ref) => {
-  const { keyboardOffset, safeAreaBottom: hostSafeAreaBottom, setFooterHeight } = useFixedRegionLayout();
-  const measuredHeight = React.useRef(0);
+  const { keyboardOffset, safeAreaBottom: hostSafeAreaBottom } = useFixedRegionLayout();
+  const handleLayout = useRegisterRegion('footer', onLayout);
   const { node } = useResolvedNode(props);
   const resolvedViewStyle = node.view as ViewStyle;
   const authoredPaddingBottom =
@@ -38,17 +38,6 @@ const FooterImpl = React.forwardRef<React.ElementRef<typeof RNView>, FooterProps
     authoredPaddingBottom > 0 || activeSafeAreaBottom > 0
       ? { paddingBottom: authoredPaddingBottom + activeSafeAreaBottom }
       : null;
-
-  React.useEffect(() => () => setFooterHeight(0), [setFooterHeight]);
-
-  const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
-    const next = Math.round(event.nativeEvent.layout.height);
-    if (measuredHeight.current !== next) {
-      measuredHeight.current = next;
-      setFooterHeight(next);
-    }
-    onLayout?.(event);
-  }, [onLayout, setFooterHeight]);
 
   return (
     <RNView
