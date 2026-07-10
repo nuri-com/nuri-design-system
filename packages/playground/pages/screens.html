@@ -17,6 +17,99 @@
 
 <nuri-playground-shell doc="Screens">
 
+  <!-- OVERVIEW screen · a scoped dark balance card over the page theme. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="overview">
+    <template>
+      <nuri-screen>
+        <nuri-header safe-area-top chrome="canvas">
+          <nuri-topbar>
+            <nuri-topbar-leading>
+              <nuri-icon name="nuri"></nuri-icon>
+            </nuri-topbar-leading>
+            <nuri-topbar-trailing>
+              <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
+              <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
+            </nuri-topbar-trailing>
+          </nuri-topbar>
+        </nuri-header>
+
+        <nuri-scroll>
+          <nuri-view direction="column" align="stretch" justify="start" gap="sm" padding-y="xl" fill>
+            <nuri-view padding-x="lg">
+              <nuri-scope mode="dark">
+                <nuri-view
+                  chrome="subtle"
+                  radius="lg"
+                  aspect-ratio="card"
+                  padding-x="lg"
+                  padding-top="xl"
+                  padding-bottom="md"
+                >
+                  <nuri-view direction="column" gap="sm" fill="grow">
+                    <nuri-view direction="row" justify="between" align="center">
+                      <nuri-view direction="row" gap="xs" align="center">
+                        <nuri-typography size="md" emphasis>Bitcoin</nuri-typography>
+                        <nuri-typography size="sm" muted>sats 72,077</nuri-typography>
+                      </nuri-view>
+                      <nuri-typography size="md" emphasis>€ 47,50</nuri-typography>
+                    </nuri-view>
+
+                    <nuri-view direction="row" align="center" height="sm">
+                      <nuri-view fill="grow">
+                        <nuri-separator y-space="none"></nuri-separator>
+                      </nuri-view>
+                      <nuri-icon-button
+                        variant="solid"
+                        icon="transfer-vertical"
+                        aria-label="Swap Bitcoin and Euro"
+                      ></nuri-icon-button>
+                      <nuri-view fill="grow">
+                        <nuri-separator y-space="none"></nuri-separator>
+                      </nuri-view>
+                    </nuri-view>
+
+                    <nuri-view direction="row" justify="between" align="center">
+                      <nuri-view direction="row" gap="xs" align="center">
+                        <nuri-typography size="md" emphasis>Euro</nuri-typography>
+                        <nuri-typography size="sm" muted>stablecoin</nuri-typography>
+                      </nuri-view>
+                      <nuri-typography size="md" emphasis>€ 50,00</nuri-typography>
+                    </nuri-view>
+
+                    <nuri-view fill="grow" justify="end" align="end">
+                      <nuri-typography size="3xl" align="end">€ 97.50</nuri-typography>
+                    </nuri-view>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-scope>
+            </nuri-view>
+
+            <nuri-list>
+              <nuri-list-action aria-label="Bank account">
+                <nuri-list-action-leading-avatar name="bank" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Bank account</nuri-list-action-text>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-separator></nuri-list-separator>
+              <nuri-list-action aria-label="Credit card">
+                <nuri-list-action-leading-avatar name="card" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Credit card</nuri-list-action-text>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+          </nuri-view>
+        </nuri-scroll>
+
+        <nuri-footer safe-area-bottom chrome="canvas" padding-x="lg" padding-y="sm" padding-bottom="lg">
+          <nuri-view direction="row" align="center" gap="sm" distribute="even">
+            <nuri-button size="lg" variant="soft">Receive</nuri-button>
+            <nuri-button size="lg" variant="solid" accent="lilac">Send</nuri-button>
+          </nuri-view>
+        </nuri-footer>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
   <!-- BITCOIN screen · the bitcoin wallet destination is active. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="bitcoin">
     <template>
