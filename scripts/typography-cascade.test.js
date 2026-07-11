@@ -103,6 +103,7 @@ postcss.parse(typoCss).walkRules((r) => {
 });
 const sizeRule = (s) => rules.find((r) => r.selector === `[data-type-style="${s}"]`);
 const emphasisRule = () => rules.find((r) => r.selector === '[data-type-emphasis]');
+const monoRule = () => rules.find((r) => r.selector === '[data-mono]');
 
 // The de-fused realization resolved from the live CSS: a size rule's 4 metrics +
 // weight, through the var() chain (the same chain the browser walks).
@@ -126,6 +127,8 @@ test('Guard A · the type scale is 6 [data-type-style] rules + 1 [data-type-emph
 
   const emRules = rules.filter((r) => r.selector === '[data-type-emphasis]');
   assert.equal(emRules.length, 1, 'expected exactly 1 [data-type-emphasis] rule');
+  assert.equal(rules.filter((r) => r.selector === '[data-mono]').length, 1, 'expected exactly 1 [data-mono] rule');
+  assert.equal(monoRule().decls.get('font-family'), 'ui-monospace, Menlo, Consolas, monospace');
 
   // the fused .nuri-type-{step} / --em utility classes are RETIRED (12 → 6 + 1).
   assert.equal(

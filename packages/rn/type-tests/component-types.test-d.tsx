@@ -239,6 +239,9 @@ export const pressableNoDistribute = <Pressable distribute="even">Child</Pressab
 // ── Open primitives — curated native plumbing, never appearance ──
 export const viewNativePlumbingOk = <View testID="view" onLayout={() => undefined} ref={React.createRef()} />;
 export const textNativePlumbingOk = <Text testID="amount" accessibilityLabel="3,433 satoshis" onLayout={() => undefined} ref={React.createRef()}>3433 Sats</Text>;
+export const textMonoOk = <Text size="md" emphasis mono>bc1q address</Text>;
+// @ts-expect-error mono belongs to TypographyNS, which View does not expose.
+export const viewNoMono = <View mono />;
 export const screenNativePlumbingOk = <Screen testID="screen" onLayout={() => undefined} ref={React.createRef()} />;
 export const headerNativePlumbingOk = <Header testID="header" onLayout={() => undefined} ref={React.createRef()} />;
 export const scrollNativePlumbingOk = <Scroll testID="scroll" onLayout={() => undefined} ref={React.createRef()} />;

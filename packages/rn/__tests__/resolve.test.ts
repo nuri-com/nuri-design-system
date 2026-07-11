@@ -238,6 +238,14 @@ describe('typeStyle — size × emphasis is a pure weight override (computed-equ
       });
     }
   });
+
+  test('mono swaps only the platform system font family and composes with size + emphasis', () => {
+    const regular = typeStyle('md', true);
+    const mono = typeStyle('md', true, true);
+    expect(mono).toMatchObject(regular);
+    expect(mono.fontFamily).toBeTruthy();
+    expect(resolveNS({ typography: { mono: true } }, buildNuriTheme('lilac', 'light')).type).toEqual({ mono: true });
+  });
 });
 
 describe('IconAvatar — same resolver, static, the subtle role (via flattenPart)', () => {

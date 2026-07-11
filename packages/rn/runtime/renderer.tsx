@@ -573,7 +573,7 @@ function renderPart<A extends Axes>(
           key={node.name}
           {...flowProps}
           style={[
-            flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis) : null,
+            flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis, flat.node.type.mono) : null,
             fg ? { color: fg } : null,
             { flexShrink: 1, textAlign: 'center' },
             flat.style,
@@ -627,7 +627,7 @@ function renderPart<A extends Axes>(
           derivedLabel={derivedLabel}
           placeholderTextColor={ctx.theme.text.muted}
           flowProps={flowProps}
-          typeStyleValue={flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis) : null}
+          typeStyleValue={flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis, flat.node.type.mono) : null}
           foregroundStyle={fg ? { color: fg } : null}
           disabledStyle={inputDisabled ? { opacity: ctx.theme.interaction.disabledOpacity } : null}
           flatStyle={flat.style as StyleProp<TextStyle>}

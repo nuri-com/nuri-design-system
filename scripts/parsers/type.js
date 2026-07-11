@@ -49,6 +49,22 @@ import { resolveValue } from './semantic.js';
 // emit is byte-stable across builds (the drift guard compares re-emit).
 export const TYPE_SIZES = ['xs', 'sm', 'md', 'lg', 'xl', '3xl'];
 
+export function emitTypographyCss() {
+  const sizeRules = TYPE_SIZES.map((step) => {
+    const pad = step === '3xl' ? '' : step.length === 2 ? ' ' : '  ';
+    return `[data-type-style="${step}"]${pad} { font-size: var(--nuri-type-${step}-size); line-height: var(--nuri-type-${step}-line-height); letter-spacing: var(--nuri-type-${step}-tracking); font-weight: var(--nuri-type-${step}-weight); }`;
+  });
+  return [
+    '/* NURI · TYPOGRAPHY · TYPE-SCALE REALIZATION · GENERATED — DO NOT EDIT BY HAND */',
+    '',
+    ...sizeRules,
+    '',
+    '[data-type-emphasis] { font-weight: var(--nuri-font-weight-semibold); }',
+    '[data-mono] { font-family: ui-monospace, Menlo, Consolas, monospace; }',
+    '',
+  ].join('\n');
+}
+
 // Round to 3 decimals — matches components.js#remToPx so the px
 // numbers agree leaf-for-leaf with the per-component emit.
 function round3(n) {

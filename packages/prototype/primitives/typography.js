@@ -38,7 +38,7 @@
  * ────────────────────────────────────────────────────────────── */
 
 (() => {
-  const ATTRS = ['size', 'emphasis', 'muted', 'align', 'flow', 'lines'];
+  const ATTRS = ['size', 'emphasis', 'mono', 'muted', 'align', 'flow', 'lines'];
   const SIZES = ['xs', 'sm', 'md', 'lg', 'xl', '3xl'];
   const ALIGNS = ['start', 'center', 'end'];
   const FLOWS = ['wrap', 'truncate'];
@@ -81,6 +81,7 @@
       // so reflecting them here does not re-enter attributeChangedCallback.
       this.setAttribute('data-type-style', size);
       this.toggleAttribute('data-type-emphasis', this.hasAttribute('emphasis'));
+      this.toggleAttribute('data-mono', this.hasAttribute('mono'));
       // muted reflects state; the wrapper CSS owns the colour (decision 42 / 53).
       this.toggleAttribute('data-muted', this.hasAttribute('muted'));
     }

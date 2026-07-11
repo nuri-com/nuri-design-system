@@ -211,6 +211,7 @@ function applyTypographyAttrs(el, typography) {
   if (!typography) return;
   if (typography.size !== undefined) el.setAttribute('data-type-style', typography.size);
   if (typography.emphasis) el.setAttribute('data-type-emphasis', '');
+  if (typography.mono) el.setAttribute('data-mono', '');
   if (typography.align !== undefined) el.setAttribute('align', typography.align);
   if (typography.flow !== undefined) el.setAttribute('flow', typography.flow);
   if (typography.lines !== undefined) el.setAttribute('lines', String(typography.lines));

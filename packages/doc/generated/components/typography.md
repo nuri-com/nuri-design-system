@@ -15,6 +15,7 @@ nav_order: 12
 | --- | --- | --- | --- |
 | `size` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '3xl'` | style axis |
 | `emphasis` | no | `boolean` | style axis |
+| `mono` | no | `boolean` | component prop |
 | `align` | no | `'start' | 'center' | 'end'` | style axis |
 | `flow` | no | `'wrap' | 'truncate'` | component prop |
 | `lines` | no | `1 | 2 | 3` | component prop |
