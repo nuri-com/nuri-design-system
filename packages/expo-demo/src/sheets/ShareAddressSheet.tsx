@@ -40,7 +40,7 @@ export function ShareAddressSheet({ open, onClose }: { open: boolean; onClose: (
             <View direction="column" align="stretch" gap="sm">
               {ADDRESS_ROWS.map((row, rowIndex) => (
                 <View key={rowIndex} direction="row" distribute="even">
-                  {row.map((chunk, chunkIndex) => <Text key={`${rowIndex}-${chunkIndex}`} size="sm" mono>{chunk}</Text>)}
+                  {row.map((chunk, chunkIndex) => <Text key={`${rowIndex}-${chunkIndex}`} size="md" mono muted>{chunk}</Text>)}
                 </View>
               ))}
             </View>
