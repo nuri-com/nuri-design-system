@@ -761,6 +761,28 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
+  test('ListAction — a long unbroken muted value reaches its one-line truncation point', () => {
+    const address = 'bc1qexamplewalletaddresswithenoughcharactersovertherowwidth';
+    const tr = render(
+      <NuriThemeProvider>
+        <ListAction accessibilityLabel="Wallet address" onPress={() => undefined}>
+          <ListActionTextMuted>{address}</ListActionTextMuted>
+          <ListActionTrailIcon name="chevron-right" />
+        </ListAction>
+      </NuriThemeProvider>,
+    );
+    const mutedText = tr.root.findByType(Text);
+    expect(mutedText.props.children).toBe(address);
+    expect(mutedText.props.numberOfLines).toBe(1);
+    expect(mutedText.props.ellipsizeMode).toBe('tail');
+    expect(flatStyleForTest(mutedText.parent?.props.style)).toMatchObject({
+      alignItems: 'stretch',
+      flexGrow: 1,
+      flexShrink: 1,
+      minWidth: 0,
+    });
+  });
+
   test('ListAction — default outline avatar and solid orange avatar scope the glyph', () => {
     const outline = render(
       <NuriThemeProvider>

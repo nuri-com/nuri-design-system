@@ -41,7 +41,7 @@ export const listActionDescriptor = {
         interactive: { pressColor: true, disabledOpacity: true },
       },
       content: {
-        stack: { direction: 'column', align: 'start', justify: 'center', fill: 'grow' },
+        stack: { direction: 'column', align: 'stretch', justify: 'center', fill: 'grow-shrink' },
       },
       text: { typography: { size: 'md', emphasis: true, align: 'start', flow: 'truncate', lines: 1 } },
       textMuted: { typography: { size: 'sm', align: 'start', flow: 'truncate', lines: 1 }, palette: { muted: true } },
