@@ -321,10 +321,11 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       "geometry": {
         "base": {
           "flexDirection": "column",
-          "alignItems": "flex-start",
+          "alignItems": "stretch",
           "justifyContent": "center",
           "flexGrow": 1,
-          "flexShrink": 0
+          "flexShrink": 1,
+          "minWidth": 0
         },
         "variants": {}
       }
@@ -406,8 +407,8 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       "el": "icon",
       "geometry": {
         "base": {
-          "width": 18,
-          "height": 18
+          "width": 24,
+          "height": 24
         },
         "variants": {}
       }

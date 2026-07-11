@@ -42,7 +42,7 @@ export const listActionDescriptor: Descriptor<ListActionAxes> = {
         interactive: { pressColor: true, disabledOpacity: true },
       },
       content: {
-        stack: { direction: 'column', align: 'start', justify: 'center', fill: 'grow' },
+        stack: { direction: 'column', align: 'stretch', justify: 'center', fill: 'grow-shrink' },
       },
       text: { typography: { size: 'md', emphasis: true, align: 'start', flow: 'truncate', lines: 1 } },
       textMuted: { typography: { size: 'sm', align: 'start', flow: 'truncate', lines: 1 }, palette: { muted: true } },
@@ -51,7 +51,7 @@ export const listActionDescriptor: Descriptor<ListActionAxes> = {
       },
       trailingText: { typography: { size: 'md', emphasis: true, align: 'end', flow: 'truncate', lines: 1 } },
       trailingTextMuted: { typography: { size: 'sm', align: 'end', flow: 'truncate', lines: 1 }, palette: { muted: true } },
-      trailIcon: { box: { width: 'xs', height: 'xs' }, palette: { variant: 'subtle' } },
+      trailIcon: { box: { width: 'sm', height: 'sm' }, palette: { variant: 'subtle' } },
     },
   },
   api: {

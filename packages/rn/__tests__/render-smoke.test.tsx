@@ -157,6 +157,78 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
+  test('Button — a fragment-wrapped text and prop-backed icon both render', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <Button variant="solid" size="lg">
+          <>
+            <ButtonText>Pay</ButtonText>
+            <ButtonIcon name="apple" />
+          </>
+        </Button>
+      </NuriThemeProvider>,
+    );
+    expect(tr.root.findByType(Text).props.children).toBe('Pay');
+    expect(tr.root.findByType(NuriIcon).props.name).toBe('apple');
+  });
+
+  test('Button — nested fragments recursively expose their slots', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <Button variant="solid" size="lg">
+          <>
+            <React.Fragment key="nested">
+              <ButtonText>Nested</ButtonText>
+              <ButtonIcon name="apple" />
+            </React.Fragment>
+          </>
+        </Button>
+      </NuriThemeProvider>,
+    );
+    const leaves = tr.root.findAll((node) => node.type === Text || node.type === NuriIcon);
+    expect(leaves.map((node) => (node.type === Text ? node.props.children : node.props.name))).toEqual([
+      'Nested',
+      'apple',
+    ]);
+  });
+
+  test('Button — a fragment mixing a slot and bare child routes the bare child to the fallback', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <Button variant="solid" size="lg">
+          <>
+            <ButtonIcon name="apple" />
+            Pay
+          </>
+        </Button>
+      </NuriThemeProvider>,
+    );
+    const leaves = tr.root.findAll((node) => node.type === Text || node.type === NuriIcon);
+    expect(leaves.map((node) => (node.type === Text ? node.props.children : node.props.name))).toEqual([
+      'apple',
+      'Pay',
+    ]);
+  });
+
+  test('Button — a fragment-wrapped foreign slot marker still fails named', () => {
+    const quiet = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      expect(() =>
+        render(
+          <NuriThemeProvider>
+            <Button variant="solid" size="lg">
+              <>
+                <ListActionText>Wrong</ListActionText>
+              </>
+            </Button>
+          </NuriThemeProvider>,
+        ),
+      ).toThrow("nuri-factory: foreign slot marker 'ListActionText' — not a 'Button' slot");
+    } finally {
+      quiet.mockRestore();
+    }
+  });
+
   test('IconAvatar — static (View) · the register glyph inherits the scope fg', () => {
     const tr = render(
       <NuriThemeProvider>
@@ -264,6 +336,21 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.root.findByProps({ accessibilityLabel: 'trailing' })).toBeTruthy();
     expect(tr.root.findByType(Text).props.children).toBe('Account');
     expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('Topbar — fragment-wrapped region markers are harvested transparently', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <Topbar>
+          <React.Fragment key="regions">
+            <TopbarLeading><View accessibilityLabel="fragment-leading" /></TopbarLeading>
+            <TopbarCenter><Text>Fragment center</Text></TopbarCenter>
+          </React.Fragment>
+        </Topbar>
+      </NuriThemeProvider>,
+    );
+    expect(tr.root.findByProps({ accessibilityLabel: 'fragment-leading' })).toBeTruthy();
+    expect(tr.root.findByType(Text).props.children).toBe('Fragment center');
   });
 
   test('Topbar — BARE children default to the trailing region (the "just actions" slot)', () => {
@@ -759,6 +846,28 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       '3433 Sats',
     ]);
     expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('ListAction — a long unbroken muted value reaches its one-line truncation point', () => {
+    const address = 'bc1qexamplewalletaddresswithenoughcharactersovertherowwidth';
+    const tr = render(
+      <NuriThemeProvider>
+        <ListAction accessibilityLabel="Wallet address" onPress={() => undefined}>
+          <ListActionTextMuted>{address}</ListActionTextMuted>
+          <ListActionTrailIcon name="chevron-right" />
+        </ListAction>
+      </NuriThemeProvider>,
+    );
+    const mutedText = tr.root.findByType(Text);
+    expect(mutedText.props.children).toBe(address);
+    expect(mutedText.props.numberOfLines).toBe(1);
+    expect(mutedText.props.ellipsizeMode).toBe('tail');
+    expect(flatStyleForTest(mutedText.parent?.props.style)).toMatchObject({
+      alignItems: 'stretch',
+      flexGrow: 1,
+      flexShrink: 1,
+      minWidth: 0,
+    });
   });
 
   test('ListAction — default outline avatar and solid orange avatar scope the glyph', () => {

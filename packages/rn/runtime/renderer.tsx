@@ -97,12 +97,28 @@ function isRenderableChild(child: React.ReactNode): boolean {
   return child != null && child !== false && !(typeof child === 'string' && child.trim() === '');
 }
 
+// React fragments are composition-transparent: markers inside them belong to
+// the same harvest scope as adjacent children. Recurse so nested/keyed fragments
+// reach the existing slot, fallback, and foreign-owner rules unchanged.
+function forEachNuriCompositionChild(
+  children: React.ReactNode,
+  visit: (child: React.ReactNode) => void,
+): void {
+  React.Children.forEach(children, (child) => {
+    if (React.isValidElement(child) && child.type === React.Fragment) {
+      forEachNuriCompositionChild((child.props as { children?: React.ReactNode }).children, visit);
+      return;
+    }
+    visit(child);
+  });
+}
+
 export function harvestNuriSlots<PId extends PartId = PartId>(
   children: React.ReactNode,
   fallbackPart: PId | undefined,
 ): Partial<Record<PId, React.ReactNode[]>> {
   const harvested: Partial<Record<PId, React.ReactNode[]>> = {};
-  React.Children.forEach(children, (child) => {
+  forEachNuriCompositionChild(children, (child) => {
     if (React.isValidElement(child) && typeof child.type !== 'string') {
       const slot = (child.type as Partial<NuriSlot<object, PId>>).__nuriSlot;
       if (slot) {
@@ -129,7 +145,7 @@ export function harvestNuriComposition<PId extends PartId = PartId>(
 ): { hasSlots: boolean; items: NuriCompositionEntry<PId>[] } {
   const items: NuriCompositionEntry<PId>[] = [];
   let hasSlots = false;
-  React.Children.forEach(children, (child) => {
+  forEachNuriCompositionChild(children, (child) => {
     if (React.isValidElement(child) && typeof child.type !== 'string') {
       const slotType = child.type as Partial<NuriSlot<object, PId>>;
       if (slotType.__nuriSlot) {
