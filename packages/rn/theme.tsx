@@ -125,6 +125,6 @@ export function typeStyle(size?: TypeSize, emphasis?: boolean, mono?: boolean): 
       letterSpacing: t.fontSize * t.letterSpacing,
       fontWeight: emphasis ? emphasisWeight : t.fontWeight,
     } : emphasis ? { fontWeight: emphasisWeight } : {}),
-    ...(mono ? { fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace' }) } : {}),
+    ...(mono ? { fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' }) } : {}),
   };
 }
