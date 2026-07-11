@@ -407,8 +407,8 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       "el": "icon",
       "geometry": {
         "base": {
-          "width": 18,
-          "height": 18
+          "width": 24,
+          "height": 24
         },
         "variants": {}
       }

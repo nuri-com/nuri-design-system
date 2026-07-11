@@ -51,7 +51,7 @@ export const listActionDescriptor: Descriptor<ListActionAxes> = {
       },
       trailingText: { typography: { size: 'md', emphasis: true, align: 'end', flow: 'truncate', lines: 1 } },
       trailingTextMuted: { typography: { size: 'sm', align: 'end', flow: 'truncate', lines: 1 }, palette: { muted: true } },
-      trailIcon: { box: { width: 'xs', height: 'xs' }, palette: { variant: 'subtle' } },
+      trailIcon: { box: { width: 'sm', height: 'sm' }, palette: { variant: 'subtle' } },
     },
   },
   api: {
