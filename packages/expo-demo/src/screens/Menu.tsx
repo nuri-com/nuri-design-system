@@ -6,6 +6,8 @@ import { ActionsSheet } from '../sheets/ActionsSheet';
 import { ActivitySheet } from '../sheets/ActivitySheet';
 import { AmountSheet } from '../sheets/AmountSheet';
 import { FormSheet, FormSheet2 } from '../sheets/FormSheet';
+import { ShareAddressSheet } from '../sheets/ShareAddressSheet';
+import { SendAddressSheet } from '../sheets/SendAddressSheet';
 
 type FormValues = {
   iban: string;
@@ -24,6 +26,8 @@ export function Menu({ onBack }: { onBack: () => void }) {
   const actions = useSheet();
   const form = useSheet();
   const form2 = useSheet();
+  const shareAddress = useSheet();
+  const sendAddress = useSheet();
 
   const [formValues, setFormValues] = React.useState<FormValues>({
     iban: 'DE06100110012625717344',
@@ -48,6 +52,8 @@ export function Menu({ onBack }: { onBack: () => void }) {
         <Button size="lg" onPress={actions.show}>Actions Sheet</Button>
         <Button size="lg" onPress={form.show}>Form Sheet</Button>
         <Button size="lg" onPress={form2.show}>Form Sheet 2</Button>
+        <Button size="lg" onPress={shareAddress.show}>Share Bitcoin Address</Button>
+        <Button size="lg" onPress={sendAddress.show}>Send Bitcoin Address</Button>
       </View>
 
       <ActivitySheet open={activity.open} onClose={activity.onClose} />
@@ -55,6 +61,8 @@ export function Menu({ onBack }: { onBack: () => void }) {
       <ActionsSheet open={actions.open} onClose={actions.onClose} />
       <FormSheet open={form.open} values={formValues} onChangeField={setField} onClose={form.onClose} />
       <FormSheet2 open={form2.open} values={formValues} onChangeField={setField} onClose={form2.onClose} />
+      <ShareAddressSheet open={shareAddress.open} onClose={shareAddress.onClose} />
+      <SendAddressSheet open={sendAddress.open} onClose={sendAddress.onClose} />
     </Screen>
   );
 }

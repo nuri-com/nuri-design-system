@@ -213,7 +213,7 @@ function resolvePalette(ns: PaletteNS, theme: NuriTheme): ResolvedPalette {
 // `lines` stay structured because they map to Text props, not TextStyle. Was a
 // single fused TypeKey (`mdEm`); the renderer expands type via typeStyle(size,
 // emphasis). ──
-export type TypeRef = { size: TypeSize; emphasis?: boolean };
+export type TypeRef = { size?: TypeSize; emphasis?: boolean; mono?: boolean };
 export type TextFlowRef = { flow: 'wrap' } | { flow: 'truncate'; lines: 1 | 2 | 3 };
 export type ResolvedStyle = ViewStyle & TextStyle;
 
@@ -239,11 +239,13 @@ function resolveTypography(typography: TypographyNS | undefined): {
   textFlow?: TextFlowRef;
 } {
   if (!typography) return {};
-  const type = typography.size === undefined
+  const type = typography.size === undefined && !typography.emphasis && !typography.mono
     ? undefined
-    : typography.emphasis
-      ? { size: typography.size, emphasis: true }
-      : { size: typography.size };
+    : {
+        ...(typography.size !== undefined ? { size: typography.size } : {}),
+        ...(typography.emphasis ? { emphasis: true } : {}),
+        ...(typography.mono ? { mono: true } : {}),
+      };
   const text = typography.align === undefined ? undefined : { textAlign: TEXT_ALIGN[typography.align] };
   const textFlow = typography.flow === undefined
     ? undefined

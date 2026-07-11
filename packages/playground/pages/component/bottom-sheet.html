@@ -434,6 +434,118 @@
     </template>
   </nuri-demo>
 
+  <!-- SHARE ADDRESS sheet · two explicit even rows preserve the 8-column chunk grid. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="share bitcoin address">
+    <template>
+      <nuri-view class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
+        <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
+
+        <nuri-bottom-sheet open detent="full" scrim="dim">
+          <nuri-bottom-sheet-panel>
+            <nuri-header padding-top="lg">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="start" gap="sm" padding-x="lg" fill>
+                <nuri-typography size="lg" emphasis>Bitcoin address</nuri-typography>
+
+                <nuri-view direction="column" align="stretch" gap="sm">
+                  <nuri-view direction="row" gap="sm" distribute="even">
+                    <nuri-typography size="sm" mono muted>bc1q</nuri-typography>
+                    <nuri-typography size="sm" mono muted>cten</nuri-typography>
+                    <nuri-typography size="sm" mono muted>7huq</nuri-typography>
+                    <nuri-typography size="sm" mono muted>q3h8</nuri-typography>
+                    <nuri-typography size="sm" mono muted>xg65</nuri-typography>
+                    <nuri-typography size="sm" mono muted>g7fe</nuri-typography>
+                    <nuri-typography size="sm" mono muted>wrdk</nuri-typography>
+                    <nuri-typography size="sm" mono muted>wmjj</nuri-typography>
+                  </nuri-view>
+                  <nuri-view direction="row" gap="sm" distribute="even">
+                    <nuri-typography size="sm" mono muted>u3zy</nuri-typography>
+                    <nuri-typography size="sm" mono muted>6a69</nuri-typography>
+                    <nuri-typography size="sm" mono muted>ujwv</nuri-typography>
+                    <nuri-typography size="sm" mono muted>cjf9</nuri-typography>
+                    <nuri-typography size="sm" mono muted>7919</nuri-typography>
+                    <nuri-typography size="sm" mono muted>dxps</nuri-typography>
+                    <nuri-typography size="sm" mono muted>gsl6</nuri-typography>
+                    <nuri-typography size="sm" mono muted>r4</nuri-typography>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" align="stretch" justify="center" fill>
+                  <nuri-view variant="outline" radius="lg" padding="xl">
+                    <nuri-scope mode="dark">
+                      <nuri-view chrome="canvas" aspect-ratio="square" align="center" justify="center">
+                        <nuri-typography size="md" muted align="center">Qr Code</nuri-typography>
+                      </nuri-view>
+                    </nuri-scope>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-view direction="row" gap="sm" distribute="even">
+                <nuri-button size="lg" variant="soft">Copy</nuri-button>
+                <nuri-button size="lg" variant="soft">Share</nuri-button>
+              </nuri-view>
+            </nuri-footer>
+          </nuri-bottom-sheet-panel>
+        </nuri-bottom-sheet>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
+  <!-- SEND ADDRESS sheet · fill is the closest current DS idiom for the tall camera region. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send bitcoin address">
+    <template>
+      <nuri-view class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
+        <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
+
+        <nuri-bottom-sheet open detent="full" scrim="dim">
+          <nuri-bottom-sheet-panel>
+            <nuri-header padding-top="lg">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="start" gap="xl" padding-x="lg" fill>
+                <nuri-view direction="column" align="stretch" gap="sm">
+                  <nuri-typography size="lg" emphasis>Send to Bitcoin address</nuri-typography>
+                  <nuri-typography size="md" muted>Scan Qr code or paste</nuri-typography>
+                </nuri-view>
+
+                <nuri-view direction="column" align="stretch" justify="center" fill>
+                  <nuri-scope mode="dark">
+                    <nuri-view chrome="canvas" radius="full" aspect-ratio="square" align="center" justify="center">
+                      <nuri-typography size="md" muted align="center">Camera</nuri-typography>
+                    </nuri-view>
+                  </nuri-scope>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-view direction="row" distribute="even">
+                <nuri-button size="lg" variant="soft">Paste Bitcoin address</nuri-button>
+              </nuri-view>
+            </nuri-footer>
+          </nuri-bottom-sheet-panel>
+        </nuri-bottom-sheet>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
 </nuri-playground-shell>
 
 </body>

@@ -66,7 +66,7 @@ import {
 
 import { readIcons, emitIconsJs, emitIconsTs } from './parsers/icons.js';
 
-import { buildTypeScale, emitTypeTs, TYPE_SIZES } from './parsers/type.js';
+import { buildTypeScale, emitTypeTs, emitTypographyCss, TYPE_SIZES } from './parsers/type.js';
 
 import {
   buildInteraction,
@@ -157,6 +157,7 @@ export {
   emitIconsTs,
   buildTypeScale,
   emitTypeTs,
+  emitTypographyCss,
   TYPE_SIZES,
   buildInteraction,
   emitInteractionTs,
@@ -208,6 +209,7 @@ const RECIPES_OUT      = resolve(RN_GENERATED, 'data/recipes.ts');
 const COMPONENTS_OUT   = resolve(RN_GENERATED, 'components');
 // ── outputs · the web projection (committed · Movement B) ──
 const JSON_OUT         = resolve(PROTO_GENERATED, 'tokens.json');
+const TYPOGRAPHY_CSS_OUT = resolve(PROTO_GENERATED, 'styles/typography.css');
 const TOKEN_VARS_OUT   = resolve(PROTO_GENERATED, 'token-vars.ts');
 const DESCRIPTORS_OUT  = resolve(PROTO_GENERATED, 'descriptors');
 const BOTTOM_SHEET_CHROME_JS_OUT = resolve(PROTO_GENERATED, 'bottom-sheet-chrome.js');
@@ -374,6 +376,7 @@ async function main() {
   // --nuri-type-* block's spelling changes (var→inline · computed-equivalent).
   const typeSoT = await loadTypography(TYPOGRAPHY_SRC);
   await flipTypeCss({ primitivePath: PRIMITIVE_CSS, type: typeSoT });
+  await writeFile(TYPOGRAPHY_CSS_OUT, emitTypographyCss(), 'utf8');
   console.log(
     `[tokens-parser] flipped the type composite from the TS SoT ` +
     `(${Object.keys(typeSoT).length} steps · de-referenced to inline) → styles/tokens-primitive.css`,

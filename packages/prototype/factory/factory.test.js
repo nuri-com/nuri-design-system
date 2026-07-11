@@ -670,6 +670,15 @@ test('C7b · <nuri-text-field> input focus owns the field focus state', async ()
   assert.equal(box.hasAttribute('data-nuri-input-focused'), false, 'action Button focus does not mark the input-owned field focus state');
 });
 
+test('C7c · <nuri-text-field>.focus() delegates to its native input', async () => {
+  const field = dom.window.document.createElement('nuri-text-field');
+  field.innerHTML = '<nuri-text-field-label>First name</nuri-text-field-label>';
+  mount(field);
+  await tick();
+  field.focus();
+  assert.equal(dom.window.document.activeElement, field.querySelector('nuri-input > input'));
+});
+
 test('C8 · <nuri-text-field> missing required label fails named', () => {
   const field = dom.window.document.createElement('nuri-text-field');
   mountExpectingNamedError(field, /'nuri-text-field' requires label/);

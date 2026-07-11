@@ -16,6 +16,7 @@ import {
   TopbarTrailing,
   View,
 } from '@ds';
+import type { TextFieldHandle } from '@ds';
 
 type FormSheetProps = {
   open: boolean;
@@ -34,7 +35,10 @@ type FormSheetProps = {
 function FormSheetFields({
   values,
   onChangeField,
-}: Pick<FormSheetProps, 'values' | 'onChangeField'>) {
+  firstFieldRef,
+}: Pick<FormSheetProps, 'values' | 'onChangeField'> & {
+  firstFieldRef?: React.Ref<TextFieldHandle>;
+}) {
   return (
     <Scroll>
       <View direction="column" align="stretch" justify="start" gap="xl" paddingX="lg">
@@ -44,7 +48,7 @@ function FormSheetFields({
         </View>
 
         <View direction="column" align="stretch" justify="start" gap="xl">
-          <TextField value={values.iban} onChangeText={onChangeField('iban')} placeholder="IBAN">
+          <TextField ref={firstFieldRef} value={values.iban} onChangeText={onChangeField('iban')} placeholder="IBAN">
             <TextFieldLabel>IBAN*</TextFieldLabel>
             <TextFieldButton accessibilityLabel="Paste IBAN">Paste</TextFieldButton>
           </TextField>
@@ -72,8 +76,13 @@ export function FormSheet({
   onChangeField,
   onClose,
 }: FormSheetProps) {
+  const firstFieldRef = React.useRef<TextFieldHandle>(null);
   return (
-    <BottomSheet open={open} detent="full" onOpenChange={(next) => !next && onClose()}>
+    <BottomSheet
+      open={open}
+      detent="full"
+      onOpenChange={(next) => next ? firstFieldRef.current?.focus() : onClose()}
+    >
       <BottomSheetPanel>
         <Header paddingTop="lg">
           <Topbar surface="transparent">
@@ -83,7 +92,7 @@ export function FormSheet({
           </Topbar>
         </Header>
 
-        <FormSheetFields values={values} onChangeField={onChangeField} />
+        <FormSheetFields values={values} onChangeField={onChangeField} firstFieldRef={firstFieldRef} />
 
         <Footer
           safeAreaBottom

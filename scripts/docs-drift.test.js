@@ -514,6 +514,7 @@ const FROZEN_SCHEMA = {
     TypographyNS: {
       'size?': 'TypeSize',
       'emphasis?': 'boolean',
+      'mono?': 'boolean',
       'align?': "'start' | 'center' | 'end'",
       'flow?': "'wrap' | 'truncate'",
       'lines?': '1 | 2 | 3',

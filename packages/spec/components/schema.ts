@@ -177,6 +177,7 @@ export type BoxNS = {
 export type TypographyNS = {
   size?: TypeSize;
   emphasis?: boolean;
+  mono?: boolean;
   align?: 'start' | 'center' | 'end';
   flow?: 'wrap' | 'truncate';
   lines?: 1 | 2 | 3;
@@ -253,7 +254,7 @@ export const PALETTE_KEYS = Object.keys(
   { variant: 0, accent: 0, muted: 0, chrome: 0 } satisfies Record<keyof PaletteNS, 0>,
 );
 export const TYPOGRAPHY_KEYS = Object.keys(
-  { size: 0, emphasis: 0, align: 0, flow: 0, lines: 0 } satisfies Record<keyof TypographyNS, 0>,
+  { size: 0, emphasis: 0, mono: 0, align: 0, flow: 0, lines: 0 } satisfies Record<keyof TypographyNS, 0>,
 );
 export const EFFECT_KEYS = Object.keys(
   { elevation: 0 } satisfies Record<keyof EffectNS, 0>,

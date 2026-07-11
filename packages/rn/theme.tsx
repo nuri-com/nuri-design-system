@@ -31,6 +31,8 @@
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';
+import { Platform } from 'react-native';
+import type { TextStyle } from 'react-native';
 
 import { typeScale, emphasisWeight } from './contract';
 import type { Accent, Theme, TypeSize } from './contract';
@@ -114,12 +116,15 @@ export function useNuriTheme(): ThemePayload {
 // Never raw-spread type[size] (lineHeight 1.29 would read as ~1px). This is also
 // where a `* fontScale` lands when Dynamic Type ships (P11) — the ONE legit
 // runtime multiply that survives the SEED-4 collapse.
-export function typeStyle(size: TypeSize, emphasis?: boolean) {
-  const t = typeScale[size];
+export function typeStyle(size?: TypeSize, emphasis?: boolean, mono?: boolean): TextStyle {
+  const t = size === undefined ? undefined : typeScale[size];
   return {
-    fontSize: t.fontSize,
-    lineHeight: t.fontSize * t.lineHeight,
-    letterSpacing: t.fontSize * t.letterSpacing,
-    fontWeight: emphasis ? emphasisWeight : t.fontWeight,
-  } as const;
+    ...(t ? {
+      fontSize: t.fontSize,
+      lineHeight: t.fontSize * t.lineHeight,
+      letterSpacing: t.fontSize * t.letterSpacing,
+      fontWeight: emphasis ? emphasisWeight : t.fontWeight,
+    } : emphasis ? { fontWeight: emphasisWeight } : {}),
+    ...(mono ? { fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' }) } : {}),
+  };
 }

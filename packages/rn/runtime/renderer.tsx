@@ -209,6 +209,7 @@ export type NuriDescriptorInstance<A extends Axes, PId extends PartId = PartId> 
   composition?: Partial<Record<PId, NuriCompositionEntry<PId>[]>>;
   components?: Record<string, React.ComponentType<Record<string, unknown>>>;
   behaviour: NuriBehaviour<PId>;
+  inputHandle?: React.Ref<{ focus(): void; blur(): void }>;
 };
 
 type RenderCtx<A extends Axes> = {
@@ -573,7 +574,7 @@ function renderPart<A extends Axes>(
           key={node.name}
           {...flowProps}
           style={[
-            flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis) : null,
+            flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis, flat.node.type.mono) : null,
             fg ? { color: fg } : null,
             { flexShrink: 1, textAlign: 'center' },
             flat.style,
@@ -627,7 +628,7 @@ function renderPart<A extends Axes>(
           derivedLabel={derivedLabel}
           placeholderTextColor={ctx.theme.text.muted}
           flowProps={flowProps}
-          typeStyleValue={flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis) : null}
+          typeStyleValue={flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis, flat.node.type.mono) : null}
           foregroundStyle={fg ? { color: fg } : null}
           disabledStyle={inputDisabled ? { opacity: ctx.theme.interaction.disabledOpacity } : null}
           flatStyle={flat.style as StyleProp<TextStyle>}
@@ -651,12 +652,17 @@ export function renderDescriptorInstance<A extends Axes, PId extends PartId = Pa
   composition = {},
   components = {},
   behaviour,
+  inputHandle,
 }: NuriDescriptorInstance<A, PId>): React.ReactElement {
   if (!recipe) throw new Error(`nuri-factory: renderDescriptorInstance('${displayName}') requires a baked recipe`);
   const anatomy = resolveAnatomy(descriptor);
   const theme = useNuriTheme();
   const ambient = React.useContext(NuriSurfaceContext);
   const inputRef = React.useRef<TextInput>(null);
+  React.useImperativeHandle(inputHandle, () => ({
+    focus: () => inputRef.current?.focus(),
+    blur: () => inputRef.current?.blur(),
+  }), []);
   const inputFocus = useFocusable(inputRef, {
     onFocus: behaviour.input?.props.onFocus,
     onBlur: behaviour.input?.props.onBlur,

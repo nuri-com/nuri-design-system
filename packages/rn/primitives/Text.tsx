@@ -36,7 +36,7 @@ const TextImpl = React.forwardRef<React.ElementRef<typeof RNText>, TextProps>((p
       onLayout={onLayout}
       accessibilityLabel={accessibilityLabel}
       style={[
-        node.type ? typeStyle(node.type.size, node.type.emphasis) : null,
+        node.type ? typeStyle(node.type.size, node.type.emphasis, node.type.mono) : null,
         fg ? { color: fg } : null,
         ...(node.text ? [node.text] : []),
         node.view as TextStyle,

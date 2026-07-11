@@ -22,6 +22,8 @@ import type { IconName } from '../data/icons';
 import { Button } from './button';
 import { IconButton } from './icon-button';
 
+export type TextFieldHandle = { focus(): void; blur(): void };
+
 export type TextFieldProps = {
   accent?: Accent;
   value?: string;
@@ -63,7 +65,7 @@ export type TextFieldIconButtonProps = {
 };
 export const TextFieldIconButton = createNuriSlot<TextFieldIconButtonProps>("iconButton", `${textFieldDisplayName}IconButton`, 'name', textFieldDisplayName);
 
-const TextFieldInner: React.FC<TextFieldProps> = (props) => {
+const TextFieldInner = React.forwardRef<TextFieldHandle, TextFieldProps>((props, ref) => {
   const selection: Record<string, string> = {
   };
   const content: Partial<Record<TextFieldPart, React.ReactNode>> = {};
@@ -102,8 +104,9 @@ const TextFieldInner: React.FC<TextFieldProps> = (props) => {
     composition,
     components: componentRegistry,
     behaviour,
+    inputHandle: ref,
   });
-};
+});
 TextFieldInner.displayName = `${textFieldDisplayName}Inner`;
 
 export const TextField = scopedByAccent(TextFieldInner);
