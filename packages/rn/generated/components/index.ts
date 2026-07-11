@@ -20,7 +20,7 @@ export type { ListProps } from './list';
 export { ListAction, ListActionLeadingAvatar, ListActionText, ListActionTextMuted, ListActionTrailingText, ListActionTrailingTextMuted, ListActionTrailIcon } from './list-action';
 export type { ListActionProps, ListActionLeadingAvatarProps, ListActionTextProps, ListActionTextMutedProps, ListActionTrailingTextProps, ListActionTrailingTextMutedProps, ListActionTrailIconProps } from './list-action';
 export { TextField, TextFieldLabel, TextFieldButton, TextFieldIconButton } from './text-field';
-export type { TextFieldProps, TextFieldLabelProps, TextFieldButtonProps, TextFieldIconButtonProps } from './text-field';
+export type { TextFieldProps, TextFieldHandle, TextFieldLabelProps, TextFieldButtonProps, TextFieldIconButtonProps } from './text-field';
 export { TabBarItem, TabBarItemIcon, TabBarItemLabel } from './tab-bar-item';
 export type { TabBarItemProps, TabBarItemIconProps, TabBarItemLabelProps } from './tab-bar-item';
 export { TabBar } from './tab-bar';

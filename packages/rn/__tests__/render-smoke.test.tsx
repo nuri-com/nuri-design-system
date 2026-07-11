@@ -62,6 +62,8 @@ import type { Descriptor, Axes, TypographyNS } from '../contract';
 import { renderDescriptorInstance } from '../runtime/renderer';
 import type { BakedComponentRecipe } from '../runtime/resolve';
 import { space } from '../generated/data/tokens';
+import type { TextFieldHandle } from '../index';
+import { FocusScrollProvider } from '../runtime/focus-scroll';
 // The hand-authorable primitives (step ①) — aliased so the DS names don't clash
 // with the raw react-native View/Text imported above for the catalog tests.
 import {
@@ -822,6 +824,36 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(onBlur).toHaveBeenCalledTimes(1);
     expect(boxStyle()?.borderColor).toBe('#dddac9');
     expect(focusRing()).toBeUndefined();
+  });
+
+  test('TextFieldHandle.focus() uses the native event path: ring on and focus-scroll scheduled', () => {
+    const ref = React.createRef<TextFieldHandle>();
+    const scheduleScroll = jest.fn();
+    let tr!: TestRenderer.ReactTestRenderer;
+    act(() => {
+      tr = TestRenderer.create(
+        <NuriThemeProvider>
+          <FocusScrollProvider value={{ onInputFocus: scheduleScroll, onInputBlur: jest.fn() }}>
+            <TextField ref={ref} value="">
+              <TextFieldLabel>IBAN</TextFieldLabel>
+            </TextField>
+          </FocusScrollProvider>
+        </NuriThemeProvider>,
+      );
+    });
+
+    const input = tr.root.findByType(TextInput);
+    (input.instance as unknown as { focus: () => void }).focus = () => input.props.onFocus();
+    act(() => ref.current?.focus());
+    expect(scheduleScroll).toHaveBeenCalledTimes(1);
+    expect(
+      tr.root.findAllByType(View).some((node) => {
+        const style = Array.isArray(node.props.style)
+          ? Object.assign({}, ...node.props.style.filter(Boolean))
+          : node.props.style;
+        return style?.position === 'absolute' && style?.borderWidth === 2;
+      }),
+    ).toBe(true);
   });
 
   test('ListAction — direct row slots render avatar, content, trailing value, and trail icon', () => {

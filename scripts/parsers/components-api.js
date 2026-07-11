@@ -446,6 +446,7 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
   );
   const hasRegions = regionParts.length > 0;
   const hasComponentSlots = componentSlots.length > 0;
+  const hasInput = descriptor.api.behaviour?.input !== undefined;
 
   const rendererImports = ['nuriNames', 'renderDescriptorInstance'];
   if (hasRegions) rendererImports.push('createNuriSlot');
@@ -474,6 +475,7 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
   const displayNameConst = `${local}DisplayName`;
   const innerName = `${Pascal}Inner`;
   const body = [
+    ...(hasInput ? [`export type ${Pascal}Handle = { focus(): void; blur(): void };`, ''] : []),
     `export type ${Pascal}Props = {`,
     ...lines,
     '};',
@@ -542,7 +544,9 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
 
   body.push(
     '',
-    `const ${innerName}: React.FC<${Pascal}Props> = (props) => {`,
+    hasInput
+      ? `const ${innerName} = React.forwardRef<${Pascal}Handle, ${Pascal}Props>((props, ref) => {`
+      : `const ${innerName}: React.FC<${Pascal}Props> = (props) => {`,
     ...emitSelection(descriptor),
     ...emitContent(descriptor.api, partTypeName, displayNameConst),
     ...emitBehaviour(descriptor.api, partTypeName),
@@ -556,8 +560,9 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
     ...(hasComponentSlots ? ['    composition,'] : []),
     ...(refComponents.length ? ['    components: componentRegistry,'] : []),
     '    behaviour,',
+    ...(hasInput ? ['    inputHandle: ref,'] : []),
     '  });',
-    '};',
+    hasInput ? '});' : '};',
     `${innerName}.displayName = \`${'${'}${displayNameConst}}Inner\`;`,
     '',
   );
@@ -585,10 +590,10 @@ function emitIndex(entries) {
     '',
   ].join('\n');
   const lines = [];
-  for (const { name, Pascal, regionSubs, componentSubs } of entries) {
+  for (const { name, Pascal, regionSubs, componentSubs, hasInput } of entries) {
     const values = [Pascal, ...regionSubs, ...componentSubs].join(', ');
     lines.push(`export { ${values} } from './${name}';`);
-    lines.push(`export type { ${[`${Pascal}Props`, ...regionSubs.map((sub) => `${sub}Props`), ...componentSubs.map((sub) => `${sub}Props`)].join(', ')} } from './${name}';`);
+    lines.push(`export type { ${[`${Pascal}Props`, ...(hasInput ? [`${Pascal}Handle`] : []), ...regionSubs.map((sub) => `${sub}Props`), ...componentSubs.map((sub) => `${sub}Props`)].join(', ')} } from './${name}';`);
   }
   return header + '\n' + lines.join('\n') + '\n';
 }
@@ -614,7 +619,7 @@ export async function emitComponentApi({ descriptorComponents, descriptorsDir })
     const componentSubs = Object.entries(descriptor.api.slots)
       .filter(([, s]) => s.component === true)
       .map(([slotName]) => `${Pascal}${pascalPart(slotName)}`);
-    indexEntries.push({ name: spec.name, Pascal, regionSubs, componentSubs });
+    indexEntries.push({ name: spec.name, Pascal, regionSubs, componentSubs, hasInput: descriptor.api.behaviour?.input !== undefined });
   }
   files.push({ filename: 'index.ts', source: emitIndex(indexEntries) });
   return { files, coverage: descriptorComponents.map((s) => s.name) };

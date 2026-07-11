@@ -161,6 +161,7 @@ export type {
   ListActionTrailingTextMutedProps,
   ListActionTrailIconProps,
   TextFieldProps,
+  TextFieldHandle,
   TextFieldLabelProps,
   TextFieldButtonProps,
   TextFieldIconButtonProps,

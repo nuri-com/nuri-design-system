@@ -999,6 +999,11 @@ export function defineNuriComponent(descriptor, tagName) {
       this.#built = true;
     }
 
+    focus() {
+      if (inputBehaviour) this.querySelector('nuri-input > input')?.focus();
+      else super.focus();
+    }
+
     attributeChangedCallback() {
       // Re-render on a live attribute change. The factory tree is rebuilt from the
       // captured label — the prototype mirror does not preserve the inner node

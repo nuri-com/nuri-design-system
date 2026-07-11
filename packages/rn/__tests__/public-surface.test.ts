@@ -113,6 +113,7 @@ const EXPECTED_TYPE_EXPORTS = [
   'TabBarProps',
   'TextFieldButtonProps',
   'TextFieldIconButtonProps',
+  'TextFieldHandle',
   'TextFieldLabelProps',
   'TextFieldProps',
   'TextProps',

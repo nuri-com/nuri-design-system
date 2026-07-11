@@ -9,6 +9,8 @@ nav_order: 7
 
 # Text Field
 
+Use a `TextFieldHandle` ref for consumer-owned focus policy. Focus after a sheet enters with `<BottomSheet onOpenChange={(open) => open && ref.current?.focus()}>`; for validation, call `ref.current?.focus()` from the invalid branch of the submit handler. The handle exposes only `focus()` and `blur()`—never the raw native input.
+
 ## API
 
 ### Text Field Props
