@@ -34,7 +34,7 @@ export function ShareAddressSheet({ open, onClose }: { open: boolean; onClose: (
         </Header>
 
         <Scroll>
-          <View direction="column" align="stretch" justify="start" gap="xl" paddingX="lg">
+          <View direction="column" align="stretch" justify="start" gap="sm" paddingX="lg" fill="grow">
             <Text size="lg" emphasis>Bitcoin address</Text>
 
             <View direction="column" align="stretch" gap="sm">
@@ -45,12 +45,14 @@ export function ShareAddressSheet({ open, onClose }: { open: boolean; onClose: (
               ))}
             </View>
 
-            <View variant="outline" radius="lg" padding="xl">
-              <NuriScope mode="dark">
-                <View chrome="canvas" aspectRatio="square" align="center" justify="center">
-                  <Text size="md" muted align="center">Qr Code</Text>
-                </View>
-              </NuriScope>
+            <View direction="column" align="stretch" justify="center" fill="grow">
+              <View variant="outline" radius="lg" padding="xl">
+                <NuriScope mode="dark">
+                  <View chrome="canvas" aspectRatio="square" align="center" justify="center">
+                    <Text size="md" muted align="center">Qr Code</Text>
+                  </View>
+                </NuriScope>
+              </View>
             </View>
           </View>
         </Scroll>

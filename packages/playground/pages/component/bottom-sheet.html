@@ -451,7 +451,7 @@
             </nuri-header>
 
             <nuri-scroll>
-              <nuri-view direction="column" align="stretch" justify="start" gap="xl" padding-x="lg">
+              <nuri-view direction="column" align="stretch" justify="start" gap="sm" padding-x="lg" fill>
                 <nuri-typography size="lg" emphasis>Bitcoin address</nuri-typography>
 
                 <nuri-view direction="column" align="stretch" gap="sm">
@@ -477,12 +477,14 @@
                   </nuri-view>
                 </nuri-view>
 
-                <nuri-view variant="outline" radius="lg" padding="xl">
-                  <nuri-scope mode="dark">
-                    <nuri-view chrome="canvas" aspect-ratio="square" align="center" justify="center">
-                      <nuri-typography size="md" muted align="center">Qr Code</nuri-typography>
-                    </nuri-view>
-                  </nuri-scope>
+                <nuri-view direction="column" align="stretch" justify="center" fill>
+                  <nuri-view variant="outline" radius="lg" padding="xl">
+                    <nuri-scope mode="dark">
+                      <nuri-view chrome="canvas" aspect-ratio="square" align="center" justify="center">
+                        <nuri-typography size="md" muted align="center">Qr Code</nuri-typography>
+                      </nuri-view>
+                    </nuri-scope>
+                  </nuri-view>
                 </nuri-view>
               </nuri-view>
             </nuri-scroll>
