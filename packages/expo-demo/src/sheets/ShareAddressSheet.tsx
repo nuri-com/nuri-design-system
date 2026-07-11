@@ -16,8 +16,8 @@ import {
 } from '@ds';
 
 const ADDRESS_ROWS = [
-  ['bc1q', 'xy2k', 'gdyg', 'jrsq', 'tzq2', 'n0yr'],
-  ['f249', '3p83', 'kkfj', 'hx0w', 'lh'],
+  ['bc1q', 'cten', '7huq', 'q3h8', 'xg65', 'g7fe', 'wrdk', 'wmjj'],
+  ['u3zy', '6a69', 'ujwv', 'cjf9', '7919', 'dxps', 'gsl6', 'r4'],
 ] as const;
 const noop = () => undefined;
 
