@@ -16,8 +16,8 @@ import {
 } from '@ds';
 
 const ADDRESS_ROWS = [
-  ['bc1q', 'w508', 'd6qe', 'jxqt', 'dg4y', '5r3z', 'arva', 'ry0c'],
-  ['5xw7', 'kygt', '0800', '0000', '0000', '0000', '0000', '0000'],
+  ['bc1q', 'xy2k', 'gdyg', 'jrsq', 'tzq2', 'n0yr'],
+  ['f249', '3p83', 'kkfj', 'hx0w', 'lh'],
 ] as const;
 const noop = () => undefined;
 
@@ -35,19 +35,19 @@ export function ShareAddressSheet({ open, onClose }: { open: boolean; onClose: (
 
         <Scroll>
           <View direction="column" align="stretch" justify="start" gap="xl" paddingX="lg">
-            <Text size="xl" emphasis>Share your Bitcoin address</Text>
+            <Text size="lg" emphasis>Bitcoin address</Text>
 
             <View direction="column" align="stretch" gap="sm">
               {ADDRESS_ROWS.map((row, rowIndex) => (
                 <View key={rowIndex} direction="row" distribute="even">
-                  {row.map((chunk) => <Text key={chunk} size="sm" mono align="center">{chunk}</Text>)}
+                  {row.map((chunk, chunkIndex) => <Text key={`${rowIndex}-${chunkIndex}`} size="sm" mono>{chunk}</Text>)}
                 </View>
               ))}
             </View>
 
-            <View variant="outline" radius="lg" padding="md">
+            <View variant="outline" radius="lg" padding="xl">
               <NuriScope mode="dark">
-                <View chrome="canvas" radius="md" aspectRatio="square" align="center" justify="center">
+                <View chrome="canvas" aspectRatio="square" align="center" justify="center">
                   <Text size="md" muted align="center">Qr Code</Text>
                 </View>
               </NuriScope>

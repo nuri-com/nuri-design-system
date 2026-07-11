@@ -33,7 +33,7 @@ export function SendAddressSheet({ open, onClose }: { open: boolean; onClose: ()
         <Scroll>
           <View direction="column" align="stretch" justify="start" gap="xl" paddingX="lg" fill="grow">
             <View direction="column" align="stretch" gap="sm">
-              <Text size="xl" emphasis>Send to Bitcoin address</Text>
+              <Text size="lg" emphasis>Send to Bitcoin address</Text>
               <Text size="md" muted>Scan Qr code or paste</Text>
             </View>
 
