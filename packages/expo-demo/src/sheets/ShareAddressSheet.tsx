@@ -57,7 +57,7 @@ export function ShareAddressSheet({ open, onClose }: { open: boolean; onClose: (
           </View>
         </Scroll>
 
-        <Footer safeAreaBottom direction="column" align="stretch" paddingY="sm" paddingX="lg">
+        <Footer safeAreaBottom direction="column" align="stretch" paddingBottom="lg" paddingX="lg">
           <View direction="row" gap="sm" distribute="even">
             <Button size="lg" variant="soft" onPress={noop}>Copy</Button>
             <Button size="lg" variant="soft" onPress={noop}>Share</Button>
