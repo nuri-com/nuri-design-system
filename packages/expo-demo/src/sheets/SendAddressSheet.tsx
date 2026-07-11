@@ -37,15 +37,17 @@ export function SendAddressSheet({ open, onClose }: { open: boolean; onClose: ()
               <Text size="md" muted>Scan Qr code or paste</Text>
             </View>
 
-            <NuriScope mode="dark">
-              <View chrome="canvas" radius="lg" align="center" justify="center" fill="grow">
-                <Text size="md" muted align="center">Camera</Text>
-              </View>
-            </NuriScope>
+            <View direction="column" align="stretch" justify="center" fill="grow">
+              <NuriScope mode="dark">
+                <View chrome="canvas" radius="full" aspectRatio="square" align="center" justify="center">
+                  <Text size="md" muted align="center">Camera</Text>
+                </View>
+              </NuriScope>
+            </View>
           </View>
         </Scroll>
 
-        <Footer safeAreaBottom direction="column" align="stretch" paddingY="sm" paddingX="lg">
+        <Footer safeAreaBottom direction="column" align="stretch" paddingBottom="lg" paddingX="lg">
           <View direction="row" distribute="even">
             <Button size="lg" variant="soft" onPress={noop}>Paste Bitcoin address</Button>
           </View>

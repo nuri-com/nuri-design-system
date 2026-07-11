@@ -525,15 +525,17 @@
                   <nuri-typography size="md" muted>Scan Qr code or paste</nuri-typography>
                 </nuri-view>
 
-                <nuri-scope mode="dark">
-                  <nuri-view chrome="canvas" radius="lg" align="center" justify="center" fill>
-                    <nuri-typography size="md" muted align="center">Camera</nuri-typography>
-                  </nuri-view>
-                </nuri-scope>
+                <nuri-view direction="column" align="stretch" justify="center" fill>
+                  <nuri-scope mode="dark">
+                    <nuri-view chrome="canvas" radius="full" aspect-ratio="square" align="center" justify="center">
+                      <nuri-typography size="md" muted align="center">Camera</nuri-typography>
+                    </nuri-view>
+                  </nuri-scope>
+                </nuri-view>
               </nuri-view>
             </nuri-scroll>
 
-            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-y="sm" padding-x="lg">
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
               <nuri-view direction="row" distribute="even">
                 <nuri-button size="lg" variant="soft">Paste Bitcoin address</nuri-button>
               </nuri-view>
