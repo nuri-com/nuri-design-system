@@ -9,7 +9,7 @@
  * ────────────────────────────────────────────────────────────── */
 
 (() => {
-  const ATTRS = ['value', 'placeholder', 'input-mode', 'secure-text-entry', 'disabled', 'aria-label'];
+  const ATTRS = ['value', 'placeholder', 'input-mode', 'secure-text-entry', 'auto-capitalize', 'disabled', 'aria-label'];
 
   class NuriInput extends HTMLElement {
     static get observedAttributes() {
@@ -51,6 +51,9 @@
       if (mode) input.setAttribute('inputmode', mode);
       else input.removeAttribute('inputmode');
       input.type = this.hasAttribute('secure-text-entry') ? 'password' : 'text';
+      const autoCapitalize = this.getAttribute('auto-capitalize');
+      if (autoCapitalize) input.setAttribute('autocapitalize', autoCapitalize);
+      else input.removeAttribute('autocapitalize');
       input.disabled = this.hasAttribute('disabled');
       const label = this.getAttribute('aria-label');
       if (label) input.setAttribute('aria-label', label);

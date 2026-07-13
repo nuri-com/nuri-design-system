@@ -561,7 +561,7 @@ test('C5 · <nuri-text-field> input props reach the native input and label names
   assert.ok(customElements.get('nuri-text-field'), 'TextField web twin is registered');
   assert.deepEqual(
     [...customElements.get('nuri-text-field').observedAttributes].sort(),
-    ['accent', 'aria-label', 'disabled', 'input-mode', 'placeholder', 'secure-text-entry', 'value'],
+    ['accent', 'aria-label', 'auto-capitalize', 'disabled', 'input-mode', 'placeholder', 'secure-text-entry', 'value'],
     'TextField observes its input allowlist attrs plus accent',
   );
 
@@ -617,6 +617,7 @@ test('C6 · <nuri-text-field> secure/disabled/button delegation and aria-label o
 
 test('C7 · <nuri-text-field> native input event calls onChangeText property handler', async () => {
   const field = dom.window.document.createElement('nuri-text-field');
+  field.setAttribute('auto-capitalize', 'words');
   const seen = [];
   field.onChangeText = (value) => seen.push(value);
   field.innerHTML = '<nuri-text-field-label>First name</nuri-text-field-label>';
@@ -624,6 +625,7 @@ test('C7 · <nuri-text-field> native input event calls onChangeText property han
   await tick();
 
   const input = field.querySelector('nuri-input > input');
+  assert.equal(input.getAttribute('autocapitalize'), 'words');
   input.value = 'Ada';
   input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
   assert.deepEqual(seen, ['Ada']);

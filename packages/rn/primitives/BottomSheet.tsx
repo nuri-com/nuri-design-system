@@ -44,6 +44,7 @@ export type BottomSheetProps = {
   scrim?: BottomSheetScrim;
   dismissible?: boolean;
   onOpenChange?: (open: boolean) => void;
+  onOpenComplete?: () => void;
   children?: React.ReactNode;
 };
 
@@ -78,6 +79,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   scrim = 'dim',
   dismissible = true,
   onOpenChange,
+  onOpenComplete,
   children,
 }) => {
   const overlay = useOverlay();
@@ -91,10 +93,12 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   const [sheetHeight, setSheetHeight] = React.useState<number | null>(null);
   const measuredHeight = React.useRef<number | null>(null);
   const openNotified = React.useRef(false);
-  // Latest-callback ref: keeps onOpenChange out of the animation effects'
+  // Latest-callback refs keep consumer callbacks out of the animation effects'
   // deps so a parent's inline lambda can't restart a running animation.
   const onOpenChangeRef = React.useRef(onOpenChange);
   onOpenChangeRef.current = onOpenChange;
+  const onOpenCompleteRef = React.useRef(onOpenComplete);
+  onOpenCompleteRef.current = onOpenComplete;
   // Stable close handler for scrim tap AND hardware-back routing (the overlay
   // layer calls it on the topmost dismissible layer). Reads the latest callback
   // via the ref so its identity never changes.
@@ -123,6 +127,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
       if (finished && !openNotified.current) {
         openNotified.current = true;
         onOpenChangeRef.current?.(true);
+        onOpenCompleteRef.current?.();
       }
     });
   }, [open, mounted, sheetHeight, progress]);

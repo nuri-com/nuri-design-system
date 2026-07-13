@@ -9,7 +9,7 @@ nav_order: 7
 
 # Text Field
 
-Use a `TextFieldHandle` ref for consumer-owned focus policy. Focus after a sheet enters with `<BottomSheet onOpenChange={(open) => open && ref.current?.focus()}>`; for validation, call `ref.current?.focus()` from the invalid branch of the submit handler. The handle exposes only `focus()` and `blur()`—never the raw native input.
+Use a `TextFieldHandle` ref for consumer-owned focus policy. Focus after a sheet enters with `<BottomSheet onOpenComplete={() => ref.current?.focus()}>`; for validation, call `ref.current?.focus()` from the invalid branch of the submit handler. The handle exposes only `focus()` and `blur()`—never the raw native input.
 
 ## API
 
@@ -23,6 +23,7 @@ Use a `TextFieldHandle` ref for consumer-owned focus policy. Focus after a sheet
 | `placeholder` | no | `string` | input behaviour |
 | `inputMode` | no | `'text' | 'decimal' | 'numeric' | 'tel' | 'email' | 'url' | 'search'` | input behaviour |
 | `secureTextEntry` | no | `boolean` | input behaviour |
+| `autoCapitalize` | no | `'none' | 'sentences' | 'words' | 'characters'` | input behaviour |
 | `disabled` | no | `boolean` | input behaviour |
 | `onFocus` | no | `() => void` | input behaviour |
 | `onBlur` | no | `() => void` | input behaviour |

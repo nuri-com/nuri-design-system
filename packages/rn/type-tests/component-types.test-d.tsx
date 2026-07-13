@@ -140,8 +140,9 @@ export const textFieldNoLabelProp = <TextField label="IBAN" />;
 export const textFieldNoKeyboardType = <TextField keyboardType="numeric"><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
 // @ts-expect-error disabled is the public prop; editable is not exposed.
 export const textFieldNoEditable = <TextField editable={false}><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
-// @ts-expect-error autoCapitalize is intentionally out of the v1 input allowlist.
-export const textFieldNoAutoCapitalize = <TextField autoCapitalize="words"><TextFieldLabel>Name</TextFieldLabel></TextField>;
+export const textFieldAutoCapitalizeOk = <TextField autoCapitalize="words"><TextFieldLabel>Name</TextFieldLabel></TextField>;
+// @ts-expect-error autoCapitalize is a closed native-compatible union.
+export const textFieldNoInvalidAutoCapitalize = <TextField autoCapitalize="titlecase"><TextFieldLabel>Name</TextFieldLabel></TextField>;
 // @ts-expect-error error is external Alert composition, not a TextField prop.
 export const textFieldNoError = <TextField error><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
 // @ts-expect-error helper text is out of scope for v1.
@@ -179,7 +180,7 @@ export const tabItemIconNoChildren = <TabBarItemIcon name="card">Wallet</TabBarI
 
 // ── BottomSheet family — Nuri contract, no raw engine surface ──
 export const bottomSheetOk = (
-  <BottomSheet open detent="content" scrim="dim" dismissible>
+  <BottomSheet open detent="content" scrim="dim" dismissible onOpenComplete={() => undefined}>
     <BottomSheetPanel>
       <Header paddingTop="lg">
         <Topbar surface="transparent">

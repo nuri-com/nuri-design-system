@@ -27,6 +27,7 @@ const INPUT_TS = {
   placeholder: 'string',
   inputMode: "'text' | 'decimal' | 'numeric' | 'tel' | 'email' | 'url' | 'search'",
   secureTextEntry: 'boolean',
+  autoCapitalize: "'none' | 'sentences' | 'words' | 'characters'",
   disabled: 'boolean',
   onFocus: '() => void',
   onBlur: '() => void',

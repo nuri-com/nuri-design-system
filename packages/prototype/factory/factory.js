@@ -692,6 +692,7 @@ function renderInput(node, ns, ctx) {
   if (props.placeholder !== undefined) host.setAttribute('placeholder', String(props.placeholder));
   if (props.inputMode !== undefined) host.setAttribute('input-mode', String(props.inputMode));
   if (props.secureTextEntry) host.setAttribute('secure-text-entry', '');
+  if (props.autoCapitalize !== undefined) host.setAttribute('auto-capitalize', String(props.autoCapitalize));
   if (props.disabled) host.setAttribute('disabled', '');
   const label = behaviour.labelPart ? ctx.content?.[behaviour.labelPart] : undefined;
   const accessibleName = props.accessibilityLabel ?? plainTextContent(label);
@@ -916,6 +917,7 @@ export function defineNuriComponent(descriptor, tagName) {
     placeholder: 'placeholder',
     inputMode: 'input-mode',
     secureTextEntry: 'secure-text-entry',
+    autoCapitalize: 'auto-capitalize',
     disabled: 'disabled',
     accessibilityLabel: 'aria-label',
   };
