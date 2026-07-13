@@ -203,7 +203,7 @@
           </nuri-header>
 
           <nuri-scroll safe-area-bottom>
-          <nuri-view direction="column" align="stretch" justify="between" gap="xl" padding-x="lg" fill>
+          <nuri-view direction="column" align="stretch" justify="between" gap="sm" padding-x="lg" fill>
             <nuri-view direction="column" align="stretch" justify="start" gap="sm">
               <nuri-typography size="lg" emphasis>How much do you want to send?</nuri-typography>
               <nuri-typography size="md" muted>€207 available in your cash account</nuri-typography>
@@ -214,7 +214,7 @@
               <nuri-typography size="md" align="center">₿ 5234</nuri-typography>
             </nuri-view>
 
-            <nuri-view direction="column" align="stretch" justify="end" gap="xl">
+            <nuri-view direction="column" align="stretch" justify="end" gap="lg" padding-bottom="lg">
               <nuri-view direction="row" distribute="even" gap="sm">
                 <nuri-button size="sm" variant="solid">€ 25</nuri-button>
                 <nuri-button size="sm" variant="solid">€ 50</nuri-button>
@@ -251,7 +251,7 @@
           <nuri-footer
             direction="column"
             align="stretch"
-            padding-y="sm"
+            padding-bottom="sm"
             padding-x="lg"
             safe-area-bottom
           >
@@ -434,6 +434,60 @@
     </template>
   </nuri-demo>
 
+  <!-- RECEIVE METHOD sheet · compact content-height picker with a branded payment CTA. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="receive bitcoin">
+    <template>
+      <nuri-view class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
+        <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
+
+        <nuri-bottom-sheet open detent="content" scrim="dim">
+          <nuri-bottom-sheet-panel>
+            <nuri-header padding-top="lg">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="start" gap="xl" padding-bottom="xl">
+                <nuri-view direction="column" align="stretch" justify="start" gap="sm" padding-x="lg">
+                  <nuri-typography size="lg" emphasis>How do want to receive Bitcoin?</nuri-typography>
+                  <nuri-typography size="md" muted>Select network you prefer</nuri-typography>
+                </nuri-view>
+
+                <nuri-list>
+                  <nuri-list-action aria-label="Bitcoin address">
+                    <nuri-list-action-leading-avatar name="bitcoin" variant="solid" accent="orange"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Bitcoin address</nuri-list-action-text>
+                    <nuri-list-action-text-muted>bc1qsmd4xz68a7fhwyhjkd0cawx4…</nuri-list-action-text-muted>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                  <nuri-list-separator></nuri-list-separator>
+                  <nuri-list-action aria-label="Lightning address">
+                    <nuri-list-action-leading-avatar name="lightning" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Lightning address</nuri-list-action-text>
+                    <nuri-list-action-text-muted>cim@nuri.com</nuri-list-action-text-muted>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                </nuri-list>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid">
+                <nuri-button-text>Buy Bitcoin</nuri-button-text>
+                <nuri-button-icon name="apple"></nuri-button-icon>
+                <nuri-button-text>Pay</nuri-button-text>
+              </nuri-button>
+            </nuri-footer>
+          </nuri-bottom-sheet-panel>
+        </nuri-bottom-sheet>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
   <!-- SHARE ADDRESS sheet · two explicit even rows preserve the 8-column chunk grid. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="share bitcoin address">
     <template>
@@ -451,7 +505,7 @@
             </nuri-header>
 
             <nuri-scroll>
-              <nuri-view direction="column" align="stretch" justify="start" gap="sm" padding-x="lg" fill>
+              <nuri-view direction="column" align="stretch" justify="start" gap="sm" padding-x="lg" padding-bottom="sm" fill>
                 <nuri-typography size="lg" emphasis>Bitcoin address</nuri-typography>
 
                 <nuri-view direction="column" align="stretch" gap="sm">
@@ -501,6 +555,57 @@
     </template>
   </nuri-demo>
 
+  <!-- LIGHTNING ADDRESS sheet · full-height QR state with invoice and sharing actions. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="lightning address">
+    <template>
+      <nuri-view class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
+        <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
+
+        <nuri-bottom-sheet open detent="full" scrim="dim">
+          <nuri-bottom-sheet-panel>
+            <nuri-header padding-top="lg">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="start" gap="sm" padding-x="lg" padding-bottom="sm" fill>
+                <nuri-view direction="column" align="stretch" gap="sm">
+                  <nuri-typography size="lg" emphasis>Lightning address</nuri-typography>
+                  <nuri-typography size="md" muted>cim@nuri.com</nuri-typography>
+                </nuri-view>
+
+                <nuri-view direction="column" align="stretch" justify="center" fill>
+                  <nuri-view variant="outline" radius="lg" padding="xl">
+                    <nuri-scope mode="dark">
+                      <nuri-view chrome="canvas" aspect-ratio="square" align="center" justify="center">
+                        <nuri-typography size="md" muted align="center">Qr Code</nuri-typography>
+                      </nuri-view>
+                    </nuri-scope>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-view direction="column" align="stretch" gap="sm">
+                <nuri-button size="lg" variant="soft">Create Lightning invoice</nuri-button>
+                <nuri-view direction="row" gap="sm" distribute="even">
+                  <nuri-button size="lg" variant="soft">Copy</nuri-button>
+                  <nuri-button size="lg" variant="soft">Share</nuri-button>
+                </nuri-view>
+              </nuri-view>
+            </nuri-footer>
+          </nuri-bottom-sheet-panel>
+        </nuri-bottom-sheet>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
   <!-- SEND ADDRESS sheet · fill is the closest current DS idiom for the tall camera region. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="send bitcoin address">
     <template>
@@ -519,7 +624,7 @@
             </nuri-header>
 
             <nuri-scroll>
-              <nuri-view direction="column" align="stretch" justify="start" gap="xl" padding-x="lg" fill>
+              <nuri-view direction="column" align="stretch" justify="start" gap="sm" padding-x="lg" padding-bottom="sm" fill>
                 <nuri-view direction="column" align="stretch" gap="sm">
                   <nuri-typography size="lg" emphasis>Send to Bitcoin address</nuri-typography>
                   <nuri-typography size="md" muted>Scan Qr code or paste</nuri-typography>
