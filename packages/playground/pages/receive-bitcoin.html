@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuri · Playground · Receive Bitcoin</title>
+  <link rel="stylesheet" href="../generated/playground.css" />
+  <script src="../generated/boot.js" type="module"></script>
+  <style>
+    .nuri-pg__scroll { gap: 0; }
+    [data-pg-nav="ds"] { display: none; }
+    [data-pg-nav="index"] { display: none; }
+
+    .sheet-stage {
+      position: relative;
+      overflow: hidden;
+      min-block-size: 0;
+    }
+
+    .sheet-content {
+      position: relative;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body>
+
+<nuri-playground-shell doc="Receive Bitcoin">
+
+  <!-- RECEIVE BITCOIN · share the reusable Lightning address or set an invoice amount. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="receive bitcoin">
+    <template>
+      <nuri-view class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
+        <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
+
+        <nuri-bottom-sheet open detent="full" scrim="dim">
+          <nuri-bottom-sheet-panel>
+            <nuri-header padding-top="lg">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading>
+                  <nuri-typography size="lg" emphasis>Receive Bitcoin</nuri-typography>
+                </nuri-topbar-leading>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="center" gap="md" padding-x="lg" padding-bottom="sm" fill>
+                <nuri-view variant="outline" radius="lg" padding="lg">
+                  <nuri-scope mode="dark">
+                    <nuri-view chrome="canvas" aspect-ratio="square" align="center" justify="center">
+                      <nuri-typography size="md" muted align="center">Qr Code</nuri-typography>
+                    </nuri-view>
+                  </nuri-scope>
+                </nuri-view>
+                <nuri-typography size="md" align="center">cim@nuri.com</nuri-typography>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-view direction="row" gap="sm" distribute="even">
+                <nuri-button size="lg" variant="soft">Set amount</nuri-button>
+                <nuri-button size="lg" variant="solid" accent="lilac">Share</nuri-button>
+              </nuri-view>
+            </nuri-footer>
+          </nuri-bottom-sheet-panel>
+        </nuri-bottom-sheet>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
+  <!-- SET AMOUNT · amount conversion with the shared numeric keypad pattern. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="set amount">
+    <template>
+      <nuri-view class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
+        <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
+
+        <nuri-bottom-sheet open detent="full" scrim="dim">
+          <nuri-bottom-sheet-panel>
+            <nuri-header padding-top="lg">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                </nuri-topbar-leading>
+                <nuri-topbar-center>
+                  <nuri-typography size="lg" emphasis>Set amount</nuri-typography>
+                </nuri-topbar-center>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="sm" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-view direction="row" align="center" justify="between">
+                    <nuri-icon-button icon="transfer-vertical" variant="soft" aria-label="Swap currency"></nuri-icon-button>
+                    <nuri-typography size="3xl" align="end">€ 25.00</nuri-typography>
+                  </nuri-view>
+                  <nuri-typography size="md" align="end">₿ 45239</nuri-typography>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Next</nuri-button>
+            </nuri-footer>
+          </nuri-bottom-sheet-panel>
+        </nuri-bottom-sheet>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
+  <!-- BITCOIN INVOICE · a fixed-amount invoice ready to share. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="bitcoin invoice">
+    <template>
+      <nuri-view class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
+        <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
+
+        <nuri-bottom-sheet open detent="full" scrim="dim">
+          <nuri-bottom-sheet-panel>
+            <nuri-header padding-top="lg">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                </nuri-topbar-leading>
+                <nuri-topbar-center>
+                  <nuri-typography size="lg" emphasis>Bitcoin Invoice</nuri-typography>
+                </nuri-topbar-center>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-bottom="sm" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="md" fill>
+                  <nuri-view variant="outline" radius="lg" padding="lg">
+                    <nuri-scope mode="dark">
+                      <nuri-view chrome="canvas" aspect-ratio="square" align="center" justify="center">
+                        <nuri-typography size="md" muted align="center">Qr Code</nuri-typography>
+                      </nuri-view>
+                    </nuri-scope>
+                  </nuri-view>
+                  <nuri-view direction="column" align="center" gap="none">
+                    <nuri-typography size="md" align="center">cim@nuri.com</nuri-typography>
+                    <nuri-typography size="3xl" align="center">₿ 45239</nuri-typography>
+                    <nuri-typography size="md" align="center">About € 25.00</nuri-typography>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Share</nuri-button>
+            </nuri-footer>
+          </nuri-bottom-sheet-panel>
+        </nuri-bottom-sheet>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+</body>
+</html>
