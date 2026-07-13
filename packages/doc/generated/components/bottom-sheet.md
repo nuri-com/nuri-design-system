@@ -18,4 +18,5 @@ nav_order: 21
 | `scrim` | no | `'none' | 'dim'` | sheet behaviour |
 | `dismissible` | no | `boolean` | sheet behaviour |
 | `onOpenChange` | no | `(open: boolean) => void` | sheet behaviour |
+| `onOpenComplete` | no | `() => void` | post-enter lifecycle |
 | `children` | no | `React.ReactNode` | default content slot |

@@ -340,6 +340,7 @@ const PAGE_CONTRACT = {
       "| `detent` | no | `'content' | 'full'` | sheet behaviour |",
       "| `scrim` | no | `'none' | 'dim'` | sheet behaviour |",
       '| `onOpenChange` | no | `(open: boolean) => void` | sheet behaviour |',
+      '| `onOpenComplete` | no | `() => void` | post-enter lifecycle |',
       '| `children` | no | `React.ReactNode` | default content slot |',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],

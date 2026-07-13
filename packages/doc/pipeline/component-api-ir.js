@@ -65,7 +65,7 @@ export const COMPONENT_API_DOCS = [
     file: 'packages/rn/generated/components/text-field.ts',
     type: 'TextFieldProps',
     relatedPrefix: 'TextField',
-    lead: 'Use a `TextFieldHandle` ref for consumer-owned focus policy. Focus after a sheet enters with `<BottomSheet onOpenChange={(open) => open && ref.current?.focus()}>`; for validation, call `ref.current?.focus()` from the invalid branch of the submit handler. The handle exposes only `focus()` and `blur()`—never the raw native input.',
+    lead: 'Use a `TextFieldHandle` ref for consumer-owned focus policy. Focus after a sheet enters with `<BottomSheet onOpenComplete={() => ref.current?.focus()}>`; for validation, call `ref.current?.focus()` from the invalid branch of the submit handler. The handle exposes only `focus()` and `blur()`—never the raw native input.',
   },
   {
     source: 'tab-bar',
@@ -250,6 +250,7 @@ const NOTE_BY_PROP = {
   open: 'sheet behaviour',
   dismissible: 'sheet behaviour',
   onOpenChange: 'sheet behaviour',
+  onOpenComplete: 'post-enter lifecycle',
   edge: 'dock placement',
   ySpace: 'separator spacing',
 };

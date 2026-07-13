@@ -48,7 +48,13 @@ function FormSheetFields({
         </View>
 
         <View direction="column" align="stretch" justify="start" gap="xl">
-          <TextField ref={firstFieldRef} value={values.iban} onChangeText={onChangeField('iban')} placeholder="IBAN">
+          <TextField
+            ref={firstFieldRef}
+            value={values.iban}
+            onChangeText={onChangeField('iban')}
+            placeholder="IBAN"
+            autoCapitalize="characters"
+          >
             <TextFieldLabel>IBAN*</TextFieldLabel>
             <TextFieldButton accessibilityLabel="Paste IBAN">Paste</TextFieldButton>
           </TextField>
@@ -81,7 +87,8 @@ export function FormSheet({
     <BottomSheet
       open={open}
       detent="full"
-      onOpenChange={(next) => next ? firstFieldRef.current?.focus() : onClose()}
+      onOpenChange={(next) => !next && onClose()}
+      onOpenComplete={() => firstFieldRef.current?.focus()}
     >
       <BottomSheetPanel>
         <Header paddingTop="lg">

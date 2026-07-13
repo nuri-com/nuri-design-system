@@ -192,6 +192,7 @@ export type NuriBehaviour<PId extends PartId = PartId> = {
       placeholder?: string;
       inputMode?: 'text' | 'decimal' | 'numeric' | 'tel' | 'email' | 'url' | 'search';
       secureTextEntry?: boolean;
+      autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
       disabled?: boolean;
       onFocus?: () => void;
       onBlur?: () => void;
@@ -242,6 +243,7 @@ type DescriptorTextInputProps = {
   placeholder?: string;
   inputMode?: 'text' | 'decimal' | 'numeric' | 'tel' | 'email' | 'url' | 'search';
   secureTextEntry?: boolean;
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   inputDisabled: boolean;
   accessibilityLabel?: string;
   derivedLabel?: string;
@@ -264,6 +266,7 @@ function DescriptorTextInput({
   placeholder,
   inputMode,
   secureTextEntry,
+  autoCapitalize,
   inputDisabled,
   accessibilityLabel,
   derivedLabel,
@@ -284,6 +287,7 @@ function DescriptorTextInput({
       placeholder={placeholder}
       inputMode={inputMode}
       secureTextEntry={secureTextEntry}
+      autoCapitalize={autoCapitalize}
       editable={!inputDisabled}
       accessibilityLabel={accessibilityLabel ?? derivedLabel}
       accessibilityState={{ disabled: inputDisabled }}
@@ -623,6 +627,7 @@ function renderPart<A extends Axes>(
           placeholder={inputProps.placeholder}
           inputMode={inputProps.inputMode}
           secureTextEntry={inputProps.secureTextEntry}
+          autoCapitalize={inputProps.autoCapitalize}
           inputDisabled={inputDisabled}
           accessibilityLabel={inputProps.accessibilityLabel ?? derivedLabel}
           derivedLabel={derivedLabel}

@@ -275,11 +275,11 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(svg.props.color).not.toBe('#000');
   });
 
-  test('NuriIcon — the new glyphs (arrow-up · arrow-down · list-bullets) render register markup', () => {
+  test('NuriIcon — newly added glyphs render register markup', () => {
     // The suite renders named glyphs but never sweeps the register, so each new
     // SoT drawing gets a targeted mount: the register markup reaches SvgXml
     // inside the constant viewBox wrapper, colour normalized to currentColor.
-    for (const name of ['arrow-up', 'arrow-down', 'list-bullets'] as const) {
+    for (const name of ['arrow-up', 'arrow-down', 'list-bullets', 'lightning'] as const) {
       const tr = render(
         <NuriThemeProvider>
           <NuriIcon name={name} />
@@ -731,7 +731,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const onChangeText = jest.fn();
     const tr = render(
       <NuriThemeProvider>
-        <TextField value="DE12" onChangeText={onChangeText} placeholder="DE..." inputMode="numeric">
+        <TextField value="DE12" onChangeText={onChangeText} placeholder="DE..." inputMode="numeric" autoCapitalize="characters">
           <TextFieldLabel>IBAN</TextFieldLabel>
         </TextField>
       </NuriThemeProvider>,
@@ -741,6 +741,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(input.props.value).toBe('DE12');
     expect(input.props.placeholder).toBe('DE...');
     expect(input.props.inputMode).toBe('numeric');
+    expect(input.props.autoCapitalize).toBe('characters');
     expect(input.props.accessibilityLabel).toBe('IBAN');
     act(() => input.props.onChangeText('DE123'));
     expect(onChangeText).toHaveBeenCalledWith('DE123');

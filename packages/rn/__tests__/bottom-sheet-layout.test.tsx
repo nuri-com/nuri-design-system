@@ -12,7 +12,7 @@
 
 import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { LayoutAnimation, Text } from 'react-native';
+import { Animated, LayoutAnimation, Text } from 'react-native';
 import { NuriThemeProvider } from '../theme';
 import { BottomSheet, BottomSheetPanel, OverlayProvider } from '../index';
 
@@ -106,6 +106,54 @@ describe('BottomSheet — layout measurement latch + no LayoutAnimation arming (
     fireSheetLayout(tr, 400);
     expect(tr.root.findByType(Text).props.children).toBe('Receive');
     expect(configureNext).not.toHaveBeenCalled();
+  });
+
+  test('onOpenComplete fires once after the enter animation finishes', () => {
+    const onOpenChange = jest.fn();
+    const onOpenComplete = jest.fn();
+    let finishEnter: ((result: { finished: boolean }) => void) | undefined;
+    const timing = jest.spyOn(Animated, 'timing').mockImplementation(
+      () =>
+        ({
+          start: (callback?: (result: { finished: boolean }) => void) => {
+            finishEnter = callback;
+          },
+          stop: jest.fn(),
+          reset: jest.fn(),
+        }) as unknown as ReturnType<typeof Animated.timing>,
+    );
+
+    try {
+      const tr = render(
+        <NuriThemeProvider>
+          <OverlayProvider>
+            <BottomSheet
+              open
+              detent="content"
+              onOpenChange={onOpenChange}
+              onOpenComplete={onOpenComplete}
+            >
+              <BottomSheetPanel>
+                <Text>Receive</Text>
+              </BottomSheetPanel>
+            </BottomSheet>
+          </OverlayProvider>
+        </NuriThemeProvider>,
+      );
+
+      expect(onOpenComplete).not.toHaveBeenCalled();
+      fireSheetLayout(tr, 400);
+      expect(onOpenComplete).not.toHaveBeenCalled();
+
+      act(() => finishEnter?.({ finished: true }));
+      expect(onOpenChange).toHaveBeenCalledWith(true);
+      expect(onOpenComplete).toHaveBeenCalledTimes(1);
+
+      act(() => finishEnter?.({ finished: true }));
+      expect(onOpenComplete).toHaveBeenCalledTimes(1);
+    } finally {
+      timing.mockRestore();
+    }
   });
 
   test('a closed sheet mounts no engine surface (exit/unmount behaviour retained)', () => {

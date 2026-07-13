@@ -88,6 +88,7 @@ export const textFieldDescriptor = {
           'placeholder',
           'inputMode',
           'secureTextEntry',
+          'autoCapitalize',
           'disabled',
           'onFocus',
           'onBlur',

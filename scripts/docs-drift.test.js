@@ -544,6 +544,7 @@ const FROZEN_SCHEMA = {
       'placeholder',
       'inputMode',
       'secureTextEntry',
+      'autoCapitalize',
       'disabled',
       'onFocus',
       'onBlur',

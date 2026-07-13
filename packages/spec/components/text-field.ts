@@ -83,6 +83,7 @@ export const textFieldDescriptor: Descriptor<TextFieldAxes> = {
           'placeholder',
           'inputMode',
           'secureTextEntry',
+          'autoCapitalize',
           'disabled',
           'onFocus',
           'onBlur',
