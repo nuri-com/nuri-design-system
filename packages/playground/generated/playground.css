@@ -4180,13 +4180,13 @@ nuri-playground-shell {
 }
 
 /* Document mode · horizontal-scroll row of device-framed views. A
- * document can grow to N views; they lay out left-to-right and the row
- * scrolls horizontally. */
+ * document can grow to N views; they lay out edge-to-edge from left to
+ * right and the row scrolls horizontally. */
 .nuri-pg__scroll {
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  gap: 24px;
+  gap: 0;
   overflow-x: auto;
   height: 100%;
 }

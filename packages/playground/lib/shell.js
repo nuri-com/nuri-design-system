@@ -13,11 +13,11 @@
  *   <nuri-playground-shell doc="…">    a document — a horizontal-scroll row
  *                                       of device-framed views
  *
- * Topbar (both modes): the DS <nuri-topbar center> — a leading ghost back
- * icon-button (documents only · returns to the index), a small em title
- * (the document name, or "Playground" on the index), and a trailing soft
- * "Design system" button. The body is a horizontal-scroll container for a
- * document (so a document can grow to N views) or a card grid for the index.
+ * Topbar (both modes): the DS <nuri-topbar> — a leading ghost back icon-button
+ * (documents only · returns to the index) and a small em title (the document
+ * name, or "Playground" on the index). Empty edge regions preserve structural
+ * centring. The body is a horizontal-scroll container for a document (so a
+ * document can grow to N views) or a card grid for the index.
  *
  * Defer-loaded so the authored children are parsed before connectedCallback
  * reparents them into the built <main>.
@@ -26,16 +26,10 @@
 (() => {
   const SCRIPT_URL = new URL(import.meta.url);
   // shell.js lives at packages/playground/lib/shell.js. One level up → the
-  // playground package root (its pages live under pages/); three levels up →
-  // the repo root (the DS entry · the A5 carve relocated this from spec).
+  // playground package root (its pages live under pages/).
   const PKG = new URL('../', SCRIPT_URL).href;
-  const REPO_ROOT = new URL('../../../', SCRIPT_URL).href;
 
   const INDEX_HREF = `${PKG}pages/index.html`;
-  // The design-system entry — the repo root redirects to the canonical
-  // foundation page (decision 23). A cross-area navigation href, not a package
-  // dependency (the DAG stays playground → prototype → spec).
-  const DS_HREF = `${REPO_ROOT}index.html`;
 
   class NuriPlaygroundShell extends HTMLElement {
     #built = false;
@@ -82,17 +76,15 @@
       topbar.className = 'nuri-pg__topbar';
       topbar.innerHTML = this.#topbarInner(doc, isDocument);
 
-      // The DS button / icon-button are native <button>s (no href), so wire
-      // navigation by hand. The compound factory HARVESTS + CLONES the region
-      // sub-elements' children into the built tree, so a listener bound to an
-      // authored node would be lost — use EVENT DELEGATION on the host instead
-      // (clicks on the rendered clones bubble up to <nuri-topbar>, and the
-      // data-pg-nav attribute is preserved on the clone).
+      // The icon-button is a native <button> (no href), so wire navigation by
+      // hand. The compound factory HARVESTS + CLONES the region sub-elements'
+      // children into the built tree, so a listener bound to an authored node
+      // would be lost — use EVENT DELEGATION on the host instead (clicks on the
+      // rendered clone bubble up to <nuri-topbar>, and data-pg-nav survives).
       topbar.addEventListener('click', (e) => {
         const nav = e.target.closest && e.target.closest('[data-pg-nav]');
         if (!nav) return;
         if (nav.getAttribute('data-pg-nav') === 'index') window.location.href = INDEX_HREF;
-        else if (nav.getAttribute('data-pg-nav') === 'ds') window.location.href = DS_HREF;
       });
 
       return topbar;
@@ -102,17 +94,18 @@
       // The compound slot layout (the topbar-slots slice · the factory's
       // compound-component capability): the three typed region sub-elements —
       // leading (a back affordance · documents only) · center (the title · small
-      // + em via a composed <nuri-typography>) · trailing (the soft "Design
-      // system" button). True centring is structural (the even-flex edges), so
-      // the title lands dead-centre — no `center` attribute.
-      const leading = isDocument
-        ? `<nuri-topbar-leading><nuri-icon-button name="caret-left" variant="ghost" label="Back to playground" data-pg-nav="index"></nuri-icon-button></nuri-topbar-leading>`
+      // + em via a composed <nuri-typography>) · trailing (intentionally empty).
+      // True centring is structural (the even-flex edges), so both empty regions
+      // remain present and the title lands dead-centre — no `center` attribute.
+      const back = isDocument
+        ? `<nuri-icon-button name="caret-left" variant="ghost" label="Back to playground" data-pg-nav="index"></nuri-icon-button>`
         : '';
+      const leading = `<nuri-topbar-leading>${back}</nuri-topbar-leading>`;
 
       const title = isDocument ? doc : 'Playground';
       const center = `<nuri-topbar-center><nuri-typography size="sm" emphasis>${title}</nuri-typography></nuri-topbar-center>`;
 
-      const trailing = `<nuri-topbar-trailing><nuri-button size="sm" variant="soft" data-pg-nav="ds">Design system</nuri-button></nuri-topbar-trailing>`;
+      const trailing = '<nuri-topbar-trailing></nuri-topbar-trailing>';
 
       return `${leading}${center}${trailing}`;
     }
