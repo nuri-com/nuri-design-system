@@ -98,6 +98,55 @@
     100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
   }
 
+  /* spinner-quarter · three clipped quarter-arc ripples. The oversized source
+   * circle, fit, optical correction, and compensated stroke are direct ports
+   * of the browser-lab geometry; do not simplify these constants. */
+  .nuri-spinner--quarter {
+    --spinner-quarter-fit: 0.70710678;
+    --spinner-quarter-phase: 433.333ms;
+    --spinner-quarter-scale-ease: cubic-bezier(0.35, 0.2, 0.65, 0.8);
+    --spinner-quarter-opacity-ease: cubic-bezier(0.55, 0, 0.75, 0.45);
+    --spinner-quarter-optical-shift: -10cqi;
+    overflow: hidden;
+    transform: translateY(var(--spinner-quarter-optical-shift)) rotate(-45deg) scale(var(--spinner-quarter-fit));
+  }
+
+  .nuri-spinner--quarter > i {
+    inset-block-start: 0;
+    inset-inline-start: -100cqi;
+    inline-size: 200cqi;
+    block-size: 200cqi;
+    border-width: 2.1213px;
+    transform-origin: center;
+    animation-name: nuri-spinner-quarter-scale, nuri-spinner-quarter-opacity;
+    animation-timing-function: var(--spinner-quarter-scale-ease), linear;
+  }
+
+  .nuri-spinner--quarter > i:nth-child(2) {
+    animation-delay: calc(0ms - var(--spinner-quarter-phase));
+  }
+
+  .nuri-spinner--quarter > i:nth-child(3) {
+    animation-delay: calc(0ms - (2 * var(--spinner-quarter-phase)));
+  }
+
+  @keyframes nuri-spinner-quarter-scale {
+    0% { transform: scale(0.2); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes nuri-spinner-quarter-opacity {
+    0% {
+      opacity: 0;
+      animation-timing-function: var(--spinner-ease);
+    }
+    15% {
+      opacity: 1;
+      animation-timing-function: var(--spinner-quarter-opacity-ease);
+    }
+    100% { opacity: 0; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .nuri-icon[data-motion] .nuri-spinner {
       display: none;

@@ -39,3 +39,13 @@ test('ripple motion icon renders two production rings', () => {
   assert.equal(icon.querySelectorAll('.nuri-spinner--ripple > i').length, 2);
   assert.ok(icon.querySelector('.nuri-spinner-static svg'));
 });
+
+test('quarter motion icon renders three clipped production arcs', () => {
+  const icon = document.createElement('nuri-icon');
+  icon.setAttribute('name', 'spinner-quarter');
+  document.body.appendChild(icon);
+
+  assert.equal(icon.dataset.motion, 'quarter');
+  assert.equal(icon.querySelectorAll('.nuri-spinner--quarter > i').length, 3);
+  assert.ok(icon.querySelector('.nuri-spinner-static svg'));
+});

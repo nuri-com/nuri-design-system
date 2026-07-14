@@ -32,6 +32,7 @@ import type { IconName } from '../contract';
 import { useNuriTheme } from '../theme';
 import { SpinnerRing } from './spinner/SpinnerRing';
 import { SpinnerRipple } from './spinner/SpinnerRipple';
+import { SpinnerQuarter } from './spinner/SpinnerQuarter';
 
 export type NuriIconProps = {
   // The TYPED register key — `keyof` the frozen register (the build-error gate).
@@ -55,6 +56,9 @@ export const NuriIcon: React.FC<NuriIconProps> = ({ name, color, dimension = siz
   }
   if (motion === 'ripple') {
     return <SpinnerRipple xml={xml} dimension={dimension} color={resolvedColor} />;
+  }
+  if (motion === 'quarter') {
+    return <SpinnerQuarter xml={xml} dimension={dimension} color={resolvedColor} />;
   }
   return <SvgXml xml={xml} width={dimension} height={dimension} color={resolvedColor} />;
 };

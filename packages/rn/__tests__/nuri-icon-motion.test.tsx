@@ -1,6 +1,6 @@
 import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { AccessibilityInfo, Animated } from 'react-native';
+import { AccessibilityInfo, Animated, StyleSheet } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
 import { NuriIcon } from '../primitives/NuriIcon';
@@ -8,7 +8,7 @@ import { NuriThemeProvider } from '../theme';
 
 type Renderer = TestRenderer.ReactTestRenderer;
 
-async function renderIcon(name: 'apple' | 'spinner' | 'spinner-ripple'): Promise<Renderer> {
+async function renderIcon(name: 'apple' | 'spinner' | 'spinner-ripple' | 'spinner-quarter'): Promise<Renderer> {
   let renderer!: Renderer;
   await act(async () => {
     renderer = TestRenderer.create(
@@ -102,5 +102,35 @@ test('ripple renders two phased animated rings and its own reduced-motion glyph'
   const reduced = await renderIcon('spinner-ripple');
   expect(reduced.root.findAllByType(Animated.View)).toHaveLength(0);
   expect(reduced.root.findByType(SvgXml).props.xml).toContain('A12.48 12.48');
+  act(() => reduced.unmount());
+});
+
+test('quarter preserves the clipped sqrt-two geometry and renders its own static fallback', async () => {
+  mockReducedMotion(false);
+  jest.spyOn(Animated, 'loop').mockReturnValue({
+    start: jest.fn(),
+    stop: jest.fn(),
+    reset: jest.fn(),
+  });
+  const animated = await renderIcon('spinner-quarter');
+  const clip = animated.root.findByProps({ testID: 'spinner-quarter' });
+  const clipStyle = StyleSheet.flatten(clip.props.style);
+  expect(clipStyle.overflow).toBe('hidden');
+  expect(clipStyle.transform[0].translateY).toBeCloseTo(-2.4);
+  expect(clipStyle.transform.slice(1)).toEqual([
+    { rotate: '-45deg' },
+    { scale: 0.70710678 },
+  ]);
+  expect(animated.root.findAllByType(Animated.View)).toHaveLength(3);
+  for (const arc of animated.root.findAllByType(Animated.View)) {
+    expect(StyleSheet.flatten(arc.props.style).borderWidth).toBe(2.1213);
+  }
+  act(() => animated.unmount());
+
+  jest.restoreAllMocks();
+  mockReducedMotion(true);
+  const reduced = await renderIcon('spinner-quarter');
+  expect(reduced.root.findAllByType(Animated.View)).toHaveLength(0);
+  expect(reduced.root.findByType(SvgXml).props.xml).toContain('A24 24');
   act(() => reduced.unmount());
 });
