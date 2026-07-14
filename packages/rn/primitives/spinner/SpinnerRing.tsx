@@ -7,7 +7,7 @@ import type { SpinnerGlyphProps } from './types';
 import { useReducedMotion } from './useReducedMotion';
 
 const STAGGER_MS = 90;
-const OPACITIES = [1, 0.75, 0.5, 0.25] as const;
+const OPACITIES = [0.25, 0.5, 0.75, 1] as const;
 
 export const SpinnerRing: React.FC<SpinnerGlyphProps> = ({ xml, dimension, color }) => {
   const progress = React.useRef(new Animated.Value(0)).current;

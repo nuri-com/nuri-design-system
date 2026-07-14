@@ -49,7 +49,14 @@ test('ring motion glyph renders four phase-offset arcs with registry-derived tim
 
   const renderer = await renderIcon('spinner');
   expect(renderer.root.findByProps({ testID: 'spinner-ring' })).toBeTruthy();
-  expect(renderer.root.findAllByType(Animated.View)).toHaveLength(5);
+  const animatedViews = renderer.root.findAllByType(Animated.View);
+  expect(animatedViews).toHaveLength(5);
+  expect(animatedViews.slice(1).map((arc) => StyleSheet.flatten(arc.props.style).opacity)).toEqual([
+    0.25,
+    0.5,
+    0.75,
+    1,
+  ]);
   expect(renderer.root.findAllByType(SvgXml)).toHaveLength(0);
   expect(timing).toHaveBeenCalledWith(expect.any(Animated.Value), expect.objectContaining({
     toValue: 1,
