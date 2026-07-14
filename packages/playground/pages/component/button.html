@@ -65,6 +65,36 @@
     </template>
   </nuri-demo>
 
+  <!-- motion glyph · one registry flag reaches every icon host with no host API.
+       The consumer owns loading semantics (label + disabled state); spinner is
+       only the catalog glyph whose identity includes rotation. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="spinner motion glyph">
+    <template>
+      <nuri-view direction="column" align="stretch" justify="center" gap="lg" padding="lg" fill>
+        <nuri-button size="lg" variant="solid" accent="lilac" disabled>
+          <nuri-button-icon name="spinner"></nuri-button-icon>
+          <nuri-button-text>Sending…</nuri-button-text>
+        </nuri-button>
+
+        <nuri-list>
+          <nuri-list-action aria-label="Refreshing wallet">
+            <nuri-list-action-leading-avatar name="spinner" variant="soft"></nuri-list-action-leading-avatar>
+            <nuri-list-action-text>Refreshing wallet</nuri-list-action-text>
+          </nuri-list-action>
+        </nuri-list>
+
+        <nuri-alert>
+          <nuri-alert-icon name="spinner"></nuri-alert-icon>
+          Payment is being processed
+        </nuri-alert>
+
+        <nuri-view direction="row" align="center" justify="center">
+          <nuri-icon name="spinner"></nuri-icon>
+        </nuri-view>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
   <!-- layout · buttons composed into a real screen via nested distribute="even" grids:
        a quick-amount chip row + the numpad (4 even rows, the last key icon-only) + a
        full-width Next. Container carries lg padding. (Section gap xl — 2xl is not in the

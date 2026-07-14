@@ -64,7 +64,13 @@ import {
   emitTokenPathsTs,
 } from './parsers/components.js';
 
-import { readIcons, emitIconsJs, emitIconsTs } from './parsers/icons.js';
+import {
+  readIcons,
+  loadIconMotion,
+  validateIconMotion,
+  emitIconsJs,
+  emitIconsTs,
+} from './parsers/icons.js';
 
 import { buildTypeScale, emitTypeTs, emitTypographyCss, TYPE_SIZES } from './parsers/type.js';
 
@@ -153,6 +159,8 @@ export {
   emitComponentTs,
   emitTokenPathsTs,
   readIcons,
+  loadIconMotion,
+  validateIconMotion,
   emitIconsJs,
   emitIconsTs,
   buildTypeScale,
@@ -197,6 +205,7 @@ const DESCRIPTORS_SRC  = resolve(SPEC_ROOT, 'components');
 const BOTTOM_SHEET_CHROME_SRC = resolve(SPEC_ROOT, 'components/bottom-sheet-chrome.ts');
 const COMPOSITION_CLASSIFY_SRC = resolve(SPEC_ROOT, 'composition/classify.js');
 const ICONS_DIR        = resolve(SPEC_ROOT, 'icons');
+const ICON_MOTION_SRC  = resolve(ICONS_DIR, 'motion.ts');
 // ── outputs · the RN projection (committed · Movement A) ──
 // The six DATA tables land under generated/data/; the per-component API
 // adapters under generated/components/ (the structure-clarity split).
@@ -497,8 +506,10 @@ async function main() {
   // registry, TWO readers (decision 48). Both are GENERATED + committed + byte-identical-
   // guarded (decision 35) — adding an icon = dropping a .svg and re-running the build.
   const ICONS = await readIcons(ICONS_DIR);
-  await writeFile(ICONS_JS_OUT, emitIconsJs(ICONS), 'utf8');
-  await writeFile(ICONS_OUT, emitIconsTs(ICONS), 'utf8');
+  const { motion: iconMotion, durationMs: iconMotionDurationMs } = await loadIconMotion(ICON_MOTION_SRC);
+  validateIconMotion(ICONS, iconMotion, iconMotionDurationMs);
+  await writeFile(ICONS_JS_OUT, emitIconsJs(ICONS, iconMotion, iconMotionDurationMs), 'utf8');
+  await writeFile(ICONS_OUT, emitIconsTs(ICONS, iconMotion, iconMotionDurationMs), 'utf8');
   const iconNameCount = Object.keys(ICONS).length;
 
   // The accent registry · the WEB reader of the ACCENTS list (parsers/semantic.js).

@@ -37,7 +37,11 @@
 // GENERATES it from the icons/*.svg folder and the same data feeds build/icons.ts (one
 // registry, two readers · decision 48). The web icon registry is this prototype
 // projection's OWN generated output now (N+62 · decision 80 · was @nuri/spec's).
-import { ICONS } from '../generated/icons.js';
+import {
+  ICONS,
+  ICON_MOTION,
+  ICON_MOTION_DURATION_MS,
+} from '../generated/icons.js';
 
 const ATTRS = ['name', 'size'];
 
@@ -77,8 +81,19 @@ class NuriIcon extends HTMLElement {
     const markup = name && ICONS[name];
     if (!markup) {
       console.warn(`[NuriIcon] unknown name "${name}"`);
+      delete this.dataset.motion;
+      this.style.removeProperty('--nuri-duration-spin');
       this.innerHTML = '';
       return;
+    }
+
+    const motion = ICON_MOTION[name];
+    if (motion) {
+      this.dataset.motion = motion;
+      this.style.setProperty('--nuri-duration-spin', `${ICON_MOTION_DURATION_MS[motion]}ms`);
+    } else {
+      delete this.dataset.motion;
+      this.style.removeProperty('--nuri-duration-spin');
     }
 
     this.innerHTML =

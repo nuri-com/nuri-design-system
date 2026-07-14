@@ -45,6 +45,8 @@ import {
   emitComponentTs,
   emitTokenPathsTs,
   readIcons,
+  loadIconMotion,
+  validateIconMotion,
   emitIconsJs,
   emitIconsTs,
   buildTypeScale,
@@ -83,6 +85,7 @@ const ICONS_TS_PATH = resolve(RN_GENERATED, 'data/icons.ts');
 const TYPOGRAPHY_SRC = resolve(REPO_ROOT, 'tokens/typography.ts');
 const INTERACTION_SRC = resolve(REPO_ROOT, 'axes/interaction.ts');
 const ICONS_DIR = resolve(REPO_ROOT, 'icons');
+const ICON_MOTION_SRC = resolve(ICONS_DIR, 'motion.ts');
 const ICONS_JS_PATH = resolve(PROTO_GENERATED, 'icons.js');
 
 // Regex-extracted "what the CSS actually says" — used as the
@@ -857,6 +860,8 @@ test('both icon readers re-emit identically from the icons/*.svg folder (folder 
   //    inner markup (no weight inner-map) with every fill normalized to
   //    currentColor (decision 38 · the sole colour story).
   const icons = await readIcons(ICONS_DIR);
+  const { motion, durationMs } = await loadIconMotion(ICON_MOTION_SRC);
+  validateIconMotion(icons, motion, durationMs);
   const names = Object.keys(icons);
   assert.ok(names.length > 0, 'the icons/ folder must hold at least one .svg');
   for (const name of names) {
@@ -874,7 +879,7 @@ test('both icon readers re-emit identically from the icons/*.svg folder (folder 
   //    guard. A manual edit to packages/rn/generated/data/icons.ts or a stale build both fail.
   const tsOnDisk = await readFile(ICONS_TS_PATH, 'utf8');
   assert.equal(
-    tsOnDisk, emitIconsTs(icons),
+    tsOnDisk, emitIconsTs(icons, motion, durationMs),
     'packages/rn/generated/data/icons.ts is out of sync with icons/*.svg — run `npm run build`',
   );
 
@@ -882,7 +887,7 @@ test('both icon readers re-emit identically from the icons/*.svg folder (folder 
   //    re-emits identically — it is a build output too, never hand-edited.
   const jsOnDisk = await readFile(ICONS_JS_PATH, 'utf8');
   assert.equal(
-    jsOnDisk, emitIconsJs(icons),
+    jsOnDisk, emitIconsJs(icons, motion, durationMs),
     'packages/prototype/generated/icons.js is out of sync with icons/*.svg — run `npm run build`',
   );
 
@@ -902,6 +907,23 @@ test('both icon readers re-emit identically from the icons/*.svg folder (folder 
   // The retired weight vocabulary must NOT come back (decision 38 · N+51).
   assert.ok(!tsOnDisk.includes('IconWeight'),
     'icons.ts re-introduced IconWeight — the regular/bold/fill weight triple was retired at N+51');
+
+  // 6. Motion identity and timing are authored once in icons/motion.ts and
+  //    projected into both readers. These assertions name the cross-reader
+  //    contract explicitly in addition to the byte-identical re-emit gate.
+  const webReader = await import(`${ICONS_JS_PATH}?motion-sync=${Date.now()}`);
+  assert.deepEqual(webReader.ICON_MOTION, motion,
+    'web ICON_MOTION drifted from packages/spec/icons/motion.ts');
+  assert.deepEqual(webReader.ICON_MOTION_DURATION_MS, durationMs,
+    'web motion duration drifted from packages/spec/icons/motion.ts');
+  for (const [name, value] of Object.entries(motion)) {
+    assert.match(tsOnDisk, new RegExp(`'${name}':\\s+"${value}"`),
+      `RN iconMotion is missing ${name} → ${value}`);
+  }
+  for (const [value, duration] of Object.entries(durationMs)) {
+    assert.match(tsOnDisk, new RegExp(`'${value}':\\s+${duration}`),
+      `RN iconMotionDurationMs is missing ${value} → ${duration}`);
+  }
 });
 
 // ──────────────────────────────────────────────────────────────
