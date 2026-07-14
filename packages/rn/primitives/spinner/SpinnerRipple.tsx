@@ -1,12 +1,13 @@
 import * as React from 'react';
-import { Animated, Easing, Platform, StyleSheet } from 'react-native';
-import { SvgXml } from 'react-native-svg';
+import { Animated, Easing } from 'react-native';
+import { Circle, Svg, SvgXml } from 'react-native-svg';
 
 import { iconMotionDurationMs } from '../../contract';
 import type { SpinnerGlyphProps } from './types';
 import { useReducedMotion } from './useReducedMotion';
 
 const PHASES = [0, 0.5] as const;
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 export const SpinnerRipple: React.FC<SpinnerGlyphProps> = ({ xml, dimension, color }) => {
   const progress = React.useRef(new Animated.Value(0)).current;
@@ -23,7 +24,7 @@ export const SpinnerRipple: React.FC<SpinnerGlyphProps> = ({ xml, dimension, col
         toValue: 1,
         duration: iconMotionDurationMs.ripple,
         easing: Easing.bezier(0.2, 0.65, 0.35, 1),
-        useNativeDriver: Platform.OS !== 'web',
+        useNativeDriver: false,
       }),
     );
     animation.start();
@@ -35,48 +36,34 @@ export const SpinnerRipple: React.FC<SpinnerGlyphProps> = ({ xml, dimension, col
   }
 
   const ringSize = dimension * 0.78;
-  const ringInset = (dimension - ringSize) / 2;
   return (
-    <Animated.View testID="spinner-ripple" style={{ width: dimension, height: dimension }}>
-      {PHASES.map((phase) => {
+    <Svg testID="spinner-ripple" width={dimension} height={dimension}>
+      {PHASES.map((phase, index) => {
         const phasedProgress = phase === 0
           ? progress
           : Animated.modulo(Animated.add(progress, phase), 1);
-        const scale = phasedProgress.interpolate({
+        const radius = phasedProgress.interpolate({
           inputRange: [0, 1],
-          outputRange: [0.2, 1],
+          outputRange: [ringSize * 0.1, ringSize * 0.5],
         });
         const opacity = phasedProgress.interpolate({
           inputRange: [0, 0.15, 1],
           outputRange: [0, 1, 0],
         });
         return (
-          <Animated.View
+          <AnimatedCircle
             key={phase}
-            style={[
-              styles.ring,
-              {
-                width: ringSize,
-                height: ringSize,
-                top: ringInset,
-                left: ringInset,
-                borderColor: color,
-                opacity,
-                transform: [{ scale }],
-              },
-            ]}
+            testID={`spinner-ripple-ring-${index}`}
+            cx={dimension / 2}
+            cy={dimension / 2}
+            r={radius}
+            fill="none"
+            stroke={color}
+            strokeWidth={1.5}
+            opacity={opacity}
           />
         );
       })}
-    </Animated.View>
+    </Svg>
   );
 };
-
-const styles = StyleSheet.create({
-  ring: {
-    position: 'absolute',
-    boxSizing: 'border-box',
-    borderWidth: 1.5,
-    borderRadius: 999,
-  },
-});

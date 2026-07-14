@@ -1,7 +1,7 @@
 import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { AccessibilityInfo, Animated, StyleSheet } from 'react-native';
-import { SvgXml } from 'react-native-svg';
+import { Circle, SvgXml } from 'react-native-svg';
 
 import { NuriIcon } from '../primitives/NuriIcon';
 import { NuriThemeProvider } from '../theme';
@@ -93,6 +93,7 @@ test('reduced motion renders the motion glyph statically', async () => {
 
 test('ripple renders two phased animated rings and its own reduced-motion glyph', async () => {
   mockReducedMotion(false);
+  const timing = jest.spyOn(Animated, 'timing');
   jest.spyOn(Animated, 'loop').mockReturnValue({
     start: jest.fn(),
     stop: jest.fn(),
@@ -100,7 +101,15 @@ test('ripple renders two phased animated rings and its own reduced-motion glyph'
   });
   const animated = await renderIcon('spinner-ripple');
   expect(animated.root.findByProps({ testID: 'spinner-ripple' })).toBeTruthy();
-  expect(animated.root.findAllByType(Animated.View)).toHaveLength(3);
+  const rings = animated.root.findAllByType(Circle);
+  expect(rings).toHaveLength(2);
+  for (const ring of rings) {
+    expect(ring.props.strokeWidth).toBe(1.5);
+    expect(ring.props.transform).toBeUndefined();
+  }
+  expect(timing).toHaveBeenCalledWith(expect.any(Animated.Value), expect.objectContaining({
+    useNativeDriver: false,
+  }));
   expect(animated.root.findAllByType(SvgXml)).toHaveLength(0);
   act(() => animated.unmount());
 
