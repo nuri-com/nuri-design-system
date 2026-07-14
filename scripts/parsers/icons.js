@@ -23,11 +23,48 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
+import { loadTsDataFromPath } from '../ts-data-loader.js';
+
 // Every source SVG must share this viewBox — the element wraps the inner
 // markup in a constant <svg viewBox="0 0 32 32">. A glyph authored at a
 // different viewBox would silently mis-scale, so we ASSERT uniformity and
 // fail LOUD (the operator normalizes the source, not the generator).
 export const ICON_VIEWBOX = '0 0 32 32';
+
+const SUPPORTED_ICON_MOTIONS = new Set(['ring', 'ripple', 'quarter', 'coin']);
+
+export async function loadIconMotion(path) {
+  const mod = await loadTsDataFromPath(path);
+  const motion = mod.iconMotion;
+  const durationMs = mod.iconMotionDurationMs;
+  if (!motion || typeof motion !== 'object' || Array.isArray(motion)) {
+    throw new Error('[icons] iconMotion must be an object keyed by icon name.');
+  }
+  if (!durationMs || typeof durationMs !== 'object' || Array.isArray(durationMs)) {
+    throw new Error('[icons] iconMotionDurationMs must be an object keyed by motion name.');
+  }
+  return { motion, durationMs };
+}
+
+export function validateIconMotion(icons, motion, durationMs) {
+  for (const [name, value] of Object.entries(motion)) {
+    if (!(name in icons)) {
+      throw new Error(`[icons] motion metadata names unknown glyph '${name}'.`);
+    }
+    if (!SUPPORTED_ICON_MOTIONS.has(value)) {
+      throw new Error(`[icons] glyph '${name}' uses unsupported motion '${value}'.`);
+    }
+    if (!Number.isFinite(durationMs[value]) || durationMs[value] <= 0) {
+      throw new Error(`[icons] motion '${value}' must declare a positive duration in iconMotionDurationMs.`);
+    }
+  }
+  const orphanDurations = Object.keys(durationMs).filter(
+    (value) => !Object.values(motion).includes(value),
+  );
+  if (orphanDurations.length) {
+    throw new Error(`[icons] motion durations have no glyphs: ${orphanDurations.join(', ')}.`);
+  }
+}
 
 // Pull the inner <path> markup out of one source SVG and normalize it into a
 // registry value. Preserves each path's `d`, `fill-rule`, `clip-rule` and
@@ -83,8 +120,11 @@ export async function readIcons(dir) {
 
 // Emit packages/prototype/generated/icons.js — the web reader (zero-build ES module
 // import). GENERATED + committed + byte-identical-guarded (decision 35).
-export function emitIconsJs(icons) {
+export function emitIconsJs(icons, motion = {}, durationMs = {}) {
+  validateIconMotion(icons, motion, durationMs);
   const names = Object.keys(icons);
+  const motionNames = Object.keys(motion).sort();
+  const motionKinds = Object.keys(durationMs).sort();
   const lines = [
     `/* ──────────────────────────────────────────────────────────────`,
     ` * NURI · COMPONENT · ICON · REGISTRY · GENERATED · DO NOT EDIT BY HAND`,
@@ -104,6 +144,14 @@ export function emitIconsJs(icons) {
     ...names.map((n) => `  '${n}': ${JSON.stringify(icons[n])},`),
     `};`,
     ``,
+    `export const ICON_MOTION = {`,
+    ...motionNames.map((n) => `  '${n}': ${JSON.stringify(motion[n])},`),
+    `};`,
+    ``,
+    `export const ICON_MOTION_DURATION_MS = {`,
+    ...motionKinds.map((n) => `  '${n}': ${durationMs[n]},`),
+    `};`,
+    ``,
   ];
   return lines.join('\n');
 }
@@ -111,8 +159,11 @@ export function emitIconsJs(icons) {
 // Emit build/icons.ts — the typed RN reader. IconName union +
 // Record<IconName, string> (one markup per glyph · no weight inner-map).
 // Path strings are JSON.stringify-encoded so any quote/escape round-trips.
-export function emitIconsTs(icons) {
+export function emitIconsTs(icons, motion = {}, durationMs = {}) {
+  validateIconMotion(icons, motion, durationMs);
   const names = Object.keys(icons);
+  const motionNames = Object.keys(motion).sort();
+  const motionKinds = Object.keys(durationMs).sort();
   const lines = [
     `/* ──────────────────────────────────────────────────────────────`,
     ` * NURI · ICON REGISTRY · GENERATED · DO NOT EDIT BY HAND`,
@@ -133,6 +184,16 @@ export function emitIconsTs(icons) {
     ``,
     `export const icons: Record<IconName, string> = {`,
     ...names.map((n) => `  '${n}': ${JSON.stringify(icons[n])},`),
+    `};`,
+    ``,
+    `export type IconMotion = ${motionKinds.map((n) => `'${n}'`).join(' | ')};`,
+    ``,
+    `export const iconMotion: Partial<Record<IconName, IconMotion>> = {`,
+    ...motionNames.map((n) => `  '${n}': ${JSON.stringify(motion[n])},`),
+    `};`,
+    ``,
+    `export const iconMotionDurationMs: Record<IconMotion, number> = {`,
+    ...motionKinds.map((n) => `  '${n}': ${durationMs[n]},`),
     `};`,
     ``,
   ];

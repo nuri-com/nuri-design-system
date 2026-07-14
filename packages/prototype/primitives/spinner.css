@@ -1,0 +1,76 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · MOTION GLYPHS · SPINNERS
+ *
+ * Hand-authored web realizations for the motion names in icons/motion.ts.
+ * Geometry scales from the icon box; visual stroke weight remains 1.5px.
+ * The sibling catalog SVG is revealed when the OS requests reduced motion.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer rules {
+  .nuri-icon[data-motion] {
+    position: relative;
+    container-type: size;
+  }
+
+  .nuri-spinner,
+  .nuri-spinner-static {
+    position: absolute;
+    inset: 0;
+  }
+
+  .nuri-spinner-static {
+    display: none;
+  }
+
+  /* spinner · staggered ring
+   * --spinner-duration: one arc rotation (960ms from motion.ts).
+   * --spinner-stagger: phase gap between arcs.
+   * --spinner-arc-weight: fixed visual stroke at every glyph size.
+   * --spinner-arc-inset: breathing room inside the icon box.
+   * --spinner-ease: each arc's timing curve. */
+  .nuri-spinner--ring {
+    --spinner-stagger: 90ms;
+    --spinner-arc-weight: 1.5px;
+    --spinner-arc-inset: 8cqi;
+    --spinner-ease: cubic-bezier(0.4, 0.08, 0.2, 0.84);
+  }
+
+  .nuri-spinner--ring > i {
+    position: absolute;
+    inset: var(--spinner-arc-inset);
+    border: var(--spinner-arc-weight) solid transparent;
+    border-block-start-color: currentColor;
+    border-radius: 50%;
+    animation: nuri-spinner-ring var(--spinner-duration) var(--spinner-ease) infinite;
+    opacity: 0.25;
+  }
+
+  .nuri-spinner--ring > i:nth-child(2) {
+    animation-delay: calc(0ms - var(--spinner-stagger));
+    opacity: 0.5;
+  }
+
+  .nuri-spinner--ring > i:nth-child(3) {
+    animation-delay: calc(0ms - (2 * var(--spinner-stagger)));
+    opacity: 0.75;
+  }
+
+  .nuri-spinner--ring > i:nth-child(4) {
+    animation-delay: calc(0ms - (3 * var(--spinner-stagger)));
+    opacity: 1;
+  }
+
+  @keyframes nuri-spinner-ring {
+    to { transform: rotate(1turn); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nuri-icon[data-motion] .nuri-spinner {
+      display: none;
+    }
+
+    .nuri-icon[data-motion] .nuri-spinner-static {
+      display: block;
+    }
+  }
+}

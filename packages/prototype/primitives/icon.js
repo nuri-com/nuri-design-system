@@ -37,9 +37,17 @@
 // GENERATES it from the icons/*.svg folder and the same data feeds build/icons.ts (one
 // registry, two readers · decision 48). The web icon registry is this prototype
 // projection's OWN generated output now (N+62 · decision 80 · was @nuri/spec's).
-import { ICONS } from '../generated/icons.js';
+import {
+  ICONS,
+  ICON_MOTION,
+  ICON_MOTION_DURATION_MS,
+} from '../generated/icons.js';
 
 const ATTRS = ['name', 'size'];
+
+const MOTION_MARKUP = {
+  ring: '<span class="nuri-spinner nuri-spinner--ring" aria-hidden="true"><i></i><i></i><i></i><i></i></span>',
+};
 
 class NuriIcon extends HTMLElement {
   static get observedAttributes() {
@@ -77,13 +85,27 @@ class NuriIcon extends HTMLElement {
     const markup = name && ICONS[name];
     if (!markup) {
       console.warn(`[NuriIcon] unknown name "${name}"`);
+      delete this.dataset.motion;
+      this.style.removeProperty('--spinner-duration');
       this.innerHTML = '';
       return;
     }
 
-    this.innerHTML =
+    const motion = ICON_MOTION[name];
+    if (motion) {
+      this.dataset.motion = motion;
+      this.style.setProperty('--spinner-duration', `${ICON_MOTION_DURATION_MS[motion]}ms`);
+    } else {
+      delete this.dataset.motion;
+      this.style.removeProperty('--spinner-duration');
+    }
+
+    const staticGlyph =
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" ` +
       `fill="currentColor" aria-hidden="true" focusable="false">${markup}</svg>`;
+    this.innerHTML = motion
+      ? `${MOTION_MARKUP[motion]}<span class="nuri-spinner-static">${staticGlyph}</span>`
+      : staticGlyph;
   }
 }
 

@@ -35,7 +35,7 @@ import {
   emphasisWeight,
 } from './generated/data/tokens';
 import type { Accent, Theme, TypeSize, TypeWeight, TypeStep } from './generated/data/tokens';
-import { icons } from './generated/data/icons';
+import { icons, iconMotion, iconMotionDurationMs } from './generated/data/icons';
 import type { IconName } from './generated/data/icons';
 
 // The transversal interaction baseline consumed by the factory:
@@ -94,6 +94,8 @@ export {
   typeScale,
   emphasisWeight,
   icons,
+  iconMotion,
+  iconMotionDurationMs,
   interaction,
   // descriptor contract (the palette MAPPING is internal · not re-exported · SEED-4)
   buttonDescriptor,

@@ -47,10 +47,10 @@ export function ActivitySheet({
               </View>
 
               <List>
-                <ListAction accessibilityLabel="To Wallet">
-                  <ListActionLeadingAvatar name="arrow-up" variant="outline" />
+                <ListAction accessibilityLabel="To Wallet · Processing">
+                  <ListActionLeadingAvatar name="spinner" variant="outline" />
                   <ListActionText>To Wallet</ListActionText>
-                  <ListActionTextMuted>Sent · 10:24 am</ListActionTextMuted>
+                  <ListActionTextMuted>Processing...</ListActionTextMuted>
                   <ListActionTrailingText>- 12.00 €</ListActionTrailingText>
                   <ListActionTrailingTextMuted>3433 Sats</ListActionTrailingTextMuted>
                 </ListAction>

@@ -23,9 +23,14 @@
 
 import * as React from 'react';
 import { SvgXml } from 'react-native-svg';
-import { icons, size } from '../contract';
+import {
+  icons,
+  iconMotion,
+  size,
+} from '../contract';
 import type { IconName } from '../contract';
 import { useNuriTheme } from '../theme';
+import { SpinnerRing } from './spinner/SpinnerRing';
 
 export type NuriIconProps = {
   // The TYPED register key — `keyof` the frozen register (the build-error gate).
@@ -39,5 +44,13 @@ export type NuriIconProps = {
 export const NuriIcon: React.FC<NuriIconProps> = ({ name, color, dimension = size.sm }) => {
   const theme = useNuriTheme();
   const xml = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor">${icons[name]}</svg>`;
-  return <SvgXml xml={xml} width={dimension} height={dimension} color={color ?? theme.text.primary} />;
+  const resolvedColor = color ?? theme.text.primary;
+  const motion = iconMotion[name];
+  if (!motion) {
+    return <SvgXml xml={xml} width={dimension} height={dimension} color={resolvedColor} />;
+  }
+  if (motion === 'ring') {
+    return <SpinnerRing xml={xml} dimension={dimension} color={resolvedColor} />;
+  }
+  return <SvgXml xml={xml} width={dimension} height={dimension} color={resolvedColor} />;
 };
