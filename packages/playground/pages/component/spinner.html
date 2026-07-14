@@ -3,400 +3,112 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nuri · Playground · Spinner Lab</title>
+  <title>Nuri · Playground · Motion glyphs</title>
   <link rel="stylesheet" href="../../generated/playground.css" />
-  <!-- Quarantined exploration styles: this stylesheet is page-local by design. -->
-  <link rel="stylesheet" href="./spinner-lab.css" />
   <script src="../../generated/boot.js" type="module"></script>
 </head>
 <body>
 
-<nuri-playground-shell doc="Spinner Lab">
-
-
-  <!-- Activity-screen context gallery · one candidate per screen. Each screen
-       mirrors the first Bottom Sheet demo; only its first transaction animates. -->
-
-  <nuri-demo layout="board" controls="device,theme,accent" label="activity · 2 staggered ring">
+<nuri-playground-shell doc="Motion glyphs">
+  <nuri-demo layout="board" controls="device,theme,accent" label="activity · spinner">
     <template>
-      <nuri-view class="spinner-lab-sheet-stage spinner-lab--ring" direction="column" align="stretch" justify="start" gap="none" fill>
-        <nuri-view class="spinner-lab-sheet-content" chrome="canvas" fill></nuri-view>
-
-        <nuri-bottom-sheet open detent="full" scrim="dim">
-          <nuri-bottom-sheet-panel>
-            <nuri-header padding-top="lg">
-              <nuri-topbar surface="transparent">
-                <nuri-topbar-trailing>
-                  <nuri-icon-button icon="download" variant="soft" aria-label="Download"></nuri-icon-button>
-                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
-                </nuri-topbar-trailing>
-              </nuri-topbar>
-            </nuri-header>
-
-            <nuri-scroll safe-area-bottom>
-              <nuri-view class="spinner-lab-activity-layout" direction="column" align="stretch" justify="start" gap="md" padding-bottom="lg" fill>
-                <nuri-view padding-x="lg">
-                  <nuri-typography size="lg" emphasis>This month</nuri-typography>
-                </nuri-view>
-                <nuri-list>
-                  <div class="spinner-lab-activity-row">
-                    <nuri-list-action aria-label="To Wallet · Sending">
-                      <nuri-list-action-leading-avatar name="arrow-up" variant="outline"></nuri-list-action-leading-avatar>
-                      <nuri-list-action-text>To Wallet</nuri-list-action-text>
-                      <nuri-list-action-text-muted>Sending · 10:24 am</nuri-list-action-text-muted>
-                      <nuri-list-action-trailing-text>- 12.00 €</nuri-list-action-trailing-text>
-                      <nuri-list-action-trailing-text-muted>3433 Sats</nuri-list-action-trailing-text-muted>
-                    </nuri-list-action>
-                    <span class="spinner-lab-glyph spinner-lab-activity-glyph" style="--spinner-size: 24px" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-                  </div>
-                  <nuri-list-separator></nuri-list-separator>
-                  <nuri-list-action aria-label="Euro to Bitcoin">
-                    <nuri-list-action-leading-avatar name="transfer-horizontal" variant="outline"></nuri-list-action-leading-avatar>
-                    <nuri-list-action-text>Euro → Bitcoin</nuri-list-action-text>
-                    <nuri-list-action-text-muted>Converted · Yesterday</nuri-list-action-text-muted>
-                    <nuri-list-action-trailing-text>12.00 €</nuri-list-action-trailing-text>
-                    <nuri-list-action-trailing-text-muted>3433 Sats</nuri-list-action-trailing-text-muted>
-                  </nuri-list-action>
-                  <nuri-list-separator></nuri-list-separator>
-                  <nuri-list-action aria-label="To Izmir Köftecisi">
-                    <nuri-list-action-leading-avatar name="arrow-up" variant="outline"></nuri-list-action-leading-avatar>
-                    <nuri-list-action-text>To Izmir Köftecisi</nuri-list-action-text>
-                    <nuri-list-action-text-muted>Paid · Sat, 4 Jul</nuri-list-action-text-muted>
-                    <nuri-list-action-trailing-text>- 7.00 €</nuri-list-action-trailing-text>
-                    <nuri-list-action-trailing-text-muted>2003 Sats</nuri-list-action-trailing-text-muted>
-                  </nuri-list-action>
-                </nuri-list>
-                <nuri-view class="spinner-lab-status-panel" direction="column" align="center" justify="center" gap="md" variant="outline" radius="lg" padding="xl">
-                  <span class="spinner-lab-glyph spinner-lab-status-glyph" style="--spinner-size: 36px" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-                  <nuri-view direction="column" align="center" gap="xs" chrome="transparent">
-                    <nuri-typography size="lg" emphasis align="center">Generating Bitcoin invoice</nuri-typography>
-                    <nuri-typography size="md" muted align="center">It takes only a few seconds…</nuri-typography>
-                  </nuri-view>
-                </nuri-view>
-              </nuri-view>
-            </nuri-scroll>
-          </nuri-bottom-sheet-panel>
-        </nuri-bottom-sheet>
+      <nuri-view direction="column" align="stretch" gap="lg" padding="xl" chrome="canvas" fill>
+        <nuri-typography size="lg" emphasis>Staggered ring</nuri-typography>
+        <nuri-view direction="row" align="center" justify="center" gap="xl" chrome="subtle" radius="lg" padding="lg">
+          <nuri-icon name="spinner" size="sm"></nuri-icon>
+          <nuri-icon name="spinner"></nuri-icon>
+          <nuri-icon name="spinner" style="width:48px;height:48px"></nuri-icon>
+        </nuri-view>
+        <nuri-list>
+          <nuri-list-action aria-label="To Wallet · Sending">
+            <nuri-list-action-leading-avatar name="arrow-up" variant="outline"></nuri-list-action-leading-avatar>
+            <nuri-list-action-text>To Wallet</nuri-list-action-text>
+            <nuri-list-action-text-muted>Sending now</nuri-list-action-text-muted>
+            <nuri-list-action-trail-icon name="spinner"></nuri-list-action-trail-icon>
+          </nuri-list-action>
+        </nuri-list>
+        <nuri-button size="lg" variant="solid" aria-label="Sending">
+          <nuri-button-icon name="spinner"></nuri-button-icon>
+          <nuri-button-text>Sending…</nuri-button-text>
+        </nuri-button>
       </nuri-view>
     </template>
   </nuri-demo>
 
-  <nuri-demo layout="board" controls="device,theme,accent" label="activity · 3b gradient outlined coin flip">
+  <nuri-demo layout="board" controls="device,theme,accent" label="activity · spinner-ripple">
     <template>
-      <nuri-view class="spinner-lab-sheet-stage spinner-lab--flip-outline spinner-lab--flip-outline-two" direction="column" align="stretch" justify="start" gap="none" fill>
-        <nuri-view class="spinner-lab-sheet-content" chrome="canvas" fill></nuri-view>
-
-        <nuri-bottom-sheet open detent="full" scrim="dim">
-          <nuri-bottom-sheet-panel>
-            <nuri-header padding-top="lg">
-              <nuri-topbar surface="transparent">
-                <nuri-topbar-trailing>
-                  <nuri-icon-button icon="download" variant="soft" aria-label="Download"></nuri-icon-button>
-                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
-                </nuri-topbar-trailing>
-              </nuri-topbar>
-            </nuri-header>
-
-            <nuri-scroll safe-area-bottom>
-              <nuri-view class="spinner-lab-activity-layout" direction="column" align="stretch" justify="start" gap="md" padding-bottom="lg" fill>
-                <nuri-view padding-x="lg">
-                  <nuri-typography size="lg" emphasis>This month</nuri-typography>
-                </nuri-view>
-                <nuri-list>
-                  <div class="spinner-lab-activity-row">
-                    <nuri-list-action aria-label="To Wallet · Sending">
-                      <nuri-list-action-leading-avatar name="arrow-up" variant="outline"></nuri-list-action-leading-avatar>
-                      <nuri-list-action-text>To Wallet</nuri-list-action-text>
-                      <nuri-list-action-text-muted>Sending · 10:24 am</nuri-list-action-text-muted>
-                      <nuri-list-action-trailing-text>- 12.00 €</nuri-list-action-trailing-text>
-                      <nuri-list-action-trailing-text-muted>3433 Sats</nuri-list-action-trailing-text-muted>
-                    </nuri-list-action>
-                    <span class="spinner-lab-glyph spinner-lab-activity-glyph" style="--spinner-size: 24px" aria-hidden="true"><i></i></span>
-                  </div>
-                  <nuri-list-separator></nuri-list-separator>
-                  <nuri-list-action aria-label="Euro to Bitcoin">
-                    <nuri-list-action-leading-avatar name="transfer-horizontal" variant="outline"></nuri-list-action-leading-avatar>
-                    <nuri-list-action-text>Euro → Bitcoin</nuri-list-action-text>
-                    <nuri-list-action-text-muted>Converted · Yesterday</nuri-list-action-text-muted>
-                    <nuri-list-action-trailing-text>12.00 €</nuri-list-action-trailing-text>
-                    <nuri-list-action-trailing-text-muted>3433 Sats</nuri-list-action-trailing-text-muted>
-                  </nuri-list-action>
-                  <nuri-list-separator></nuri-list-separator>
-                  <nuri-list-action aria-label="To Izmir Köftecisi">
-                    <nuri-list-action-leading-avatar name="arrow-up" variant="outline"></nuri-list-action-leading-avatar>
-                    <nuri-list-action-text>To Izmir Köftecisi</nuri-list-action-text>
-                    <nuri-list-action-text-muted>Paid · Sat, 4 Jul</nuri-list-action-text-muted>
-                    <nuri-list-action-trailing-text>- 7.00 €</nuri-list-action-trailing-text>
-                    <nuri-list-action-trailing-text-muted>2003 Sats</nuri-list-action-trailing-text-muted>
-                  </nuri-list-action>
-                </nuri-list>
-                <nuri-view class="spinner-lab-status-panel" direction="column" align="center" justify="center" gap="md" variant="outline" radius="lg" padding="xl">
-                  <span class="spinner-lab-glyph spinner-lab-status-glyph" style="--spinner-size: 36px" aria-hidden="true"><i></i></span>
-                  <nuri-view direction="column" align="center" gap="xs" chrome="transparent">
-                    <nuri-typography size="lg" emphasis align="center">Generating Bitcoin invoice</nuri-typography>
-                    <nuri-typography size="md" muted align="center">It takes only a few seconds…</nuri-typography>
-                  </nuri-view>
-                </nuri-view>
-              </nuri-view>
-            </nuri-scroll>
-          </nuri-bottom-sheet-panel>
-        </nuri-bottom-sheet>
+      <nuri-view direction="column" align="stretch" gap="lg" padding="xl" chrome="canvas" fill>
+        <nuri-typography size="lg" emphasis>Expanding ripple</nuri-typography>
+        <nuri-view direction="row" align="center" justify="center" gap="xl" chrome="subtle" radius="lg" padding="lg">
+          <nuri-icon name="spinner-ripple" size="sm"></nuri-icon>
+          <nuri-icon name="spinner-ripple"></nuri-icon>
+          <nuri-icon name="spinner-ripple" style="width:48px;height:48px"></nuri-icon>
+        </nuri-view>
+        <nuri-list>
+          <nuri-list-action aria-label="Invoice · Generating">
+            <nuri-list-action-leading-avatar name="bitcoin-wallet" variant="outline"></nuri-list-action-leading-avatar>
+            <nuri-list-action-text>Bitcoin invoice</nuri-list-action-text>
+            <nuri-list-action-text-muted>Generating now</nuri-list-action-text-muted>
+            <nuri-list-action-trail-icon name="spinner-ripple"></nuri-list-action-trail-icon>
+          </nuri-list-action>
+        </nuri-list>
+        <nuri-button size="lg" variant="solid" aria-label="Generating invoice">
+          <nuri-button-icon name="spinner-ripple"></nuri-button-icon>
+          <nuri-button-text>Generating…</nuri-button-text>
+        </nuri-button>
       </nuri-view>
     </template>
   </nuri-demo>
 
-  <nuri-demo layout="board" controls="device,theme,accent" label="activity · 4 ripple">
+  <nuri-demo layout="board" controls="device,theme,accent" label="activity · spinner-quarter">
     <template>
-      <nuri-view class="spinner-lab-sheet-stage spinner-lab--ripple" direction="column" align="stretch" justify="start" gap="none" fill>
-        <nuri-view class="spinner-lab-sheet-content" chrome="canvas" fill></nuri-view>
-
-        <nuri-bottom-sheet open detent="full" scrim="dim">
-          <nuri-bottom-sheet-panel>
-            <nuri-header padding-top="lg">
-              <nuri-topbar surface="transparent">
-                <nuri-topbar-trailing>
-                  <nuri-icon-button icon="download" variant="soft" aria-label="Download"></nuri-icon-button>
-                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
-                </nuri-topbar-trailing>
-              </nuri-topbar>
-            </nuri-header>
-
-            <nuri-scroll safe-area-bottom>
-              <nuri-view class="spinner-lab-activity-layout" direction="column" align="stretch" justify="start" gap="md" padding-bottom="lg" fill>
-                <nuri-view padding-x="lg">
-                  <nuri-typography size="lg" emphasis>This month</nuri-typography>
-                </nuri-view>
-                <nuri-list>
-                  <div class="spinner-lab-activity-row">
-                    <nuri-list-action aria-label="To Wallet · Sending">
-                      <nuri-list-action-leading-avatar name="arrow-up" variant="outline"></nuri-list-action-leading-avatar>
-                      <nuri-list-action-text>To Wallet</nuri-list-action-text>
-                      <nuri-list-action-text-muted>Sending · 10:24 am</nuri-list-action-text-muted>
-                      <nuri-list-action-trailing-text>- 12.00 €</nuri-list-action-trailing-text>
-                      <nuri-list-action-trailing-text-muted>3433 Sats</nuri-list-action-trailing-text-muted>
-                    </nuri-list-action>
-                    <span class="spinner-lab-glyph spinner-lab-activity-glyph" style="--spinner-size: 24px" aria-hidden="true"><i></i><i></i></span>
-                  </div>
-                  <nuri-list-separator></nuri-list-separator>
-                  <nuri-list-action aria-label="Euro to Bitcoin">
-                    <nuri-list-action-leading-avatar name="transfer-horizontal" variant="outline"></nuri-list-action-leading-avatar>
-                    <nuri-list-action-text>Euro → Bitcoin</nuri-list-action-text>
-                    <nuri-list-action-text-muted>Converted · Yesterday</nuri-list-action-text-muted>
-                    <nuri-list-action-trailing-text>12.00 €</nuri-list-action-trailing-text>
-                    <nuri-list-action-trailing-text-muted>3433 Sats</nuri-list-action-trailing-text-muted>
-                  </nuri-list-action>
-                  <nuri-list-separator></nuri-list-separator>
-                  <nuri-list-action aria-label="To Izmir Köftecisi">
-                    <nuri-list-action-leading-avatar name="arrow-up" variant="outline"></nuri-list-action-leading-avatar>
-                    <nuri-list-action-text>To Izmir Köftecisi</nuri-list-action-text>
-                    <nuri-list-action-text-muted>Paid · Sat, 4 Jul</nuri-list-action-text-muted>
-                    <nuri-list-action-trailing-text>- 7.00 €</nuri-list-action-trailing-text>
-                    <nuri-list-action-trailing-text-muted>2003 Sats</nuri-list-action-trailing-text-muted>
-                  </nuri-list-action>
-                </nuri-list>
-                <nuri-view class="spinner-lab-status-panel" direction="column" align="center" justify="center" gap="md" variant="outline" radius="lg" padding="xl">
-                  <span class="spinner-lab-glyph spinner-lab-status-glyph" style="--spinner-size: 36px" aria-hidden="true"><i></i><i></i></span>
-                  <nuri-view direction="column" align="center" gap="xs" chrome="transparent">
-                    <nuri-typography size="lg" emphasis align="center">Generating Bitcoin invoice</nuri-typography>
-                    <nuri-typography size="md" muted align="center">It takes only a few seconds…</nuri-typography>
-                  </nuri-view>
-                </nuri-view>
-              </nuri-view>
-            </nuri-scroll>
-          </nuri-bottom-sheet-panel>
-        </nuri-bottom-sheet>
+      <nuri-view direction="column" align="stretch" gap="lg" padding="xl" chrome="canvas" fill>
+        <nuri-typography size="lg" emphasis>Quarter ripple</nuri-typography>
+        <nuri-view direction="row" align="center" justify="center" gap="xl" chrome="subtle" radius="lg" padding="lg">
+          <nuri-icon name="spinner-quarter" size="sm"></nuri-icon>
+          <nuri-icon name="spinner-quarter"></nuri-icon>
+          <nuri-icon name="spinner-quarter" style="width:48px;height:48px"></nuri-icon>
+        </nuri-view>
+        <nuri-list>
+          <nuri-list-action aria-label="Payment · Broadcasting">
+            <nuri-list-action-leading-avatar name="bitcoin" variant="outline"></nuri-list-action-leading-avatar>
+            <nuri-list-action-text>Bitcoin payment</nuri-list-action-text>
+            <nuri-list-action-text-muted>Broadcasting now</nuri-list-action-text-muted>
+            <nuri-list-action-trail-icon name="spinner-quarter"></nuri-list-action-trail-icon>
+          </nuri-list-action>
+        </nuri-list>
+        <nuri-button size="lg" variant="solid" aria-label="Broadcasting payment">
+          <nuri-button-icon name="spinner-quarter"></nuri-button-icon>
+          <nuri-button-text>Broadcasting…</nuri-button-text>
+        </nuri-button>
       </nuri-view>
     </template>
   </nuri-demo>
 
-  <nuri-demo layout="board" controls="device,theme,accent" label="activity · 4b quarter ripple">
+  <nuri-demo layout="board" controls="device,theme,accent" label="activity · spinner-coin">
     <template>
-      <nuri-view class="spinner-lab-sheet-stage spinner-lab--ripple spinner-lab--ripple-quarter" direction="column" align="stretch" justify="start" gap="none" fill>
-        <nuri-view class="spinner-lab-sheet-content" chrome="canvas" fill></nuri-view>
-
-        <nuri-bottom-sheet open detent="full" scrim="dim">
-          <nuri-bottom-sheet-panel>
-            <nuri-header padding-top="lg">
-              <nuri-topbar surface="transparent">
-                <nuri-topbar-trailing>
-                  <nuri-icon-button icon="download" variant="soft" aria-label="Download"></nuri-icon-button>
-                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
-                </nuri-topbar-trailing>
-              </nuri-topbar>
-            </nuri-header>
-
-            <nuri-scroll safe-area-bottom>
-              <nuri-view class="spinner-lab-activity-layout" direction="column" align="stretch" justify="start" gap="md" padding-bottom="lg" fill>
-                <nuri-view padding-x="lg">
-                  <nuri-typography size="lg" emphasis>This month</nuri-typography>
-                </nuri-view>
-                <nuri-list>
-                  <div class="spinner-lab-activity-row">
-                    <nuri-list-action aria-label="To Wallet · Sending">
-                      <nuri-list-action-leading-avatar name="arrow-up" variant="outline"></nuri-list-action-leading-avatar>
-                      <nuri-list-action-text>To Wallet</nuri-list-action-text>
-                      <nuri-list-action-text-muted>Sending · 10:24 am</nuri-list-action-text-muted>
-                      <nuri-list-action-trailing-text>- 12.00 €</nuri-list-action-trailing-text>
-                      <nuri-list-action-trailing-text-muted>3433 Sats</nuri-list-action-trailing-text-muted>
-                    </nuri-list-action>
-                    <span class="spinner-lab-glyph spinner-lab-activity-glyph" style="--spinner-size: 24px" aria-hidden="true"><i></i><i></i><i></i></span>
-                  </div>
-                  <nuri-list-separator></nuri-list-separator>
-                  <nuri-list-action aria-label="Euro to Bitcoin">
-                    <nuri-list-action-leading-avatar name="transfer-horizontal" variant="outline"></nuri-list-action-leading-avatar>
-                    <nuri-list-action-text>Euro → Bitcoin</nuri-list-action-text>
-                    <nuri-list-action-text-muted>Converted · Yesterday</nuri-list-action-text-muted>
-                    <nuri-list-action-trailing-text>12.00 €</nuri-list-action-trailing-text>
-                    <nuri-list-action-trailing-text-muted>3433 Sats</nuri-list-action-trailing-text-muted>
-                  </nuri-list-action>
-                  <nuri-list-separator></nuri-list-separator>
-                  <nuri-list-action aria-label="To Izmir Köftecisi">
-                    <nuri-list-action-leading-avatar name="arrow-up" variant="outline"></nuri-list-action-leading-avatar>
-                    <nuri-list-action-text>To Izmir Köftecisi</nuri-list-action-text>
-                    <nuri-list-action-text-muted>Paid · Sat, 4 Jul</nuri-list-action-text-muted>
-                    <nuri-list-action-trailing-text>- 7.00 €</nuri-list-action-trailing-text>
-                    <nuri-list-action-trailing-text-muted>2003 Sats</nuri-list-action-trailing-text-muted>
-                  </nuri-list-action>
-                </nuri-list>
-                <nuri-view class="spinner-lab-status-panel" direction="column" align="center" justify="center" gap="md" variant="outline" radius="lg" padding="xl">
-                  <span class="spinner-lab-glyph spinner-lab-status-glyph" style="--spinner-size: 36px" aria-hidden="true"><i></i><i></i><i></i></span>
-                  <nuri-view direction="column" align="center" gap="xs" chrome="transparent">
-                    <nuri-typography size="lg" emphasis align="center">Generating Bitcoin invoice</nuri-typography>
-                    <nuri-typography size="md" muted align="center">It takes only a few seconds…</nuri-typography>
-                  </nuri-view>
-                </nuri-view>
-              </nuri-view>
-            </nuri-scroll>
-          </nuri-bottom-sheet-panel>
-        </nuri-bottom-sheet>
+      <nuri-view direction="column" align="stretch" gap="lg" padding="xl" chrome="canvas" fill>
+        <nuri-typography size="lg" emphasis>Gradient coin flip</nuri-typography>
+        <nuri-view direction="row" align="center" justify="center" gap="xl" chrome="subtle" radius="lg" padding="lg">
+          <nuri-icon name="spinner-coin" size="sm"></nuri-icon>
+          <nuri-icon name="spinner-coin"></nuri-icon>
+          <nuri-icon name="spinner-coin" style="width:48px;height:48px"></nuri-icon>
+        </nuri-view>
+        <nuri-list>
+          <nuri-list-action aria-label="Conversion · Processing">
+            <nuri-list-action-leading-avatar name="transfer-horizontal" variant="outline"></nuri-list-action-leading-avatar>
+            <nuri-list-action-text>Euro → Bitcoin</nuri-list-action-text>
+            <nuri-list-action-text-muted>Processing now</nuri-list-action-text-muted>
+            <nuri-list-action-trail-icon name="spinner-coin"></nuri-list-action-trail-icon>
+          </nuri-list-action>
+        </nuri-list>
+        <nuri-button size="lg" variant="solid" aria-label="Processing conversion">
+          <nuri-button-icon name="spinner-coin"></nuri-button-icon>
+          <nuri-button-text>Processing…</nuri-button-text>
+        </nuri-button>
       </nuri-view>
     </template>
   </nuri-demo>
-
-  <nuri-demo layout="board" controls="theme,accent" label="2 · staggered ring">
-    <template>
-      <section class="spinner-lab-card spinner-lab--ring">
-        <header class="spinner-lab-card__header">
-          <p class="spinner-lab-card__eyebrow">Candidate 2 · layered arcs</p>
-          <h2>Staggered ring</h2>
-          <p>Four top-border arcs share a path and trail one another through the turn.</p>
-          <p class="spinner-lab-card__knobs"><code>duration</code> · <code>stagger</code> · <code>stroke: 1.5px</code> · <code>ease</code></p>
-        </header>
-
-        <div class="spinner-lab-sizes" aria-label="Staggered ring sizes">
-          <span class="spinner-lab-size"><span class="spinner-lab-glyph" style="--spinner-size: 18px"><i></i><i></i><i></i><i></i></span><small>18</small></span>
-          <span class="spinner-lab-size"><span class="spinner-lab-glyph" style="--spinner-size: 24px"><i></i><i></i><i></i><i></i></span><small>24</small></span>
-          <span class="spinner-lab-size"><span class="spinner-lab-glyph" style="--spinner-size: 48px"><i></i><i></i><i></i><i></i></span><small>48</small></span>
-        </div>
-
-        <div class="spinner-lab-context" aria-label="Staggered ring in button and alert">
-          <nuri-button class="spinner-lab-candidate-button" size="lg" variant="solid" accent="lilac" aria-label="Sending">
-            <nuri-button-text><span class="spinner-lab-glyph spinner-lab-button-glyph" style="--spinner-size: 24px" aria-hidden="true"><i></i><i></i><i></i><i></i></span></nuri-button-text>
-            <nuri-button-text>Sending…</nuri-button-text>
-          </nuri-button>
-          <nuri-alert class="spinner-lab-candidate-alert">
-            <span class="spinner-lab-glyph spinner-lab-alert-glyph" style="--spinner-size: 18px" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-            <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
-            Payment is being processed
-          </nuri-alert>
-        </div>
-      </section>
-    </template>
-  </nuri-demo>
-
-  <nuri-demo layout="board" controls="theme,accent" label="3b · gradient outlined coin flip">
-    <template>
-      <section class="spinner-lab-card spinner-lab--flip-outline spinner-lab--flip-outline-two">
-        <header class="spinner-lab-card__header">
-          <p class="spinner-lab-card__eyebrow">Candidate 3b · animated perspective gradient</p>
-          <h2>Gradient outlined coin flip</h2>
-          <p>The approaching edge strengthens while the receding edge fades, then the lighting reverses behind.</p>
-          <p class="spinner-lab-card__knobs"><code>duration: 1200ms</code> · <code>rotate-y</code> · <code>mirrored gradient crossfade</code> · <code>rear: 20%</code> · <code>stroke: 1.5px</code></p>
-        </header>
-
-        <div class="spinner-lab-sizes" aria-label="Gradient outlined coin flip sizes">
-          <span class="spinner-lab-size"><span class="spinner-lab-glyph" style="--spinner-size: 18px"><i></i></span><small>18</small></span>
-          <span class="spinner-lab-size"><span class="spinner-lab-glyph" style="--spinner-size: 24px"><i></i></span><small>24</small></span>
-          <span class="spinner-lab-size"><span class="spinner-lab-glyph" style="--spinner-size: 48px"><i></i></span><small>48</small></span>
-        </div>
-
-        <div class="spinner-lab-context" aria-label="Gradient outlined coin flip in button and alert">
-          <nuri-button class="spinner-lab-candidate-button" size="lg" variant="solid" accent="lilac" aria-label="Sending">
-            <nuri-button-text><span class="spinner-lab-glyph spinner-lab-button-glyph" style="--spinner-size: 24px" aria-hidden="true"><i></i></span></nuri-button-text>
-            <nuri-button-text>Sending…</nuri-button-text>
-          </nuri-button>
-          <nuri-alert class="spinner-lab-candidate-alert">
-            <span class="spinner-lab-glyph spinner-lab-alert-glyph" style="--spinner-size: 18px" aria-hidden="true"><i></i></span>
-            <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
-            Payment is being processed
-          </nuri-alert>
-        </div>
-      </section>
-    </template>
-  </nuri-demo>
-
-  <nuri-demo layout="board" controls="theme,accent" label="4 · ripple">
-    <template>
-      <section class="spinner-lab-card spinner-lab--ripple">
-        <header class="spinner-lab-card__header">
-          <p class="spinner-lab-card__eyebrow">Candidate 4 · two circles</p>
-          <h2>Expanding ripple</h2>
-          <p>Two outlined circles expand and fade in alternating phases around a fixed centre.</p>
-          <p class="spinner-lab-card__knobs"><code>duration</code> · <code>phase</code> · <code>ring-size</code> · <code>stroke: 1.5px</code></p>
-        </header>
-
-        <div class="spinner-lab-sizes" aria-label="Ripple sizes">
-          <span class="spinner-lab-size"><span class="spinner-lab-glyph" style="--spinner-size: 18px"><i></i><i></i></span><small>18</small></span>
-          <span class="spinner-lab-size"><span class="spinner-lab-glyph" style="--spinner-size: 24px"><i></i><i></i></span><small>24</small></span>
-          <span class="spinner-lab-size"><span class="spinner-lab-glyph" style="--spinner-size: 48px"><i></i><i></i></span><small>48</small></span>
-        </div>
-
-        <div class="spinner-lab-context" aria-label="Ripple in button and alert">
-          <nuri-button class="spinner-lab-candidate-button" size="lg" variant="solid" accent="lilac" aria-label="Sending">
-            <nuri-button-text><span class="spinner-lab-glyph spinner-lab-button-glyph" style="--spinner-size: 24px" aria-hidden="true"><i></i><i></i></span></nuri-button-text>
-            <nuri-button-text>Sending…</nuri-button-text>
-          </nuri-button>
-          <nuri-alert class="spinner-lab-candidate-alert">
-            <span class="spinner-lab-glyph spinner-lab-alert-glyph" style="--spinner-size: 18px" aria-hidden="true"><i></i><i></i></span>
-            <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
-            Payment is being processed
-          </nuri-alert>
-        </div>
-      </section>
-    </template>
-  </nuri-demo>
-
-  <nuri-demo layout="board" controls="theme,accent" label="4b · quarter ripple">
-    <template>
-      <section class="spinner-lab-card spinner-lab--ripple spinner-lab--ripple-quarter">
-        <header class="spinner-lab-card__header">
-          <p class="spinner-lab-card__eyebrow">Candidate 4b · three quarter-arcs</p>
-          <h2>Expanding quarter ripple</h2>
-          <p>Three 90° arcs expand from one corner, rotated −45°. At 24px, each visible quadrant stays inside the complete 24×24 footprint.</p>
-          <p class="spinner-lab-card__knobs"><code>duration</code> · <code>phase</code> · <code>scale: shallow ease</code> · <code>opacity: held fade</code> · <code>optical shift: −0.1em</code> · <code>visible arc: 1em</code> · <code>source circle: 2em</code> · <code>stroke: 1.5px</code></p>
-        </header>
-
-        <div class="spinner-lab-sizes" aria-label="Quarter ripple sizes">
-          <span class="spinner-lab-size"><span class="spinner-lab-glyph" style="--spinner-size: 18px"><i></i><i></i><i></i></span><small>18</small></span>
-          <span class="spinner-lab-size"><span class="spinner-lab-glyph" style="--spinner-size: 24px"><i></i><i></i><i></i></span><small>24</small></span>
-          <span class="spinner-lab-size"><span class="spinner-lab-glyph" style="--spinner-size: 48px"><i></i><i></i><i></i></span><small>48</small></span>
-        </div>
-
-        <div class="spinner-lab-context" aria-label="Quarter ripple in button and alert">
-          <nuri-button class="spinner-lab-candidate-button" size="lg" variant="solid" accent="lilac" aria-label="Sending">
-            <nuri-button-text><span class="spinner-lab-glyph spinner-lab-button-glyph" style="--spinner-size: 24px" aria-hidden="true"><i></i><i></i><i></i></span></nuri-button-text>
-            <nuri-button-text>Sending…</nuri-button-text>
-          </nuri-button>
-          <nuri-alert class="spinner-lab-candidate-alert">
-            <span class="spinner-lab-glyph spinner-lab-alert-glyph" style="--spinner-size: 18px" aria-hidden="true"><i></i><i></i><i></i></span>
-            <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
-            Payment is being processed
-          </nuri-alert>
-        </div>
-      </section>
-    </template>
-  </nuri-demo>
-
 </nuri-playground-shell>
 
 </body>
