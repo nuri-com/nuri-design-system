@@ -44,6 +44,7 @@ const EXPECTED_RUNTIME_EXPORTS = [
   'TextFieldButton',
   'TextFieldIconButton',
   'TextFieldLabel',
+  'ToastProvider',
   'Topbar',
   'TopbarCenter',
   'TopbarLeading',
@@ -53,6 +54,7 @@ const EXPECTED_RUNTIME_EXPORTS = [
   'useNuriSafeAreaInsets',
   'useNuriTheme',
   'useOverlay',
+  'useToast',
 ] as const;
 
 const EXPECTED_TYPE_EXPORTS = [
@@ -117,6 +119,9 @@ const EXPECTED_TYPE_EXPORTS = [
   'TextFieldLabelProps',
   'TextFieldProps',
   'TextProps',
+  'ToastApi',
+  'ToastOptions',
+  'ToastProviderProps',
   'Theme',
   'ThemePayload',
   'TopbarCenterProps',

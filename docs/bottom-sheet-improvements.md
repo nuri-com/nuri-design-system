@@ -126,7 +126,7 @@ engineering, interacts with D2/D3. **Deferred** to the flow/motion arc.
 >
 > **What shipped:** `packages/rn/overlay.tsx` — `OverlayProvider` / `useOverlay` (a root provider mirroring
 > `theme.tsx`: a state-held layer registry, mount-order z-stacking, and hardware-back routing to the
-> topmost dismissible layer). `BottomSheet` became a REGISTRAR (registers its unchanged scrim + KAV +
+> topmost blocking layer; non-blocking tenants pass through). `BottomSheet` became a REGISTRAR (registers its unchanged scrim + KAV +
 > `translateY` subtree into the provider outlet, returns `null`); the enter/exit slide + the sheet-height
 > measurement latch are byte-for-byte unchanged. Zero new native deps — the outlet is inset-agnostic and
 > covers the status bar because the consumer mounts the provider above their own safe-area padding
@@ -172,7 +172,7 @@ So we introduce the DS **overlay layer**: one host that stacks tenants in mount 
   Named **`OverlayProvider`** (no `Nuri` prefix — that convention is web-only). Consumer mounts it once
   at the app root, like `NuriThemeProvider`.
 - It owns the overlay **runtime**: the registry of active layers, z-stacking (mount order), the scrim,
-  and back/dismiss routing to the **topmost** dismissible layer.
+  and back/dismiss routing to the **topmost blocking** layer (`blocking` defaults to true; a toast opts out).
 - `<BottomSheet open>` stays the authored, **declarative** API — but instead of drawing its `absoluteFill`
   inline, it **registers into the provider via context** and renders in the provider's outlet at the top
   of the tree (above the padding, stackable). Today's inline overlay logic (scrim, `absoluteFill`,
@@ -210,8 +210,9 @@ owns theme, not your data. Inside the DS boundary.
 
 ## Forward-compat (design for, don't build)
 
-The host API is **general** — `register / update / unregister` a layer with `{ kind, dismissible }`,
-z-order by mount, topmost-owns-back. Prove generality with a test that a **second layer stacks above a
+The host API is **general** — `register / update / unregister` a layer with
+`{ blocking, dismissible, onRequestClose }`, z-order by mount, and the topmost blocking layer owns
+back. Prove generality with a test that a **second layer stacks above a
 sheet** (the toast case), but do NOT build the toast or the flow engine here. When the flow engine is
 un-postponed, its persistent sheet + `pushFlow` interrupts mount into this same layer with no rewrite —
 this overlay layer is the shared substrate all three tenants need.

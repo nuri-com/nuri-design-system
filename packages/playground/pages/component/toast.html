@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuri · Playground · Toast</title>
+  <link rel="stylesheet" href="../../generated/playground.css" />
+  <script src="../../generated/boot.js" type="module"></script>
+</head>
+<body>
+
+<nuri-playground-shell doc="Toast">
+
+  <!-- Static placement proof: the content-agnostic toast composes the blessed
+       Alert body above an already-open payment sheet. The recipe owns only the
+       20 < 25 < 30/31 layer band; RN owns show/hide/timing. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="address copied over payment sheet">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-bottom-sheet open detent="full" scrim="dim">
+          <nuri-bottom-sheet-panel>
+            <nuri-header padding-top="lg">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                </nuri-topbar-leading>
+                <nuri-topbar-center>
+                  <nuri-typography size="lg" emphasis>Send Bitcoin</nuri-typography>
+                </nuri-topbar-center>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="center" gap="lg" padding-x="lg" fill>
+                <nuri-view direction="column" align="center" gap="sm">
+                  <nuri-typography size="sm" muted>Sending to</nuri-typography>
+                  <nuri-typography size="md" emphasis>bc1q…r4</nuri-typography>
+                </nuri-view>
+                <nuri-view variant="outline" radius="lg" padding="lg">
+                  <nuri-typography size="3xl" align="center">₿ 45239</nuri-typography>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Confirm payment</nuri-button>
+            </nuri-footer>
+          </nuri-bottom-sheet-panel>
+        </nuri-bottom-sheet>
+
+        <nuri-toast>
+          <nuri-alert>
+            <nuri-alert-icon name="check-circle"></nuri-alert-icon>
+            Address copied
+          </nuri-alert>
+        </nuri-toast>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+</body>
+</html>

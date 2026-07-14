@@ -7,6 +7,7 @@
  *     OverlayProvider
  *       View chrome="canvas" fill="grow"
  *         NuriSafeAreaProvider
+ *           ToastProvider
  *
  * The order is the contract. The overlay must be inside the theme provider so
  * registered layers share the active payload, but above the canvas's safe-area
@@ -26,6 +27,7 @@ import { OverlayProvider } from './overlay';
 import { View } from './primitives/View';
 import { NuriSafeAreaProvider } from './safe-area';
 import { NuriThemeProvider } from './theme';
+import { ToastProvider } from './toast';
 
 export type NuriRootProps = {
   mode?: Theme;
@@ -45,7 +47,7 @@ export function NuriRoot({
       <OverlayProvider>
         <View chrome="canvas" fill="grow">
           <NuriSafeAreaProvider top={safeArea?.top} bottom={safeArea?.bottom}>
-            {children}
+            <ToastProvider>{children}</ToastProvider>
           </NuriSafeAreaProvider>
         </View>
       </OverlayProvider>

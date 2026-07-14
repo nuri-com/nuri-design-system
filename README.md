@@ -38,6 +38,7 @@ target's output is *generated* from it.
   runtime/          the INTERNAL engine: resolve · renderer · theme-payload builder
   primitives/       the open primitive layer (View/Text/Pressable/Screen/Scroll · NuriIcon)
   theme.tsx         NuriThemeProvider / NuriScope / the resolved theme payload
+  toast.tsx         ToastProvider / useToast · imperative overlay tenant
 
 @nuri/prototype     the WEB projection (prototyping + the doc surface's components)
   generated/        the token CSS · descriptor .js twins · token-vars · icon registry

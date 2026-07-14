@@ -6,7 +6,7 @@
  * generated descriptor adapters (Button / IconAvatar / Topbar / ...) over an
  * internal shared renderer.
  *
- * PUBLIC SURFACE: theme/safe-area/overlay runtimes, generated components and
+ * PUBLIC SURFACE: theme/safe-area/overlay/toast runtimes, generated components and
  * slot markers, hand-authorable primitives, NuriIcon, their Props types, and
  * the semantic leaf types those Props expose. Descriptor data, scale tables,
  * renderer helpers, contexts, resolution functions, and intermediate engine
@@ -47,6 +47,12 @@ export type { NuriSafeAreaInsets, NuriSafeAreaProviderProps } from './safe-area'
 // web equivalent — web is a static device-frame layer).
 export { OverlayProvider, useOverlay } from './overlay';
 export type { OverlayApi, OverlayLayerOptions } from './overlay';
+
+// Toast is overlay tenant #2: imperative, replace-not-queue, top anchored.
+// ToastProvider is independently exportable for supported piecemeal roots;
+// NuriRoot already composes it inside the safe-area provider.
+export { ToastProvider, useToast } from './toast';
+export type { ToastApi, ToastOptions, ToastProviderProps } from './toast';
 
 // Resolved theme shapes are public because useNuriTheme returns them. The
 // payload builder and interaction baseline remain internal engine details.
