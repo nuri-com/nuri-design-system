@@ -864,16 +864,10 @@ test('both icon readers re-emit identically from the icons/*.svg folder (folder 
   validateIconMotion(icons, motion, durationMs);
   assert.deepEqual(motion, {
     spinner: 'ring',
-    'spinner-ripple': 'ripple',
-    'spinner-quarter': 'quarter',
-    'spinner-coin': 'coin',
-  }, 'the motion registry must cover the four production spinner names');
+  }, 'the motion registry must cover the production spinner');
   assert.deepEqual(durationMs, {
     ring: 960,
-    ripple: 1300,
-    quarter: 1300,
-    coin: 1200,
-  }, 'the shared timing registry must cover every production spinner realization');
+  }, 'the shared timing registry must cover the production spinner realization');
   const names = Object.keys(icons);
   assert.ok(names.length > 0, 'the icons/ folder must hold at least one .svg');
   for (const name of names) {

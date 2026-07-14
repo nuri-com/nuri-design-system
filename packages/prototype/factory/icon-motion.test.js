@@ -29,33 +29,3 @@ test('static icon keeps the direct SVG fast path', () => {
   assert.equal(icon.firstElementChild?.tagName.toLowerCase(), 'svg');
   assert.equal(icon.querySelector('.nuri-spinner'), null);
 });
-
-test('ripple motion icon renders two production rings', () => {
-  const icon = document.createElement('nuri-icon');
-  icon.setAttribute('name', 'spinner-ripple');
-  document.body.appendChild(icon);
-
-  assert.equal(icon.dataset.motion, 'ripple');
-  assert.equal(icon.querySelectorAll('.nuri-spinner--ripple > i').length, 2);
-  assert.ok(icon.querySelector('.nuri-spinner-static svg'));
-});
-
-test('quarter motion icon renders three clipped production arcs', () => {
-  const icon = document.createElement('nuri-icon');
-  icon.setAttribute('name', 'spinner-quarter');
-  document.body.appendChild(icon);
-
-  assert.equal(icon.dataset.motion, 'quarter');
-  assert.equal(icon.querySelectorAll('.nuri-spinner--quarter > svg > circle').length, 3);
-  assert.ok(icon.querySelector('.nuri-spinner-static svg'));
-});
-
-test('coin motion icon renders the gradient-mask production structure', () => {
-  const icon = document.createElement('nuri-icon');
-  icon.setAttribute('name', 'spinner-coin');
-  document.body.appendChild(icon);
-
-  assert.equal(icon.dataset.motion, 'coin');
-  assert.equal(icon.querySelectorAll('.nuri-spinner--coin > i').length, 1);
-  assert.ok(icon.querySelector('.nuri-spinner-static svg'));
-});

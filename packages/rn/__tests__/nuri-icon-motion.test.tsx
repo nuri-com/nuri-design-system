@@ -1,14 +1,14 @@
 import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { AccessibilityInfo, Animated, StyleSheet } from 'react-native';
-import { Circle, SvgXml } from 'react-native-svg';
+import { SvgXml } from 'react-native-svg';
 
 import { NuriIcon } from '../primitives/NuriIcon';
 import { NuriThemeProvider } from '../theme';
 
 type Renderer = TestRenderer.ReactTestRenderer;
 
-async function renderIcon(name: 'apple' | 'spinner' | 'spinner-ripple' | 'spinner-quarter' | 'spinner-coin'): Promise<Renderer> {
+async function renderIcon(name: 'apple' | 'spinner'): Promise<Renderer> {
   let renderer!: Renderer;
   await act(async () => {
     renderer = TestRenderer.create(
@@ -36,7 +36,7 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-test('ring motion glyph renders four phase-offset arcs with registry-derived timing', async () => {
+test('ring motion glyph renders four independently eased phase-offset arcs with registry-derived timing', async () => {
   mockReducedMotion(false);
   const loopStart = jest.fn();
   const loopStop = jest.fn();
@@ -64,6 +64,33 @@ test('ring motion glyph renders four phase-offset arcs with registry-derived tim
     easing: expect.any(Function),
     useNativeDriver: true,
   }));
+  const clock = timing.mock.calls[0][0] as Animated.Value;
+  const easing = timing.mock.calls[0][1].easing;
+  expect(easing?.(0.25)).toBeCloseTo(0.25);
+
+  const rotations = animatedViews.slice(1).map((arc) => (
+    StyleSheet.flatten(arc.props.style).transform[0].rotate as unknown as { __getValue(): string }
+  ));
+  act(() => clock.setValue(0.5));
+  const before = rotations.map((rotation) => Number.parseFloat(rotation.__getValue()));
+  act(() => clock.setValue(0.55));
+  const after = rotations.map((rotation) => Number.parseFloat(rotation.__getValue()));
+  const advances = after.map((angle, index) => angle - before[index]);
+
+  // When the darkest leading arc decelerates, the trailing arc keeps moving —
+  // matching four CSS animations with negative delays rather than a rigid group.
+  expect(advances[0]).toBeGreaterThan(advances[3]);
+
+  // The matched non-zero endpoint velocity removes the apparent stop on both
+  // sides of the leading arc's loop while preserving its deceleration.
+  act(() => clock.setValue(0.7));
+  const leadingBeforeWrap = Number.parseFloat(rotations[3].__getValue());
+  act(() => clock.setValue(0.71875));
+  const leadingAtWrap = Number.parseFloat(rotations[3].__getValue());
+  act(() => clock.setValue(0.7375));
+  const leadingAfterWrap = Number.parseFloat(rotations[3].__getValue());
+  expect(leadingAtWrap - leadingBeforeWrap).toBeGreaterThan(0.75);
+  expect(leadingAfterWrap - leadingAtWrap).toBeGreaterThan(0.75);
   expect(loopStart).toHaveBeenCalledTimes(1);
 
   act(() => renderer.unmount());
@@ -89,92 +116,4 @@ test('reduced motion renders the motion glyph statically', async () => {
   expect(renderer.root.findAllByType(SvgXml)).toHaveLength(1);
   expect(loop).not.toHaveBeenCalled();
   act(() => renderer.unmount());
-});
-
-test('ripple renders two phased animated rings and its own reduced-motion glyph', async () => {
-  mockReducedMotion(false);
-  const timing = jest.spyOn(Animated, 'timing');
-  jest.spyOn(Animated, 'loop').mockReturnValue({
-    start: jest.fn(),
-    stop: jest.fn(),
-    reset: jest.fn(),
-  });
-  const animated = await renderIcon('spinner-ripple');
-  expect(animated.root.findByProps({ testID: 'spinner-ripple' })).toBeTruthy();
-  const rings = animated.root.findAllByType(Circle);
-  expect(rings).toHaveLength(2);
-  for (const ring of rings) {
-    expect(ring.props.strokeWidth).toBe(1.5);
-    expect(ring.props.transform).toBeUndefined();
-  }
-  expect(timing).toHaveBeenCalledWith(expect.any(Animated.Value), expect.objectContaining({
-    useNativeDriver: false,
-  }));
-  expect(animated.root.findAllByType(SvgXml)).toHaveLength(0);
-  act(() => animated.unmount());
-
-  jest.restoreAllMocks();
-  mockReducedMotion(true);
-  const reduced = await renderIcon('spinner-ripple');
-  expect(reduced.root.findAllByType(Animated.View)).toHaveLength(0);
-  expect(reduced.root.findByType(SvgXml).props.xml).toContain('A12.48 12.48');
-  act(() => reduced.unmount());
-});
-
-test('quarter preserves the clipped sqrt-two geometry and renders its own static fallback', async () => {
-  mockReducedMotion(false);
-  const timing = jest.spyOn(Animated, 'timing');
-  jest.spyOn(Animated, 'loop').mockReturnValue({
-    start: jest.fn(),
-    stop: jest.fn(),
-    reset: jest.fn(),
-  });
-  const animated = await renderIcon('spinner-quarter');
-  const clip = animated.root.findByProps({ testID: 'spinner-quarter' });
-  const clipStyle = StyleSheet.flatten(clip.props.style);
-  expect(clipStyle.overflow).toBe('hidden');
-  expect(clipStyle.transform[0].translateY).toBeCloseTo(-2.4);
-  expect(clipStyle.transform.slice(1)).toEqual([
-    { rotate: '-45deg' },
-    { scale: 0.70710678 },
-  ]);
-  const rings = animated.root.findAllByType(Circle);
-  expect(rings).toHaveLength(3);
-  for (const ring of rings) {
-    expect(ring.props.strokeWidth).toBe(2.1213);
-    expect(ring.props.transform).toBeUndefined();
-  }
-  expect(timing).toHaveBeenCalledWith(expect.any(Animated.Value), expect.objectContaining({
-    useNativeDriver: false,
-  }));
-  act(() => animated.unmount());
-
-  jest.restoreAllMocks();
-  mockReducedMotion(true);
-  const reduced = await renderIcon('spinner-quarter');
-  expect(reduced.root.findAllByType(Animated.View)).toHaveLength(0);
-  expect(reduced.root.findByType(SvgXml).props.xml).toContain('A24 24');
-  act(() => reduced.unmount());
-});
-
-test('coin renders the rotating pair of mirrored gradient lights and its own static fallback', async () => {
-  mockReducedMotion(false);
-  jest.spyOn(Animated, 'loop').mockReturnValue({
-    start: jest.fn(),
-    stop: jest.fn(),
-    reset: jest.fn(),
-  });
-  const animated = await renderIcon('spinner-coin');
-  const coin = animated.root.findByProps({ testID: 'spinner-coin' });
-  expect(StyleSheet.flatten(coin.props.style).transform[0]).toEqual({ perspective: 76.80000000000001 });
-  expect(animated.root.findAllByType(Animated.View)).toHaveLength(3);
-  expect(animated.root.findAllByType(SvgXml)).toHaveLength(0);
-  act(() => animated.unmount());
-
-  jest.restoreAllMocks();
-  mockReducedMotion(true);
-  const reduced = await renderIcon('spinner-coin');
-  expect(reduced.root.findAllByType(Animated.View)).toHaveLength(0);
-  expect(reduced.root.findByType(SvgXml).props.xml).toContain('A13.44 13.44');
-  act(() => reduced.unmount());
 });

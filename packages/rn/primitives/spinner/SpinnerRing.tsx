@@ -8,6 +8,34 @@ import { useReducedMotion } from './useReducedMotion';
 
 const STAGGER_MS = 90;
 const OPACITIES = [0.25, 0.5, 0.75, 1] as const;
+const EASE = Easing.bezier(0.4, 0.08, 0.2, 0.84);
+const KEYFRAME_STEPS = 96;
+
+/* CSS applies the easing independently after each negative animation-delay:
+ * angle(index, time) = ease((time + phase(index)) % 1). A single eased RN
+ * value plus a fixed angle cannot reproduce that — every arc decelerates at
+ * once and the tail visually collapses. Sample the same phase-shifted curves
+ * onto one LINEAR native clock instead. Adding a full turn after the wrap
+ * keeps every output range continuous while remaining visually equivalent. */
+const ROTATION_KEYFRAMES = OPACITIES.map((_, index) => {
+  const phase = (STAGGER_MS * index) / iconMotionDurationMs.ring;
+  const wrap = 1 - phase;
+  const inputRange = Array.from({ length: KEYFRAME_STEPS + 1 }, (_value, step) => step / KEYFRAME_STEPS);
+
+  if (wrap > 0 && wrap < 1 && !inputRange.includes(wrap)) {
+    inputRange.push(wrap);
+    inputRange.sort((left, right) => left - right);
+  }
+
+  const outputRange = inputRange.map((time) => {
+    const shifted = time + phase;
+    const turn = shifted >= 1 ? 1 : 0;
+    const localProgress = shifted - turn;
+    return `${(turn + EASE(localProgress)) * 360}deg`;
+  });
+
+  return { inputRange, outputRange };
+});
 
 export const SpinnerRing: React.FC<SpinnerGlyphProps> = ({ xml, dimension, color }) => {
   const progress = React.useRef(new Animated.Value(0)).current;
@@ -23,7 +51,7 @@ export const SpinnerRing: React.FC<SpinnerGlyphProps> = ({ xml, dimension, color
       Animated.timing(progress, {
         toValue: 1,
         duration: iconMotionDurationMs.ring,
-        easing: Easing.bezier(0.4, 0, 0.2, 1),
+        easing: Easing.linear,
         useNativeDriver: Platform.OS !== 'web',
       }),
     );
@@ -40,11 +68,7 @@ export const SpinnerRing: React.FC<SpinnerGlyphProps> = ({ xml, dimension, color
   return (
     <Animated.View testID="spinner-ring" style={{ width: dimension, height: dimension }}>
       {OPACITIES.map((opacity, index) => {
-        const phase = (STAGGER_MS * index) / iconMotionDurationMs.ring;
-        const rotate = progress.interpolate({
-          inputRange: [0, 1],
-          outputRange: [`${phase * 360}deg`, `${(phase + 1) * 360}deg`],
-        });
+        const rotate = progress.interpolate(ROTATION_KEYFRAMES[index]);
         return (
           <Animated.View
             key={opacity}

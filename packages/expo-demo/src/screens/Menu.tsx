@@ -1,20 +1,6 @@
 import * as React from 'react';
 
-import {
-  Button,
-  ButtonIcon,
-  ButtonText,
-  IconButton,
-  ListAction,
-  ListActionLeadingAvatar,
-  ListActionText,
-  ListActionTextMuted,
-  ListActionTrailIcon,
-  NuriIcon,
-  Screen,
-  Topbar,
-  View,
-} from '@ds';
+import { Button, IconButton, Screen, Topbar, View } from '@ds';
 import { useSheet } from '../hooks/useSheet';
 import { ActionsSheet } from '../sheets/ActionsSheet';
 import { ActivitySheet } from '../sheets/ActivitySheet';
@@ -61,22 +47,6 @@ export function Menu({ onBack }: { onBack: () => void }) {
       </Topbar>
 
       <View direction="column" align="stretch" justify="center" gap="md" paddingX="lg" paddingY="lg" fill="grow">
-        <View direction="row" align="center" justify="center" gap="lg">
-          <NuriIcon name="spinner" />
-          <NuriIcon name="spinner-ripple" />
-          <NuriIcon name="spinner-quarter" />
-          <NuriIcon name="spinner-coin" />
-        </View>
-        <Button size="sm" variant="solid" accessibilityLabel="Processing">
-          <ButtonIcon name="spinner" />
-          <ButtonText>Processing…</ButtonText>
-        </Button>
-        <ListAction accessibilityLabel="Conversion processing">
-          <ListActionLeadingAvatar name="transfer-horizontal" variant="outline" />
-          <ListActionText>Euro to Bitcoin</ListActionText>
-          <ListActionTextMuted>Processing now</ListActionTextMuted>
-          <ListActionTrailIcon name="spinner-coin" />
-        </ListAction>
         <Button size="lg" onPress={activity.show}>Activity Sheet</Button>
         <Button size="lg" onPress={amount.show}>Amount Sheet</Button>
         <Button size="lg" onPress={actions.show}>Actions Sheet</Button>
