@@ -46,7 +46,7 @@ test('quarter motion icon renders three clipped production arcs', () => {
   document.body.appendChild(icon);
 
   assert.equal(icon.dataset.motion, 'quarter');
-  assert.equal(icon.querySelectorAll('.nuri-spinner--quarter > i').length, 3);
+  assert.equal(icon.querySelectorAll('.nuri-spinner--quarter > svg > circle').length, 3);
   assert.ok(icon.querySelector('.nuri-spinner-static svg'));
 });
 

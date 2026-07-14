@@ -123,6 +123,7 @@ test('ripple renders two phased animated rings and its own reduced-motion glyph'
 
 test('quarter preserves the clipped sqrt-two geometry and renders its own static fallback', async () => {
   mockReducedMotion(false);
+  const timing = jest.spyOn(Animated, 'timing');
   jest.spyOn(Animated, 'loop').mockReturnValue({
     start: jest.fn(),
     stop: jest.fn(),
@@ -137,10 +138,15 @@ test('quarter preserves the clipped sqrt-two geometry and renders its own static
     { rotate: '-45deg' },
     { scale: 0.70710678 },
   ]);
-  expect(animated.root.findAllByType(Animated.View)).toHaveLength(3);
-  for (const arc of animated.root.findAllByType(Animated.View)) {
-    expect(StyleSheet.flatten(arc.props.style).borderWidth).toBe(2.1213);
+  const rings = animated.root.findAllByType(Circle);
+  expect(rings).toHaveLength(3);
+  for (const ring of rings) {
+    expect(ring.props.strokeWidth).toBe(2.1213);
+    expect(ring.props.transform).toBeUndefined();
   }
+  expect(timing).toHaveBeenCalledWith(expect.any(Animated.Value), expect.objectContaining({
+    useNativeDriver: false,
+  }));
   act(() => animated.unmount());
 
   jest.restoreAllMocks();

@@ -107,8 +107,8 @@
   }
 
   /* spinner-quarter · three clipped quarter-arc ripples. The oversized source
-   * circle, fit, optical correction, and compensated stroke are direct ports
-   * of the browser-lab geometry; do not simplify these constants. */
+   * circle, fit, and optical correction are direct ports of the browser-lab
+   * geometry; non-scaling SVG strokes keep the visible weight at 1.5px. */
   .nuri-spinner--quarter {
     --spinner-quarter-fit: 0.70710678;
     --spinner-quarter-phase: 433.333ms;
@@ -119,28 +119,34 @@
     transform: translateY(var(--spinner-quarter-optical-shift)) rotate(-45deg) scale(var(--spinner-quarter-fit));
   }
 
-  .nuri-spinner--quarter > i {
-    inset-block-start: 0;
-    inset-inline-start: -100cqi;
-    inline-size: 200cqi;
-    block-size: 200cqi;
-    border-width: 2.1213px;
-    transform-origin: center;
-    animation-name: nuri-spinner-quarter-scale, nuri-spinner-quarter-opacity;
-    animation-timing-function: var(--spinner-quarter-scale-ease), linear;
+  .nuri-spinner--quarter > svg {
+    display: block;
+    inline-size: 100cqi;
+    block-size: 100cqi;
+    overflow: visible;
   }
 
-  .nuri-spinner--quarter > i:nth-child(2) {
+  .nuri-spinner--quarter > svg > circle {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5px;
+    animation-name: nuri-spinner-quarter-radius, nuri-spinner-quarter-opacity;
+    animation-duration: var(--spinner-duration);
+    animation-timing-function: var(--spinner-quarter-scale-ease), linear;
+    animation-iteration-count: infinite;
+  }
+
+  .nuri-spinner--quarter > svg > circle:nth-child(2) {
     animation-delay: calc(0ms - var(--spinner-quarter-phase));
   }
 
-  .nuri-spinner--quarter > i:nth-child(3) {
+  .nuri-spinner--quarter > svg > circle:nth-child(3) {
     animation-delay: calc(0ms - (2 * var(--spinner-quarter-phase)));
   }
 
-  @keyframes nuri-spinner-quarter-scale {
-    0% { transform: scale(0.2); }
-    100% { transform: scale(1); }
+  @keyframes nuri-spinner-quarter-radius {
+    0% { r: 20px; }
+    100% { r: 100px; }
   }
 
   @keyframes nuri-spinner-quarter-opacity {
