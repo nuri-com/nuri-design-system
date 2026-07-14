@@ -29,3 +29,13 @@ test('static icon keeps the direct SVG fast path', () => {
   assert.equal(icon.firstElementChild?.tagName.toLowerCase(), 'svg');
   assert.equal(icon.querySelector('.nuri-spinner'), null);
 });
+
+test('ripple motion icon renders two production rings', () => {
+  const icon = document.createElement('nuri-icon');
+  icon.setAttribute('name', 'spinner-ripple');
+  document.body.appendChild(icon);
+
+  assert.equal(icon.dataset.motion, 'ripple');
+  assert.equal(icon.querySelectorAll('.nuri-spinner--ripple > i').length, 2);
+  assert.ok(icon.querySelector('.nuri-spinner-static svg'));
+});

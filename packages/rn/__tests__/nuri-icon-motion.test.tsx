@@ -8,7 +8,7 @@ import { NuriThemeProvider } from '../theme';
 
 type Renderer = TestRenderer.ReactTestRenderer;
 
-async function renderIcon(name: 'apple' | 'spinner'): Promise<Renderer> {
+async function renderIcon(name: 'apple' | 'spinner' | 'spinner-ripple'): Promise<Renderer> {
   let renderer!: Renderer;
   await act(async () => {
     renderer = TestRenderer.create(
@@ -82,4 +82,25 @@ test('reduced motion renders the motion glyph statically', async () => {
   expect(renderer.root.findAllByType(SvgXml)).toHaveLength(1);
   expect(loop).not.toHaveBeenCalled();
   act(() => renderer.unmount());
+});
+
+test('ripple renders two phased animated rings and its own reduced-motion glyph', async () => {
+  mockReducedMotion(false);
+  jest.spyOn(Animated, 'loop').mockReturnValue({
+    start: jest.fn(),
+    stop: jest.fn(),
+    reset: jest.fn(),
+  });
+  const animated = await renderIcon('spinner-ripple');
+  expect(animated.root.findByProps({ testID: 'spinner-ripple' })).toBeTruthy();
+  expect(animated.root.findAllByType(Animated.View)).toHaveLength(3);
+  expect(animated.root.findAllByType(SvgXml)).toHaveLength(0);
+  act(() => animated.unmount());
+
+  jest.restoreAllMocks();
+  mockReducedMotion(true);
+  const reduced = await renderIcon('spinner-ripple');
+  expect(reduced.root.findAllByType(Animated.View)).toHaveLength(0);
+  expect(reduced.root.findByType(SvgXml).props.xml).toContain('A12.48 12.48');
+  act(() => reduced.unmount());
 });

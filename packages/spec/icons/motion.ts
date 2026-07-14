@@ -7,8 +7,10 @@
 
 export const iconMotion = {
   spinner: 'ring',
+  'spinner-ripple': 'ripple',
 } as const;
 
 export const iconMotionDurationMs = {
   ring: 960,
+  ripple: 1300,
 } as const;

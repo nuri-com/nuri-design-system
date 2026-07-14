@@ -63,6 +63,41 @@
     to { transform: rotate(1turn); }
   }
 
+  /* spinner-ripple · expanding ripple
+   * --spinner-duration: one ripple lifetime (1300ms from motion.ts).
+   * --spinner-phase: gap between the two circles.
+   * --spinner-ring-size: final diameter relative to the icon box.
+   * --spinner-ring-weight: fixed visual stroke at every glyph size.
+   * --spinner-ease: expansion curve. */
+  .nuri-spinner--ripple {
+    --spinner-phase: 650ms;
+    --spinner-ring-size: 78cqi;
+    --spinner-ring-weight: 1.5px;
+    --spinner-ease: cubic-bezier(0.2, 0.65, 0.35, 1);
+  }
+
+  .nuri-spinner--ripple > i {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    box-sizing: border-box;
+    inline-size: var(--spinner-ring-size);
+    block-size: var(--spinner-ring-size);
+    border: var(--spinner-ring-weight) solid currentColor;
+    border-radius: 50%;
+    animation: nuri-spinner-ripple var(--spinner-duration) var(--spinner-ease) infinite;
+  }
+
+  .nuri-spinner--ripple > i:nth-child(2) {
+    animation-delay: calc(0ms - var(--spinner-phase));
+  }
+
+  @keyframes nuri-spinner-ripple {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+    15% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .nuri-icon[data-motion] .nuri-spinner {
       display: none;
