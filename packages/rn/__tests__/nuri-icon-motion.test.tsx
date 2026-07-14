@@ -8,7 +8,7 @@ import { NuriThemeProvider } from '../theme';
 
 type Renderer = TestRenderer.ReactTestRenderer;
 
-async function renderIcon(name: 'apple' | 'spinner' | 'spinner-ripple' | 'spinner-quarter'): Promise<Renderer> {
+async function renderIcon(name: 'apple' | 'spinner' | 'spinner-ripple' | 'spinner-quarter' | 'spinner-coin'): Promise<Renderer> {
   let renderer!: Renderer;
   await act(async () => {
     renderer = TestRenderer.create(
@@ -132,5 +132,27 @@ test('quarter preserves the clipped sqrt-two geometry and renders its own static
   const reduced = await renderIcon('spinner-quarter');
   expect(reduced.root.findAllByType(Animated.View)).toHaveLength(0);
   expect(reduced.root.findByType(SvgXml).props.xml).toContain('A24 24');
+  act(() => reduced.unmount());
+});
+
+test('coin renders the rotating pair of mirrored gradient lights and its own static fallback', async () => {
+  mockReducedMotion(false);
+  jest.spyOn(Animated, 'loop').mockReturnValue({
+    start: jest.fn(),
+    stop: jest.fn(),
+    reset: jest.fn(),
+  });
+  const animated = await renderIcon('spinner-coin');
+  const coin = animated.root.findByProps({ testID: 'spinner-coin' });
+  expect(StyleSheet.flatten(coin.props.style).transform[0]).toEqual({ perspective: 76.80000000000001 });
+  expect(animated.root.findAllByType(Animated.View)).toHaveLength(3);
+  expect(animated.root.findAllByType(SvgXml)).toHaveLength(0);
+  act(() => animated.unmount());
+
+  jest.restoreAllMocks();
+  mockReducedMotion(true);
+  const reduced = await renderIcon('spinner-coin');
+  expect(reduced.root.findAllByType(Animated.View)).toHaveLength(0);
+  expect(reduced.root.findByType(SvgXml).props.xml).toContain('A13.44 13.44');
   act(() => reduced.unmount());
 });

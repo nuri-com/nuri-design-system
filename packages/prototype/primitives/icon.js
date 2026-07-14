@@ -49,6 +49,7 @@ const MOTION_MARKUP = {
   ring: '<span class="nuri-spinner nuri-spinner--ring" aria-hidden="true"><i></i><i></i><i></i><i></i></span>',
   ripple: '<span class="nuri-spinner nuri-spinner--ripple" aria-hidden="true"><i></i><i></i></span>',
   quarter: '<span class="nuri-spinner nuri-spinner--ripple nuri-spinner--quarter" aria-hidden="true"><i></i><i></i><i></i></span>',
+  coin: '<span class="nuri-spinner nuri-spinner--coin" aria-hidden="true"><i></i></span>',
 };
 
 class NuriIcon extends HTMLElement {

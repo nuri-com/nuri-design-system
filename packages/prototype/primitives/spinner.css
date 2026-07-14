@@ -147,6 +147,95 @@
     100% { opacity: 0; }
   }
 
+  /* spinner-coin · gradient-outlined coin flip
+   * --spinner-duration: one complete turn (1200ms from motion.ts).
+   * --spinner-disc-size: outline diameter relative to the icon box.
+   * --spinner-disc-stroke: fixed visual stroke at every glyph size.
+   * --spinner-perspective: depth relative to the icon box.
+   * --spinner-ease: face-to-edge-to-face timing. */
+  .nuri-spinner--coin {
+    --spinner-disc-size: 84cqi;
+    --spinner-disc-stroke: 1.5px;
+    --spinner-perspective: 320cqi;
+    --spinner-ease: cubic-bezier(0.55, 0.05, 0.45, 0.95);
+    perspective: var(--spinner-perspective);
+  }
+
+  .nuri-spinner--coin > i {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    box-sizing: border-box;
+    inline-size: var(--spinner-disc-size);
+    block-size: var(--spinner-disc-size);
+    border-radius: 50%;
+    background: transparent;
+    backface-visibility: visible;
+    transform-origin: center;
+    transform-style: preserve-3d;
+    animation: nuri-spinner-coin-turn var(--spinner-duration) var(--spinner-ease) infinite;
+  }
+
+  .nuri-spinner--coin > i::before,
+  .nuri-spinner--coin > i::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    -webkit-mask: radial-gradient(
+      farthest-side,
+      transparent calc(100% - var(--spinner-disc-stroke) - 0.5px),
+      #000 calc(100% - var(--spinner-disc-stroke))
+    );
+    mask: radial-gradient(
+      farthest-side,
+      transparent calc(100% - var(--spinner-disc-stroke) - 0.5px),
+      #000 calc(100% - var(--spinner-disc-stroke))
+    );
+  }
+
+  .nuri-spinner--coin > i::before {
+    background: linear-gradient(
+      90deg,
+      currentColor 0%,
+      currentColor 50%,
+      color-mix(in srgb, currentColor 20%, transparent) 100%
+    );
+    animation: nuri-spinner-coin-light-front var(--spinner-duration) linear infinite;
+  }
+
+  .nuri-spinner--coin > i::after {
+    background: linear-gradient(
+      270deg,
+      currentColor 0%,
+      currentColor 50%,
+      color-mix(in srgb, currentColor 20%, transparent) 100%
+    );
+    animation: nuri-spinner-coin-light-back var(--spinner-duration) linear infinite;
+  }
+
+  @keyframes nuri-spinner-coin-turn {
+    0% { transform: rotateY(0turn); }
+    50% { transform: rotateY(0.5turn); }
+    100% { transform: rotateY(1turn); }
+  }
+
+  @keyframes nuri-spinner-coin-light-front {
+    0% { opacity: 0.5; }
+    25% { opacity: 1; }
+    50% { opacity: 0.5; }
+    75% { opacity: 0; }
+    100% { opacity: 0.5; }
+  }
+
+  @keyframes nuri-spinner-coin-light-back {
+    0% { opacity: 0.5; }
+    25% { opacity: 0; }
+    50% { opacity: 0.5; }
+    75% { opacity: 1; }
+    100% { opacity: 0.5; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .nuri-icon[data-motion] .nuri-spinner {
       display: none;

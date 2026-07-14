@@ -49,3 +49,13 @@ test('quarter motion icon renders three clipped production arcs', () => {
   assert.equal(icon.querySelectorAll('.nuri-spinner--quarter > i').length, 3);
   assert.ok(icon.querySelector('.nuri-spinner-static svg'));
 });
+
+test('coin motion icon renders the gradient-mask production structure', () => {
+  const icon = document.createElement('nuri-icon');
+  icon.setAttribute('name', 'spinner-coin');
+  document.body.appendChild(icon);
+
+  assert.equal(icon.dataset.motion, 'coin');
+  assert.equal(icon.querySelectorAll('.nuri-spinner--coin > i').length, 1);
+  assert.ok(icon.querySelector('.nuri-spinner-static svg'));
+});
