@@ -53,9 +53,9 @@ export const ICONS = {
 };
 
 export const ICON_MOTION = {
-  'spinner': "spin",
+  'spinner': "ring",
 };
 
 export const ICON_MOTION_DURATION_MS = {
-  'spin': 900,
+  'ring': 960,
 };

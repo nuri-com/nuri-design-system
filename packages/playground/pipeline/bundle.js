@@ -13,6 +13,7 @@ const CSS_INPUTS = [
   ['@nuri/prototype generated shell reset', 'generated/styles/shell.css'],
   ['@nuri/prototype generated type scale', 'generated/styles/typography.css'],
   ['@nuri/prototype primitive icon', 'primitives/icon.css'],
+  ['@nuri/prototype primitive spinner', 'primitives/spinner.css'],
   ['@nuri/prototype primitive input', 'primitives/input.css'],
   ['@nuri/prototype primitive pressable', 'primitives/pressable.css'],
   ['@nuri/prototype primitive view', 'primitives/view.css'],

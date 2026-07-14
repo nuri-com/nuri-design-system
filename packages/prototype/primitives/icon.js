@@ -45,6 +45,10 @@ import {
 
 const ATTRS = ['name', 'size'];
 
+const MOTION_MARKUP = {
+  ring: '<span class="nuri-spinner nuri-spinner--ring" aria-hidden="true"><i></i><i></i><i></i><i></i></span>',
+};
+
 class NuriIcon extends HTMLElement {
   static get observedAttributes() {
     return ATTRS;
@@ -82,7 +86,7 @@ class NuriIcon extends HTMLElement {
     if (!markup) {
       console.warn(`[NuriIcon] unknown name "${name}"`);
       delete this.dataset.motion;
-      this.style.removeProperty('--nuri-duration-spin');
+      this.style.removeProperty('--spinner-duration');
       this.innerHTML = '';
       return;
     }
@@ -90,15 +94,18 @@ class NuriIcon extends HTMLElement {
     const motion = ICON_MOTION[name];
     if (motion) {
       this.dataset.motion = motion;
-      this.style.setProperty('--nuri-duration-spin', `${ICON_MOTION_DURATION_MS[motion]}ms`);
+      this.style.setProperty('--spinner-duration', `${ICON_MOTION_DURATION_MS[motion]}ms`);
     } else {
       delete this.dataset.motion;
-      this.style.removeProperty('--nuri-duration-spin');
+      this.style.removeProperty('--spinner-duration');
     }
 
-    this.innerHTML =
+    const staticGlyph =
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" ` +
       `fill="currentColor" aria-hidden="true" focusable="false">${markup}</svg>`;
+    this.innerHTML = motion
+      ? `${MOTION_MARKUP[motion]}<span class="nuri-spinner-static">${staticGlyph}</span>`
+      : staticGlyph;
   }
 }
 

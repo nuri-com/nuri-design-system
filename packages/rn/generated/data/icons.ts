@@ -91,12 +91,12 @@ export const icons: Record<IconName, string> = {
   'warning-circle': "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M30 16C30 23.732 23.732 30 16 30C8.26801 30 2 23.732 2 16C2 8.26801 8.26801 2 16 2C23.732 2 30 8.26801 30 16ZM16 8C16.5523 8 17 8.44772 17 9V20C17 20.5523 16.5523 21 16 21C15.4477 21 15 20.5523 15 20V9C15 8.44772 15.4477 8 16 8ZM15.4444 22.1685C15.6089 22.0586 15.8022 22 16 22C16.2652 22 16.5196 22.1054 16.7071 22.2929C16.8946 22.4804 17 22.7348 17 23C17 23.1978 16.9413 23.3911 16.8315 23.5556C16.7216 23.72 16.5654 23.8482 16.3827 23.9239C16.2 23.9996 15.9989 24.0194 15.8049 23.9808C15.6109 23.9422 15.4327 23.847 15.2929 23.7071C15.153 23.5673 15.0578 23.3891 15.0192 23.1951C14.9806 23.0011 15.0004 22.8 15.0761 22.6173C15.1518 22.4346 15.28 22.2784 15.4444 22.1685Z\" fill=\"currentColor\"/>",
 };
 
-export type IconMotion = 'spin';
+export type IconMotion = 'ring';
 
 export const iconMotion: Partial<Record<IconName, IconMotion>> = {
-  'spinner': "spin",
+  'spinner': "ring",
 };
 
 export const iconMotionDurationMs: Record<IconMotion, number> = {
-  'spin': 900,
+  'ring': 960,
 };

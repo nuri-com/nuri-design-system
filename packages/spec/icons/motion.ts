@@ -6,9 +6,9 @@
  * ══════════════════════════════════════════════════════════════════ */
 
 export const iconMotion = {
-  spinner: 'spin',
+  spinner: 'ring',
 } as const;
 
 export const iconMotionDurationMs = {
-  spin: 900,
+  ring: 960,
 } as const;

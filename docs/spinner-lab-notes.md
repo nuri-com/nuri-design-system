@@ -1,6 +1,8 @@
 # Spinner lab notes
 
-Exploration record only; no candidate is selected or recommended here.
+Production parity record. The browser lab CSS was the reconciliation authority; the shipped
+realizations live in `packages/prototype/primitives/spinner.css` and
+`packages/rn/primitives/spinner/`.
 
 - Candidate 2 · staggered ring — Knobs: duration, stagger, arc inset, and ease; all four arcs use the fixed 1.5px stroke at every size; the layered trail separates cleanly at 48 and visually compresses at 18; port caveat: RN needs four animated layers with coordinated phase offsets and opacity.
 - Candidate 3b · gradient outlined coin flip — The same single-circle flip uses two mirrored masked ring gradients that crossfade in phase with the `rotateY` cycle. Face-on frames balance both gradients at `0.5`; the first edge-on frame favours the left-solid gradient, and the second favours its mirror. Each gradient keeps one half fully opaque and fades the other toward `20%`, preserving a hollow 1.5px ring while reversing the perceived near/far lighting; port caveat: gradient masking, synchronized crossfades, perspective, and `rotateY` need RN-specific implementation and device checks.

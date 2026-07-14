@@ -22,21 +22,15 @@
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';
-import {
-  AccessibilityInfo,
-  Animated,
-  Easing,
-  Platform,
-} from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import {
   icons,
   iconMotion,
-  iconMotionDurationMs,
   size,
 } from '../contract';
 import type { IconName } from '../contract';
 import { useNuriTheme } from '../theme';
+import { SpinnerRing } from './spinner/SpinnerRing';
 
 export type NuriIconProps = {
   // The TYPED register key — `keyof` the frozen register (the build-error gate).
@@ -47,76 +41,16 @@ export type NuriIconProps = {
   dimension?: number;
 };
 
-type MotionIconProps = {
-  xml: string;
-  dimension: number;
-  color: string;
-};
-
-const MotionIcon: React.FC<MotionIconProps> = ({ xml, dimension, color }) => {
-  const rotation = React.useRef(new Animated.Value(0)).current;
-  const [reduceMotion, setReduceMotion] = React.useState<boolean | null>(null);
-
-  React.useEffect(() => {
-    let mounted = true;
-    AccessibilityInfo.isReduceMotionEnabled()
-      .then((enabled) => {
-        if (mounted) setReduceMotion(enabled);
-      })
-      .catch(() => {
-        if (mounted) setReduceMotion(false);
-      });
-    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
-    return () => {
-      mounted = false;
-      subscription.remove();
-    };
-  }, []);
-
-  React.useEffect(() => {
-    if (reduceMotion !== false) {
-      rotation.stopAnimation();
-      rotation.setValue(0);
-      return undefined;
-    }
-    rotation.setValue(0);
-    const animation = Animated.loop(
-      Animated.timing(rotation, {
-        toValue: 1,
-        duration: iconMotionDurationMs.spin,
-        easing: Easing.linear,
-        // react-native-web reports no native animated module. Passing `true`
-        // there makes Animated.loop take its native-loop branch before the
-        // timing animation falls back, so it completes only one revolution.
-        // Native keeps the required off-thread driver; Expo web uses the JS
-        // driver so the same infinite-loop contract remains inspectable.
-        useNativeDriver: Platform.OS !== 'web',
-      }),
-    );
-    animation.start();
-    return () => animation.stop();
-  }, [reduceMotion, rotation]);
-
-  const glyph = <SvgXml xml={xml} width={dimension} height={dimension} color={color} />;
-  if (reduceMotion !== false) return glyph;
-
-  const rotate = rotation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-  return (
-    <Animated.View style={{ width: dimension, height: dimension, transform: [{ rotate }] }}>
-      {glyph}
-    </Animated.View>
-  );
-};
-
 export const NuriIcon: React.FC<NuriIconProps> = ({ name, color, dimension = size.sm }) => {
   const theme = useNuriTheme();
   const xml = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor">${icons[name]}</svg>`;
   const resolvedColor = color ?? theme.text.primary;
-  if (!iconMotion[name]) {
+  const motion = iconMotion[name];
+  if (!motion) {
     return <SvgXml xml={xml} width={dimension} height={dimension} color={resolvedColor} />;
   }
-  return <MotionIcon xml={xml} dimension={dimension} color={resolvedColor} />;
+  if (motion === 'ring') {
+    return <SpinnerRing xml={xml} dimension={dimension} color={resolvedColor} />;
+  }
+  return <SvgXml xml={xml} width={dimension} height={dimension} color={resolvedColor} />;
 };

@@ -36,7 +36,7 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-test('motion glyph renders in Animated.View with registry-derived linear timing', async () => {
+test('ring motion glyph renders four phase-offset arcs with registry-derived timing', async () => {
   mockReducedMotion(false);
   const loopStart = jest.fn();
   const loopStop = jest.fn();
@@ -48,11 +48,12 @@ test('motion glyph renders in Animated.View with registry-derived linear timing'
   });
 
   const renderer = await renderIcon('spinner');
-  expect(renderer.root.findAllByType(Animated.View)).toHaveLength(1);
-  expect(renderer.root.findByType(SvgXml).props.xml).toContain('viewBox="0 0 32 32"');
+  expect(renderer.root.findByProps({ testID: 'spinner-ring' })).toBeTruthy();
+  expect(renderer.root.findAllByType(Animated.View)).toHaveLength(5);
+  expect(renderer.root.findAllByType(SvgXml)).toHaveLength(0);
   expect(timing).toHaveBeenCalledWith(expect.any(Animated.Value), expect.objectContaining({
     toValue: 1,
-    duration: 900,
+    duration: 960,
     easing: expect.any(Function),
     useNativeDriver: true,
   }));

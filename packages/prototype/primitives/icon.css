@@ -65,18 +65,4 @@
     display: block;
   }
 
-  .nuri-icon[data-motion="spin"] svg {
-    animation: nuri-icon-spin var(--nuri-duration-spin) linear infinite;
-    transform-origin: center;
-  }
-
-  @keyframes nuri-icon-spin {
-    to { transform: rotate(360deg); }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .nuri-icon[data-motion="spin"] svg {
-      animation: none;
-    }
-  }
 }

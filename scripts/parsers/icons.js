@@ -31,7 +31,7 @@ import { loadTsDataFromPath } from '../ts-data-loader.js';
 // fail LOUD (the operator normalizes the source, not the generator).
 export const ICON_VIEWBOX = '0 0 32 32';
 
-const SUPPORTED_ICON_MOTIONS = new Set(['spin']);
+const SUPPORTED_ICON_MOTIONS = new Set(['ring', 'ripple', 'quarter', 'coin']);
 
 export async function loadIconMotion(path) {
   const mod = await loadTsDataFromPath(path);
