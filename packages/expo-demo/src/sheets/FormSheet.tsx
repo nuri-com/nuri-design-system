@@ -94,7 +94,7 @@ export function FormSheet({
       onOpenChange={(next) => !next && onClose()}
     >
       <ModalPanel>
-        <Header safeAreaTop paddingTop="lg">
+        <Header safeAreaTop>
           <Topbar surface="transparent">
             <TopbarTrailing>
               <IconButton icon="cross" variant="soft" accessibilityLabel="Close form sheet" onPress={onClose} />
@@ -129,7 +129,7 @@ export function FormSheet2({
   return (
     <Modal open={open} mode="full" onOpenChange={(next) => !next && onClose()}>
       <ModalPanel>
-        <Header safeAreaTop paddingTop="lg">
+        <Header safeAreaTop>
           <Topbar surface="transparent">
             <TopbarTrailing>
               <IconButton icon="cross" variant="soft" accessibilityLabel="Close form sheet 2" onPress={onClose} />

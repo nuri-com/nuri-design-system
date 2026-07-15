@@ -199,10 +199,11 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "flexDirection": "row",
           "alignItems": "center",
           "gap": 6,
-          "height": 60,
+          "height": 72,
           "paddingStart": 18,
           "paddingEnd": 18,
-          "paddingTop": 12
+          "paddingTop": 18,
+          "paddingBottom": 6
         },
         "variants": {}
       }
