@@ -8,6 +8,7 @@ import { AmountSheet } from '../sheets/AmountSheet';
 import { FormSheet, FormSheet2 } from '../sheets/FormSheet';
 import { ShareAddressSheet } from '../sheets/ShareAddressSheet';
 import { SendAddressSheet } from '../sheets/SendAddressSheet';
+import { CountryPickerSheet } from '../sheets/CountryPickerSheet';
 
 type FormValues = {
   iban: string;
@@ -28,6 +29,7 @@ export function Menu({ onBack }: { onBack: () => void }) {
   const form2 = useSheet();
   const shareAddress = useSheet();
   const sendAddress = useSheet();
+  const countryPicker = useSheet();
 
   const [formValues, setFormValues] = React.useState<FormValues>({
     iban: 'DE06100110012625717344',
@@ -54,6 +56,7 @@ export function Menu({ onBack }: { onBack: () => void }) {
         <Button size="lg" onPress={form2.show}>Form Sheet 2</Button>
         <Button size="lg" onPress={shareAddress.show}>Share Bitcoin Address</Button>
         <Button size="lg" onPress={sendAddress.show}>Send Bitcoin Address</Button>
+        <Button size="lg" onPress={countryPicker.show}>Verify Phone · Country Picker</Button>
       </View>
 
       <ActivitySheet open={activity.open} onClose={activity.onClose} />
@@ -63,6 +66,7 @@ export function Menu({ onBack }: { onBack: () => void }) {
       <FormSheet2 open={form2.open} values={formValues} onChangeField={setField} onClose={form2.onClose} />
       <ShareAddressSheet open={shareAddress.open} onClose={shareAddress.onClose} />
       <SendAddressSheet open={sendAddress.open} onClose={sendAddress.onClose} />
+      <CountryPickerSheet open={countryPicker.open} onClose={countryPicker.onClose} />
     </Screen>
   );
 }

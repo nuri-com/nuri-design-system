@@ -413,7 +413,12 @@ export type ComponentApi<P extends PartId = PartId> = {
   role?: 'tablist';
   themeScope?: { accent: true };
   behaviour?: {
-    pressable?: { target: P; role?: 'button' | 'tab'; props: ('onPress' | 'disabled' | 'accessibilityLabel')[] };
+    pressable?: {
+      target: P;
+      role?: 'button' | 'tab';
+      popup?: 'dialog';
+      props: ('onPress' | 'disabled' | 'accessibilityLabel' | 'accessibilityValue')[];
+    };
     input?: { target: P; focusTarget?: P; labelPart?: P; props: InputBehaviourProp[] };
   };
   propMaps?: { selected?: { axis: string; true: string; false: string } };

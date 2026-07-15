@@ -9,6 +9,8 @@ nav_order: 10
 
 # Topbar
 
+`layout="centered"` preserves a true optical centre by giving the leading and trailing regions equal shares. Use `layout="fluid"` for a leading action plus flexible primary content: `TopbarContent` grows through the remaining width, while `TopbarTitle` supplies the standard `lg` emphasized title with enforced one-line tail truncation. Bare children remain trailing actions.
+
 ## API
 
 ### Topbar Props
@@ -16,6 +18,7 @@ nav_order: 10
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
 | `surface` | no | `'canvas' | 'transparent'` | component prop |
+| `layout` | no | `'centered' | 'fluid'` | component prop |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `children` | no | `React.ReactNode` | default content slot |
 
@@ -31,7 +34,19 @@ nav_order: 10
 | --- | --- | --- | --- |
 | `children` | no | `React.ReactNode` | slot content |
 
+### Topbar Content Props
+
+| Prop | Required | Type | Notes |
+| --- | --- | --- | --- |
+| `children` | no | `React.ReactNode` | slot content |
+
 ### Topbar Trailing Props
+
+| Prop | Required | Type | Notes |
+| --- | --- | --- | --- |
+| `children` | no | `React.ReactNode` | slot content |
+
+### Topbar Title Props
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |

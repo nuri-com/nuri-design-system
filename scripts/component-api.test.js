@@ -30,7 +30,7 @@
  *       variant value) — onPress must not exist independent of interactivity
  *       (review §9 · the old rule's scan, restored as direction 4);
  *   2b. `behaviour.pressable.props` are a non-empty, duplicate-free subset of the
- *       legal public props (`onPress`/`disabled`/`accessibilityLabel`);
+ *       legal public props (`onPress`/`disabled`/`accessibilityLabel`/`accessibilityValue`);
  *   3.  every `api.axes` member is a real `variants` axis key;
  *   3b. every `variants` axis is ACCOUNTED FOR — public in `api.axes` or bridged
  *       by a propMap (so no style axis silently drops from the public surface);
@@ -137,9 +137,10 @@ const KIND_ELS = { text: ['text'], 'icon-name': ['icon'], 'image-source': ['imag
 const KINDS = Object.keys(KIND_ELS);
 
 // The public behaviour props a `pressable` may expose (mirrors the schema union
-// `('onPress' | 'disabled' | 'accessibilityLabel')[]` · schema.ts). Codegen emits
-// these onto the wrapper, so a bogus/missing entry must fail here.
-const PRESSABLE_PROPS = ['onPress', 'disabled', 'accessibilityLabel'];
+// `('onPress' | 'disabled' | 'accessibilityLabel' | 'accessibilityValue')[]` ·
+// schema.ts). Codegen emits these onto the wrapper, so a bogus/missing entry
+// must fail here.
+const PRESSABLE_PROPS = ['onPress', 'disabled', 'accessibilityLabel', 'accessibilityValue'];
 const INPUT_PROPS = ['value', 'onChangeText', 'placeholder', 'inputMode', 'secureTextEntry', 'autoCapitalize', 'disabled', 'onFocus', 'onBlur', 'accessibilityLabel'];
 const SAFE_IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 
@@ -320,7 +321,12 @@ test('component-api · behaviour.input focus/label targets and props are legal',
       assert.equal(node?.el, 'text', `${name}: input.labelPart '${input.labelPart}' is el '${node?.el}' — expected text`);
       const labelSlot = Object.values(d.api.slots || {}).find((slot) => slot.part === input.labelPart);
       assert.equal(labelSlot?.component, true, `${name}: input.labelPart '${input.labelPart}' must be exposed through a generated component slot`);
-      assert.equal(labelSlot?.required, true, `${name}: input.labelPart '${input.labelPart}' must be required`);
+      if (labelSlot?.required !== true) {
+        assert.ok(
+          props.includes('accessibilityLabel'),
+          `${name}: optional input labelPart '${input.labelPart}' requires accessibilityLabel as the alternate naming channel`,
+        );
+      }
     }
   }
 });
@@ -426,6 +432,15 @@ test('component-api · behaviour.pressable.props are a non-empty subset of the l
       assert.ok(PRESSABLE_PROPS.includes(p), `${name}: pressable.props has illegal member '${p}' (${PRESSABLE_PROPS.join(', ')})`);
     }
     assert.equal(new Set(props).size, props.length, `${name}: pressable.props has duplicates (${props.join(', ')})`);
+  }
+});
+
+test("component-api · behaviour.pressable.popup is the closed static 'dialog' semantic", () => {
+  for (const name of NAMES) {
+    const popup = CATALOG[name].api.behaviour?.pressable?.popup;
+    if (popup !== undefined) {
+      assert.equal(popup, 'dialog', `${name}: behaviour.pressable.popup must be 'dialog' when declared`);
+    }
   }
 });
 
@@ -618,4 +633,85 @@ test('component-api · codegen accepts descriptor-local part ids outside the old
   assert.match(source, /type LocalProbePart = 'root' \| 'badge';/);
   assert.match(source, /const content: Partial<Record<LocalProbePart, React\.ReactNode>> = \{\};/);
   assert.doesNotMatch(source, /import type \{ Part \}/);
+});
+
+test('component-api · codegen forwards generic pressable value and static popup channels', () => {
+  const descriptor = {
+    structure: {
+      anatomy: { el: 'pressable', parts: { label: { el: 'text' } } },
+      base: { root: { interactive: { pressScale: true } }, label: { typography: { size: 'sm' } } },
+    },
+    api: {
+      axes: [],
+      behaviour: {
+        pressable: {
+          target: 'root',
+          popup: 'dialog',
+          props: ['onPress', 'accessibilityLabel', 'accessibilityValue'],
+        },
+      },
+      slots: { default: { part: 'label', kind: 'text', default: true } },
+    },
+  };
+
+  const source = emitComponentFile({ name: 'disclosure-probe' }, descriptor);
+  assert.match(source, /accessibilityValue\?: string;/);
+  assert.match(source, /popup: "dialog",/);
+  assert.match(source, /accessibilityValue: props\.accessibilityValue,/);
+  assert.doesNotMatch(source, /select-field/i);
+});
+
+test('component-api · codegen warns generically for an unnamed optional-label input', () => {
+  const descriptor = {
+    structure: {
+      anatomy: {
+        el: 'view',
+        parts: { label: { el: 'text' }, box: { el: 'view', parts: { input: { el: 'input' } } } },
+      },
+    },
+    api: {
+      axes: [],
+      behaviour: {
+        input: {
+          target: 'input',
+          labelPart: 'label',
+          props: ['accessibilityLabel'],
+        },
+      },
+      slots: { label: { part: 'label', kind: 'text', component: true } },
+    },
+  };
+
+  const source = emitComponentFile({ name: 'input-probe' }, descriptor);
+  assert.match(source, /let warnedInputProbeAccessibleName = false;/);
+  assert.match(source, /harvestedComposition\.items\.some\(\(entry\) => entry\.part === "label"\)/);
+  assert.match(source, /props\.accessibilityLabel === undefined/);
+  assert.doesNotMatch(source, /text-field/i);
+});
+
+test('component-api · mixed composition preserves a default region for bare children', () => {
+  const descriptor = {
+    structure: {
+      anatomy: {
+        el: 'view',
+        open: true,
+        parts: {
+          content: { el: 'view', parts: { title: { el: 'text' } } },
+          actions: { el: 'view' },
+        },
+      },
+    },
+    api: {
+      axes: [],
+      slots: {
+        content: { part: 'content', kind: 'region' },
+        title: { part: 'title', kind: 'text', component: true },
+        actions: { part: 'actions', kind: 'region', default: true },
+      },
+    },
+  };
+
+  const source = emitComponentFile({ name: 'mixed-probe' }, descriptor);
+  assert.match(source, /if \(!harvestedComposition\.hasSlots && props\.children !== undefined\) content\["actions"\] = props\.children;/);
+  assert.doesNotMatch(source, /topbar/i);
 });

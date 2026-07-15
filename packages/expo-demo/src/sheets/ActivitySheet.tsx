@@ -30,7 +30,7 @@ export function ActivitySheet({
   return (
     <Modal open={open} mode="full" onOpenChange={(next) => !next && onClose()}>
       <ModalPanel>
-        <Header safeAreaTop>
+        <Header safeAreaTop chrome="transparent" safeAreaChrome="canvas">
           <Topbar surface="transparent">
             <TopbarTrailing>
               <IconButton icon="download" variant="soft" accessibilityLabel="Download activity" />

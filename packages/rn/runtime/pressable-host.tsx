@@ -9,6 +9,7 @@ type PressableHostProps = Pick<
   | 'hitSlop'
   | 'disabled'
   | 'accessibilityLabel'
+  | 'accessibilityValue'
   | 'accessibilityHint'
   | 'accessibilityElementsHidden'
   | 'importantForAccessibility'

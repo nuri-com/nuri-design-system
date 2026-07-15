@@ -65,6 +65,7 @@ export const palette = {
     outline: {
       bg:         'transparent',
       fg:         { group: 'chrome', leaf: 'textMuted'    } as const satisfies ColorRef,
+      pressedBg:  { group: 'chrome', leaf: 'bgSubtle'     } as const satisfies ColorRef,
       border:     { group: 'chrome', leaf: 'borderSubtle' } as const satisfies ColorRef,
     },
   },

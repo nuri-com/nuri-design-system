@@ -19,7 +19,7 @@ The bespoke **palette** axis — the colour funnel: a surface role resolves a no
 | `soft` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-strong)"></span> `bg-strong` `#f3f1e2` | <span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `text-primary` `#222013` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-pressed)"></span> `bg-pressed` `#ece9da` | — |
 | `ghost` | <span class="nuri-doc-swatch" style="background:transparent"></span> `transparent` | <span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `text-primary` `#222013` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-subtle)"></span> `bg-subtle` `#fbf9ee` | — |
 | `subtle` | — | <span class="nuri-doc-swatch" style="background:var(--nuri-border-strong)"></span> `border-strong` `#bfbcac` | — | — |
-| `outline` | <span class="nuri-doc-swatch" style="background:transparent"></span> `transparent` | <span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `text-muted` `#666455` | — | <span class="nuri-doc-swatch" style="background:var(--nuri-border-subtle)"></span> `border-subtle` `#dddac9` |
+| `outline` | <span class="nuri-doc-swatch" style="background:transparent"></span> `transparent` | <span class="nuri-doc-swatch" style="background:var(--nuri-text-muted)"></span> `text-muted` `#666455` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-subtle)"></span> `bg-subtle` `#fbf9ee` | <span class="nuri-doc-swatch" style="background:var(--nuri-border-subtle)"></span> `border-subtle` `#dddac9` |
 
 ## Chrome
 

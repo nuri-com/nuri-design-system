@@ -13,6 +13,7 @@ const PALETTE_ATTRS = ['chrome'];
 const ATTRS = [
   'as',
   'safe-area-top',
+  'safe-area-chrome',
   'chrome',
   'direction',
   'align',
@@ -40,6 +41,7 @@ class NuriHeader extends HTMLElement {
 
   #inner = null;
   #innerTag = null;
+  #safeAreaChrome = null;
   #resizeObserver = null;
   #scope = null;
 
@@ -96,6 +98,24 @@ class NuriHeader extends HTMLElement {
     for (const key of MANAGED_DATA) {
       if (key in data) this.#inner.setAttribute(key, data[key]);
       else this.#inner.removeAttribute(key);
+    }
+
+    const safeAreaChrome = this.getAttribute('safe-area-chrome');
+    if (safeAreaChrome && this.hasAttribute('safe-area-top')) {
+      if (!this.#safeAreaChrome) {
+        this.#safeAreaChrome = document.createElement('span');
+        this.#safeAreaChrome.setAttribute('aria-hidden', 'true');
+        this.#inner.prepend(this.#safeAreaChrome);
+      }
+      const safeAreaSurface = mergeAttrs({ palette: { chrome: safeAreaChrome } });
+      this.#safeAreaChrome.className = ['nuri-header__safe-area-chrome', ...safeAreaSurface.classes].join(' ');
+      for (const attr of ['data-variant', 'data-accent', 'data-muted', 'data-chrome']) {
+        if (attr in safeAreaSurface.data) this.#safeAreaChrome.setAttribute(attr, safeAreaSurface.data[attr]);
+        else this.#safeAreaChrome.removeAttribute(attr);
+      }
+    } else if (this.#safeAreaChrome) {
+      this.#safeAreaChrome.remove();
+      this.#safeAreaChrome = null;
     }
 
     if (this.hasAttribute('safe-area-top')) {

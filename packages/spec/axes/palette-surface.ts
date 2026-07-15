@@ -29,7 +29,7 @@
  *   variant=soft     bg-strong           text-primary       bg-pressed
  *   variant=ghost    <transparent>       text-primary       bg-subtle
  *   variant=subtle   — (fg-only)         border-strong      —
- *   variant=outline  <transparent>       text-muted         —         border-subtle
+ *   variant=outline  <transparent>       text-muted         bg-subtle border-subtle
  *   chrome=canvas    bg-canvas           text-primary       —
  *   chrome=subtle    bg-subtle           text-primary       —
  *   chrome=strong    bg-strong           text-primary       —
@@ -41,7 +41,8 @@
  *   · border colour (outline) → `border` is OPTIONAL (absent ⇒ no outline stroke).
  *   · no-pressed (chrome
  *     slot + subtle)      → `pressed` is OPTIONAL (absent ⇒ no :active swap). The
- *     chrome slot is theme-only (no accent identity, no press).
+ *     chrome slot is theme-only (no accent identity, no press); outline uses
+ *     bg-subtle for pressed feedback while retaining its border.
  *   · ghost's transparent → a `{ literal }` paint, structurally DISTINCT from a
  *     role reference — the same `{ ref } | { value }` split dimensions.ts uses for
  *     the px-backed vs. literal leaves. An EXPLICIT `background: transparent` (the
@@ -85,7 +86,7 @@ export const surface = {
     soft:   { bg: 'bg-strong',               fg: 'text-primary',    pressed: 'bg-pressed' },
     ghost:  { bg: { literal: 'transparent' }, fg: 'text-primary',   pressed: 'bg-subtle' },
     subtle: { fg: 'border-strong' },
-    outline: { bg: { literal: 'transparent' }, fg: 'text-muted', border: 'border-subtle' },
+    outline: { bg: { literal: 'transparent' }, fg: 'text-muted', pressed: 'bg-subtle', border: 'border-subtle' },
   },
   chrome: {
     canvas: { bg: 'bg-canvas', fg: 'text-primary' },

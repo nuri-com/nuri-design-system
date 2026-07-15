@@ -52,7 +52,17 @@
 (() => {
   // Web custom-element attribute names use kebab-case; accessibility-label
   // is the find-replace mirror of RN's accessibilityLabel (decision 21).
-  const ATTRS = ['press-scale', 'press-color', 'disabled', 'accent', 'accessibility-label', 'role', 'aria-selected'];
+  const ATTRS = [
+    'press-scale',
+    'press-color',
+    'disabled',
+    'accent',
+    'accessibility-label',
+    'accessibility-value',
+    'role',
+    'aria-selected',
+    'aria-haspopup',
+  ];
 
   class NuriPressable extends HTMLElement {
     static get observedAttributes() {
@@ -129,10 +139,18 @@
       // accessibility-label → aria-label (RN accessibilityLabel). For an
       // icon-only / propless interactive host that has no text children.
       const label = this.getAttribute('accessibility-label');
-      if (label != null) {
-        this.#btn.setAttribute('aria-label', label);
+      const value = this.getAttribute('accessibility-value');
+      if (label != null || value != null) {
+        this.#btn.setAttribute('aria-label', [label, value].filter(Boolean).join(', '));
       } else {
         this.#btn.removeAttribute('aria-label');
+      }
+
+      const popup = this.getAttribute('aria-haspopup');
+      if (popup != null) {
+        this.#btn.setAttribute('aria-haspopup', popup);
+      } else {
+        this.#btn.removeAttribute('aria-haspopup');
       }
 
       // Semantic overrides are descriptor-authored by the factory. A plain

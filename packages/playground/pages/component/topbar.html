@@ -82,14 +82,12 @@
     </template>
   </nuri-demo>
 
-  <!-- modal with title · a leading title (left) · a default close action (trailing). -->
+  <!-- fluid title · the preset one-line title takes the width left by the close action. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="modal with title">
     <template>
       <nuri-view direction="column" align="stretch" justify="start" gap="md" fill>
-        <nuri-topbar>
-          <nuri-topbar-leading>
-            <nuri-typography size="lg" emphasis>Settings</nuri-typography>
-          </nuri-topbar-leading>
+        <nuri-topbar layout="fluid">
+          <nuri-topbar-title>Settings Settings Settings Settings</nuri-topbar-title>
           <nuri-topbar-trailing>
             <nuri-icon-button icon="cross" aria-label="Close"></nuri-icon-button>
           </nuri-topbar-trailing>

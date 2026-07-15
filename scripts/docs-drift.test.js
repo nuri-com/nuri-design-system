@@ -190,13 +190,13 @@ const EXPECTED_DESCRIPTORS = {
     interactive: [], // static · no `interactive` (65.3 · the IconAvatar story)
   },
   // topbar (the topbar-slots slice · the catalog's first
-  // COMPOUND component) — a slot-based action bar with one semantic surface axis:
-  // three descriptor-local typed regions, the edges carrying the `even` flex so
-  // the centre lands dead-centre.
+  // COMPOUND component) — a slot-based action bar with semantic surface + layout
+  // axes: four descriptor-local typed regions plus a nested preset title. The
+  // centred edges carry `even`; the fluid content lane carries `grow-shrink`.
   // The stringly-boolean `center` axis is GONE (true centring is structural now).
   topbar: {
-    axes: { surface: ['canvas', 'transparent'] },
-    parts: ['leading', 'center', 'trailing'],
+    axes: { surface: ['canvas', 'transparent'], layout: ['centered', 'fluid'] },
+    parts: ['leading', 'center', 'content', 'title', 'trailing'],
     interactive: [],
   },
   // icon-button (P11 · reduced to icon-ONLY at Path C Phase 0/B0) — the
@@ -230,6 +230,12 @@ const EXPECTED_DESCRIPTORS = {
       'trailingTextMuted',
       'trailIcon',
     ],
+    interactive: ['pressColor', 'disabledOpacity'],
+  },
+  'select-field': {
+    axes: { size: ['md', 'lg'] },
+    parts: ['label', 'box', 'avatar', 'value', 'chevron'],
+    interactivePart: 'box',
     interactive: ['pressColor', 'disabledOpacity'],
   },
   'text-field': {
@@ -290,10 +296,11 @@ function addressedParts(ir) {
   return [...names];
 }
 
-// The root's `interactive` opt-in channels (the collapsed pressed/scale/
-// disabled flags · §8) — [] for a static surface.
-function interactiveChannels(ir) {
-  const it = ir.base && ir.base.root && ir.base.root.interactive;
+// The pinned pressable part's `interactive` opt-in channels (the collapsed
+// pressed/scale/disabled flags · §8) — root unless a descriptor deliberately
+// keeps a static wrapper around a nested control surface.
+function interactiveChannels(ir, part = 'root') {
+  const it = ir.base && ir.base[part] && ir.base[part].interactive;
   return it ? Object.keys(it).filter((k) => it[k]) : [];
 }
 
@@ -347,9 +354,9 @@ test('D · build/descriptors/* re-emits from the authored SoT + the composition-
       `${spec.name}: anatomy parts drifted from the 65.3 shape`,
     );
     assert.deepEqual(
-      interactiveChannels(ir).sort(),
+      interactiveChannels(ir, expected.interactivePart).sort(),
       [...expected.interactive].sort(),
-      `${spec.name}: the root \`interactive\` opt-in drifted from the 65.3 shape`,
+      `${spec.name}: the ${expected.interactivePart || 'root'} \`interactive\` opt-in drifted from the pinned shape`,
     );
 
     // (The "every addressed/anatomy part is a PAGE-declared part" cross-check
@@ -401,7 +408,7 @@ const EXPECTED_PALETTE = {
     soft:   { bg: 'chrome.bgStrong', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted', pressedBg: 'chrome.bgPressed' },
     ghost:  { bg: 'transparent',     fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted', pressedBg: 'chrome.bgSubtle' },
     subtle: { fg: 'chrome.borderStrong' },
-    outline:{ bg: 'transparent',     fg: 'chrome.textMuted', border: 'chrome.borderSubtle' },
+    outline:{ bg: 'transparent',     fg: 'chrome.textMuted', pressedBg: 'chrome.bgSubtle', border: 'chrome.borderSubtle' },
   },
   chrome: {
     canvas: { bg: 'chrome.bgCanvas', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
@@ -621,7 +628,7 @@ const FROZEN_SCHEMA = {
     // static tablist role and the pressable channel declares button|tab.
     'role?': "'tablist'",
     'themeScope?': '{ accent: true }',
-    'behaviour?': "{ pressable?: { target: P; role?: 'button' | 'tab'; props: ('onPress' | 'disabled' | 'accessibilityLabel')[] }; input?: { target: P; focusTarget?: P; labelPart?: P; props: InputBehaviourProp[] }; }",
+    'behaviour?': "{ pressable?: { target: P; role?: 'button' | 'tab'; popup?: 'dialog'; props: ('onPress' | 'disabled' | 'accessibilityLabel' | 'accessibilityValue')[]; }; input?: { target: P; focusTarget?: P; labelPart?: P; props: InputBehaviourProp[] }; }",
     'propMaps?': '{ selected?: { axis: string; true: string; false: string } }',
     'slots': 'Record<string, SlotSpec<P>>',
   },

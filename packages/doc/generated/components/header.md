@@ -9,6 +9,8 @@ nav_order: 16
 
 # Header
 
+`Header` owns the painted top safe-area strip. `chrome` paints the header body; `safeAreaChrome` may independently paint the reserved strip with an existing semantic chrome role, as in `<Header safeAreaTop chrome="transparent" safeAreaChrome="canvas">`. This is a cosmetic split only: the current fixed-region layout remains measurement-based until the documented Yoga refactor ships.
+
 ## API
 
 | Prop | Required | Type | Notes |
@@ -23,6 +25,7 @@ nav_order: 16
 | `paddingTop` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |
 | `paddingBottom` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |
 | `safeAreaTop` | no | `boolean` | safe-area reserve |
+| `safeAreaChrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | safe-area chrome role |
 | `children` | no | `React.ReactNode` | default content slot |
 | `testID` | no | `string` | native test hook |
 | `onLayout` | no | `(event: LayoutChangeEvent) => void` | RN-only native layout event |

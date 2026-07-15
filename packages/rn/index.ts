@@ -118,7 +118,7 @@ export type {
 //   <IconAvatar variant="soft" icon="apple" />
 //   <IconButton variant="soft" icon="apple" accessibilityLabel="Buy" onPress={…} />
 //   <List><ListAction><ListActionLeadingAvatar name="bank" />…</ListAction></List>
-//   <Topbar><TopbarLeading>…</TopbarLeading><TopbarCenter>…</TopbarCenter>…</Topbar>
+//   <Topbar layout="fluid"><TopbarTitle>Settings</TopbarTitle><TopbarTrailing>…</TopbarTrailing></Topbar>
 //   <TabBar><TabBarItem selected><TabBarItemIcon name="card" /><TabBarItemLabel>Wallet</TabBarItemLabel></TabBarItem>…</TabBar>
 export {
   Button,
@@ -131,6 +131,8 @@ export {
   Topbar,
   TopbarLeading,
   TopbarCenter,
+  TopbarContent,
+  TopbarTitle,
   TopbarTrailing,
   IconButton,
   List,
@@ -141,6 +143,11 @@ export {
   ListActionTrailingText,
   ListActionTrailingTextMuted,
   ListActionTrailIcon,
+  SelectField,
+  SelectFieldLabel,
+  SelectFieldAvatar,
+  SelectFieldValue,
+  SelectFieldChevron,
   TextField,
   TextFieldLabel,
   TextFieldButton,
@@ -161,6 +168,8 @@ export type {
   TopbarProps,
   TopbarLeadingProps,
   TopbarCenterProps,
+  TopbarContentProps,
+  TopbarTitleProps,
   TopbarTrailingProps,
   IconButtonProps,
   ListProps,
@@ -171,6 +180,11 @@ export type {
   ListActionTrailingTextProps,
   ListActionTrailingTextMutedProps,
   ListActionTrailIconProps,
+  SelectFieldProps,
+  SelectFieldLabelProps,
+  SelectFieldAvatarProps,
+  SelectFieldValueProps,
+  SelectFieldChevronProps,
   TextFieldProps,
   TextFieldHandle,
   TextFieldLabelProps,

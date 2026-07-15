@@ -181,10 +181,15 @@ export type NuriBehaviour<PId extends PartId = PartId> = {
   pressable?: {
     target: PId;
     role?: 'button' | 'tab';
+    // Static disclosure semantic. Web maps it to aria-haspopup="dialog"; RN has
+    // NO native equivalent, so the renderer deliberately never consumes it (the
+    // locked ruling: RN -> no-op). Not a dead field — do not "clean it up".
+    popup?: 'dialog';
     selected?: boolean;
     onPress?: () => void;
     disabled?: boolean;
     accessibilityLabel?: string;
+    accessibilityValue?: string;
   };
   input?: {
     target: PId;
@@ -561,6 +566,11 @@ function renderPart<A extends Axes>(
           role={pressable.role}
           selected={pressable.selected}
           accessibilityLabel={pressable.accessibilityLabel}
+          accessibilityValue={
+            pressable.accessibilityValue === undefined
+              ? undefined
+              : { text: pressable.accessibilityValue }
+          }
           {...a11yHide}
           style={({ pressed }) =>
             flattenBakedPart(recipePart, ctx.descriptor, ctx.theme, node.name, ctx.selection, {

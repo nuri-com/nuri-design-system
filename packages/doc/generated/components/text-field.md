@@ -9,7 +9,7 @@ nav_order: 7
 
 # Text Field
 
-Use a `TextFieldHandle` ref for consumer-owned focus policy. Inputs belong in `<Modal mode="full">`; autofocus when the form subtree mounts, without waiting for the enter animation. For validation, call `ref.current?.focus()` from the invalid branch of the submit handler. The handle exposes only `focus()` and `blur()`—never the raw native input.
+Visible `TextFieldLabel` composition remains the norm for form fields. A compact control such as topbar search may omit the label only when it supplies `accessibilityLabel`; development builds warn once when neither naming channel is authored. Use a `TextFieldHandle` ref for consumer-owned focus policy. Inputs belong in `<Modal mode="full">`; autofocus when the form subtree mounts, without waiting for the enter animation. For validation, call `ref.current?.focus()` from the invalid branch of the submit handler. The handle exposes only `focus()` and `blur()`—never the raw native input.
 
 ## API
 
@@ -35,7 +35,7 @@ Use a `TextFieldHandle` ref for consumer-owned focus policy. Inputs belong in `<
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
-| `children` | yes | `string` | slot content |
+| `children` | no | `string` | slot content |
 
 ### Text Field Button Props
 

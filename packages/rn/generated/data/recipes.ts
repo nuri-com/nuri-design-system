@@ -225,7 +225,6 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "base": {
           "flexDirection": "row",
           "alignItems": "center",
-          "gap": 6,
           "height": 72,
           "paddingStart": 18,
           "paddingEnd": 18,
@@ -241,12 +240,22 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "base": {
           "flexDirection": "row",
           "alignItems": "center",
-          "flexGrow": 1,
-          "flexShrink": 1,
-          "flexBasis": 0,
-          "minWidth": 0
+          "paddingEnd": 6
         },
-        "variants": {}
+        "variants": {
+          "layout": {
+            "centered": {
+              "flexGrow": 1,
+              "flexShrink": 1,
+              "flexBasis": 0,
+              "minWidth": 0
+            },
+            "fluid": {
+              "flexGrow": 0,
+              "flexShrink": 0
+            }
+          }
+        }
       }
     },
     "center": {
@@ -260,6 +269,40 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "variants": {}
       }
     },
+    "content": {
+      "el": "view",
+      "geometry": {
+        "base": {
+          "flexDirection": "column",
+          "alignItems": "stretch"
+        },
+        "variants": {
+          "layout": {
+            "fluid": {
+              "flexGrow": 1,
+              "flexShrink": 1,
+              "minWidth": 0
+            }
+          }
+        }
+      }
+    },
+    "title": {
+      "el": "text",
+      "geometry": {
+        "base": {},
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "lg",
+          "emphasis": true,
+          "align": "start",
+          "flow": "truncate",
+          "lines": 1
+        }
+      }
+    },
     "trailing": {
       "el": "view",
       "geometry": {
@@ -268,12 +311,22 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "alignItems": "center",
           "justifyContent": "flex-end",
           "gap": 6,
-          "flexGrow": 1,
-          "flexShrink": 1,
-          "flexBasis": 0,
-          "minWidth": 0
+          "paddingStart": 6
         },
-        "variants": {}
+        "variants": {
+          "layout": {
+            "centered": {
+              "flexGrow": 1,
+              "flexShrink": 1,
+              "flexBasis": 0,
+              "minWidth": 0
+            },
+            "fluid": {
+              "flexGrow": 0,
+              "flexShrink": 0
+            }
+          }
+        }
       }
     }
   },
@@ -434,6 +487,91 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       }
     },
     "trailIcon": {
+      "el": "icon",
+      "geometry": {
+        "base": {
+          "width": 24,
+          "height": 24
+        },
+        "variants": {}
+      }
+    }
+  },
+  "select-field": {
+    "root": {
+      "el": "view",
+      "geometry": {
+        "base": {
+          "flexDirection": "column",
+          "alignItems": "stretch",
+          "gap": 12
+        },
+        "variants": {}
+      }
+    },
+    "label": {
+      "el": "text",
+      "geometry": {
+        "base": {},
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "sm",
+          "emphasis": true,
+          "align": "start",
+          "flow": "truncate",
+          "lines": 1
+        }
+      }
+    },
+    "box": {
+      "el": "pressable",
+      "geometry": {
+        "base": {
+          "flexDirection": "row",
+          "alignItems": "center",
+          "gap": 6,
+          "height": 60,
+          "paddingStart": 12,
+          "paddingEnd": 12,
+          "borderRadius": 9
+        },
+        "variants": {
+          "size": {
+            "md": {
+              "height": 48
+            }
+          }
+        }
+      },
+      "interactive": {
+        "base": {
+          "pressColor": true,
+          "disabledOpacity": true
+        }
+      }
+    },
+    "value": {
+      "el": "text",
+      "geometry": {
+        "base": {
+          "flexGrow": 1,
+          "flexShrink": 1,
+          "minWidth": 0
+        },
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "md",
+          "align": "start",
+          "flow": "truncate",
+          "lines": 1
+        }
+      }
+    },
+    "chevron": {
       "el": "icon",
       "geometry": {
         "base": {

@@ -36,7 +36,9 @@ await import('../recipes/icon-button.js');
 await import('../recipes/list.js');
 await import('../recipes/list-action.js');
 await import('../recipes/alert.js');
+await import('../recipes/select-field.js');
 await import('../recipes/text-field.js');
+await import('../recipes/topbar.js');
 await import('../primitives/scroll.js');
 // The factory + the descriptor twins, for the buildComponent-direct assertions
 // (same cached module instances the recipes use).
@@ -757,9 +759,90 @@ test('C7c · <nuri-text-field>.focus() delegates to its native input', async () 
   assert.equal(dom.window.document.activeElement, field.querySelector('nuri-input > input'));
 });
 
-test('C8 · <nuri-text-field> missing required label fails named', () => {
+test('C8 · <nuri-text-field> may use accessibilityLabel without a visible label slot', async () => {
   const field = dom.window.document.createElement('nuri-text-field');
-  mountExpectingNamedError(field, /'nuri-text-field' requires label/);
+  field.setAttribute('size', 'md');
+  field.setAttribute('aria-label', 'Search');
+  field.setAttribute('placeholder', 'Search');
+  mount(field);
+  await tick();
+  assert.equal(field.querySelector('nuri-text-field-label'), null);
+  assert.equal(field.querySelector('nuri-input > input')?.getAttribute('aria-label'), 'Search');
+});
+
+test('C9 · <nuri-select-field> renders a real disclosure button with composed label and value name', async () => {
+  assert.ok(customElements.get('nuri-select-field'), 'SelectField web twin is registered');
+  assert.deepEqual(
+    [...customElements.get('nuri-select-field').observedAttributes].sort(),
+    ['accent', 'accessibility-value', 'aria-label', 'disabled', 'size'],
+    'SelectField observes axes and the two independent a11y channels',
+  );
+
+  const field = dom.window.document.createElement('nuri-select-field');
+  field.setAttribute('aria-label', 'Country');
+  field.setAttribute('accessibility-value', 'Germany');
+  field.innerHTML = [
+    '<nuri-select-field-label>Country</nuri-select-field-label>',
+    '<nuri-select-field-avatar source="../../assets/flags/deu.svg"></nuri-select-field-avatar>',
+    '<nuri-select-field-value>Germany</nuri-select-field-value>',
+    '<nuri-select-field-chevron name="chevron-down"></nuri-select-field-chevron>',
+  ].join('');
+  mount(field);
+  await tick();
+
+  const button = field.querySelector('button.nuri-interactive');
+  assert.ok(button, 'SelectField uses the native button host');
+  assert.equal(button.getAttribute('role'), null, 'the native button keeps its implicit button role');
+  assert.equal(button.getAttribute('aria-haspopup'), 'dialog');
+  assert.equal(button.getAttribute('aria-label'), 'Country, Germany');
+  assert.deepEqual(
+    [...field.querySelectorAll('nuri-typography')].map((node) => node.textContent),
+    ['Country', 'Germany'],
+  );
+  assert.deepEqual(
+    [...button.querySelectorAll('nuri-typography')].map((node) => node.textContent),
+    ['Germany'],
+    'the label stays outside the focusable box so the field ring never wraps it',
+  );
+  assert.equal(button.getAttribute('data-variant'), 'outline', 'the pressable box owns the outlined field surface');
+  assert.equal(button.hasAttribute('data-press-color'), true, 'SelectField opts into the outline pressed background');
+  assert.equal(button.hasAttribute('data-press-scale'), false, 'SelectField does not scale on press');
+  assert.equal(button.getAttribute('data-gap'), 'sm', 'the field contents use the compact control gap');
+  assert.equal(button.querySelector('nuri-icon-avatar')?.getAttribute('source'), '../../assets/flags/deu.svg');
+  assert.equal(button.querySelector('nuri-icon-avatar')?.getAttribute('size'), 'sm', 'the trigger flag uses the compact avatar');
+  assert.equal(button.querySelector('nuri-icon')?.getAttribute('name'), 'chevron-down');
+
+  field.setAttribute('accessibility-value', 'Austria');
+  await tick();
+  assert.equal(
+    field.querySelector('button.nuri-interactive')?.getAttribute('aria-label'),
+    'Country, Austria',
+    'dynamic value updates remain separate from the static label channel',
+  );
+  field.setAttribute('disabled', '');
+  await tick();
+  assert.equal(
+    field.querySelector('button.nuri-interactive')?.hasAttribute('disabled'),
+    true,
+    'disabled reaches a nested pressable target without making the label wrapper interactive',
+  );
+});
+
+test('C9b · <nuri-select-field> unadorned composition omits optional avatar and chevron', async () => {
+  const field = dom.window.document.createElement('nuri-select-field');
+  field.setAttribute('aria-label', 'Delivery');
+  field.setAttribute('accessibility-value', 'Standard');
+  field.innerHTML = [
+    '<nuri-select-field-label>Delivery</nuri-select-field-label>',
+    '<nuri-select-field-value>Standard</nuri-select-field-value>',
+  ].join('');
+  mount(field);
+  await tick();
+
+  const button = field.querySelector('button.nuri-interactive');
+  assert.equal(button?.getAttribute('aria-label'), 'Delivery, Standard');
+  assert.equal(button?.querySelector('nuri-icon-avatar'), null);
+  assert.equal(button?.querySelector('nuri-icon'), null);
 });
 
 // ══════════════════════════════════════════════════════════════════
@@ -916,4 +999,45 @@ test('D2 · aria-label support derives from the pressable API, even for a text-p
   const btn = x.querySelector('button.nuri-interactive');
   assert.equal(btn?.getAttribute('aria-label'), 'Transfer money', 'the descriptor-driven accessible name reaches the native button');
   assert.equal(btn?.querySelector('nuri-typography')?.textContent, 'Transfer', 'visible text remains rendered');
+});
+
+
+// ── TOPBAR · the flipped composition path (title slot ⇒ mount-a-tree) ──
+// The compound-era contract must survive the flip: bare children route to the
+// `default: true` REGION (trailing · "just actions"), markers keep working, the
+// preset title lands in the content lane, and the host is a display:contents
+// host-tree wrapper. Guards the silent bare-children drop caught in review.
+
+test('T1 · topbar bare children route to the default trailing region (compound-era contract)', async () => {
+  const bare = dom.window.document.createElement('nuri-topbar');
+  bare.innerHTML = '<nuri-icon-button icon="cross" aria-label="Close"></nuri-icon-button>';
+  mount(bare);
+  const marked = dom.window.document.createElement('nuri-topbar');
+  marked.innerHTML = '<nuri-topbar-trailing><nuri-icon-button icon="cross" aria-label="Close"></nuri-icon-button></nuri-topbar-trailing>';
+  mount(marked);
+  await tick();
+
+  const bareBtn = bare.querySelector('nuri-icon-button');
+  const markedBtn = marked.querySelector('nuri-icon-button');
+  assert.ok(bareBtn, 'bare children are NOT dropped — the icon-button mounts');
+  assert.ok(markedBtn, 'marker-routed children mount');
+  const signature = (btn) => {
+    const region = btn.closest('nuri-view[data-justify="end"]');
+    return region ? region.getAttribute('data-justify') : null;
+  };
+  assert.equal(signature(bareBtn), 'end', 'bare child lands inside the trailing region (justify=end signature)');
+  assert.equal(signature(bareBtn), signature(markedBtn), 'bare route and marker route land in the SAME region');
+});
+
+test('T2 · topbar preset title renders in the content lane; host is a display:contents tree wrapper', async () => {
+  const tb = dom.window.document.createElement('nuri-topbar');
+  tb.innerHTML = '<nuri-topbar-title>Verify Phone</nuri-topbar-title>';
+  mount(tb);
+  await tick();
+
+  assert.equal(tb.getAttribute('data-host-tree'), '', 'the topbar host mounts a tree (display:contents wrapper)');
+  const title = [...tb.querySelectorAll('nuri-typography')].find((t) => t.textContent === 'Verify Phone');
+  assert.ok(title, 'the title text renders');
+  assert.equal(title.getAttribute('flow'), 'truncate', 'the preset title truncates');
+  assert.equal(title.getAttribute('lines'), '1', 'the preset title is the one-line text part');
 });

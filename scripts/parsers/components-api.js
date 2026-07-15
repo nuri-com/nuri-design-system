@@ -19,7 +19,12 @@ const pascalPart = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const lowerFirst = (s) => s.charAt(0).toLowerCase() + s.slice(1);
 const q = (value) => JSON.stringify(value);
 
-const PRESSABLE_TS = { onPress: '() => void', disabled: 'boolean', accessibilityLabel: 'string' };
+const PRESSABLE_TS = {
+  onPress: '() => void',
+  disabled: 'boolean',
+  accessibilityLabel: 'string',
+  accessibilityValue: 'string',
+};
 const SLOT_PROP_TS = { onPress: '() => void', disabled: 'boolean', accessibilityLabel: 'string', source: 'ImageSourcePropType' };
 const INPUT_TS = {
   value: 'string',
@@ -388,6 +393,13 @@ function emitContent(api, partTypeName, displayNameConst, contentType = 'React.R
         '  }',
       );
     }
+    // A mixed component may keep a REGION as its default bare-children sink.
+    // Component-slot harvest switches the adapter to the composition envelope;
+    // when no typed marker is authored, preserve the old region fallback exactly
+    // as scalar default slots do below. Generic over every descriptor/part name.
+    if (fallbackRegion) {
+      lines.push(`  if (!harvestedComposition.hasSlots && props.children !== undefined) content[${q(fallbackRegion.part)}] = props.children;`);
+    }
   }
 
   for (const [slotName, slot] of Object.entries(api.slots)) {
@@ -417,6 +429,7 @@ function emitBehaviour(api, partTypeName) {
   if (pressable) {
     lines.push('  behaviour.pressable = {', `    target: ${q(pressable.target)},`);
     if (pressable.role) lines.push(`    role: ${q(pressable.role)},`);
+    if (pressable.popup) lines.push(`    popup: ${q(pressable.popup)},`);
     // Coerce: the bridge declares both arms, so an OMITTED `selected` announces
     // false — mirroring the web factory's `ctx.base.selected === true` (every tab
     // carries the selected state; never a silent native/web divergence).
@@ -478,6 +491,23 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
   const hasRegions = regionParts.length > 0;
   const hasComponentSlots = componentSlots.length > 0;
   const hasInput = descriptor.api.behaviour?.input !== undefined;
+  const optionalInputLabelSlot = hasInput
+    ? componentSlots.find((slot) =>
+      slot.part === descriptor.api.behaviour.input.labelPart &&
+      slot.kind === 'text' &&
+      slot.required !== true,
+    )
+    : undefined;
+  const warnsMissingInputName =
+    optionalInputLabelSlot !== undefined &&
+    descriptor.api.behaviour.input.props.includes('accessibilityLabel');
+  const contentLines = emitContent(
+    descriptor.api,
+    partTypeName,
+    `${local}DisplayName`,
+    usesImageSource ? 'NuriContent' : 'React.ReactNode',
+    imageWins,
+  );
 
   const rendererImports = ['nuriNames', 'renderDescriptorInstance'];
   if (hasRegions) rendererImports.push('createNuriSlot');
@@ -518,6 +548,7 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
     `const ${displayNameConst} = nuriNames('${name}').rn;`,
   ];
   if (imageWins) body.push(`let warned${Pascal}Content = false;`);
+  if (warnsMissingInputName) body.push(`let warned${Pascal}AccessibleName = false;`);
   if (refComponents.length) {
     body.push('const componentRegistry = {');
     for (const component of refComponents) {
@@ -559,7 +590,6 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
       } else {
         const isInputLabelSlot =
           slot.kind === 'text' &&
-          slot.required === true &&
           descriptor.api.behaviour?.input?.labelPart === slot.part;
         const childrenType = isInputLabelSlot ? 'string' : 'React.ReactNode';
         const propLines = [`  children${slot.required ? '' : '?'}: ${childrenType};`];
@@ -588,7 +618,13 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
       '  }',
     ] : []),
     ...emitSelection(descriptor),
-    ...emitContent(descriptor.api, partTypeName, displayNameConst, usesImageSource ? 'NuriContent' : 'React.ReactNode', imageWins),
+    ...contentLines,
+    ...(warnsMissingInputName ? [
+      `  if (!warned${Pascal}AccessibleName && typeof __DEV__ !== 'undefined' && __DEV__ && !harvestedComposition.items.some((entry) => entry.part === ${q(optionalInputLabelSlot.part)}) && props.accessibilityLabel === undefined) {`,
+      `    warned${Pascal}AccessibleName = true;`,
+      `    console.warn('[nuri] <' + ${displayNameConst} + '> expects either its ${pascalPart(optionalInputLabelSlot.slotName)} slot or accessibilityLabel so the input has an accessible name.');`,
+      '  }',
+    ] : []),
     ...emitBehaviour(descriptor.api, partTypeName),
     '',
     '  return renderDescriptorInstance({',

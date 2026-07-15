@@ -50,7 +50,7 @@ const expectedSurface = (a: Accent, mode: Theme) => {
     subtle: { bg: undefined, fg: c.borderStrong, fgMuted: undefined, pressedBg: undefined, border: undefined },
     // outline has NO fgMuted cell (its fg IS text-muted · the muted swap would be
     // a no-op) — the resolver's fg fallback covers a muted outline node.
-    outline: { bg: 'transparent', fg: c.textMuted, fgMuted: undefined, pressedBg: undefined, border: c.borderSubtle },
+    outline: { bg: 'transparent', fg: c.textMuted, fgMuted: undefined, pressedBg: c.bgSubtle, border: c.borderSubtle },
   };
 };
 

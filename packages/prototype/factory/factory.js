@@ -587,7 +587,9 @@ function renderInteractiveView(node, ns, ctx) {
   if (ctx.base.disabled) host.setAttribute('disabled', '');
   if (ctx.base.accent) host.setAttribute('accent', ctx.base.accent); // Tier-2 self-scope
   if (ctx.base.accessibilityLabel) host.setAttribute('accessibility-label', ctx.base.accessibilityLabel);
+  if (ctx.base.accessibilityValue) host.setAttribute('accessibility-value', ctx.base.accessibilityValue);
   if (pressable?.role && pressable.role !== 'button') host.setAttribute('role', pressable.role);
+  if (pressable?.popup) host.setAttribute('aria-haspopup', pressable.popup);
   if (pressable && ctx.descriptor.api?.propMaps?.selected) {
     host.setAttribute('aria-selected', String(ctx.base.selected === true));
   }
@@ -846,8 +848,8 @@ export const nuriNames = (kebab) => ({ web: `nuri-${kebab}`, rn: pascalCase(keba
  *
  * DERIVED, never hand-passed:
  *   · observedAttributes = the axis names ∪ `accent` (Tier-2 self-scope) ∪
- *     `disabled` (iff the root is interactive) ∪ `name` (iff the primary part
- *     is an `icon` leaf). Nothing component-specific is enumerated here.
+ *     `disabled` (iff pressable behaviour exposes it) ∪ `name` (iff the primary
+ *     part is an `icon` leaf). Nothing component-specific is enumerated here.
  *   · the per-axis DEFAULT comes from descriptor.defaults (buildComponent reads
  *     it) — the element passes ONLY the attributes the author set, never a default.
  *   · the text label of a `text` primary part is captured from textContent
@@ -925,11 +927,18 @@ export function defineNuriComponent(descriptor, tagName, options = {}) {
   const perPartAttrs = Object.entries(apiSlots)
     .filter(([, spec]) => spec.kind !== 'region' && spec.default !== true && spec.component !== true)
     .map(([slot, spec]) => spec.prop || slot);
-  // Interactive iff the root opts in (the `disabled` reflection is generic to any
-  // interactive component · button has it, icon-avatar does not).
-  const interactive = !!(descriptor.structure.base && descriptor.structure.base.root && descriptor.structure.base.root.interactive);
+  // Public disabled reflection follows the pressable behaviour contract, not
+  // only a root-node assumption: a field may keep its label in a static root
+  // while the outlined control box is the pressable target. Keep the historical
+  // root-interactive inference for descriptors authored before behaviour APIs.
+  const rootInteractive =
+    !!descriptor.structure.base?.root?.interactive;
+  const supportsPressableDisabled =
+    rootInteractive || descriptor.api?.behaviour?.pressable?.props?.includes('disabled') === true;
   const supportsAccessibleName =
     descriptor.api?.behaviour?.pressable?.props?.includes('accessibilityLabel') === true;
+  const supportsAccessibleValue =
+    descriptor.api?.behaviour?.pressable?.props?.includes('accessibilityValue') === true;
   const inputBehaviour = descriptor.api?.behaviour?.input;
   const inputAttrByProp = {
     value: 'value',
@@ -942,7 +951,7 @@ export function defineNuriComponent(descriptor, tagName, options = {}) {
   };
 
   const observed = [...axisNames, 'accent'];
-  if (interactive) observed.push('disabled');
+  if (supportsPressableDisabled) observed.push('disabled');
   observed.push(...perPartAttrs);
   if (inputBehaviour) {
     for (const prop of inputBehaviour.props || []) {
@@ -957,6 +966,7 @@ export function defineNuriComponent(descriptor, tagName, options = {}) {
   // a11y name — if the descriptor declares the RN pressable accessibilityLabel
   // prop, the web catalog twin accepts the platform-native aria-label override.
   if (supportsAccessibleName) observed.push('aria-label');
+  if (supportsAccessibleValue) observed.push('accessibility-value');
 
   class NuriElement extends HTMLElement {
     static get observedAttributes() {
@@ -986,10 +996,30 @@ export function defineNuriComponent(descriptor, tagName, options = {}) {
             throw new Error(`[nuri-factory] '${tagName}' requires ${slotName}`);
           }
         }
-        // A composition-only host (no default sink, no legacy label route) with
-        // meaningful bare children and no marker at all cannot route them —
-        // fail named rather than render an empty skeleton (the honest-children
-        // contract; the RN adapter harvest throws the same error).
+        // No marker at all → the harvest pre-scan returns null. Three routes:
+        //   · a REGION default sink (compound-era contract · Topbar → trailing:
+        //     "just actions") — synthesize the composition collect() would have
+        //     built, routing every meaningful bare child to that region. The RN
+        //     harvest has no null pre-scan and already routes bare → fallback,
+        //     so this is the web parity leg, generic for any region sink.
+        //   · a ROOT children sink (Alert) — keep the legacy bare route (the
+        //     renderer's prose rule owns it); synthesizing here would move it
+        //     off the proven path.
+        //   · no default sink — fail named rather than render an empty skeleton
+        //     (the honest-children contract; the RN adapter throws the same).
+        if (!this.#composition && defaultSlotSpec?.kind === 'region') {
+          const bare = [...this.childNodes].filter(
+            (child) => !(child.nodeType === 3 && !child.textContent.trim()) && child.nodeType !== 8,
+          );
+          if (bare.length) {
+            const list = bare.map((child) => {
+              const tpl = document.createElement('template');
+              tpl.content.append(child);
+              return { part: defaultSlotSpec.part, content: tpl };
+            });
+            this.#composition = { root: [{ part: defaultSlotSpec.part }], [defaultSlotSpec.part]: list };
+          }
+        }
         if (!this.#composition && !defaultSlotSpec) {
           for (const child of this.childNodes) {
             if (child.nodeType === 3 && !child.textContent.trim()) continue;
@@ -1046,7 +1076,7 @@ export function defineNuriComponent(descriptor, tagName, options = {}) {
       // each host's walker consumes its own scope (region entries validate
       // against the region's anatomy, not the root's).
       if (this.#composition) props.composition = this.#composition;
-      if (interactive) props.disabled = this.hasAttribute('disabled');
+      if (supportsPressableDisabled) props.disabled = this.hasAttribute('disabled');
       // `selected` boolean attr → props.selected (buildComponent bridges it to the
       // `state` axis · present = selected · absent = unselected).
       if (selectedMap) props.selected = this.hasAttribute('selected');
@@ -1070,6 +1100,10 @@ export function defineNuriComponent(descriptor, tagName, options = {}) {
       if (supportsAccessibleName) {
         const ariaLabel = this.getAttribute('aria-label');
         if (ariaLabel != null) props.accessibilityLabel = ariaLabel;
+      }
+      if (supportsAccessibleValue) {
+        const accessibilityValue = this.getAttribute('accessibility-value');
+        if (accessibilityValue != null) props.accessibilityValue = accessibilityValue;
       }
       if (inputBehaviour) {
         for (const prop of inputBehaviour.props || []) {

@@ -39,10 +39,6 @@ function FormSheetFields({
 }: Pick<FormSheetProps, 'values' | 'onChangeField'> & {
   firstFieldRef?: React.RefObject<TextFieldHandle | null>;
 }) {
-  React.useEffect(() => {
-    firstFieldRef?.current?.focus();
-  }, [firstFieldRef]);
-
   return (
     <Scroll>
       <View direction="column" align="stretch" justify="start" gap="xl" paddingX="lg">
@@ -54,7 +50,6 @@ function FormSheetFields({
         <View direction="column" align="stretch" justify="start" gap="xl">
           <TextField
             ref={firstFieldRef}
-            size="md"
             value={values.iban}
             onChangeText={onChangeField('iban')}
             placeholder="IBAN"
@@ -93,9 +88,10 @@ export function FormSheet({
       open={open}
       mode="full"
       onOpenChange={(next) => !next && onClose()}
+      onOpenComplete={() => firstFieldRef.current?.focus()}
     >
       <ModalPanel>
-        <Header safeAreaTop>
+        <Header safeAreaTop chrome="transparent" safeAreaChrome="canvas">
           <Topbar surface="transparent">
             <TopbarTrailing>
               <IconButton icon="cross" variant="soft" accessibilityLabel="Close form sheet" onPress={onClose} />
@@ -130,7 +126,7 @@ export function FormSheet2({
   return (
     <Modal open={open} mode="full" onOpenChange={(next) => !next && onClose()}>
       <ModalPanel>
-        <Header safeAreaTop>
+        <Header safeAreaTop chrome="transparent" safeAreaChrome="canvas">
           <Topbar surface="transparent">
             <TopbarTrailing>
               <IconButton icon="cross" variant="soft" accessibilityLabel="Close form sheet 2" onPress={onClose} />

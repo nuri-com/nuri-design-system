@@ -106,7 +106,7 @@ export const textFieldDescriptor = {
       },
     },
     slots: {
-      label: { part: 'label', kind: 'text', component: true, required: true },
+      label: { part: 'label', kind: 'text', component: true },
       button: { part: 'button', kind: 'children', component: true },
       iconButton: { part: 'iconButton', kind: 'icon-name', component: true },
     },

@@ -116,6 +116,7 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
   test('Header and Footer expose their fixed-region visual contracts', () => {
     expect(Header.propKeys).toEqual([
       'safeAreaTop',
+      'safeAreaChrome',
       'chrome',
       'direction',
       'align',
@@ -184,6 +185,7 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
     expect(webAttrs('header.js')).toEqual([
       'as',
       'safe-area-top',
+      'safe-area-chrome',
       'chrome',
       'direction',
       'align',

@@ -33,6 +33,7 @@ import {
 import type { OverlayApi } from '../index';
 import { space } from '../generated/data/tokens';
 import { type FocusScrollApi, useFocusScroll } from '../runtime/focus-scroll';
+import { buildNuriTheme } from '../runtime/theme-payload';
 import { FixedRegionLayoutProvider } from '../primitives/FixedRegionLayout';
 
 type ScrollViewWithInnerRef = ScrollView & {
@@ -470,6 +471,35 @@ describe('Modal — keyboard-reachable form composition', () => {
     expect(onFooterLayout).toHaveBeenCalledTimes(1);
   });
 
+  test('Header paints safe-area chrome independently from its transparent body', () => {
+    const theme = buildNuriTheme('lilac', 'light');
+    const tr = render(
+      <NuriThemeProvider>
+        <FixedRegionLayoutProvider safeAreaTop={24}>
+          <Header safeAreaTop chrome="transparent" safeAreaChrome="canvas">
+            <Text>Search</Text>
+          </Header>
+        </FixedRegionLayoutProvider>
+      </NuriThemeProvider>,
+    );
+
+    const views = tr.root.findAllByType(View);
+    const header = views.find((node) => typeof node.props.onLayout === 'function');
+    const safeAreaChrome = views.find((node) => node.props.pointerEvents === 'none');
+    expect(header).toBeTruthy();
+    expect(safeAreaChrome).toBeTruthy();
+    expect(flatStyle(header!.props.style).backgroundColor).toBe('transparent');
+    expect(flatStyle(header!.props.style).paddingTop).toBe(24);
+    expect(flatStyle(safeAreaChrome!.props.style)).toMatchObject({
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 24,
+      backgroundColor: theme.chrome.canvas.bg,
+    });
+  });
+
   test('Footer composes authored bottom padding with safe-area bottom', () => {
     const tr = render(
       <NuriThemeProvider>
@@ -674,7 +704,7 @@ describe('Modal — keyboard-reachable form composition', () => {
     }
   });
 
-  test('Footer does not double-count Android adjustResize', () => {
+  test('Android adjustResize never applies a transient second keyboard offset', () => {
     const originalPlatformOS = Platform.OS;
     Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'android' });
 
@@ -717,14 +747,17 @@ describe('Modal — keyboard-reachable form composition', () => {
 
       const scrollMaxHeight = flatStyle(tr.root.findByType(ScrollView).props.style).maxHeight;
       expect(scrollMaxHeight).toEqual(expect.any(Number));
-      const resizedWindowBottom = (scrollMaxHeight as number) + 40;
 
       act(() => {
         for (const show of keyboardHandlers.keyboardDidShow!) {
-          show({ endCoordinates: { height: 280, screenY: resizedWindowBottom } });
+          // Model keyboardDidShow arriving before useWindowDimensions publishes
+          // the adjustResize height. The old screenY-derived offset briefly
+          // moved the footer and compressed Scroll until the dimension update.
+          show({ endCoordinates: { height: 280, screenY: (scrollMaxHeight as number) - 280 } });
         }
       });
       expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(0);
+      expect(flatStyle(tr.root.findByType(ScrollView).props.style).maxHeight).toBe(scrollMaxHeight);
     } finally {
       addSpy.mockRestore();
       Object.defineProperty(Platform, 'OS', { configurable: true, get: () => originalPlatformOS });

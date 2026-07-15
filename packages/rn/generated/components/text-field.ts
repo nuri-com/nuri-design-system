@@ -43,12 +43,13 @@ export type TextFieldProps = {
 type TextFieldPart = 'root' | 'label' | 'box' | 'input' | 'button' | 'iconButton';
 
 const textFieldDisplayName = nuriNames('text-field').rn;
+let warnedTextFieldAccessibleName = false;
 const componentRegistry = {
   "button": Button as React.ComponentType<Record<string, unknown>>,
   "icon-button": IconButton as React.ComponentType<Record<string, unknown>>,
 };
 export type TextFieldLabelProps = {
-  children: string;
+  children?: string;
 };
 export const TextFieldLabel = createNuriSlot<TextFieldLabelProps>("label", `${textFieldDisplayName}Label`, 'children', textFieldDisplayName);
 export type TextFieldButtonProps = {
@@ -77,8 +78,9 @@ const TextFieldInner = React.forwardRef<TextFieldHandle, TextFieldProps>((props,
   if (harvestedComposition.hasSlots) {
     composition.root = harvestedComposition.items;
   }
-  if (!harvestedComposition.items.some((entry) => entry.part === "label")) {
-    throw new Error(`nuri-factory: '${textFieldDisplayName}' requires Label`);
+  if (!warnedTextFieldAccessibleName && typeof __DEV__ !== 'undefined' && __DEV__ && !harvestedComposition.items.some((entry) => entry.part === "label") && props.accessibilityLabel === undefined) {
+    warnedTextFieldAccessibleName = true;
+    console.warn('[nuri] <' + textFieldDisplayName + '> expects either its Label slot or accessibilityLabel so the input has an accessible name.');
   }
   const behaviour: NuriBehaviour<TextFieldPart> = {};
   behaviour.input = {
