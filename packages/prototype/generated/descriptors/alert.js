@@ -77,11 +77,12 @@ export const alertDescriptor = {
     // soft = the raised pill bar (the mock's balance/insufficient surface): a
     // neutral soft surface (bg-strong · DESIGN-REVIEW flag: chrome vs the `soft`
     // surface variant — the closest existing token is picked, no new token minted),
-    // uniform md padding, a size-lg min height, and a FULL (pill) radius.
+    // sm vertical padding, md start / sm end padding, a size-lg min height,
+    // and a FULL (pill) radius.
     // ghost = the bare error line: transparent, no padding, no radius — icon +
     // text only.
     variant: {
-      soft: { root: { box: { minHeight: 'lg', padding: 'md', radius: 'full' }, palette: { variant: 'soft' } } },
+      soft: { root: { box: { minHeight: 'lg', paddingY: 'sm', paddingStart: 'md', paddingEnd: 'sm', radius: 'full' }, palette: { variant: 'soft' } } },
       ghost: { root: { palette: { variant: 'ghost' } } },
     },
   },

@@ -114,7 +114,9 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
       "flexDirection": "row",
       "gap": 6,
       "minHeight": 48,
-      "padding": 12,
+      "paddingEnd": 6,
+      "paddingStart": 12,
+      "paddingVertical": 6,
     }
   }
 >
