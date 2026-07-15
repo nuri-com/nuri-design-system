@@ -3688,9 +3688,10 @@ nuri-demo:not(:defined) {
     pointer-events: auto;
   }
 
+  /* Safe-area-relative full detent (parity with RN: safe top + sm gap). */
   nuri-bottom-sheet[detent="full"] > nuri-bottom-sheet-panel {
-    block-size: calc(100% - 40px);
-    max-block-size: calc(100% - 40px);
+    block-size: calc(100% - var(--nuri-device-safe-area-top, 0px) - var(--nuri-space-sm));
+    max-block-size: calc(100% - var(--nuri-device-safe-area-top, 0px) - var(--nuri-space-sm));
   }
 
   nuri-bottom-sheet > nuri-bottom-sheet-panel > nuri-scroll {
