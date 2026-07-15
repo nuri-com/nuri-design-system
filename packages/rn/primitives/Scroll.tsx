@@ -46,8 +46,8 @@ const FOCUS_BOTTOM_MARGIN = 88;
 const FOCUS_SCROLL_DELAY_MS = 32;
 const FOCUS_SCROLL_REPEAT_DELAY_MS = 60;
 
-// Keyboard handling requires a FixedRegionLayoutProvider ancestor. Screen and
-// BottomSheet provide it; a bare Scroll intentionally degrades to no handling.
+// Keyboard handling requires an enabled FixedRegionLayoutProvider ancestor.
+// Screen and full-mode Modal provide it; a bare Scroll degrades to no handling.
 const ScrollImpl = React.forwardRef<React.ElementRef<typeof RNScrollView>, ScrollProps>(({
   safeAreaTop = false,
   safeAreaBottom = false,
@@ -58,6 +58,7 @@ const ScrollImpl = React.forwardRef<React.ElementRef<typeof RNScrollView>, Scrol
   onLayout,
 }, forwardedRef) => {
   const {
+    keyboardEnabled,
     scrollMaxHeight,
     headerHeight,
     footerHeight,
@@ -283,7 +284,7 @@ const ScrollImpl = React.forwardRef<React.ElementRef<typeof RNScrollView>, Scrol
       onScroll={handleScroll}
       scrollEventThrottle={16}
     >
-      <FocusScrollProvider value={focusScrollApi}>{children}</FocusScrollProvider>
+      <FocusScrollProvider value={keyboardEnabled ? focusScrollApi : null}>{children}</FocusScrollProvider>
     </RNScrollView>
   );
 });

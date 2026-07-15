@@ -17,9 +17,9 @@
       <nuri-screen>
         <nuri-view chrome="canvas" fill></nuri-view>
 
-        <nuri-bottom-sheet open detent="full" scrim="dim">
-          <nuri-bottom-sheet-panel>
-            <nuri-header padding-top="lg">
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top padding-top="lg">
               <nuri-topbar surface="transparent">
                 <nuri-topbar-leading>
                   <nuri-typography size="lg" emphasis>Receive Bitcoin</nuri-typography>
@@ -49,8 +49,8 @@
                 <nuri-button size="lg" variant="solid" accent="lilac">Share</nuri-button>
               </nuri-view>
             </nuri-footer>
-          </nuri-bottom-sheet-panel>
-        </nuri-bottom-sheet>
+          </nuri-modal-panel>
+        </nuri-modal>
 
         <nuri-toast>
           <nuri-alert>

@@ -32,7 +32,7 @@ const CSS_INPUTS = [
   ['@nuri/prototype namespace interactive', 'styles/interactive.css'],
   ['@nuri/prototype namespace effect', 'styles/effect.css'],
   ['@nuri/prototype factory reset', 'factory/reset.css'],
-  ['@nuri/prototype recipe bottom sheet', 'recipes/bottom-sheet.css'],
+  ['@nuri/prototype recipe modal', 'recipes/modal.css'],
   ['@nuri/prototype recipe toast', 'recipes/toast.css'],
   ['@nuri/prototype demo controls', 'demo/control.css'],
   ['@nuri/prototype demo boards', 'demo/demo.css'],
@@ -66,7 +66,7 @@ const BOOT_IMPORTS = [
   '../../prototype/recipes/list.js',
   '../../prototype/recipes/text-field.js',
   '../../prototype/recipes/tab-bar.js',
-  '../../prototype/recipes/bottom-sheet.js',
+  '../../prototype/recipes/modal.js',
   '../../prototype/recipes/toast.js',
   '../../prototype/demo/demo.js',
 ];

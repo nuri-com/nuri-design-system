@@ -3,8 +3,8 @@ import * as React from 'react';
 import {
   Alert,
   AlertIcon,
-  BottomSheet,
-  BottomSheetPanel,
+  Modal,
+  ModalPanel,
   Button,
   Footer,
   Header,
@@ -36,9 +36,9 @@ export function ShareAddressSheet({ open, onClose }: { open: boolean; onClose: (
   }, [toast]);
 
   return (
-    <BottomSheet open={open} detent="full" onOpenChange={(next) => !next && onClose()}>
-      <BottomSheetPanel>
-        <Header paddingTop="lg">
+    <Modal open={open} mode="full" onOpenChange={(next) => !next && onClose()}>
+      <ModalPanel>
+        <Header safeAreaTop paddingTop="lg">
           <Topbar surface="transparent">
             <TopbarTrailing>
               <IconButton icon="cross" variant="soft" accessibilityLabel="Close share address sheet" onPress={onClose} />
@@ -76,7 +76,7 @@ export function ShareAddressSheet({ open, onClose }: { open: boolean; onClose: (
             <Button size="lg" variant="soft" onPress={showSending}>Share</Button>
           </View>
         </Footer>
-      </BottomSheetPanel>
-    </BottomSheet>
+      </ModalPanel>
+    </Modal>
   );
 }

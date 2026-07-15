@@ -255,11 +255,10 @@ const EXPECTED_DESCRIPTORS = {
     parts: [],
     interactive: [],
   },
-  // bottom-sheet-panel (the descriptor-backed visual part of the sheet family) —
-  // an OPEN positional canvas surface. Detents, scrim, gestures, and engine
-  // behaviour belong to the structural BottomSheet primitive, not this descriptor.
-  'bottom-sheet-panel': {
-    axes: {},
+  // modal-panel — one OPEN positional canvas surface whose shared anatomy is
+  // presented as either a bottom-anchored sheet or a full-bleed page.
+  'modal-panel': {
+    axes: { mode: ['sheet', 'full'] },
     parts: [],
     interactive: [],
   },

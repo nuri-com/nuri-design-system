@@ -1,8 +1,8 @@
 import * as React from 'react';
 
 import {
-  BottomSheet,
-  BottomSheetPanel,
+  Modal,
+  ModalPanel,
   Header,
   IconButton,
   List,
@@ -26,8 +26,8 @@ export function ActionsSheet({
   onClose: () => void;
 }) {
   return (
-    <BottomSheet open={open} detent="content" onOpenChange={(next) => !next && onClose()}>
-      <BottomSheetPanel>
+    <Modal open={open} mode="sheet" onOpenChange={(next) => !next && onClose()}>
+      <ModalPanel>
         <Header paddingTop="lg">
           <Topbar surface="transparent">
             <TopbarTrailing>
@@ -64,7 +64,7 @@ export function ActionsSheet({
             </List>
           </View>
         </Scroll>
-      </BottomSheetPanel>
-    </BottomSheet>
+      </ModalPanel>
+    </Modal>
   );
 }

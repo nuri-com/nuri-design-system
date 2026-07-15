@@ -1,6 +1,6 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · HEADER
- * Fixed top region for a local Screen or BottomSheetPanel.
+ * Fixed top region for a local Screen or ModalPanel.
  * ────────────────────────────────────────────────────────────── */
 
 @layer tokens {

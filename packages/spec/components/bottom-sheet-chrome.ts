@@ -2,7 +2,7 @@
  * NURI · BOTTOM SHEET RUNTIME · COMPONENT-SPECIFIC DATA
  *
  * Runtime-only sheet behaviour data. Panel chrome is descriptor composition
- * (`bottom-sheet-panel`); projections own its radius/elevation realization.
+ * (`modal-panel` in sheet mode); projections own its realization.
  * ────────────────────────────────────────────────────────────── */
 
 export const bottomSheetChrome = {

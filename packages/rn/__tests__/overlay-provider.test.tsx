@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════════════════
  * NURI · OVERLAY PROVIDER · REGISTRY + STACKING + BACK ROUTING + REGISTRAR
  * ──────────────────────────────────────────────────────────────────
- * The overlay layer (route B · docs/bottom-sheet-improvements.md) proven at
+ * The overlay layer proven at
  * the runtime level:
  *   · register → the outlet renders the node; unregister → it's gone; update
  *     refreshes the node in place.
@@ -9,7 +9,7 @@
  *     generality proof: a second layer renders above a sheet with NO rewrite.
  *   · hardware-back skips non-blocking tenants, then routes to the TOPMOST
  *     blocking layer and is consumed there.
- *   · <BottomSheet open> under <OverlayProvider> puts its subtree in the OUTLET
+ *   · <Modal open> under <OverlayProvider> puts its subtree in the OUTLET
  *     (not inline), and closing removes it.
  * ══════════════════════════════════════════════════════════════════ */
 
@@ -18,8 +18,8 @@ import TestRenderer, { act } from 'react-test-renderer';
 import { BackHandler, Keyboard, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from 'react-native';
 import { NuriThemeProvider } from '../theme';
 import {
-  BottomSheet,
-  BottomSheetPanel,
+  Modal,
+  ModalPanel,
   Button,
   Footer,
   Header,
@@ -243,16 +243,16 @@ describe('OverlayProvider — hardware-back routing', () => {
   });
 });
 
-describe('BottomSheet — registers into the overlay outlet', () => {
+describe('Modal — registers into the overlay outlet', () => {
   test('an open sheet renders its subtree in the outlet, not inline', () => {
     const tr = render(
       <NuriThemeProvider>
         <OverlayProvider>
-          <BottomSheet open detent="content">
-            <BottomSheetPanel>
+          <Modal open mode="sheet">
+            <ModalPanel>
               <Text>Receive</Text>
-            </BottomSheetPanel>
-          </BottomSheet>
+            </ModalPanel>
+          </Modal>
         </OverlayProvider>
       </NuriThemeProvider>,
     );
@@ -275,17 +275,17 @@ describe('BottomSheet — registers into the overlay outlet', () => {
     // state: keyboard/height/content — while an upper layer sits still). The lower
     // sheet must keep its slot: [lower, upper], not [upper, lower].
     const upper = (
-      <BottomSheet open detent="content">
-        <BottomSheetPanel><Text>Upper</Text></BottomSheetPanel>
-      </BottomSheet>
+      <Modal open mode="sheet">
+        <ModalPanel><Text>Upper</Text></ModalPanel>
+      </Modal>
     );
     function Harness({ lowerLabel }: { lowerLabel: string }) {
       return (
         <NuriThemeProvider>
           <OverlayProvider>
-            <BottomSheet open detent="content">
-              <BottomSheetPanel><Text>{lowerLabel}</Text></BottomSheetPanel>
-            </BottomSheet>
+            <Modal open mode="sheet">
+              <ModalPanel><Text>{lowerLabel}</Text></ModalPanel>
+            </Modal>
             {upper}
           </OverlayProvider>
         </NuriThemeProvider>
@@ -319,11 +319,11 @@ describe('BottomSheet — registers into the overlay outlet', () => {
         <NuriThemeProvider>
           <OverlayProvider>
             {mount ? (
-              <BottomSheet open detent="content">
-                <BottomSheetPanel>
+              <Modal open mode="sheet">
+                <ModalPanel>
                   <Text>Receive</Text>
-                </BottomSheetPanel>
-              </BottomSheet>
+                </ModalPanel>
+              </Modal>
             ) : null}
           </OverlayProvider>
         </NuriThemeProvider>
@@ -342,21 +342,21 @@ describe('BottomSheet — registers into the overlay outlet', () => {
   });
 });
 
-describe('BottomSheet — keyboard-reachable form composition', () => {
-  // The migrated overlay subtree keeps its KeyboardAvoidingView, and composing
+describe('Modal — keyboard-reachable form composition', () => {
+  // Full mode owns focus-scroll without a KeyboardAvoidingView; composing
   // Scroll keeps fields in the body scroll while Footer is
   // fixed outside it; measured footer height becomes the scroll's bottom inset.
-  // LIMITATION (stated honestly): the actual keyboard push — KAV translating the
-  // panel and the ScrollView scrolling the focused field above the keyboard — is
+  // LIMITATION (stated honestly): the actual keyboard resize and the ScrollView
+  // scrolling the focused field above the keyboard are
   // a native/layout behaviour the headless harness cannot compute. This asserts
   // the COMPOSED STRUCTURE that makes it reachable (a real-device check owns the
   // rest — see App / the expo-demo Sheet screen).
-  test('a form sheet mounts a KeyboardAvoidingView wrapping body fields and fixed footer', () => {
+  test('a full modal mounts fields and a fixed footer without the retired KeyboardAvoidingView', () => {
     const tr = render(
       <NuriThemeProvider>
         <OverlayProvider>
-          <BottomSheet open detent="content">
-            <BottomSheetPanel>
+          <Modal open mode="full">
+            <ModalPanel>
               <Scroll>
                 <TextField value="" placeholder="Name">
                   <TextFieldLabel>Recipient</TextFieldLabel>
@@ -365,14 +365,13 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
               <Footer>
                 <Button variant="solid">Save</Button>
               </Footer>
-            </BottomSheetPanel>
-          </BottomSheet>
+            </ModalPanel>
+          </Modal>
         </OverlayProvider>
       </NuriThemeProvider>,
     );
 
-    // The keyboard-avoidance host is present in the mounted overlay subtree…
-    expect(tr.root.findAllByType(KeyboardAvoidingView).length).toBeGreaterThan(0);
+    expect(tr.root.findAllByType(KeyboardAvoidingView)).toHaveLength(0);
     // …and the field's input plus fixed footer button label coexist under it;
     // Scroll owns field focus-scroll while the footer is represented
     // as measured bottom inset.
@@ -385,9 +384,11 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     const captured = { api: null as FocusScrollApi | null };
     render(
       <NuriThemeProvider>
-        <Scroll>
-          <FocusScrollProbe onReady={(next) => (captured.api = next)} />
-        </Scroll>
+        <FixedRegionLayoutProvider keyboardEnabled>
+          <Scroll>
+            <FocusScrollProbe onReady={(next) => (captured.api = next)} />
+          </Scroll>
+        </FixedRegionLayoutProvider>
       </NuriThemeProvider>,
     );
 
@@ -403,8 +404,8 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     const tr = render(
       <NuriThemeProvider>
         <OverlayProvider>
-          <BottomSheet open detent="full">
-            <BottomSheetPanel>
+          <Modal open mode="full">
+            <ModalPanel>
               <Header paddingTop="lg" onLayout={onHeaderLayout}>
                 <Button>Close</Button>
               </Header>
@@ -423,8 +424,8 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
               >
                 <Button variant="solid">Continue</Button>
               </Footer>
-            </BottomSheetPanel>
-          </BottomSheet>
+            </ModalPanel>
+          </Modal>
         </OverlayProvider>
       </NuriThemeProvider>,
     );
@@ -474,16 +475,16 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       <NuriThemeProvider>
         <NuriSafeAreaProvider bottom={34}>
           <OverlayProvider>
-            <BottomSheet open detent="full">
-              <BottomSheetPanel>
+            <Modal open mode="full">
+              <ModalPanel>
                 <Scroll safeAreaBottom>
                   <Text>Body</Text>
                 </Scroll>
                 <Footer safeAreaBottom direction="column" align="stretch" paddingY="sm" paddingX="lg">
                   <Button variant="solid">Continue</Button>
                 </Footer>
-              </BottomSheetPanel>
-            </BottomSheet>
+              </ModalPanel>
+            </Modal>
           </OverlayProvider>
         </NuriSafeAreaProvider>
       </NuriThemeProvider>,
@@ -514,16 +515,16 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       <NuriThemeProvider>
         <NuriSafeAreaProvider bottom={34}>
           <OverlayProvider>
-            <BottomSheet open detent="full">
-              <BottomSheetPanel>
+            <Modal open mode="full">
+              <ModalPanel>
                 <Scroll>
                   <Text>Body</Text>
                 </Scroll>
                 <Footer paddingY="sm">
                   <Button variant="solid">Continue</Button>
                 </Footer>
-              </BottomSheetPanel>
-            </BottomSheet>
+              </ModalPanel>
+            </Modal>
           </OverlayProvider>
         </NuriSafeAreaProvider>
       </NuriThemeProvider>,
@@ -540,21 +541,21 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBeUndefined();
   });
 
-  test('generic Footer and Scroll consume raw BottomSheet safe-area inset without the legacy root flag', () => {
+  test('generic Footer and Scroll consume raw Modal safe-area inset without the legacy root flag', () => {
     const tr = render(
       <NuriThemeProvider>
         <NuriSafeAreaProvider bottom={34}>
           <OverlayProvider>
-            <BottomSheet open detent="full">
-              <BottomSheetPanel>
+            <Modal open mode="full">
+              <ModalPanel>
                 <Scroll safeAreaBottom>
                   <Text>Body</Text>
                 </Scroll>
                 <Footer safeAreaBottom paddingY="sm">
                   <Button variant="solid">Continue</Button>
                 </Footer>
-              </BottomSheetPanel>
-            </BottomSheet>
+              </ModalPanel>
+            </Modal>
           </OverlayProvider>
         </NuriSafeAreaProvider>
       </NuriThemeProvider>,
@@ -576,13 +577,13 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       <NuriThemeProvider>
         <NuriSafeAreaProvider bottom={34}>
           <OverlayProvider>
-            <BottomSheet open detent="full">
-              <BottomSheetPanel>
+            <Modal open mode="full">
+              <ModalPanel>
                 <Scroll safeAreaBottom>
                   <Text>Body</Text>
                 </Scroll>
-              </BottomSheetPanel>
-            </BottomSheet>
+              </ModalPanel>
+            </Modal>
           </OverlayProvider>
         </NuriSafeAreaProvider>
       </NuriThemeProvider>,
@@ -591,20 +592,20 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBe(34);
   });
 
-  test('BottomSheet content detent bounds Scroll without flex-filling the sheet', () => {
+  test('Modal content detent bounds Scroll without flex-filling the sheet', () => {
     const tr = render(
       <NuriThemeProvider>
         <OverlayProvider>
-          <BottomSheet open detent="content">
-            <BottomSheetPanel>
+          <Modal open mode="sheet">
+            <ModalPanel>
               <Header paddingTop="lg">
                 <Text>Actions</Text>
               </Header>
               <Scroll safeAreaBottom>
                 <Text>Choose a transfer method</Text>
               </Scroll>
-            </BottomSheetPanel>
-          </BottomSheet>
+            </ModalPanel>
+          </Modal>
         </OverlayProvider>
       </NuriThemeProvider>,
     );
@@ -629,16 +630,16 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
         <NuriThemeProvider>
           <NuriSafeAreaProvider bottom={34}>
             <OverlayProvider>
-              <BottomSheet open detent="full">
-                <BottomSheetPanel>
+              <Modal open mode="full">
+                <ModalPanel>
                   <Scroll>
                     <Text>Body</Text>
                   </Scroll>
                   <Footer safeAreaBottom paddingY="sm">
                     <Button variant="solid">Continue</Button>
                   </Footer>
-                </BottomSheetPanel>
-              </BottomSheet>
+                </ModalPanel>
+              </Modal>
             </OverlayProvider>
           </NuriSafeAreaProvider>
         </NuriThemeProvider>,
@@ -690,16 +691,16 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       const tr = render(
         <NuriThemeProvider>
           <OverlayProvider>
-            <BottomSheet open detent="full">
-              <BottomSheetPanel>
+            <Modal open mode="full">
+              <ModalPanel>
                 <Scroll>
                   <Text>Body</Text>
                 </Scroll>
                 <Footer>
                   <Button variant="solid">Continue</Button>
                 </Footer>
-              </BottomSheetPanel>
-            </BottomSheet>
+              </ModalPanel>
+            </Modal>
           </OverlayProvider>
         </NuriThemeProvider>,
       );
@@ -1265,16 +1266,16 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
         tr = TestRenderer.create(
           <NuriThemeProvider>
             <OverlayProvider>
-              <BottomSheet open detent="full">
-                <BottomSheetPanel>
+              <Modal open mode="full">
+                <ModalPanel>
                   <Header>
                     <Button>Close</Button>
                   </Header>
                   <Scroll>
                     <FocusScrollProbe onReady={(next) => (captured.api = next)} />
                   </Scroll>
-                </BottomSheetPanel>
-              </BottomSheet>
+                </ModalPanel>
+              </Modal>
             </OverlayProvider>
           </NuriThemeProvider>,
         );
@@ -1316,7 +1317,7 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     }
   });
 
-  test('content-detent Scroll keeps keyboard padding while its gated layout offset stays at rest', () => {
+  test('sheet-mode Scroll ignores keyboard geometry while the dev tripwire observes it', () => {
     const keyboardHandlers: Record<string, (event: { endCoordinates: { height: number } }) => void> = {};
     const addSpy = jest
       .spyOn(Keyboard, 'addListener')
@@ -1329,14 +1330,14 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
       const tr = render(
         <NuriThemeProvider>
           <OverlayProvider>
-            <BottomSheet open detent="content">
-              <BottomSheetPanel>
+            <Modal open mode="sheet">
+              <ModalPanel>
                 <Scroll>
                   <Text>Field</Text>
                 </Scroll>
                 <Footer><Button>Continue</Button></Footer>
-              </BottomSheetPanel>
-            </BottomSheet>
+              </ModalPanel>
+            </Modal>
           </OverlayProvider>
         </NuriThemeProvider>,
       );
@@ -1350,9 +1351,11 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
         show({ endCoordinates: { height: 280 } });
       });
 
-      const contentStyle = scroll.props.contentContainerStyle as unknown[];
-      const flat = Object.assign({}, ...contentStyle.filter(Boolean));
-      expect(flat.paddingBottom).toBe(368);
+      const contentStyle = scroll.props.contentContainerStyle as unknown;
+      const flat = Array.isArray(contentStyle)
+        ? Object.assign({}, ...contentStyle.filter(Boolean))
+        : contentStyle as Record<string, unknown>;
+      expect(flat).toEqual({ flexGrow: 1 });
       const footer = tr.root.findAllByType(View).find((node) => flatStyle(node.props.style).zIndex === 2);
       expect(flatStyle(footer!.props.style).bottom).toBe(0);
     } finally {
@@ -1368,12 +1371,14 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     const onBlur = jest.fn();
     const tr = render(
       <NuriThemeProvider>
-        <Scroll>
-          <FocusScrollProbe onReady={(next) => (captured.api = next)} />
-          <TextField value="" onFocus={onFocus} onBlur={onBlur} placeholder="Name">
-            <TextFieldLabel>Recipient</TextFieldLabel>
-          </TextField>
-        </Scroll>
+        <FixedRegionLayoutProvider keyboardEnabled>
+          <Scroll>
+            <FocusScrollProbe onReady={(next) => (captured.api = next)} />
+            <TextField value="" onFocus={onFocus} onBlur={onBlur} placeholder="Name">
+              <TextFieldLabel>Recipient</TextFieldLabel>
+            </TextField>
+          </Scroll>
+        </FixedRegionLayoutProvider>
       </NuriThemeProvider>,
     );
 
@@ -1416,12 +1421,14 @@ describe('BottomSheet — keyboard-reachable form composition', () => {
     });
     const tr = render(
       <NuriThemeProvider>
-        <Scroll>
-          <FocusScrollProbe onReady={(next) => (captured.api = next)} />
-          <TextField value="" onFocus={onFocus}>
-            <TextFieldLabel>Recipient</TextFieldLabel>
-          </TextField>
-        </Scroll>
+        <FixedRegionLayoutProvider keyboardEnabled>
+          <Scroll>
+            <FocusScrollProbe onReady={(next) => (captured.api = next)} />
+            <TextField value="" onFocus={onFocus}>
+              <TextFieldLabel>Recipient</TextFieldLabel>
+            </TextField>
+          </Scroll>
+        </FixedRegionLayoutProvider>
       </NuriThemeProvider>,
     );
 

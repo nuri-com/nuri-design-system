@@ -1,8 +1,8 @@
 /* ──────────────────────────────────────────────────────────────
- * NURI · COMPONENT · BOTTOM-SHEET-PANEL · GENERATED RN API ADAPTER · DO NOT EDIT BY HAND
+ * NURI · COMPONENT · MODAL-PANEL · GENERATED RN API ADAPTER · DO NOT EDIT BY HAND
  *
- * The exact public export for `bottom-sheet-panel` (Path C component-API). `{Name}Props`
- * is emitted from the descriptor's `api` (packages/spec/components/bottom-sheet-panel.ts);
+ * The exact public export for `modal-panel` (Path C component-API). `{Name}Props`
+ * is emitted from the descriptor's `api` (packages/spec/components/modal-panel.ts);
  * the component adapter normalizes public props into selection, content,
  * behaviour, and optional accent scope before calling the shared descriptor renderer.
  *
@@ -14,37 +14,39 @@
 import * as React from 'react';
 import { nuriNames, renderDescriptorInstance } from '../../runtime/renderer';
 import type { NuriBehaviour } from '../../runtime/renderer';
-import { bottomSheetPanelDescriptor } from '@nuri/spec/descriptors/bottom-sheet-panel';
+import { modalPanelDescriptor } from '@nuri/spec/descriptors/modal-panel';
 import { recipes } from '../data/recipes';
 import { scopedByAccent } from '../../primitives/shared';
 import type { Accent } from '../data/tokens';
 
-export type BottomSheetPanelProps = {
+export type ModalPanelProps = {
+  mode?: 'sheet' | 'full';
   accent?: Accent;
   children?: React.ReactNode;
 };
 
-type BottomSheetPanelPart = 'root';
+type ModalPanelPart = 'root';
 
-const bottomSheetPanelDisplayName = nuriNames('bottom-sheet-panel').rn;
+const modalPanelDisplayName = nuriNames('modal-panel').rn;
 
-const BottomSheetPanelInner: React.FC<BottomSheetPanelProps> = (props) => {
+const ModalPanelInner: React.FC<ModalPanelProps> = (props) => {
   const selection: Record<string, string> = {
+    "mode": props.mode ?? "sheet",
   };
-  const content: Partial<Record<BottomSheetPanelPart, React.ReactNode>> = {};
+  const content: Partial<Record<ModalPanelPart, React.ReactNode>> = {};
   if (props.children !== undefined) content["root"] = props.children;
-  const behaviour: NuriBehaviour<BottomSheetPanelPart> = {};
+  const behaviour: NuriBehaviour<ModalPanelPart> = {};
 
   return renderDescriptorInstance({
-    descriptor: bottomSheetPanelDescriptor,
-    recipe: recipes["bottom-sheet-panel"],
-    displayName: bottomSheetPanelDisplayName,
+    descriptor: modalPanelDescriptor,
+    recipe: recipes["modal-panel"],
+    displayName: modalPanelDisplayName,
     selection,
     content,
     behaviour,
   });
 };
-BottomSheetPanelInner.displayName = `${bottomSheetPanelDisplayName}Inner`;
+ModalPanelInner.displayName = `${modalPanelDisplayName}Inner`;
 
-export const BottomSheetPanel = scopedByAccent(BottomSheetPanelInner);
-BottomSheetPanel.displayName = bottomSheetPanelDisplayName;
+export const ModalPanel = scopedByAccent(ModalPanelInner);
+ModalPanel.displayName = modalPanelDisplayName;

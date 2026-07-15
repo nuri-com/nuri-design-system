@@ -1,6 +1,6 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · FOOTER
- * Fixed bottom region for a local Screen or BottomSheetPanel.
+ * Fixed bottom region for a local Screen or ModalPanel.
  * ────────────────────────────────────────────────────────────── */
 
 @layer tokens {

@@ -1,0 +1,64 @@
+/* NURI · MODAL · static prototype presentation */
+@layer rules {
+  :is(nuri-modal, nuri-bottom-sheet) {
+    --nuri-modal-scrim-none: transparent;
+    --nuri-modal-scrim-dim: transparent;
+
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: none;
+    align-items: flex-end;
+    justify-content: stretch;
+    pointer-events: none;
+  }
+
+  :is(nuri-modal, nuri-bottom-sheet)[open] {
+    display: flex;
+  }
+
+  :is(nuri-modal, nuri-bottom-sheet)::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    pointer-events: auto;
+  }
+
+  :is(nuri-modal, nuri-bottom-sheet)[scrim="dim"]::before {
+    background: var(--nuri-modal-scrim-dim);
+  }
+
+  :is(nuri-modal, nuri-bottom-sheet) > :is(nuri-modal-panel, nuri-bottom-sheet-panel) {
+    --nuri-fixed-header-block: 0px;
+    --nuri-fixed-footer-block: 0px;
+
+    position: relative;
+    z-index: 1;
+    inline-size: 100%;
+    min-block-size: 0;
+    max-block-size: min(82%, max-content);
+    overflow: hidden;
+    pointer-events: auto;
+  }
+
+  :is(nuri-modal, nuri-bottom-sheet)[mode="full"]::before {
+    display: none;
+  }
+
+  :is(nuri-modal, nuri-bottom-sheet)[mode="full"] > :is(nuri-modal-panel, nuri-bottom-sheet-panel) {
+    position: absolute;
+    inset: 0;
+    block-size: 100%;
+    max-block-size: none;
+  }
+
+  :is(nuri-modal, nuri-bottom-sheet) > :is(nuri-modal-panel, nuri-bottom-sheet-panel) > nuri-scroll {
+    max-block-size: 100%;
+  }
+
+  :is(nuri-modal, nuri-bottom-sheet)[mode="full"] > :is(nuri-modal-panel, nuri-bottom-sheet-panel) > nuri-scroll {
+    flex: 1;
+    block-size: 100%;
+  }
+}

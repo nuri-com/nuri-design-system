@@ -25,5 +25,5 @@ export { TabBarItem, TabBarItemIcon, TabBarItemLabel } from './tab-bar-item';
 export type { TabBarItemProps, TabBarItemIconProps, TabBarItemLabelProps } from './tab-bar-item';
 export { TabBar } from './tab-bar';
 export type { TabBarProps } from './tab-bar';
-export { BottomSheetPanel } from './bottom-sheet-panel';
-export type { BottomSheetPanelProps } from './bottom-sheet-panel';
+export { ModalPanel } from './modal-panel';
+export type { ModalPanelProps } from './modal-panel';

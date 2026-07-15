@@ -1,8 +1,8 @@
 import * as React from 'react';
 
 import {
-  BottomSheet,
-  BottomSheetPanel,
+  Modal,
+  ModalPanel,
   Button,
   Footer,
   Header,
@@ -19,9 +19,9 @@ const noop = () => undefined;
 
 export function SendAddressSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
-    <BottomSheet open={open} detent="full" onOpenChange={(next) => !next && onClose()}>
-      <BottomSheetPanel>
-        <Header paddingTop="lg">
+    <Modal open={open} mode="full" onOpenChange={(next) => !next && onClose()}>
+      <ModalPanel>
+        <Header safeAreaTop paddingTop="lg">
           <Topbar surface="transparent">
             <TopbarTrailing>
               <IconButton icon="chevron-left" variant="soft" accessibilityLabel="Back" onPress={onClose} />
@@ -52,7 +52,7 @@ export function SendAddressSheet({ open, onClose }: { open: boolean; onClose: ()
             <Button size="lg" variant="soft" onPress={noop}>Paste Bitcoin address</Button>
           </View>
         </Footer>
-      </BottomSheetPanel>
-    </BottomSheet>
+      </ModalPanel>
+    </Modal>
   );
 }

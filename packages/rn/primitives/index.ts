@@ -57,6 +57,8 @@ export { Separator } from './Separator';
 export type { SeparatorProps, SeparatorYSpace } from './Separator';
 export { ListSeparator } from './ListSeparator';
 export type { ListSeparatorProps } from './ListSeparator';
+export { Modal, ModalPanel } from './Modal';
+export type { ModalProps, ModalMode, ModalScrim, ModalPanelProps } from './Modal';
 export { BottomSheet, BottomSheetPanel } from './BottomSheet';
 export type {
   BottomSheetProps,

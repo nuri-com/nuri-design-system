@@ -72,6 +72,10 @@ class NuriHeader extends HTMLElement {
     this.#measure();
   }
 
+  refreshRegionLayout() {
+    this.#measure();
+  }
+
   #replaceInner(tag) {
     const next = document.createElement(tag);
     if (this.#inner) {
@@ -120,7 +124,7 @@ class NuriHeader extends HTMLElement {
   }
 
   #nearestScope() {
-    return this.closest('.nuri-screen, nuri-bottom-sheet-panel');
+    return this.closest('.nuri-screen, nuri-modal-panel, nuri-bottom-sheet-panel');
   }
 
   #setScopeVar(scope, px) {

@@ -9,7 +9,7 @@ nav_order: 7
 
 # Text Field
 
-Use a `TextFieldHandle` ref for consumer-owned focus policy. Focus after a sheet enters with `<BottomSheet onOpenComplete={() => ref.current?.focus()}>`; for validation, call `ref.current?.focus()` from the invalid branch of the submit handler. The handle exposes only `focus()` and `blur()`—never the raw native input.
+Use a `TextFieldHandle` ref for consumer-owned focus policy. Inputs belong in `<Modal mode="full">`; autofocus when the form subtree mounts, without waiting for the enter animation. For validation, call `ref.current?.focus()` from the invalid branch of the submit handler. The handle exposes only `focus()` and `blur()`—never the raw native input.
 
 ## API
 

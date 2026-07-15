@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nuri · Playground · Bottom Sheet</title>
+  <title>Nuri · Playground · Modal</title>
   <link rel="stylesheet" href="../../generated/playground.css" />
   <script src="../../generated/boot.js" type="module"></script>
   <style>
@@ -27,7 +27,7 @@
 </head>
 <body>
 
-<nuri-playground-shell doc="Bottom Sheet">
+<nuri-playground-shell doc="Modal">
 
   <!-- ACTIVITY sheet · month-grouped transactions. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="activity">
@@ -35,9 +35,9 @@
       <nuri-view class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
 
-        <nuri-bottom-sheet open detent="full" scrim="dim">
-          <nuri-bottom-sheet-panel>
-          <nuri-header padding-top="lg">
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+          <nuri-header safe-area-top padding-top="lg">
             <nuri-topbar surface="transparent">
               <nuri-topbar-trailing>
                 <nuri-icon-button icon="download" variant="soft" aria-label="Download"></nuri-icon-button>
@@ -177,8 +177,8 @@
             </nuri-view>
           </nuri-view>
           </nuri-scroll>
-          </nuri-bottom-sheet-panel>
-        </nuri-bottom-sheet>
+          </nuri-modal-panel>
+        </nuri-modal>
       </nuri-view>
     </template>
   </nuri-demo>
@@ -189,9 +189,9 @@
       <nuri-view class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
 
-        <nuri-bottom-sheet open detent="full" scrim="dim">
-          <nuri-bottom-sheet-panel>
-          <nuri-header padding-top="lg">
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+          <nuri-header safe-area-top padding-top="lg">
             <nuri-topbar surface="transparent">
               <nuri-topbar-trailing>
                 <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
@@ -255,8 +255,8 @@
           >
             <nuri-button size="lg" variant="solid" accent="lilac">Next</nuri-button>
           </nuri-footer>
-          </nuri-bottom-sheet-panel>
-        </nuri-bottom-sheet>
+          </nuri-modal-panel>
+        </nuri-modal>
       </nuri-view>
     </template>
   </nuri-demo>
@@ -267,8 +267,8 @@
       <nuri-view class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
 
-        <nuri-bottom-sheet open detent="content" scrim="dim">
-          <nuri-bottom-sheet-panel>
+        <nuri-modal open mode="sheet" scrim="dim">
+          <nuri-modal-panel>
           <nuri-header padding-top="lg">
             <nuri-topbar surface="transparent">
               <nuri-topbar-trailing>
@@ -305,8 +305,8 @@
             </nuri-list>
           </nuri-view>
           </nuri-scroll>
-          </nuri-bottom-sheet-panel>
-        </nuri-bottom-sheet>
+          </nuri-modal-panel>
+        </nuri-modal>
       </nuri-view>
     </template>
   </nuri-demo>
@@ -317,9 +317,9 @@
       <nuri-view class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
 
-        <nuri-bottom-sheet open detent="full" scrim="dim">
-          <nuri-bottom-sheet-panel>
-          <nuri-header padding-top="lg">
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+          <nuri-header safe-area-top padding-top="lg">
             <nuri-topbar surface="transparent">
               <nuri-topbar-trailing>
                 <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
@@ -366,8 +366,8 @@
           >
             <nuri-button size="sm" variant="solid" accent="lilac">Next</nuri-button>
           </nuri-footer>
-          </nuri-bottom-sheet-panel>
-        </nuri-bottom-sheet>
+          </nuri-modal-panel>
+        </nuri-modal>
       </nuri-view>
     </template>
   </nuri-demo>
@@ -378,9 +378,9 @@
       <nuri-view class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
 
-        <nuri-bottom-sheet open detent="full" scrim="dim">
-          <nuri-bottom-sheet-panel>
-          <nuri-header padding-top="lg">
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+          <nuri-header safe-area-top padding-top="lg">
             <nuri-topbar surface="transparent">
               <nuri-topbar-trailing>
                 <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
@@ -426,8 +426,8 @@
           >
             <nuri-button size="lg" variant="solid" accent="lilac">Next</nuri-button>
           </nuri-footer>
-          </nuri-bottom-sheet-panel>
-        </nuri-bottom-sheet>
+          </nuri-modal-panel>
+        </nuri-modal>
       </nuri-view>
     </template>
   </nuri-demo>
@@ -438,8 +438,8 @@
       <nuri-view class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
 
-        <nuri-bottom-sheet open detent="content" scrim="dim">
-          <nuri-bottom-sheet-panel>
+        <nuri-modal open mode="sheet" scrim="dim">
+          <nuri-modal-panel>
             <nuri-header padding-top="lg">
               <nuri-topbar surface="transparent">
                 <nuri-topbar-trailing>
@@ -480,8 +480,8 @@
                 <nuri-button-text>Pay</nuri-button-text>
               </nuri-button>
             </nuri-footer>
-          </nuri-bottom-sheet-panel>
-        </nuri-bottom-sheet>
+          </nuri-modal-panel>
+        </nuri-modal>
       </nuri-view>
     </template>
   </nuri-demo>
@@ -492,9 +492,9 @@
       <nuri-view class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
 
-        <nuri-bottom-sheet open detent="full" scrim="dim">
-          <nuri-bottom-sheet-panel>
-            <nuri-header padding-top="lg">
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top padding-top="lg">
               <nuri-topbar surface="transparent">
                 <nuri-topbar-trailing>
                   <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
@@ -547,8 +547,8 @@
                 <nuri-button size="lg" variant="soft">Share</nuri-button>
               </nuri-view>
             </nuri-footer>
-          </nuri-bottom-sheet-panel>
-        </nuri-bottom-sheet>
+          </nuri-modal-panel>
+        </nuri-modal>
       </nuri-view>
     </template>
   </nuri-demo>
@@ -559,9 +559,9 @@
       <nuri-view class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
 
-        <nuri-bottom-sheet open detent="full" scrim="dim">
-          <nuri-bottom-sheet-panel>
-            <nuri-header padding-top="lg">
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top padding-top="lg">
               <nuri-topbar surface="transparent">
                 <nuri-topbar-trailing>
                   <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
@@ -598,8 +598,8 @@
                 </nuri-view>
               </nuri-view>
             </nuri-footer>
-          </nuri-bottom-sheet-panel>
-        </nuri-bottom-sheet>
+          </nuri-modal-panel>
+        </nuri-modal>
       </nuri-view>
     </template>
   </nuri-demo>
@@ -610,9 +610,9 @@
       <nuri-view class="sheet-stage" direction="column" align="stretch" justify="start" gap="none" fill>
         <nuri-view class="sheet-content" chrome="canvas" fill></nuri-view>
 
-        <nuri-bottom-sheet open detent="full" scrim="dim">
-          <nuri-bottom-sheet-panel>
-            <nuri-header padding-top="lg">
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top padding-top="lg">
               <nuri-topbar surface="transparent">
                 <nuri-topbar-trailing>
                   <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
@@ -643,8 +643,8 @@
                 <nuri-button size="lg" variant="soft">Paste Bitcoin address</nuri-button>
               </nuri-view>
             </nuri-footer>
-          </nuri-bottom-sheet-panel>
-        </nuri-bottom-sheet>
+          </nuri-modal-panel>
+        </nuri-modal>
       </nuri-view>
     </template>
   </nuri-demo>

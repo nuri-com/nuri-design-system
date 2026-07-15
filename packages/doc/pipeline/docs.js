@@ -244,8 +244,8 @@ const NAV_ORDER = {
   footer: 19,
   dock: 20,
   separator: 21,
-  'bottom-sheet': 22,
-  'bottom-sheet-panel': 23,
+  modal: 22,
+  'modal-panel': 23,
 };
 
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);

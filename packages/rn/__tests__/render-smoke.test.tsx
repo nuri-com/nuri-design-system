@@ -50,9 +50,9 @@ import {
   TabBarItemLabel,
   NuriIcon,
   ListSeparator,
-  BottomSheet,
+  Modal,
   Footer,
-  BottomSheetPanel,
+  ModalPanel,
   Scroll,
   Header,
   OverlayProvider,
@@ -576,13 +576,13 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     });
   });
 
-  test('BottomSheet — structural host renders sticky topbar, body scroll, and fixed footer', () => {
+  test('Modal — structural host renders sticky topbar, body scroll, and fixed footer', () => {
     const tr = render(
       <NuriThemeProvider>
         <OverlayProvider>
           <NuriScreen>
-            <BottomSheet open detent="content" scrim="dim" dismissible>
-              <BottomSheetPanel>
+            <Modal open mode="sheet" scrim="dim" dismissible>
+              <ModalPanel>
                 <Header paddingTop="lg">
                   <Topbar surface="transparent">
                     <TopbarCenter><Text>Receive</Text></TopbarCenter>
@@ -594,8 +594,8 @@ describe('render-smoke — the ergonomic components mount headless', () => {
                 <Footer>
                   <Button variant="solid">Continue</Button>
                 </Footer>
-              </BottomSheetPanel>
-            </BottomSheet>
+              </ModalPanel>
+            </Modal>
           </NuriScreen>
         </OverlayProvider>
       </NuriThemeProvider>,
@@ -616,13 +616,13 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(flatScrollContentStyle).toEqual({ flexGrow: 1 });
   });
 
-  test('BottomSheet — closed means no mounted engine surface', () => {
+  test('Modal — closed means no mounted engine surface', () => {
     const tr = render(
       <NuriThemeProvider>
         <OverlayProvider>
-          <BottomSheet open={false}>
-            <BottomSheetPanel><Text>Hidden</Text></BottomSheetPanel>
-          </BottomSheet>
+          <Modal open={false} mode="sheet">
+            <ModalPanel><Text>Hidden</Text></ModalPanel>
+          </Modal>
         </OverlayProvider>
       </NuriThemeProvider>,
     );

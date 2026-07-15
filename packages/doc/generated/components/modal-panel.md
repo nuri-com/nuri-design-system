@@ -1,13 +1,13 @@
 ---
-title: BottomSheet Panel
+title: Modal Panel
 layout: default
 nav_order: 22
 ---
 
-<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/primitives/BottomSheet.tsx
+<!-- GENERATED · DO NOT EDIT BY HAND · source: packages/rn/primitives/Modal.tsx
      emitter: packages/doc/pipeline/docs.js · re-emit: `npm run build -w @nuri/doc` -->
 
-# BottomSheet Panel
+# Modal Panel
 
 ## API
 

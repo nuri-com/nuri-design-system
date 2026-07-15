@@ -333,20 +333,20 @@ const PAGE_CONTRACT = {
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
-  'bottom-sheet': {
-    kind: 'api', source: 'bottom-sheet', title: 'BottomSheet', nav: 21,
+  modal: {
+    kind: 'api', source: 'modal', title: 'Modal', nav: 21,
     cells: [
-      '| `open` | no | `boolean` | sheet behaviour |',
-      "| `detent` | no | `'content' | 'full'` | sheet behaviour |",
-      "| `scrim` | no | `'none' | 'dim'` | sheet behaviour |",
-      '| `onOpenChange` | no | `(open: boolean) => void` | sheet behaviour |',
+      '| `open` | no | `boolean` | modal behaviour |',
+      "| `mode` | yes | `'sheet' | 'full'` | presentation mode |",
+      "| `scrim` | no | `'none' | 'dim'` | sheet-mode behaviour |",
+      '| `onOpenChange` | no | `(open: boolean) => void` | modal behaviour |',
       '| `onOpenComplete` | no | `() => void` | post-enter lifecycle |',
       '| `children` | no | `React.ReactNode` | default content slot |',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
-  'bottom-sheet-panel': {
-    kind: 'api', source: 'bottom-sheet-panel', title: 'BottomSheet Panel', nav: 22,
+  'modal-panel': {
+    kind: 'api', source: 'modal-panel', title: 'Modal Panel', nav: 22,
     cells: [
       '| `children` | no | `React.ReactNode` | default content slot |',
     ],

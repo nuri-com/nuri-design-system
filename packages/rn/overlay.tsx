@@ -1,12 +1,12 @@
 /* ══════════════════════════════════════════════════════════════════
  * NURI · OVERLAY RUNTIME · the DS overlay layer (route B · design lock
- * 2026-07-05 · docs/bottom-sheet-improvements.md "Overlay layer architecture")
+ * 2026-07-05 · presented-layer architecture)
  * ──────────────────────────────────────────────────────────────────
  * A root provider, the SAME shape as theme.tsx (createContext + Provider +
  * use* hook). It owns the overlay RUNTIME: a registry of active layers,
  * z-stacking by mount order (later = on top), and back/dismiss routing to
  * the TOPMOST BLOCKING layer. It is the shared substrate every overlay tenant needs —
- * BottomSheet today, a toast/flow sheet later — so the sheet's scrim can
+ * Modal and Toast today, future presented tenants later — so a sheet scrim can
  * render ABOVE the consumer's safe-area padding (covering the status bar)
  * and overlays can STACK (a toast on top of a sheet).
  *
@@ -16,7 +16,7 @@
  *                     absoluteFill View (pointerEvents box-none, high zIndex)
  *                     that maps the layers stacked in mount order.
  *   useOverlay()      one useContext lookup → the registrar API. The declarative
- *                     <BottomSheet> registrar consumes it; a future imperative
+ *                     <Modal> registrar consumes it; imperative
  *                     toast API will too.
  *
  * ── THE ZERO-NATIVE-DEP INSET CONTRACT (the sharp constraint) ──
@@ -63,7 +63,7 @@ type OverlayEntry = {
   onRequestClose?: () => void;
 };
 
-// Default context = inert no-ops. A BottomSheet used without an OverlayProvider
+// Default context = inert no-ops. A Modal used without an OverlayProvider
 // registers into the void and renders nothing; we warn once in dev so the
 // missing root is obvious (silent no-show would be a puzzling failure).
 let warnedNoProvider = false;
@@ -72,7 +72,7 @@ function warnNoProvider(): void {
   warnedNoProvider = true;
   if (typeof __DEV__ !== 'undefined' && __DEV__) {
     console.warn(
-      '[nuri] An overlay (e.g. <BottomSheet open>) was mounted without an <OverlayProvider>. ' +
+      '[nuri] An overlay (e.g. <Modal open mode="sheet">) was mounted without an <OverlayProvider>. ' +
         'Mount <OverlayProvider> once at the app root, above your safe-area padding.',
     );
   }

@@ -1,8 +1,8 @@
 import * as React from 'react';
 
 import {
-  BottomSheet,
-  BottomSheetPanel,
+  Modal,
+  ModalPanel,
   Header,
   IconButton,
   List,
@@ -28,9 +28,9 @@ export function ActivitySheet({
   onClose: () => void;
 }) {
   return (
-    <BottomSheet open={open} detent="full" onOpenChange={(next) => !next && onClose()}>
-      <BottomSheetPanel>
-        <Header paddingTop="lg">
+    <Modal open={open} mode="full" onOpenChange={(next) => !next && onClose()}>
+      <ModalPanel>
+        <Header safeAreaTop paddingTop="lg">
           <Topbar surface="transparent">
             <TopbarTrailing>
               <IconButton icon="download" variant="soft" accessibilityLabel="Download activity" />
@@ -172,7 +172,7 @@ export function ActivitySheet({
             <View height="2xl" />
           </View>
         </Scroll>
-      </BottomSheetPanel>
-    </BottomSheet>
+      </ModalPanel>
+    </Modal>
   );
 }

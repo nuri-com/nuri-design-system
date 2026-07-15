@@ -311,7 +311,7 @@
       // become absolute overlays ABOVE the sheet, so the OS chrome floats over
       // the dim exactly as it does on a real device. Non-sheet frames are
       // unaffected (they keep the in-flow safe-area chrome).
-      const hasOverlay = /<nuri-(?:bottom-sheet|toast)[\s/>]/.test(sourceHtml);
+      const hasOverlay = /<nuri-(?:modal|toast)[\s/>]/.test(sourceHtml);
       const hasScreenSafeArea =
         /<nuri-screen\b[^>]*\bsafe-area(?:-(?:top|bottom))?(?:=|\s|>)/.test(sourceHtml) ||
         /<nuri-(?:header|footer|scroll)\b[^>]*\bsafe-area(?:-(?:top|bottom))?(?:=|\s|>)/.test(sourceHtml);

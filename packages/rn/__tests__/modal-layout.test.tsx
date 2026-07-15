@@ -1,11 +1,11 @@
 /* ══════════════════════════════════════════════════════════════════
- * NURI · BOTTOM SHEET · LAYOUT LATCH + NO-ARMING REGRESSION LOCK (D3)
+ * NURI · MODAL SHEET MODE · LAYOUT LATCH + NO-ARMING REGRESSION LOCK
  * ──────────────────────────────────────────────────────────────────
  * `handleSheetLayout` measures the sheet height once per delta and latches it
  * for the enter-slide travel distance. It MUST NOT arm a LayoutAnimation on a
  * content/height change: the old `configureNext(...)` inside `onLayout` armed
- * the NEXT commit (an off-by-one that animated nothing · docs/bottom-sheet-
- * improvements.md D3). This suite pins both halves — the measurement still
+ * the NEXT commit (an off-by-one that animated nothing). This suite pins both
+ * halves — the measurement still
  * latches, and no `LayoutAnimation.configureNext` is ever armed from layout —
  * so re-adding the dead arming fails the build. The real morph lands with D2.
  * ══════════════════════════════════════════════════════════════════ */
@@ -14,7 +14,7 @@ import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { Animated, LayoutAnimation, Text } from 'react-native';
 import { NuriThemeProvider } from '../theme';
-import { BottomSheet, BottomSheetPanel, OverlayProvider } from '../index';
+import { Modal, ModalPanel, OverlayProvider } from '../index';
 
 function render(node: React.ReactElement): TestRenderer.ReactTestRenderer {
   let tr!: TestRenderer.ReactTestRenderer;
@@ -43,7 +43,7 @@ function fireSheetLayout(tr: TestRenderer.ReactTestRenderer, height: number): vo
   });
 }
 
-describe('BottomSheet — layout measurement latch + no LayoutAnimation arming (D3)', () => {
+describe('Modal — layout measurement latch + no LayoutAnimation arming (D3)', () => {
   let configureNext: jest.SpyInstance;
 
   beforeEach(() => {
@@ -58,11 +58,11 @@ describe('BottomSheet — layout measurement latch + no LayoutAnimation arming (
     const tr = render(
       <NuriThemeProvider>
         <OverlayProvider>
-          <BottomSheet open detent="content">
-            <BottomSheetPanel>
+          <Modal open mode="sheet">
+            <ModalPanel>
               <Text>Receive</Text>
-            </BottomSheetPanel>
-          </BottomSheet>
+            </ModalPanel>
+          </Modal>
         </OverlayProvider>
       </NuriThemeProvider>,
     );
@@ -74,11 +74,11 @@ describe('BottomSheet — layout measurement latch + no LayoutAnimation arming (
     const tr = render(
       <NuriThemeProvider>
         <OverlayProvider>
-          <BottomSheet open detent="content">
-            <BottomSheetPanel>
+          <Modal open mode="sheet">
+            <ModalPanel>
               <Text>Receive</Text>
-            </BottomSheetPanel>
-          </BottomSheet>
+            </ModalPanel>
+          </Modal>
         </OverlayProvider>
       </NuriThemeProvider>,
     );
@@ -93,11 +93,11 @@ describe('BottomSheet — layout measurement latch + no LayoutAnimation arming (
     const tr = render(
       <NuriThemeProvider>
         <OverlayProvider>
-          <BottomSheet open detent="content">
-            <BottomSheetPanel>
+          <Modal open mode="sheet">
+            <ModalPanel>
               <Text>Receive</Text>
-            </BottomSheetPanel>
-          </BottomSheet>
+            </ModalPanel>
+          </Modal>
         </OverlayProvider>
       </NuriThemeProvider>,
     );
@@ -127,16 +127,16 @@ describe('BottomSheet — layout measurement latch + no LayoutAnimation arming (
       const tr = render(
         <NuriThemeProvider>
           <OverlayProvider>
-            <BottomSheet
+            <Modal
               open
-              detent="content"
+              mode="sheet"
               onOpenChange={onOpenChange}
               onOpenComplete={onOpenComplete}
             >
-              <BottomSheetPanel>
+              <ModalPanel>
                 <Text>Receive</Text>
-              </BottomSheetPanel>
-            </BottomSheet>
+              </ModalPanel>
+            </Modal>
           </OverlayProvider>
         </NuriThemeProvider>,
       );
@@ -156,15 +156,71 @@ describe('BottomSheet — layout measurement latch + no LayoutAnimation arming (
     }
   });
 
+  test('full mode starts its fade enter without waiting for a layout measurement', () => {
+    let finishEnter: ((result: { finished: boolean }) => void) | undefined;
+    const onOpenComplete = jest.fn();
+    const timing = jest.spyOn(Animated, 'timing').mockImplementation(
+      () =>
+        ({
+          start: (callback?: (result: { finished: boolean }) => void) => {
+            finishEnter = callback;
+          },
+          stop: jest.fn(),
+          reset: jest.fn(),
+        }) as unknown as ReturnType<typeof Animated.timing>,
+    );
+
+    try {
+      render(
+        <NuriThemeProvider>
+          <OverlayProvider>
+            <Modal open mode="full" onOpenComplete={onOpenComplete}>
+              <ModalPanel><Text>Form</Text></ModalPanel>
+            </Modal>
+          </OverlayProvider>
+        </NuriThemeProvider>,
+      );
+
+      expect(timing).toHaveBeenCalledTimes(1);
+      act(() => finishEnter?.({ finished: true }));
+      expect(onOpenComplete).toHaveBeenCalledTimes(1);
+    } finally {
+      timing.mockRestore();
+    }
+  });
+
+  test('changing mode preserves the mounted child instance', () => {
+    class StatefulChild extends React.Component {
+      render() {
+        return <Text>Stateful</Text>;
+      }
+    }
+    const childRef = React.createRef<StatefulChild>();
+    const tree = (mode: 'sheet' | 'full') => (
+      <NuriThemeProvider>
+        <OverlayProvider>
+          <Modal open mode={mode}>
+            <ModalPanel><StatefulChild ref={childRef} /></ModalPanel>
+          </Modal>
+        </OverlayProvider>
+      </NuriThemeProvider>
+    );
+    const tr = render(tree('full'));
+    const first = childRef.current;
+
+    act(() => tr.update(tree('sheet')));
+    expect(childRef.current).toBe(first);
+  });
+
   test('a closed sheet mounts no engine surface (exit/unmount behaviour retained)', () => {
     const tr = render(
       <NuriThemeProvider>
         <OverlayProvider>
-          <BottomSheet open={false} detent="content">
-            <BottomSheetPanel>
+          <Modal open={false} mode="sheet">
+            <ModalPanel>
               <Text>Receive</Text>
-            </BottomSheetPanel>
-          </BottomSheet>
+            </ModalPanel>
+          </Modal>
         </OverlayProvider>
       </NuriThemeProvider>,
     );
