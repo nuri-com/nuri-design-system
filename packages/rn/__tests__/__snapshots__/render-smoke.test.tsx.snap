@@ -93,6 +93,7 @@ exports[`render-smoke — the ergonomic components mount headless Alert — ghos
           "flexGrow": 1,
           "flexShrink": 1,
           "minWidth": 0,
+          "paddingEnd": 18,
           "textAlign": "left",
         },
       ]
@@ -112,7 +113,7 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
       "borderRadius": 9999,
       "flexDirection": "row",
       "gap": 6,
-      "minHeight": 54,
+      "minHeight": 48,
       "padding": 12,
       "paddingStart": 18,
     }
@@ -200,6 +201,7 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
           "flexGrow": 1,
           "flexShrink": 1,
           "minWidth": 0,
+          "paddingEnd": 18,
           "textAlign": "left",
         },
       ]

@@ -33,7 +33,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "variants": {
           "variant": {
             "soft": {
-              "minHeight": 54,
+              "minHeight": 48,
               "padding": 12,
               "paddingStart": 18,
               "borderRadius": 9999
@@ -58,7 +58,8 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "base": {
           "flexGrow": 1,
           "flexShrink": 1,
-          "minWidth": 0
+          "minWidth": 0,
+          "paddingEnd": 18
         },
         "variants": {}
       },

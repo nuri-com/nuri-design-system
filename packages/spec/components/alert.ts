@@ -97,6 +97,7 @@ export const alertDescriptor: Descriptor<AlertAxes> = {
       // declared as typography data, not as an Alert-local renderer/CSS hack.
       message: {
         stack: { fill: 'grow-shrink' },
+        box: { paddingEnd: 'lg' },
         typography: { size: 'sm', emphasis: true, align: 'start', flow: 'truncate', lines: 1 },
         palette: { muted: true },
       },
@@ -110,7 +111,7 @@ export const alertDescriptor: Descriptor<AlertAxes> = {
     // height, and a FULL (pill) radius. ghost = the bare error line: transparent,
     // no padding, no radius — icon + text only.
     variant: {
-      soft: { root: { box: { minHeight: 'xl', padding: 'md', paddingStart: 'lg', radius: 'full' }, palette: { variant: 'soft' } } },
+      soft: { root: { box: { minHeight: 'lg', padding: 'md', paddingStart: 'lg', radius: 'full' }, palette: { variant: 'soft' } } },
       ghost: { root: { palette: { variant: 'ghost' } } },
     },
   },

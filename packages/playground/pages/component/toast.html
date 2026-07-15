@@ -11,10 +11,8 @@
 
 <nuri-playground-shell doc="Toast">
 
-  <!-- Static placement proof: the content-agnostic toast composes the blessed
-       Alert body above an already-open payment sheet. The recipe owns only the
-       20 < 25 < 30/31 layer band; RN owns show/hide/timing. -->
-  <nuri-demo layout="board" controls="device,theme,accent" label="address copied over payment sheet">
+  <!-- Exact copy of the first Receive Bitcoin demo, with only the toast layer added. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="receive bitcoin · address copied">
     <template>
       <nuri-screen>
         <nuri-view chrome="canvas" fill></nuri-view>
@@ -24,11 +22,8 @@
             <nuri-header padding-top="lg">
               <nuri-topbar surface="transparent">
                 <nuri-topbar-leading>
-                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                  <nuri-typography size="lg" emphasis>Receive Bitcoin</nuri-typography>
                 </nuri-topbar-leading>
-                <nuri-topbar-center>
-                  <nuri-typography size="lg" emphasis>Send Bitcoin</nuri-typography>
-                </nuri-topbar-center>
                 <nuri-topbar-trailing>
                   <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
                 </nuri-topbar-trailing>
@@ -36,19 +31,23 @@
             </nuri-header>
 
             <nuri-scroll>
-              <nuri-view direction="column" align="stretch" justify="center" gap="lg" padding-x="lg" fill>
-                <nuri-view direction="column" align="center" gap="sm">
-                  <nuri-typography size="sm" muted>Sending to</nuri-typography>
-                  <nuri-typography size="md" emphasis>bc1q…r4</nuri-typography>
-                </nuri-view>
+              <nuri-view direction="column" align="stretch" justify="center" gap="md" padding-x="lg" padding-bottom="sm" fill>
                 <nuri-view variant="outline" radius="lg" padding="lg">
-                  <nuri-typography size="3xl" align="center">₿ 45239</nuri-typography>
+                  <nuri-scope mode="dark">
+                    <nuri-view chrome="canvas" aspect-ratio="square" align="center" justify="center">
+                      <nuri-typography size="md" muted align="center">Qr Code</nuri-typography>
+                    </nuri-view>
+                  </nuri-scope>
                 </nuri-view>
+                <nuri-typography size="md" align="center">cim@nuri.com</nuri-typography>
               </nuri-view>
             </nuri-scroll>
 
             <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
-              <nuri-button size="lg" variant="solid" accent="lilac">Confirm payment</nuri-button>
+              <nuri-view direction="row" gap="sm" distribute="even">
+                <nuri-button size="lg" variant="soft">Set amount</nuri-button>
+                <nuri-button size="lg" variant="solid" accent="lilac">Share</nuri-button>
+              </nuri-view>
             </nuri-footer>
           </nuri-bottom-sheet-panel>
         </nuri-bottom-sheet>
@@ -57,6 +56,60 @@
           <nuri-alert>
             <nuri-alert-icon name="check-circle"></nuri-alert-icon>
             Address copied
+          </nuri-alert>
+        </nuri-toast>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- Exact copy of the third Screens demo (Bank), with only the toast layer added. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="bank · sending">
+    <template>
+      <nuri-screen>
+        <nuri-header safe-area-top chrome="canvas">
+          <nuri-topbar>
+            <nuri-topbar-leading>
+              <nuri-icon name="nuri"></nuri-icon>
+            </nuri-topbar-leading>
+            <nuri-topbar-trailing>
+              <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Activity"></nuri-icon-button>
+              <nuri-icon-button icon="headphones" variant="soft" aria-label="Support"></nuri-icon-button>
+            </nuri-topbar-trailing>
+          </nuri-topbar>
+        </nuri-header>
+
+        <nuri-scroll>
+          <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-x="lg" padding-y="md" fill>
+            <nuri-view aspect-ratio="card" radius="lg" variant="soft"></nuri-view>
+            <nuri-typography size="3xl" align="center">€ 25.87</nuri-typography>
+            <nuri-view direction="row" align="center" gap="sm" distribute="even">
+              <nuri-button size="lg" variant="soft">Details</nuri-button>
+              <nuri-button size="lg" variant="solid" accent="lilac">Send</nuri-button>
+            </nuri-view>
+          </nuri-view>
+        </nuri-scroll>
+
+        <nuri-footer safe-area-bottom chrome="canvas">
+          <nuri-tab-bar>
+            <nuri-tab-bar-item aria-label="Bitcoin wallet">
+              <nuri-tab-bar-item-icon name="bitcoin-wallet"></nuri-tab-bar-item-icon>
+              <nuri-tab-bar-item-label>€ 36.50</nuri-tab-bar-item-label>
+            </nuri-tab-bar-item>
+            <nuri-tab-bar-item selected aria-label="Bank account">
+              <nuri-tab-bar-item-icon name="bank"></nuri-tab-bar-item-icon>
+              <nuri-tab-bar-item-label>€ 18.90</nuri-tab-bar-item-label>
+            </nuri-tab-bar-item>
+            <nuri-tab-bar-item aria-label="Euro wallet">
+              <nuri-tab-bar-item-icon name="euro-wallet"></nuri-tab-bar-item-icon>
+              <nuri-tab-bar-item-label>€ 25.70</nuri-tab-bar-item-label>
+            </nuri-tab-bar-item>
+          </nuri-tab-bar>
+        </nuri-footer>
+
+        <nuri-toast>
+          <nuri-alert>
+            <nuri-alert-icon name="spinner"></nuri-alert-icon>
+            Sending…
           </nuri-alert>
         </nuri-toast>
       </nuri-screen>
