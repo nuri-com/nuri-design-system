@@ -9,7 +9,16 @@
 
 import * as React from 'react';
 import { Image, Platform, Text, TextInput, View } from 'react-native';
-import type { ImageSourcePropType, ImageStyle, StyleProp, TextStyle } from 'react-native';
+import type {
+  ImageSourcePropType,
+  ImageStyle,
+  NativeSyntheticEvent,
+  StyleProp,
+  TextInputChangeEventData,
+  TextInputProps,
+  TextInputSelectionChangeEventData,
+  TextStyle,
+} from 'react-native';
 import { classifyComposition } from '@nuri/spec/composition-classify';
 import { LEAF_ELS } from '@nuri/spec/descriptors/schema';
 import type { Descriptor, Axes, IconName, PartId } from '../contract';
@@ -20,6 +29,9 @@ import type { AnatomyNode, Selection, BakedComponentRecipe } from './resolve';
 import { NuriIcon } from '../primitives/NuriIcon';
 import { useFocusable } from './focus-scroll';
 import { PressableHost } from './pressable-host';
+import { setTextAndSelection } from './native-text-input-command';
+import { mapTextSelection } from './text-selection-map';
+import type { TextSelection } from './text-selection-map';
 
 // §12 surface context — the resolved foreground a surface provides to propless
 // descendants (colour-from-scope · F-BOX-FG-1).
@@ -44,6 +56,7 @@ const FOCUS_RING_OFFSET = 2;
 // the cast (the value is inert on native and never reached there anyway).
 const WEB_INPUT_OUTLINE_RESET: TextStyle | null =
   Platform.OS === 'web' ? ({ outlineStyle: 'none' } as unknown as TextStyle) : null;
+const PENDING_INPUT_EMIT_LIMIT = 16;
 
 // A generated marker component (TopbarLeading/Center/Trailing regions and ordered
 // leaves like ButtonText/ButtonIcon). Rendered alone it yields its children;
@@ -202,6 +215,8 @@ export type NuriBehaviour<PId extends PartId = PartId> = {
       inputMode?: 'text' | 'decimal' | 'numeric' | 'tel' | 'email' | 'url' | 'search';
       secureTextEntry?: boolean;
       autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+      sanitize?: (text: string) => string;
+      maxLength?: number;
       disabled?: boolean;
       onFocus?: () => void;
       onBlur?: () => void;
@@ -253,6 +268,8 @@ type DescriptorTextInputProps = {
   inputMode?: 'text' | 'decimal' | 'numeric' | 'tel' | 'email' | 'url' | 'search';
   secureTextEntry?: boolean;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  sanitize?: (text: string) => string;
+  maxLength?: number;
   inputDisabled: boolean;
   accessibilityLabel?: string;
   derivedLabel?: string;
@@ -276,6 +293,8 @@ function DescriptorTextInput({
   inputMode,
   secureTextEntry,
   autoCapitalize,
+  sanitize,
+  maxLength,
   inputDisabled,
   accessibilityLabel,
   derivedLabel,
@@ -288,15 +307,125 @@ function DescriptorTextInput({
   inputRef,
   inputFocusHandlers,
 }: DescriptorTextInputProps): React.ReactElement {
+  const mountValue = React.useRef(value).current;
+  const initialText = mountValue ?? '';
+  const latestProps = React.useRef({ value, onChangeText, sanitize });
+  const lastNative = React.useRef<{
+    text: string;
+    selection: TextSelection;
+    eventCount: number;
+  }>({
+    text: initialText,
+    selection: { start: initialText.length, end: initialText.length },
+    eventCount: 0,
+  });
+  const pendingEmits = React.useRef<string[]>([]);
+
+  React.useLayoutEffect(() => {
+    // Event handlers must observe only committed props. Publishing during
+    // render lets a suspended or abandoned render leak its sanitizer/callback
+    // into native events still owned by the committed tree.
+    latestProps.current = { value, onChangeText, sanitize };
+    if (Platform.OS === 'web') return;
+    const nextValue = value;
+    if (nextValue == null) return;
+
+    const pending = pendingEmits.current;
+    const newestMatch = pending.lastIndexOf(nextValue);
+    if (nextValue === lastNative.current.text) {
+      // Retain the newest acknowledgement. A native event can arrive before
+      // the next parent commit, and a delayed repeat of this value must remain
+      // recognizable as an echo after that newer event.
+      if (newestMatch >= 0) pendingEmits.current = pending.slice(newestMatch);
+      return;
+    }
+    if (newestMatch >= 0) {
+      // A value-only API cannot distinguish this echo from an intentional
+      // rewrite to recently emitted text. Preserve native input: keep the
+      // newest match and everything after it so repeated stale commits remain
+      // suppressed until a newer acknowledgement prunes the history.
+      pendingEmits.current = pending.slice(newestMatch);
+      return;
+    }
+
+    const ref = inputRef.current;
+    if (!ref) return;
+    const selection = mapTextSelection(
+      lastNative.current.text,
+      nextValue,
+      lastNative.current.selection,
+    );
+    setTextAndSelection(
+      ref,
+      lastNative.current.eventCount,
+      nextValue,
+      selection.start,
+      selection.end,
+    );
+    lastNative.current = {
+      ...lastNative.current,
+      text: nextValue,
+      selection,
+    };
+  });
+
+  const handleNativeChange = (event: NativeSyntheticEvent<TextInputChangeEventData>): void => {
+    const previous = lastNative.current;
+    const raw = event.nativeEvent.text;
+    const eventCount = event.nativeEvent.eventCount;
+    let selection = mapTextSelection(previous.text, raw, previous.selection);
+    lastNative.current = { text: raw, selection, eventCount };
+
+    const emitted = latestProps.current.sanitize ? latestProps.current.sanitize(raw) : raw;
+    if (emitted !== raw) {
+      selection = mapTextSelection(raw, emitted, selection);
+      const ref = inputRef.current;
+      if (ref) {
+        setTextAndSelection(ref, eventCount, emitted, selection.start, selection.end);
+      }
+      lastNative.current = { text: emitted, selection, eventCount };
+    }
+
+    pendingEmits.current = [...pendingEmits.current, emitted].slice(-PENDING_INPUT_EMIT_LIMIT);
+    latestProps.current.onChangeText?.(emitted);
+  };
+
+  const handleNativeSelectionChange = (
+    event: NativeSyntheticEvent<TextInputSelectionChangeEventData>,
+  ): void => {
+    const textLength = lastNative.current.text.length;
+    const clamp = (offset: number): number => Math.max(0, Math.min(offset, textLength));
+    lastNative.current = {
+      ...lastNative.current,
+      selection: {
+        start: clamp(event.nativeEvent.selection.start),
+        end: clamp(event.nativeEvent.selection.end),
+      },
+    };
+  };
+
+  const authorityProps: TextInputProps = Platform.OS === 'web'
+    ? {
+      value,
+      onChangeText: (text) => latestProps.current.onChangeText?.(
+        latestProps.current.sanitize ? latestProps.current.sanitize(text) : text,
+      ),
+    }
+    : {
+      defaultValue: mountValue,
+      onChange: handleNativeChange,
+      onSelectionChange: handleNativeSelectionChange,
+    };
+
   return (
     <TextInput
       ref={inputRef}
-      value={value}
-      onChangeText={onChangeText}
+      {...authorityProps}
       placeholder={placeholder}
       inputMode={inputMode}
       secureTextEntry={secureTextEntry}
       autoCapitalize={autoCapitalize}
+      maxLength={maxLength}
       editable={!inputDisabled}
       accessibilityLabel={accessibilityLabel ?? derivedLabel}
       accessibilityState={{ disabled: inputDisabled }}
@@ -659,6 +788,8 @@ function renderPart<A extends Axes>(
           inputMode={inputProps.inputMode}
           secureTextEntry={inputProps.secureTextEntry}
           autoCapitalize={inputProps.autoCapitalize}
+          sanitize={inputProps.sanitize}
+          maxLength={inputProps.maxLength}
           inputDisabled={inputDisabled}
           accessibilityLabel={inputProps.accessibilityLabel ?? derivedLabel}
           derivedLabel={derivedLabel}

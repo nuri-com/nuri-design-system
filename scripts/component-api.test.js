@@ -141,7 +141,7 @@ const KINDS = Object.keys(KIND_ELS);
 // schema.ts). Codegen emits these onto the wrapper, so a bogus/missing entry
 // must fail here.
 const PRESSABLE_PROPS = ['onPress', 'disabled', 'accessibilityLabel', 'accessibilityValue'];
-const INPUT_PROPS = ['value', 'onChangeText', 'placeholder', 'inputMode', 'secureTextEntry', 'autoCapitalize', 'disabled', 'onFocus', 'onBlur', 'accessibilityLabel'];
+const INPUT_PROPS = ['value', 'onChangeText', 'placeholder', 'inputMode', 'secureTextEntry', 'autoCapitalize', 'sanitize', 'maxLength', 'disabled', 'onFocus', 'onBlur', 'accessibilityLabel'];
 const SAFE_IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 
 // Every part that declares an `interactive` opt-in in ANY composition layer —

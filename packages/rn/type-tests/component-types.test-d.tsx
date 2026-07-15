@@ -165,6 +165,16 @@ export const textFieldOk = (
     <TextFieldLabel>IBAN</TextFieldLabel>
   </TextField>
 );
+export const textFieldSanitizeOk = (
+  <TextField
+    value="LENNARD"
+    onChangeText={() => undefined}
+    sanitize={(text) => text.toUpperCase().replaceAll(' ', '')}
+    maxLength={24}
+  >
+    <TextFieldLabel>Name</TextFieldLabel>
+  </TextField>
+);
 export const textFieldAccessibleLabelOnlyOk = (
   <TextField size="md" accessibilityLabel="Search" placeholder="Search" />
 );

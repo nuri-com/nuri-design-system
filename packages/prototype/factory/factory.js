@@ -698,11 +698,13 @@ function renderInput(node, ns, ctx) {
   if (props.inputMode !== undefined) host.setAttribute('input-mode', String(props.inputMode));
   if (props.secureTextEntry) host.setAttribute('secure-text-entry', '');
   if (props.autoCapitalize !== undefined) host.setAttribute('auto-capitalize', String(props.autoCapitalize));
+  if (props.maxLength !== undefined) host.setAttribute('max-length', String(props.maxLength));
   if (props.disabled) host.setAttribute('disabled', '');
   const label = behaviour.labelPart ? ctx.content?.[behaviour.labelPart] : undefined;
   const accessibleName = props.accessibilityLabel ?? plainTextContent(label);
   if (accessibleName !== undefined) host.setAttribute('aria-label', String(accessibleName));
   if (typeof props.onChangeText === 'function') host.onChangeText = props.onChangeText;
+  if (typeof props.sanitize === 'function') host.sanitize = props.sanitize;
   if (typeof props.onFocus === 'function') host.onNuriFocus = props.onFocus;
   if (typeof props.onBlur === 'function') host.onNuriBlur = props.onBlur;
   return host;
@@ -946,6 +948,7 @@ export function defineNuriComponent(descriptor, tagName, options = {}) {
     inputMode: 'input-mode',
     secureTextEntry: 'secure-text-entry',
     autoCapitalize: 'auto-capitalize',
+    maxLength: 'max-length',
     disabled: 'disabled',
     accessibilityLabel: 'aria-label',
   };
@@ -1107,7 +1110,7 @@ export function defineNuriComponent(descriptor, tagName, options = {}) {
       }
       if (inputBehaviour) {
         for (const prop of inputBehaviour.props || []) {
-          if (prop === 'onChangeText' || prop === 'onFocus' || prop === 'onBlur') {
+          if (prop === 'onChangeText' || prop === 'onFocus' || prop === 'onBlur' || prop === 'sanitize') {
             if (typeof this[prop] === 'function') props[prop] = this[prop].bind(this);
             continue;
           }

@@ -631,7 +631,7 @@ test('C5 · <nuri-text-field> input props reach the native input and label names
   assert.ok(customElements.get('nuri-text-field'), 'TextField web twin is registered');
   assert.deepEqual(
     [...customElements.get('nuri-text-field').observedAttributes].sort(),
-    ['accent', 'aria-label', 'auto-capitalize', 'disabled', 'input-mode', 'placeholder', 'secure-text-entry', 'size', 'value'],
+    ['accent', 'aria-label', 'auto-capitalize', 'disabled', 'input-mode', 'max-length', 'placeholder', 'secure-text-entry', 'size', 'value'],
     'TextField observes its input allowlist attrs plus accent',
   );
 
@@ -693,9 +693,11 @@ test('C6 · <nuri-text-field> secure/disabled/button delegation and aria-label o
   assert.equal(iconAction.getAttribute('aria-label'), 'Hide account number');
 });
 
-test('C7 · <nuri-text-field> native input event calls onChangeText property handler', async () => {
+test('C7 · <nuri-text-field> sanitizes through a function property and forwards maxLength', async () => {
   const field = dom.window.document.createElement('nuri-text-field');
   field.setAttribute('auto-capitalize', 'words');
+  field.setAttribute('max-length', '12');
+  field.sanitize = (value) => value.toUpperCase().replaceAll(' ', '');
   const seen = [];
   field.onChangeText = (value) => seen.push(value);
   field.innerHTML = '<nuri-text-field-label>First name</nuri-text-field-label>';
@@ -704,9 +706,29 @@ test('C7 · <nuri-text-field> native input event calls onChangeText property han
 
   const input = field.querySelector('nuri-input > input');
   assert.equal(input.getAttribute('autocapitalize'), 'words');
-  input.value = 'Ada';
+  assert.equal(input.maxLength, 12);
+  assert.equal(field.hasAttribute('sanitize'), false, 'sanitize stays a function property, never an HTML attribute');
+  input.value = 'Ada Lovelace';
   input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
-  assert.deepEqual(seen, ['Ada']);
+  assert.equal(input.value, 'ADALOVELACE');
+  assert.deepEqual(seen, ['ADALOVELACE']);
+});
+
+test('C7a · <nuri-text-field> maps a mid-string selection through sanitization', async () => {
+  const field = dom.window.document.createElement('nuri-text-field');
+  field.sanitize = (value) => value.replaceAll(' ', '');
+  field.innerHTML = '<nuri-text-field-label>Reference</nuri-text-field-label>';
+  mount(field);
+  await tick();
+
+  const input = field.querySelector('nuri-input > input');
+  input.value = 'ab cd';
+  input.setSelectionRange(3, 4);
+  input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+
+  assert.equal(input.value, 'abcd');
+  assert.equal(input.selectionStart, 2);
+  assert.equal(input.selectionEnd, 3);
 });
 
 test('C6b · <nuri-text-field-icon-button> requires aria-label before delegating an icon-only button', () => {
