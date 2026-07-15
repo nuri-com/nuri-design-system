@@ -154,7 +154,7 @@ export const size: {
   sm:     24,
   md:     36,
   lg:     48,
-  xl:     54,
+  xl:     60,
   '2xl':  72,
   '3xl':  90,
 };

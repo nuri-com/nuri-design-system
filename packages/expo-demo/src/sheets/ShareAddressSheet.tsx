@@ -1,6 +1,8 @@
 import * as React from 'react';
 
 import {
+  Alert,
+  AlertIcon,
   BottomSheet,
   BottomSheetPanel,
   Button,
@@ -13,15 +15,26 @@ import {
   Topbar,
   TopbarTrailing,
   View,
+  useToast,
 } from '@ds';
 
 const ADDRESS_ROWS = [
   ['bc1q', 'cten', '7huq', 'q3h8', 'xg65', 'g7fe', 'wrdk', 'wmjj'],
   ['u3zy', '6a69', 'ujwv', 'cjf9', '7919', 'dxps', 'gsl6', 'r4'],
 ] as const;
-const noop = () => undefined;
-
 export function ShareAddressSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const toast = useToast();
+  const showCopied = React.useCallback(() => {
+    toast.show(
+      <Alert><AlertIcon name="check-circle" />Address copied</Alert>,
+    );
+  }, [toast]);
+  const showSending = React.useCallback(() => {
+    toast.show(
+      <Alert><AlertIcon name="spinner" />Sending…</Alert>,
+    );
+  }, [toast]);
+
   return (
     <BottomSheet open={open} detent="full" onOpenChange={(next) => !next && onClose()}>
       <BottomSheetPanel>
@@ -59,8 +72,8 @@ export function ShareAddressSheet({ open, onClose }: { open: boolean; onClose: (
 
         <Footer safeAreaBottom direction="column" align="stretch" paddingBottom="lg" paddingX="lg">
           <View direction="row" gap="sm" distribute="even">
-            <Button size="lg" variant="soft" onPress={noop}>Copy</Button>
-            <Button size="lg" variant="soft" onPress={noop}>Share</Button>
+            <Button size="lg" variant="soft" onPress={showCopied}>Copy</Button>
+            <Button size="lg" variant="soft" onPress={showSending}>Share</Button>
           </View>
         </Footer>
       </BottomSheetPanel>

@@ -7,8 +7,8 @@
  *     refreshes the node in place.
  *   · TWO layers stack in mount order (later = on top) — the toast/flow
  *     generality proof: a second layer renders above a sheet with NO rewrite.
- *   · hardware-back routes to the TOPMOST dismissible layer's close handler and
- *     is consumed so it never falls through a blocking (non-dismissible) layer.
+ *   · hardware-back skips non-blocking tenants, then routes to the TOPMOST
+ *     blocking layer and is consumed there.
  *   · <BottomSheet open> under <OverlayProvider> puts its subtree in the OUTLET
  *     (not inline), and closing removes it.
  * ══════════════════════════════════════════════════════════════════ */
@@ -214,6 +214,32 @@ describe('OverlayProvider — hardware-back routing', () => {
     pressBack();
     expect(closeToast).toHaveBeenCalledTimes(1);
     expect(closeSheet).not.toHaveBeenCalled();
+  });
+
+  test('back skips a non-blocking toast and dismisses the blocking sheet beneath', () => {
+    let api!: OverlayApi;
+    const closeSheet = jest.fn();
+    const closeToast = jest.fn();
+    render(<OverlayProvider><ApiProbe onReady={(a) => (api = a)} /></OverlayProvider>);
+
+    act(() => api.register('sheet', <Text>Sheet</Text>, { onRequestClose: closeSheet }));
+    act(() => api.register('toast', <Text>Toast</Text>, {
+      blocking: false,
+      dismissible: false,
+      onRequestClose: closeToast,
+    }));
+
+    expect(pressBack()).toBe(true);
+    expect(closeSheet).toHaveBeenCalledTimes(1);
+    expect(closeToast).not.toHaveBeenCalled();
+  });
+
+  test('back with only non-blocking layers propagates to the app', () => {
+    let api!: OverlayApi;
+    render(<OverlayProvider><ApiProbe onReady={(a) => (api = a)} /></OverlayProvider>);
+
+    act(() => api.register('toast', <Text>Toast</Text>, { blocking: false }));
+    expect(pressBack()).toBe(false);
   });
 });
 

@@ -796,8 +796,8 @@ describe('render-smoke — the ergonomic components mount headless', () => {
           ? (Object.assign({}, ...style.filter(Boolean)) as Record<string, unknown>)
           : ((style ?? {}) as Record<string, unknown>);
       });
-    // The outlined box: the field's 1px-bordered, 54-tall host.
-    const boxStyle = () => flatViewStyles().find((style) => style.borderWidth === 1 && style.height === 54);
+    // The outlined box: the field's 1px-bordered, 60-tall host.
+    const boxStyle = () => flatViewStyles().find((style) => style.borderWidth === 1 && style.height === 60);
     // The focus ring: the absolutely-positioned 2px overlay in the focusRing colour
     // (mirrors web's `outline: 2px solid var(--nuri-focus-ring); outline-offset: 2px`).
     const focusRing = () =>

@@ -32,7 +32,7 @@ The dimension foundation — direct `space` · `size` · `radius` · `ratio` · 
 | `size.sm` | `literal` | `24px` |
 | `size.md` | `literal` | `36px` |
 | `size.lg` | `literal` | `48px` |
-| `size.xl` | `literal` | `54px` |
+| `size.xl` | `literal` | `60px` |
 | `size.2xl` | `literal` | `72px` |
 | `size.3xl` | `literal` | `90px` |
 

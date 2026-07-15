@@ -1,0 +1,28 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · TOAST · STATIC WEB POSITIONAL RECIPE
+ *
+ * Layer band inside the device frame:
+ *   content < sheet 20 < toast 25 < OS chrome 30 < sensor cutout 31
+ * Behaviour (imperative show/hide, replacement, timing, motion) is RN-only.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer rules {
+  nuri-toast {
+    position: absolute;
+    inset: 0;
+    z-index: 25;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    box-sizing: border-box;
+    padding-block-start: calc(var(--nuri-device-safe-area-top, 0px) + var(--nuri-space-md));
+    padding-inline: var(--nuri-space-lg);
+    pointer-events: none;
+  }
+
+  nuri-toast > *,
+  nuri-toast > [data-host-tree] > * {
+    max-inline-size: 100%;
+    pointer-events: auto;
+  }
+}

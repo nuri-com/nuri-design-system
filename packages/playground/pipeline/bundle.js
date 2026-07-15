@@ -33,6 +33,7 @@ const CSS_INPUTS = [
   ['@nuri/prototype namespace effect', 'styles/effect.css'],
   ['@nuri/prototype factory reset', 'factory/reset.css'],
   ['@nuri/prototype recipe bottom sheet', 'recipes/bottom-sheet.css'],
+  ['@nuri/prototype recipe toast', 'recipes/toast.css'],
   ['@nuri/prototype demo controls', 'demo/control.css'],
   ['@nuri/prototype demo boards', 'demo/demo.css'],
   ['@nuri/playground shell', '../playground/lib/shell.css'],
@@ -66,6 +67,7 @@ const BOOT_IMPORTS = [
   '../../prototype/recipes/text-field.js',
   '../../prototype/recipes/tab-bar.js',
   '../../prototype/recipes/bottom-sheet.js',
+  '../../prototype/recipes/toast.js',
   '../../prototype/demo/demo.js',
 ];
 

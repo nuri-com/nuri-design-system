@@ -30,6 +30,7 @@ import type {
 import { blackAlpha } from '@nuri/spec/colours';
 import { bottomSheetChrome } from '@nuri/spec/bottom-sheet-chrome';
 
+import { space } from '../generated/data/tokens';
 import { useOverlay } from '../overlay';
 import { useNuriSafeAreaInsets } from '../safe-area';
 import { BottomSheetPanel as GeneratedBottomSheetPanel } from '../generated/components/bottom-sheet-panel';
@@ -52,7 +53,8 @@ export type BottomSheetPanelProps = {
   children?: React.ReactNode;
 };
 
-const FULL_TOP_OFFSET = 40;
+// The full detent's gap between the safe-area top and the panel's top edge.
+const FULL_TOP_GAP = space.sm;
 const CONTENT_MAX_FRACTION = 0.82;
 
 const ENTER_TIMING: Omit<Animated.TimingAnimationConfig, 'toValue'> = {
@@ -151,12 +153,17 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   );
 
   // `content` hugs its content, bottom-anchored (maxHeight cap). `full` keeps a
-  // 40px top offset while still FILL-and-SHRINK: a fixed height panel cannot fit
-  // once the keyboard shrinks the window (Android adjustResize), so `justify:
-  // flex-end` would shove it off the top. flexGrow fills the available host and
-  // shrinks with the resized window when the keyboard opens — the ScrollView
-  // then scrolls the field into view.
-  const fullMaxHeight = Math.max(0, Math.round(windowHeight - FULL_TOP_OFFSET));
+  // safe-area-relative top offset (safe top + sm gap): anchoring on the inset —
+  // like the toast does — keeps the panel edge clear of the status bar on every
+  // device and the toast↔sheet relationship stable. Still FILL-and-SHRINK: a
+  // fixed height panel cannot fit once the keyboard shrinks the window (Android
+  // adjustResize), so `justify: flex-end` would shove it off the top. flexGrow
+  // fills the available host and shrinks with the resized window when the
+  // keyboard opens — the ScrollView then scrolls the field into view.
+  const fullMaxHeight = Math.max(
+    0,
+    Math.round(windowHeight - (safeAreaInsets.top + FULL_TOP_GAP)),
+  );
   const sizeStyle: ViewStyle =
     detent === 'content'
       ? { maxHeight: Math.round(windowHeight * CONTENT_MAX_FRACTION) }

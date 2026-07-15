@@ -301,7 +301,7 @@ describe('Topbar — same resolver, the COMPOUND slot regions (true centring · 
       height: size.xl,
       paddingStart: space.lg,
       paddingEnd: space.lg,
-      paddingTop: space.sm,
+      paddingTop: space.md,
       backgroundColor: chrome.light.bgCanvas,
     });
     // chrome fg is invariant (base), delivered by scope.

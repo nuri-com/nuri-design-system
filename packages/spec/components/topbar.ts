@@ -60,7 +60,7 @@ export const topbarDescriptor: Descriptor<TopbarAxes> = {
       // The chrome row (height · edge padding · a top inset · the canvas surface).
       root: {
         stack: { direction: 'row', align: 'center', gap: 'sm' },
-        box: { height: 'xl', paddingStart: 'lg', paddingEnd: 'lg', paddingTop: 'sm' },
+        box: { height: 'xl', paddingStart: 'lg', paddingEnd: 'lg', paddingTop: 'md' },
         palette: { chrome: 'canvas' },
       },
       // The edges: equal-basis-0 flex (`even`) so they take an IDENTICAL share of

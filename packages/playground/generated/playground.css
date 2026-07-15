@@ -927,7 +927,7 @@
   /* size.lg  · standard touch target · iOS minimum + comfortable headroom */
   --nuri-size-lg:  48px;
   /* size.xl  · roomy touch target · primary action button height */
-  --nuri-size-xl:  54px;
+  --nuri-size-xl:  60px;
   /* size.2xl · large element · prominent CTA, screen-header height */
   --nuri-size-2xl: 72px;
   /* size.3xl · hero element · feature card height, large display tile */
@@ -3688,9 +3688,10 @@ nuri-demo:not(:defined) {
     pointer-events: auto;
   }
 
+  /* Safe-area-relative full detent (parity with RN: safe top + sm gap). */
   nuri-bottom-sheet[detent="full"] > nuri-bottom-sheet-panel {
-    block-size: calc(100% - 40px);
-    max-block-size: calc(100% - 40px);
+    block-size: calc(100% - var(--nuri-device-safe-area-top, 0px) - var(--nuri-space-sm));
+    max-block-size: calc(100% - var(--nuri-device-safe-area-top, 0px) - var(--nuri-space-sm));
   }
 
   nuri-bottom-sheet > nuri-bottom-sheet-panel > nuri-scroll {
@@ -3702,6 +3703,37 @@ nuri-demo:not(:defined) {
     block-size: 100%;
   }
 
+}
+
+
+/* @nuri/prototype recipe toast · recipes/toast.css */
+/* ──────────────────────────────────────────────────────────────
+ * NURI · TOAST · STATIC WEB POSITIONAL RECIPE
+ *
+ * Layer band inside the device frame:
+ *   content < sheet 20 < toast 25 < OS chrome 30 < sensor cutout 31
+ * Behaviour (imperative show/hide, replacement, timing, motion) is RN-only.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer rules {
+  nuri-toast {
+    position: absolute;
+    inset: 0;
+    z-index: 25;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    box-sizing: border-box;
+    padding-block-start: calc(var(--nuri-device-safe-area-top, 0px) + var(--nuri-space-md));
+    padding-inline: var(--nuri-space-lg);
+    pointer-events: none;
+  }
+
+  nuri-toast > *,
+  nuri-toast > [data-host-tree] > * {
+    max-inline-size: 100%;
+    pointer-events: auto;
+  }
 }
 
 

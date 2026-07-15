@@ -183,7 +183,7 @@ export const COMPONENT_API_DOCS = [
     source: 'nuri-root',
     title: 'NuriRoot',
     nav: 23,
-    lead: '`NuriRoot` composes `NuriThemeProvider` → `OverlayProvider` → the canvas `View` → `NuriSafeAreaProvider` in contractual order. The overlay shares the active theme while staying above safe-area padding, so its outlet covers the whole window; the DS View owns canvas background and foreground scope. Insets remain consumer-resolved plain numbers, and omitted edges default to `0`. This is provider composition, not a behavior controller: `NuriThemeProvider`, `OverlayProvider`, and `NuriSafeAreaProvider` remain public for supported piecemeal assembly.',
+    lead: '`NuriRoot` composes `NuriThemeProvider` → `OverlayProvider` → the canvas `View` → `NuriSafeAreaProvider` → `ToastProvider` in contractual order. The overlay shares the active theme while staying above safe-area padding, so its outlet covers the whole window; the toast reads the safe-area environment and bakes the top inset into its registered node. The DS View owns canvas background and foreground scope. Insets remain consumer-resolved plain numbers, and omitted edges default to `0`. This is provider composition, not a behavior controller: `NuriThemeProvider`, `OverlayProvider`, `NuriSafeAreaProvider`, and `ToastProvider` remain public for supported piecemeal assembly.',
     file: 'packages/rn/root.tsx',
     type: 'NuriRootProps',
   },

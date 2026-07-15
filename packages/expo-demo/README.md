@@ -40,7 +40,7 @@ App.tsx                the navigator role — exactly the seams the DS
                        passed to NuriRoot as plain numbers), the Expo
                        StatusBar, and the mode state. Everything else —
                        theme, overlay, canvas paint, safe-area environment,
-                       and their load-bearing ORDER — is composed by the DS's
+                       toast runtime, and their load-bearing ORDER — is composed by the DS's
                        <NuriRoot>. Dark mode remains wired as an internal
                        affordance for future proofing, not an exposed product
                        feature.

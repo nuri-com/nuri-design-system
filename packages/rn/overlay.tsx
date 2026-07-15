@@ -5,7 +5,7 @@
  * A root provider, the SAME shape as theme.tsx (createContext + Provider +
  * use* hook). It owns the overlay RUNTIME: a registry of active layers,
  * z-stacking by mount order (later = on top), and back/dismiss routing to
- * the TOPMOST layer. It is the shared substrate every overlay tenant needs —
+ * the TOPMOST BLOCKING layer. It is the shared substrate every overlay tenant needs —
  * BottomSheet today, a toast/flow sheet later — so the sheet's scrim can
  * render ABOVE the consumer's safe-area padding (covering the status bar)
  * and overlays can STACK (a toast on top of a sheet).
@@ -34,11 +34,12 @@ import * as React from 'react';
 import { BackHandler, StyleSheet, View as RNView } from 'react-native';
 
 // ── OverlayLayerOptions · the per-layer metadata a tenant registers with.
-// `dismissible` gates whether hardware-back closes the layer; `onRequestClose`
-// is the layer's close handler (the LayerHost onRequestClose contract), routed
-// by back to the topmost layer. A blocking (non-dismissible) top layer still
-// SWALLOWS back so it never falls through to the content behind it. ──
+// `blocking` controls whether the layer participates in hardware-back routing
+// (default true). `dismissible` gates whether back closes that blocking layer;
+// `onRequestClose` is its close handler. Non-blocking tenants such as Toast are
+// skipped so back reaches the blocking sheet beneath them. ──
 export type OverlayLayerOptions = {
+  blocking?: boolean;
   dismissible?: boolean;
   onRequestClose?: () => void;
 };
@@ -57,6 +58,7 @@ export type OverlayApi = {
 type OverlayEntry = {
   id: string;
   node: React.ReactNode;
+  blocking: boolean;
   dismissible: boolean;
   onRequestClose?: () => void;
 };
@@ -96,6 +98,7 @@ export const OverlayProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const entry: OverlayEntry = {
           id,
           node,
+          blocking: options?.blocking ?? true,
           dismissible: options?.dismissible ?? true,
           onRequestClose: options?.onRequestClose,
         };
@@ -129,16 +132,16 @@ export const OverlayProvider: React.FC<{ children: React.ReactNode }> = ({ child
     [register, update, unregister],
   );
 
-  // Route Android hardware back to the TOPMOST layer (LayerHost.tsx:88-101
-  // semantics). A visible top layer stands in for a native <Modal>, which
-  // always swallowed back: run its close handler if it is dismissible, but
-  // CONSUME the event either way so back never falls through a blocking layer.
+  // Route Android hardware back to the TOPMOST BLOCKING layer. Non-blocking
+  // tenants (Toast) are transparent to back, so a sheet beneath still owns the
+  // event. Once a blocking layer is found, consume the event whether or not it
+  // is dismissible — the existing modal-like contract remains unchanged.
   const layersRef = React.useRef(layers);
   layersRef.current = layers;
   React.useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       const stack = layersRef.current;
-      const top = stack[stack.length - 1];
+      const top = [...stack].reverse().find((layer) => layer.blocking);
       if (!top) return false; // no layer → let back propagate to the app/screen.
       if (top.dismissible) top.onRequestClose?.();
       return true;

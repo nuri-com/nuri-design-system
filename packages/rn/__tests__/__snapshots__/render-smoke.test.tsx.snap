@@ -93,6 +93,7 @@ exports[`render-smoke — the ergonomic components mount headless Alert — ghos
           "flexGrow": 1,
           "flexShrink": 1,
           "minWidth": 0,
+          "paddingEnd": 18,
           "textAlign": "left",
         },
       ]
@@ -112,9 +113,10 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
       "borderRadius": 9999,
       "flexDirection": "row",
       "gap": 6,
-      "minHeight": 54,
-      "padding": 12,
-      "paddingStart": 18,
+      "minHeight": 48,
+      "paddingEnd": 6,
+      "paddingStart": 12,
+      "paddingVertical": 6,
     }
   }
 >
@@ -200,6 +202,7 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
           "flexGrow": 1,
           "flexShrink": 1,
           "minWidth": 0,
+          "paddingEnd": 18,
           "textAlign": "left",
         },
       ]
@@ -321,7 +324,7 @@ exports[`render-smoke — the ergonomic components mount headless Button — ord
       "flexDirection": "row",
       "gap": 6,
       "justifyContent": "center",
-      "minHeight": 54,
+      "minHeight": 60,
       "opacity": 0.4,
       "paddingHorizontal": 24,
     }
@@ -475,7 +478,7 @@ exports[`render-smoke — the ergonomic components mount headless Button — typ
       "flexDirection": "row",
       "gap": 6,
       "justifyContent": "center",
-      "minHeight": 54,
+      "minHeight": 60,
       "paddingHorizontal": 24,
     }
   }
@@ -1597,7 +1600,7 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
       "alignItems": "stretch",
       "backgroundColor": "#fffdf2",
       "flexDirection": "row",
-      "minHeight": 54,
+      "minHeight": 60,
       "paddingBottom": 12,
     }
   }
@@ -2058,10 +2061,10 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — BAR
       "backgroundColor": "#fffdf2",
       "flexDirection": "row",
       "gap": 6,
-      "height": 54,
+      "height": 60,
       "paddingEnd": 18,
       "paddingStart": 18,
-      "paddingTop": 6,
+      "paddingTop": 12,
     }
   }
 >
@@ -2115,10 +2118,10 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — COM
       "backgroundColor": "#fffdf2",
       "flexDirection": "row",
       "gap": 6,
-      "height": 54,
+      "height": 60,
       "paddingEnd": 18,
       "paddingStart": 18,
-      "paddingTop": 6,
+      "paddingTop": 12,
     }
   }
 >

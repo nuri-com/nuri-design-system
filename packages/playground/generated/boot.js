@@ -31,4 +31,5 @@ await import('../../prototype/recipes/list.js');
 await import('../../prototype/recipes/text-field.js');
 await import('../../prototype/recipes/tab-bar.js');
 await import('../../prototype/recipes/bottom-sheet.js');
+await import('../../prototype/recipes/toast.js');
 await import('../../prototype/demo/demo.js');

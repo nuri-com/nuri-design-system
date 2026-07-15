@@ -67,6 +67,7 @@ export const alertDescriptor = {
       // declared as typography data, not as an Alert-local renderer/CSS hack.
       message: {
         stack: { fill: 'grow-shrink' },
+        box: { paddingEnd: 'lg' },
         typography: { size: 'sm', emphasis: true, align: 'start', flow: 'truncate', lines: 1 },
         palette: { muted: true },
       },
@@ -76,11 +77,12 @@ export const alertDescriptor = {
     // soft = the raised pill bar (the mock's balance/insufficient surface): a
     // neutral soft surface (bg-strong · DESIGN-REVIEW flag: chrome vs the `soft`
     // surface variant — the closest existing token is picked, no new token minted),
-    // a larger (lg) start padding for the pill's rounded left edge, a size-xl min
-    // height, and a FULL (pill) radius. ghost = the bare error line: transparent,
-    // no padding, no radius — icon + text only.
+    // sm vertical padding, md start / sm end padding, a size-lg min height,
+    // and a FULL (pill) radius.
+    // ghost = the bare error line: transparent, no padding, no radius — icon +
+    // text only.
     variant: {
-      soft: { root: { box: { minHeight: 'xl', padding: 'md', paddingStart: 'lg', radius: 'full' }, palette: { variant: 'soft' } } },
+      soft: { root: { box: { minHeight: 'lg', paddingY: 'sm', paddingStart: 'md', paddingEnd: 'sm', radius: 'full' }, palette: { variant: 'soft' } } },
       ghost: { root: { palette: { variant: 'ghost' } } },
     },
   },
