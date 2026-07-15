@@ -635,6 +635,44 @@ exports[`render-smoke — the ergonomic components mount headless IconAvatar —
 </View>
 `;
 
+exports[`render-smoke — the ergonomic components mount headless IconAvatar — source renders the image leaf and no icon; both/neither warn once and image wins 1`] = `
+<View
+  accessibilityElementsHidden={true}
+  importantForAccessibility="no-hide-descendants"
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#f3f1e2",
+      "borderRadius": 9999,
+      "height": 48,
+      "justifyContent": "center",
+      "width": 48,
+    }
+  }
+>
+  <Image
+    resizeMode="cover"
+    source={
+      {
+        "uri": "data:image/png;base64,flag",
+      }
+    }
+    style={
+      {
+        "backgroundColor": "transparent",
+        "borderColor": "#dddac9",
+        "borderRadius": 9999,
+        "borderWidth": 1,
+        "flexGrow": 0,
+        "flexShrink": 0,
+        "height": 48,
+        "width": 48,
+      }
+    }
+  />
+</View>
+`;
+
 exports[`render-smoke — the ergonomic components mount headless IconAvatar — static (View) · the register glyph inherits the scope fg 1`] = `
 <View
   accessibilityElementsHidden={true}

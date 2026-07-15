@@ -25,6 +25,7 @@ import { IconButton } from './icon-button';
 export type TextFieldHandle = { focus(): void; blur(): void };
 
 export type TextFieldProps = {
+  size?: 'md' | 'lg';
   accent?: Accent;
   value?: string;
   onChangeText?: (text: string) => void;
@@ -68,6 +69,7 @@ export const TextFieldIconButton = createNuriSlot<TextFieldIconButtonProps>("ico
 
 const TextFieldInner = React.forwardRef<TextFieldHandle, TextFieldProps>((props, ref) => {
   const selection: Record<string, string> = {
+    "size": props.size ?? "lg",
   };
   const content: Partial<Record<TextFieldPart, React.ReactNode>> = {};
   const composition: Partial<Record<TextFieldPart, NuriCompositionEntry<TextFieldPart>[]>> = {};

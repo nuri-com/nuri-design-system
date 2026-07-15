@@ -176,7 +176,14 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "height": 48,
           "borderRadius": 9999
         },
-        "variants": {}
+        "variants": {
+          "size": {
+            "sm": {
+              "width": 36,
+              "height": 36
+            }
+          }
+        }
       }
     },
     "icon": {
@@ -187,6 +194,26 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "height": 24
         },
         "variants": {}
+      }
+    },
+    "image": {
+      "el": "image",
+      "geometry": {
+        "base": {
+          "flexGrow": 0,
+          "flexShrink": 0,
+          "width": 48,
+          "height": 48,
+          "borderRadius": 9999
+        },
+        "variants": {
+          "size": {
+            "sm": {
+              "width": 36,
+              "height": 36
+            }
+          }
+        }
       }
     }
   },
@@ -456,7 +483,13 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "paddingEnd": 6,
           "borderRadius": 9
         },
-        "variants": {}
+        "variants": {
+          "size": {
+            "md": {
+              "height": 48
+            }
+          }
+        }
       }
     },
     "input": {

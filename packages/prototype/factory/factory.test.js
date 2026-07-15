@@ -134,7 +134,7 @@ function mountExpectingNamedError(el, pattern) {
 // ══════════════════════════════════════════════════════════════════
 // A · buildComponent · IconAvatar — static merged node + DEFAULT from data
 // ══════════════════════════════════════════════════════════════════
-test('A · buildComponent(IconAvatar) · static nuri-view · variant DEFAULTS to soft from descriptor.defaults', () => {
+test('A · buildComponent(IconAvatar) · static nuri-view · variant/size DEFAULT from descriptor.defaults', () => {
   // No selection passed — the unset `variant` must resolve to descriptor.defaults
   // (soft), NOT the variant-order first value (solid · the old first-value gap).
   const el = buildComponent(iconAvatarDescriptor, {}, { icon: 'apple' });
@@ -156,6 +156,39 @@ test('A · buildComponent(IconAvatar) · static nuri-view · variant DEFAULTS to
 test('A2 · buildComponent(IconAvatar) · an EXPLICIT variant wins over the default', () => {
   const el = buildComponent(iconAvatarDescriptor, { variant: 'subtle' }, { icon: 'card' });
   assert.equal(el.getAttribute('data-variant'), 'subtle', 'an explicit axis value is passed straight through');
+});
+
+test('A2b · buildComponent(IconAvatar) · sm is a 36px circle with the same 24px glyph', () => {
+  const el = buildComponent(iconAvatarDescriptor, { size: 'sm' }, { icon: 'card' });
+  const icon = el.querySelector('nuri-icon');
+  assert.equal(el.getAttribute('data-width'), 'md');
+  assert.equal(el.getAttribute('data-height'), 'md');
+  assert.equal(icon.getAttribute('data-width'), 'sm');
+  assert.equal(icon.getAttribute('data-height'), 'sm');
+});
+
+test('A3 · buildComponent(IconAvatar) · source renders a generic image leaf with cover geometry and its own ring', () => {
+  const source = 'data:image/svg+xml,%3Csvg/%3E';
+  const el = buildComponent(iconAvatarDescriptor, {}, { source });
+  const image = el.querySelector('img');
+  assert.ok(image, 'the routed source renders a native img leaf');
+  assert.equal(image.getAttribute('src'), source);
+  assert.equal(image.style.objectFit, 'cover');
+  assert.deepEqual(classesOf(image), ['nuri-box', 'nuri-palette', 'nuri-stack']);
+  assert.equal(image.getAttribute('data-width'), 'lg');
+  assert.equal(image.getAttribute('data-height'), 'lg');
+  assert.equal(image.getAttribute('data-radius'), 'full');
+  assert.equal(image.getAttribute('data-variant'), 'outline', 'the image part owns the always-on hairline palette');
+  assert.equal(el.querySelector('nuri-icon'), null, 'an absent icon slot renders nothing');
+});
+
+test('A4 · a genuinely unknown element kind still fails named', () => {
+  const descriptor = structuredClone(iconAvatarDescriptor);
+  descriptor.structure.anatomy.parts.image.el = 'video';
+  assert.throws(
+    () => buildComponent(descriptor, {}, { content: { image: 'movie.mp4' } }),
+    /unhandled el 'video' \(part 'image'\)/,
+  );
 });
 
 // ══════════════════════════════════════════════════════════════════
@@ -357,6 +390,20 @@ test('B5b · <nuri-list-action-leading-avatar> owns avatar variant and accent', 
   assert.equal(solidButton?.getAttribute('data-accent'), null, 'row painting node does not receive avatar accent');
 });
 
+test('B5e · <nuri-list-action-leading-avatar source> forwards the image URI to IconAvatar', async () => {
+  const row = dom.window.document.createElement('nuri-list-action');
+  row.innerHTML = [
+    '<nuri-list-action-leading-avatar source="data:image/svg+xml,%3Csvg/%3E"></nuri-list-action-leading-avatar>',
+    '<nuri-list-action-text>Poland</nuri-list-action-text>',
+  ].join('');
+  mount(row);
+  await tick();
+  const avatar = row.querySelector('button.nuri-interactive > nuri-icon-avatar');
+  assert.equal(avatar?.getAttribute('source'), 'data:image/svg+xml,%3Csvg/%3E');
+  assert.ok(avatar?.querySelector('img'), 'the delegated avatar renders its generic image leaf');
+  assert.equal(avatar?.querySelector('nuri-icon'), null);
+});
+
 test('B5d · <nuri-list-action> leading avatar uses the real icon-avatar element contract', async () => {
   const row = dom.window.document.createElement('nuri-list-action');
   row.innerHTML = '<nuri-list-action-leading-avatar name="bank" variant="solid"></nuri-list-action-leading-avatar>';
@@ -462,20 +509,41 @@ test('B11 · a FOREIGN component\'s slot marker fails named', () => {
 // ══════════════════════════════════════════════════════════════════
 // C · defineNuriComponent · the registered elements (API derivation · reflection)
 // ══════════════════════════════════════════════════════════════════
-test('C · observedAttributes are DERIVED from the descriptor (axes ∪ accent ∪ disabled? ∪ icon?)', () => {
+test('C · observedAttributes are DERIVED from the descriptor (axes ∪ accent ∪ disabled? ∪ scalar slots)', () => {
   // Button: interactive + text primary + pressable accessibilityLabel → variant·size·fill·accent·disabled·aria-label (NO icon).
   assert.deepEqual(
     [...customElements.get('nuri-button').observedAttributes].sort(),
     ['accent', 'aria-label', 'disabled', 'fill', 'size', 'variant'],
     'button observes its axes (variant·size·fill) + accent + disabled (interactive) + aria-label (pressable API), not icon',
   );
-  // IconAvatar: static + icon part → variant·accent·icon (the component `icon` prop ·
-  // NOT `name`, which is the primitive <nuri-icon>'s attr · NO disabled, NO size).
+  // IconAvatar: static + icon part → variant·size·accent·icon (the component `icon`
+  // prop · NOT `name`, which is the primitive <nuri-icon>'s attr · NO disabled).
   assert.deepEqual(
     [...customElements.get('nuri-icon-avatar').observedAttributes].sort(),
-    ['accent', 'icon', 'variant'],
-    'icon-avatar observes its axis + accent + icon (the glyph part), not disabled',
+    ['accent', 'icon', 'size', 'source', 'variant'],
+    'icon-avatar observes its axes + accent + both scalar content modes, not disabled',
   );
+});
+
+test('C1 · <nuri-icon-avatar> source wins over icon and invalid content modes warn once', () => {
+  const warn = console.warn;
+  const calls = [];
+  console.warn = (...args) => calls.push(args);
+  try {
+    const avatar = dom.window.document.createElement('nuri-icon-avatar');
+    avatar.setAttribute('icon', 'wallet');
+    avatar.setAttribute('source', 'data:image/svg+xml,%3Csvg/%3E');
+    mount(avatar);
+    assert.ok(avatar.querySelector('img'), 'source renders the image leaf');
+    assert.equal(avatar.querySelector('nuri-icon'), null, 'source suppresses the glyph when both are present');
+    assert.equal(calls.length, 1);
+
+    const empty = dom.window.document.createElement('nuri-icon-avatar');
+    mount(empty);
+    assert.equal(calls.length, 1, 'the invalid-mode warning is one-time');
+  } finally {
+    console.warn = warn;
+  }
 });
 
 test('C1b · <nuri-button>Go</nuri-button> · a BARE label survives the composition harvest (the pre-scan)', async () => {
@@ -561,7 +629,7 @@ test('C5 · <nuri-text-field> input props reach the native input and label names
   assert.ok(customElements.get('nuri-text-field'), 'TextField web twin is registered');
   assert.deepEqual(
     [...customElements.get('nuri-text-field').observedAttributes].sort(),
-    ['accent', 'aria-label', 'auto-capitalize', 'disabled', 'input-mode', 'placeholder', 'secure-text-entry', 'value'],
+    ['accent', 'aria-label', 'auto-capitalize', 'disabled', 'input-mode', 'placeholder', 'secure-text-entry', 'size', 'value'],
     'TextField observes its input allowlist attrs plus accent',
   );
 
@@ -575,7 +643,7 @@ test('C5 · <nuri-text-field> input props reach the native input and label names
 
   const box = field.querySelector('nuri-view[data-nuri-focus-target]');
   assert.ok(box, 'the descriptor-declared box is marked as the input focus target');
-  assert.equal(box.getAttribute('data-height'), 'xl', 'the field box uses the box height axis at 54px');
+  assert.equal(box.getAttribute('data-height'), 'xl', 'the unset field keeps the 60px xl height leaf');
   assert.equal(box.hasAttribute('data-min-height'), false, 'the field box height is explicit, not a min-height fallback');
   const input = field.querySelector('nuri-input > input');
   assert.ok(input, 'TextField renders a real native input');
@@ -583,6 +651,14 @@ test('C5 · <nuri-text-field> input props reach the native input and label names
   assert.equal(input.getAttribute('placeholder'), 'DE...');
   assert.equal(input.getAttribute('inputmode'), 'numeric');
   assert.equal(input.getAttribute('aria-label'), 'IBAN', 'plain label content names the native input');
+});
+
+test('C5b · <nuri-text-field size="md"> maps to the 48px lg leaf', () => {
+  const field = dom.window.document.createElement('nuri-text-field');
+  field.setAttribute('size', 'md');
+  field.innerHTML = '<nuri-text-field-label>Search</nuri-text-field-label>';
+  mount(field);
+  assert.equal(field.querySelector('nuri-view nuri-view')?.getAttribute('data-height'), 'lg');
 });
 
 test('C6 · <nuri-text-field> secure/disabled/button delegation and aria-label override', async () => {

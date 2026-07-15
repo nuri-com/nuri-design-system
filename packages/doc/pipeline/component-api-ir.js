@@ -38,6 +38,7 @@ export const COMPONENT_API_DOCS = [
     file: 'packages/rn/generated/components/icon-avatar.ts',
     type: 'IconAvatarProps',
     relatedPrefix: 'IconAvatar',
+    lead: '`IconAvatar` accepts exactly one of `icon` or `source`; both remain optional at the type level and a development warning catches both/neither. `source` wins when both are supplied. Size `md` is the 48px default and `sm` is 36px; the glyph remains 24px at either size. In image mode the image fills the circle and owns its hairline ring; `variant` still paints the occluded root, so `variant="outline"` with `source` is a no-op by convention.',
   },
   {
     source: 'list',
@@ -237,6 +238,7 @@ const NOTE_BY_PROP = {
   selected: 'state axis',
   icon: 'scalar icon name',
   name: 'scalar icon name',
+  source: 'image source',
   label: 'scalar label',
   color: 'glyph rendering',
   dimension: 'glyph rendering',

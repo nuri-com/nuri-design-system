@@ -17,6 +17,7 @@ Use a `TextFieldHandle` ref for consumer-owned focus policy. Inputs belong in `<
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
+| `size` | no | `'md' | 'lg'` | style axis |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `value` | no | `string` | input behaviour |
 | `onChangeText` | no | `(text: string) => void` | input behaviour |

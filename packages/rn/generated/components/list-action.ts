@@ -16,6 +16,7 @@ import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriComposi
 import type { NuriBehaviour, NuriCompositionEntry } from '../../runtime/renderer';
 import { listActionDescriptor } from '@nuri/spec/descriptors/list-action';
 import { recipes } from '../data/recipes';
+import type { ImageSourcePropType } from 'react-native';
 import type { Accent } from '../data/tokens';
 import type { IconName } from '../data/icons';
 import { IconAvatar } from './icon-avatar';
@@ -34,9 +35,10 @@ const componentRegistry = {
   "icon-avatar": IconAvatar as React.ComponentType<Record<string, unknown>>,
 };
 export type ListActionLeadingAvatarProps = {
-  name: IconName;
+  name?: IconName;
   variant?: 'solid' | 'soft' | 'ghost' | 'subtle' | 'outline';
   accent?: Accent;
+  source?: ImageSourcePropType;
   children?: never;
 };
 export const ListActionLeadingAvatar = createNuriSlot<ListActionLeadingAvatarProps>("leadingAvatar", `${listActionDisplayName}LeadingAvatar`, 'name', listActionDisplayName);

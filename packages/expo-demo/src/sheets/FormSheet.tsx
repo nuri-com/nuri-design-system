@@ -54,6 +54,7 @@ function FormSheetFields({
         <View direction="column" align="stretch" justify="start" gap="xl">
           <TextField
             ref={firstFieldRef}
+            size="md"
             value={values.iban}
             onChangeText={onChangeField('iban')}
             placeholder="IBAN"

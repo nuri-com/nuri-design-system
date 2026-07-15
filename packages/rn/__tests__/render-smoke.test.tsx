@@ -15,7 +15,7 @@
 
 import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { ScrollView, Text, TextInput, View } from 'react-native';
+import { Image, ScrollView, Text, TextInput, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { NuriThemeProvider, typeStyle } from '../theme';
 import { NuriSafeAreaProvider } from '../safe-area';
@@ -242,7 +242,71 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const glyph = tr.root.findByType(NuriIcon);
     expect(glyph.props.name).toBe('apple');
     expect(glyph.props.color).toBe('#222013');
+    expect(tr.root.findAllByType(Image)).toHaveLength(0);
     expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('IconAvatar — source renders the image leaf and no icon; both/neither warn once and image wins', () => {
+    const source = { uri: 'data:image/png;base64,flag' };
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    try {
+      const imageOnly = render(
+        <NuriThemeProvider>
+          <IconAvatar source={source} />
+        </NuriThemeProvider>,
+      );
+      expect(imageOnly.root.findAllByType(NuriIcon)).toHaveLength(0);
+      const image = imageOnly.root.findByType(Image);
+      expect(image.props.source).toEqual(source);
+      expect(image.props.resizeMode).toBe('cover');
+      expect(image.props.style).toMatchObject({
+        width: 48,
+        height: 48,
+        borderRadius: 9999,
+        borderColor: '#dddac9',
+        borderWidth: 1,
+      });
+
+      const both = render(
+        <NuriThemeProvider>
+          <IconAvatar icon="apple" source={source} />
+        </NuriThemeProvider>,
+      );
+      expect(both.root.findAllByType(NuriIcon)).toHaveLength(0);
+      expect(both.root.findAllByType(Image)).toHaveLength(1);
+      expect(warn).toHaveBeenCalledTimes(1);
+
+      render(
+        <NuriThemeProvider>
+          <IconAvatar />
+        </NuriThemeProvider>,
+      );
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(imageOnly.toJSON()).toMatchSnapshot();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  test('IconAvatar — sm is a 36px circle while glyph size remains 24px', () => {
+    const glyphAvatar = render(
+      <NuriThemeProvider>
+        <IconAvatar size="sm" icon="apple" />
+      </NuriThemeProvider>,
+    );
+    const glyphRoot = glyphAvatar.toJSON() as TestRenderer.ReactTestRendererJSON;
+    const glyphRootStyle = Array.isArray(glyphRoot.props.style)
+      ? Object.assign({}, ...glyphRoot.props.style.filter(Boolean))
+      : glyphRoot.props.style;
+    expect(glyphRootStyle).toMatchObject({ width: 36, height: 36 });
+    expect(glyphAvatar.root.findByType(NuriIcon).props.dimension).toBe(24);
+
+    const imageAvatar = render(
+      <NuriThemeProvider>
+        <IconAvatar size="sm" source={{ uri: 'data:image/png;base64,flag' }} />
+      </NuriThemeProvider>,
+    );
+    expect(imageAvatar.root.findByType(Image).props.style).toMatchObject({ width: 36, height: 36 });
   });
 
   test('IconAvatar — outline variant paints a transparent border affordance with muted glyph', () => {
@@ -747,6 +811,27 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(onChangeText).toHaveBeenCalledWith('DE123');
   });
 
+  test('TextField — md maps to a 48px box while unset remains the 60px default', () => {
+    const fieldHeights = (tree: TestRenderer.ReactTestRenderer) => tree.root.findAllByType(View)
+      .map((view) => Array.isArray(view.props.style)
+        ? Object.assign({}, ...view.props.style.filter(Boolean))
+        : view.props.style)
+      .map((style) => style?.height)
+      .filter((height) => typeof height === 'number');
+    const md = render(
+      <NuriThemeProvider>
+        <TextField size="md"><TextFieldLabel>Search</TextFieldLabel></TextField>
+      </NuriThemeProvider>,
+    );
+    const defaultSize = render(
+      <NuriThemeProvider>
+        <TextField><TextFieldLabel>Search</TextFieldLabel></TextField>
+      </NuriThemeProvider>,
+    );
+    expect(fieldHeights(md)).toContain(48);
+    expect(fieldHeights(defaultSize)).toContain(60);
+  });
+
   test('TextField — secure, disabled, trailing controls, and external ghost Alert compose', () => {
     const tr = render(
       <NuriThemeProvider>
@@ -879,6 +964,21 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       '3433 Sats',
     ]);
     expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('ListAction — leading avatar forwards an image source without a glyph', () => {
+    const source = { uri: 'https://example.test/poland.png' };
+    const tr = render(
+      <NuriThemeProvider>
+        <ListAction accessibilityLabel="Poland">
+          <ListActionLeadingAvatar source={source} />
+          <ListActionText>Poland</ListActionText>
+          <ListActionTrailingText>+54</ListActionTrailingText>
+        </ListAction>
+      </NuriThemeProvider>,
+    );
+    expect(tr.root.findAllByType(NuriIcon)).toHaveLength(0);
+    expect(tr.root.findByType(Image).props.source).toEqual(source);
   });
 
   test('ListAction — a long unbroken muted value reaches its one-line truncation point', () => {

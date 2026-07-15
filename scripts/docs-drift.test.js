@@ -185,8 +185,8 @@ const EXPECTED_DESCRIPTORS = {
     interactive: ['pressColor', 'pressScale', 'disabledOpacity'], // the collapsed root opt-in (§8 · no compound)
   },
   'icon-avatar': {
-    axes: { variant: ['solid', 'soft', 'ghost', 'subtle', 'outline'] },
-    parts: ['icon'],
+    axes: { variant: ['solid', 'soft', 'ghost', 'subtle', 'outline'], size: ['sm', 'md'] },
+    parts: ['icon', 'image'],
     interactive: [], // static · no `interactive` (65.3 · the IconAvatar story)
   },
   // topbar (the topbar-slots slice · the catalog's first
@@ -233,7 +233,7 @@ const EXPECTED_DESCRIPTORS = {
     interactive: ['pressColor', 'disabledOpacity'],
   },
   'text-field': {
-    axes: {},
+    axes: { size: ['md', 'lg'] },
     parts: ['label', 'box', 'input', 'button', 'iconButton'],
     interactive: [],
   },
@@ -581,7 +581,7 @@ const FROZEN_SCHEMA = {
   // `behaviour.pressable.target` ≡ the `interactive`-flagged parts. This
   // discharges primitives-contract §0.1's "adding one is a versioned Guard-F
   // bump" reservation — 4 El cases now, 4 parity primitives.
-  El: ['view', 'text', 'icon', 'pressable', 'input'],
+  El: ['view', 'text', 'icon', 'image', 'pressable', 'input'],
   NS: { 'stack?': 'StackNS', 'box?': 'BoxNS', 'typography?': 'TypographyNS', 'palette?': 'PaletteNS', 'interactive?': 'InteractiveNS', 'effect?': 'EffectNS' },
   ComponentRef: {
     'component': 'string',
@@ -627,7 +627,7 @@ const FROZEN_SCHEMA = {
   },
   SlotSpec: {
     'part': 'P',
-    'kind': "'text' | 'icon-name' | 'node' | 'region' | 'children'",
+    'kind': "'text' | 'icon-name' | 'image-source' | 'node' | 'region' | 'children'",
     'prop?': 'string',
     'default?': 'true',
     'component?': 'true',

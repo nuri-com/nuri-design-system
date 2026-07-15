@@ -38,8 +38,9 @@
  *   5.  AT MOST ONE slot carries `default: true`;
  *   6.  `multiple: true` only on a `kind: 'children'` slot OR a generated
  *       component slot;
- *   7.  `prop` (the scalar shorthand) ONLY on a SINGULAR `kind: 'icon-name'` slot
- *       (Overrides §1a · never text/node/region/children · never a `multiple` slot);
+ *   7.  `prop` (the scalar shorthand) ONLY on a SINGULAR `kind: 'icon-name'` or
+ *       `kind: 'image-source'` slot (never text/node/region/children · never a
+ *       `multiple` slot);
  *   8.  `themeScope.accent`, when declared, is exactly `true` (§2);
  *   9.  `default: true` is MUTUALLY EXCLUSIVE with `prop` (Option A · §1c — a default
  *       slot is children-delivered, a prop slot is prop-delivered · Phase-2 codegen);
@@ -132,7 +133,7 @@ function authoredPartMaps(descriptor) {
 // pressable; both renderers serve a host's children through the same body path,
 // so a slot kind must not reject the pressable half). A `children` sink must
 // also be OPEN.
-const KIND_ELS = { text: ['text'], 'icon-name': ['icon'], region: HOST_ELS, children: HOST_ELS, node: HOST_ELS };
+const KIND_ELS = { text: ['text'], 'icon-name': ['icon'], 'image-source': ['image'], region: HOST_ELS, children: HOST_ELS, node: HOST_ELS };
 const KINDS = Object.keys(KIND_ELS);
 
 // The public behaviour props a `pressable` may expose (mirrors the schema union
@@ -495,13 +496,13 @@ test('component-api · multiple: true only on a kind:children slot or generated 
   }
 });
 
-// ── Channel 7 · prop only on a singular icon-name slot (the scalar shorthand) ──
-test('component-api · prop only on a singular kind:icon-name slot', () => {
+// ── Channel 7 · prop only on a singular scalar slot ──
+test('component-api · prop only on a singular icon-name/image-source slot', () => {
   for (const name of NAMES) {
     const d = CATALOG[name];
     for (const [slot, spec] of slotEntries(d)) {
       if (spec.prop === undefined) continue;
-      assert.equal(spec.kind, 'icon-name', `${name}: slot '${slot}' declares prop '${spec.prop}' but kind '${spec.kind}' — the scalar shorthand is only legal on kind:'icon-name' (Overrides §1a)`);
+      assert.ok(['icon-name', 'image-source'].includes(spec.kind), `${name}: slot '${slot}' declares prop '${spec.prop}' but kind '${spec.kind}' — the scalar shorthand is only legal on kind:'icon-name' or kind:'image-source'`);
       assert.notEqual(spec.multiple, true, `${name}: slot '${slot}' declares prop '${spec.prop}' but is multiple — the scalar shorthand requires a SINGULAR slot`);
     }
   }

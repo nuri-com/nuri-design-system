@@ -86,9 +86,17 @@ export const iconButtonMissingIcon = <IconButton />;
 // @ts-expect-error IconButton forbids children (`children?: never` · no `default` slot · the glyph is the `icon` prop, not a children-sink).
 export const iconButtonNoChildren = <IconButton icon="apple">child</IconButton>;
 
-// ── IconAvatar — required `icon` · NOT interactive (no behaviour) · no children ──
+// ── IconAvatar — cheap icon/source exclusivity · NOT interactive · no children ──
 export const iconAvatarOk = <IconAvatar variant="soft" icon="settings" />;
 export const iconAvatarOutlineOk = <IconAvatar variant="outline" icon="settings" />;
+export const iconAvatarMdOk = <IconAvatar size="md" icon="settings" />;
+export const iconAvatarSmOk = <IconAvatar size="sm" icon="settings" />;
+export const iconAvatarSourceOk = <IconAvatar source={{ uri: 'https://example.test/flag.png' }} />;
+// @ts-expect-error IconAvatar size is the closed sm | md union.
+export const iconAvatarBadSize = <IconAvatar size="lg" icon="settings" />;
+// Both/neither stay legal at the type level; the runtime warns once and source wins.
+export const iconAvatarBothTypeOk = <IconAvatar icon="settings" source={{ uri: 'https://example.test/flag.png' }} />;
+export const iconAvatarNeitherTypeOk = <IconAvatar />;
 // @ts-expect-error IconAvatar is NOT interactive — it declares no `behaviour`, so `onPress` is not on its surface.
 export const iconAvatarNoPress = <IconAvatar icon="settings" onPress={() => undefined} />;
 // @ts-expect-error IconAvatar forbids children (`children?: never`).
@@ -103,6 +111,11 @@ export const listOk = (
     </ListAction>
     <ListSeparator />
   </List>
+);
+export const listActionAvatarSourceOk = (
+  <ListAction>
+    <ListActionLeadingAvatar source={{ uri: 'https://example.test/flag.png' }} />
+  </ListAction>
 );
 // @ts-expect-error ListAction no longer exposes avatar styling props.
 export const listActionNoVariant = <ListAction variant="solid" />;
@@ -148,8 +161,9 @@ export const textFieldNoInvalidAutoCapitalize = <TextField autoCapitalize="title
 export const textFieldNoError = <TextField error><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
 // @ts-expect-error helper text is out of scope for v1.
 export const textFieldNoHelper = <TextField helper="Use IBAN"><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
-// @ts-expect-error TextField v1 has no size axis.
-export const textFieldNoSize = <TextField size="sm"><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
+export const textFieldMdSize = <TextField size="md"><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
+// @ts-expect-error TextField exposes only the md/lg control sizes.
+export const textFieldNoSmSize = <TextField size="sm"><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
 // @ts-expect-error TextField v1 has no variant axis.
 export const textFieldNoVariant = <TextField variant="soft"><TextFieldLabel>IBAN</TextFieldLabel></TextField>;
 // @ts-expect-error TextFieldButton delegates to Button text; it does not expose an icon prop.

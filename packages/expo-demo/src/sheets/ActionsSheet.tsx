@@ -50,9 +50,9 @@ export function ActionsSheet({
                 <ListActionTrailIcon name="chevron-right" />
               </ListAction>
               <ListSeparator />
-              <ListAction accessibilityLabel="Credit card" onPress={onClose}>
-                <ListActionLeadingAvatar name="card" variant="solid" accent="lilac" />
-                <ListActionText>Credit card</ListActionText>
+              <ListAction accessibilityLabel="German bank" onPress={onClose}>
+                <ListActionLeadingAvatar source={require('../../assets/flags/deu.png')} />
+                <ListActionText>German bank</ListActionText>
                 <ListActionTrailIcon name="chevron-right" />
               </ListAction>
               <ListSeparator />

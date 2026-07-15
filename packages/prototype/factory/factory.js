@@ -26,6 +26,7 @@
  *   view      → <nuri-view>           (the RN static <View> · the element IS the merged node)
  *   text      → <nuri-typography>     (REUSE · text parts are single-NS)
  *   icon      → <nuri-icon name=X>    (glyph leaf · name routed · fg by currentColor)
+ *   image     → <img src=X>            (image leaf · source routed · cover crop)
  * S3 shipped the BUTTON slice (view+interactive + text). S4 generalizes the
  * SAME engine to IconAvatar (static view + icon child) + Topbar (open static
  * view + a static-view content pivot) — `open` needs NO branch (the RN oracle's
@@ -389,6 +390,8 @@ function renderPart(node, ctx) {
       return renderText(node, ns, ctx);
     case 'icon':
       return renderIcon(node, ns, ctx);
+    case 'image':
+      return renderImage(node, ns, ctx);
     case 'input':
       return renderInput(node, ns, ctx);
     default:
@@ -728,6 +731,22 @@ function renderIcon(node, ns, ctx) {
   return el;
 }
 
+// image → native <img src=X>. Like every leaf it renders only when content is
+// routed for its part. Geometry/radius/border are the same merged namespace
+// classes and data attributes used by the other elements; only cover-cropping is
+// intrinsic to this leaf.
+function renderImage(node, ns, ctx) {
+  const source = ctx.content[node.name];
+  if (source == null) return null;
+  const el = document.createElement('img');
+  el.setAttribute('src', String(source));
+  el.style.objectFit = 'cover';
+  const { classes, data } = mergeAttrs(ns);
+  if (classes.length) el.classList.add(...classes);
+  for (const [k, v] of Object.entries(data)) el.setAttribute(k, v);
+  return el;
+}
+
 /**
  * buildComponent · descriptor + selection → a de-collapsed nuri-* tree.
  *
@@ -782,14 +801,14 @@ export function buildComponent(descriptor, selection = {}, props = {}) {
   else if (anatomy.open && props.children !== undefined && content.root === undefined) {
     content.root = props.children;
   }
-  // Ergonomic per-part props (prefix/icon/suffix · the icon-button's three-part
-  // anatomy has no lone primary) → the content map BY PART NAME. On web each is a
-  // STRING (the text flank · or the glyph NAME for an `icon` leaf); an unset prop
-  // leaves the part absent → its leaf renders nothing (the bare-collapse · the RN
-  // createNuriComponent mirror). A single-primary component is unaffected.
-  for (const child of anatomy.children) {
-    if (content[child.name] === undefined && props[child.name] !== undefined) {
-      content[child.name] = props[child.name];
+  // Ergonomic scalar props route through descriptor slot DATA (`prop` may differ
+  // from the anatomy part: IconAvatar `source` → `image`). An unset prop leaves
+  // the leaf absent, preserving the generic empty-slot collapse.
+  for (const [slotName, slot] of Object.entries(descriptor.api?.slots || {})) {
+    if (slot.component === true || slot.default === true || slot.kind === 'region') continue;
+    const prop = slot.prop || slotName;
+    if (content[slot.part] === undefined && props[prop] !== undefined) {
+      content[slot.part] = props[prop];
     }
   }
 
@@ -839,7 +858,7 @@ export const nuriNames = (kebab) => ({ web: `nuri-${kebab}`, rn: pascalCase(keba
  * @param descriptor a frozen component descriptor (build/descriptors/*.js)
  * @param tagName    the custom-element tag (e.g. 'nuri-button')
  */
-export function defineNuriComponent(descriptor, tagName) {
+export function defineNuriComponent(descriptor, tagName, options = {}) {
   const descriptorName = tagName.startsWith('nuri-') ? tagName.slice('nuri-'.length) : tagName;
   NURI_COMPONENT_TAGS.set(descriptorName, tagName);
   const axisNames = descriptor.variants ? Object.keys(descriptor.variants) : [];
@@ -1040,6 +1059,10 @@ export function defineNuriComponent(descriptor, tagName) {
         const v = this.getAttribute(p);
         if (v != null) props[p] = v;
       }
+      // A recipe binding may normalize product-level prop policy before the
+      // generic descriptor engine sees it. The hook receives only public props
+      // and the custom-element host; renderPart remains component-agnostic.
+      if (options.transformProps) options.transformProps(props, this);
       // aria-label → the a11y accessible name (the factory sets it on the
       // interactive host · nuri-pressable mirrors it to the inner button's
       // aria-label · F-ARIA-LABEL-1). Descriptor API support, not text shape,
