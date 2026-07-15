@@ -31,7 +31,7 @@ import { blackAlpha } from '@nuri/spec/colours';
 import { bottomSheetChrome } from '@nuri/spec/bottom-sheet-chrome';
 
 import { space } from '../generated/data/tokens';
-import { useOverlay } from '../overlay';
+import { usePresentedLayer } from '../presented-layer';
 import { useNuriSafeAreaInsets } from '../safe-area';
 import { BottomSheetPanel as GeneratedBottomSheetPanel } from '../generated/components/bottom-sheet-panel';
 import { FixedRegionLayoutProvider } from './FixedRegionLayout';
@@ -84,55 +84,12 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   onOpenComplete,
   children,
 }) => {
-  const overlay = useOverlay();
   const safeAreaInsets = useNuriSafeAreaInsets();
-  const layerId = React.useId();
   const { height: windowHeight } = useWindowDimensions();
-  const progress = React.useRef(new Animated.Value(0)).current;
-  const [mounted, setMounted] = React.useState(open);
   // Measured sheet height doubles as the "ready to animate in" latch: the
   // enter slide waits for first layout so the travel distance is exact.
   const [sheetHeight, setSheetHeight] = React.useState<number | null>(null);
   const measuredHeight = React.useRef<number | null>(null);
-  const openNotified = React.useRef(false);
-  // Latest-callback refs keep consumer callbacks out of the animation effects'
-  // deps so a parent's inline lambda can't restart a running animation.
-  const onOpenChangeRef = React.useRef(onOpenChange);
-  onOpenChangeRef.current = onOpenChange;
-  const onOpenCompleteRef = React.useRef(onOpenComplete);
-  onOpenCompleteRef.current = onOpenComplete;
-  // Stable close handler for scrim tap AND hardware-back routing (the overlay
-  // layer calls it on the topmost dismissible layer). Reads the latest callback
-  // via the ref so its identity never changes.
-  const requestClose = React.useCallback(() => {
-    onOpenChangeRef.current?.(false);
-  }, []);
-
-  React.useEffect(() => {
-    if (open) {
-      setMounted(true);
-      return;
-    }
-    openNotified.current = false;
-    if (!mounted) return;
-    Animated.timing(progress, { ...EXIT_TIMING, toValue: 0 }).start(({ finished }) => {
-      if (!finished) return;
-      measuredHeight.current = null;
-      setSheetHeight(null);
-      setMounted(false);
-    });
-  }, [open, mounted, progress]);
-
-  React.useEffect(() => {
-    if (!open || !mounted || sheetHeight === null) return;
-    Animated.timing(progress, { ...ENTER_TIMING, toValue: 1 }).start(({ finished }) => {
-      if (finished && !openNotified.current) {
-        openNotified.current = true;
-        onOpenChangeRef.current?.(true);
-        onOpenCompleteRef.current?.();
-      }
-    });
-  }, [open, mounted, sheetHeight, progress]);
 
   const handleSheetLayout = React.useCallback((event: LayoutChangeEvent) => {
     const next = Math.round(event.nativeEvent.layout.height);
@@ -142,15 +99,6 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     measuredHeight.current = next;
     setSheetHeight(next);
   }, []);
-
-  const translateY = React.useMemo(
-    () =>
-      progress.interpolate({
-        inputRange: [0, 1],
-        outputRange: [sheetHeight ?? windowHeight, 0],
-      }),
-    [progress, sheetHeight, windowHeight],
-  );
 
   // `content` hugs its content, bottom-anchored (maxHeight cap). `full` keeps a
   // safe-area-relative top offset (safe top + sm gap): anchoring on the inset —
@@ -175,68 +123,68 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   // scroll to nothing — no cap until a real height is known.
   const scrollMaxHeight =
     windowHeight > 0 ? (detent === 'content' ? Math.round(windowHeight * CONTENT_MAX_FRACTION) : fullMaxHeight) : undefined;
-  // The overlay subtree — identical to the old inline return (scrim +
-  // KeyboardAvoidingView + the measured, translateY-slid Animated.View). It is
-  // rebuilt each render (fresh translateY on a height/detent change) and
-  // re-registered so the outlet shows the current node; the progress/translateY
-  // Animated values are stable refs, so the enter/exit slide runs native-driven
-  // on the already-mounted node without a re-render. Only built while mounted.
-  const overlayNode = mounted ? (
-    <RNView pointerEvents="box-none" style={StyleSheet.absoluteFill}>
-      {scrim === 'dim' ? (
-        <AnimatedPressable
-          accessibilityRole={dismissible ? 'button' : undefined}
-          disabled={!dismissible}
-          onPress={dismissible ? requestClose : undefined}
-          style={[styles.scrim, { opacity: progress }]}
-        />
-      ) : null}
-      <KeyboardAvoidingView
-        // Only PUSH the small bottom-anchored `content` sheet (iOS padding). A
-        // `full` sheet already fills the screen — pushing it (height/padding)
-        // double-counts against Android adjustResize and shoves it off the top;
-        // it makes room by shrinking (sizeStyle flexGrow) + the ScrollView.
-        behavior={detent === 'content' && Platform.OS === 'ios' ? 'padding' : undefined}
-        pointerEvents="box-none"
-        style={styles.host}
-      >
-        <Animated.View onLayout={handleSheetLayout} style={[sizeStyle, { transform: [{ translateY }] }]}>
-          <FixedRegionLayoutProvider
-            keyboardEnabled={detent === 'full'}
-            safeAreaBottom={safeAreaInsets.bottom}
-            scrollMaxHeight={scrollMaxHeight}
-            windowHeight={windowHeight}
+  usePresentedLayer({
+    open,
+    ready: sheetHeight !== null,
+    dismissible,
+    onRequestClose: dismissible ? () => onOpenChange?.(false) : undefined,
+    onEnterComplete: () => {
+      onOpenChange?.(true);
+      onOpenComplete?.();
+    },
+    onExitComplete: () => {
+      measuredHeight.current = null;
+      setSheetHeight(null);
+    },
+    enterTiming: ENTER_TIMING,
+    exitTiming: EXIT_TIMING,
+    // The overlay subtree — identical to the old inline return (scrim +
+    // KeyboardAvoidingView + the measured, translateY-slid Animated.View). It is
+    // rebuilt each render and re-registered so the outlet shows the current node;
+    // the progress Animated.Value is a stable ref, so the enter/exit slide runs
+    // native-driven on the already-mounted node without a re-render.
+    renderLayer: ({ progress, requestClose }) => {
+      const translateY = progress.interpolate({
+        inputRange: [0, 1],
+        outputRange: [sheetHeight ?? windowHeight, 0],
+      });
+      return (
+        <RNView pointerEvents="box-none" style={StyleSheet.absoluteFill}>
+          {scrim === 'dim' ? (
+            <AnimatedPressable
+              accessibilityRole={dismissible ? 'button' : undefined}
+              disabled={!dismissible}
+              onPress={dismissible ? requestClose : undefined}
+              style={[styles.scrim, { opacity: progress }]}
+            />
+          ) : null}
+          <KeyboardAvoidingView
+            // Only PUSH the small bottom-anchored `content` sheet (iOS padding). A
+            // `full` sheet already fills the screen — pushing it (height/padding)
+            // double-counts against Android adjustResize and shoves it off the top;
+            // it makes room by shrinking (sizeStyle flexGrow) + the ScrollView.
+            behavior={detent === 'content' && Platform.OS === 'ios' ? 'padding' : undefined}
+            pointerEvents="box-none"
+            style={styles.host}
           >
-            {children}
-          </FixedRegionLayoutProvider>
-        </Animated.View>
-      </KeyboardAvoidingView>
-    </RNView>
-  ) : null;
-
-  // Register the subtree into the overlay layer while mounted (the <Layer>
-  // pattern): the outlet renders it full-window, above the safe-area padding.
-  // TWO effects, NOT one (mirrors LayerHost.tsx) — this split is load-bearing
-  // for stacking order. A single register-with-cleanup effect would, on every
-  // re-render, run cleanup (unregister) then body (register), and register
-  // re-APPENDS a fresh id to the TOP — so a lower sheet that re-renders (keyboard,
-  // content, height, any parent re-render) would jump above an upper layer,
-  // inverting the mount-order guarantee. Splitting fixes it:
-  //   A · upsert the fresh node WITHOUT cleanup — register upserts in place, so
-  //       a re-render refreshes the node and keeps its slot in the stack.
-  React.useLayoutEffect(() => {
-    if (!mounted) return;
-    overlay.register(layerId, overlayNode, {
-      dismissible,
-      onRequestClose: dismissible ? requestClose : undefined,
-    });
-  }, [mounted, overlayNode, dismissible, requestClose, overlay, layerId]);
-  //   B · the ONLY place the layer leaves the stack — on close (!mounted) or
-  //       unmount. Never runs on a node/dismissible change, so order is stable.
-  React.useLayoutEffect(() => {
-    if (!mounted) overlay.unregister(layerId);
-    return () => overlay.unregister(layerId);
-  }, [mounted, layerId, overlay]);
+            <Animated.View
+              onLayout={handleSheetLayout}
+              style={[sizeStyle, { transform: [{ translateY }] }]}
+            >
+              <FixedRegionLayoutProvider
+                keyboardEnabled={detent === 'full'}
+                safeAreaBottom={safeAreaInsets.bottom}
+                scrollMaxHeight={scrollMaxHeight}
+                windowHeight={windowHeight}
+              >
+                {children}
+              </FixedRegionLayoutProvider>
+            </Animated.View>
+          </KeyboardAvoidingView>
+        </RNView>
+      );
+    },
+  });
 
   return null;
 };
