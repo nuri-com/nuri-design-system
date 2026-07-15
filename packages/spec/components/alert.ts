@@ -107,11 +107,11 @@ export const alertDescriptor: Descriptor<AlertAxes> = {
     // soft = the raised pill bar (the mock's balance/insufficient surface): a
     // neutral soft surface (bg-strong · DESIGN-REVIEW flag: chrome vs the `soft`
     // surface variant — the closest existing token is picked, no new token minted),
-    // a larger (lg) start padding for the pill's rounded left edge, a size-xl min
-    // height, and a FULL (pill) radius. ghost = the bare error line: transparent,
-    // no padding, no radius — icon + text only.
+    // uniform md padding, a size-lg min height, and a FULL (pill) radius.
+    // ghost = the bare error line: transparent, no padding, no radius — icon +
+    // text only.
     variant: {
-      soft: { root: { box: { minHeight: 'lg', padding: 'md', paddingStart: 'lg', radius: 'full' }, palette: { variant: 'soft' } } },
+      soft: { root: { box: { minHeight: 'lg', padding: 'md', radius: 'full' }, palette: { variant: 'soft' } } },
       ghost: { root: { palette: { variant: 'ghost' } } },
     },
   },

@@ -35,7 +35,6 @@ export const recipes: Record<string, BakedComponentRecipe> = {
             "soft": {
               "minHeight": 48,
               "padding": 12,
-              "paddingStart": 18,
               "borderRadius": 9999
             }
           }
