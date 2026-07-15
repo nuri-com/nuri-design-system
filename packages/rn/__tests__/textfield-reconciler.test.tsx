@@ -47,6 +47,22 @@ function select(tree: TestRenderer.ReactTestRenderer, start: number, end = start
   act(() => nativeInput(tree).props.onSelectionChange({ nativeEvent: { selection: { start, end } } }));
 }
 
+function RenderProbe({ run }: { run?: () => void }): null {
+  run?.();
+  return null;
+}
+
+function fieldWithProbe(props: TextFieldProps, run?: () => void): React.ReactElement {
+  return (
+    <NuriThemeProvider>
+      <TextField {...props}>
+        <TextFieldLabel>Name</TextFieldLabel>
+      </TextField>
+      <RenderProbe run={run} />
+    </NuriThemeProvider>
+  );
+}
+
 describe('DescriptorTextInput native-authoritative reconciler', () => {
   const originalPlatformOS = Platform.OS;
 
@@ -97,6 +113,48 @@ describe('DescriptorTextInput native-authoritative reconciler', () => {
     expect(mockSetTextAndSelection).not.toHaveBeenCalled();
     updateField(tree, { value: 'L' });
     expect(mockSetTextAndSelection).toHaveBeenCalledTimes(1);
+  });
+
+  test('an acknowledgement between native events remains available to suppress its delayed echo', () => {
+    const tree = renderField({ value: '' });
+    change(tree, 'L', 1);
+    updateField(tree, { value: 'L' });
+
+    change(tree, 'Le', 2);
+    updateField(tree, { value: 'L' });
+
+    expect(mockSetTextAndSelection).not.toHaveBeenCalled();
+  });
+
+  test('a native event during render sees committed sanitizer and callback props only', () => {
+    const committedChange = jest.fn();
+    const renderingChange = jest.fn();
+    const committedSanitize = (text: string) => text.toUpperCase();
+    const renderingSanitize = (text: string) => text.toLowerCase();
+    let tree!: TestRenderer.ReactTestRenderer;
+    act(() => {
+      tree = TestRenderer.create(fieldWithProbe({
+        value: '',
+        sanitize: committedSanitize,
+        onChangeText: committedChange,
+      }));
+    });
+    const committedHandler = nativeInput(tree).props.onChange;
+
+    act(() => tree.update(fieldWithProbe(
+      {
+        value: '',
+        sanitize: renderingSanitize,
+        onChangeText: renderingChange,
+      },
+      () => committedHandler({ nativeEvent: { text: 'Ab', eventCount: 1 } }),
+    )));
+
+    expect(committedChange).toHaveBeenCalledWith('AB');
+    expect(renderingChange).not.toHaveBeenCalled();
+
+    change(tree, 'Cd', 2);
+    expect(renderingChange).toHaveBeenCalledWith('cd');
   });
 
   test('an external rewrite issues one command with the latest event count and mapped selection', () => {

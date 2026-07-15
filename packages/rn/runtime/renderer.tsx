@@ -310,7 +310,6 @@ function DescriptorTextInput({
   const mountValue = React.useRef(value).current;
   const initialText = mountValue ?? '';
   const latestProps = React.useRef({ value, onChangeText, sanitize });
-  latestProps.current = { value, onChangeText, sanitize };
   const lastNative = React.useRef<{
     text: string;
     selection: TextSelection;
@@ -323,14 +322,21 @@ function DescriptorTextInput({
   const pendingEmits = React.useRef<string[]>([]);
 
   React.useLayoutEffect(() => {
+    // Event handlers must observe only committed props. Publishing during
+    // render lets a suspended or abandoned render leak its sanitizer/callback
+    // into native events still owned by the committed tree.
+    latestProps.current = { value, onChangeText, sanitize };
     if (Platform.OS === 'web') return;
-    const nextValue = latestProps.current.value;
+    const nextValue = value;
     if (nextValue == null) return;
 
     const pending = pendingEmits.current;
     const newestMatch = pending.lastIndexOf(nextValue);
     if (nextValue === lastNative.current.text) {
-      if (newestMatch >= 0) pendingEmits.current = pending.slice(newestMatch + 1);
+      // Retain the newest acknowledgement. A native event can arrive before
+      // the next parent commit, and a delayed repeat of this value must remain
+      // recognizable as an echo after that newer event.
+      if (newestMatch >= 0) pendingEmits.current = pending.slice(newestMatch);
       return;
     }
     if (newestMatch >= 0) {

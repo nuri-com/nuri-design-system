@@ -714,6 +714,23 @@ test('C7 · <nuri-text-field> sanitizes through a function property and forwards
   assert.deepEqual(seen, ['ADALOVELACE']);
 });
 
+test('C7a · <nuri-text-field> maps a mid-string selection through sanitization', async () => {
+  const field = dom.window.document.createElement('nuri-text-field');
+  field.sanitize = (value) => value.replaceAll(' ', '');
+  field.innerHTML = '<nuri-text-field-label>Reference</nuri-text-field-label>';
+  mount(field);
+  await tick();
+
+  const input = field.querySelector('nuri-input > input');
+  input.value = 'ab cd';
+  input.setSelectionRange(3, 4);
+  input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+
+  assert.equal(input.value, 'abcd');
+  assert.equal(input.selectionStart, 2);
+  assert.equal(input.selectionEnd, 3);
+});
+
 test('C6b · <nuri-text-field-icon-button> requires aria-label before delegating an icon-only button', () => {
   const field = dom.window.document.createElement('nuri-text-field');
   field.innerHTML = [

@@ -16,6 +16,8 @@ import {
 
 const LOAD_INTERVAL_MS = 48;
 const BUSY_LOOP_MS = 24;
+const SANITIZE_UPPERCASE_NO_SPACES = (text: string): string =>
+  text.toUpperCase().replaceAll(' ', '');
 
 function blockJsBriefly(): void {
   const deadline = Date.now() + BUSY_LOOP_MS;
@@ -98,7 +100,7 @@ export function TextFieldStress({ onBack }: { onBack: () => void }) {
           <TextField
             value={sanitized}
             onChangeText={setSanitized}
-            sanitize={(text) => text.toUpperCase().replaceAll(' ', '')}
+            sanitize={SANITIZE_UPPERCASE_NO_SPACES}
             placeholder="Fast-type Lennard with spaces"
           >
             <TextFieldLabel>Uppercase + strip spaces</TextFieldLabel>
