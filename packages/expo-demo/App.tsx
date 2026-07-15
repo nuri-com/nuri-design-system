@@ -14,7 +14,6 @@
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';
-import { Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -30,13 +29,9 @@ function Shell() {
   );
   // The ONE place safe-area is owned (decision 58 · navigator role).
   const insets = useSafeAreaInsets();
-  // Web preview parity: a desktop browser reports zero insets, which shifts
-  // every safe-area-relative element (e.g. the toast) relative to the
-  // playground's device frame. Simulate the frame's band (38/22) instead.
-  const safeArea = Platform.OS === 'web' ? { top: 38, bottom: 22 } : insets;
 
   return (
-    <NuriRoot mode={mode} accent="neutral" safeArea={safeArea}>
+    <NuriRoot mode={mode} accent="neutral" safeArea={insets}>
       <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
       <Screens onToggleTheme={toggleTheme} />
     </NuriRoot>
