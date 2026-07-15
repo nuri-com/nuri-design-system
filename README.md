@@ -25,8 +25,8 @@ target's output is *generated* from it.
   tokens/           dimensions · colours · typography        (the token SoTs)
   axes/             resolve-map · palette-surface · interactive-effects ·
                     typography-axis · property-spelling · interaction
-  components/       button · icon-avatar · icon-button · tab-bar ·
-                    tab-bar-item · topbar · schema             (descriptors)
+  components/       button · icon-avatar · icon-button · modal-panel ·
+                    tab-bar · tab-bar-item · topbar · schema       (descriptors)
   icons/            *.svg                                     (the icon SoT)
 
 @nuri/rn            PRODUCTION — the RN projection

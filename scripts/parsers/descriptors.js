@@ -52,7 +52,7 @@ export const DESCRIPTOR_COMPONENTS = [
   { name: 'text-field' },
   { name: 'tab-bar-item' },
   { name: 'tab-bar' },
-  { name: 'bottom-sheet-panel' },
+  { name: 'modal-panel' },
 ];
 
 // ── NAME → the export identifier / camelCase ─────────────────────────

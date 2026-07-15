@@ -3,7 +3,7 @@ import * as React from 'react';
 /* ──────────────────────────────────────────────────────────────
  * useSheet · DEMO-LOCAL prototype (deliberately NOT @ds).
  *
- * The open/show/onClose triple every declarative <BottomSheet> consumer
+ * The open/show/onClose triple every declarative <Modal> consumer
  * repeats. Sheets register into the OverlayProvider from ANYWHERE in the
  * tree, so each sheet and its state co-locate with the screen that launches
  * it — no root-hoisted sheet enum (that pattern was a pre-OverlayProvider

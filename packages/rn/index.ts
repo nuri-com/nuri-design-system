@@ -40,9 +40,8 @@ export type {
 export { NuriSafeAreaProvider, useNuriSafeAreaInsets } from './safe-area';
 export type { NuriSafeAreaInsets, NuriSafeAreaProviderProps } from './safe-area';
 
-// The overlay runtime — the DS overlay layer (route B · docs/bottom-sheet-
-// improvements.md). OverlayProvider is a root provider (like NuriThemeProvider)
-// the consumer mounts once, ABOVE their safe-area padding; <BottomSheet>
+// The overlay runtime. OverlayProvider is a root provider (like NuriThemeProvider)
+// the consumer mounts once, ABOVE their safe-area padding; <Modal>
 // registers its subtree into it via useOverlay. RN-only runtime behaviour (no
 // web equivalent — web is a static device-frame layer).
 export { OverlayProvider, useOverlay } from './overlay';
@@ -79,6 +78,8 @@ export {
   Dock,
   Separator,
   ListSeparator,
+  Modal,
+  ModalPanel,
   BottomSheet,
   BottomSheetPanel,
 } from './primitives';
@@ -97,6 +98,10 @@ export type {
   SeparatorProps,
   SeparatorYSpace,
   ListSeparatorProps,
+  ModalProps,
+  ModalMode,
+  ModalScrim,
+  ModalPanelProps,
   BottomSheetProps,
   BottomSheetDetent,
   BottomSheetScrim,

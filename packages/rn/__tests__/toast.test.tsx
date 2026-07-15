@@ -170,7 +170,7 @@ describe('ToastProvider', () => {
     expect(textsInTree(tr)).toEqual(['Sheet', 'Toast']);
     const positionedLayer = tr.root.findAllByType(View).find((node) => {
       const style = flatStyle(node.props.style);
-      return style.paddingTop === 44 + space.md;
+      return style.paddingTop === 44 + space.lg;
     });
     expect(positionedLayer).toBeDefined();
     expect(positionedLayer!.props.pointerEvents).toBe('box-none');

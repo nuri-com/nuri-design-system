@@ -393,7 +393,7 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
 }
 
 /* ── Overlay mode · the device-fill stance for a sheet-bearing composition ──
- * When the frame carries data-overlay (demo.js detects a <nuri-bottom-sheet>),
+ * When the frame carries data-overlay (demo.js detects a <nuri-modal>),
  * the status bar + bottom affordance are pulled OUT of the flex flow and pinned
  * as absolute overlays, so the viewport fills the WHOLE screen and the sheet's
  * scrim (bounded by the viewport) dims the status-bar strip too — matching the

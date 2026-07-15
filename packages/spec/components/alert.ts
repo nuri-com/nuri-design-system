@@ -3,7 +3,7 @@
  *
  * The composition-only inline notice — an icon, a growing message, and (soft
  * only) a trailing action, laid out in one centred row. Authored like `topbar`
- * (the multi-part reference) with `bottom-sheet-panel` as the default-children-
+ * (the multi-part reference) with `modal-panel` as the default-children-
  * slot reference. PURE DATA (no theme thunk · 65.3 §7): structure { anatomy,
  * base } + variants composed from the five primitive namespaces in SEMANTIC
  * names; the platform-native engine resolves them (factory on RN · CSS on web ·
@@ -20,7 +20,7 @@
  *               the IconButton pattern · no default glyph).
  *
  * ── THE FLAT CHILDREN SLOT (§1.1 · settled) ──
- * `default` is a `kind:'children'` sink on the OPEN root (the bottom-sheet-panel
+ * `default` is a `kind:'children'` sink on the OPEN root (the modal-panel
  * slot shape · multiple). The message is BARE STRING children; a trailing
  * `AlertButton` (the ONLY sanctioned action — there is NO raw-Button escape
  * hatch) is a bare ELEMENT child. Both flow into the row in authored order.

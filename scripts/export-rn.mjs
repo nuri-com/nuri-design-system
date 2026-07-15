@@ -212,7 +212,7 @@ function main() {
       'the ONLY sanctioned import is the barrel, via the `@ds` alias:',
       '',
       '```ts',
-      "import { Button, View, BottomSheet } from '@ds';",
+      "import { Button, View, Modal } from '@ds';",
       '```',
       '',
       'Upgrade = re-pull (the whole upgrade is one reviewable diff; see `MANIFEST.json` for the pin):',

@@ -18,7 +18,7 @@ src/
     Bank.tsx           value that renders it ('bitcoin' | 'bank' | 'euro').
     Euro.tsx
     Menu.tsx           the sheet launcher screen. Mounts each sheet NEXT TO
-                       its button (a <BottomSheet> registers into the
+                       its button (a <Modal> registers into the
                        OverlayProvider outlet from anywhere — nothing needs
                        hoisting to the root) and owns the sample form values.
   components/

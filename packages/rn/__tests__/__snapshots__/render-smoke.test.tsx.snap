@@ -2061,10 +2061,11 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — BAR
       "backgroundColor": "#fffdf2",
       "flexDirection": "row",
       "gap": 6,
-      "height": 60,
+      "height": 72,
+      "paddingBottom": 6,
       "paddingEnd": 18,
       "paddingStart": 18,
-      "paddingTop": 12,
+      "paddingTop": 18,
     }
   }
 >
@@ -2118,10 +2119,11 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — COM
       "backgroundColor": "#fffdf2",
       "flexDirection": "row",
       "gap": 6,
-      "height": 60,
+      "height": 72,
+      "paddingBottom": 6,
       "paddingEnd": 18,
       "paddingStart": 18,
-      "paddingTop": 12,
+      "paddingTop": 18,
     }
   }
 >

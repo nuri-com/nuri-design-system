@@ -37,8 +37,9 @@ import {
   TabBarItemIcon,
   TabBarItemLabel,
   BottomSheet,
+  Modal,
+  ModalPanel,
   Footer,
-  BottomSheetPanel,
   View,
   Text,
   Pressable,
@@ -178,10 +179,10 @@ export const tabItemIconRequiresName = <TabBarItemIcon />;
 // @ts-expect-error TabBarItemIcon is icon-name only and rejects children.
 export const tabItemIconNoChildren = <TabBarItemIcon name="card">Wallet</TabBarItemIcon>;
 
-// ── BottomSheet family — Nuri contract, no raw engine surface ──
-export const bottomSheetOk = (
-  <BottomSheet open detent="content" scrim="dim" dismissible onOpenComplete={() => undefined}>
-    <BottomSheetPanel>
+// ── Modal family — one blocking identity, two presentation modes ──
+export const modalOk = (
+  <Modal open mode="sheet" scrim="dim" dismissible onOpenComplete={() => undefined}>
+    <ModalPanel>
       <Header paddingTop="lg">
         <Topbar surface="transparent">
           <TopbarCenter>Address</TopbarCenter>
@@ -202,37 +203,39 @@ export const bottomSheetOk = (
       >
         <Button>Continue</Button>
       </Footer>
-    </BottomSheetPanel>
-  </BottomSheet>
+    </ModalPanel>
+  </Modal>
 );
-// the two-detent surface: `content` and `full` are the whole set.
-export const bottomSheetContentOk = <BottomSheet open detent="content" />;
-export const bottomSheetFullOk = <BottomSheet open detent="full" />;
-export const bottomSheetFooterSafeAreaOk = <Footer safeAreaBottom paddingY="sm"><Button>Done</Button></Footer>;
-// @ts-expect-error BottomSheet no longer owns safe-area painting; use Scroll/Footer safeAreaBottom.
-export const bottomSheetNoSafeAreaBottom = <BottomSheet open safeAreaBottom />;
-// @ts-expect-error BottomSheet does not expose numeric inset transport.
-export const bottomSheetNoBottomInset = <BottomSheet open bottomInset={34} />;
-// @ts-expect-error BottomSheet collapsed to two detents — `large` was dropped (D1).
-export const bottomSheetNoLargeDetent = <BottomSheet open detent="large" />;
-// @ts-expect-error BottomSheet intentionally does NOT expose raw engine snapPoints.
-export const bottomSheetNoSnapPoints = <BottomSheet open snapPoints={['25%', '75%']} />;
-// @ts-expect-error BottomSheet intentionally has no header slot prop; compose Header instead.
-export const bottomSheetNoHeaderProp = <BottomSheet open header={<Button>Done</Button>} />;
-// @ts-expect-error BottomSheet intentionally has no content-slot props; compose children instead.
-export const bottomSheetNoFooterProp = <BottomSheet open footer={<Button>Done</Button>} />;
-// @ts-expect-error BottomSheetPanel is visual content only; detents live on BottomSheet.
-export const bottomSheetPanelNoDetent = <BottomSheetPanel detent="full" />;
-// @ts-expect-error BottomSheetPanel intentionally has no header slot prop; compose Header instead.
-export const bottomSheetPanelNoHeaderProp = <BottomSheetPanel header={<Button>Done</Button>} />;
-// @ts-expect-error BottomSheetPanel intentionally has no footer slot prop; compose Footer instead.
-export const bottomSheetPanelNoFooterProp = <BottomSheetPanel footer={<Button>Done</Button>} />;
+export const modalSheetOk = <Modal open mode="sheet" />;
+export const modalFullOk = <Modal open mode="full" />;
+export const bottomSheetCompatOk = <BottomSheet open detent="full" />;
+export const modalFooterSafeAreaOk = <Footer safeAreaBottom paddingY="sm"><Button>Done</Button></Footer>;
+// @ts-expect-error Modal mode is required.
+export const modalModeRequired = <Modal open />;
+// @ts-expect-error Modal no longer owns safe-area painting; use regions.
+export const modalNoSafeAreaBottom = <Modal open mode="full" safeAreaBottom />;
+// @ts-expect-error Modal does not expose numeric inset transport.
+export const modalNoBottomInset = <Modal open mode="full" bottomInset={34} />;
+// @ts-expect-error Modal mode is the closed sheet/full set.
+export const modalNoLargeMode = <Modal open mode="large" />;
+// @ts-expect-error Modal intentionally does NOT expose raw engine snapPoints.
+export const modalNoSnapPoints = <Modal open mode="sheet" snapPoints={['25%', '75%']} />;
+// @ts-expect-error Modal intentionally has no header slot prop; compose Header instead.
+export const modalNoHeaderProp = <Modal open mode="full" header={<Button>Done</Button>} />;
+// @ts-expect-error Modal intentionally has no content-slot props; compose children instead.
+export const modalNoFooterProp = <Modal open mode="full" footer={<Button>Done</Button>} />;
+// @ts-expect-error ModalPanel reads mode from Modal context; authors never pass it twice.
+export const modalPanelNoMode = <ModalPanel mode="full" />;
+// @ts-expect-error ModalPanel intentionally has no header slot prop; compose Header instead.
+export const modalPanelNoHeaderProp = <ModalPanel header={<Button>Done</Button>} />;
+// @ts-expect-error ModalPanel intentionally has no footer slot prop; compose Footer instead.
+export const modalPanelNoFooterProp = <ModalPanel footer={<Button>Done</Button>} />;
 // @ts-expect-error Footer owns a constrained tray/floating-action surface, not the full View radius axis.
-export const bottomSheetFooterNoRadius = <Footer radius="lg"><Button>Done</Button></Footer>;
+export const modalFooterNoRadius = <Footer radius="lg"><Button>Done</Button></Footer>;
 // @ts-expect-error Footer does not expose View fill/size layout escape hatches.
-export const bottomSheetFooterNoFill = <Footer fill="grow"><Button>Done</Button></Footer>;
+export const modalFooterNoFill = <Footer fill="grow"><Button>Done</Button></Footer>;
 // @ts-expect-error Footer is not an interactive primitive.
-export const bottomSheetFooterNoPress = <Footer onPress={() => undefined}><Button>Done</Button></Footer>;
+export const modalFooterNoPress = <Footer onPress={() => undefined}><Button>Done</Button></Footer>;
 
 // @ts-expect-error Pressable cannot distribute children on either engine; the prop never had runtime behavior.
 export const pressableNoDistribute = <Pressable distribute="even">Child</Pressable>;

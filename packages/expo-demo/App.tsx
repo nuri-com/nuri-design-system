@@ -4,7 +4,7 @@
  * The NAVIGATOR role (decision 58): safe-area is READ in ONE place — here —
  * and passed as numbers to NuriRoot. App owns the native safe-area reader, the
  * Expo StatusBar, route state, and tab-items DATA. The demo opens on the
- * playground screens surface, with a simple menu for launching bottom-sheet
+ * playground screens surface, with a simple menu for launching modal
  * examples. No navigation library.
  *
  * accent="neutral" mirrors the playground page scope (the tab-bar boards

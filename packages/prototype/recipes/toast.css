@@ -15,7 +15,7 @@
     align-items: flex-start;
     justify-content: center;
     box-sizing: border-box;
-    padding-block-start: calc(var(--nuri-device-safe-area-top, 0px) + var(--nuri-space-md));
+    padding-block-start: calc(var(--nuri-device-safe-area-top, 0px) + var(--nuri-space-lg));
     padding-inline: var(--nuri-space-lg);
     pointer-events: none;
   }

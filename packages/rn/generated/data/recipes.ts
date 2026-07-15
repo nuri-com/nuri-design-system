@@ -199,10 +199,11 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "flexDirection": "row",
           "alignItems": "center",
           "gap": 6,
-          "height": 60,
+          "height": 72,
           "paddingStart": 18,
           "paddingEnd": 18,
-          "paddingTop": 12
+          "paddingTop": 18,
+          "paddingBottom": 6
         },
         "variants": {}
       }
@@ -541,7 +542,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       }
     }
   },
-  "bottom-sheet-panel": {
+  "modal-panel": {
     "root": {
       "el": "view",
       "open": true,
@@ -550,18 +551,23 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "flexDirection": "column",
           "alignItems": "stretch",
           "flexGrow": 1,
-          "flexShrink": 0,
-          "borderTopLeftRadius": 18,
-          "borderTopRightRadius": 18,
-          "shadowOffset": {
-            "width": 0,
-            "height": -8
-          },
-          "shadowOpacity": 0.14,
-          "shadowRadius": 20,
-          "elevation": 16
+          "flexShrink": 0
         },
-        "variants": {}
+        "variants": {
+          "mode": {
+            "sheet": {
+              "borderTopLeftRadius": 18,
+              "borderTopRightRadius": 18,
+              "shadowOffset": {
+                "width": 0,
+                "height": -8
+              },
+              "shadowOpacity": 0.14,
+              "shadowRadius": 20,
+              "elevation": 16
+            }
+          }
+        }
       }
     }
   }

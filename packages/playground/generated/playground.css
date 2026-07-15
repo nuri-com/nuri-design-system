@@ -2841,7 +2841,7 @@ nuri-demo:not(:defined) {
 /* @nuri/prototype primitive header · primitives/header.css */
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · HEADER
- * Fixed top region for a local Screen or BottomSheetPanel.
+ * Fixed top region for a local Screen or ModalPanel.
  * ────────────────────────────────────────────────────────────── */
 
 @layer tokens {
@@ -2993,7 +2993,7 @@ nuri-demo:not(:defined) {
 /* @nuri/prototype primitive footer · primitives/footer.css */
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · FOOTER
- * Fixed bottom region for a local Screen or BottomSheetPanel.
+ * Fixed bottom region for a local Screen or ModalPanel.
  * ────────────────────────────────────────────────────────────── */
 
 @layer tokens {
@@ -3637,18 +3637,12 @@ nuri-demo:not(:defined) {
 }
 
 
-/* @nuri/prototype recipe bottom sheet · recipes/bottom-sheet.css */
-/* ──────────────────────────────────────────────────────────────
- * NURI · COMPONENT · BOTTOM SHEET · STATIC WEB RULES
- *
- * Static prototype-only layout for the RN bottom-sheet primitive. Behaviour
- * stays out: no gestures, no dismissal, no snap-point runtime.
- * ────────────────────────────────────────────────────────────── */
-
+/* @nuri/prototype recipe modal · recipes/modal.css */
+/* NURI · MODAL · static prototype presentation */
 @layer rules {
-  nuri-bottom-sheet {
-    --nuri-bottom-sheet-scrim-none: transparent;
-    --nuri-bottom-sheet-scrim-dim: transparent;
+  :is(nuri-modal, nuri-bottom-sheet) {
+    --nuri-modal-scrim-none: transparent;
+    --nuri-modal-scrim-dim: transparent;
 
     position: absolute;
     inset: 0;
@@ -3659,11 +3653,11 @@ nuri-demo:not(:defined) {
     pointer-events: none;
   }
 
-  nuri-bottom-sheet[open] {
+  :is(nuri-modal, nuri-bottom-sheet)[open] {
     display: flex;
   }
 
-  nuri-bottom-sheet::before {
+  :is(nuri-modal, nuri-bottom-sheet)::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -3671,11 +3665,11 @@ nuri-demo:not(:defined) {
     pointer-events: auto;
   }
 
-  nuri-bottom-sheet[scrim="dim"]::before {
-    background: var(--nuri-bottom-sheet-scrim-dim);
+  :is(nuri-modal, nuri-bottom-sheet)[scrim="dim"]::before {
+    background: var(--nuri-modal-scrim-dim);
   }
 
-  nuri-bottom-sheet > nuri-bottom-sheet-panel {
+  :is(nuri-modal, nuri-bottom-sheet) > :is(nuri-modal-panel, nuri-bottom-sheet-panel) {
     --nuri-fixed-header-block: 0px;
     --nuri-fixed-footer-block: 0px;
 
@@ -3688,21 +3682,25 @@ nuri-demo:not(:defined) {
     pointer-events: auto;
   }
 
-  /* Safe-area-relative full detent (parity with RN: safe top + sm gap). */
-  nuri-bottom-sheet[detent="full"] > nuri-bottom-sheet-panel {
-    block-size: calc(100% - var(--nuri-device-safe-area-top, 0px) - var(--nuri-space-sm));
-    max-block-size: calc(100% - var(--nuri-device-safe-area-top, 0px) - var(--nuri-space-sm));
+  :is(nuri-modal, nuri-bottom-sheet)[mode="full"]::before {
+    display: none;
   }
 
-  nuri-bottom-sheet > nuri-bottom-sheet-panel > nuri-scroll {
+  :is(nuri-modal, nuri-bottom-sheet)[mode="full"] > :is(nuri-modal-panel, nuri-bottom-sheet-panel) {
+    position: absolute;
+    inset: 0;
+    block-size: 100%;
+    max-block-size: none;
+  }
+
+  :is(nuri-modal, nuri-bottom-sheet) > :is(nuri-modal-panel, nuri-bottom-sheet-panel) > nuri-scroll {
     max-block-size: 100%;
   }
 
-  nuri-bottom-sheet[detent="full"] > nuri-bottom-sheet-panel > nuri-scroll {
+  :is(nuri-modal, nuri-bottom-sheet)[mode="full"] > :is(nuri-modal-panel, nuri-bottom-sheet-panel) > nuri-scroll {
     flex: 1;
     block-size: 100%;
   }
-
 }
 
 
@@ -3724,7 +3722,7 @@ nuri-demo:not(:defined) {
     align-items: flex-start;
     justify-content: center;
     box-sizing: border-box;
-    padding-block-start: calc(var(--nuri-device-safe-area-top, 0px) + var(--nuri-space-md));
+    padding-block-start: calc(var(--nuri-device-safe-area-top, 0px) + var(--nuri-space-lg));
     padding-inline: var(--nuri-space-lg);
     pointer-events: none;
   }
@@ -4204,7 +4202,7 @@ nuri-demo:has(.nuri-demo-card[data-layout="board"]) {
 }
 
 /* ── Overlay mode · the device-fill stance for a sheet-bearing composition ──
- * When the frame carries data-overlay (demo.js detects a <nuri-bottom-sheet>),
+ * When the frame carries data-overlay (demo.js detects a <nuri-modal>),
  * the status bar + bottom affordance are pulled OUT of the flex flow and pinned
  * as absolute overlays, so the viewport fills the WHOLE screen and the sheet's
  * scrim (bounded by the viewport) dims the status-bar strip too — matching the

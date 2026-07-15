@@ -1,10 +1,10 @@
-/* @deprecated Use <nuri-modal mode="sheet|full">. Kept for one compatibility cycle. */
+/* NURI · MODAL · static web structural element */
 import { bottomSheetChrome } from '../generated/bottom-sheet-chrome.js';
 import '../primitives/view.js';
 import '../primitives/header.js';
 import '../primitives/scroll.js';
 import '../primitives/footer.js';
-import './bottom-sheet-panel.js';
+import './modal-panel.js';
 import './topbar.js';
 
 const WEB_SCRIM = {
@@ -12,25 +12,24 @@ const WEB_SCRIM = {
   'blackAlpha.7': 'var(--nuri-color-black-alpha-7)',
 };
 
-class NuriBottomSheet extends HTMLElement {
+export class NuriModal extends HTMLElement {
   static get observedAttributes() {
-    return ['detent'];
+    return ['mode'];
   }
 
   connectedCallback() {
     this.style.setProperty('--nuri-modal-scrim-none', WEB_SCRIM[bottomSheetChrome.scrim.none]);
     this.style.setProperty('--nuri-modal-scrim-dim', WEB_SCRIM[bottomSheetChrome.scrim.dim]);
-    queueMicrotask(() => this.syncLegacyMode());
+    queueMicrotask(() => this.syncPanelMode());
   }
 
   attributeChangedCallback() {
-    this.syncLegacyMode();
+    this.syncPanelMode();
   }
 
-  syncLegacyMode() {
-    const mode = this.getAttribute('detent') === 'full' ? 'full' : 'sheet';
-    this.setAttribute('mode', mode);
-    const panel = this.querySelector(':scope > nuri-bottom-sheet-panel');
+  syncPanelMode() {
+    const mode = this.getAttribute('mode') === 'full' ? 'full' : 'sheet';
+    const panel = this.querySelector(':scope > nuri-modal-panel');
     panel?.setAttribute('mode', mode);
     queueMicrotask(() => {
       panel?.querySelector(':scope > nuri-header')?.refreshRegionLayout?.();
@@ -39,4 +38,4 @@ class NuriBottomSheet extends HTMLElement {
   }
 }
 
-if (!customElements.get('nuri-bottom-sheet')) customElements.define('nuri-bottom-sheet', NuriBottomSheet);
+if (!customElements.get('nuri-modal')) customElements.define('nuri-modal', NuriModal);

@@ -1,8 +1,8 @@
 import * as React from 'react';
 
 import {
-  BottomSheet,
-  BottomSheetPanel,
+  Modal,
+  ModalPanel,
   Button,
   Footer,
   Header,
@@ -37,8 +37,12 @@ function FormSheetFields({
   onChangeField,
   firstFieldRef,
 }: Pick<FormSheetProps, 'values' | 'onChangeField'> & {
-  firstFieldRef?: React.Ref<TextFieldHandle>;
+  firstFieldRef?: React.RefObject<TextFieldHandle | null>;
 }) {
+  React.useEffect(() => {
+    firstFieldRef?.current?.focus();
+  }, [firstFieldRef]);
+
   return (
     <Scroll>
       <View direction="column" align="stretch" justify="start" gap="xl" paddingX="lg">
@@ -84,14 +88,13 @@ export function FormSheet({
 }: FormSheetProps) {
   const firstFieldRef = React.useRef<TextFieldHandle>(null);
   return (
-    <BottomSheet
+    <Modal
       open={open}
-      detent="full"
+      mode="full"
       onOpenChange={(next) => !next && onClose()}
-      onOpenComplete={() => firstFieldRef.current?.focus()}
     >
-      <BottomSheetPanel>
-        <Header paddingTop="lg">
+      <ModalPanel>
+        <Header safeAreaTop>
           <Topbar surface="transparent">
             <TopbarTrailing>
               <IconButton icon="cross" variant="soft" accessibilityLabel="Close form sheet" onPress={onClose} />
@@ -112,8 +115,8 @@ export function FormSheet({
         >
           <Button size="sm" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
         </Footer>
-      </BottomSheetPanel>
-    </BottomSheet>
+      </ModalPanel>
+    </Modal>
   );
 }
 
@@ -124,9 +127,9 @@ export function FormSheet2({
   onClose,
 }: FormSheetProps) {
   return (
-    <BottomSheet open={open} detent="full" onOpenChange={(next) => !next && onClose()}>
-      <BottomSheetPanel>
-        <Header paddingTop="lg">
+    <Modal open={open} mode="full" onOpenChange={(next) => !next && onClose()}>
+      <ModalPanel>
+        <Header safeAreaTop>
           <Topbar surface="transparent">
             <TopbarTrailing>
               <IconButton icon="cross" variant="soft" accessibilityLabel="Close form sheet 2" onPress={onClose} />
@@ -146,7 +149,7 @@ export function FormSheet2({
         >
           <Button size="lg" variant="solid" accent="lilac" onPress={onClose}>Next</Button>
         </Footer>
-      </BottomSheetPanel>
-    </BottomSheet>
+      </ModalPanel>
+    </Modal>
   );
 }

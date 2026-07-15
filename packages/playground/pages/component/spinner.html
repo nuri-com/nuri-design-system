@@ -15,9 +15,9 @@
     <template>
       <nuri-view chrome="canvas" fill></nuri-view>
 
-      <nuri-bottom-sheet open detent="full" scrim="dim">
-        <nuri-bottom-sheet-panel>
-        <nuri-header padding-top="lg">
+      <nuri-modal open mode="full">
+        <nuri-modal-panel>
+        <nuri-header safe-area-top>
           <nuri-topbar surface="transparent">
             <nuri-topbar-trailing>
               <nuri-icon-button icon="download" variant="soft" aria-label="Download"></nuri-icon-button>
@@ -157,8 +157,8 @@
           </nuri-view>
         </nuri-view>
         </nuri-scroll>
-        </nuri-bottom-sheet-panel>
-      </nuri-bottom-sheet>
+        </nuri-modal-panel>
+      </nuri-modal>
     </template>
   </nuri-demo>
 

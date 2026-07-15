@@ -18,8 +18,8 @@ If something here conflicts with the code, the code wins — fix this file, don'
   tokens/       dimensions · colours · typography      (the token SoTs)
   axes/         resolve-map · palette-surface · interactive-effects ·
                 typography-axis · property-spelling · interaction
-  components/   button · icon-avatar · icon-button · tab-bar · tab-bar-item ·
-                topbar · schema                         (the descriptors + the frozen schema)
+  components/   button · icon-avatar · icon-button · modal-panel · tab-bar ·
+                tab-bar-item · topbar · schema       (the descriptors + the frozen schema)
   icons/        *.svg                                   (the icon SoT)
 ```
 
