@@ -29,6 +29,11 @@ import {
   ListActionLeadingAvatar,
   ListActionText,
   ListSeparator,
+  SelectField,
+  SelectFieldAvatar,
+  SelectFieldChevron,
+  SelectFieldLabel,
+  SelectFieldValue,
   TextField,
   TextFieldButton,
   TextFieldIconButton,
@@ -50,6 +55,10 @@ import {
   NuriRoot,
   Topbar,
   TopbarCenter,
+  TopbarContent,
+  TopbarLeading,
+  TopbarTitle,
+  TopbarTrailing,
 } from '../index';
 
 // ── NuriRoot — composed root, structural safe-area transport, closed theme axes ──
@@ -124,11 +133,40 @@ export const listActionAvatarBadVariant = <ListActionLeadingAvatar name="bank" v
 // @ts-expect-error ListSeparator v1 has no knobs; it is the preset.
 export const listSeparatorNoProps = <ListSeparator ySpace="sm" />;
 
+// ── SelectField — disclosure button, visible slots, separate a11y value ──
+export const selectFieldOk = (
+  <SelectField
+    accessibilityLabel="Country"
+    accessibilityValue="Germany"
+    onPress={() => undefined}
+  >
+    <SelectFieldLabel>Country</SelectFieldLabel>
+    <SelectFieldAvatar source={{ uri: 'https://example.test/deu.png' }} />
+    <SelectFieldValue>Germany</SelectFieldValue>
+    <SelectFieldChevron name="chevron-down" />
+  </SelectField>
+);
+export const selectFieldWithoutAdornmentOk = (
+  <SelectField accessibilityLabel="Delivery" accessibilityValue="Standard">
+    <SelectFieldLabel>Delivery</SelectFieldLabel>
+    <SelectFieldValue>Standard</SelectFieldValue>
+  </SelectField>
+);
+// @ts-expect-error SelectField is a button, not an input.
+export const selectFieldNoInputValue = <SelectField value="Germany"><SelectFieldValue>Germany</SelectFieldValue></SelectField>;
+// @ts-expect-error SelectField exposes only the md/lg field sizes.
+export const selectFieldNoSmSize = <SelectField size="sm"><SelectFieldValue>Germany</SelectFieldValue></SelectField>;
+// @ts-expect-error The popup semantic is descriptor-authored, not consumer-selectable.
+export const selectFieldNoPopupProp = <SelectField popup="dialog"><SelectFieldValue>Germany</SelectFieldValue></SelectField>;
+
 // ── TextField — input allowlist + label/button/icon-button composition ──
 export const textFieldOk = (
   <TextField value="DE12" onChangeText={() => undefined} placeholder="DE..." inputMode="numeric">
     <TextFieldLabel>IBAN</TextFieldLabel>
   </TextField>
+);
+export const textFieldAccessibleLabelOnlyOk = (
+  <TextField size="md" accessibilityLabel="Search" placeholder="Search" />
 );
 export const textFieldButtonOk = (
   <TextField value="Ada" onChangeText={() => undefined}>
@@ -142,8 +180,6 @@ export const textFieldIconButtonOk = (
     <TextFieldIconButton name="eye-hidden" onPress={() => undefined} accessibilityLabel="Hide recovery code" />
   </TextField>
 );
-// @ts-expect-error TextFieldLabel requires visible label content.
-export const textFieldLabelRequiresChildren = <TextFieldLabel />;
 // @ts-expect-error TextFieldLabel feeds the native input label and is string-only in PR2.
 export const textFieldLabelNoMixedChildren = <TextFieldLabel>First {'name'}</TextFieldLabel>;
 // @ts-expect-error TextFieldLabel feeds the native input label and does not accept rich label nodes.
@@ -192,6 +228,21 @@ export const tabItemNoDisabled = <TabBarItem disabled />;
 export const tabItemIconRequiresName = <TabBarItemIcon />;
 // @ts-expect-error TabBarItemIcon is icon-name only and rejects children.
 export const tabItemIconNoChildren = <TabBarItemIcon name="card">Wallet</TabBarItemIcon>;
+
+// ── Topbar — centred regions + a fluid content lane with preset title ──
+export const topbarCenteredOk = <Topbar><TopbarCenter>Account</TopbarCenter></Topbar>;
+export const topbarFluidContentOk = (
+  <Topbar layout="fluid">
+    <TopbarLeading><IconButton icon="chevron-left" accessibilityLabel="Back" /></TopbarLeading>
+    <TopbarContent><TextField accessibilityLabel="Search" /></TopbarContent>
+    <TopbarTrailing><IconButton icon="cross" accessibilityLabel="Close" /></TopbarTrailing>
+  </Topbar>
+);
+export const topbarTitleOk = <Topbar layout="fluid"><TopbarTitle>Settings</TopbarTitle></Topbar>;
+// @ts-expect-error layout is a closed component axis.
+export const topbarBadLayout = <Topbar layout="wide" />;
+// @ts-expect-error TopbarTitle is text content, not a prop-bearing region.
+export const topbarTitleNoLayoutProps = <TopbarTitle layout="fluid">Settings</TopbarTitle>;
 
 // ── Modal family — one blocking identity, two presentation modes ──
 export const modalOk = (
@@ -262,6 +313,7 @@ export const textMonoOk = <Text size="md" emphasis mono>bc1q address</Text>;
 export const viewNoMono = <View mono />;
 export const screenNativePlumbingOk = <Screen testID="screen" onLayout={() => undefined} ref={React.createRef()} />;
 export const headerNativePlumbingOk = <Header testID="header" onLayout={() => undefined} ref={React.createRef()} />;
+export const headerSplitSafeAreaChromeOk = <Header safeAreaTop chrome="transparent" safeAreaChrome="canvas" />;
 export const scrollNativePlumbingOk = <Scroll testID="scroll" onLayout={() => undefined} ref={React.createRef()} />;
 export const footerNativePlumbingOk = <Footer testID="footer" onLayout={() => undefined} ref={React.createRef()} />;
 export const dockNativePlumbingOk = <Dock edge="bottom" testID="dock" onLayout={() => undefined} ref={React.createRef()} />;

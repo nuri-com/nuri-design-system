@@ -64,6 +64,7 @@ const BOOT_IMPORTS = [
   '../../prototype/recipes/topbar.js',
   '../../prototype/recipes/list-action.js',
   '../../prototype/recipes/list.js',
+  '../../prototype/recipes/select-field.js',
   '../../prototype/recipes/text-field.js',
   '../../prototype/recipes/tab-bar.js',
   '../../prototype/recipes/modal.js',

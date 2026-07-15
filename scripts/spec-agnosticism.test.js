@@ -65,7 +65,13 @@ const ALLOW = [
     why: 'minWidth is the public BoxNS input key before per-target spelling',
   },
   {
-    files: new Set(['components/icon-avatar.ts', 'components/list-action.ts', 'components/text-field.ts', 'axes/palette-surface.ts']),
+    files: new Set([
+      'components/icon-avatar.ts',
+      'components/list-action.ts',
+      'components/select-field.ts',
+      'components/text-field.ts',
+      'axes/palette-surface.ts',
+    ]),
     names: new Set(['web-outline-decl']),
     why: 'outline is a semantic palette value here, not a CSS declaration',
   },

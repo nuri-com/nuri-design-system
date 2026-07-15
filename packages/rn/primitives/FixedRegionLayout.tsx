@@ -53,9 +53,11 @@ function normalizeInset(value: number | undefined): number {
 }
 
 function resolveKeyboardOffset(height: number, screenY: number | null, windowHeight: number): number {
-  if (Platform.OS === 'android' && screenY !== null) {
-    return Math.max(0, Math.round(windowHeight - screenY));
-  }
+  // Android consumers use adjustResize: the window is already reduced to the
+  // keyboard-safe height. Applying event-derived coordinates as a second
+  // offset creates a transient double-shrink when the dimension and keyboard
+  // events land in opposite orders.
+  if (Platform.OS === 'android') return 0;
   if (height > 0) return Math.round(height);
   return screenY !== null ? Math.max(0, Math.round(windowHeight - screenY)) : 0;
 }

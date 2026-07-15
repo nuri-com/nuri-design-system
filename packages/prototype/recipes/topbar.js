@@ -3,7 +3,8 @@
  *
  * <nuri-topbar> is the slot-based ACTION BAR — the catalog's first COMPOUND component.
  * A single GENERIC registration over the web factory: the container + the three typed
- * region sub-elements (<nuri-topbar-leading/center/trailing>) are DERIVED by
+ * region sub-elements (<nuri-topbar-leading/center/content/trailing>) plus the
+ * nested <nuri-topbar-title> text slot are DERIVED by
  * defineNuriComponent from the FROZEN topbar descriptor (the authored SoT · decision
  * 69), exactly like <nuri-button>. The factory's compound-component capability
  * (a sub-element per `view` region + the bare-children-→-trailing default slot)
@@ -15,9 +16,9 @@
  * `flex:none`, so it lands dead-centre with asymmetric edges (no `center` boolean).
  *
  * Public API — composition via the region sub-elements (NEVER JSX-in-attrs):
- *   <nuri-topbar>
+ *   <nuri-topbar layout="fluid">
  *     <nuri-topbar-leading><nuri-icon-button …></nuri-topbar-leading>
- *     <nuri-topbar-center>Title</nuri-topbar-center>
+ *     <nuri-topbar-content><nuri-text-field …></nuri-text-field></nuri-topbar-content>
  *     <nuri-topbar-trailing><nuri-button …></nuri-button></nuri-topbar-trailing>
  *   </nuri-topbar>
  *   — bare children of <nuri-topbar> (no region wrapper) default to the trailing region.

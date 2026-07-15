@@ -12,6 +12,7 @@ type HeaderStyleProps =
 
 export type HeaderProps = HeaderStyleProps & {
   safeAreaTop?: boolean;
+  safeAreaChrome?: PaletteNS['chrome'];
   children?: React.ReactNode;
   testID?: string;
   onLayout?: (event: LayoutChangeEvent) => void;
@@ -20,6 +21,7 @@ export type HeaderProps = HeaderStyleProps & {
 
 const HeaderImpl = React.forwardRef<React.ElementRef<typeof RNView>, HeaderProps>(({
   safeAreaTop = false,
+  safeAreaChrome,
   children,
   testID,
   onLayout,
@@ -28,6 +30,7 @@ const HeaderImpl = React.forwardRef<React.ElementRef<typeof RNView>, HeaderProps
   const { safeAreaTop: hostSafeAreaTop } = useFixedRegionLayout();
   const handleLayout = useRegisterRegion('header', onLayout);
   const { node } = useResolvedNode(props);
+  const { node: safeAreaNode } = useResolvedNode({ chrome: safeAreaChrome });
   const resolvedViewStyle = node.view as ViewStyle;
   const authoredPaddingTop =
     props.paddingTop !== undefined
@@ -41,6 +44,12 @@ const HeaderImpl = React.forwardRef<React.ElementRef<typeof RNView>, HeaderProps
 
   return (
     <RNView ref={ref} testID={testID} onLayout={handleLayout} style={[HEADER_STYLE, node.view, composedPaddingTop]}>
+      {effectiveSafeAreaTop > 0 && safeAreaChrome !== undefined ? (
+        <RNView
+          pointerEvents="none"
+          style={[SAFE_AREA_CHROME_STYLE, safeAreaNode.view, { height: effectiveSafeAreaTop }]}
+        />
+      ) : null}
       {withSurface(node.fg, children)}
     </RNView>
   );
@@ -49,6 +58,7 @@ HeaderImpl.displayName = 'Header';
 
 export const Header = withKeys(HeaderImpl, [
   'safeAreaTop',
+  'safeAreaChrome',
   ...FIXED_REGION_STYLE_KEYS,
 ]);
 
@@ -58,4 +68,11 @@ const HEADER_STYLE: ViewStyle = {
   right: 0,
   top: 0,
   zIndex: 2,
+};
+
+const SAFE_AREA_CHROME_STYLE: ViewStyle = {
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  top: 0,
 };

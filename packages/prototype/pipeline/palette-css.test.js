@@ -214,6 +214,7 @@ const ORACLE = [
   ['.nuri-palette[data-chrome="canvas"]',  'background', '#fffdf2'],     // bg-canvas @ neutral/light
   ['.nuri-palette[data-variant="ghost"]',  'background', 'transparent'], // the literal · no var, no resolution
   ['.nuri-palette[data-variant="outline"]','border',     '#dddac9'],     // border-subtle @ neutral/light
+  ['.nuri-palette[data-variant="outline"][data-press-color]:active','background', '#fbf9ee'], // bg-subtle @ neutral/light
 ];
 
 test('Guard C · the curated cells resolve to the restated design oracle (default scope)', () => {

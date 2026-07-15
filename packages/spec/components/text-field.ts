@@ -1,9 +1,11 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT DESCRIPTOR · TEXT-FIELD · AUTHORED SOURCE
  *
- * Descriptor-backed one-line text field: a required label, an outlined field
- * box, the new contentless input control, and optional trailing controls that
- * delegate to the real Button / IconButton. Errors remain external composition via Alert.
+ * Descriptor-backed one-line text field: a visible label is the documented
+ * norm, while compact placements may name the optional label slot through
+ * accessibilityLabel. The outlined field box contains the contentless input
+ * control and optional trailing controls that delegate to Button / IconButton.
+ * Errors remain external composition via Alert.
  * ────────────────────────────────────────────────────────────── */
 
 import type { Descriptor } from './schema';
@@ -103,7 +105,7 @@ export const textFieldDescriptor: Descriptor<TextFieldAxes> = {
       },
     },
     slots: {
-      label: { part: 'label', kind: 'text', component: true, required: true },
+      label: { part: 'label', kind: 'text', component: true },
       button: { part: 'button', kind: 'children', component: true },
       iconButton: { part: 'iconButton', kind: 'icon-name', component: true },
     },

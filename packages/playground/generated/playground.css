@@ -2868,6 +2868,14 @@ nuri-demo:not(:defined) {
     inset-block-start: 0;
     z-index: 2;
   }
+
+  .nuri-header__safe-area-chrome {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 0;
+    block-size: var(--nuri-device-safe-area-top, 0px);
+    pointer-events: none;
+  }
 }
 
 
@@ -3499,6 +3507,7 @@ nuri-demo:not(:defined) {
   .nuri-palette[data-variant="solid"][data-press-color]:active { background: var(--nuri-accent-solid-pressed); }
   .nuri-palette[data-variant="soft"][data-press-color]:active { background: var(--nuri-bg-pressed); }
   .nuri-palette[data-variant="ghost"][data-press-color]:active { background: var(--nuri-bg-subtle); }
+  .nuri-palette[data-variant="outline"][data-press-color]:active { background: var(--nuri-bg-subtle); }
 }
 
 

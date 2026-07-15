@@ -31,6 +31,8 @@ import {
   Topbar,
   TopbarLeading,
   TopbarCenter,
+  TopbarContent,
+  TopbarTitle,
   TopbarTrailing,
   List,
   ListAction,
@@ -40,6 +42,11 @@ import {
   ListActionTrailingText,
   ListActionTrailingTextMuted,
   ListActionTrailIcon,
+  SelectField,
+  SelectFieldLabel,
+  SelectFieldAvatar,
+  SelectFieldValue,
+  SelectFieldChevron,
   TextField,
   TextFieldLabel,
   TextFieldButton,
@@ -61,6 +68,7 @@ import { icons } from '../contract';
 import type { Descriptor, Axes, TypographyNS } from '../contract';
 import { renderDescriptorInstance } from '../runtime/renderer';
 import type { BakedComponentRecipe } from '../runtime/resolve';
+import { buildNuriTheme } from '../runtime/theme-payload';
 import { space } from '../generated/data/tokens';
 import type { TextFieldHandle } from '../index';
 import { FocusScrollProvider } from '../runtime/focus-scroll';
@@ -386,7 +394,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(root.props.importantForAccessibility).toBeUndefined();
   });
 
-  test('Topbar — COMPOUND slots · leading/center/trailing regions composed via sub-components', () => {
+  test('Topbar — COMPOUND slots · leading/center/content/trailing regions composed via sub-components', () => {
     const tr = render(
       <NuriThemeProvider>
         <Topbar>
@@ -401,6 +409,42 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.root.findByProps({ accessibilityLabel: 'leading' })).toBeTruthy();
     expect(tr.root.findByProps({ accessibilityLabel: 'trailing' })).toBeTruthy();
     expect(tr.root.findByType(Text).props.children).toBe('Account');
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('Topbar — fluid content fills between hugging edges', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <Topbar layout="fluid">
+          <TopbarLeading><View accessibilityLabel="fluid-leading" /></TopbarLeading>
+          <TopbarContent><View accessibilityLabel="fluid-content" /></TopbarContent>
+          <TopbarTrailing><View accessibilityLabel="fluid-trailing" /></TopbarTrailing>
+        </Topbar>
+      </NuriThemeProvider>,
+    );
+    expect(tr.root.findByProps({ accessibilityLabel: 'fluid-leading' })).toBeTruthy();
+    expect(tr.root.findByProps({ accessibilityLabel: 'fluid-content' })).toBeTruthy();
+    expect(tr.root.findByProps({ accessibilityLabel: 'fluid-trailing' })).toBeTruthy();
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('Topbar — title is preset and always truncates to one line', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <Topbar layout="fluid">
+          <TopbarTitle>Settings Settings Settings Settings</TopbarTitle>
+          <TopbarTrailing><View accessibilityLabel="title-trailing" /></TopbarTrailing>
+        </Topbar>
+      </NuriThemeProvider>,
+    );
+    const title = tr.root.findByType(Text);
+    expect(title.props.children).toBe('Settings Settings Settings Settings');
+    expect(title.props.numberOfLines).toBe(1);
+    expect(title.props.ellipsizeMode).toBe('tail');
+    expect(Object.assign({}, ...title.props.style.filter(Boolean))).toMatchObject({
+      ...typeStyle('lg', true),
+      textAlign: 'left',
+    });
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
@@ -942,6 +986,23 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     ).toBe(true);
   });
 
+  test('TextField — an optional visible label accepts accessibilityLabel and unnamed inputs warn once in development', () => {
+    const named = render(
+      <NuriThemeProvider>
+        <TextField size="md" accessibilityLabel="Search" placeholder="Search" />
+      </NuriThemeProvider>,
+    );
+    expect(named.root.findAllByType(Text)).toHaveLength(0);
+    expect(named.root.findByType(TextInput).props.accessibilityLabel).toBe('Search');
+
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    render(<NuriThemeProvider><TextField placeholder="Search" /></NuriThemeProvider>);
+    render(<NuriThemeProvider><TextField placeholder="Search again" /></NuriThemeProvider>);
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0]?.[0]).toContain('expects either its Label slot or accessibilityLabel');
+    warn.mockRestore();
+  });
+
   test('ListAction — direct row slots render avatar, content, trailing value, and trail icon', () => {
     const tr = render(
       <NuriThemeProvider>
@@ -1025,6 +1086,59 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     );
     expect(JSON.stringify(solidOrange.toJSON())).toContain('#ff8c5a');
     expect(solidOrange.root.findByType(NuriIcon).props.color).toBe('#5e280f');
+  });
+
+  test('SelectField — disclosure value renders optional avatar/chevron and forwards native a11y value', () => {
+    const onPress = jest.fn();
+    const source = { uri: 'https://example.test/deu.png' };
+    const tr = render(
+      <NuriThemeProvider>
+        <SelectField
+          accessibilityLabel="Country"
+          accessibilityValue="Germany"
+          onPress={onPress}
+        >
+          <SelectFieldLabel>Country</SelectFieldLabel>
+          <SelectFieldAvatar source={source} />
+          <SelectFieldValue>Germany</SelectFieldValue>
+          <SelectFieldChevron name="chevron-down" />
+        </SelectField>
+      </NuriThemeProvider>,
+    );
+
+    expect(tr.root.findAllByType(Text).map((node) => node.props.children)).toEqual(['Country', 'Germany']);
+    expect(tr.root.findByType(Image).props.source).toEqual(source);
+    expect(tr.root.findByType(NuriIcon).props.name).toBe('chevron-down');
+    const [field] = pressableActions(tr);
+    expect(field.props.accessibilityRole).toBe('button');
+    expect(field.props.accessibilityLabel).toBe('Country');
+    expect(field.props.accessibilityValue).toEqual({ text: 'Germany' });
+    const restingStyle = field.props.style({ pressed: false });
+    const pressedStyle = field.props.style({ pressed: true });
+    const theme = buildNuriTheme('lilac', 'light');
+    expect(restingStyle.backgroundColor).toBe('transparent');
+    expect(restingStyle.borderColor).toBe(theme.border.subtle);
+    expect(pressedStyle.backgroundColor).toBe(theme.chrome.subtle.bg);
+    expect(pressedStyle.borderColor).toBe(restingStyle.borderColor);
+    expect(restingStyle.transform).toBeUndefined();
+    expect(pressedStyle.transform).toBeUndefined();
+    act(() => field.props.onPress());
+    expect(onPress).toHaveBeenCalledTimes(1);
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('SelectField — unadorned composition omits optional avatar and chevron', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <SelectField accessibilityLabel="Delivery" accessibilityValue="Standard">
+          <SelectFieldLabel>Delivery</SelectFieldLabel>
+          <SelectFieldValue>Standard</SelectFieldValue>
+        </SelectField>
+      </NuriThemeProvider>,
+    );
+    expect(tr.root.findAllByType(Image)).toHaveLength(0);
+    expect(tr.root.findAllByType(NuriIcon)).toHaveLength(0);
+    expect(tr.root.findAllByType(Text).map((node) => node.props.children)).toEqual(['Delivery', 'Standard']);
   });
 
   test('List — open container preserves positional rows and separators', () => {

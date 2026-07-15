@@ -4,9 +4,8 @@
      demo, the build-free <template> → live preview + code from one source
      (decision 10); it HYDRATES via the runtime injected in _includes/head_custom.html.
      Raw block HTML so kramdown passes the <template> through verbatim. UPDATED at
-     the topbar-slots slice to the COMPOUND slot API — the three typed region
-     sub-elements (<nuri-topbar-leading/center/trailing>, generalizing the retired
-     <nuri-topbar-content>). True centring is structural (the even-flex edges), so
+     the topbar-slots slice to the COMPOUND slot API. True centring is structural
+     (the even-flex edges), while the fluid content lane grows between hugging edges.
      the centre lands dead-centre between an asymmetric leading + trailing — no
      `center` attribute. -->
 <nuri-demo controls="theme,accent" label="account" subtitle="compound slots · leading · center · trailing">
@@ -15,6 +14,15 @@
       <nuri-topbar-leading><nuri-button size="sm" variant="ghost">Back</nuri-button></nuri-topbar-leading>
       <nuri-topbar-center>Account</nuri-topbar-center>
       <nuri-topbar-trailing><nuri-button size="sm" variant="soft">Settings</nuri-button></nuri-topbar-trailing>
+    </nuri-topbar>
+  </template>
+</nuri-demo>
+
+<nuri-demo controls="theme,accent" label="fluid title" subtitle="fluid content · preset one-line title">
+  <template>
+    <nuri-topbar layout="fluid">
+      <nuri-topbar-title>Settings Settings Settings Settings</nuri-topbar-title>
+      <nuri-topbar-trailing><nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button></nuri-topbar-trailing>
     </nuri-topbar>
   </template>
 </nuri-demo>

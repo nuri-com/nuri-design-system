@@ -12,8 +12,8 @@
  * ────────────────────────────────────────────────────────────── */
 
 import * as React from 'react';
-import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriSlots } from '../../runtime/renderer';
-import type { NuriBehaviour } from '../../runtime/renderer';
+import { nuriNames, renderDescriptorInstance, createNuriSlot, harvestNuriComposition } from '../../runtime/renderer';
+import type { NuriBehaviour, NuriCompositionEntry } from '../../runtime/renderer';
 import { topbarDescriptor } from '@nuri/spec/descriptors/topbar';
 import { recipes } from '../data/recipes';
 import { scopedByAccent } from '../../primitives/shared';
@@ -21,11 +21,12 @@ import type { Accent } from '../data/tokens';
 
 export type TopbarProps = {
   surface?: 'canvas' | 'transparent';
+  layout?: 'centered' | 'fluid';
   accent?: Accent;
   children?: React.ReactNode;
 };
 
-type TopbarPart = 'root' | 'leading' | 'center' | 'trailing';
+type TopbarPart = 'root' | 'leading' | 'center' | 'content' | 'title' | 'trailing';
 
 const topbarDisplayName = nuriNames('topbar').rn;
 export type TopbarLeadingProps = {
@@ -36,20 +37,31 @@ export type TopbarCenterProps = {
   children?: React.ReactNode;
 };
 export const TopbarCenter = createNuriSlot<TopbarCenterProps>("center", `${topbarDisplayName}Center`, 'children', topbarDisplayName);
+export type TopbarContentProps = {
+  children?: React.ReactNode;
+};
+export const TopbarContent = createNuriSlot<TopbarContentProps>("content", `${topbarDisplayName}Content`, 'children', topbarDisplayName);
 export type TopbarTrailingProps = {
   children?: React.ReactNode;
 };
 export const TopbarTrailing = createNuriSlot<TopbarTrailingProps>("trailing", `${topbarDisplayName}Trailing`, 'children', topbarDisplayName);
+export type TopbarTitleProps = {
+  children?: React.ReactNode;
+};
+export const TopbarTitle = createNuriSlot<TopbarTitleProps>("title", `${topbarDisplayName}Title`, 'children', topbarDisplayName);
 
 const TopbarInner: React.FC<TopbarProps> = (props) => {
   const selection: Record<string, string> = {
     "surface": props.surface ?? "canvas",
+    "layout": props.layout ?? "centered",
   };
   const content: Partial<Record<TopbarPart, React.ReactNode>> = {};
-  const harvested = harvestNuriSlots<TopbarPart>(props.children, "trailing");
-  if (harvested["leading"] !== undefined) content["leading"] = harvested["leading"];
-  if (harvested["center"] !== undefined) content["center"] = harvested["center"];
-  if (harvested["trailing"] !== undefined) content["trailing"] = harvested["trailing"];
+  const composition: Partial<Record<TopbarPart, NuriCompositionEntry<TopbarPart>[]>> = {};
+  const harvestedComposition = harvestNuriComposition<TopbarPart>(props.children, "trailing", topbarDisplayName);
+  if (harvestedComposition.hasSlots) {
+    composition.root = harvestedComposition.items;
+  }
+  if (!harvestedComposition.hasSlots && props.children !== undefined) content["trailing"] = props.children;
   const behaviour: NuriBehaviour<TopbarPart> = {};
 
   return renderDescriptorInstance({
@@ -58,6 +70,7 @@ const TopbarInner: React.FC<TopbarProps> = (props) => {
     displayName: topbarDisplayName,
     selection,
     content,
+    composition,
     behaviour,
   });
 };

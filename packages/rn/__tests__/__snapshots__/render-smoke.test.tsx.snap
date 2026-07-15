@@ -1630,6 +1630,219 @@ exports[`render-smoke — the ergonomic components mount headless ListAction —
 </View>
 `;
 
+exports[`render-smoke — the ergonomic components mount headless SelectField — disclosure value renders optional avatar/chevron and forwards native a11y value 1`] = `
+<View
+  style={
+    {
+      "alignItems": "stretch",
+      "flexDirection": "column",
+      "gap": 12,
+    }
+  }
+>
+  <Text
+    ellipsizeMode="tail"
+    numberOfLines={1}
+    style={
+      [
+        {
+          "fontSize": 14.5,
+          "fontWeight": "600",
+          "letterSpacing": -0.145,
+          "lineHeight": 19.285,
+        },
+        {
+          "color": "#666455",
+        },
+        {
+          "flexShrink": 1,
+          "textAlign": "center",
+        },
+        {
+          "textAlign": "left",
+        },
+      ]
+    }
+  >
+    Country
+  </Text>
+  <View
+    accessibilityLabel="Country"
+    accessibilityRole="button"
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": false,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": "Germany",
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "transparent",
+        "borderColor": "#dddac9",
+        "borderRadius": 9,
+        "borderWidth": 1,
+        "flexDirection": "row",
+        "gap": 6,
+        "height": 60,
+        "paddingEnd": 12,
+        "paddingStart": 12,
+      }
+    }
+  >
+    <View
+      accessibilityElementsHidden={true}
+      importantForAccessibility="no-hide-descendants"
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "transparent",
+          "borderColor": "#dddac9",
+          "borderRadius": 9999,
+          "borderWidth": 1,
+          "height": 36,
+          "justifyContent": "center",
+          "width": 36,
+        }
+      }
+    >
+      <Image
+        resizeMode="cover"
+        source={
+          {
+            "uri": "https://example.test/deu.png",
+          }
+        }
+        style={
+          {
+            "backgroundColor": "transparent",
+            "borderColor": "#dddac9",
+            "borderRadius": 9999,
+            "borderWidth": 1,
+            "flexGrow": 0,
+            "flexShrink": 0,
+            "height": 36,
+            "width": 36,
+          }
+        }
+      />
+    </View>
+    <Text
+      ellipsizeMode="tail"
+      numberOfLines={1}
+      style={
+        [
+          {
+            "fontSize": 17,
+            "fontWeight": "400",
+            "letterSpacing": -0.34,
+            "lineHeight": 21.93,
+          },
+          {
+            "color": "#666455",
+          },
+          {
+            "flexShrink": 1,
+            "textAlign": "center",
+          },
+          {
+            "flexGrow": 1,
+            "flexShrink": 1,
+            "minWidth": 0,
+            "textAlign": "left",
+          },
+        ]
+      }
+    >
+      Germany
+    </Text>
+    <RNSVGSvgView
+      align="xMidYMid"
+      bbHeight={24}
+      bbWidth={24}
+      color="#bfbcac"
+      fill="currentColor"
+      focusable={false}
+      height={24}
+      meetOrSlice={0}
+      minX={0}
+      minY={0}
+      style={
+        [
+          {
+            "backgroundColor": "transparent",
+            "borderWidth": 0,
+          },
+          {
+            "flex": 0,
+            "height": 24,
+            "width": 24,
+          },
+        ]
+      }
+      vbHeight={32}
+      vbWidth={32}
+      width={24}
+      xml="<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M27.6966 10.2826C27.3004 9.89783 26.6673 9.90714 26.2826 10.3034L16 20.893L5.71743 10.3034C5.33269 9.90714 4.6996 9.89783 4.30337 10.2826C3.90714 10.6673 3.89783 11.3004 4.28257 11.6966L14.7643 22.4914C14.773 22.5003 14.7817 22.509 14.7907 22.5176C14.9535 22.6733 15.1444 22.7945 15.3514 22.8764C15.5583 22.9584 15.7785 23 16 23C16.2215 23 16.4417 22.9584 16.6486 22.8764C16.8556 22.7945 17.0465 22.6733 17.2093 22.5176C17.2183 22.509 17.227 22.5003 17.2357 22.4914L27.7174 11.6966C28.1022 11.3004 28.0929 10.6673 27.6966 10.2826Z" fill="currentColor"/></svg>"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <RNSVGGroup
+        fill={
+          {
+            "type": 2,
+          }
+        }
+        propList={
+          [
+            "fill",
+          ]
+        }
+      >
+        <RNSVGPath
+          clipRule={0}
+          d="M27.6966 10.2826C27.3004 9.89783 26.6673 9.90714 26.2826 10.3034L16 20.893L5.71743 10.3034C5.33269 9.90714 4.6996 9.89783 4.30337 10.2826C3.90714 10.6673 3.89783 11.3004 4.28257 11.6966L14.7643 22.4914C14.773 22.5003 14.7817 22.509 14.7907 22.5176C14.9535 22.6733 15.1444 22.7945 15.3514 22.8764C15.5583 22.9584 15.7785 23 16 23C16.2215 23 16.4417 22.9584 16.6486 22.8764C16.8556 22.7945 17.0465 22.6733 17.2093 22.5176C17.2183 22.509 17.227 22.5003 17.2357 22.4914L27.7174 11.6966C28.1022 11.3004 28.0929 10.6673 27.6966 10.2826Z"
+          fill={
+            {
+              "type": 2,
+            }
+          }
+          fillRule={0}
+          propList={
+            [
+              "fill",
+              "fillRule",
+            ]
+          }
+        />
+      </RNSVGGroup>
+    </RNSVGSvgView>
+  </View>
+</View>
+`;
+
 exports[`render-smoke — the ergonomic components mount headless TabBar — OPEN container renders its positional Tab children · selected + unselected items 1`] = `
 <View
   accessibilityRole="tablist"
@@ -2098,7 +2311,6 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — BAR
       "alignItems": "center",
       "backgroundColor": "#fffdf2",
       "flexDirection": "row",
-      "gap": 6,
       "height": 72,
       "paddingBottom": 6,
       "paddingEnd": 18,
@@ -2116,6 +2328,7 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — BAR
         "flexGrow": 1,
         "flexShrink": 1,
         "minWidth": 0,
+        "paddingEnd": 6,
       }
     }
   />
@@ -2131,6 +2344,14 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — BAR
   <View
     style={
       {
+        "alignItems": "stretch",
+        "flexDirection": "column",
+      }
+    }
+  />
+  <View
+    style={
+      {
         "alignItems": "center",
         "flexBasis": 0,
         "flexDirection": "row",
@@ -2139,6 +2360,7 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — BAR
         "gap": 6,
         "justifyContent": "flex-end",
         "minWidth": 0,
+        "paddingStart": 6,
       }
     }
   >
@@ -2149,14 +2371,13 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — BAR
 </View>
 `;
 
-exports[`render-smoke — the ergonomic components mount headless Topbar — COMPOUND slots · leading/center/trailing regions composed via sub-components 1`] = `
+exports[`render-smoke — the ergonomic components mount headless Topbar — COMPOUND slots · leading/center/content/trailing regions composed via sub-components 1`] = `
 <View
   style={
     {
       "alignItems": "center",
       "backgroundColor": "#fffdf2",
       "flexDirection": "row",
-      "gap": 6,
       "height": 72,
       "paddingBottom": 6,
       "paddingEnd": 18,
@@ -2174,6 +2395,7 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — COM
         "flexGrow": 1,
         "flexShrink": 1,
         "minWidth": 0,
+        "paddingEnd": 6,
       }
     }
   >
@@ -2205,11 +2427,150 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — COM
         "gap": 6,
         "justifyContent": "flex-end",
         "minWidth": 0,
+        "paddingStart": 6,
       }
     }
   >
     <View
       accessibilityLabel="trailing"
+    />
+  </View>
+</View>
+`;
+
+exports[`render-smoke — the ergonomic components mount headless Topbar — fluid content fills between hugging edges 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#fffdf2",
+      "flexDirection": "row",
+      "height": 72,
+      "paddingBottom": 6,
+      "paddingEnd": 18,
+      "paddingStart": 18,
+      "paddingTop": 18,
+    }
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "flexGrow": 0,
+        "flexShrink": 0,
+        "paddingEnd": 6,
+      }
+    }
+  >
+    <View
+      accessibilityLabel="fluid-leading"
+    />
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "stretch",
+        "flexDirection": "column",
+        "flexGrow": 1,
+        "flexShrink": 1,
+        "minWidth": 0,
+      }
+    }
+  >
+    <View
+      accessibilityLabel="fluid-content"
+    />
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "flexGrow": 0,
+        "flexShrink": 0,
+        "gap": 6,
+        "justifyContent": "flex-end",
+        "paddingStart": 6,
+      }
+    }
+  >
+    <View
+      accessibilityLabel="fluid-trailing"
+    />
+  </View>
+</View>
+`;
+
+exports[`render-smoke — the ergonomic components mount headless Topbar — title is preset and always truncates to one line 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#fffdf2",
+      "flexDirection": "row",
+      "height": 72,
+      "paddingBottom": 6,
+      "paddingEnd": 18,
+      "paddingStart": 18,
+      "paddingTop": 18,
+    }
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "stretch",
+        "flexDirection": "column",
+        "flexGrow": 1,
+        "flexShrink": 1,
+        "minWidth": 0,
+      }
+    }
+  >
+    <Text
+      ellipsizeMode="tail"
+      numberOfLines={1}
+      style={
+        [
+          {
+            "fontSize": 22,
+            "fontWeight": "600",
+            "letterSpacing": -0.32999999999999996,
+            "lineHeight": 27.94,
+          },
+          {
+            "color": "#222013",
+          },
+          {
+            "flexShrink": 1,
+            "textAlign": "center",
+          },
+          {
+            "textAlign": "left",
+          },
+        ]
+      }
+    >
+      Settings Settings Settings Settings
+    </Text>
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "flexGrow": 0,
+        "flexShrink": 0,
+        "gap": 6,
+        "justifyContent": "flex-end",
+        "paddingStart": 6,
+      }
+    }
+  >
+    <View
+      accessibilityLabel="title-trailing"
     />
   </View>
 </View>

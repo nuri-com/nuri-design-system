@@ -5,6 +5,8 @@ import { nuriTagToRnName, translateWebToRn } from './web-to-rn-translator.js';
 
 test('web-to-rn translator · deterministic component and slot tag names', () => {
   assert.equal(nuriTagToRnName('nuri-topbar-leading'), 'TopbarLeading');
+  assert.equal(nuriTagToRnName('nuri-topbar-content'), 'TopbarContent');
+  assert.equal(nuriTagToRnName('nuri-topbar-title'), 'TopbarTitle');
   assert.equal(nuriTagToRnName('nuri-button-text'), 'ButtonText');
 });
 

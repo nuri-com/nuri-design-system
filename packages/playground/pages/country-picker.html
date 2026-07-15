@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuri · Playground · Country Picker Pattern</title>
+  <link rel="stylesheet" href="../generated/playground.css" />
+  <script src="../generated/boot.js" type="module"></script>
+</head>
+<body>
+
+<!--
+  PATTERN NOTES · COUNTRY PICKER
+  Consumer state: open, query, filtered data, the selected country, and the
+  editable phone prefix/number values.
+  Design system: every visible surface below — SelectField trigger, full Modal,
+  Topbar search, list rows, avatars, typography, and layout primitives.
+  Accessibility: SelectField is a button that discloses a dialog, never a
+  combobox. Closing the picker returns focus to the trigger in the interactive
+  consumer; these web boards are intentionally static specifications.
+-->
+
+<nuri-playground-shell doc="Country Picker Pattern">
+
+  <!-- VERIFY PHONE · country discloses the picker; prefix remains an input. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="verify phone">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top>
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                </nuri-topbar-leading>
+                <nuri-topbar-center>
+                  <nuri-typography size="lg" emphasis>Verify Phone</nuri-typography>
+                </nuri-topbar-center>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll safe-area-bottom>
+              <nuri-view direction="column" align="stretch" justify="start" gap="xl" padding-x="lg" padding-top="xl" padding-bottom="lg">
+                <nuri-select-field aria-label="Country" accessibility-value="Germany">
+                  <nuri-select-field-label>Country</nuri-select-field-label>
+                  <nuri-select-field-avatar source="../assets/flags/deu.svg"></nuri-select-field-avatar>
+                  <nuri-select-field-value>Germany</nuri-select-field-value>
+                  <nuri-select-field-chevron name="chevron-down"></nuri-select-field-chevron>
+                </nuri-select-field>
+
+                <nuri-view direction="row" align="end" gap="md">
+                  <nuri-view width="2xl">
+                    <nuri-text-field input-mode="tel" value="+49">
+                      <nuri-text-field-label>Prefix</nuri-text-field-label>
+                    </nuri-text-field>
+                  </nuri-view>
+                  <nuri-view fill="grow-shrink">
+                    <nuri-text-field input-mode="tel" placeholder="151 23456789">
+                      <nuri-text-field-label>Phone number</nuri-text-field-label>
+                    </nuri-text-field>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- COUNTRY PICKER · empty query shows the complete consumer-owned data set. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="country picker · empty query">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="canvas">
+              <nuri-topbar layout="fluid">
+                <nuri-topbar-leading>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back to verify phone"></nuri-icon-button>
+                </nuri-topbar-leading>
+                <nuri-topbar-content>
+                  <nuri-text-field size="md" aria-label="Search" placeholder="Search">
+                    <nuri-text-field-icon-button name="cross-circle" aria-label="Clear search"></nuri-text-field-icon-button>
+                  </nuri-text-field>
+                </nuri-topbar-content>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll safe-area-bottom>
+              <nuri-view padding-top="sm">
+                <nuri-list>
+                <nuri-list-action aria-label="Germany, +49">
+                  <nuri-list-action-leading-avatar source="../assets/flags/deu.svg"></nuri-list-action-leading-avatar>
+                  <nuri-list-action-text>Germany</nuri-list-action-text>
+                  <nuri-list-action-text-muted>+49</nuri-list-action-text-muted>
+                </nuri-list-action>
+                <nuri-list-action aria-label="Austria, +43">
+                  <nuri-list-action-leading-avatar source="../assets/flags/aut.svg"></nuri-list-action-leading-avatar>
+                  <nuri-list-action-text>Austria</nuri-list-action-text>
+                  <nuri-list-action-text-muted>+43</nuri-list-action-text-muted>
+                </nuri-list-action>
+                <nuri-list-action aria-label="Australia, +61">
+                  <nuri-list-action-leading-avatar source="../assets/flags/aus.svg"></nuri-list-action-leading-avatar>
+                  <nuri-list-action-text>Australia</nuri-list-action-text>
+                  <nuri-list-action-text-muted>+61</nuri-list-action-text-muted>
+                </nuri-list-action>
+                <nuri-list-action aria-label="Poland, +48">
+                  <nuri-list-action-leading-avatar source="../assets/flags/pol.svg"></nuri-list-action-leading-avatar>
+                  <nuri-list-action-text>Poland</nuri-list-action-text>
+                  <nuri-list-action-text-muted>+48</nuri-list-action-text-muted>
+                </nuri-list-action>
+                <nuri-list-action aria-label="Ukraine, +380">
+                  <nuri-list-action-leading-avatar source="../assets/flags/ukr.svg"></nuri-list-action-leading-avatar>
+                  <nuri-list-action-text>Ukraine</nuri-list-action-text>
+                  <nuri-list-action-text-muted>+380</nuri-list-action-text-muted>
+                </nuri-list-action>
+                <nuri-list-action aria-label="France, +33">
+                  <nuri-list-action-leading-avatar source="../assets/flags/fra.svg"></nuri-list-action-leading-avatar>
+                  <nuri-list-action-text>France</nuri-list-action-text>
+                  <nuri-list-action-text-muted>+33</nuri-list-action-text-muted>
+                </nuri-list-action>
+                <nuri-list-action aria-label="Italy, +39">
+                  <nuri-list-action-leading-avatar source="../assets/flags/ita.svg"></nuri-list-action-leading-avatar>
+                  <nuri-list-action-text>Italy</nuri-list-action-text>
+                  <nuri-list-action-text-muted>+39</nuri-list-action-text-muted>
+                </nuri-list-action>
+                <nuri-list-action aria-label="Spain, +34">
+                  <nuri-list-action-leading-avatar source="../assets/flags/esp.svg"></nuri-list-action-leading-avatar>
+                  <nuri-list-action-text>Spain</nuri-list-action-text>
+                  <nuri-list-action-text-muted>+34</nuri-list-action-text-muted>
+                </nuri-list-action>
+                </nuri-list>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- COUNTRY PICKER · the consumer query "Au" filters by country name. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="country picker · Au">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="canvas">
+              <nuri-topbar layout="fluid">
+                <nuri-topbar-leading>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back to verify phone"></nuri-icon-button>
+                </nuri-topbar-leading>
+                <nuri-topbar-content>
+                  <nuri-text-field size="md" value="Au" aria-label="Search" placeholder="Search">
+                    <nuri-text-field-icon-button name="cross-circle" aria-label="Clear search"></nuri-text-field-icon-button>
+                  </nuri-text-field>
+                </nuri-topbar-content>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll safe-area-bottom>
+              <nuri-view padding-top="sm">
+                <nuri-list>
+                <nuri-list-action aria-label="Austria, +43">
+                  <nuri-list-action-leading-avatar source="../assets/flags/aut.svg"></nuri-list-action-leading-avatar>
+                  <nuri-list-action-text>Austria</nuri-list-action-text>
+                  <nuri-list-action-text-muted>+43</nuri-list-action-text-muted>
+                </nuri-list-action>
+                <nuri-list-action aria-label="Australia, +61">
+                  <nuri-list-action-leading-avatar source="../assets/flags/aus.svg"></nuri-list-action-leading-avatar>
+                  <nuri-list-action-text>Australia</nuri-list-action-text>
+                  <nuri-list-action-text-muted>+61</nuri-list-action-text-muted>
+                </nuri-list-action>
+                </nuri-list>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+</body>
+</html>

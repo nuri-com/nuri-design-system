@@ -69,9 +69,8 @@ const DEFAULT_THEME = 'light';
 
 // ── Canonical orderings · mirror pipeline/parsers/descriptors.js so the
 // page's row order matches the descriptor's emit order (byte-stable). The
-// topbar regions (leading/center/trailing · the topbar-slots slice) join in
-// left→centre→right row order; the leaf parts (label/icon/content) follow. ──
-const PART_ORDER = ['root', 'leading', 'center', 'trailing', 'label', 'icon', 'content'];
+// topbar regions plus the catalog's recurring leaf/container parts. ──
+const PART_ORDER = ['root', 'leading', 'center', 'content', 'title', 'trailing', 'label', 'icon'];
 const NS_ORDER = ['stack', 'box', 'typography', 'palette', 'interactive', 'effect'];
 const NS_PROP_ORDER = {
   stack: ['direction', 'align', 'justify', 'gap', 'wrap', 'fill'],

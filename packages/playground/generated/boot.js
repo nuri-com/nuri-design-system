@@ -28,6 +28,7 @@ await import('../../prototype/recipes/icon-avatar.js');
 await import('../../prototype/recipes/topbar.js');
 await import('../../prototype/recipes/list-action.js');
 await import('../../prototype/recipes/list.js');
+await import('../../prototype/recipes/select-field.js');
 await import('../../prototype/recipes/text-field.js');
 await import('../../prototype/recipes/tab-bar.js');
 await import('../../prototype/recipes/modal.js');

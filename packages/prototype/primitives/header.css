@@ -27,4 +27,12 @@
     inset-block-start: 0;
     z-index: 2;
   }
+
+  .nuri-header__safe-area-chrome {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 0;
+    block-size: var(--nuri-device-safe-area-top, 0px);
+    pointer-events: none;
+  }
 }

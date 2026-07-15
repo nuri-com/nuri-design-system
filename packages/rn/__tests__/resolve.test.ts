@@ -80,6 +80,7 @@ describe('baseline theme (resolver-model §11)', () => {
 
     expect(theme.surface.outline.bg).toBe('transparent');
     expect(theme.surface.outline.fg).toBe(chrome.light.textMuted);
+    expect(theme.surface.outline.pressedBg).toBe(chrome.light.bgSubtle);
     expect(theme.surface.outline.border).toBe(chrome.light.borderSubtle);
   });
 
@@ -297,16 +298,16 @@ describe('IconAvatar — same resolver, static, the subtle role (via flattenPart
   });
 });
 
-describe('Topbar — same resolver, the COMPOUND slot regions (true centring · via flattenPart)', () => {
+describe('Topbar — same resolver, centred + fluid compound layouts (via flattenPart)', () => {
   const theme = buildNuriTheme('lilac', 'light');
-  const part = (p: string) => flattenPart(topbarDescriptor, theme, p as Part, {}, {});
+  const part = (p: string, layout: 'centered' | 'fluid' = 'centered') =>
+    flattenPart(topbarDescriptor, theme, p as Part, { layout }, {});
 
   test('open root base = row chrome surface (stack + box + palette.chrome)', () => {
     const root = part('root');
     expect(root.style).toEqual({
       flexDirection: 'row',
       alignItems: 'center',
-      gap: space.sm,
       height: size['2xl'],
       paddingStart: space.lg,
       paddingEnd: space.lg,
@@ -326,6 +327,7 @@ describe('Topbar — same resolver, the COMPOUND slot regions (true centring · 
       flexShrink: 1,
       flexBasis: 0,
       minWidth: 0,
+      paddingEnd: space.sm,
     });
   });
 
@@ -339,6 +341,7 @@ describe('Topbar — same resolver, the COMPOUND slot regions (true centring · 
       flexShrink: 1,
       flexBasis: 0,
       minWidth: 0,
+      paddingStart: space.sm,
     });
   });
 
@@ -346,6 +349,39 @@ describe('Topbar — same resolver, the COMPOUND slot regions (true centring · 
     const center = part('center').style as { flexGrow?: number };
     expect(center).toEqual({ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' });
     expect(center.flexGrow).toBeUndefined();
+  });
+
+  test('fluid layout = hugging edges + a grow-shrink, stretching content lane', () => {
+    expect(part('leading', 'fluid').style).toEqual({
+      flexDirection: 'row',
+      alignItems: 'center',
+      flexGrow: 0,
+      flexShrink: 0,
+      paddingEnd: space.sm,
+    });
+    expect(part('content', 'fluid').style).toEqual({
+      flexDirection: 'column',
+      alignItems: 'stretch',
+      flexGrow: 1,
+      flexShrink: 1,
+      minWidth: 0,
+    });
+    expect(part('trailing', 'fluid').style).toEqual({
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      gap: space.sm,
+      flexGrow: 0,
+      flexShrink: 0,
+      paddingStart: space.sm,
+    });
+  });
+
+  test('title = preset lg emphasized, start-aligned, one-line truncation', () => {
+    const title = part('title', 'fluid');
+    expect(title.style).toEqual({ textAlign: 'left' });
+    expect(title.node.type).toEqual({ size: 'lg', emphasis: true });
+    expect(title.node.textFlow).toEqual({ flow: 'truncate', lines: 1 });
   });
 });
 
