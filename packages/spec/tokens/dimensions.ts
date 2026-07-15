@@ -34,7 +34,7 @@ export const size = {
   sm:    { value: 24, unit: 'px' },
   md:    { value: 36, unit: 'px' },
   lg:    { value: 48, unit: 'px' },
-  xl:    { value: 54, unit: 'px' },
+  xl:    { value: 60, unit: 'px' },
   '2xl': { value: 72, unit: 'px' },
   '3xl': { value: 90, unit: 'px' },
 } as const satisfies Record<string, Leaf>;

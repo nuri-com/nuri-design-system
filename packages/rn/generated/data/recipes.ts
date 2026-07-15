@@ -94,7 +94,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
             },
             "lg": {
               "gap": 6,
-              "minHeight": 54,
+              "minHeight": 60,
               "paddingHorizontal": 24,
               "borderRadius": 9999
             }
@@ -199,10 +199,10 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "flexDirection": "row",
           "alignItems": "center",
           "gap": 6,
-          "height": 54,
+          "height": 60,
           "paddingStart": 18,
           "paddingEnd": 18,
-          "paddingTop": 6
+          "paddingTop": 12
         },
         "variants": {}
       }
@@ -450,7 +450,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "base": {
           "flexDirection": "row",
           "alignItems": "center",
-          "height": 54,
+          "height": 60,
           "paddingStart": 12,
           "paddingEnd": 6,
           "borderRadius": 9
@@ -534,7 +534,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "base": {
           "flexDirection": "row",
           "alignItems": "stretch",
-          "minHeight": 54,
+          "minHeight": 60,
           "paddingBottom": 12
         },
         "variants": {}

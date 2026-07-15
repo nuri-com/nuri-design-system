@@ -927,7 +927,7 @@
   /* size.lg  · standard touch target · iOS minimum + comfortable headroom */
   --nuri-size-lg:  48px;
   /* size.xl  · roomy touch target · primary action button height */
-  --nuri-size-xl:  54px;
+  --nuri-size-xl:  60px;
   /* size.2xl · large element · prominent CTA, screen-header height */
   --nuri-size-2xl: 72px;
   /* size.3xl · hero element · feature card height, large display tile */
