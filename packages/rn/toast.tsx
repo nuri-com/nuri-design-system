@@ -174,7 +174,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
       return (
         <RNView
           pointerEvents="box-none"
-          style={[styles.layer, { paddingTop: safeAreaInsets.top + space.md }]}
+          style={[styles.layer, { paddingTop: safeAreaInsets.top + space.lg }]}
         >
           <Animated.View
             pointerEvents="auto"
