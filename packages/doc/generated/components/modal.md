@@ -13,10 +13,10 @@ nav_order: 21
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
-| `open` | no | `boolean` | sheet behaviour |
-| `mode` | yes | `'sheet' | 'full'` | component prop |
-| `scrim` | no | `'none' | 'dim'` | sheet behaviour |
-| `dismissible` | no | `boolean` | sheet behaviour |
-| `onOpenChange` | no | `(open: boolean) => void` | sheet behaviour |
+| `open` | no | `boolean` | modal behaviour |
+| `mode` | yes | `'sheet' | 'full'` | presentation mode |
+| `scrim` | no | `'none' | 'dim'` | sheet-mode behaviour |
+| `dismissible` | no | `boolean` | modal behaviour |
+| `onOpenChange` | no | `(open: boolean) => void` | modal behaviour |
 | `onOpenComplete` | no | `() => void` | post-enter lifecycle |
 | `children` | no | `React.ReactNode` | default content slot |
