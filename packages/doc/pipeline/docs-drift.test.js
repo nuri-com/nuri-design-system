@@ -156,6 +156,8 @@ const PAGE_CONTRACT = {
       '| `placeholder` | no | `string` | input behaviour |',
       "| `inputMode` | no | `'text' | 'decimal' | 'numeric' | 'tel' | 'email' | 'url' | 'search'` | input behaviour |",
       '| `secureTextEntry` | no | `boolean` | input behaviour |',
+      '| `sanitize` | no | `(text: string) => string` | input behaviour |',
+      '| `maxLength` | no | `number` | input behaviour |',
       '| `disabled` | no | `boolean` | input behaviour |',
       '| `onFocus` | no | `() => void` | input behaviour |',
       '| `onBlur` | no | `() => void` | input behaviour |',

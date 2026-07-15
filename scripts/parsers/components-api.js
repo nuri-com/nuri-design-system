@@ -33,6 +33,8 @@ const INPUT_TS = {
   inputMode: "'text' | 'decimal' | 'numeric' | 'tel' | 'email' | 'url' | 'search'",
   secureTextEntry: 'boolean',
   autoCapitalize: "'none' | 'sentences' | 'words' | 'characters'",
+  sanitize: '(text: string) => string',
+  maxLength: 'number',
   disabled: 'boolean',
   onFocus: '() => void',
   onBlur: '() => void',

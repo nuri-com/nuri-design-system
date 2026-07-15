@@ -835,23 +835,28 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(buttonBg('lilac')).not.toBe(buttonBg('orange'));
   });
 
-  test('TextField — value props reach the native TextInput and label names it', () => {
+  test('TextField — native mount value is frozen as defaultValue and label names it', () => {
     const onChangeText = jest.fn();
     const tr = render(
       <NuriThemeProvider>
-        <TextField value="DE12" onChangeText={onChangeText} placeholder="DE..." inputMode="numeric" autoCapitalize="characters">
+        <TextField value="DE12" onChangeText={onChangeText} placeholder="DE..." inputMode="numeric" autoCapitalize="characters" maxLength={22}>
           <TextFieldLabel>IBAN</TextFieldLabel>
         </TextField>
       </NuriThemeProvider>,
     );
 
     const input = tr.root.findByType(TextInput);
-    expect(input.props.value).toBe('DE12');
+    // Native TextInput is deliberately uncontrolled for its mounted lifetime;
+    // asserting defaultValue (and the absence of value) pins that correctness
+    // boundary rather than the former destructive controlled-input contract.
+    expect(Object.hasOwn(input.props, 'value')).toBe(false);
+    expect(input.props.defaultValue).toBe('DE12');
     expect(input.props.placeholder).toBe('DE...');
     expect(input.props.inputMode).toBe('numeric');
     expect(input.props.autoCapitalize).toBe('characters');
+    expect(input.props.maxLength).toBe(22);
     expect(input.props.accessibilityLabel).toBe('IBAN');
-    act(() => input.props.onChangeText('DE123'));
+    act(() => input.props.onChange({ nativeEvent: { text: 'DE123', eventCount: 1 } }));
     expect(onChangeText).toHaveBeenCalledWith('DE123');
   });
 

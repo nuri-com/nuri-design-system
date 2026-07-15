@@ -98,6 +98,8 @@ export const textFieldDescriptor = {
           'inputMode',
           'secureTextEntry',
           'autoCapitalize',
+          'sanitize',
+          'maxLength',
           'disabled',
           'onFocus',
           'onBlur',

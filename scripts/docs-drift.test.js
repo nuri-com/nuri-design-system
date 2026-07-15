@@ -551,6 +551,8 @@ const FROZEN_SCHEMA = {
       'inputMode',
       'secureTextEntry',
       'autoCapitalize',
+      'sanitize',
+      'maxLength',
       'disabled',
       'onFocus',
       'onBlur',

@@ -33,6 +33,8 @@ export type TextFieldProps = {
   inputMode?: 'text' | 'decimal' | 'numeric' | 'tel' | 'email' | 'url' | 'search';
   secureTextEntry?: boolean;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  sanitize?: (text: string) => string;
+  maxLength?: number;
   disabled?: boolean;
   onFocus?: () => void;
   onBlur?: () => void;
@@ -94,6 +96,8 @@ const TextFieldInner = React.forwardRef<TextFieldHandle, TextFieldProps>((props,
       inputMode: props.inputMode,
       secureTextEntry: props.secureTextEntry,
       autoCapitalize: props.autoCapitalize,
+      sanitize: props.sanitize,
+      maxLength: props.maxLength,
       disabled: props.disabled,
       onFocus: props.onFocus,
       onBlur: props.onBlur,

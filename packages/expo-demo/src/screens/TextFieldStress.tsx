@@ -14,12 +14,6 @@ import {
   View,
 } from '@ds';
 
-// The permanent repro lands before the public sanitize contract on purpose.
-// Remove this bridge when the descriptor/codegen slice exposes the prop.
-const StressTextField = TextField as React.ComponentType<
-  React.ComponentProps<typeof TextField> & { sanitize?: (text: string) => string }
->;
-
 const LOAD_INTERVAL_MS = 48;
 const BUSY_LOOP_MS = 24;
 
@@ -101,14 +95,14 @@ export function TextFieldStress({ onBack }: { onBack: () => void }) {
         </View>
 
         <View direction="column" align="stretch" gap="sm">
-          <StressTextField
+          <TextField
             value={sanitized}
             onChangeText={setSanitized}
             sanitize={(text) => text.toUpperCase().replaceAll(' ', '')}
             placeholder="Fast-type Lennard with spaces"
           >
             <TextFieldLabel>Uppercase + strip spaces</TextFieldLabel>
-          </StressTextField>
+          </TextField>
           <Text size="sm" mono>JS state: {JSON.stringify(sanitized)}</Text>
         </View>
 

@@ -9,7 +9,7 @@
  * ────────────────────────────────────────────────────────────── */
 
 (() => {
-  const ATTRS = ['value', 'placeholder', 'input-mode', 'secure-text-entry', 'auto-capitalize', 'disabled', 'aria-label'];
+  const ATTRS = ['value', 'placeholder', 'input-mode', 'secure-text-entry', 'auto-capitalize', 'max-length', 'disabled', 'aria-label'];
 
   class NuriInput extends HTMLElement {
     static get observedAttributes() {
@@ -23,7 +23,10 @@
         this.#input = document.createElement('input');
         this.#input.className = 'nuri-input';
         this.#input.addEventListener('input', () => {
-          if (typeof this.onChangeText === 'function') this.onChangeText(this.#input.value);
+          const raw = this.#input.value;
+          const emitted = typeof this.sanitize === 'function' ? this.sanitize(raw) : raw;
+          if (emitted !== raw) this.#input.value = emitted;
+          if (typeof this.onChangeText === 'function') this.onChangeText(emitted);
         });
         this.#input.addEventListener('focus', () => {
           this.dispatchEvent(new CustomEvent('nuri-input-focus', { bubbles: true }));
@@ -54,6 +57,9 @@
       const autoCapitalize = this.getAttribute('auto-capitalize');
       if (autoCapitalize) input.setAttribute('autocapitalize', autoCapitalize);
       else input.removeAttribute('autocapitalize');
+      const maxLength = this.getAttribute('max-length');
+      if (maxLength === null) input.removeAttribute('maxlength');
+      else input.maxLength = Number(maxLength);
       input.disabled = this.hasAttribute('disabled');
       const label = this.getAttribute('aria-label');
       if (label) input.setAttribute('aria-label', label);
