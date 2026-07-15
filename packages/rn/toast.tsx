@@ -12,7 +12,13 @@
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';
-import { Animated, Easing, StyleSheet, View as RNView } from 'react-native';
+import {
+  Animated,
+  Easing,
+  PanResponder,
+  StyleSheet,
+  View as RNView,
+} from 'react-native';
 
 import { space } from './generated/data/tokens';
 import { useOverlay } from './overlay';
@@ -33,6 +39,11 @@ export type ToastProviderProps = {
 };
 
 const DEFAULT_DURATION = 3500;
+const SWIPE_CAPTURE_DY = 6;
+const SWIPE_DISMISS_DISTANCE_FRACTION = 0.45;
+const SWIPE_DISMISS_VELOCITY = 0.75;
+const SWIPE_RUBBER_BAND_DIVISOR = 3;
+const SWIPE_FLING_DURATION = 160;
 const ENTER_TIMING: Omit<Animated.TimingAnimationConfig, 'toValue'> = {
   duration: 280,
   easing: Easing.out(Easing.cubic),
@@ -68,9 +79,12 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   const safeAreaInsets = useNuriSafeAreaInsets();
   const layerId = React.useId();
   const progress = React.useRef(new Animated.Value(0)).current;
+  const dragY = React.useRef(new Animated.Value(0)).current;
   const phaseRef = React.useRef<ToastPhase>('hidden');
   const contentRef = React.useRef<React.ReactNode>(null);
   const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const durationRef = React.useRef<number | null>(null);
+  const surfaceHeightRef = React.useRef(0);
   const animationGenerationRef = React.useRef(0);
   const hideRef = React.useRef<() => void>(() => undefined);
 
@@ -79,6 +93,77 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     clearTimeout(timerRef.current);
     timerRef.current = null;
   }, []);
+
+  const restartTimer = React.useCallback(() => {
+    clearTimer();
+    const duration = durationRef.current;
+    if (
+      typeof duration !== 'number'
+      || duration <= 0
+      || phaseRef.current === 'hidden'
+      || phaseRef.current === 'exiting'
+    ) return;
+    timerRef.current = setTimeout(() => hideRef.current(), duration);
+  }, [clearTimer]);
+
+  const returnDragToRest = React.useCallback(() => {
+    Animated.spring(dragY, {
+      toValue: 0,
+      useNativeDriver: false,
+    }).start();
+    restartTimer();
+  }, [dragY, restartTimer]);
+
+  const panResponder = React.useMemo(
+    () => PanResponder.create({
+      onStartShouldSetPanResponder: () => false,
+      onMoveShouldSetPanResponder: (_event, gestureState) => (
+        Math.abs(gestureState.dy) >= SWIPE_CAPTURE_DY
+        && Math.abs(gestureState.dy) > Math.abs(gestureState.dx)
+      ),
+      onPanResponderGrant: () => {
+        clearTimer();
+        dragY.stopAnimation();
+      },
+      onPanResponderMove: (_event, gestureState) => {
+        dragY.setValue(
+          gestureState.dy < 0
+            ? gestureState.dy
+            : gestureState.dy / SWIPE_RUBBER_BAND_DIVISOR,
+        );
+      },
+      onPanResponderRelease: (_event, gestureState) => {
+        const dismissDistance = Math.max(
+          SWIPE_CAPTURE_DY,
+          surfaceHeightRef.current * SWIPE_DISMISS_DISTANCE_FRACTION,
+        );
+        const shouldDismiss = gestureState.dy <= -dismissDistance
+          || gestureState.vy <= -SWIPE_DISMISS_VELOCITY;
+
+        if (!shouldDismiss) {
+          returnDragToRest();
+          return;
+        }
+
+        const generation = animationGenerationRef.current;
+        const offscreenY = -(
+          safeAreaInsets.top
+          + Math.max(surfaceHeightRef.current, space['2xl'])
+        );
+        Animated.timing(dragY, {
+          duration: SWIPE_FLING_DURATION,
+          easing: Easing.out(Easing.cubic),
+          toValue: offscreenY,
+          useNativeDriver: false,
+        }).start(({ finished }) => {
+          if (!finished || generation !== animationGenerationRef.current) return;
+          hideRef.current();
+        });
+      },
+      onPanResponderTerminate: returnDragToRest,
+    }),
+    [clearTimer, dragY, returnDragToRest, safeAreaInsets.top],
+  );
 
   const renderToastNode = React.useCallback(
     (node: React.ReactNode): React.ReactNode => {
@@ -95,12 +180,20 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
             pointerEvents="auto"
             style={[styles.surface, { opacity: progress, transform: [{ translateY }] }]}
           >
-            {node}
+            <Animated.View
+              {...panResponder.panHandlers}
+              onLayout={(event) => {
+                surfaceHeightRef.current = event.nativeEvent.layout.height;
+              }}
+              style={{ transform: [{ translateY: dragY }] }}
+            >
+              {node}
+            </Animated.View>
           </Animated.View>
         </RNView>
       );
     },
-    [progress, safeAreaInsets.top],
+    [dragY, panResponder.panHandlers, progress, safeAreaInsets.top],
   );
 
   const hide = React.useCallback(() => {
@@ -125,6 +218,8 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
       const wasHidden = phaseRef.current === 'hidden';
       const generation = ++animationGenerationRef.current;
       progress.stopAnimation();
+      dragY.stopAnimation();
+      dragY.setValue(0);
       if (wasHidden) progress.setValue(0);
 
       contentRef.current = node;
@@ -146,11 +241,10 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
       const duration = options?.duration === null
         ? null
         : (options?.duration ?? DEFAULT_DURATION);
-      if (typeof duration === 'number' && duration > 0) {
-        timerRef.current = setTimeout(() => hideRef.current(), duration);
-      }
+      durationRef.current = duration;
+      restartTimer();
     },
-    [clearTimer, layerId, overlay, progress, renderToastNode],
+    [clearTimer, dragY, layerId, overlay, progress, renderToastNode, restartTimer],
   );
 
   // Insets are normally stable. If the host updates them while a toast is
@@ -166,9 +260,10 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
       ++animationGenerationRef.current;
       clearTimer();
       progress.stopAnimation();
+      dragY.stopAnimation();
       overlay.unregister(layerId);
     },
-    [clearTimer, layerId, overlay, progress],
+    [clearTimer, dragY, layerId, overlay, progress],
   );
 
   const api = React.useMemo<ToastApi>(() => ({ show, hide }), [show, hide]);
