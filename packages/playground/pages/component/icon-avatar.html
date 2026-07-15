@@ -27,6 +27,36 @@
     </template>
   </nuri-demo>
 
+  <!-- image mode · consumer-owned flag assets. The image fills the same list-sized
+       circle and its own outline ring remains visible over light bands. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="image sources">
+    <template>
+      <nuri-view direction="column" align="center" justify="center" gap="md" fill>
+        <nuri-view direction="row" align="center" justify="center" gap="md">
+          <nuri-icon-avatar source="../../assets/flags/pol.svg"></nuri-icon-avatar>
+          <nuri-icon-avatar source="../../assets/flags/deu.svg"></nuri-icon-avatar>
+          <nuri-icon-avatar source="../../assets/flags/ukr.svg"></nuri-icon-avatar>
+          <nuri-icon-avatar source="../../assets/flags/eur.svg"></nuri-icon-avatar>
+        </nuri-view>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
+  <!-- size · md is the 48px list default; sm is a 36px compact avatar. The
+       glyph remains the same 24px size in both circles. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="sizes">
+    <template>
+      <nuri-view direction="column" align="center" justify="center" gap="md" fill>
+        <nuri-view direction="row" align="center" justify="center" gap="md">
+          <nuri-icon-avatar size="md" variant="soft" icon="wallet"></nuri-icon-avatar>
+          <nuri-icon-avatar size="sm" variant="soft" icon="wallet"></nuri-icon-avatar>
+          <nuri-icon-avatar size="md" source="../../assets/flags/pol.svg"></nuri-icon-avatar>
+          <nuri-icon-avatar size="sm" source="../../assets/flags/eur.svg"></nuri-icon-avatar>
+        </nuri-view>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
 </nuri-playground-shell>
 
 </body>

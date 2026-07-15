@@ -27,6 +27,7 @@ export const listActionDescriptor: Descriptor<ListActionAxes> = {
             variant: '$slot.variant|outline',
             accent: '$slot.accent',
             icon: '$slot.name',
+            source: '$slot.source',
           },
         },
         content: { el: 'view', parts: { text: { el: 'text' }, textMuted: { el: 'text' } } },

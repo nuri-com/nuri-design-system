@@ -8,8 +8,8 @@
  * ══════════════════════════════════════════════════════════════════ */
 
 import * as React from 'react';
-import { Platform, Text, TextInput, View } from 'react-native';
-import type { StyleProp, TextStyle } from 'react-native';
+import { Image, Platform, Text, TextInput, View } from 'react-native';
+import type { ImageSourcePropType, ImageStyle, StyleProp, TextStyle } from 'react-native';
 import { classifyComposition } from '@nuri/spec/composition-classify';
 import { LEAF_ELS } from '@nuri/spec/descriptors/schema';
 import type { Descriptor, Axes, IconName, PartId } from '../contract';
@@ -64,6 +64,10 @@ export type NuriCompositionEntry<PId extends PartId = PartId> = {
   content?: React.ReactNode;
   props?: Record<string, unknown>;
 };
+
+// Routed descriptor content is normally React children. The `image` leaf adds
+// the one native scalar that is intentionally not a ReactNode.
+export type NuriContent = React.ReactNode | ImageSourcePropType;
 
 // part name → its PascalCase token (leading → Leading).
 const pascalPart = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
@@ -206,7 +210,7 @@ export type NuriDescriptorInstance<A extends Axes, PId extends PartId = PartId> 
   recipe: BakedComponentRecipe;
   displayName: string;
   selection: Selection;
-  content: Partial<Record<PId, React.ReactNode>>;
+  content: Partial<Record<PId, NuriContent>>;
   composition?: Partial<Record<PId, NuriCompositionEntry<PId>[]>>;
   components?: Record<string, React.ComponentType<Record<string, unknown>>>;
   behaviour: NuriBehaviour<PId>;
@@ -218,7 +222,7 @@ type RenderCtx<A extends Axes> = {
   recipe: BakedComponentRecipe;
   theme: NuriTheme;
   selection: Selection;
-  content: Partial<Record<string, React.ReactNode>>;
+  content: Partial<Record<string, NuriContent>>;
   composition: Partial<Record<string, NuriCompositionEntry<string>[]>>;
   slotProps: Partial<Record<string, Record<string, unknown>>>;
   components: Record<string, React.ComponentType<Record<string, unknown>>>;
@@ -502,12 +506,14 @@ function renderPart<A extends Axes>(
       // components use. Bare children harvested here keep THIS host as their
       // own content (fallback = node.name · the region mixed-content contract).
       const nestedComposition =
-        ownContent != null && ctx.slotted ? harvestNuriComposition<string>(ownContent, node.name, ctx.owner) : null;
+        ownContent != null && ctx.slotted
+          ? harvestNuriComposition<string>(ownContent as React.ReactNode, node.name, ctx.owner)
+          : null;
       if (nestedComposition && nestedComposition.hasSlots) {
         appendCompositionEntries(nestedComposition.items);
       } else {
         const childEls = node.children.map((child) => renderPart(child, ctx, fg, false));
-        if (ownContent != null) kids.push(<React.Fragment key="__content">{wrapProse(ownContent)}</React.Fragment>);
+        if (ownContent != null) kids.push(<React.Fragment key="__content">{wrapProse(ownContent as React.ReactNode)}</React.Fragment>);
         kids.push(...childEls);
       }
     }
@@ -584,7 +590,7 @@ function renderPart<A extends Axes>(
             flat.style,
           ]}
         >
-          {ctx.content[node.name]}
+          {ctx.content[node.name] as React.ReactNode}
         </Text>
       );
     }
@@ -601,6 +607,21 @@ function renderPart<A extends Axes>(
             name={name as IconName}
             color={fg}
             {...(dimension !== undefined ? { dimension } : null)}
+          />
+        );
+      }
+      return <React.Fragment key={node.name} />;
+    }
+
+    case 'image': {
+      const source = ctx.content[node.name];
+      if (source != null) {
+        return (
+          <Image
+            key={node.name}
+            source={source as ImageSourcePropType}
+            resizeMode="cover"
+            style={flat.style as StyleProp<ImageStyle>}
           />
         );
       }

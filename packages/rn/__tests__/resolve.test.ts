@@ -250,7 +250,8 @@ describe('typeStyle — size × emphasis is a pure weight override (computed-equ
 
 describe('IconAvatar — same resolver, static, the subtle role (via flattenPart)', () => {
   const theme = buildNuriTheme('lilac', 'light');
-  const root = (variant: string) => flattenPart(iconAvatarDescriptor, theme, 'root', { variant }, {});
+  const root = (variant: string, avatarSize: 'sm' | 'md' = 'md') =>
+    flattenPart(iconAvatarDescriptor, theme, 'root', { variant, size: avatarSize }, {});
 
   test('fixed-circle base (box width/height/radius:full · invariant)', () => {
     const style = root('soft').style as Record<string, unknown>;
@@ -285,6 +286,14 @@ describe('IconAvatar — same resolver, static, the subtle role (via flattenPart
   test('icon part is a glyph leaf sized through the box axis', () => {
     const icon = flattenPart(iconAvatarDescriptor, theme, 'icon', {}, {});
     expect(icon.style).toEqual({ width: size.sm, height: size.sm });
+  });
+
+  test('sm is a 36px root and image while the glyph remains 24px', () => {
+    expect(root('soft', 'sm').style).toMatchObject({ width: size.md, height: size.md });
+    expect(flattenPart(iconAvatarDescriptor, theme, 'image', { size: 'sm' }, {}).style)
+      .toMatchObject({ width: size.md, height: size.md });
+    expect(flattenPart(iconAvatarDescriptor, theme, 'icon', { size: 'sm' }, {}).style)
+      .toEqual({ width: size.sm, height: size.sm });
   });
 });
 

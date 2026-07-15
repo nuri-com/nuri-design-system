@@ -108,8 +108,10 @@ const PAGE_CONTRACT = {
     kind: 'api', source: 'icon-avatar', title: 'Icon Avatar', nav: 4,
     cells: [
       "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |",
+      "| `size` | no | `'sm' | 'md'` | style axis |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
-      '| `icon` | yes | `IconName` | scalar icon name |',
+      '| `icon` | no | `IconName` | scalar icon name |',
+      '| `source` | no | `ImageSourcePropType` | image source |',
       '> `children` is not accepted (`children?: never`).',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`onPress`', '`disabled`', '`accessibilityLabel`'],
@@ -132,7 +134,8 @@ const PAGE_CONTRACT = {
       // leaf-slot composition only (the honest-children contract).
       '| `children` | no | `React.ReactNode` | composition children |',
       '### List Action Leading Avatar Props',
-      '| `name` | yes | `IconName` | scalar icon name |',
+      '| `name` | no | `IconName` | scalar icon name |',
+      '| `source` | no | `ImageSourcePropType` | image source |',
       "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | delegated component prop |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | delegated component prop |",
       '### List Action Text Muted Props',
@@ -147,6 +150,7 @@ const PAGE_CONTRACT = {
   'text-field': {
     kind: 'api', source: 'text-field', title: 'Text Field', nav: 7,
     cells: [
+      "| `size` | no | `'md' | 'lg'` | style axis |",
       '| `value` | no | `string` | input behaviour |',
       '| `onChangeText` | no | `(text: string) => void` | input behaviour |',
       '| `placeholder` | no | `string` | input behaviour |',
@@ -167,7 +171,7 @@ const PAGE_CONTRACT = {
       '| `accessibilityLabel` | yes | `string` | pressable behaviour |',
       '> `children` is not accepted (`children?: never`).',
     ],
-    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`variant` |', '`size` |', '`keyboardType`'],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`variant` |', '`keyboardType`'],
   },
   'tab-bar': {
     kind: 'api', source: 'tab-bar', title: 'Tab Bar', nav: 8,

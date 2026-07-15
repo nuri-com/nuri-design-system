@@ -24,9 +24,10 @@ nav_order: 6
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
-| `name` | yes | `IconName` | scalar icon name |
+| `name` | no | `IconName` | scalar icon name |
 | `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | delegated component prop |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | delegated component prop |
+| `source` | no | `ImageSourcePropType` | image source |
 
 > `children` is not accepted (`children?: never`).
 

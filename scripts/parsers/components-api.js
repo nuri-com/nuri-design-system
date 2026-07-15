@@ -20,7 +20,7 @@ const lowerFirst = (s) => s.charAt(0).toLowerCase() + s.slice(1);
 const q = (value) => JSON.stringify(value);
 
 const PRESSABLE_TS = { onPress: '() => void', disabled: 'boolean', accessibilityLabel: 'string' };
-const SLOT_PROP_TS = { onPress: '() => void', disabled: 'boolean', accessibilityLabel: 'string' };
+const SLOT_PROP_TS = { onPress: '() => void', disabled: 'boolean', accessibilityLabel: 'string', source: 'ImageSourcePropType' };
 const INPUT_TS = {
   value: 'string',
   onChangeText: '(text: string) => void',
@@ -100,7 +100,7 @@ function publicPropsForDescriptor(descriptor) {
   for (const [slotName, slot] of Object.entries(descriptor.api.slots || {})) {
     if (slot.default === true) props.add('children');
     if (slot.prop) props.add(slot.prop);
-    else if (!slot.component && (slot.kind === 'icon-name' || slot.kind === 'text')) props.add(slotName);
+    else if (!slot.component && (slot.kind === 'icon-name' || slot.kind === 'image-source' || slot.kind === 'text')) props.add(slotName);
   }
   return props;
 }
@@ -232,10 +232,20 @@ function slotPropNamesForComponentRef(ref) {
   return [...new Set(names)];
 }
 
-function requiredSlotPropNamesForComponentRef(ref, slot) {
+function requiredSlotPropNamesForComponentRef(ref, slot, catalog) {
   const names = slotPropNamesForComponentRef(ref);
   if (slot?.kind !== 'icon-name') return [];
-  return names.filter((name) => name === 'accessibilityLabel');
+  const target = catalog?.[ref?.component];
+  return names.filter((name) => {
+    if (name === 'accessibilityLabel') return true;
+    const targetProp = Object.entries(ref?.props || {}).find(([, value]) =>
+      typeof value === 'string' && value.startsWith('$slot.') && parseSlotBinding(value).prop === name
+    )?.[0];
+    if (!targetProp) return false;
+    return Object.entries(target?.api?.slots || {}).some(([slotName, targetSlot]) =>
+      (targetSlot.prop || slotName) === targetProp && targetSlot.required === true
+    );
+  });
 }
 
 function parseSlotBinding(value) {
@@ -257,6 +267,7 @@ function buildProps(api, variants, descriptor) {
   const lines = [];
   let usesAccent = false;
   let usesIcon = false;
+  let usesImageSource = false;
   let hasDefault = false;
   const regionParts = Object.values(api.slots).filter((s) => s.kind === 'region').map((s) => s.part);
   const componentSlots = Object.entries(api.slots)
@@ -290,8 +301,13 @@ function buildProps(api, variants, descriptor) {
       continue;
     }
     if (slot.prop) {
-      usesIcon = true;
-      lines.push(`  ${slot.prop}${slot.required ? '' : '?'}: IconName;`);
+      if (slot.kind === 'image-source') {
+        usesImageSource = true;
+        lines.push(`  ${slot.prop}${slot.required ? '' : '?'}: ImageSourcePropType;`);
+      } else {
+        usesIcon = true;
+        lines.push(`  ${slot.prop}${slot.required ? '' : '?'}: IconName;`);
+      }
       continue;
     }
     if (slot.kind === 'icon-name') {
@@ -299,13 +315,16 @@ function buildProps(api, variants, descriptor) {
       lines.push(`  ${slotName}?: IconName;`);
     } else if (slot.kind === 'text') {
       lines.push(`  ${slotName}?: string;`);
+    } else if (slot.kind === 'image-source') {
+      usesImageSource = true;
+      lines.push(`  ${slotName}?: ImageSourcePropType;`);
     }
   }
 
   const acceptsChildren = hasDefault || regionParts.length > 0 || componentSlots.length > 0;
   lines.push(acceptsChildren ? '  children?: React.ReactNode;' : '  children?: never;');
 
-  return { lines, usesAccent, usesIcon, regionParts, componentSlots };
+  return { lines, usesAccent, usesIcon, usesImageSource, regionParts, componentSlots };
 }
 
 function fallbackSelectionValue(descriptor, axis, values) {
@@ -336,8 +355,8 @@ function emitSelection(descriptor) {
   return lines;
 }
 
-function emitContent(api, partTypeName, displayNameConst) {
-  const lines = [`  const content: Partial<Record<${partTypeName}, React.ReactNode>> = {};`];
+function emitContent(api, partTypeName, displayNameConst, contentType = 'React.ReactNode', imageWins) {
+  const lines = [`  const content: Partial<Record<${partTypeName}, ${contentType}>> = {};`];
   const regionSlots = Object.values(api.slots).filter((slot) => slot.kind === 'region');
   const fallbackRegion = Object.values(api.slots).find((slot) => slot.kind === 'region' && slot.default === true);
   const componentSlots = Object.entries(api.slots)
@@ -381,8 +400,11 @@ function emitContent(api, partTypeName, displayNameConst) {
       }
       continue;
     }
-    const prop = slot.prop || (slot.kind === 'icon-name' || slot.kind === 'text' ? slotName : null);
-    if (prop) lines.push(`  if (props.${prop} !== undefined) content[${q(slot.part)}] = props.${prop};`);
+    const prop = slot.prop || (slot.kind === 'icon-name' || slot.kind === 'image-source' || slot.kind === 'text' ? slotName : null);
+    if (prop) {
+      const sourceGuard = imageWins?.iconProp === prop ? ` && props.${imageWins.sourceProp} === undefined` : '';
+      lines.push(`  if (props.${prop} !== undefined${sourceGuard}) content[${q(slot.part)}] = props.${prop};`);
+    }
   }
 
   return lines;
@@ -438,13 +460,21 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
   const descId = exportNameFor(name);
   const partTypeName = `${Pascal}Part`;
   const parts = validateDescriptorLocalParts(name, descriptor);
-  const { lines, usesAccent, usesIcon, regionParts, componentSlots } = buildProps(descriptor.api, descriptor.variants || {}, descriptor);
+  const { lines, usesAccent, usesIcon, usesImageSource, regionParts, componentSlots } = buildProps(descriptor.api, descriptor.variants || {}, descriptor);
   const refs = componentRefs(descriptor);
   const refsByPart = componentRefsByPart(descriptor);
   const refComponents = [...new Set(refs.map((ref) => ref.component))];
   const usesSlotAccent = refs.some((ref) =>
     Object.values(ref.props || {}).some((value) => typeof value === 'string' && value.startsWith('$slot.') && parseSlotBinding(value).prop === 'accent'),
   );
+  const usesSlotImageSource = refs.some((ref) =>
+    Object.values(ref.props || {}).some((value) => typeof value === 'string' && value.startsWith('$slot.') && parseSlotBinding(value).prop === 'source'),
+  );
+  const iconScalar = Object.entries(descriptor.api.slots).find(([, slot]) => slot.kind === 'icon-name' && slot.prop);
+  const imageScalar = Object.entries(descriptor.api.slots).find(([, slot]) => slot.kind === 'image-source' && slot.prop);
+  const imageWins = iconScalar && imageScalar
+    ? { iconProp: iconScalar[1].prop, sourceProp: imageScalar[1].prop }
+    : undefined;
   const hasRegions = regionParts.length > 0;
   const hasComponentSlots = componentSlots.length > 0;
   const hasInput = descriptor.api.behaviour?.input !== undefined;
@@ -455,13 +485,15 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
   if (hasComponentSlots) rendererImports.push('createNuriSlot', 'harvestNuriComposition');
   const uniqueRendererImports = [...new Set(rendererImports)];
 
+  const rendererTypeImports = [`NuriBehaviour${hasComponentSlots ? ', NuriCompositionEntry' : ''}${usesImageSource ? ', NuriContent' : ''}`];
   const imports = [
     "import * as React from 'react';",
     `import { ${uniqueRendererImports.join(', ')} } from '../../runtime/renderer';`,
-    `import type { NuriBehaviour${hasComponentSlots ? ', NuriCompositionEntry' : ''} } from '../../runtime/renderer';`,
+    `import type { ${rendererTypeImports.join(', ')} } from '../../runtime/renderer';`,
     `import { ${descId} } from '@nuri/spec/descriptors/${name}';`,
     "import { recipes } from '../data/recipes';",
   ];
+  if (usesImageSource || usesSlotImageSource) imports.push("import type { ImageSourcePropType } from 'react-native';");
   if (usesAccent) {
     imports.push("import { scopedByAccent } from '../../primitives/shared';");
     imports.push("import type { Accent } from '../data/tokens';");
@@ -485,6 +517,7 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
     '',
     `const ${displayNameConst} = nuriNames('${name}').rn;`,
   ];
+  if (imageWins) body.push(`let warned${Pascal}Content = false;`);
   if (refComponents.length) {
     body.push('const componentRegistry = {');
     for (const component of refComponents) {
@@ -509,9 +542,9 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
       const slotPascal = pascalPart(slot.slotName);
       const ref = refsByPart.get(slot.part);
       const slotPropNames = slotPropNamesForComponentRef(ref);
-      const requiredSlotPropNames = new Set(requiredSlotPropNamesForComponentRef(ref, slot));
+      const requiredSlotPropNames = new Set(requiredSlotPropNamesForComponentRef(ref, slot, catalog));
       if (slot.kind === 'icon-name') {
-        const nameRequired = slotPropNames.includes('name') || slot.kind === 'icon-name';
+        const nameRequired = !ref || requiredSlotPropNames.has('name');
         const propLines = [`  name${nameRequired ? '' : '?'}: IconName;`];
         for (const prop of slotPropNames.filter((p) => p !== 'name')) {
           propLines.push(`  ${prop}${requiredSlotPropNames.has(prop) ? '' : '?'}: ${slotPropTs(prop, ref, catalog)};`);
@@ -548,8 +581,14 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
     hasInput
       ? `const ${innerName} = React.forwardRef<${Pascal}Handle, ${Pascal}Props>((props, ref) => {`
       : `const ${innerName}: React.FC<${Pascal}Props> = (props) => {`,
+    ...(imageWins ? [
+      `  if (!warned${Pascal}Content && typeof __DEV__ !== 'undefined' && __DEV__ && ((props.${imageWins.iconProp} === undefined) === (props.${imageWins.sourceProp} === undefined))) {`,
+      `    warned${Pascal}Content = true;`,
+      `    console.warn('[nuri] <' + ${displayNameConst} + '> expects exactly one of "${imageWins.iconProp}" or "${imageWins.sourceProp}"; image source wins when both are provided.');`,
+      '  }',
+    ] : []),
     ...emitSelection(descriptor),
-    ...emitContent(descriptor.api, partTypeName, displayNameConst),
+    ...emitContent(descriptor.api, partTypeName, displayNameConst, usesImageSource ? 'NuriContent' : 'React.ReactNode', imageWins),
     ...emitBehaviour(descriptor.api, partTypeName),
     '',
     '  return renderDescriptorInstance({',

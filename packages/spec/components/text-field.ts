@@ -8,7 +8,9 @@
 
 import type { Descriptor } from './schema';
 
-type TextFieldAxes = {};
+type TextFieldAxes = {
+  size: 'md' | 'lg';
+};
 
 export const textFieldDescriptor: Descriptor<TextFieldAxes> = {
   structure: {
@@ -69,8 +71,17 @@ export const textFieldDescriptor: Descriptor<TextFieldAxes> = {
       },
     },
   },
+  variants: {
+    size: {
+      // Unset stays the existing 60px field. The public `md` control size maps
+      // to the 48px `lg` element leaf, matching the established naming offset.
+      md: { box: { box: { height: 'lg' } } },
+      lg: {},
+    },
+  },
+  defaults: { size: 'lg' },
   api: {
-    axes: [],
+    axes: ['size'],
     themeScope: { accent: true },
     behaviour: {
       input: {

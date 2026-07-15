@@ -285,7 +285,7 @@ export type Part = PartId;
 // `El` add (decision 65 · versioned · amendment 65.13); the coherence guard
 // (scripts/component-api.test.js Channel 2) pins el:'pressable' ≡ the
 // declared `behaviour.pressable.target` ≡ the `interactive`-flagged parts.
-export type El = 'view' | 'text' | 'icon' | 'pressable' | 'input';
+export type El = 'view' | 'text' | 'icon' | 'image' | 'pressable' | 'input';
 
 // ── The RUNTIME host/leaf partition of `El` (the PR-#132 review pass) ────────
 // The renderers and guards need the classification AT RUNTIME: HOSTS (view ·
@@ -303,6 +303,7 @@ const EL_CLASS = {
   pressable: 'host',
   text: 'leaf',
   icon: 'leaf',
+  image: 'leaf',
   input: 'control',
 } satisfies Record<El, 'host' | 'leaf' | 'control'>;
 export const HOST_ELS = (Object.keys(EL_CLASS) as El[]).filter((el) => EL_CLASS[el] === 'host');
@@ -366,19 +367,21 @@ export type Variants<A extends Axes, P extends PartId = PartId> = {
 // content (text runs · mixed icon+text · regions · repeated children) is
 // COMPOSITION-only (a flat sub-component per slot · never a named prop · the
 // operator's 2026-07-01 rule). The ONE exception: a SCALAR ref — an
-// `icon-name` is a string token like `variant`, not a subtree — MAY declare a
-// `prop` shorthand (`icon="apple"`). `part` is a descriptor-local `PartId`,
+// `icon-name` is a string token like `variant`, and `image-source` is a native
+// image-source value — either scalar kind MAY declare a `prop` shorthand
+// (`icon="apple"` / `source={...}`). `part` is a descriptor-local `PartId`,
 // validated against that descriptor's anatomy by the codegen/drift guards (not TS
 // inference · the strip wall).
-// `prop` = the scalar icon-name shorthand (ONLY legal on a singular `icon-name`
-// slot); `default: true` = the untagged-children sink (bare positional children
-// route here; mutually exclusive with `prop`; never on `icon-name`);
+// `prop` = a scalar shorthand (ONLY legal on a singular `icon-name` or
+// `image-source` slot); `default: true` = the untagged-children sink (bare
+// positional children route here; mutually exclusive with `prop`; never on a
+// scalar slot);
 // `component: true` = emit a generated marker/component for ordered composition
 // (RN `ButtonText` / web `<nuri-button-text>`); `multiple: true` = repeated
 // children, either an open `children` host or a component-declared slot sequence.
 export type SlotSpec<P extends PartId = PartId> = {
   part: P;
-  kind: 'text' | 'icon-name' | 'node' | 'region' | 'children';
+  kind: 'text' | 'icon-name' | 'image-source' | 'node' | 'region' | 'children';
   prop?: string;
   default?: true;
   component?: true;

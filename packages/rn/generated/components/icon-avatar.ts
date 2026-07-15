@@ -13,30 +13,40 @@
 
 import * as React from 'react';
 import { nuriNames, renderDescriptorInstance } from '../../runtime/renderer';
-import type { NuriBehaviour } from '../../runtime/renderer';
+import type { NuriBehaviour, NuriContent } from '../../runtime/renderer';
 import { iconAvatarDescriptor } from '@nuri/spec/descriptors/icon-avatar';
 import { recipes } from '../data/recipes';
+import type { ImageSourcePropType } from 'react-native';
 import { scopedByAccent } from '../../primitives/shared';
 import type { Accent } from '../data/tokens';
 import type { IconName } from '../data/icons';
 
 export type IconAvatarProps = {
   variant?: 'solid' | 'soft' | 'ghost' | 'subtle' | 'outline';
+  size?: 'sm' | 'md';
   accent?: Accent;
-  icon: IconName;
+  icon?: IconName;
+  source?: ImageSourcePropType;
   children?: never;
 };
 
-type IconAvatarPart = 'root' | 'icon';
+type IconAvatarPart = 'root' | 'icon' | 'image';
 
 const iconAvatarDisplayName = nuriNames('icon-avatar').rn;
+let warnedIconAvatarContent = false;
 
 const IconAvatarInner: React.FC<IconAvatarProps> = (props) => {
+  if (!warnedIconAvatarContent && typeof __DEV__ !== 'undefined' && __DEV__ && ((props.icon === undefined) === (props.source === undefined))) {
+    warnedIconAvatarContent = true;
+    console.warn('[nuri] <' + iconAvatarDisplayName + '> expects exactly one of "icon" or "source"; image source wins when both are provided.');
+  }
   const selection: Record<string, string> = {
     "variant": props.variant ?? "soft",
+    "size": props.size ?? "md",
   };
-  const content: Partial<Record<IconAvatarPart, React.ReactNode>> = {};
-  if (props.icon !== undefined) content["icon"] = props.icon;
+  const content: Partial<Record<IconAvatarPart, NuriContent>> = {};
+  if (props.icon !== undefined && props.source === undefined) content["icon"] = props.icon;
+  if (props.source !== undefined) content["image"] = props.source;
   const behaviour: NuriBehaviour<IconAvatarPart> = {};
 
   return renderDescriptorInstance({
