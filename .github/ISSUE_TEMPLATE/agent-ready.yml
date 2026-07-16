@@ -1,15 +1,17 @@
 name: Agent-ready delivery task
 description: Shape a bounded task with the evidence and authority required before it enters Ready.
+labels:
+  - agent-ready
 body:
   - type: markdown
     attributes:
       value: |
-        Complete every required section before moving this issue to `Ready` in the Nuri Delivery Project. Use canonical `owner/repo#number` references, never bare issue or PR numbers.
+        Complete every required section before moving this issue to `Ready` in the Nuri Delivery Project. Use canonical `owner/repo#number` references, never bare issue or PR numbers. Because GitHub does not enforce required form fields in private repositories, stable markers identify this contract for the shared Ready reconciler; until that gate lands, human review must reject incomplete contracts before `Ready`.
 
   - type: textarea
     id: goal
     attributes:
-      label: Goal and why
+      label: Goal and why <!-- nuri-agent-ready:goal -->
       description: State the desired outcome and why it matters to users, the product, or operations.
     validations:
       required: true
@@ -17,7 +19,7 @@ body:
   - type: textarea
     id: scope
     attributes:
-      label: Scope
+      label: Scope <!-- nuri-agent-ready:scope -->
       description: List the concrete behavior and artifacts included in this task.
     validations:
       required: true
@@ -25,7 +27,7 @@ body:
   - type: textarea
     id: non_goals
     attributes:
-      label: Non-goals
+      label: Non-goals <!-- nuri-agent-ready:non-goals -->
       description: State what must not be changed or delivered by this task.
     validations:
       required: true
@@ -33,7 +35,7 @@ body:
   - type: textarea
     id: acceptance
     attributes:
-      label: Acceptance criteria
+      label: Acceptance criteria <!-- nuri-agent-ready:acceptance -->
       description: Provide objective, independently verifiable completion criteria.
       placeholder: |
         - [ ] Observable criterion one
@@ -44,7 +46,7 @@ body:
   - type: textarea
     id: decisions
     attributes:
-      label: Human decisions already made
+      label: Human decisions already made <!-- nuri-agent-ready:decisions -->
       description: Record approved product, architecture, visual, security, or risk decisions. Write `none` when no human decision is required.
     validations:
       required: true
@@ -52,7 +54,7 @@ body:
   - type: input
     id: repository_base
     attributes:
-      label: Owning repository and base branch
+      label: Owning repository and base branch <!-- nuri-agent-ready:repository-base -->
       description: Use the canonical repository and intended base branch.
       placeholder: nuri-com/repository @ main
     validations:
@@ -61,7 +63,7 @@ body:
   - type: textarea
     id: dependencies
     attributes:
-      label: Dependencies
+      label: Dependencies <!-- nuri-agent-ready:dependencies -->
       description: Link parent/child issues, required PRs, services, or decisions with canonical references. Write `none` when independent.
       placeholder: nuri-com/repository#123
     validations:
@@ -70,7 +72,7 @@ body:
   - type: dropdown
     id: risk
     attributes:
-      label: Risk class
+      label: Risk class <!-- nuri-agent-ready:risk -->
       description: Select the highest material risk introduced by this task.
       options:
         - Low
@@ -85,7 +87,7 @@ body:
   - type: input
     id: role
     attributes:
-      label: Role
+      label: Role <!-- nuri-agent-ready:role -->
       description: Name the function assigned to the executing agent or human.
       placeholder: Implementer
     validations:
@@ -94,7 +96,7 @@ body:
   - type: textarea
     id: authority
     attributes:
-      label: Authority
+      label: Authority <!-- nuri-agent-ready:authority -->
       description: Define what may be read or changed, plus explicit exclusions and approval boundaries.
     validations:
       required: true
@@ -102,7 +104,7 @@ body:
   - type: textarea
     id: responsibility
     attributes:
-      label: Responsibility
+      label: Responsibility <!-- nuri-agent-ready:responsibility -->
       description: State the concrete artifact or outcome this role must produce.
     validations:
       required: true
@@ -110,7 +112,7 @@ body:
   - type: textarea
     id: accountability
     attributes:
-      label: Accountability evidence
+      label: Accountability evidence <!-- nuri-agent-ready:accountability -->
       description: State the evidence another party will use to verify completion independently.
     validations:
       required: true
@@ -118,7 +120,7 @@ body:
   - type: textarea
     id: verification
     attributes:
-      label: Required verification
+      label: Required verification <!-- nuri-agent-ready:verification -->
       description: List deterministic checks, CI, device/runtime proof, and independent review required for this risk class.
     validations:
       required: true
@@ -126,7 +128,7 @@ body:
   - type: textarea
     id: release_docs
     attributes:
-      label: Release and documentation evidence
+      label: Release and documentation evidence <!-- nuri-agent-ready:release-docs -->
       description: Define required artifact, deployment, rollback, monitoring, and documentation evidence. Write `not applicable` with a reason when appropriate.
     validations:
       required: true
@@ -134,11 +136,11 @@ body:
   - type: checkboxes
     id: ready_contract
     attributes:
-      label: Ready contract
+      label: Ready contract <!-- nuri-agent-ready:ready-contract -->
       options:
-        - label: All issue and PR references use canonical `owner/repo#number` form.
+        - label: All issue and PR references use canonical `owner/repo#number` form. <!-- nuri-agent-ready:ready-contract:canonical-refs -->
           required: true
-        - label: Scope, authority, acceptance, verification, and evidence requirements are complete enough for bounded execution.
+        - label: Scope, authority, acceptance, verification, and evidence requirements are complete enough for bounded execution. <!-- nuri-agent-ready:ready-contract:bounded-execution -->
           required: true
-        - label: Any unresolved human judgment has a linked `Decision Needed` record instead of being hidden in this task.
+        - label: Any unresolved human judgment has a linked `Decision Needed` record instead of being hidden in this task. <!-- nuri-agent-ready:ready-contract:decision-needed -->
           required: true
