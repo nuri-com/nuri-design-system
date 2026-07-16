@@ -1,6 +1,5 @@
 name: Agent-ready delivery task
 description: Shape a bounded task with the evidence and authority required before it enters Ready.
-title: ""
 body:
   - type: markdown
     attributes:
