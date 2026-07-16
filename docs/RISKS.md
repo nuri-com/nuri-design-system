@@ -37,16 +37,16 @@
 
 ### R7 · Fixed regions depend on asynchronous measurement
 
-- **Risk:** structural `Header` and `Footer` are absolutely positioned, while `Scroll` reserves their
-  measured heights after `onLayout`. A newly presented surface can therefore expose one frame with a
-  zero inset before the fixed-region measurement lands; keyboard/window changes make that race more
-  visible but are not its owner.
-- **Current mitigation:** the region measurements and Android keyboard offset are regression-tested;
-  Header can paint its body and safe-area strip independently, but the cosmetic split deliberately
-  does not claim to solve geometry.
-- **What would close it:** ship the one-pass Yoga fixed-region layout described in
-  [`fixed-region-yoga-refactor.md`](./fixed-region-yoga-refactor.md), including the platform and
-  composition matrix in that document.
+- **Risk:** the asynchronous Header/Footer handshake has been removed in code, but R7 cannot close until
+  physical iOS and Android verification proves first-frame and keyboard-transition behavior beyond the
+  headless structural contract.
+- **Current mitigation:** the one-pass Yoga/CSS implementation and its RN/web regression matrix are landed;
+  Header/Footer publish no geometry, Scroll is explicitly fill-or-content sized, iOS adjusts the frame,
+  Android retains zero engine inset, and only Dock keeps measurement. See
+  [`fixed-region-yoga-refactor.md`](./fixed-region-yoga-refactor.md) §13 for automated evidence.
+- **What would close it:** record the physical iOS and Android device matrix from
+  [`fixed-region-yoga-refactor.md`](./fixed-region-yoga-refactor.md) §10, then move this entry to Closed in
+  the same PR.
 
 ## Closed (2026-07-02 adjudication · one line of evidence each)
 

@@ -23,7 +23,7 @@ export const modalPanelDescriptor = {
     },
     base: {
       root: {
-        stack: { direction: 'column', align: 'stretch', fill: 'grow' },
+        stack: { direction: 'column', align: 'stretch' },
         palette: { chrome: 'canvas' },
       },
     },
@@ -37,7 +37,9 @@ export const modalPanelDescriptor = {
         },
       },
       full: {
-        root: {},
+        root: {
+          stack: { fill: 'grow-shrink' },
+        },
       },
     },
   },

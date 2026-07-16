@@ -20,7 +20,7 @@ export const modalPanelDescriptor: Descriptor<ModalPanelAxes> = {
     },
     base: {
       root: {
-        stack: { direction: 'column', align: 'stretch', fill: 'grow' },
+        stack: { direction: 'column', align: 'stretch' },
         palette: { chrome: 'canvas' },
       },
     },
@@ -34,7 +34,9 @@ export const modalPanelDescriptor: Descriptor<ModalPanelAxes> = {
         },
       },
       full: {
-        root: {},
+        root: {
+          stack: { fill: 'grow-shrink' },
+        },
       },
     },
   },

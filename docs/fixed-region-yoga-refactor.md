@@ -1,12 +1,12 @@
 # Fixed-region Yoga refactor
 
-> **Status:** deferred implementation design. The current release ships only the Header paint split
-> (`chrome="transparent"` with an independent `safeAreaChrome="canvas"`). It does **not** change fixed-region
-> geometry. This document is the implementation boundary for the later layout-engine change.
+> **Status:** landed implementation (2026-07-16). Header, Scroll, and Footer now use one-pass structural
+> layout in both projections. Automated evidence is complete; physical iOS and Android acceptance remains
+> required before R7 closes.
 
 ## 1. Decision summary
 
-Structural `Header`, `Scroll`, and `Footer` must eventually be laid out by one Yoga column instead of
+Structural `Header`, `Scroll`, and `Footer` are laid out by one Yoga column instead of
 negotiating geometry through asynchronous measurements. Header and Footer remain fixed because only the
 middle Scroll scrolls. `Dock` remains the explicit overlay primitive and may continue to publish an
 opt-in measured inset.
@@ -34,9 +34,9 @@ Screen or full ModalPanel — column, fill
 Dock — separately positioned overlay; never part of the structural column
 ```
 
-## 2. Problem being removed
+## 2. Problem removed
 
-The current runtime has two layout owners:
+The previous runtime had two layout owners:
 
 1. Header/Footer use absolute positioning and report their heights through `onLayout`.
 2. Scroll reads those heights later and turns them into content padding.
@@ -46,7 +46,7 @@ while Scroll still has no corresponding top reserve. When the measurement update
 moves. Android `adjustResize`, safe-area updates, image mounting, and autofocus can change the timing and
 make the movement easier to see, but none of them creates the underlying zero-to-measured handoff.
 
-The current implementation points are:
+The removed implementation points were:
 
 - `packages/rn/primitives/Header.tsx` and `Footer.tsx`: absolute fixed-region hosts;
 - `packages/rn/primitives/FixedRegionLayout.tsx`: measured height registry and keyboard geometry;
@@ -88,8 +88,8 @@ Header paint and Header geometry are separate contracts.
 - Omitting `safeAreaChrome` preserves the existing behavior: the Header body's chrome shows through its
   safe-area padding.
 
-Until the Yoga refactor lands, a transparent structural Header can still reveal scrolling content during
-the measurement race. Consumers must not treat the cosmetic prop as an underlap or occlusion guarantee.
+With the Yoga refactor landed, the Header clears its sibling Scroll on the first structural layout.
+`safeAreaChrome` remains a paint-only choice and does not alter inset arithmetic.
 
 ## 5. Target layout ownership
 
@@ -249,4 +249,34 @@ The refactor is complete only when:
 - physical Android and iOS tests confirm stable first layout and keyboard transitions;
 - the old measurement channels and web CSS variables have no consumers and are removed;
 - component docs describe the one-pass layout rather than the deferred state;
-- R7 in `docs/RISKS.md` is closed with the landed test evidence in the same change.
+- R7 in `docs/RISKS.md` closes only after the landed automated evidence and physical iOS/Android matrix
+  are recorded in the same change.
+
+## 13. Landed implementation and evidence (2026-07-16)
+
+- `FixedRegionLayoutProvider` now carries internal `fill | content` host geometry, one iOS frame keyboard
+  inset, raw safe-area values, and Dock measurements. Header/Footer measurement channels were deleted.
+- Screen and full Modal reuse their existing native frame hosts for the iOS keyboard inset; Android keeps
+  a zero engine inset and continues to rely on `adjustResize`.
+- Header and Footer are intrinsic, non-shrinking flow siblings. Filling Scroll uses explicit grow, shrink,
+  and minimum-height styles; sheet Scroll is intrinsic and shrinkable under the existing 82% cap.
+- The modal-panel descriptor keeps sheet mode intrinsic and applies `fill: 'grow-shrink'` only in full mode;
+  both projections were regenerated from that authored source.
+- Focus keyboard clearance is now conditional on the focused input belonging to that Scroll. Header search
+  focus leaves the sibling list Scroll unchanged, and focus-safe top calculations are Scroll-local.
+- Web Header/Footer observers, fixed-region variables, and Modal refresh hooks were removed. Dock remains
+  the only measured web fixed-region path.
+- RN regression coverage asserts initial structural styles, consumer `onLayout` stability, safe-area paint
+  and ownership, Dock measurement, iOS show/change/hide plus zero-size hardware-keyboard geometry, Android
+  event ordering, focus ownership, local focus coordinates, sheet/full geometry, and mounted-subtree
+  identity. Web coverage uses strict DOM-node identity and source guards without claiming jsdom layout.
+- Browser acceptance rendered the Modal playground with the tall iPhone 17e and compact iPhone SE
+  harnesses. In both, Header/Scroll/Footer were contiguous flow regions; full panels filled the stage,
+  overflowing content stayed inside Scroll, and the compact short sheet remained intrinsic at 61.8% of
+  its stage (below the 82% cap). Visual inspection found no region overlap, and the browser console
+  reported no warnings or errors.
+
+Physical iOS and Android device verification is still pending: the delivery environment exposed Xcode
+simulators but no attached iOS device, and Android platform tools/ADB were unavailable. R7 therefore
+remains open and the delivery PR remains draft until the device matrix in §10 is recorded. Headless tests
+and the browser harness are not treated as physical pixel-layout or keyboard-transition evidence.

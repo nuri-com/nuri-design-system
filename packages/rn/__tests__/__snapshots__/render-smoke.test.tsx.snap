@@ -2659,7 +2659,9 @@ exports[`render-smoke — the ergonomic components mount headless primitives —
     scrollEventThrottle={16}
     style={
       {
-        "flex": 1,
+        "flexGrow": 1,
+        "flexShrink": 1,
+        "minHeight": 0,
       }
     }
   >

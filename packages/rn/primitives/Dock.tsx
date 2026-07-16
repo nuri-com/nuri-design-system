@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { View as RNView } from 'react-native';
 import type { LayoutChangeEvent, ViewStyle } from 'react-native';
-import { useRegisterRegion } from './FixedRegionLayout';
+import { useRegisterDockInset } from './FixedRegionLayout';
 import { withKeys } from './shared';
 
 export type DockEdge = 'bottom' | 'top';
@@ -22,7 +22,7 @@ const DockImpl = React.forwardRef<React.ElementRef<typeof RNView>, DockProps>(({
   testID,
   onLayout,
 }, ref) => {
-  const handleLayout = useRegisterRegion(edge === 'top' ? 'dockTop' : 'dockBottom', onLayout);
+  const handleLayout = useRegisterDockInset(edge, onLayout);
 
   return (
     <RNView ref={ref} testID={testID} onLayout={handleLayout} style={edge === 'top' ? DOCK_TOP_STYLE : DOCK_BOTTOM_STYLE}>

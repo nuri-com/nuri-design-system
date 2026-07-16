@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View as RNView } from 'react-native';
 import type { LayoutChangeEvent, ViewStyle } from 'react-native';
 import type { BoxNS, PaletteNS, StackNS } from '../contract';
-import { useFixedRegionLayout, useRegisterRegion } from './FixedRegionLayout';
+import { useFixedRegionLayout } from './FixedRegionLayout';
 import { FIXED_REGION_STYLE_KEYS, numericPadding, useResolvedNode, withKeys, withSurface } from './shared';
 
 type HeaderStyleProps =
@@ -28,7 +28,6 @@ const HeaderImpl = React.forwardRef<React.ElementRef<typeof RNView>, HeaderProps
   ...props
 }, ref) => {
   const { safeAreaTop: hostSafeAreaTop } = useFixedRegionLayout();
-  const handleLayout = useRegisterRegion('header', onLayout);
   const { node } = useResolvedNode(props);
   const { node: safeAreaNode } = useResolvedNode({ chrome: safeAreaChrome });
   const resolvedViewStyle = node.view as ViewStyle;
@@ -43,7 +42,7 @@ const HeaderImpl = React.forwardRef<React.ElementRef<typeof RNView>, HeaderProps
       : null;
 
   return (
-    <RNView ref={ref} testID={testID} onLayout={handleLayout} style={[HEADER_STYLE, node.view, composedPaddingTop]}>
+    <RNView ref={ref} testID={testID} onLayout={onLayout} style={[HEADER_STYLE, node.view, composedPaddingTop]}>
       {effectiveSafeAreaTop > 0 && safeAreaChrome !== undefined ? (
         <RNView
           pointerEvents="none"
@@ -63,11 +62,8 @@ export const Header = withKeys(HeaderImpl, [
 ]);
 
 const HEADER_STYLE: ViewStyle = {
-  position: 'absolute',
-  left: 0,
-  right: 0,
-  top: 0,
-  zIndex: 2,
+  flexShrink: 0,
+  alignSelf: 'stretch',
 };
 
 const SAFE_AREA_CHROME_STYLE: ViewStyle = {

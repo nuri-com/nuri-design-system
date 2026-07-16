@@ -30,15 +30,22 @@ Column layout uses `<View>` with the schema-default direction. Rows use `directi
 | Interaction | `<nuri-pressable>` | `Pressable` | box ⊕ stack ⊕ palette ⊕ interactive |
 | Icon | `<nuri-icon>` | `NuriIcon` | typed `IconName`, dimension, colour |
 | Screen | `<nuri-screen>` | `Screen` | safe-area structure |
-| Header | `<nuri-header>` | `Header` | fixed top region |
+| Header | `<nuri-header>` | `Header` | intrinsic structural top region |
 | Scroll | `<nuri-scroll>` | `Scroll` | scroll structure and dock insets |
-| Footer | `<nuri-footer>` | `Footer` | fixed bottom region |
-| Dock | `<nuri-dock>` | `Dock` | screen-local fixed placement |
+| Footer | `<nuri-footer>` | `Footer` | intrinsic structural bottom region |
+| Dock | `<nuri-dock>` | `Dock` | screen-local measured overlay placement |
 | Separator | `<nuri-separator>` | `Separator` | semantic hairline and vertical rhythm |
 | List separator | `<nuri-list-separator>` | `ListSeparator` | fixed list inset preset |
 
 `NuriScope` is the RN theme-context mechanism; `<nuri-scope>` is its web cascade counterpart.
 `Spacer` remains a small web helper rather than a contracted public RN primitive.
+
+`Screen` and full `ModalPanel` hosts form a bounded column: intrinsic `Header`, filling-and-shrinking
+`Scroll`, then intrinsic `Footer`. A content sheet keeps the same authored order but lets `Scroll`
+remain intrinsic until the existing 82% presentation cap requires it to shrink and scroll. Header and
+Footer remain visible because only their sibling Scroll scrolls—not because either region is absolutely
+positioned. Their public `onLayout` callbacks are consumer events and do not publish sibling geometry.
+`Dock` is the deliberate exception: it stays an overlay and retains opt-in measured Scroll insets.
 
 ## Namespace CSS is not an element registry
 

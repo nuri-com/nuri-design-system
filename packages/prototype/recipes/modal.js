@@ -31,10 +31,6 @@ export class NuriModal extends HTMLElement {
     const mode = this.getAttribute('mode') === 'full' ? 'full' : 'sheet';
     const panel = this.querySelector(':scope > nuri-modal-panel');
     panel?.setAttribute('mode', mode);
-    queueMicrotask(() => {
-      panel?.querySelector(':scope > nuri-header')?.refreshRegionLayout?.();
-      panel?.querySelector(':scope > nuri-footer')?.refreshRegionLayout?.();
-    });
   }
 }
 

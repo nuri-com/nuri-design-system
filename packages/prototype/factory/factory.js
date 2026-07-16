@@ -224,11 +224,23 @@ function applyTypographyAttrs(el, typography) {
 // slice) IS its own root painting node (the chrome row · the apply-NS-to-host model
 // the old hand recipe used · full-width via the .nuri-stack block-flex), so the
 // region children flex inside it directly — no wrapper to collapse the bar width.
+const HOST_NS_STATE = new WeakMap();
+
 function applyHostNS(host, nsMap, accent) {
+  const previous = HOST_NS_STATE.get(host);
+  for (const className of previous?.classes || []) host.classList.remove(className);
+  for (const attr of previous?.attrs || []) host.removeAttribute(attr);
+  if (previous?.accent) host.removeAttribute('data-accent');
+
   const { classes, data } = mergeAttrs(nsMap);
   if (classes.length) host.classList.add(...classes);
   for (const [k, v] of Object.entries(data)) host.setAttribute(k, v);
   if (accent) host.setAttribute('data-accent', accent); // Tier-2 self-scope
+  HOST_NS_STATE.set(host, {
+    classes,
+    attrs: Object.keys(data),
+    accent: !!accent,
+  });
 }
 
 // Harvest a compound container's authored children into per-region holders (the
@@ -979,7 +991,6 @@ export function defineNuriComponent(descriptor, tagName, options = {}) {
     #label = null;
     #slots = null;
     #composition = null;
-    #openKids = null;
     #built = false;
 
     connectedCallback() {
@@ -1037,18 +1048,6 @@ export function defineNuriComponent(descriptor, tagName, options = {}) {
       // COMPOUND: harvest the region sub-elements + bare children BEFORE the render
       // replaces them (cloned per render · the topbar-slots slice).
       if (isCompound) this.#slots = harvestSlots(this, regionSlotTagToPart, defaultSlot);
-      // OPEN HOST: capture ALL authored positional children (the Tab items) into a
-      // detached <template> BEFORE the render replaces them — #render clones from it,
-      // so a re-render (an accent change) still has the content (the harvestSlots
-      // pattern, single bucket · no per-region split).
-      if (isOpenHost) {
-        const tpl = document.createElement('template');
-        for (const child of [...this.childNodes]) {
-          if (child.nodeType === 3 && !child.textContent.trim()) continue; // drop whitespace
-          tpl.content.append(child);
-        }
-        this.#openKids = tpl;
-      }
       this.#render();
       this.#built = true;
     }
@@ -1143,17 +1142,15 @@ export function defineNuriComponent(descriptor, tagName, options = {}) {
         return;
       }
 
-      // OPEN HOST (the TabBar · §7): the HOST is the root painting node — apply the
-      // root NS to it directly (the same apply-NS-to-host as compound · full-width
-      // via the .nuri-stack block-flex) and place the authored POSITIONAL children
-      // (the Tab items · cloned) inside it. The RN analogue is the root View
-      // rendering its `content.root` children; here the host IS that View (no inner
-      // <nuri-view> wrapper, so the bar row + the items' `fill:even` flex line up).
+      // OPEN HOST (the TabBar / ModalPanel · §7): the HOST is the root painting
+      // node — reconcile its root NS directly while leaving authored POSITIONAL
+      // children untouched. A live axis change updates geometry/chrome without
+      // replacing stateful descendants or dropping focus. The RN analogue is the
+      // stable root View rendering its `content.root` children; here the host IS
+      // that View (no inner <nuri-view> wrapper).
       if (isOpenHost) {
         applyHostNS(this, mergedNSForPart(descriptor, selection, 'root'), props.accent);
         if (descriptor.api?.role) this.setAttribute('role', descriptor.api.role);
-        const kids = this.#openKids ? this.#openKids.content.cloneNode(true) : document.createDocumentFragment();
-        this.replaceChildren(kids);
         return;
       }
 

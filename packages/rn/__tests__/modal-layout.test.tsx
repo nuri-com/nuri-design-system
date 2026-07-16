@@ -12,9 +12,9 @@
 
 import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { Animated, LayoutAnimation, Text } from 'react-native';
+import { Animated, LayoutAnimation, ScrollView, Text, View } from 'react-native';
 import { NuriThemeProvider } from '../theme';
-import { Modal, ModalPanel, OverlayProvider } from '../index';
+import { Header, Modal, ModalPanel, OverlayProvider, Scroll } from '../index';
 
 function render(node: React.ReactElement): TestRenderer.ReactTestRenderer {
   let tr!: TestRenderer.ReactTestRenderer;
@@ -24,10 +24,14 @@ function render(node: React.ReactElement): TestRenderer.ReactTestRenderer {
   return tr;
 }
 
-// Two hosts carry an `onLayout` in the tree: the outer KeyboardAvoidingView and
-// the sheet's Animated.View. Only the sheet view is styled with the enter-slide
-// `transform`, so anchor on that to drive `handleSheetLayout` (firing the KAV's
-// handler with a synthetic event would hit its `event.persist()` instead).
+function flatStyle(style: unknown): Record<string, unknown> {
+  return Array.isArray(style)
+    ? Object.assign({}, ...style.filter(Boolean))
+    : ((style ?? {}) as Record<string, unknown>);
+}
+
+// The animated surface is styled with the enter-slide `transform`, so anchor on
+// that stable native host to drive the presentation-height latch.
 function fireSheetLayout(tr: TestRenderer.ReactTestRenderer, height: number): void {
   const host = tr.root.find((n) => {
     if (typeof n.props?.onLayout !== 'function') return false;
@@ -187,6 +191,50 @@ describe('Modal — layout measurement latch + no LayoutAnimation arming (D3)', 
     } finally {
       timing.mockRestore();
     }
+  });
+
+  test('sheet stays intrinsic under its cap while full mode owns fill geometry', () => {
+    const tree = (mode: 'sheet' | 'full') => (
+      <NuriThemeProvider>
+        <OverlayProvider>
+          <Modal open mode={mode}>
+            <ModalPanel>
+              <Header><Text>Header</Text></Header>
+              <Scroll><Text>Body</Text></Scroll>
+            </ModalPanel>
+          </Modal>
+        </OverlayProvider>
+      </NuriThemeProvider>
+    );
+    const sheet = render(tree('sheet'));
+    const sheetSurface = sheet.root.find((node) => {
+      const style = Array.isArray(node.props.style)
+        ? Object.assign({}, ...node.props.style.filter(Boolean))
+        : node.props.style;
+      return typeof node.props.onLayout === 'function' && Array.isArray(style?.transform) && style.width === '100%';
+    });
+    const sheetPanel = sheet.root.findAllByType(View).find((node) => {
+      const style = Array.isArray(node.props.style)
+        ? Object.assign({}, ...node.props.style.filter(Boolean))
+        : node.props.style;
+      return style?.borderTopLeftRadius === 18;
+    });
+    const sheetScrollStyle = sheet.root.findByType(ScrollView).props.style;
+    expect(sheetSurface).toBeTruthy();
+    expect(flatStyle(sheetSurface.props.style).maxHeight).toEqual(expect.any(Number));
+    expect(flatStyle(sheetPanel!.props.style).flexGrow).toBeUndefined();
+    expect(flatStyle(sheetPanel!.props.style).flexShrink).toBeUndefined();
+    expect(sheetScrollStyle).toEqual({ flexShrink: 1, minHeight: 0 });
+
+    const full = render(tree('full'));
+    const fullPanel = full.root.findAllByType(View).find((node) => {
+      const style = Array.isArray(node.props.style)
+        ? Object.assign({}, ...node.props.style.filter(Boolean))
+        : node.props.style;
+      return style?.flexDirection === 'column' && style?.alignItems === 'stretch' && style?.flexGrow === 1;
+    });
+    expect(flatStyle(fullPanel!.props.style)).toMatchObject({ flexGrow: 1, flexShrink: 1 });
+    expect(full.root.findByType(ScrollView).props.style).toEqual({ flexGrow: 1, flexShrink: 1, minHeight: 0 });
   });
 
   test('changing mode preserves the mounted child instance', () => {

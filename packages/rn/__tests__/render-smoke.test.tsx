@@ -640,12 +640,14 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(onBottomDockLayout).toHaveBeenCalledTimes(1);
   });
 
-  test('Screen + Header + Scroll + Footer measure structural clearance and paint safe areas', () => {
+  test('Screen + Header + Scroll + Footer form one bounded column before layout callbacks', () => {
+    const onHeaderLayout = jest.fn();
+    const onFooterLayout = jest.fn();
     const tr = render(
       <NuriThemeProvider>
         <NuriSafeAreaProvider top={20} bottom={34}>
           <NuriScreen>
-            <NuriHeader safeAreaTop chrome="canvas" paddingY="sm">
+            <NuriHeader safeAreaTop chrome="canvas" paddingY="sm" onLayout={onHeaderLayout}>
               <Topbar>
                 <TopbarCenter><Text>Send</Text></TopbarCenter>
               </Topbar>
@@ -653,7 +655,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
             <NuriScroll>
               <Text>Body</Text>
             </NuriScroll>
-            <NuriFooter safeAreaBottom chrome="canvas" paddingY="sm" paddingX="lg">
+            <NuriFooter safeAreaBottom chrome="canvas" paddingY="sm" paddingX="lg" onLayout={onFooterLayout}>
               <Button variant="solid">Continue</Button>
             </NuriFooter>
           </NuriScreen>
@@ -661,30 +663,35 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       </NuriThemeProvider>,
     );
 
-    const fixedHosts = tr.root
-      .findAllByType(View)
-      .filter((node) => typeof node.props.onLayout === 'function')
-      .map((node) => ({ node, style: flatStyleForTest(node.props.style) }));
-    const headerHost = fixedHosts.find(({ style }) => style.top === 0 && style.zIndex === 2);
-    const footerHost = fixedHosts.find(({ style }) => style.bottom === 0 && style.zIndex === 2);
+    const headerHost = tr.root.findAllByType(View).find((node) => node.props.onLayout === onHeaderLayout);
+    const footerHost = tr.root.findAllByType(View).find((node) => node.props.onLayout === onFooterLayout);
     expect(headerHost).toBeTruthy();
     expect(footerHost).toBeTruthy();
-    expect(headerHost!.style.paddingTop).toBe(space.sm + 20);
-    expect(footerHost!.style.paddingBottom).toBe(space.sm + 34);
+    const headerStyle = flatStyleForTest(headerHost!.props.style);
+    const footerStyle = flatStyleForTest(footerHost!.props.style);
+    expect(headerStyle).toMatchObject({ flexShrink: 0, alignSelf: 'stretch', paddingTop: space.sm + 20 });
+    expect(footerStyle).toMatchObject({ flexShrink: 0, alignSelf: 'stretch', paddingBottom: space.sm + 34 });
+    expect(headerStyle.position).toBeUndefined();
+    expect(footerStyle.position).toBeUndefined();
+
+    const scroll = tr.root.findByType(ScrollView);
+    const initialScrollStyle = flatStyleForTest(scroll.props.style);
+    const initialContentStyle = flatStyleForTest(scroll.props.contentContainerStyle);
+    expect(initialScrollStyle).toEqual({ flexGrow: 1, flexShrink: 1, minHeight: 0 });
+    expect(initialContentStyle).toEqual({ flexGrow: 1 });
 
     act(() => {
-      headerHost!.node.props.onLayout({ nativeEvent: { layout: { height: 76 } } });
-      footerHost!.node.props.onLayout({ nativeEvent: { layout: { height: 90 } } });
+      headerHost!.props.onLayout({ nativeEvent: { layout: { height: 76 } } });
+      footerHost!.props.onLayout({ nativeEvent: { layout: { height: 90 } } });
     });
 
-    expect(flatStyleForTest(tr.root.findByType(ScrollView).props.contentContainerStyle)).toMatchObject({
-      flexGrow: 1,
-      paddingTop: 76,
-      paddingBottom: 90,
-    });
+    expect(flatStyleForTest(tr.root.findByType(ScrollView).props.style)).toEqual(initialScrollStyle);
+    expect(flatStyleForTest(tr.root.findByType(ScrollView).props.contentContainerStyle)).toEqual(initialContentStyle);
+    expect(onHeaderLayout).toHaveBeenCalledTimes(1);
+    expect(onFooterLayout).toHaveBeenCalledTimes(1);
   });
 
-  test('Modal — structural host renders sticky topbar, body scroll, and fixed footer', () => {
+  test('Modal — structural host renders Header, body Scroll, and Footer in authored order', () => {
     const tr = render(
       <NuriThemeProvider>
         <OverlayProvider>
