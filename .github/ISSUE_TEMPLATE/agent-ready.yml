@@ -1,0 +1,145 @@
+name: Agent-ready delivery task
+description: Shape a bounded task with the evidence and authority required before it enters Ready.
+title: ""
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Complete every required section before moving this issue to `Ready` in the Nuri Delivery Project. Use canonical `owner/repo#number` references, never bare issue or PR numbers.
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal and why
+      description: State the desired outcome and why it matters to users, the product, or operations.
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: List the concrete behavior and artifacts included in this task.
+    validations:
+      required: true
+
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-goals
+      description: State what must not be changed or delivered by this task.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Provide objective, independently verifiable completion criteria.
+      placeholder: |
+        - [ ] Observable criterion one
+        - [ ] Observable criterion two
+    validations:
+      required: true
+
+  - type: textarea
+    id: decisions
+    attributes:
+      label: Human decisions already made
+      description: Record approved product, architecture, visual, security, or risk decisions. Write `none` when no human decision is required.
+    validations:
+      required: true
+
+  - type: input
+    id: repository_base
+    attributes:
+      label: Owning repository and base branch
+      description: Use the canonical repository and intended base branch.
+      placeholder: nuri-com/repository @ main
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Link parent/child issues, required PRs, services, or decisions with canonical references. Write `none` when independent.
+      placeholder: nuri-com/repository#123
+    validations:
+      required: true
+
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Risk class
+      description: Select the highest material risk introduced by this task.
+      options:
+        - Low
+        - Product
+        - Native
+        - Security
+        - Funds
+        - Infrastructure
+    validations:
+      required: true
+
+  - type: input
+    id: role
+    attributes:
+      label: Role
+      description: Name the function assigned to the executing agent or human.
+      placeholder: Implementer
+    validations:
+      required: true
+
+  - type: textarea
+    id: authority
+    attributes:
+      label: Authority
+      description: Define what may be read or changed, plus explicit exclusions and approval boundaries.
+    validations:
+      required: true
+
+  - type: textarea
+    id: responsibility
+    attributes:
+      label: Responsibility
+      description: State the concrete artifact or outcome this role must produce.
+    validations:
+      required: true
+
+  - type: textarea
+    id: accountability
+    attributes:
+      label: Accountability evidence
+      description: State the evidence another party will use to verify completion independently.
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Required verification
+      description: List deterministic checks, CI, device/runtime proof, and independent review required for this risk class.
+    validations:
+      required: true
+
+  - type: textarea
+    id: release_docs
+    attributes:
+      label: Release and documentation evidence
+      description: Define required artifact, deployment, rollback, monitoring, and documentation evidence. Write `not applicable` with a reason when appropriate.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: ready_contract
+    attributes:
+      label: Ready contract
+      options:
+        - label: All issue and PR references use canonical `owner/repo#number` form.
+          required: true
+        - label: Scope, authority, acceptance, verification, and evidence requirements are complete enough for bounded execution.
+          required: true
+        - label: Any unresolved human judgment has a linked `Decision Needed` record instead of being hidden in this task.
+          required: true
