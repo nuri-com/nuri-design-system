@@ -1,18 +1,107 @@
-name: Agent-ready delivery task
-description: Shape a bounded task with the evidence and authority required before it enters Ready.
+name: Design-system admission/readiness task
+description: Shape a bounded design-system task with the admission, ownership, contract, and execution evidence required before Ready.
 labels:
   - agent-ready
 body:
   - type: markdown
     attributes:
       value: |
-        Complete every required section before moving this issue to `Ready` in the Nuri Delivery Project. Use canonical `owner/repo#number` references, never bare issue or PR numbers. GitHub does not hard-enforce required issue-form validations in private repositories, so during the manual pilot a human must verify this contract before moving the item to `Ready`.
+        Use this form for Nuri design-system lane work. Complete every required section before moving this issue to `Ready` in the Nuri Delivery Project. This form does not grant admission by itself: implementation, branches, PRs, or passing gates do not authorize shared-core growth. App demand is evidence, not authorization. See `docs/design-system-admission.md` for the policy. Use canonical `owner/repo#number` references, never bare issue or PR numbers. GitHub does not hard-enforce required issue-form validations in private repositories, so during the manual pilot a human must verify this contract before moving the item to `Ready`.
+
+  - type: dropdown
+    id: change_class
+    attributes:
+      label: Change class
+      description: Select the design-system admission class that governs this task.
+      options:
+        - Correction
+        - Contraction
+        - Extension
+        - Experiment
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_consumer
+    attributes:
+      label: Named current consumer / use case
+      description: Name the current app, package, screen, flow, or design use case that creates demand. App demand is evidence for admission, not authorization by itself.
+      placeholder: nuri-com/nuri-expo · onboarding flow · primary CTA variant
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround_gap
+    attributes:
+      label: Current workaround or gap
+      description: Describe the consumer workaround, inconsistency, missing reusable primitive, or broken invariant this task addresses.
+    validations:
+      required: true
+
+  - type: textarea
+    id: public_contract_impact
+    attributes:
+      label: Public / observable contract impact
+      description: State the intended effect on public APIs, generated descriptors, tokens, primitives, visual behavior, runtime behavior, documentation, or migration burden. For Corrections, explicitly confirm there is no intended public/observable delta.
+    validations:
+      required: true
+
+  - type: textarea
+    id: ownership_boundary
+    attributes:
+      label: Design-system vs consumer ownership
+      description: Explain why this belongs in the slow shared design-system core instead of a fast product edge, app wrapper, one-off composition, or consumer-owned recipe.
+    validations:
+      required: true
+
+  - type: textarea
+    id: compatibility_migration
+    attributes:
+      label: Compatibility and migration
+      description: Describe backward compatibility, migration path, deprecation/rollback plan, consumer communication, and docs. Write `not applicable` only with a concrete reason.
+    validations:
+      required: true
+
+  - type: textarea
+    id: admission_decision
+    attributes:
+      label: Admission decision owner and canonical link
+      description: Name the human design-system admission owner or contraction owner who accepted the class decision, and link the canonical decision/admission record.
+      placeholder: "Owner: @github-login · Decision: nuri-com/nuri-design-system#123"
+    validations:
+      required: true
+
+  - type: textarea
+    id: class_ready_evidence
+    attributes:
+      label: Class-specific Ready evidence
+      description: Provide the evidence for the selected class. Non-selected classes may be left as `not applicable`.
+      placeholder: |
+        Correction:
+        - Confirm no intended public/observable delta.
+        - Name the broken invariant or regression being restored.
+
+        Contraction:
+        - Link owner acceptance for removing/narrowing the contract.
+        - Document compatibility and migration.
+
+        Extension:
+        - Name the human DS admission owner.
+        - State the recurring use case or system invariant.
+        - Summarize the trade study against product-edge/app-owned alternatives.
+        - Define anti-scope and the accepted public/observable contract.
+
+        Experiment:
+        - Confirm the work is restricted to non-contract surfaces.
+        - State how promotion will require a separate Extension admission.
+    validations:
+      required: true
 
   - type: textarea
     id: goal
     attributes:
       label: Goal and why
-      description: State the desired outcome and why it matters to users, the product, or operations.
+      description: State the desired outcome and why it matters to users, the product, operations, or the design-system contract.
     validations:
       required: true
 
@@ -27,8 +116,8 @@ body:
   - type: textarea
     id: non_goals
     attributes:
-      label: Non-goals
-      description: State what must not be changed or delivered by this task.
+      label: Anti-scope / non-goals
+      description: State what must not be changed, admitted, generalized, exposed, or delivered by this task.
     validations:
       required: true
 
@@ -47,7 +136,7 @@ body:
     id: decisions
     attributes:
       label: Human decisions already made
-      description: Record approved product, architecture, visual, security, or risk decisions. Write `none` when no human decision is required.
+      description: Record approved product, architecture, visual, security, risk, or design-system admission decisions. Write `none` when no additional human decision is required.
     validations:
       required: true
 
@@ -56,7 +145,7 @@ body:
     attributes:
       label: Owning repository and base branch
       description: Use the canonical repository and intended base branch.
-      placeholder: nuri-com/repository @ main
+      placeholder: nuri-com/nuri-design-system @ main
     validations:
       required: true
 
@@ -65,7 +154,7 @@ body:
     attributes:
       label: Dependencies
       description: Link parent/child issues, required PRs, services, or decisions with canonical references. Write `none` when independent.
-      placeholder: nuri-com/repository#123
+      placeholder: nuri-com/nuri-design-system#123
     validations:
       required: true
 
@@ -121,7 +210,7 @@ body:
     id: verification
     attributes:
       label: Required verification
-      description: List deterministic checks, CI, device/runtime proof, and independent review required for this risk class.
+      description: List deterministic checks, CI, device/runtime proof, contract proof, and independent review required for this risk class. Gates prove behavior and drift only; they do not prove architecture or admission.
     validations:
       required: true
 
@@ -129,7 +218,7 @@ body:
     id: release_docs
     attributes:
       label: Release and documentation evidence
-      description: Define required artifact, deployment, rollback, monitoring, and documentation evidence. Write `not applicable` with a reason when appropriate.
+      description: Define required artifact, deployment, rollback, monitoring, migration, consumer documentation, and design-system policy evidence. Write `not applicable` with a reason when appropriate.
     validations:
       required: true
 
@@ -139,6 +228,14 @@ body:
       label: Ready contract
       options:
         - label: All issue and PR references use canonical `owner/repo#number` form.
+          required: true
+        - label: The selected class-specific Ready rule is satisfied and evidenced above.
+          required: true
+        - label: Any shared-core growth, contraction, or public/observable contract change has named human design-system admission or owner acceptance.
+          required: true
+        - label: Implementation work, branch creation, PR creation, or passing gates is not being treated as admission.
+          required: true
+        - label: App demand is being treated as evidence for admission, not authorization by itself.
           required: true
         - label: Scope, authority, acceptance, verification, and evidence requirements are complete enough for bounded execution.
           required: true

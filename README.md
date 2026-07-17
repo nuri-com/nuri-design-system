@@ -18,6 +18,15 @@ target's output is *generated* from it.
 `@nuri/spec` is **pure data** — no code, no dependencies, no generated artifacts. Every consumer is a
 **projection** that resolves spec's data into the form it needs and owns that resolution.
 
+## Admission boundary
+
+Shared design-system vocabulary is the slow shared core; product screens, app wrappers, one-off
+compositions, and local experiments are the fast product edge. Public/observable shared-core changes
+follow the [design-system admission policy](./docs/design-system-admission.md) before implementation.
+Implementation, branch creation, PRs, or green gates do not confer admission. App demand is evidence,
+not authorization by itself, and gates prove behavior/drift only — not architecture, ownership, or
+whether a concept belongs in the shared core.
+
 ## The shape
 
 ```
@@ -81,6 +90,9 @@ scripts/            the codegen — reads spec's TS SoTs, writes each projection
 
 ## How to work on it (common tasks)
 
+- **Admit shared vocabulary before building it:** use the
+  [design-system admission policy](./docs/design-system-admission.md) for Corrections, Contractions,
+  Extensions, and Experiments that touch public/observable design-system contract.
 - **Add an accent:** a ramp + one accent object + one `ACCENTS` entry in `tokens/colours.ts`. Data only.
 - **Add/edit a token:** edit the SoT in `tokens/` (dimensions · colours · typography), regenerate.
 - **Add a component:** author a descriptor in `components/` (a composition of the axis namespaces in
