@@ -33,10 +33,13 @@ Every other package is a **projection** that owns its resolution:
 
 ## How to author (the data only)
 
-- **Admission first for shared contract:** use the
-  [design-system admission policy](./docs/design-system-admission.md) before adding, contracting, or
-  experimenting with public/observable design-system vocabulary. Implementation does not confer
-  admission; app demand is evidence, not authorization by itself.
+- **Admission first for shared contract:** the DS repository is the slow shared core. Fast learning
+  normally lives in consumer repos; the DS playground/prototype may host bounded DS-owned non-contract
+  experiments, but there is no fast lane for public DS growth. Use the
+  [design-system admission policy](./docs/design-system-admission.md): the lightweight maintenance form
+  is for Corrections, internal maintenance, and bounded Experiments; the contract-admission form is for
+  Contractions, Extensions, and Mixed public/observable contract changes. Project `Ready`, not a form
+  label, is the manual-pilot authorization boundary.
 - **Tokens / accents:** edit the SoT in `tokens/` (`dimensions` · `colours` · `typography`), regenerate.
 - **Axes:** a box/stack/palette/interactive/typography axis is a data table in `axes/`.
 - **Components:** author a descriptor in `components/` — a composition of the axis namespaces in semantic
@@ -52,8 +55,10 @@ Every other package is a **projection** that owns its resolution:
 - **The 5 CI gates** ([`gates.yml`](./.github/workflows/gates.yml), all required): `spec` · `prototype` ·
   `doc` · `rn` (render-smoke + tsc) · `expo-demo` (tsc). The `rn` render-smoke renders the contract, so a
   contract change that breaks RN fails CI by construction.
-- Green gates do **not** prove architecture, ownership, or admission. They prove only the behavior/drift
-  they compare; the admission policy remains the control for shared-core growth or contraction.
+- Green gates do **not** prove architecture, ownership, recurrence, or admission. They prove only the
+  behavior/drift they compare; Expo demo evidence verifies compatibility/behavior only and is not
+  app-feature incubation. The admission policy remains the control for shared-core growth or
+  contraction.
 - Every change ships on a branch via PR into protected `main`.
 
 ## What the gates do NOT prove (the register's durable lesson)

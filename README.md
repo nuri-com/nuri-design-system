@@ -20,12 +20,13 @@ target's output is *generated* from it.
 
 ## Admission boundary
 
-Shared design-system vocabulary is the slow shared core; product screens, app wrappers, one-off
-compositions, and local experiments are the fast product edge. Public/observable shared-core changes
-follow the [design-system admission policy](./docs/design-system-admission.md) before implementation.
-Implementation, branch creation, PRs, or green gates do not confer admission. App demand is evidence,
-not authorization by itself, and gates prove behavior/drift only — not architecture, ownership, or
-whether a concept belongs in the shared core.
+The design-system repository is the slow shared core. Fast learning normally lives in the consumer
+repo that owns the product problem; the DS playground/prototype may host bounded DS-owned
+non-contract experiments, but there is no fast lane for public DS growth. Public/observable
+shared-core changes follow the [design-system admission policy](./docs/design-system-admission.md)
+before implementation. Implementation, branch creation, PRs, Expo demos, or green gates do not confer
+admission. App demand is evidence, not authorization by itself, and gates prove behavior/drift only —
+not architecture, ownership, recurrence, or whether a concept belongs in the shared core.
 
 ## The shape
 
@@ -90,9 +91,10 @@ scripts/            the codegen — reads spec's TS SoTs, writes each projection
 
 ## How to work on it (common tasks)
 
-- **Admit shared vocabulary before building it:** use the
-  [design-system admission policy](./docs/design-system-admission.md) for Corrections, Contractions,
-  Extensions, and Experiments that touch public/observable design-system contract.
+- **Use the right DS front door:** use the lightweight maintenance form for Corrections, internal
+  maintenance, and bounded non-contract Experiments; use the contract-admission form for Contractions,
+  Extensions, or Mixed public/observable contract changes. Project `Ready`, not a form label, is the
+  manual-pilot authorization boundary.
 - **Add an accent:** a ramp + one accent object + one `ACCENTS` entry in `tokens/colours.ts`. Data only.
 - **Add/edit a token:** edit the SoT in `tokens/` (dimensions · colours · typography), regenerate.
 - **Add a component:** author a descriptor in `components/` (a composition of the axis namespaces in

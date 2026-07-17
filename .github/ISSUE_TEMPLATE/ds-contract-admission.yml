@@ -1,0 +1,185 @@
+name: DS contract admission
+description: Full front door for Contractions, Extensions, and Mixed public/observable design-system contract changes.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for design-system work that removes, narrows, adds, broadens, or materially changes public/observable surface. It applies no automatic Ready label; during the manual pilot the Nuri Delivery Project `Ready` state is the only execution authorization.
+
+        **Extension** means adding, broadening, or materially changing public/observable design-system surface. **Mixed** means the same issue includes Extension admission plus Contraction migration evidence for removed, narrowed, deprecated, or compatibility-affecting existing surface. App demand is evidence, not authorization; a named human DS owner must admit the contract before execution. See `docs/design-system-admission.md`.
+
+  - type: dropdown
+    id: admission_class
+    attributes:
+      label: Admission class
+      description: Choose the public/observable contract class.
+      options:
+        - Contraction
+        - Extension
+        - Mixed
+    validations:
+      required: true
+
+  - type: input
+    id: human_ds_owner
+    attributes:
+      label: Named human DS owner
+      description: Name the human design-system owner accountable for admitting or accepting this contract decision.
+      placeholder: "@github-login"
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_consumer_use_case
+    attributes:
+      label: Current consumer / use case
+      description: Name the current consumer, screen, flow, package, or system use case that creates demand.
+      placeholder: nuri-com/nuri-expo · onboarding flow · primary CTA behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: recurrence_invariant
+    attributes:
+      label: Recurrence or system invariant
+      description: Provide evidence that this is a recurring need or a legitimate system-owned invariant, not only one app's immediate preference.
+    validations:
+      required: true
+
+  - type: textarea
+    id: ownership_argument
+    attributes:
+      label: Design-system ownership argument
+      description: Explain why ownership belongs in the slow shared design-system core instead of a consumer repo, app wrapper, one-off composition, or local recipe.
+    validations:
+      required: true
+
+  - type: textarea
+    id: trade_study
+    attributes:
+      label: Trade study
+      description: Compare composition vs component, pattern vs primitive, existing axis vs new variant, app-local vs shared, and any other relevant alternatives.
+    validations:
+      required: true
+
+  - type: textarea
+    id: anti_scope
+    attributes:
+      label: Anti-scope / refused generalization
+      description: State what is refused, deferred, consumer-owned, not generalized, or outside this admission.
+    validations:
+      required: true
+
+  - type: textarea
+    id: contract_delta
+    attributes:
+      label: Public / observable contract delta
+      description: Define the exact accepted surface change. Include components, exports, tokens, axes, descriptors, generated contracts, props, slots, primitives, providers, hooks, runtime behavior, accessibility/interaction semantics, supported platform behavior, and stable docs as relevant.
+    validations:
+      required: true
+
+  - type: textarea
+    id: migration_compatibility
+    attributes:
+      label: Migration and compatibility
+      description: Describe backward compatibility, migration path, deprecation/rollback plan, affected consumers, and documentation. Mixed admissions must include the Contraction migration evidence for removed, narrowed, deprecated, or compatibility-affecting existing surface.
+    validations:
+      required: true
+
+  - type: textarea
+    id: real_consumer_evidence
+    attributes:
+      label: Real-consumer evidence for public API/runtime behavior
+      description: For public API or runtime behavior changes, link relevant real-consumer evidence, currently Expo, such as an exact Expo PR, fixture, typecheck/build, demo, device/runtime proof, or compatibility run. A written compatibility claim alone is not sufficient. If no public API/runtime behavior changes, explain why this is not applicable.
+    validations:
+      required: true
+
+  - type: textarea
+    id: goal_scope
+    attributes:
+      label: Goal and bounded execution scope
+      description: State the desired outcome, concrete artifacts to change, and the implementation boundary after admission.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_verification
+    attributes:
+      label: Acceptance criteria and required verification
+      description: Provide objective completion criteria plus deterministic checks, CI, runtime proof, real-consumer proof, contract proof, and independent review required for this risk class.
+      placeholder: |
+        - [ ] Observable criterion one
+        - [ ] Exact verification command or evidence link
+    validations:
+      required: true
+
+  - type: input
+    id: repository_base
+    attributes:
+      label: Owning repository and base branch
+      description: Use the canonical repository and intended base branch.
+      placeholder: nuri-com/nuri-design-system @ main
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies_decisions
+    attributes:
+      label: Dependencies and human decisions
+      description: Link parent/child issues, required PRs, services, or decisions with canonical `owner/repo#number` references. Include the decision/admission record when it exists, or the Decision Needed item while pending.
+      placeholder: nuri-com/nuri-design-system#123
+    validations:
+      required: true
+
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Risk class
+      description: Select the highest material risk introduced by this contract change.
+      options:
+        - Low
+        - Product
+        - Native
+        - Security
+        - Funds
+        - Infrastructure
+    validations:
+      required: true
+
+  - type: textarea
+    id: authority_accountability
+    attributes:
+      label: Authority, responsibility, and accountability evidence
+      description: Define what may be read or changed, explicit exclusions and approval boundaries, the artifact/outcome to produce, and the evidence another party will use to verify completion independently.
+    validations:
+      required: true
+
+  - type: textarea
+    id: release_docs
+    attributes:
+      label: Release and documentation evidence
+      description: Define required artifact, deployment, rollback, monitoring, migration, consumer documentation, and design-system policy evidence. Write `not applicable` only with a concrete reason.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: admission_contract
+    attributes:
+      label: Admission contract
+      options:
+        - label: The named human DS owner above accepts responsibility for the class decision and admitted public/observable contract.
+          required: true
+        - label: Any Extension adds, broadens, or materially changes public/observable surface only within the owner-accepted contract delta and anti-scope above.
+          required: true
+        - label: Any Contraction has affected-consumer, compatibility, migration, deprecation/rollback, and documentation evidence above.
+          required: true
+        - label: Any Mixed item includes both Extension admission evidence and Contraction migration evidence above.
+          required: true
+        - label: Relevant real-consumer evidence is linked for public API/runtime behavior changes; a written compatibility claim alone is not being treated as sufficient.
+          required: true
+        - label: No form field, label, assignment, branch, PR, implementation, or green gate is being treated as Project `Ready` authorization.
+          required: true
+        - label: No public/observable DS growth is being routed through a maintenance form, bounded Experiment, playground, prototype, Expo demo, or other fast lane.
+          required: true
+        - label: All issue and PR references use canonical `owner/repo#number` form.
+          required: true
