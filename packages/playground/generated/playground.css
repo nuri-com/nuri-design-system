@@ -2969,9 +2969,11 @@ nuri-demo:not(:defined) {
     --nuri-scroll-safe-area-bottom: 0px;
     --nuri-scroll-dock-top: 0px;
     --nuri-scroll-dock-bottom: 0px;
+    --nuri-scroll-overlay-top: 0px;
     padding-block-start: calc(
       var(--nuri-scroll-safe-area-top) +
-      var(--nuri-scroll-dock-top)
+      var(--nuri-scroll-dock-top) +
+      var(--nuri-scroll-overlay-top)
     );
     padding-block-end: calc(
       var(--nuri-scroll-safe-area-bottom) +
@@ -3685,6 +3687,19 @@ nuri-demo:not(:defined) {
     max-block-size: min(82%, max-content);
     overflow: hidden;
     pointer-events: auto;
+  }
+
+  /* Opted-in Modal Headers keep safe-area padding in flow while the fixed 2xl
+   * Topbar overlays Scroll. The matching content inset preserves the ordinary
+   * initial position below Topbar; scrolling can then move content behind it.
+   * Default Modal Headers remain fully structural. */
+  :is(nuri-modal[scroll-under-topbar], nuri-bottom-sheet[scroll-under-topbar]) > :is(nuri-modal-panel, nuri-bottom-sheet-panel) > nuri-header > .nuri-header {
+    z-index: 2;
+    margin-block-end: calc(-1 * var(--nuri-size-2xl));
+  }
+
+  :is(nuri-modal[scroll-under-topbar], nuri-bottom-sheet[scroll-under-topbar]) > :is(nuri-modal-panel, nuri-bottom-sheet-panel) > nuri-scroll > .nuri-scroll > .nuri-scroll__content {
+    --nuri-scroll-overlay-top: var(--nuri-size-2xl);
   }
 
   :is(nuri-modal, nuri-bottom-sheet)[mode="full"]::before {

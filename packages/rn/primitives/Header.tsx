@@ -2,6 +2,7 @@ import * as React from 'react';
 import { View as RNView } from 'react-native';
 import type { LayoutChangeEvent, ViewStyle } from 'react-native';
 import type { BoxNS, PaletteNS, StackNS } from '../contract';
+import { size } from '../generated/data/tokens';
 import { useFixedRegionLayout } from './FixedRegionLayout';
 import { FIXED_REGION_STYLE_KEYS, numericPadding, useResolvedNode, withKeys, withSurface } from './shared';
 
@@ -27,7 +28,7 @@ const HeaderImpl = React.forwardRef<React.ElementRef<typeof RNView>, HeaderProps
   onLayout,
   ...props
 }, ref) => {
-  const { safeAreaTop: hostSafeAreaTop } = useFixedRegionLayout();
+  const { headerPresentation, safeAreaTop: hostSafeAreaTop } = useFixedRegionLayout();
   const { node } = useResolvedNode(props);
   const { node: safeAreaNode } = useResolvedNode({ chrome: safeAreaChrome });
   const resolvedViewStyle = node.view as ViewStyle;
@@ -42,7 +43,17 @@ const HeaderImpl = React.forwardRef<React.ElementRef<typeof RNView>, HeaderProps
       : null;
 
   return (
-    <RNView ref={ref} testID={testID} onLayout={onLayout} style={[HEADER_STYLE, node.view, composedPaddingTop]}>
+    <RNView
+      ref={ref}
+      testID={testID}
+      onLayout={onLayout}
+      style={[
+        HEADER_STYLE,
+        headerPresentation === 'overlay' ? MODAL_OVERLAY_HEADER_STYLE : null,
+        node.view,
+        composedPaddingTop,
+      ]}
+    >
       {effectiveSafeAreaTop > 0 && safeAreaChrome !== undefined ? (
         <RNView
           pointerEvents="none"
@@ -64,6 +75,16 @@ export const Header = withKeys(HeaderImpl, [
 const HEADER_STYLE: ViewStyle = {
   flexShrink: 0,
   alignSelf: 'stretch',
+};
+
+// An opted-in Modal lets content scroll beneath its fixed 2xl Topbar while
+// safe-area padding remains structural. The negative margin removes only the
+// authored Topbar block from Yoga flow; Scroll restores that token as initial
+// content padding and Header keeps its full hit-test bounds.
+const MODAL_OVERLAY_HEADER_STYLE: ViewStyle = {
+  position: 'relative',
+  zIndex: 2,
+  marginBottom: -size['2xl'],
 };
 
 const SAFE_AREA_CHROME_STYLE: ViewStyle = {

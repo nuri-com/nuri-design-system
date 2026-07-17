@@ -89,9 +89,11 @@
     --nuri-scroll-safe-area-bottom: 0px;
     --nuri-scroll-dock-top: 0px;
     --nuri-scroll-dock-bottom: 0px;
+    --nuri-scroll-overlay-top: 0px;
     padding-block-start: calc(
       var(--nuri-scroll-safe-area-top) +
-      var(--nuri-scroll-dock-top)
+      var(--nuri-scroll-dock-top) +
+      var(--nuri-scroll-overlay-top)
     );
     padding-block-end: calc(
       var(--nuri-scroll-safe-area-bottom) +

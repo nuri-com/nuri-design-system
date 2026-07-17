@@ -25,7 +25,7 @@ export function AmountSheet({
   return (
     <Modal open={open} mode="full" onOpenChange={(next) => !next && onClose()}>
       <ModalPanel>
-        <Header safeAreaTop>
+        <Header safeAreaTop chrome="transparent" safeAreaChrome="canvas">
           <Topbar surface="transparent">
             <TopbarTrailing>
               <IconButton icon="cross" variant="soft" accessibilityLabel="Close amount sheet" onPress={onClose} />

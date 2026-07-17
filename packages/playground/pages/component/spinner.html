@@ -15,9 +15,9 @@
     <template>
       <nuri-view chrome="canvas" fill></nuri-view>
 
-      <nuri-modal open mode="full">
+      <nuri-modal open mode="full" scroll-under-topbar>
         <nuri-modal-panel>
-        <nuri-header safe-area-top>
+        <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
           <nuri-topbar surface="transparent">
             <nuri-topbar-trailing>
               <nuri-icon-button icon="download" variant="soft" aria-label="Download"></nuri-icon-button>

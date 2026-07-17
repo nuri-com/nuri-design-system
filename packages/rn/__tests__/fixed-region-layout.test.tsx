@@ -141,6 +141,10 @@ describe('FixedRegionLayoutProvider keyboard frame geometry', () => {
     act(() => handlers.keyboardWillChangeFrame?.(grow));
     expect(current.frameKeyboardInset).toBe(360);
 
+    const dismissFrame = { endCoordinates: { height: 360, screenY: 800 } } as KeyboardEvent;
+    act(() => handlers.keyboardWillChangeFrame?.(dismissFrame));
+    expect(current.frameKeyboardInset).toBe(360);
+
     const hardwareKeyboard = { endCoordinates: { height: 0, screenY: 0 } } as KeyboardEvent;
     act(() => handlers.keyboardWillChangeFrame?.(hardwareKeyboard));
     expect(current.frameKeyboardInset).toBe(0);
@@ -148,10 +152,10 @@ describe('FixedRegionLayoutProvider keyboard frame geometry', () => {
     const hide = { endCoordinates: { height: 0, screenY: 800 } } as KeyboardEvent;
     act(() => handlers.keyboardWillHide?.(hide));
     expect(current.frameKeyboardInset).toBe(0);
-    expect(schedule.mock.calls.map(([event]) => event)).toEqual([show, grow, hardwareKeyboard, hide]);
+    expect(schedule.mock.calls.map(([event]) => event)).toEqual([show, grow, hardwareKeyboard]);
   });
 
-  test('Android adjustResize keeps the frame inset at zero before and after a window resize', () => {
+  test('Android applies only keyboard occlusion not already consumed by a window resize', () => {
     Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'android' });
     const handlers: Partial<Record<string, (event: KeyboardEvent) => void>> = {};
     jest.spyOn(Keyboard, 'addListener').mockImplementation((eventName, callback) => {
@@ -172,9 +176,38 @@ describe('FixedRegionLayoutProvider keyboard frame geometry', () => {
     expect(handlers.keyboardDidShow).toEqual(expect.any(Function));
     expect(handlers.keyboardWillChangeFrame).toBeUndefined();
     act(() => handlers.keyboardDidShow?.({ endCoordinates: { height: 280, screenY: 520 } } as KeyboardEvent));
-    expect(current.frameKeyboardInset).toBe(0);
+    expect(current.frameKeyboardInset).toBe(280);
 
     act(() => tr.update(tree(520)));
     expect(current.frameKeyboardInset).toBe(0);
   });
+
+  test('Android screen geometry includes the system-bar strip omitted from keyboard height', () => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'android' });
+    const handlers: Partial<Record<string, (event: KeyboardEvent) => void>> = {};
+    jest.spyOn(Keyboard, 'addListener').mockImplementation((eventName, callback) => {
+      handlers[eventName] = callback;
+      return { remove: () => undefined } as never;
+    });
+    let current!: ReturnType<typeof useFixedRegionLayout>;
+
+    act(() => {
+      TestRenderer.create(
+        <FixedRegionLayoutProvider hostGeometry="fill" keyboardEnabled windowHeight={914.2857}>
+          <LayoutProbe onValue={(value) => (current = value)} />
+        </FixedRegionLayoutProvider>,
+      );
+    });
+
+    act(() => handlers.keyboardDidShow?.({
+      endCoordinates: { height: 340.9524, screenY: 549.3333 },
+    } as KeyboardEvent));
+
+    // Physical Expo Go evidence: 914 - 549 = 365. The 341dp event height
+    // excludes the 24dp navigation strip, so height alone would overlap it.
+    expect(current.keyboardHeight).toBe(341);
+    expect(current.keyboardScreenY).toBe(549);
+    expect(current.frameKeyboardInset).toBe(365);
+  });
+
 });

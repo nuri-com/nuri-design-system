@@ -3,10 +3,12 @@ import { Keyboard, Platform, useWindowDimensions } from 'react-native';
 import type { KeyboardEvent, LayoutChangeEvent } from 'react-native';
 
 export type FixedRegionHostGeometry = 'fill' | 'content';
+export type FixedRegionHeaderPresentation = 'structural' | 'overlay';
 
 export type FixedRegionLayoutValue = {
   keyboardEnabled: boolean;
   hostGeometry: FixedRegionHostGeometry;
+  headerPresentation: FixedRegionHeaderPresentation;
   keyboardHeight: number;
   keyboardScreenY: number | null;
   frameKeyboardInset: number;
@@ -23,6 +25,7 @@ export type FixedRegionLayoutProviderProps = {
   children?: React.ReactNode;
   keyboardEnabled?: boolean;
   hostGeometry?: FixedRegionHostGeometry;
+  headerPresentation?: FixedRegionHeaderPresentation;
   safeAreaTop?: number;
   safeAreaBottom?: number;
   viewportFallbackHeight?: number;
@@ -32,6 +35,7 @@ export type FixedRegionLayoutProviderProps = {
 const DEFAULT_LAYOUT_VALUE: FixedRegionLayoutValue = {
   keyboardEnabled: false,
   hostGeometry: 'fill',
+  headerPresentation: 'structural',
   keyboardHeight: 0,
   keyboardScreenY: null,
   frameKeyboardInset: 0,
@@ -49,11 +53,24 @@ function normalizeInset(value: number | undefined): number {
   return Number.isFinite(value) ? Math.max(0, Math.round(value ?? 0)) : 0;
 }
 
-function resolveFrameKeyboardInset(height: number, screenY: number | null, windowHeight: number): number {
-  // Android consumers use adjustResize: the window is already reduced to the
-  // keyboard-safe height. Event coordinates must never create a second inset,
-  // regardless of whether the event or dimension update arrives first.
-  if (Platform.OS === 'android') return 0;
+function resolveFrameKeyboardInset(
+  height: number,
+  screenY: number | null,
+  windowHeight: number,
+  baselineWindowHeight: number,
+): number {
+  // Android usually publishes a resized window, but translucent system chrome
+  // and Expo Go can leave some or all of the keyboard over the frame. RN's
+  // Android event height excludes the bottom system-bar strip, while screenY
+  // identifies the keyboard's actual top edge. Use whichever residual is
+  // larger so edge-to-edge hosts include that strip without double-applying
+  // keyboard space already consumed by adjustResize.
+  if (Platform.OS === 'android') {
+    const viewportShrink = Math.max(0, baselineWindowHeight - windowHeight);
+    const heightResidual = Math.max(0, height - viewportShrink);
+    const frameResidual = screenY !== null ? Math.max(0, windowHeight - screenY) : 0;
+    return Math.max(0, Math.round(Math.max(heightResidual, frameResidual)));
+  }
   if (height > 0) return Math.round(height);
   return screenY !== null ? Math.max(0, Math.round(windowHeight - screenY)) : 0;
 }
@@ -74,6 +91,7 @@ export const FixedRegionLayoutProvider: React.FC<FixedRegionLayoutProviderProps>
   children,
   keyboardEnabled = false,
   hostGeometry = 'fill',
+  headerPresentation = 'structural',
   safeAreaTop = 0,
   safeAreaBottom = 0,
   viewportFallbackHeight,
@@ -81,10 +99,24 @@ export const FixedRegionLayoutProvider: React.FC<FixedRegionLayoutProviderProps>
 }) => {
   const dimensions = useWindowDimensions();
   const effectiveWindowHeight = windowHeight ?? dimensions.height;
+  const baselineWindowHeight = React.useRef(effectiveWindowHeight);
+  const baselineWindowWidth = React.useRef(dimensions.width);
+  const effectiveWindowHeightRef = React.useRef(effectiveWindowHeight);
   const [dockTopInset, setDockTopInset] = React.useState(0);
   const [dockBottomInset, setDockBottomInset] = React.useState(0);
   const [keyboardHeight, setKeyboardHeight] = React.useState(0);
   const [keyboardScreenY, setKeyboardScreenY] = React.useState<number | null>(null);
+
+  effectiveWindowHeightRef.current = effectiveWindowHeight;
+
+  React.useEffect(() => {
+    if (baselineWindowWidth.current !== dimensions.width && keyboardHeight === 0) {
+      baselineWindowWidth.current = dimensions.width;
+      baselineWindowHeight.current = effectiveWindowHeight;
+    } else if (effectiveWindowHeight > baselineWindowHeight.current) {
+      baselineWindowHeight.current = effectiveWindowHeight;
+    }
+  }, [dimensions.width, effectiveWindowHeight, keyboardHeight]);
 
   React.useEffect(() => {
     if (!keyboardEnabled) {
@@ -99,15 +131,28 @@ export const FixedRegionLayoutProvider: React.FC<FixedRegionLayoutProviderProps>
       setKeyboardHeight(next.height);
       setKeyboardScreenY(next.screenY);
     };
-    const clearKeyboardFrame = (event: KeyboardEvent) => {
+    const updateChangingKeyboardFrame = (event: KeyboardEvent) => {
+      const next = keyboardFrame(event);
+      // iOS emits an off-screen change immediately before willHide. Scheduling
+      // that event leaves a pending keyboard-duration LayoutAnimation which the
+      // following clear would consume. Hide is intentionally asymmetric: the
+      // footer may release behind the departing keyboard without trailing it.
+      if (
+        next.screenY !== null &&
+        next.screenY >= Math.round(effectiveWindowHeightRef.current)
+      ) return;
       scheduleKeyboardLayout(event);
+      setKeyboardHeight(next.height);
+      setKeyboardScreenY(next.screenY);
+    };
+    const clearKeyboardFrame = (_event: KeyboardEvent) => {
       setKeyboardHeight(0);
       setKeyboardScreenY(null);
     };
 
     if (Platform.OS === 'ios') {
       const showSub = Keyboard.addListener('keyboardWillShow', updateKeyboardFrame);
-      const changeSub = Keyboard.addListener('keyboardWillChangeFrame', updateKeyboardFrame);
+      const changeSub = Keyboard.addListener('keyboardWillChangeFrame', updateChangingKeyboardFrame);
       const hideSub = Keyboard.addListener('keyboardWillHide', clearKeyboardFrame);
       return () => {
         showSub.remove();
@@ -125,13 +170,19 @@ export const FixedRegionLayoutProvider: React.FC<FixedRegionLayoutProviderProps>
   }, [keyboardEnabled]);
 
   const frameKeyboardInset = keyboardEnabled
-    ? resolveFrameKeyboardInset(keyboardHeight, keyboardScreenY, effectiveWindowHeight)
+    ? resolveFrameKeyboardInset(
+        keyboardHeight,
+        keyboardScreenY,
+        effectiveWindowHeight,
+        baselineWindowHeight.current,
+      )
     : 0;
 
   const value = React.useMemo<FixedRegionLayoutValue>(
     () => ({
       keyboardEnabled,
       hostGeometry,
+      headerPresentation,
       keyboardHeight,
       keyboardScreenY,
       frameKeyboardInset,
@@ -146,6 +197,7 @@ export const FixedRegionLayoutProvider: React.FC<FixedRegionLayoutProviderProps>
     [
       keyboardEnabled,
       hostGeometry,
+      headerPresentation,
       keyboardHeight,
       keyboardScreenY,
       frameKeyboardInset,

@@ -31,6 +31,7 @@ export type ModalScrim = 'none' | 'dim';
 export type ModalProps = {
   open?: boolean;
   mode: ModalMode;
+  scrollUnderTopbar?: boolean;
   scrim?: ModalScrim;
   dismissible?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -108,6 +109,7 @@ function isDev(): boolean {
 export const Modal: React.FC<ModalProps> = ({
   open = false,
   mode,
+  scrollUnderTopbar = false,
   scrim,
   dismissible = true,
   onOpenChange,
@@ -215,6 +217,7 @@ export const Modal: React.FC<ModalProps> = ({
             <FixedRegionLayoutProvider
               keyboardEnabled={!isSheet}
               hostGeometry={isSheet ? 'content' : 'fill'}
+              headerPresentation={scrollUnderTopbar ? 'overlay' : 'structural'}
               safeAreaTop={isSheet ? 0 : safeAreaInsets.top}
               safeAreaBottom={safeAreaInsets.bottom}
               viewportFallbackHeight={isSheet ? sheetMaxHeight : windowHeight}

@@ -139,4 +139,27 @@ test('fixed-region sources encode one-pass flow and no obsolete web handshake', 
   assert.match(scrollCss, /flex-shrink:\s*1/);
   assert.match(modalCss, /--nuri-scroll-flex-grow:\s*0/);
   assert.match(modalCss, /\[mode="full"\][^{]*\{[^}]*--nuri-scroll-flex-grow:\s*1/s);
+  assert.match(modalCss, /\[scroll-under-topbar\][^{]*nuri-header\s*>\s*\.nuri-header[^{]*\{[^}]*margin-block-end:\s*calc\(-1\s*\*\s*var\(--nuri-size-2xl\)\)/s);
+  assert.match(modalCss, /\[scroll-under-topbar\][^{]*nuri-scroll\s*>\s*\.nuri-scroll\s*>\s*\.nuri-scroll__content[^{]*\{[^}]*--nuri-scroll-overlay-top:\s*var\(--nuri-size-2xl\)/s);
+  assert.match(scrollCss, /padding-block-start:\s*calc\([\s\S]*?var\(--nuri-scroll-overlay-top\)[\s\S]*?\);/);
+});
+
+test('demo compositions opt into Topbar overlap and bottom ownership deliberately', async () => {
+  const [modalPage, countryPage, activitySheet, formSheet, countrySheet] = await Promise.all([
+    source('../../playground/pages/component/modal.html'),
+    source('../../playground/pages/country-picker.html'),
+    source('../../expo-demo/src/sheets/ActivitySheet.tsx'),
+    source('../../expo-demo/src/sheets/FormSheet.tsx'),
+    source('../../expo-demo/src/sheets/CountryPickerSheet.tsx'),
+  ]);
+
+  assert.equal((modalPage.match(/<nuri-modal open mode="full" scroll-under-topbar>/g) ?? []).length, 3);
+  assert.match(activitySheet, /<Modal open=\{open\} mode="full" scrollUnderTopbar/);
+  assert.equal((formSheet.match(/\bscrollUnderTopbar\b/g) ?? []).length, 2);
+  assert.doesNotMatch(countryPage, /scroll-under-topbar/);
+  assert.doesNotMatch(countrySheet, /scrollUnderTopbar/);
+  assert.equal((countryPage.match(/<nuri-footer\b/g) ?? []).length, 3);
+  assert.equal((countrySheet.match(/<Footer\b/g) ?? []).length, 2);
+  assert.doesNotMatch(countryPage, /<nuri-scroll safe-area-bottom/);
+  assert.doesNotMatch(countrySheet, /<Scroll safeAreaBottom/);
 });

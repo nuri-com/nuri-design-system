@@ -37,8 +37,12 @@ const ScreenFrame: React.FC<ScreenFrameProps> = ({
   requestedSafeAreaBottom,
   viewRef,
 }) => {
-  const { frameKeyboardInset } = useFixedRegionLayout();
-  const bottomInset = frameKeyboardInset > 0 ? frameKeyboardInset : requestedSafeAreaBottom;
+  const { frameKeyboardInset, keyboardHeight } = useFixedRegionLayout();
+  const bottomInset = frameKeyboardInset > 0
+    ? frameKeyboardInset
+    : keyboardHeight > 0
+      ? 0
+      : requestedSafeAreaBottom;
   const insetStyle: ViewStyle = {};
   if (requestedSafeAreaTop > 0) insetStyle.paddingTop = requestedSafeAreaTop;
   if (bottomInset > 0) insetStyle.paddingBottom = bottomInset;

@@ -25,14 +25,18 @@ const FooterImpl = React.forwardRef<React.ElementRef<typeof RNView>, FooterProps
   onLayout,
   ...props
 }, ref) => {
-  const { frameKeyboardInset, safeAreaBottom: hostSafeAreaBottom } = useFixedRegionLayout();
+  const { keyboardHeight, safeAreaBottom: hostSafeAreaBottom } = useFixedRegionLayout();
   const { node } = useResolvedNode(props);
   const resolvedViewStyle = node.view as ViewStyle;
   const authoredPaddingBottom =
     props.paddingBottom !== undefined
       ? numericPadding(resolvedViewStyle, 'paddingBottom')
       : numericPadding(resolvedViewStyle, 'paddingVertical');
-  const activeSafeAreaBottom = safeAreaBottom && frameKeyboardInset === 0 ? hostSafeAreaBottom : 0;
+  // Keyboard visibility and residual frame occlusion are different signals on
+  // Android: adjustResize can consume the full keyboard and leave a zero frame
+  // inset while the keyboard is still visible. Do not restore the system-bar
+  // safe-area reserve until the keyboard actually hides.
+  const activeSafeAreaBottom = safeAreaBottom && keyboardHeight === 0 ? hostSafeAreaBottom : 0;
   const composedPaddingBottom =
     authoredPaddingBottom > 0 || activeSafeAreaBottom > 0
       ? { paddingBottom: authoredPaddingBottom + activeSafeAreaBottom }

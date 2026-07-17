@@ -30,7 +30,7 @@ Column layout uses `<View>` with the schema-default direction. Rows use `directi
 | Interaction | `<nuri-pressable>` | `Pressable` | box ⊕ stack ⊕ palette ⊕ interactive |
 | Icon | `<nuri-icon>` | `NuriIcon` | typed `IconName`, dimension, colour |
 | Screen | `<nuri-screen>` | `Screen` | safe-area structure |
-| Header | `<nuri-header>` | `Header` | intrinsic structural top region |
+| Header | `<nuri-header>` | `Header` | structural top region; Modal may explicitly overlay its Topbar block |
 | Scroll | `<nuri-scroll>` | `Scroll` | scroll structure and dock insets |
 | Footer | `<nuri-footer>` | `Footer` | intrinsic structural bottom region |
 | Dock | `<nuri-dock>` | `Dock` | screen-local measured overlay placement |
@@ -42,10 +42,15 @@ Column layout uses `<View>` with the schema-default direction. Rows use `directi
 
 `Screen` and full `ModalPanel` hosts form a bounded column: intrinsic `Header`, filling-and-shrinking
 `Scroll`, then intrinsic `Footer`. A content sheet keeps the same authored order but lets `Scroll`
-remain intrinsic until the existing 82% presentation cap requires it to shrink and scroll. Header and
-Footer remain visible because only their sibling Scroll scrolls—not because either region is absolutely
-positioned. Their public `onLayout` callbacks are consumer events and do not publish sibling geometry.
-`Dock` is the deliberate exception: it stays an overlay and retains opt-in measured Scroll insets.
+remain intrinsic until the existing 82% presentation cap requires it to shrink and scroll. Screen Header
+and every Footer remain visible because only their sibling Scroll scrolls—not because either region is
+absolutely positioned. Modal can opt in with `scrollUnderTopbar` (`scroll-under-topbar` on web): Header
+retains the structural safe-area reserve while its transparent, generated-2xl Topbar block overlays Scroll,
+and Scroll initially reserves that same 2xl block in its content. Content therefore starts below Topbar,
+then becomes visible behind it while scrolling, but never enters the safe area. The default remains structural.
+Focus-scroll clears an opted-in overlay without measuring it.
+Public `onLayout` callbacks remain consumer events and do not publish sibling geometry. `Dock` is the
+general-purpose overlay exception and retains opt-in measured Scroll insets.
 
 ## Namespace CSS is not an element registry
 

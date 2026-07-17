@@ -35,20 +35,13 @@
 - **What would close it:** the first real app screen shipped on the DS on RN — composed purely of
   descriptors + primitives, no page-local escape hatches.
 
-### R7 · Fixed regions depend on asynchronous measurement
+## Closed
 
-- **Risk:** the asynchronous Header/Footer handshake has been removed in code, but R7 cannot close until
-  physical iOS and Android verification proves first-frame and keyboard-transition behavior beyond the
-  headless structural contract.
-- **Current mitigation:** the one-pass Yoga/CSS implementation and its RN/web regression matrix are landed;
-  Header/Footer publish no geometry, Scroll is explicitly fill-or-content sized, iOS adjusts the frame,
-  Android retains zero engine inset, and only Dock keeps measurement. See
-  [`fixed-region-yoga-refactor.md`](./fixed-region-yoga-refactor.md) §13 for automated evidence.
-- **What would close it:** record the physical iOS and Android device matrix from
-  [`fixed-region-yoga-refactor.md`](./fixed-region-yoga-refactor.md) §10, then move this entry to Closed in
-  the same PR.
-
-## Closed (2026-07-02 adjudication · one line of evidence each)
+- **R7 · Fixed regions depend on asynchronous measurement** — closed 2026-07-17: Header/Footer geometry is
+  one-pass Yoga/CSS with no measurement handshake; only Dock retains measured overlay insets. The automated
+  and browser matrix plus physical Android and iOS Expo Go acceptance—including first autofocus, keyboard
+  transitions, Footer pinning, safe-area restoration, and transparent Topbar under-scroll—is recorded in
+  [`fixed-region-yoga-refactor.md`](./fixed-region-yoga-refactor.md) §§10 and 13.
 
 - **R2 · pipeline schema validated late** — superseded: the CSS→DTCG→Style-Dictionary pipeline it
   worried about no longer exists; the spec is TS data, the descriptor schema is FROZEN and pinned

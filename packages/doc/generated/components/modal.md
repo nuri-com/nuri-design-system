@@ -15,6 +15,7 @@ nav_order: 21
 | --- | --- | --- | --- |
 | `open` | no | `boolean` | modal behaviour |
 | `mode` | yes | `'sheet' | 'full'` | presentation mode |
+| `scrollUnderTopbar` | no | `boolean` | component prop |
 | `scrim` | no | `'none' | 'dim'` | sheet-mode behaviour |
 | `dismissible` | no | `boolean` | modal behaviour |
 | `onOpenChange` | no | `(open: boolean) => void` | modal behaviour |

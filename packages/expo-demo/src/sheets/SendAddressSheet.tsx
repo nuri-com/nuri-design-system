@@ -21,7 +21,7 @@ export function SendAddressSheet({ open, onClose }: { open: boolean; onClose: ()
   return (
     <Modal open={open} mode="full" onOpenChange={(next) => !next && onClose()}>
       <ModalPanel>
-        <Header safeAreaTop>
+        <Header safeAreaTop chrome="transparent" safeAreaChrome="canvas">
           <Topbar surface="transparent">
             <TopbarTrailing>
               <IconButton icon="chevron-left" variant="soft" accessibilityLabel="Back" onPress={onClose} />

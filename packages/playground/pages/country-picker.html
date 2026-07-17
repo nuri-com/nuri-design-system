@@ -29,7 +29,7 @@
         <nuri-view chrome="canvas" fill></nuri-view>
         <nuri-modal open mode="full">
           <nuri-modal-panel>
-            <nuri-header safe-area-top>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
               <nuri-topbar surface="transparent">
                 <nuri-topbar-leading>
                   <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
@@ -43,7 +43,7 @@
               </nuri-topbar>
             </nuri-header>
 
-            <nuri-scroll safe-area-bottom>
+            <nuri-scroll>
               <nuri-view direction="column" align="stretch" justify="start" gap="xl" padding-x="lg" padding-top="xl" padding-bottom="lg">
                 <nuri-select-field aria-label="Country" accessibility-value="Germany">
                   <nuri-select-field-label>Country</nuri-select-field-label>
@@ -66,6 +66,17 @@
                 </nuri-view>
               </nuri-view>
             </nuri-scroll>
+
+            <nuri-footer
+              safe-area-bottom
+              chrome="strong"
+              direction="column"
+              align="stretch"
+              padding-y="sm"
+              padding-x="lg"
+            >
+              <nuri-button size="lg" variant="solid" accent="lilac">Request code</nuri-button>
+            </nuri-footer>
           </nuri-modal-panel>
         </nuri-modal>
       </nuri-screen>
@@ -79,8 +90,8 @@
         <nuri-view chrome="canvas" fill></nuri-view>
         <nuri-modal open mode="full">
           <nuri-modal-panel>
-            <nuri-header safe-area-top chrome="canvas">
-              <nuri-topbar layout="fluid">
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
                 <nuri-topbar-leading>
                   <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back to verify phone"></nuri-icon-button>
                 </nuri-topbar-leading>
@@ -92,7 +103,7 @@
               </nuri-topbar>
             </nuri-header>
 
-            <nuri-scroll safe-area-bottom>
+            <nuri-scroll>
               <nuri-view padding-top="sm">
                 <nuri-list>
                 <nuri-list-action aria-label="Germany, +49">
@@ -138,6 +149,8 @@
                 </nuri-list>
               </nuri-view>
             </nuri-scroll>
+
+            <nuri-footer safe-area-bottom chrome="strong" padding-y="sm"></nuri-footer>
           </nuri-modal-panel>
         </nuri-modal>
       </nuri-screen>
@@ -151,8 +164,8 @@
         <nuri-view chrome="canvas" fill></nuri-view>
         <nuri-modal open mode="full">
           <nuri-modal-panel>
-            <nuri-header safe-area-top chrome="canvas">
-              <nuri-topbar layout="fluid">
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
                 <nuri-topbar-leading>
                   <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back to verify phone"></nuri-icon-button>
                 </nuri-topbar-leading>
@@ -164,7 +177,7 @@
               </nuri-topbar>
             </nuri-header>
 
-            <nuri-scroll safe-area-bottom>
+            <nuri-scroll>
               <nuri-view padding-top="sm">
                 <nuri-list>
                 <nuri-list-action aria-label="Austria, +43">
@@ -180,6 +193,8 @@
                 </nuri-list>
               </nuri-view>
             </nuri-scroll>
+
+            <nuri-footer safe-area-bottom chrome="strong" padding-y="sm"></nuri-footer>
           </nuri-modal-panel>
         </nuri-modal>
       </nuri-screen>
