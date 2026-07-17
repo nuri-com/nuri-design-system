@@ -1,4 +1,4 @@
-# Nuri — the project
+# Nuri Design System
 
 > The concise, current front door. Everything operational points here. The *why* behind past
 > decisions lives in the historical archive ([`decisionlog.md`](./decisionlog.md) ·
@@ -17,6 +17,26 @@ target's output is *generated* from it.
 
 `@nuri/spec` is **pure data** — no code, no dependencies, no generated artifacts. Every consumer is a
 **projection** that resolves spec's data into the form it needs and owns that resolution.
+
+## Admission boundary
+
+The design-system repository is the slow shared core. Fast learning normally lives in the consumer
+repo that owns the product problem; the DS playground/prototype may host bounded DS-owned
+non-contract experiments, but there is no fast lane for public DS growth. Public/observable
+shared-core changes follow the [design-system admission policy](./docs/design-system-admission.md)
+before Project `Ready`/implementation: the requester/consumer provides need, gap, workaround, and
+available edge evidence, then a named human DS architect independent from the requester/consumer
+records `Admit`, `Reject`, `Request more evidence`, or `Keep consumer-owned` in an authenticated
+canonical issue comment or architect-owned linked ADR. A contract is only admitted after that
+independent decision; the requester/consumer cannot self-admit, and overlapping requester/architect
+roles require a second named human architectural reviewer. The admitting architect may implement
+later after independent admission, but independent verification remains required. Before Project
+`Ready`, the item needs the linked architect-owned decision record, architect-accepted contract,
+bounded execution scope, and downstream verification plan. Actual Expo/device/runtime/compatibility
+proof is collected after implementation before Verified/Done. Consumer demand, form completion,
+branch creation, PRs, Expo demos, implementing agents, labels, or green gates do not confer admission
+or Ready. Gates prove behavior/drift only — not architecture, ownership, recurrence, or whether a
+concept belongs in the shared core.
 
 ## The shape
 
@@ -81,6 +101,11 @@ scripts/            the codegen — reads spec's TS SoTs, writes each projection
 
 ## How to work on it (common tasks)
 
+- **Use the right DS front door:** use the lightweight maintenance form for Corrections, internal
+  maintenance, and bounded non-contract Experiments; use the contract-admission request form for
+  Contractions, Extensions, or Mixed public/observable contract changes. The request form does not
+  admit the contract: an independent named human DS architect records the outcome separately, and
+  Project `Ready`, not a form field or label, is the manual-pilot authorization boundary.
 - **Add an accent:** a ramp + one accent object + one `ACCENTS` entry in `tokens/colours.ts`. Data only.
 - **Add/edit a token:** edit the SoT in `tokens/` (dimensions · colours · typography), regenerate.
 - **Add a component:** author a descriptor in `components/` (a composition of the axis namespaces in

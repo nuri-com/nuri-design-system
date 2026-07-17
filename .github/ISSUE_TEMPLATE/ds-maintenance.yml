@@ -1,0 +1,145 @@
+name: DS maintenance
+description: Lightweight front door for Corrections, internal maintenance, and bounded DS-owned non-contract Experiments.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this lightweight form only for design-system maintenance that does **not** need a contract-admission record: Corrections, internal maintenance, and bounded DS-owned Experiments. It applies no automatic Ready label; during the manual pilot the Nuri Delivery Project `Ready` state is the only execution authorization.
+
+        If the work removes, narrows, adds, broadens, or materially changes public/observable design-system surface, stop and use the **DS contract admission** form instead. Public/observable surface includes exports, components, tokens, axes, descriptors, generated contracts, props, slots, primitives, providers, hooks, runtime behavior, accessibility/interaction semantics, supported platform behavior, and stable docs. See `docs/design-system-admission.md`.
+
+  - type: dropdown
+    id: maintenance_class
+    attributes:
+      label: Maintenance class
+      description: Choose the only class this issue is allowed to execute under.
+      options:
+        - Correction
+        - Internal maintenance
+        - Bounded DS-owned Experiment
+    validations:
+      required: true
+
+  - type: textarea
+    id: class_boundary
+    attributes:
+      label: Class boundary and non-contract proof
+      description: Complete the section for the selected class. Write `not applicable` for the others.
+      placeholder: |
+        Correction:
+        - Broken invariant/regression being restored:
+        - Confirmation there is no intended public/observable delta:
+
+        Internal maintenance:
+        - Internal artifact/process/test/docs being maintained:
+        - Why this creates no public/observable contract delta:
+
+        Bounded DS-owned Experiment:
+        - DS-owned playground/prototype surface used:
+        - Boundary that keeps it out of public barrels, generated contracts, stable docs, and production consumer paths:
+        - Confirmation it creates no public contract:
+        - Confirmation promotion requires a separate Extension admission:
+    validations:
+      required: true
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal and why
+      description: State the maintenance outcome and why it matters.
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: List the concrete artifacts and behavior included in this bounded maintenance task.
+    validations:
+      required: true
+
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Anti-scope / non-goals
+      description: State what must not be changed, admitted, generalized, exposed, or promoted by this task.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Provide objective, independently verifiable completion criteria.
+      placeholder: |
+        - [ ] Observable criterion one
+        - [ ] Observable criterion two
+    validations:
+      required: true
+
+  - type: input
+    id: repository_base
+    attributes:
+      label: Owning repository and base branch
+      description: Use the canonical repository and intended base branch.
+      placeholder: nuri-com/nuri-design-system @ main
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Link parent/child issues, required PRs, services, or decisions with canonical `owner/repo#number` references. Write `none` when independent.
+      placeholder: nuri-com/nuri-design-system#123
+    validations:
+      required: true
+
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Risk class
+      description: Select the highest material risk introduced by this maintenance task.
+      options:
+        - Low
+        - Product
+        - Native
+        - Security
+        - Funds
+        - Infrastructure
+    validations:
+      required: true
+
+  - type: textarea
+    id: authority
+    attributes:
+      label: Authority and exclusions
+      description: Define what may be read or changed, plus explicit exclusions and approval boundaries.
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Required verification
+      description: List deterministic checks, CI, runtime proof, drift proof, and review evidence required for this maintenance risk.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: maintenance_contract
+    attributes:
+      label: Maintenance contract
+      options:
+        - label: This issue is not a Contraction, Extension, or Mixed public/observable contract change; if that changes, it must move to the DS contract-admission form.
+          required: true
+        - label: No form field, label, assignment, branch, PR, or green gate is being treated as Project `Ready` authorization.
+          required: true
+        - label: For a Correction, the no-intended-public/observable-delta confirmation is written above; otherwise it is marked not applicable.
+          required: true
+        - label: For a bounded Experiment, the work is limited to DS-owned playground/prototype non-contract surfaces, creates no public contract, and promotion requires a separate Extension admission; otherwise it is marked not applicable.
+          required: true
+        - label: Scope, anti-scope, authority, acceptance, and verification are complete enough for proportional bounded execution.
+          required: true
+        - label: All issue and PR references use canonical `owner/repo#number` form.
+          required: true

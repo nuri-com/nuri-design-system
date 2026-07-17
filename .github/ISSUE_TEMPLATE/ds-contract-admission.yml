@@ -1,0 +1,257 @@
+name: DS contract admission request
+description: Request independent DS architecture admission for Contractions, Extensions, and Mixed public/observable design-system contract changes.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to **request** design-system contract admission for work that removes, narrows, adds, broadens, or materially changes public/observable surface. Submitting or completing this form does not admit the contract and applies no automatic Ready label. During the manual pilot, the Nuri Delivery Project `Ready` state is the only execution authorization.
+
+        **Handoff and actor separation:** the requester/consumer supplies the concrete need, gap, workaround, and available consumer-local evidence. Initial submission stays Pending/request-only: this form has no `Admit` selector and cannot be used for requester self-attestation. A named human DS architect independent from the requester/consumer records the admission outcome in their own authenticated canonical issue comment or architect-owned linked ADR: `Admit`, `Reject`, `Request more evidence`, or `Keep consumer-owned`. Admission independence is from the requester/consumer; the admitting architect may implement later after independent admission, but independent verification remains required. If one person occupies both requester/consumer and DS architect roles, a second named human architectural reviewer is required before admission.
+
+        **Evidence sequencing:** before admission, provide consumer need/gap/workaround and available prototype/evidence. Admission is the independent architect decision. Before Project `Ready`, link the architect-owned decision record and ensure it records the architect-accepted contract, bounded execution scope, and downstream verification plan. During Verification/Done, attach executed Expo/typecheck/build/fixture/demo/device/runtime/compatibility evidence against the implemented contract. See `docs/design-system-admission.md`.
+
+        **Class-specific evidence:** GitHub issue forms cannot conditionally require fields from the selected class. Common request fields are required below; the Contraction/Mixed and Extension/Mixed evidence sections are structurally optional, and the named human DS architect enforces selected-class completeness semantically. Do not add fake `not applicable` ceremony or a third front door.
+
+  - type: dropdown
+    id: admission_class
+    attributes:
+      label: Admission class
+      description: Choose the public/observable contract class for this request.
+      options:
+        - Contraction
+        - Extension
+        - Mixed
+    validations:
+      required: true
+
+  - type: input
+    id: requesting_actor
+    attributes:
+      label: Requesting actor / evidence owner
+      description: Name the person or team submitting the request and owning the request evidence. This actor supplies evidence but cannot admit the DS contract.
+      placeholder: "@github-login or owner/repo team"
+    validations:
+      required: true
+
+  - type: input
+    id: consumer_owner
+    attributes:
+      label: Consumer owner / affected-surface owner
+      description: Name the consumer/product owner for Extension/Mixed need evidence, or the DS owner/evidence owner for Contraction affected-consumer or non-use evidence.
+      placeholder: "@github-login, owner/repo team, or DS surface owner"
+    validations:
+      required: true
+
+  - type: textarea
+    id: request_summary
+    attributes:
+      label: Request summary and current state
+      description: Summarize the current public/observable surface, consumer need or contraction driver, and why this request is being raised now. This is request evidence, not admission.
+      placeholder: |
+        Current surface or gap:
+        Consumer/use case or contraction driver:
+        Why now:
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_contract_delta
+    attributes:
+      label: Proposed contract delta (not admitted)
+      description: Describe the requested addition, broadening, material change, removal, narrowing, deprecation, consolidation, or compatibility-affecting delta. Keep it explicitly proposed until an independent architect admits a specific contract.
+      placeholder: |
+        Proposed public/observable delta:
+        Components / exports / exported types / tokens / axes / descriptors / generated contracts / props / slots / primitives / providers / hooks / imperative handles / runtime behavior / accessibility and interaction semantics / supported platform behavior / stable docs affected:
+        Proposed anti-scope or refused generalization:
+    validations:
+      required: true
+
+  - type: textarea
+    id: consumer_need_gap_workaround
+    attributes:
+      label: Consumer need, gap, and current workaround (before admission)
+      description: For Extension/Mixed, name the concrete consumer, screen/flow/package, use case, gap, and current app-local workaround. For Contraction, describe the affected contract/use pattern and the problem caused by keeping it. This is evidence only.
+      placeholder: |
+        Consumer / owner:
+        Concrete use case or affected pattern:
+        Gap, ambiguity, misuse, or maintenance problem:
+        Current workaround / current behavior:
+    validations:
+      required: true
+
+  - type: textarea
+    id: consumer_local_evidence
+    attributes:
+      label: Available consumer-local prototype or evidence (before admission)
+      description: Link or summarize available consumer-local prototypes, wrapper/recipe/composition, screenshots, code references, issue references, usage inventory, or other request evidence. If evidence is missing, state what is missing and who owns producing it; missing evidence may lead to `Request more evidence`.
+      placeholder: |
+        Available prototype / wrapper / recipe / composition:
+        Evidence links or references:
+        Missing evidence and owner, if any:
+    validations:
+      required: true
+
+  - type: textarea
+    id: contraction_mixed_evidence
+    attributes:
+      label: Class-scoped Contraction / Mixed evidence
+      description: For Contraction or Mixed requests, provide affected-consumer inventory or evidence of non-use, migration/deprecation/rollback/compatibility/documentation implications, and the ambiguity, misuse, duplication, or maintenance burden removed. Pure Contractions are not required to answer Extension recurrence, DS-ownership, or trade-study prompts.
+      placeholder: |
+        Affected consumers or non-use evidence:
+        Migration / deprecation / rollback implications:
+        Compatibility and documentation implications:
+        Ambiguity, misuse, duplication, or maintenance burden removed:
+
+  - type: textarea
+    id: extension_mixed_evidence
+    attributes:
+      label: Class-scoped Extension / Mixed evidence
+      description: For Extension or Mixed requests, provide recurrence or system-invariant evidence, why ownership belongs in DS instead of the consumer, alternatives/trade study, contract cost, and anti-scope. This section is not required for pure Contractions.
+      placeholder: |
+        Recurrence or system-owned invariant:
+        DS ownership argument:
+        Alternatives / trade study:
+        Contract cost and maintenance burden:
+        Anti-scope / consumer-owned or deferred behavior:
+
+  - type: input
+    id: requested_ds_architect
+    attributes:
+      label: Requested DS architect / admission recorder
+      description: Name the human DS architect expected to record the admission outcome in their own authenticated canonical issue comment or architect-owned linked ADR. Admission independence is from the requester/consumer, not from later implementation; if one person wears both requester/consumer and architect roles, the admission record must name a second human architectural reviewer.
+      placeholder: "@github-login"
+    validations:
+      required: true
+
+  - type: textarea
+    id: architect_decision_record
+    attributes:
+      label: Architect decision record location (architect-owned)
+      description: After independent review, link the authenticated canonical issue comment or architect-owned ADR where the DS architect records outcome, architect, second reviewer if needed, rationale, evidence considered, accepted contract, anti-scope, bounded execution scope, and downstream verification plan. Leave empty on initial request if the decision does not exist yet; the requester cannot use this field to self-admit.
+      placeholder: |
+        Decision record link:
+        Outcome: Admit / Reject / Request more evidence / Keep consumer-owned
+        Architect:
+        Second reviewer if requester/architect overlap:
+        Accepted contract and anti-scope in record:
+        Bounded execution scope reference:
+        Downstream verification plan reference:
+
+  - type: textarea
+    id: proposed_execution_scope
+    attributes:
+      label: Proposed bounded execution scope if admitted
+      description: State the concrete artifacts, behavior, and implementation boundary that would be changed after admission. Before Project `Ready`, this must be reconciled with the architect-accepted contract and anti-scope; it remains proposed until then.
+      placeholder: |
+        Proposed in scope:
+        Proposed out of scope:
+        Artifacts expected to change:
+    validations:
+      required: true
+
+  - type: textarea
+    id: downstream_verification_plan
+    attributes:
+      label: Downstream verification plan (before Ready)
+      description: >
+        Plan the evidence to produce during Verification/Done: deterministic repo checks, CI gates, typecheck/build, contract proof, fixture/demo proof, Expo or other real-consumer PRs, device/runtime checks, and compatibility runs as relevant. Do not require a pre-implementation Expo PR or runtime proof before Project `Ready`; executed proof belongs after implementation.
+      placeholder: |
+        - [ ] Repository checks / CI:
+        - [ ] Contract or type proof:
+        - [ ] Expo / real-consumer fixture, demo, device, runtime, or compatibility proof to attach during Verification/Done:
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance criteria and Verification/Done evidence
+      description: Provide objective completion criteria and the actual evidence that must be attached before Verification/Done can close the implemented contract.
+      placeholder: |
+        - [ ] Observable criterion one
+        - [ ] Exact command or evidence link required at Verification/Done
+    validations:
+      required: true
+
+  - type: input
+    id: repository_base
+    attributes:
+      label: Owning repository and base branch
+      description: Use the canonical repository and intended base branch.
+      placeholder: nuri-com/nuri-design-system @ main
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies_decisions
+    attributes:
+      label: Dependencies and human decisions
+      description: Link parent/child issues, required PRs, services, or decisions with canonical `owner/repo#number` references. Include the independent admission decision record when it exists, or the Decision Needed item while pending.
+      placeholder: nuri-com/nuri-design-system#123
+    validations:
+      required: true
+
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Risk class
+      description: Select the highest material risk introduced by this contract request.
+      options:
+        - Low
+        - Product
+        - Native
+        - Security
+        - Funds
+        - Infrastructure
+    validations:
+      required: true
+
+  - type: textarea
+    id: authority_accountability
+    attributes:
+      label: Authority, responsibility, and accountability evidence
+      description: Define what may be read or changed, explicit exclusions and approval boundaries, the artifact/outcome to produce, and the evidence another party will use to verify completion independently.
+    validations:
+      required: true
+
+  - type: textarea
+    id: release_docs
+    attributes:
+      label: Release, migration, and documentation plan
+      description: Define required release-note, artifact, deployment, rollback, monitoring, migration, consumer documentation, and design-system policy evidence. Actual merged containment, migration, and documentation proof belongs before Done.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: admission_request_acknowledgements
+    attributes:
+      label: Admission-request acknowledgements
+      options:
+        - label: This submission requests independent DS contract admission; it does not grant admission, execute the change, or authorize Project `Ready`.
+          required: true
+        - label: The requested contract delta is proposed until a named independent human DS architect records an `Admit` decision for a specific accepted contract and anti-scope.
+          required: true
+        - label: Initial submission remains Pending/request-only until an architect-owned decision record exists; this form cannot be used to select or self-attest `Admit`.
+          required: true
+        - label: Admission independence is from the requester/consumer; the admitting architect may implement later, but independent verification remains required.
+          required: true
+        - label: If one human occupies both requester/consumer and architect roles, a second named human architectural reviewer is required in the architect-owned decision record.
+          required: true
+        - label: Class-specific evidence is provided for the selected class above; the named human DS architect enforces selected-class completeness because GitHub issue forms cannot conditionally require those fields.
+          required: true
+        - label: Any Extension or Mixed request includes recurrence or system-invariant evidence, DS ownership rationale, alternatives/trade study, contract cost, and anti-scope.
+          required: true
+        - label: Any Contraction or Mixed request includes proportional affected-consumer/non-use evidence, migration/deprecation/rollback implications, and ambiguity, misuse, duplication, or maintenance burden removed; pure Contractions are not forced through Extension prompts.
+          required: true
+        - label: Any Mixed request includes both Extension admission evidence and Contraction evidence.
+          required: true
+        - label: Before Project `Ready`, this issue must have the architect-accepted contract, bounded execution scope, and downstream verification plan.
+          required: true
+        - label: Executed Expo/device/runtime/compatibility proof is collected after implementation before Verified/Done, not treated as pre-Ready admission evidence.
+          required: true
+        - label: No form field, label, assignment, branch, PR, implementation, or green gate grants Project `Ready`; Project `Ready` remains the sole execution authorization.
+          required: true
+        - label: No public/observable DS growth is being routed through a maintenance form, bounded Experiment, playground, prototype, Expo demo, or other fast lane.
+          required: true
+        - label: All issue and PR references use canonical `owner/repo#number` form.
+          required: true
