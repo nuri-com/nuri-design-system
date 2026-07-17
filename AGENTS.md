@@ -37,10 +37,16 @@ Every other package is a **projection** that owns its resolution:
   normally lives in consumer repos; the DS playground/prototype may host bounded DS-owned non-contract
   experiments, but there is no fast lane for public DS growth. Use the
   [design-system admission policy](./docs/design-system-admission.md): the lightweight maintenance form
-  is for Corrections, internal maintenance, and bounded Experiments; the contract-admission form is for
-  Contractions, Extensions, and Mixed public/observable contract changes. The consumer/product owner
-  supplies need evidence; an independent named human DS architect admits a specific contract. Project
-  `Ready`, not a form label, is the manual-pilot authorization boundary.
+  is for Corrections, internal maintenance, and bounded Experiments; the contract-admission request form
+  is for Contractions, Extensions, and Mixed public/observable contract changes. The requester/consumer
+  supplies need, gap, workaround, and available evidence; a named human DS architect independent from
+  the requester/consumer records the outcome separately and admits only a specific accepted
+  contract/anti-scope. The requester/consumer cannot self-admit; if requester and architect roles
+  overlap, require a second named human architectural reviewer. The admitting architect may implement
+  later after independent admission, but independent verification remains required. Project `Ready`, not
+  a form field, label, branch, PR, green gate, or executed implementation proof, is the manual-pilot
+  authorization boundary. Executed Expo/device/runtime/compatibility proof belongs after implementation
+  before Verified/Done.
 - **Tokens / accents:** edit the SoT in `tokens/` (`dimensions` · `colours` · `typography`), regenerate.
 - **Axes:** a box/stack/palette/interactive/typography axis is a data table in `axes/`.
 - **Components:** author a descriptor in `components/` — a composition of the axis namespaces in semantic
