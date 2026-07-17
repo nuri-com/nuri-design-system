@@ -6,7 +6,9 @@ body:
       value: |
         Use this form for design-system work that removes, narrows, adds, broadens, or materially changes public/observable surface. It applies no automatic Ready label; during the manual pilot the Nuri Delivery Project `Ready` state is the only execution authorization.
 
-        **Extension** means adding, broadening, or materially changing public/observable design-system surface. **Mixed** means the same issue includes Extension admission plus Contraction migration evidence for removed, narrowed, deprecated, or compatibility-affecting existing surface. App demand is evidence, not authorization; a named human DS owner must admit the contract before execution. See `docs/design-system-admission.md`.
+        **Actor separation:** the consumer or product owner raises and demonstrates need. An independent named human DS architect / admission authority evaluates the request, records a decision, and owns admission. Consumer demand, form completion, an implementing agent, a branch, a PR, an Expo demo, or green gates cannot self-admit a contract. Only an architect-admitted specific contract can become eligible for Project `Ready`.
+
+        **Evidence sequencing:** before admission, provide consumer evidence of need. During admission, record the independent architectural decision. Before `Ready`, provide the accepted contract, bounded execution scope, and downstream verification plan. During Verification/Done, attach actual Expo/typecheck/build/fixture/demo/device/runtime/compatibility evidence against the implemented contract. See `docs/design-system-admission.md`.
 
   - type: dropdown
     id: admission_class
@@ -21,95 +23,140 @@ body:
       required: true
 
   - type: input
-    id: human_ds_owner
+    id: requesting_actor
     attributes:
-      label: Named human DS owner
-      description: Name the human design-system owner accountable for admitting or accepting this contract decision.
+      label: Requesting actor / consumer-product evidence owner
+      description: For Extension/Mixed, name the consumer or product owner who raises and demonstrates need. For pure Contraction, name the DS owner or evidence owner supplying affected-consumer/non-use evidence. This actor supplies evidence but cannot admit the DS contract.
+      placeholder: "@github-login or owner/repo team"
+    validations:
+      required: true
+
+  - type: input
+    id: independent_ds_architect
+    attributes:
+      label: Independent DS architect / admission authority
+      description: Name the human DS architect who will make or made the admission decision. This admission authority must be independent from the requesting actor or consumer/product owner and cannot be the implementing agent.
       placeholder: "@github-login"
     validations:
       required: true
 
-  - type: textarea
-    id: current_consumer_use_case
+  - type: dropdown
+    id: architect_decision
     attributes:
-      label: Current consumer / use case
-      description: Name the current consumer, screen, flow, package, or system use case that creates demand.
-      placeholder: nuri-com/nuri-expo · onboarding flow · primary CTA behavior
+      label: Independent architecture decision
+      description: Only `Admit specific DS contract` by the named independent DS architect can make this item eligible for Project `Ready`. All other states remain not Ready.
+      options:
+        - Pending independent DS architecture review
+        - Admit specific DS contract
+        - Reject
+        - Request more evidence
+        - Keep consumer-owned
     validations:
       required: true
 
   - type: textarea
-    id: recurrence_invariant
+    id: consumer_need_evidence
     attributes:
-      label: Recurrence or system invariant
-      description: Provide evidence that this is a recurring need or a legitimate system-owned invariant, not only one app's immediate preference.
+      label: Consumer evidence of need (before admission)
+      description: >
+        Evidence supplied by the consumer/product owner; not admission authority. For Extension/Mixed, name the current consumer, screen/flow/package, gap or current workaround, consumer-local prototype/implementation if any, and why existing DS or app-local surface is insufficient. For pure Contraction, write `not applicable` and complete the Contraction evidence section.
+      placeholder: |
+        Consumer / owner:
+        Use case or gap:
+        Current workaround or consumer-local prototype:
+        Why existing DS/app-local surface is insufficient:
     validations:
       required: true
 
   - type: textarea
-    id: ownership_argument
+    id: extension_architecture_review
     attributes:
-      label: Design-system ownership argument
-      description: Explain why ownership belongs in the slow shared design-system core instead of a consumer repo, app wrapper, one-off composition, or local recipe.
+      label: Independent architecture review (Extension / Mixed)
+      description: >
+        To be completed by, or link to evidence from, the named DS architect. For Extension/Mixed, evaluate recurrence or system-owned invariant, why DS ownership beats consumer-owned wrapper/recipe/composition, alternatives/trade study, contract cost and maintenance burden, and anti-scope; then record the admit/reject/request-more-evidence/keep-consumer-owned rationale. For pure Contraction, write `not applicable`.
+      placeholder: |
+        Recurrence or system-owned invariant:
+        DS ownership argument:
+        Alternatives / trade study:
+        Contract cost and maintenance burden:
+        Anti-scope:
+        Decision rationale:
     validations:
       required: true
 
   - type: textarea
-    id: trade_study
+    id: contraction_evidence
     attributes:
-      label: Trade study
-      description: Compare composition vs component, pattern vs primitive, existing axis vs new variant, app-local vs shared, and any other relevant alternatives.
+      label: Contraction evidence (Contraction / Mixed)
+      description: >
+        For Contraction/Mixed, provide affected-consumer inventory or evidence of non-use, migration implications, compatibility/deprecation/rollback/documentation handling, and the ambiguity, duplication, misuse, or maintenance burden removed. Pure Contractions do not need to answer Extension recurrence/generalization prompts. For pure Extension, write `not applicable`.
+      placeholder: |
+        Affected consumers or non-use evidence:
+        Migration implications:
+        Compatibility / deprecation / rollback / docs handling:
+        Ambiguity, misuse, duplication, or maintenance burden removed:
     validations:
       required: true
 
   - type: textarea
-    id: anti_scope
+    id: accepted_contract_anti_scope
     attributes:
-      label: Anti-scope / refused generalization
-      description: State what is refused, deferred, consumer-owned, not generalized, or outside this admission.
+      label: Architect-accepted contract and anti-scope
+      description: >
+        If the independent decision is `Admit specific DS contract`, define the exact accepted public/observable delta, removal, narrowing, deprecation, or compatibility-affecting change and the explicit anti-scope. Include components, exports, tokens, axes, descriptors, generated contracts, props, slots, primitives, providers, hooks, runtime behavior, accessibility/interaction semantics, supported platform behavior, and stable docs as relevant. If the request is pending, rejected, needs more evidence, or remains consumer-owned, state that there is no accepted contract and that it is not Ready.
+      placeholder: |
+        Accepted contract:
+        Explicit anti-scope / refused generalization:
+        Consumer-owned, deferred, or out-of-scope behavior:
     validations:
       required: true
 
   - type: textarea
-    id: contract_delta
+    id: migration_compatibility_plan
     attributes:
-      label: Public / observable contract delta
-      description: Define the exact accepted surface change. Include components, exports, tokens, axes, descriptors, generated contracts, props, slots, primitives, providers, hooks, runtime behavior, accessibility/interaction semantics, supported platform behavior, and stable docs as relevant.
+      label: Migration, compatibility, and documentation plan
+      description: >
+        Before Project `Ready`, plan the compatibility, migration, deprecation, rollback, release-note, consumer documentation, and stable-doc obligations for the accepted contract. Mixed admissions must include the Contraction migration evidence for removed, narrowed, deprecated, or compatibility-affecting existing surface. Actual compatibility proof is Verification/Done evidence, not pre-implementation admission proof.
+      placeholder: |
+        Compatibility expectation:
+        Migration / deprecation / rollback plan:
+        Release and documentation plan:
     validations:
       required: true
 
   - type: textarea
-    id: migration_compatibility
+    id: bounded_execution_scope
     attributes:
-      label: Migration and compatibility
-      description: Describe backward compatibility, migration path, deprecation/rollback plan, affected consumers, and documentation. Mixed admissions must include the Contraction migration evidence for removed, narrowed, deprecated, or compatibility-affecting existing surface.
+      label: Bounded execution scope after admission
+      description: State the concrete artifacts, behavior, and implementation boundary that may be changed after admission. Execution scope must stay inside the architect-accepted contract and anti-scope above.
+      placeholder: |
+        In scope:
+        Out of scope:
+        Artifacts expected to change:
     validations:
       required: true
 
   - type: textarea
-    id: real_consumer_evidence
+    id: downstream_verification_plan
     attributes:
-      label: Real-consumer evidence for public API/runtime behavior
-      description: For public API or runtime behavior changes, link relevant real-consumer evidence, currently Expo, such as an exact Expo PR, fixture, typecheck/build, demo, device/runtime proof, or compatibility run. A written compatibility claim alone is not sufficient. If no public API/runtime behavior changes, explain why this is not applicable.
+      label: Downstream verification plan (before Ready)
+      description: >
+        Plan the evidence to produce during Verification/Done: deterministic repo checks, CI gates, typecheck/build, contract proof, fixture/demo proof, Expo or other real-consumer PRs, device/runtime checks, and compatibility runs as relevant. Do not require a pre-implementation Expo PR or runtime proof before Project `Ready`. A written compatibility claim alone is not completion proof.
+      placeholder: |
+        - [ ] Repository checks / CI:
+        - [ ] Contract or type proof:
+        - [ ] Expo / real-consumer fixture, demo, device, runtime, or compatibility proof to attach during Verification/Done:
     validations:
       required: true
 
   - type: textarea
-    id: goal_scope
+    id: acceptance_criteria
     attributes:
-      label: Goal and bounded execution scope
-      description: State the desired outcome, concrete artifacts to change, and the implementation boundary after admission.
-    validations:
-      required: true
-
-  - type: textarea
-    id: acceptance_verification
-    attributes:
-      label: Acceptance criteria and required verification
-      description: Provide objective completion criteria plus deterministic checks, CI, runtime proof, real-consumer proof, contract proof, and independent review required for this risk class.
+      label: Acceptance criteria and Done evidence
+      description: Provide objective completion criteria and the actual evidence that must be attached before Verification/Done can close the implemented contract.
       placeholder: |
         - [ ] Observable criterion one
-        - [ ] Exact verification command or evidence link
+        - [ ] Exact command or evidence link required at Done
     validations:
       required: true
 
@@ -126,7 +173,7 @@ body:
     id: dependencies_decisions
     attributes:
       label: Dependencies and human decisions
-      description: Link parent/child issues, required PRs, services, or decisions with canonical `owner/repo#number` references. Include the decision/admission record when it exists, or the Decision Needed item while pending.
+      description: Link parent/child issues, required PRs, services, or decisions with canonical `owner/repo#number` references. Include the independent admission decision record when it exists, or the Decision Needed item while pending.
       placeholder: nuri-com/nuri-design-system#123
     validations:
       required: true
@@ -167,15 +214,21 @@ body:
     attributes:
       label: Admission contract
       options:
-        - label: The named human DS owner above accepts responsibility for the class decision and admitted public/observable contract.
+        - label: The requesting actor or consumer/product owner evidence above is being treated as evidence only, not DS admission or Project `Ready` authorization.
           required: true
-        - label: Any Extension adds, broadens, or materially changes public/observable surface only within the owner-accepted contract delta and anti-scope above.
+        - label: The independent DS architect / admission authority named above is a human reviewer separate from the requesting actor, consumer/product owner, and implementing agent.
           required: true
-        - label: Any Contraction has affected-consumer, compatibility, migration, deprecation/rollback, and documentation evidence above.
+        - label: Only a decision of `Admit specific DS contract` by that architect, tied to the accepted contract and anti-scope above, may become eligible for Project `Ready`; pending, rejected, more-evidence, or consumer-owned decisions are not Ready.
+          required: true
+        - label: Any Extension or Mixed admission includes independent review of recurrence or system invariant, DS ownership, alternatives/trade study, contract cost, and anti-scope.
+          required: true
+        - label: Any Contraction or Mixed admission includes proportional affected-consumer/non-use evidence, migration implications, and ambiguity, misuse, duplication, or maintenance burden removed; pure Contractions are not forced through Extension recurrence/generalization prompts.
           required: true
         - label: Any Mixed item includes both Extension admission evidence and Contraction migration evidence above.
           required: true
-        - label: Relevant real-consumer evidence is linked for public API/runtime behavior changes; a written compatibility claim alone is not being treated as sufficient.
+        - label: Before Project `Ready`, this issue must have an architect-accepted contract, bounded execution scope, and downstream verification plan; actual Expo/device/runtime/compatibility proof is expected during Verification/Done against the implemented contract, not as pre-implementation admission proof.
+          required: true
+        - label: A written compatibility claim alone will not be treated as completion proof.
           required: true
         - label: No form field, label, assignment, branch, PR, implementation, or green gate is being treated as Project `Ready` authorization.
           required: true

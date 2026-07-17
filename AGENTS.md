@@ -38,8 +38,9 @@ Every other package is a **projection** that owns its resolution:
   experiments, but there is no fast lane for public DS growth. Use the
   [design-system admission policy](./docs/design-system-admission.md): the lightweight maintenance form
   is for Corrections, internal maintenance, and bounded Experiments; the contract-admission form is for
-  Contractions, Extensions, and Mixed public/observable contract changes. Project `Ready`, not a form
-  label, is the manual-pilot authorization boundary.
+  Contractions, Extensions, and Mixed public/observable contract changes. The consumer/product owner
+  supplies need evidence; an independent named human DS architect admits a specific contract. Project
+  `Ready`, not a form label, is the manual-pilot authorization boundary.
 - **Tokens / accents:** edit the SoT in `tokens/` (`dimensions` · `colours` · `typography`), regenerate.
 - **Axes:** a box/stack/palette/interactive/typography axis is a data table in `axes/`.
 - **Components:** author a descriptor in `components/` — a composition of the axis namespaces in semantic

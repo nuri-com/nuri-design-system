@@ -24,9 +24,11 @@ The design-system repository is the slow shared core. Fast learning normally liv
 repo that owns the product problem; the DS playground/prototype may host bounded DS-owned
 non-contract experiments, but there is no fast lane for public DS growth. Public/observable
 shared-core changes follow the [design-system admission policy](./docs/design-system-admission.md)
-before implementation. Implementation, branch creation, PRs, Expo demos, or green gates do not confer
-admission. App demand is evidence, not authorization by itself, and gates prove behavior/drift only —
-not architecture, ownership, recurrence, or whether a concept belongs in the shared core.
+before Project `Ready`/implementation: the consumer or product owner demonstrates need, and an
+independent named human DS architect admits a specific contract. Consumer demand, form completion,
+branch creation, PRs, Expo demos, implementing agents, or green gates do not confer admission. Gates
+prove behavior/drift only — not architecture, ownership, recurrence, or whether a concept belongs in
+the shared core.
 
 ## The shape
 
