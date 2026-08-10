@@ -30,8 +30,7 @@
   }
 
   :is(nuri-modal, nuri-bottom-sheet) > :is(nuri-modal-panel, nuri-bottom-sheet-panel) {
-    --nuri-fixed-header-block: 0px;
-    --nuri-fixed-footer-block: 0px;
+    --nuri-scroll-flex-grow: 0;
 
     position: relative;
     z-index: 1;
@@ -42,23 +41,30 @@
     pointer-events: auto;
   }
 
+  /* Opted-in Modal Headers keep safe-area padding in flow while the fixed 2xl
+   * Topbar overlays Scroll. The matching content inset preserves the ordinary
+   * initial position below Topbar; scrolling can then move content behind it.
+   * Default Modal Headers remain fully structural. */
+  :is(nuri-modal[scroll-under-topbar], nuri-bottom-sheet[scroll-under-topbar]) > :is(nuri-modal-panel, nuri-bottom-sheet-panel) > nuri-header > .nuri-header {
+    z-index: 2;
+    margin-block-end: calc(-1 * var(--nuri-size-2xl));
+  }
+
+  :is(nuri-modal[scroll-under-topbar], nuri-bottom-sheet[scroll-under-topbar]) > :is(nuri-modal-panel, nuri-bottom-sheet-panel) > nuri-scroll > .nuri-scroll > .nuri-scroll__content {
+    --nuri-scroll-overlay-top: var(--nuri-size-2xl);
+  }
+
   :is(nuri-modal, nuri-bottom-sheet)[mode="full"]::before {
     display: none;
   }
 
   :is(nuri-modal, nuri-bottom-sheet)[mode="full"] > :is(nuri-modal-panel, nuri-bottom-sheet-panel) {
+    --nuri-scroll-flex-grow: 1;
+
     position: absolute;
     inset: 0;
     block-size: 100%;
     max-block-size: none;
   }
 
-  :is(nuri-modal, nuri-bottom-sheet) > :is(nuri-modal-panel, nuri-bottom-sheet-panel) > nuri-scroll {
-    max-block-size: 100%;
-  }
-
-  :is(nuri-modal, nuri-bottom-sheet)[mode="full"] > :is(nuri-modal-panel, nuri-bottom-sheet-panel) > nuri-scroll {
-    flex: 1;
-    block-size: 100%;
-  }
 }

@@ -15,7 +15,7 @@
 
 import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { BackHandler, Keyboard, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from 'react-native';
+import { BackHandler, Dimensions, Keyboard, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from 'react-native';
 import { NuriThemeProvider } from '../theme';
 import {
   Modal,
@@ -25,13 +25,14 @@ import {
   Header,
   NuriSafeAreaProvider,
   OverlayProvider,
+  Screen,
   Scroll,
   TextField,
   TextFieldLabel,
   useOverlay,
 } from '../index';
 import type { OverlayApi } from '../index';
-import { space } from '../generated/data/tokens';
+import { size, space } from '../generated/data/tokens';
 import { type FocusScrollApi, useFocusScroll } from '../runtime/focus-scroll';
 import { buildNuriTheme } from '../runtime/theme-payload';
 import { FixedRegionLayoutProvider } from '../primitives/FixedRegionLayout';
@@ -345,14 +346,14 @@ describe('Modal — registers into the overlay outlet', () => {
 
 describe('Modal — keyboard-reachable form composition', () => {
   // Full mode owns focus-scroll without a KeyboardAvoidingView; composing
-  // Scroll keeps fields in the body scroll while Footer is
-  // fixed outside it; measured footer height becomes the scroll's bottom inset.
+  // Scroll keeps fields in the body scroll while structural Footer stays in the
+  // same bounded column outside it.
   // LIMITATION (stated honestly): the actual keyboard resize and the ScrollView
   // scrolling the focused field above the keyboard are
   // a native/layout behaviour the headless harness cannot compute. This asserts
   // the COMPOSED STRUCTURE that makes it reachable (a real-device check owns the
   // rest — see App / the expo-demo Sheet screen).
-  test('a full modal mounts fields and a fixed footer without the retired KeyboardAvoidingView', () => {
+  test('a full modal mounts fields and a structural footer without the retired KeyboardAvoidingView', () => {
     const tr = render(
       <NuriThemeProvider>
         <OverlayProvider>
@@ -373,7 +374,7 @@ describe('Modal — keyboard-reachable form composition', () => {
     );
 
     expect(tr.root.findAllByType(KeyboardAvoidingView)).toHaveLength(0);
-    // …and the field's input plus fixed footer button label coexist under it;
+    // …and the field's input plus structural footer button label coexist under it;
     // Scroll owns field focus-scroll while the footer is represented
     // as measured bottom inset.
     expect(tr.root.findAllByType(TextInput).length).toBeGreaterThan(0);
@@ -399,13 +400,13 @@ describe('Modal — keyboard-reachable form composition', () => {
     expect(api.onInputBlur).toEqual(expect.any(Function));
   });
 
-  test('Header and Footer measure into Scroll insets', () => {
+  test('Modal Header overlays its 2xl Topbar block after Scroll initially clears it', () => {
     const onHeaderLayout = jest.fn();
     const onFooterLayout = jest.fn();
     const tr = render(
       <NuriThemeProvider>
         <OverlayProvider>
-          <Modal open mode="full">
+          <Modal open mode="full" scrollUnderTopbar>
             <ModalPanel>
               <Header paddingTop="lg" onLayout={onHeaderLayout}>
                 <Button>Close</Button>
@@ -431,22 +432,21 @@ describe('Modal — keyboard-reachable form composition', () => {
       </NuriThemeProvider>,
     );
 
-    const topbarHost = tr.root
-      .findAllByType(View)
-      .find((node) => {
-        const style = flatStyle(node.props.style);
-        return typeof node.props.onLayout === 'function' && style.top === 0 && style.zIndex === 2;
-      });
-    const footerHost = tr.root
-      .findAllByType(View)
-      .find((node) => {
-        const style = flatStyle(node.props.style);
-        return typeof node.props.onLayout === 'function' && style.bottom === 0 && style.zIndex === 2;
-      });
+    const topbarHost = tr.root.findAllByType(View).find((node) => node.props.onLayout === onHeaderLayout);
+    const footerHost = tr.root.findAllByType(View).find((node) => node.props.onLayout === onFooterLayout);
     expect(topbarHost).toBeTruthy();
     expect(footerHost).toBeTruthy();
-    expect(flatStyle(topbarHost!.props.style).paddingTop).toBe(space.lg);
+    expect(flatStyle(topbarHost!.props.style)).toMatchObject({
+      flexShrink: 0,
+      alignSelf: 'stretch',
+      position: 'relative',
+      zIndex: 2,
+      marginBottom: -size['2xl'],
+      paddingTop: space.lg,
+    });
     const footerHostStyle = flatStyle(footerHost!.props.style);
+    expect(footerHostStyle).toMatchObject({ flexShrink: 0, alignSelf: 'stretch' });
+    expect(footerHostStyle.position).toBeUndefined();
     expect(footerHostStyle.flexDirection).toBe('row');
     expect(footerHostStyle.alignItems).toBe('center');
     expect(footerHostStyle.justifyContent).toBe('flex-end');
@@ -455,7 +455,10 @@ describe('Modal — keyboard-reachable form composition', () => {
     expect(footerHostStyle.paddingVertical).toBe(space.xs);
     expect(footerHostStyle.paddingBottom).toBe(space.xs);
     expect(footerHostStyle.backgroundColor).toEqual(expect.any(String));
-    const scrollMaxHeightBeforeFooterMeasure = flatStyle(tr.root.findByType(ScrollView).props.style).maxHeight;
+    const initialScrollStyle = flatStyle(tr.root.findByType(ScrollView).props.style);
+    const initialContentStyle = flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle);
+    expect(initialScrollStyle).toEqual({ flexGrow: 1, flexShrink: 1, minHeight: 0 });
+    expect(initialContentStyle).toEqual({ flexGrow: 1, paddingTop: size['2xl'] });
 
     act(() => {
       topbarHost!.props.onLayout({ nativeEvent: { layout: { height: 56 } } });
@@ -463,12 +466,33 @@ describe('Modal — keyboard-reachable form composition', () => {
     });
 
     const scroll = tr.root.findByType(ScrollView);
-    const contentStyle = flatStyle(scroll.props.contentContainerStyle);
-    expect(contentStyle.paddingTop).toBe(56);
-    expect(contentStyle.paddingBottom).toBe(72);
-    expect(flatStyle(scroll.props.style).maxHeight).toBe(scrollMaxHeightBeforeFooterMeasure);
+    expect(flatStyle(scroll.props.style)).toEqual(initialScrollStyle);
+    expect(flatStyle(scroll.props.contentContainerStyle)).toEqual(initialContentStyle);
     expect(onHeaderLayout).toHaveBeenCalledTimes(1);
     expect(onFooterLayout).toHaveBeenCalledTimes(1);
+  });
+
+  test('Modal Header is structural by default', () => {
+    const onHeaderLayout = jest.fn();
+    const tr = render(
+      <NuriThemeProvider>
+        <OverlayProvider>
+          <Modal open mode="full">
+            <ModalPanel>
+              <Header onLayout={onHeaderLayout}><Button>Close</Button></Header>
+              <Scroll><Text>Body</Text></Scroll>
+            </ModalPanel>
+          </Modal>
+        </OverlayProvider>
+      </NuriThemeProvider>,
+    );
+
+    const headerHost = tr.root.findAllByType(View).find((node) => node.props.onLayout === onHeaderLayout);
+    expect(headerHost).toBeTruthy();
+    expect(flatStyle(headerHost!.props.style)).toMatchObject({ flexShrink: 0, alignSelf: 'stretch' });
+    expect(flatStyle(headerHost!.props.style).marginBottom).toBeUndefined();
+    expect(flatStyle(headerHost!.props.style).zIndex).toBeUndefined();
+    expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle)).toEqual({ flexGrow: 1 });
   });
 
   test('Header paints safe-area chrome independently from its transparent body', () => {
@@ -484,7 +508,10 @@ describe('Modal — keyboard-reachable form composition', () => {
     );
 
     const views = tr.root.findAllByType(View);
-    const header = views.find((node) => typeof node.props.onLayout === 'function');
+    const header = views.find((node) => {
+      const style = flatStyle(node.props.style);
+      return style.flexShrink === 0 && style.backgroundColor === 'transparent';
+    });
     const safeAreaChrome = views.find((node) => node.props.pointerEvents === 'none');
     expect(header).toBeTruthy();
     expect(safeAreaChrome).toBeTruthy();
@@ -507,7 +534,7 @@ describe('Modal — keyboard-reachable form composition', () => {
           <OverlayProvider>
             <Modal open mode="full">
               <ModalPanel>
-                <Scroll safeAreaBottom>
+                <Scroll>
                   <Text>Body</Text>
                 </Scroll>
                 <Footer safeAreaBottom direction="column" align="stretch" paddingY="sm" paddingX="lg">
@@ -522,22 +549,16 @@ describe('Modal — keyboard-reachable form composition', () => {
 
     const footerHost = tr.root
       .findAllByType(View)
-      .find((node) => {
-        const style = flatStyle(node.props.style);
-        return typeof node.props.onLayout === 'function' && style.bottom === 0 && style.zIndex === 2;
-      });
+      .find((node) => flatStyle(node.props.style).paddingBottom === space.sm + 34);
     expect(footerHost).toBeTruthy();
     const footerStyle = flatStyle(footerHost!.props.style);
     expect(footerStyle.alignItems).toBe('stretch');
     expect(footerStyle.paddingHorizontal).toBe(space.lg);
     expect(footerStyle.paddingVertical).toBe(space.sm);
     expect(footerStyle.paddingBottom).toBe(space.sm + 34);
-    expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBe(34);
+    expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBeUndefined();
 
-    act(() => {
-      footerHost!.props.onLayout({ nativeEvent: { layout: { height: 90 } } });
-    });
-    expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBe(90);
+    expect(footerHost!.props.onLayout).toBeUndefined();
   });
 
   test('Footer ignores raw host safe-area inset unless requested', () => {
@@ -564,21 +585,21 @@ describe('Modal — keyboard-reachable form composition', () => {
       .findAllByType(View)
       .find((node) => {
         const style = flatStyle(node.props.style);
-        return typeof node.props.onLayout === 'function' && style.bottom === 0 && style.zIndex === 2;
+        return style.flexShrink === 0 && style.paddingBottom === space.sm;
       });
     expect(footerHost).toBeTruthy();
     expect(flatStyle(footerHost!.props.style).paddingBottom).toBe(space.sm);
     expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBeUndefined();
   });
 
-  test('generic Footer and Scroll consume raw Modal safe-area inset without the legacy root flag', () => {
+  test('Footer is the sole requested bottom-safe-area owner when present', () => {
     const tr = render(
       <NuriThemeProvider>
         <NuriSafeAreaProvider bottom={34}>
           <OverlayProvider>
             <Modal open mode="full">
               <ModalPanel>
-                <Scroll safeAreaBottom>
+                <Scroll>
                   <Text>Body</Text>
                 </Scroll>
                 <Footer safeAreaBottom paddingY="sm">
@@ -593,13 +614,10 @@ describe('Modal — keyboard-reachable form composition', () => {
 
     const footerHost = tr.root
       .findAllByType(View)
-      .find((node) => {
-        const style = flatStyle(node.props.style);
-        return typeof node.props.onLayout === 'function' && style.bottom === 0 && style.zIndex === 2;
-      });
+      .find((node) => flatStyle(node.props.style).paddingBottom === space.sm + 34);
     expect(footerHost).toBeTruthy();
     expect(flatStyle(footerHost!.props.style).paddingBottom).toBe(space.sm + 34);
-    expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBe(34);
+    expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBeUndefined();
   });
 
   test('Scroll safeAreaBottom reserves scroll-only content when there is no footer', () => {
@@ -622,6 +640,42 @@ describe('Modal — keyboard-reachable form composition', () => {
     expect(flatStyle(tr.root.findByType(ScrollView).props.contentContainerStyle).paddingBottom).toBe(34);
   });
 
+  test('Screen keyboard inset replaces a requested bottom safe-area reserve', () => {
+    const originalPlatformOS = Platform.OS;
+    Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'ios' });
+    const handlers: Record<string, (event: { endCoordinates: { height: number; screenY: number } }) => void> = {};
+    const addSpy = jest.spyOn(Keyboard, 'addListener').mockImplementation((eventName, cb) => {
+      handlers[eventName] = cb as (event: { endCoordinates: { height: number; screenY: number } }) => void;
+      return { remove: () => undefined } as never;
+    });
+
+    try {
+      const tr = render(
+        <NuriThemeProvider>
+          <NuriSafeAreaProvider bottom={34}>
+            <Screen safeAreaBottom>
+              <Scroll><Text>Body</Text></Scroll>
+            </Screen>
+          </NuriSafeAreaProvider>
+        </NuriThemeProvider>,
+      );
+      const screen = tr.root.findAllByType(View).find((node) => {
+        const style = flatStyle(node.props.style);
+        return style.flex === 1 && style.position === 'relative' && style.overflow === 'hidden';
+      })!;
+      expect(flatStyle(screen.props.style).paddingBottom).toBe(34);
+
+      act(() => handlers.keyboardWillShow({ endCoordinates: { height: 280, screenY: 520 } }));
+      expect(flatStyle(screen.props.style).paddingBottom).toBe(280);
+
+      act(() => handlers.keyboardWillHide({ endCoordinates: { height: 0, screenY: 800 } }));
+      expect(flatStyle(screen.props.style).paddingBottom).toBe(34);
+    } finally {
+      addSpy.mockRestore();
+      Object.defineProperty(Platform, 'OS', { configurable: true, get: () => originalPlatformOS });
+    }
+  });
+
   test('Modal content detent bounds Scroll without flex-filling the sheet', () => {
     const tr = render(
       <NuriThemeProvider>
@@ -641,11 +695,12 @@ describe('Modal — keyboard-reachable form composition', () => {
     );
 
     const scrollStyle = flatStyle(tr.root.findByType(ScrollView).props.style);
-    expect(scrollStyle.maxHeight).toEqual(expect.any(Number));
-    expect(scrollStyle.flex).toBeUndefined();
+    expect(scrollStyle).toEqual({ flexShrink: 1, minHeight: 0 });
   });
 
-  test('Footer follows the keyboard on full sheets', () => {
+  test('iOS frame inset shrinks the structural column through show, grow, and hide', () => {
+    const originalPlatformOS = Platform.OS;
+    Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'ios' });
     const keyboardHandlers: Record<string, Array<(event: { endCoordinates: { height: number; screenY: number } }) => void>> = {};
     const addSpy = jest
       .spyOn(Keyboard, 'addListener')
@@ -677,34 +732,48 @@ describe('Modal — keyboard-reachable form composition', () => {
 
       const findFooterHost = () => tr.root
         .findAllByType(View)
-        .find((node) => {
-          const style = flatStyle(node.props.style);
-          return typeof node.props.onLayout === 'function' && style.zIndex === 2 && style.left === 0 && style.right === 0;
-        });
+        .find((node) => flatStyle(node.props.style).paddingVertical === space.sm);
+      const findFrameHost = () => tr.root.find((node) => {
+        const style = flatStyle(node.props.style);
+        return typeof node.props.onLayout === 'function' && Array.isArray(style.transform) && style.position === 'absolute';
+      });
 
-      expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(0);
+      expect(flatStyle(findFrameHost().props.style).paddingBottom).toBeUndefined();
+      expect(flatStyle(findFooterHost()!.props.style).bottom).toBeUndefined();
       expect(flatStyle(findFooterHost()!.props.style).paddingVertical).toBe(space.sm);
       expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(space.sm + 34);
 
       act(() => {
-        const showHandlers = keyboardHandlers.keyboardWillShow ?? keyboardHandlers.keyboardDidShow;
-        for (const show of showHandlers) show({ endCoordinates: { height: 280, screenY: 0 } });
+        for (const show of keyboardHandlers.keyboardWillShow!) {
+          show({ endCoordinates: { height: 280, screenY: 520 } });
+        }
       });
-      expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(280);
+      expect(flatStyle(findFrameHost().props.style).paddingBottom).toBe(280);
+      expect(flatStyle(findFooterHost()!.props.style).bottom).toBeUndefined();
       expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(space.sm);
 
       act(() => {
-        const hideHandlers = keyboardHandlers.keyboardWillHide ?? keyboardHandlers.keyboardDidHide;
-        for (const hide of hideHandlers) hide({ endCoordinates: { height: 0, screenY: 0 } });
+        for (const change of keyboardHandlers.keyboardWillChangeFrame!) {
+          change({ endCoordinates: { height: 360, screenY: 440 } });
+        }
       });
-      expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(0);
+      expect(flatStyle(findFrameHost().props.style).paddingBottom).toBe(360);
+
+      act(() => {
+        for (const hide of keyboardHandlers.keyboardWillHide!) {
+          hide({ endCoordinates: { height: 0, screenY: 800 } });
+        }
+      });
+      expect(flatStyle(findFrameHost().props.style).paddingBottom).toBeUndefined();
+      expect(flatStyle(findFooterHost()!.props.style).bottom).toBeUndefined();
       expect(flatStyle(findFooterHost()!.props.style).paddingBottom).toBe(space.sm + 34);
     } finally {
       addSpy.mockRestore();
+      Object.defineProperty(Platform, 'OS', { configurable: true, get: () => originalPlatformOS });
     }
   });
 
-  test('Android adjustResize never applies a transient second keyboard offset', () => {
+  test('Android keyboard event pins Footer when the host window does not resize', () => {
     const originalPlatformOS = Platform.OS;
     Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'android' });
 
@@ -737,27 +806,96 @@ describe('Modal — keyboard-reachable form composition', () => {
 
       const findFooterHost = () => tr.root
         .findAllByType(View)
-        .find((node) => {
-          const style = flatStyle(node.props.style);
-          return typeof node.props.onLayout === 'function' && style.zIndex === 2 && style.left === 0 && style.right === 0;
-        });
+        .find((node) => flatStyle(node.props.style).flexShrink === 0);
+      const findFrameHost = () => tr.root.find((node) => {
+        const style = flatStyle(node.props.style);
+        return typeof node.props.onLayout === 'function' && Array.isArray(style.transform) && style.position === 'absolute';
+      });
 
       expect(keyboardHandlers.keyboardDidShow).toBeTruthy();
-      expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(0);
+      expect(flatStyle(findFooterHost()!.props.style).bottom).toBeUndefined();
+      expect(flatStyle(findFrameHost().props.style).paddingBottom).toBeUndefined();
 
-      const scrollMaxHeight = flatStyle(tr.root.findByType(ScrollView).props.style).maxHeight;
-      expect(scrollMaxHeight).toEqual(expect.any(Number));
+      const scrollStyle = flatStyle(tr.root.findByType(ScrollView).props.style);
+      expect(scrollStyle).toEqual({ flexGrow: 1, flexShrink: 1, minHeight: 0 });
 
       act(() => {
         for (const show of keyboardHandlers.keyboardDidShow!) {
-          // Model keyboardDidShow arriving before useWindowDimensions publishes
-          // the adjustResize height. The old screenY-derived offset briefly
-          // moved the footer and compressed Scroll until the dimension update.
-          show({ endCoordinates: { height: 280, screenY: (scrollMaxHeight as number) - 280 } });
+          // Expo Go and translucent system chrome can leave the host window
+          // unresized. Height and screenY jointly resolve the remaining frame
+          // occlusion; model the physical device's 24dp system-bar strip that
+          // screenY captures but the Android event height omits.
+          show({
+            endCoordinates: {
+              height: 256,
+              screenY: Dimensions.get('window').height - 280,
+            },
+          });
         }
       });
-      expect(flatStyle(findFooterHost()!.props.style).bottom).toBe(0);
-      expect(flatStyle(tr.root.findByType(ScrollView).props.style).maxHeight).toBe(scrollMaxHeight);
+      expect(flatStyle(findFooterHost()!.props.style).bottom).toBeUndefined();
+      expect(flatStyle(findFrameHost().props.style).paddingBottom).toBe(280);
+      expect(flatStyle(tr.root.findByType(ScrollView).props.style)).toEqual(scrollStyle);
+    } finally {
+      addSpy.mockRestore();
+      Object.defineProperty(Platform, 'OS', { configurable: true, get: () => originalPlatformOS });
+    }
+  });
+
+  test('Android adjustResize keeps bottom safe-area padding suppressed while the keyboard remains visible', () => {
+    const originalPlatformOS = Platform.OS;
+    Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'android' });
+
+    const keyboardHandlers: Record<string, Array<(event: { endCoordinates: { height: number; screenY: number } }) => void>> = {};
+    const addSpy = jest
+      .spyOn(Keyboard, 'addListener')
+      .mockImplementation((eventName, cb) => {
+        keyboardHandlers[eventName] ??= [];
+        keyboardHandlers[eventName].push(cb as (event: { endCoordinates: { height: number; screenY: number } }) => void);
+        return { remove: () => undefined } as never;
+      });
+
+    const tree = (windowHeight: number) => (
+      <NuriThemeProvider>
+        <FixedRegionLayoutProvider keyboardEnabled windowHeight={windowHeight} safeAreaBottom={34}>
+          <Scroll safeAreaBottom><Text>Body</Text></Scroll>
+          <Footer safeAreaBottom paddingY="sm"><Button>Continue</Button></Footer>
+        </FixedRegionLayoutProvider>
+      </NuriThemeProvider>
+    );
+
+    try {
+      const tr = render(tree(800));
+      const footer = () => tr.root.findAllByType(View).find((node) => {
+        const style = flatStyle(node.props.style);
+        return style.flexShrink === 0 && style.paddingVertical === space.sm;
+      })!;
+      const scroll = () => tr.root.findByType(ScrollView);
+
+      expect(flatStyle(footer().props.style).paddingBottom).toBe(space.sm + 34);
+      expect(flatStyle(scroll().props.contentContainerStyle).paddingBottom).toBe(34);
+
+      act(() => {
+        for (const show of keyboardHandlers.keyboardDidShow!) {
+          show({ endCoordinates: { height: 280, screenY: 520 } });
+        }
+      });
+      expect(flatStyle(footer().props.style).paddingBottom).toBe(space.sm);
+      expect(flatStyle(scroll().props.contentContainerStyle).paddingBottom).toBeUndefined();
+
+      // The resized window consumes the entire keyboard, so the residual frame
+      // inset returns to zero. Safe-area padding must still stay suppressed.
+      act(() => tr.update(tree(520)));
+      expect(flatStyle(footer().props.style).paddingBottom).toBe(space.sm);
+      expect(flatStyle(scroll().props.contentContainerStyle).paddingBottom).toBeUndefined();
+
+      act(() => {
+        for (const hide of keyboardHandlers.keyboardDidHide!) {
+          hide({ endCoordinates: { height: 0, screenY: 800 } });
+        }
+      });
+      expect(flatStyle(footer().props.style).paddingBottom).toBe(space.sm + 34);
+      expect(flatStyle(scroll().props.contentContainerStyle).paddingBottom).toBe(34);
     } finally {
       addSpy.mockRestore();
       Object.defineProperty(Platform, 'OS', { configurable: true, get: () => originalPlatformOS });
@@ -903,6 +1041,55 @@ describe('Modal — keyboard-reachable form composition', () => {
       addSpy.mockRestore();
       getInnerViewRefSpy.mockRestore();
       scrollToSpy.mockRestore();
+      jest.useRealTimers();
+      global.requestAnimationFrame = originalRequestAnimationFrame;
+      global.cancelAnimationFrame = originalCancelAnimationFrame;
+    }
+  });
+
+  test('only the Scroll that owns focus adds keyboard content clearance', () => {
+    jest.useFakeTimers();
+    const originalRequestAnimationFrame = global.requestAnimationFrame;
+    const originalCancelAnimationFrame = global.cancelAnimationFrame;
+    global.requestAnimationFrame = ((cb: FrameRequestCallback) => setTimeout(() => cb(0), 0) as unknown as number);
+    global.cancelAnimationFrame = ((id: number) => clearTimeout(id as unknown as ReturnType<typeof setTimeout>));
+    const keyboardHandlers: Record<string, (event: { endCoordinates: { height: number; screenY: number } }) => void> = {};
+    const addSpy = jest.spyOn(Keyboard, 'addListener').mockImplementation((eventName, cb) => {
+      keyboardHandlers[eventName] = cb as (event: { endCoordinates: { height: number; screenY: number } }) => void;
+      return { remove: () => undefined } as never;
+    });
+
+    try {
+      const tr = render(
+        <NuriThemeProvider>
+          <FixedRegionLayoutProvider keyboardEnabled>
+            <Header>
+              <TextField value="" accessibilityLabel="Search" placeholder="Header search" />
+            </Header>
+            <Scroll>
+              <TextField value="" accessibilityLabel="Amount" placeholder="Body field" />
+            </Scroll>
+          </FixedRegionLayoutProvider>
+        </NuriThemeProvider>,
+      );
+      const scroll = tr.root.findByType(ScrollView);
+      const headerInput = tr.root.findAllByType(TextInput).find((node) => node.props.placeholder === 'Header search')!;
+      const bodyInput = tr.root.findAllByType(TextInput).find((node) => node.props.placeholder === 'Body field')!;
+
+      act(() => headerInput.props.onFocus({ nativeEvent: {} }));
+      act(() => {
+        const show = keyboardHandlers.keyboardWillShow ?? keyboardHandlers.keyboardDidShow;
+        show({ endCoordinates: { height: 280, screenY: 520 } });
+      });
+      expect(flatStyle(scroll.props.contentContainerStyle)).toEqual({ flexGrow: 1 });
+
+      act(() => bodyInput.props.onFocus({ nativeEvent: {} }));
+      expect(flatStyle(scroll.props.contentContainerStyle).paddingBottom).toBe(368);
+
+      act(() => bodyInput.props.onBlur({ nativeEvent: {} }));
+      expect(flatStyle(scroll.props.contentContainerStyle).paddingBottom).toBeUndefined();
+    } finally {
+      addSpy.mockRestore();
       jest.useRealTimers();
       global.requestAnimationFrame = originalRequestAnimationFrame;
       global.cancelAnimationFrame = originalCancelAnimationFrame;
@@ -1275,7 +1462,7 @@ describe('Modal — keyboard-reachable form composition', () => {
     }
   });
 
-  test('Scroll focus-scroll safe top accounts for sticky topbar height', () => {
+  test('Modal Scroll focus-scroll clears the overlaid 2xl Topbar without measuring Header', () => {
     jest.useFakeTimers();
     const originalRequestAnimationFrame = global.requestAnimationFrame;
     const originalCancelAnimationFrame = global.cancelAnimationFrame;
@@ -1299,7 +1486,7 @@ describe('Modal — keyboard-reachable form composition', () => {
         tr = TestRenderer.create(
           <NuriThemeProvider>
             <OverlayProvider>
-              <Modal open mode="full">
+              <Modal open mode="full" scrollUnderTopbar>
                 <ModalPanel>
                   <Header>
                     <Button>Close</Button>
@@ -1312,16 +1499,6 @@ describe('Modal — keyboard-reachable form composition', () => {
             </OverlayProvider>
           </NuriThemeProvider>,
         );
-      });
-
-      const topbarHost = tr.root
-        .findAllByType(View)
-        .find((node) => {
-          const style = flatStyle(node.props.style);
-          return typeof node.props.onLayout === 'function' && style.top === 0 && style.zIndex === 2;
-        });
-      act(() => {
-        topbarHost!.props.onLayout({ nativeEvent: { layout: { height: 56 } } });
       });
 
       const scroll = tr.root.findByType(ScrollView);
@@ -1339,7 +1516,7 @@ describe('Modal — keyboard-reachable form composition', () => {
         jest.runAllTimers();
       });
 
-      expect(scrollTo).toHaveBeenCalledWith({ y: 38, animated: true });
+      expect(scrollTo).toHaveBeenCalledWith({ y: 22, animated: true });
       expect(scrollToSpy).toHaveBeenCalledTimes(1);
     } finally {
       getInnerViewRefSpy.mockRestore();
@@ -1389,8 +1566,8 @@ describe('Modal — keyboard-reachable form composition', () => {
         ? Object.assign({}, ...contentStyle.filter(Boolean))
         : contentStyle as Record<string, unknown>;
       expect(flat).toEqual({ flexGrow: 1 });
-      const footer = tr.root.findAllByType(View).find((node) => flatStyle(node.props.style).zIndex === 2);
-      expect(flatStyle(footer!.props.style).bottom).toBe(0);
+      const footer = tr.root.findAllByType(View).find((node) => flatStyle(node.props.style).flexShrink === 0);
+      expect(flatStyle(footer!.props.style).bottom).toBeUndefined();
     } finally {
       addSpy.mockRestore();
     }

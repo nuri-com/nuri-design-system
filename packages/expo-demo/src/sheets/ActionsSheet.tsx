@@ -28,7 +28,7 @@ export function ActionsSheet({
   return (
     <Modal open={open} mode="sheet" onOpenChange={(next) => !next && onClose()}>
       <ModalPanel>
-        <Header>
+        <Header chrome="transparent">
           <Topbar surface="transparent">
             <TopbarTrailing>
               <IconButton icon="cross" variant="soft" accessibilityLabel="Close actions sheet" onPress={onClose} />

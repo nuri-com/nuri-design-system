@@ -22,6 +22,8 @@ const appNodeModulesReal = fs.existsSync(appNodeModules)
   ? fs.realpathSync(appNodeModules)
   : appNodeModules;
 const reactPackageRoot = fs.realpathSync(path.dirname(resolveFromApp('react/package.json')));
+const specRoot = path.resolve(monorepoRoot, 'packages/spec');
+const specPackage = require(path.join(specRoot, 'package.json'));
 
 const config = getDefaultConfig(projectRoot);
 
@@ -56,6 +58,13 @@ config.resolver.nodeModulesPaths = [
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   if (moduleName === '@ds') {
     return { type: 'sourceFile', filePath: dsEntry };
+  }
+
+  if (moduleName.startsWith('@nuri/spec/')) {
+    const exportTarget = specPackage.exports[`./${moduleName.slice('@nuri/spec/'.length)}`];
+    if (typeof exportTarget === 'string') {
+      return { type: 'sourceFile', filePath: path.resolve(specRoot, exportTarget) };
+    }
   }
 
   if (

@@ -28,7 +28,7 @@ export function ActivitySheet({
   onClose: () => void;
 }) {
   return (
-    <Modal open={open} mode="full" onOpenChange={(next) => !next && onClose()}>
+    <Modal open={open} mode="full" scrollUnderTopbar onOpenChange={(next) => !next && onClose()}>
       <ModalPanel>
         <Header safeAreaTop chrome="transparent" safeAreaChrome="canvas">
           <Topbar surface="transparent">

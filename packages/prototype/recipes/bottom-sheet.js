@@ -32,10 +32,6 @@ class NuriBottomSheet extends HTMLElement {
     this.setAttribute('mode', mode);
     const panel = this.querySelector(':scope > nuri-bottom-sheet-panel');
     panel?.setAttribute('mode', mode);
-    queueMicrotask(() => {
-      panel?.querySelector(':scope > nuri-header')?.refreshRegionLayout?.();
-      panel?.querySelector(':scope > nuri-footer')?.refreshRegionLayout?.();
-    });
   }
 }
 

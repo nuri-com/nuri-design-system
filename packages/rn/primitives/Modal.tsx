@@ -23,7 +23,7 @@ import {
 } from '../generated/components/modal-panel';
 import { usePresentedLayer } from '../presented-layer';
 import { useNuriSafeAreaInsets } from '../safe-area';
-import { FixedRegionLayoutProvider } from './FixedRegionLayout';
+import { FixedRegionLayoutProvider, useFixedRegionLayout } from './FixedRegionLayout';
 
 export type ModalMode = 'sheet' | 'full';
 export type ModalScrim = 'none' | 'dim';
@@ -31,6 +31,7 @@ export type ModalScrim = 'none' | 'dim';
 export type ModalProps = {
   open?: boolean;
   mode: ModalMode;
+  scrollUnderTopbar?: boolean;
   scrim?: ModalScrim;
   dismissible?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -73,6 +74,29 @@ const RN_SCRIM = {
 const AnimatedPressable = Animated.createAnimatedComponent(RNPressable);
 const ModalModeContext = React.createContext<ModalMode | null>(null);
 
+type ModalSurfaceProps = {
+  children?: React.ReactNode;
+  onLayout: (event: LayoutChangeEvent) => void;
+  surfaceStyle: ViewStyle;
+  animatedStyle: React.ComponentProps<typeof Animated.View>['style'];
+};
+
+const ModalSurface: React.FC<ModalSurfaceProps> = ({
+  children,
+  onLayout,
+  surfaceStyle,
+  animatedStyle,
+}) => {
+  const { frameKeyboardInset } = useFixedRegionLayout();
+  const keyboardStyle = frameKeyboardInset > 0 ? { paddingBottom: frameKeyboardInset } : null;
+  return (
+    <Animated.View onLayout={onLayout} style={[surfaceStyle, animatedStyle, keyboardStyle]}>
+      {children}
+    </Animated.View>
+  );
+};
+ModalSurface.displayName = 'ModalSurface';
+
 type ActiveModal = { id: string; mode: ModalMode };
 const activeModals: ActiveModal[] = [];
 let warnedFullScrim = false;
@@ -85,6 +109,7 @@ function isDev(): boolean {
 export const Modal: React.FC<ModalProps> = ({
   open = false,
   mode,
+  scrollUnderTopbar = false,
   scrim,
   dismissible = true,
   onOpenChange,
@@ -189,22 +214,25 @@ export const Modal: React.FC<ModalProps> = ({
             />
           ) : null}
           <RNView pointerEvents="box-none" style={styles.host}>
-            <Animated.View
-              onLayout={handleSurfaceLayout}
-              style={[surfaceStyle, animatedStyle]}
+            <FixedRegionLayoutProvider
+              keyboardEnabled={!isSheet}
+              hostGeometry={isSheet ? 'content' : 'fill'}
+              headerPresentation={scrollUnderTopbar ? 'overlay' : 'structural'}
+              safeAreaTop={isSheet ? 0 : safeAreaInsets.top}
+              safeAreaBottom={safeAreaInsets.bottom}
+              viewportFallbackHeight={isSheet ? sheetMaxHeight : windowHeight}
+              windowHeight={windowHeight}
             >
-              <FixedRegionLayoutProvider
-                keyboardEnabled={!isSheet}
-                safeAreaTop={isSheet ? 0 : safeAreaInsets.top}
-                safeAreaBottom={safeAreaInsets.bottom}
-                scrollMaxHeight={isSheet ? sheetMaxHeight : windowHeight}
-                windowHeight={windowHeight}
+              <ModalSurface
+                onLayout={handleSurfaceLayout}
+                surfaceStyle={surfaceStyle}
+                animatedStyle={animatedStyle}
               >
                 <ModalModeContext.Provider value={mode}>
                   {children}
                 </ModalModeContext.Provider>
-              </FixedRegionLayoutProvider>
-            </Animated.View>
+              </ModalSurface>
+            </FixedRegionLayoutProvider>
           </RNView>
         </RNView>
       );

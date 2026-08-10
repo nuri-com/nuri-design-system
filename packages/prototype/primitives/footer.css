@@ -1,11 +1,11 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · FOOTER
- * Fixed bottom region for a local Screen or ModalPanel.
+ * Intrinsic structural bottom region for a local Screen or ModalPanel.
  * ────────────────────────────────────────────────────────────── */
 
 @layer tokens {
   /* Empty by design. Footer composes box/stack/palette attrs and owns only
-   * structural fixed-region placement. */
+   * structural region placement. */
 }
 
 @layer rules {
@@ -22,9 +22,7 @@
     inline-size: 100%;
     display: flex;
     flex-direction: column;
-    position: absolute;
-    inset-inline: 0;
-    inset-block-end: 0;
-    z-index: 2;
+    flex-shrink: 0;
+    align-self: stretch;
   }
 }

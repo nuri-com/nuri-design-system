@@ -1,11 +1,11 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · HEADER
- * Fixed top region for a local Screen or ModalPanel.
+ * Intrinsic structural top region for a local Screen or ModalPanel.
  * ────────────────────────────────────────────────────────────── */
 
 @layer tokens {
   /* Empty by design. Header composes box/stack/palette attrs and owns only
-   * structural fixed-region placement. */
+   * structural region placement. */
 }
 
 @layer rules {
@@ -22,10 +22,9 @@
     inline-size: 100%;
     display: flex;
     flex-direction: column;
-    position: absolute;
-    inset-inline: 0;
-    inset-block-start: 0;
-    z-index: 2;
+    position: relative;
+    flex-shrink: 0;
+    align-self: stretch;
   }
 
   .nuri-header__safe-area-chrome {

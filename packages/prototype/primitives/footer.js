@@ -1,8 +1,7 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · FOOTER · CUSTOM ELEMENT
- * <nuri-footer> mirrors RN <Footer>: a fixed bottom region that resolves
- * box/stack/palette attrs and reports its measured block size to the local
- * screen or sheet scope for sibling <nuri-scroll> content padding.
+ * <nuri-footer> mirrors RN <Footer>: an intrinsic structural bottom region that
+ * resolves box/stack/palette attrs in the host's normal flex flow.
  * ────────────────────────────────────────────────────────────── */
 
 import { mergeAttrs } from '../factory/factory.js';
@@ -40,26 +39,12 @@ class NuriFooter extends HTMLElement {
 
   #inner = null;
   #innerTag = null;
-  #resizeObserver = null;
-  #scope = null;
 
   connectedCallback() {
     if (!this.#inner) {
       this.#replaceInner((this.getAttribute('as') || 'div').toLowerCase());
     }
-    if (typeof ResizeObserver === 'function') {
-      this.#resizeObserver = new ResizeObserver(() => this.#measure());
-      this.#resizeObserver.observe(this.#inner);
-    }
     this.#sync();
-    queueMicrotask(() => this.#measure());
-  }
-
-  disconnectedCallback() {
-    this.#resizeObserver?.disconnect();
-    this.#resizeObserver = null;
-    this.#setScopeVar(this.#scope, 0);
-    this.#scope = null;
   }
 
   attributeChangedCallback(name, _oldValue, newValue) {
@@ -69,11 +54,6 @@ class NuriFooter extends HTMLElement {
       if (desired !== this.#innerTag) this.#replaceInner(desired);
     }
     this.#sync();
-    this.#measure();
-  }
-
-  refreshRegionLayout() {
-    this.#measure();
   }
 
   #replaceInner(tag) {
@@ -121,21 +101,6 @@ class NuriFooter extends HTMLElement {
     if (Object.keys(palette).length) ns.palette = palette;
 
     return ns;
-  }
-
-  #nearestScope() {
-    return this.closest('.nuri-screen, nuri-modal-panel, nuri-bottom-sheet-panel');
-  }
-
-  #setScopeVar(scope, px) {
-    scope?.style.setProperty('--nuri-fixed-footer-block', `${px}px`);
-  }
-
-  #measure() {
-    const nextScope = this.#nearestScope();
-    if (this.#scope && this.#scope !== nextScope) this.#setScopeVar(this.#scope, 0);
-    this.#scope = nextScope;
-    this.#setScopeVar(nextScope, Math.round(this.#inner?.getBoundingClientRect().height ?? 0));
   }
 }
 

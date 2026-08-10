@@ -146,7 +146,7 @@ export const COMPONENT_API_DOCS = [
     source: 'header',
     title: 'Header',
     nav: 16,
-    lead: '`Header` owns the painted top safe-area strip. `chrome` paints the header body; `safeAreaChrome` may independently paint the reserved strip with an existing semantic chrome role, as in `<Header safeAreaTop chrome="transparent" safeAreaChrome="canvas">`. This is a cosmetic split only: the current fixed-region layout remains measurement-based until the documented Yoga refactor ships.',
+    lead: '`Header` is an intrinsic structural region in the host column, so the first layout clears it without a measurement callback. Only the sibling `Scroll` scrolls; `Header` remains visible in normal flow rather than through absolute positioning. `Header` owns the painted top safe-area strip. `chrome` paints the header body, while `safeAreaChrome` may independently paint the reserved strip with an existing semantic chrome role, as in `<Header safeAreaTop chrome="transparent" safeAreaChrome="canvas">`.',
     file: 'packages/rn/primitives/Header.tsx',
     type: 'HeaderProps',
   },

@@ -12,6 +12,8 @@ import * as React from 'react';
 import type { ImageSourcePropType } from 'react-native';
 
 import {
+  Button,
+  Footer,
   Header,
   IconButton,
   List,
@@ -82,7 +84,7 @@ export function CountryPickerSheet({ open, onClose }: { open: boolean; onClose: 
     <>
       <Modal open={open} mode="full" onOpenChange={(next) => !next && onClose()}>
         <ModalPanel>
-          <Header safeAreaTop>
+          <Header safeAreaTop chrome="transparent" safeAreaChrome="canvas">
             <Topbar surface="transparent">
               <TopbarLeading>
                 <IconButton icon="chevron-left" variant="soft" accessibilityLabel="Back" onPress={onClose} />
@@ -96,7 +98,7 @@ export function CountryPickerSheet({ open, onClose }: { open: boolean; onClose: 
             </Topbar>
           </Header>
 
-          <Scroll safeAreaBottom>
+          <Scroll>
             <View
               direction="column"
               align="stretch"
@@ -131,6 +133,17 @@ export function CountryPickerSheet({ open, onClose }: { open: boolean; onClose: 
               </View>
             </View>
           </Scroll>
+
+          <Footer
+            safeAreaBottom
+            chrome="strong"
+            direction="column"
+            align="stretch"
+            paddingY="sm"
+            paddingX="lg"
+          >
+            <Button size="lg" variant="solid" accent="lilac">Request code</Button>
+          </Footer>
         </ModalPanel>
       </Modal>
 
@@ -142,8 +155,8 @@ export function CountryPickerSheet({ open, onClose }: { open: boolean; onClose: 
         onOpenComplete={() => countrySearchRef.current?.focus()}
       >
         <ModalPanel>
-          <Header safeAreaTop chrome="canvas">
-            <Topbar layout="fluid">
+          <Header safeAreaTop chrome="transparent" safeAreaChrome="canvas">
+            <Topbar surface="transparent" layout="fluid">
               <TopbarLeading>
                 <IconButton
                   icon="chevron-left"
@@ -171,7 +184,7 @@ export function CountryPickerSheet({ open, onClose }: { open: boolean; onClose: 
             </Topbar>
           </Header>
 
-          <Scroll safeAreaBottom>
+          <Scroll>
             <View paddingTop="sm">
               <List>
                 {filteredCountries.map((item) => (
@@ -192,6 +205,8 @@ export function CountryPickerSheet({ open, onClose }: { open: boolean; onClose: 
               </List>
             </View>
           </Scroll>
+
+          <Footer safeAreaBottom chrome="strong" paddingY="sm" />
         </ModalPanel>
       </Modal>
 

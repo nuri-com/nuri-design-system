@@ -35,20 +35,13 @@
 - **What would close it:** the first real app screen shipped on the DS on RN — composed purely of
   descriptors + primitives, no page-local escape hatches.
 
-### R7 · Fixed regions depend on asynchronous measurement
+## Closed
 
-- **Risk:** structural `Header` and `Footer` are absolutely positioned, while `Scroll` reserves their
-  measured heights after `onLayout`. A newly presented surface can therefore expose one frame with a
-  zero inset before the fixed-region measurement lands; keyboard/window changes make that race more
-  visible but are not its owner.
-- **Current mitigation:** the region measurements and Android keyboard offset are regression-tested;
-  Header can paint its body and safe-area strip independently, but the cosmetic split deliberately
-  does not claim to solve geometry.
-- **What would close it:** ship the one-pass Yoga fixed-region layout described in
-  [`fixed-region-yoga-refactor.md`](./fixed-region-yoga-refactor.md), including the platform and
-  composition matrix in that document.
-
-## Closed (2026-07-02 adjudication · one line of evidence each)
+- **R7 · Fixed regions depend on asynchronous measurement** — closed 2026-07-17: Header/Footer geometry is
+  one-pass Yoga/CSS with no measurement handshake; only Dock retains measured overlay insets. The automated
+  and browser matrix plus physical Android and iOS Expo Go acceptance—including first autofocus, keyboard
+  transitions, Footer pinning, safe-area restoration, and transparent Topbar under-scroll—is recorded in
+  [`fixed-region-yoga-refactor.md`](./fixed-region-yoga-refactor.md) §§10 and 13.
 
 - **R2 · pipeline schema validated late** — superseded: the CSS→DTCG→Style-Dictionary pipeline it
   worried about no longer exists; the spec is TS data, the descriptor schema is FROZEN and pinned

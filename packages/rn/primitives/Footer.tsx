@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View as RNView } from 'react-native';
 import type { LayoutChangeEvent, ViewStyle } from 'react-native';
 import type { BoxNS, PaletteNS, StackNS } from '../contract';
-import { useFixedRegionLayout, useRegisterRegion } from './FixedRegionLayout';
+import { useFixedRegionLayout } from './FixedRegionLayout';
 import { FIXED_REGION_STYLE_KEYS, numericPadding, useResolvedNode, withKeys, withSurface } from './shared';
 
 type FooterStyleProps =
@@ -25,15 +25,18 @@ const FooterImpl = React.forwardRef<React.ElementRef<typeof RNView>, FooterProps
   onLayout,
   ...props
 }, ref) => {
-  const { keyboardOffset, safeAreaBottom: hostSafeAreaBottom } = useFixedRegionLayout();
-  const handleLayout = useRegisterRegion('footer', onLayout);
+  const { keyboardHeight, safeAreaBottom: hostSafeAreaBottom } = useFixedRegionLayout();
   const { node } = useResolvedNode(props);
   const resolvedViewStyle = node.view as ViewStyle;
   const authoredPaddingBottom =
     props.paddingBottom !== undefined
       ? numericPadding(resolvedViewStyle, 'paddingBottom')
       : numericPadding(resolvedViewStyle, 'paddingVertical');
-  const activeSafeAreaBottom = safeAreaBottom && keyboardOffset === 0 ? hostSafeAreaBottom : 0;
+  // Keyboard visibility and residual frame occlusion are different signals on
+  // Android: adjustResize can consume the full keyboard and leave a zero frame
+  // inset while the keyboard is still visible. Do not restore the system-bar
+  // safe-area reserve until the keyboard actually hides.
+  const activeSafeAreaBottom = safeAreaBottom && keyboardHeight === 0 ? hostSafeAreaBottom : 0;
   const composedPaddingBottom =
     authoredPaddingBottom > 0 || activeSafeAreaBottom > 0
       ? { paddingBottom: authoredPaddingBottom + activeSafeAreaBottom }
@@ -43,11 +46,10 @@ const FooterImpl = React.forwardRef<React.ElementRef<typeof RNView>, FooterProps
     <RNView
       ref={ref}
       testID={testID}
-      onLayout={handleLayout}
+      onLayout={onLayout}
       style={[
         FOOTER_STYLE,
         node.view,
-        keyboardOffset > 0 ? { bottom: keyboardOffset } : null,
         composedPaddingBottom,
       ]}
     >
@@ -63,9 +65,6 @@ export const Footer = withKeys(FooterImpl, [
 ]);
 
 const FOOTER_STYLE: ViewStyle = {
-  position: 'absolute',
-  left: 0,
-  right: 0,
-  bottom: 0,
-  zIndex: 2,
+  flexShrink: 0,
+  alignSelf: 'stretch',
 };

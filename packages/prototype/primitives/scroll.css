@@ -50,18 +50,20 @@
    * host as a filling block so authored content doesn't flash. */
   nuri-scroll:not(:defined) {
     display: block;
-    flex: 1;
+    flex-grow: var(--nuri-scroll-flex-grow, 1);
+    flex-shrink: 1;
+    flex-basis: auto;
     min-block-size: 0;
     overflow-y: auto;
   }
 
-  /* ── Base · the growing scroll region ──────────────────────────
-   * flex:1 absorbs the slack between the pinned chrome of the parent
-   * <nuri-screen>; min-block-size:0 lets it shrink below content so
-   * overflow actually scrolls; overscroll-behavior:contain keeps the
-   * scroll chaining inside the screen (no rubber-banding the page). */
+  /* ── Base · host-selected grow + explicit shrink ───────────────
+   * Filling hosts publish grow=1; content sheets publish grow=0. Both
+   * explicitly shrink below content so overflow can scroll at the host cap. */
   .nuri-scroll {
-    flex: 1;
+    flex-grow: var(--nuri-scroll-flex-grow, 1);
+    flex-shrink: 1;
+    flex-basis: auto;
     min-block-size: 0;
     /* Flex column so a `fill` content container (a Stack — fill is
      * stack-only since amendment 60.1 · N+19 U3; merge box padding
@@ -87,13 +89,14 @@
     --nuri-scroll-safe-area-bottom: 0px;
     --nuri-scroll-dock-top: 0px;
     --nuri-scroll-dock-bottom: 0px;
+    --nuri-scroll-overlay-top: 0px;
     padding-block-start: calc(
-      var(--nuri-fixed-header-block, 0px) +
       var(--nuri-scroll-safe-area-top) +
-      var(--nuri-scroll-dock-top)
+      var(--nuri-scroll-dock-top) +
+      var(--nuri-scroll-overlay-top)
     );
     padding-block-end: calc(
-      max(var(--nuri-fixed-footer-block, 0px), var(--nuri-scroll-safe-area-bottom)) +
+      var(--nuri-scroll-safe-area-bottom) +
       var(--nuri-scroll-dock-bottom)
     );
   }

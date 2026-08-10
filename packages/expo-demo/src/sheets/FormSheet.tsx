@@ -87,6 +87,7 @@ export function FormSheet({
     <Modal
       open={open}
       mode="full"
+      scrollUnderTopbar
       onOpenChange={(next) => !next && onClose()}
       onOpenComplete={() => firstFieldRef.current?.focus()}
     >
@@ -124,7 +125,7 @@ export function FormSheet2({
   onClose,
 }: FormSheetProps) {
   return (
-    <Modal open={open} mode="full" onOpenChange={(next) => !next && onClose()}>
+    <Modal open={open} mode="full" scrollUnderTopbar onOpenChange={(next) => !next && onClose()}>
       <ModalPanel>
         <Header safeAreaTop chrome="transparent" safeAreaChrome="canvas">
           <Topbar surface="transparent">

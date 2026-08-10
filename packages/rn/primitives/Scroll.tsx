@@ -11,9 +11,10 @@ import type {
   TextInput,
   ViewStyle,
 } from 'react-native';
+import { size } from '../generated/data/tokens';
 import { FocusScrollProvider, type FocusScrollApi } from '../runtime/focus-scroll';
 import { useFixedRegionLayout } from './FixedRegionLayout';
-import { SCREEN_STYLE, withKeys } from './shared';
+import { withKeys } from './shared';
 
 export type ScrollInsetBottom = 'none' | 'dock';
 export type ScrollInsetTop = 'none' | 'dock';
@@ -59,12 +60,11 @@ const ScrollImpl = React.forwardRef<React.ElementRef<typeof RNScrollView>, Scrol
 }, forwardedRef) => {
   const {
     keyboardEnabled,
-    scrollMaxHeight,
-    headerHeight,
-    footerHeight,
+    hostGeometry,
+    headerPresentation,
+    viewportFallbackHeight,
     keyboardHeight: contextKeyboardHeight,
     keyboardScreenY: contextKeyboardScreenY,
-    keyboardOffset,
     safeAreaTop: hostSafeAreaTop,
     safeAreaBottom: hostSafeAreaBottom,
     dockTopInset,
@@ -95,14 +95,14 @@ const ScrollImpl = React.forwardRef<React.ElementRef<typeof RNScrollView>, Scrol
   }, []);
 
   const keyboardOcclusion = React.useCallback(() => {
-    const measuredViewport = viewportHeight.current || scrollMaxHeight || 0;
+    const measuredViewport = viewportHeight.current || viewportFallbackHeight || 0;
     const beforeKeyboard = preKeyboardViewportHeight.current || measuredViewport;
     const viewportShrink = Math.max(0, beforeKeyboard - measuredViewport);
     return Math.max(0, keyboardHeight.current - viewportShrink);
-  }, [scrollMaxHeight]);
+  }, [viewportFallbackHeight]);
 
   const updateKeyboardPadding = React.useCallback(() => {
-    if (keyboardHeight.current <= 0) {
+    if (keyboardHeight.current <= 0 || focusedInput.current === null) {
       setKeyboardPadding(0);
       return;
     }
@@ -113,10 +113,13 @@ const ScrollImpl = React.forwardRef<React.ElementRef<typeof RNScrollView>, Scrol
     const scroll = scrollRef.current;
     if (!input || !scroll) return;
 
-    const measuredViewport = viewportHeight.current || scrollMaxHeight || 0;
+    const measuredViewport = viewportHeight.current || viewportFallbackHeight || 0;
     const visibleHeight = Math.max(0, measuredViewport - keyboardOcclusion());
     const currentY = scrollY.current;
-    const targetTop = headerHeight + FOCUS_TOP_MARGIN;
+    // An opted-in Modal Scroll viewport starts below the safe-area strip and
+    // underneath its transparent Topbar. Keep focused controls below that
+    // overlaid control region using the same token as its initial padding.
+    const targetTop = FOCUS_TOP_MARGIN + (headerPresentation === 'overlay' ? size['2xl'] : 0);
     const targetBottom = Math.max(targetTop, visibleHeight - FOCUS_BOTTOM_MARGIN);
     const scrollToNextY = (nextY: number): void => {
       const clampedY = Math.max(0, Math.round(nextY));
@@ -181,14 +184,14 @@ const ScrollImpl = React.forwardRef<React.ElementRef<typeof RNScrollView>, Scrol
             nextY = inputTop - targetTop;
           }
         } else {
-          nextY = currentY + y - FOCUS_TOP_MARGIN;
+          nextY = currentY + y - targetTop;
         }
 
         scrollToNextY(nextY);
       },
       () => undefined,
     );
-  }, [keyboardOcclusion, scrollMaxHeight, headerHeight]);
+  }, [headerPresentation, keyboardOcclusion, viewportFallbackHeight]);
 
   const scheduleScrollToInput = React.useCallback((input: TextInput | null, delay = FOCUS_SCROLL_DELAY_MS) => {
     if (!input) return;
@@ -211,7 +214,7 @@ const ScrollImpl = React.forwardRef<React.ElementRef<typeof RNScrollView>, Scrol
 
     if (isVisible) {
       if (preKeyboardViewportHeight.current === 0) {
-        preKeyboardViewportHeight.current = viewportHeight.current || scrollMaxHeight || 0;
+        preKeyboardViewportHeight.current = viewportHeight.current || viewportFallbackHeight || 0;
       }
       keyboardHeight.current = contextKeyboardHeight;
       keyboardScreenY.current = contextKeyboardScreenY;
@@ -228,19 +231,23 @@ const ScrollImpl = React.forwardRef<React.ElementRef<typeof RNScrollView>, Scrol
       keyboardScreenY.current = null;
       setKeyboardPadding(0);
     }
-  }, [contextKeyboardHeight, contextKeyboardScreenY, scheduleScrollToInput, scrollMaxHeight, updateKeyboardPadding]);
+  }, [contextKeyboardHeight, contextKeyboardScreenY, scheduleScrollToInput, viewportFallbackHeight, updateKeyboardPadding]);
 
   React.useEffect(() => clearScheduledScrolls, [clearScheduledScrolls]);
 
   const focusScrollApi = React.useMemo<FocusScrollApi>(() => ({
     onInputFocus: (input) => {
       focusedInput.current = input;
+      if (keyboardHeight.current > 0) updateKeyboardPadding();
       scheduleScrollToInput(input);
     },
     onInputBlur: (input) => {
-      if (focusedInput.current === input) focusedInput.current = null;
+      if (focusedInput.current !== input) return;
+      focusedInput.current = null;
+      setKeyboardPadding(0);
+      clearScheduledScrolls();
     },
-  }), [scheduleScrollToInput]);
+  }), [clearScheduledScrolls, scheduleScrollToInput, updateKeyboardPadding]);
 
   const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
     viewportHeight.current = event.nativeEvent.layout.height;
@@ -253,11 +260,15 @@ const ScrollImpl = React.forwardRef<React.ElementRef<typeof RNScrollView>, Scrol
   }, []);
 
   const topContentPadding =
-    headerHeight +
     (safeAreaTop ? hostSafeAreaTop : 0) +
-    (insetTop === 'dock' ? dockTopInset : 0);
+    (insetTop === 'dock' ? dockTopInset : 0) +
+    // Overlay presentation extends the viewport beneath the transparent
+    // Topbar, but its initial content position still clears that control
+    // region. Once scrolled, content can pass behind it down to the safe-area
+    // boundary without requiring a Header measurement handshake.
+    (headerPresentation === 'overlay' ? size['2xl'] : 0);
   const bottomContentPadding =
-    Math.max(footerHeight, safeAreaBottom ? hostSafeAreaBottom : 0) +
+    (safeAreaBottom && contextKeyboardHeight === 0 ? hostSafeAreaBottom : 0) +
     (insetBottom === 'dock' ? dockBottomInset : 0) +
     keyboardPadding;
   const contentStyle =
@@ -268,10 +279,7 @@ const ScrollImpl = React.forwardRef<React.ElementRef<typeof RNScrollView>, Scrol
           bottomContentPadding > 0 ? { paddingBottom: bottomContentPadding } : null,
         ]
       : SCROLL_CONTENT_STYLE;
-  const scrollStyle =
-    scrollMaxHeight !== undefined
-      ? { maxHeight: Math.max(0, scrollMaxHeight - keyboardOffset) }
-      : SCREEN_STYLE;
+  const scrollStyle = hostGeometry === 'fill' ? FILLING_SCROLL_STYLE : CONTENT_SCROLL_STYLE;
 
   return (
     <RNScrollView
@@ -291,3 +299,5 @@ const ScrollImpl = React.forwardRef<React.ElementRef<typeof RNScrollView>, Scrol
 ScrollImpl.displayName = 'Scroll';
 export const Scroll = withKeys(ScrollImpl, ['safeAreaTop', 'safeAreaBottom', 'insetTop', 'insetBottom']);
 const SCROLL_CONTENT_STYLE: ViewStyle = { flexGrow: 1 };
+const FILLING_SCROLL_STYLE: ViewStyle = { flexGrow: 1, flexShrink: 1, minHeight: 0 };
+const CONTENT_SCROLL_STYLE: ViewStyle = { flexShrink: 1, minHeight: 0 };

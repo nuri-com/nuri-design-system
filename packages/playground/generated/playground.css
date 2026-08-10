@@ -2822,8 +2822,7 @@ nuri-demo:not(:defined) {
     --nuri-screen-safe-area-bottom: 0px;
     --nuri-screen-dock-top: 0px;
     --nuri-screen-dock-bottom: 0px;
-    --nuri-fixed-header-block: 0px;
-    --nuri-fixed-footer-block: 0px;
+    --nuri-scroll-flex-grow: 1;
   }
 
   .nuri-screen[data-safe-area],
@@ -2841,12 +2840,12 @@ nuri-demo:not(:defined) {
 /* @nuri/prototype primitive header · primitives/header.css */
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · HEADER
- * Fixed top region for a local Screen or ModalPanel.
+ * Intrinsic structural top region for a local Screen or ModalPanel.
  * ────────────────────────────────────────────────────────────── */
 
 @layer tokens {
   /* Empty by design. Header composes box/stack/palette attrs and owns only
-   * structural fixed-region placement. */
+   * structural region placement. */
 }
 
 @layer rules {
@@ -2863,10 +2862,9 @@ nuri-demo:not(:defined) {
     inline-size: 100%;
     display: flex;
     flex-direction: column;
-    position: absolute;
-    inset-inline: 0;
-    inset-block-start: 0;
-    z-index: 2;
+    position: relative;
+    flex-shrink: 0;
+    align-self: stretch;
   }
 
   .nuri-header__safe-area-chrome {
@@ -2932,18 +2930,20 @@ nuri-demo:not(:defined) {
    * host as a filling block so authored content doesn't flash. */
   nuri-scroll:not(:defined) {
     display: block;
-    flex: 1;
+    flex-grow: var(--nuri-scroll-flex-grow, 1);
+    flex-shrink: 1;
+    flex-basis: auto;
     min-block-size: 0;
     overflow-y: auto;
   }
 
-  /* ── Base · the growing scroll region ──────────────────────────
-   * flex:1 absorbs the slack between the pinned chrome of the parent
-   * <nuri-screen>; min-block-size:0 lets it shrink below content so
-   * overflow actually scrolls; overscroll-behavior:contain keeps the
-   * scroll chaining inside the screen (no rubber-banding the page). */
+  /* ── Base · host-selected grow + explicit shrink ───────────────
+   * Filling hosts publish grow=1; content sheets publish grow=0. Both
+   * explicitly shrink below content so overflow can scroll at the host cap. */
   .nuri-scroll {
-    flex: 1;
+    flex-grow: var(--nuri-scroll-flex-grow, 1);
+    flex-shrink: 1;
+    flex-basis: auto;
     min-block-size: 0;
     /* Flex column so a `fill` content container (a Stack — fill is
      * stack-only since amendment 60.1 · N+19 U3; merge box padding
@@ -2969,13 +2969,14 @@ nuri-demo:not(:defined) {
     --nuri-scroll-safe-area-bottom: 0px;
     --nuri-scroll-dock-top: 0px;
     --nuri-scroll-dock-bottom: 0px;
+    --nuri-scroll-overlay-top: 0px;
     padding-block-start: calc(
-      var(--nuri-fixed-header-block, 0px) +
       var(--nuri-scroll-safe-area-top) +
-      var(--nuri-scroll-dock-top)
+      var(--nuri-scroll-dock-top) +
+      var(--nuri-scroll-overlay-top)
     );
     padding-block-end: calc(
-      max(var(--nuri-fixed-footer-block, 0px), var(--nuri-scroll-safe-area-bottom)) +
+      var(--nuri-scroll-safe-area-bottom) +
       var(--nuri-scroll-dock-bottom)
     );
   }
@@ -3001,12 +3002,12 @@ nuri-demo:not(:defined) {
 /* @nuri/prototype primitive footer · primitives/footer.css */
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · FOOTER
- * Fixed bottom region for a local Screen or ModalPanel.
+ * Intrinsic structural bottom region for a local Screen or ModalPanel.
  * ────────────────────────────────────────────────────────────── */
 
 @layer tokens {
   /* Empty by design. Footer composes box/stack/palette attrs and owns only
-   * structural fixed-region placement. */
+   * structural region placement. */
 }
 
 @layer rules {
@@ -3023,10 +3024,8 @@ nuri-demo:not(:defined) {
     inline-size: 100%;
     display: flex;
     flex-direction: column;
-    position: absolute;
-    inset-inline: 0;
-    inset-block-end: 0;
-    z-index: 2;
+    flex-shrink: 0;
+    align-self: stretch;
   }
 }
 
@@ -3679,8 +3678,7 @@ nuri-demo:not(:defined) {
   }
 
   :is(nuri-modal, nuri-bottom-sheet) > :is(nuri-modal-panel, nuri-bottom-sheet-panel) {
-    --nuri-fixed-header-block: 0px;
-    --nuri-fixed-footer-block: 0px;
+    --nuri-scroll-flex-grow: 0;
 
     position: relative;
     z-index: 1;
@@ -3691,25 +3689,32 @@ nuri-demo:not(:defined) {
     pointer-events: auto;
   }
 
+  /* Opted-in Modal Headers keep safe-area padding in flow while the fixed 2xl
+   * Topbar overlays Scroll. The matching content inset preserves the ordinary
+   * initial position below Topbar; scrolling can then move content behind it.
+   * Default Modal Headers remain fully structural. */
+  :is(nuri-modal[scroll-under-topbar], nuri-bottom-sheet[scroll-under-topbar]) > :is(nuri-modal-panel, nuri-bottom-sheet-panel) > nuri-header > .nuri-header {
+    z-index: 2;
+    margin-block-end: calc(-1 * var(--nuri-size-2xl));
+  }
+
+  :is(nuri-modal[scroll-under-topbar], nuri-bottom-sheet[scroll-under-topbar]) > :is(nuri-modal-panel, nuri-bottom-sheet-panel) > nuri-scroll > .nuri-scroll > .nuri-scroll__content {
+    --nuri-scroll-overlay-top: var(--nuri-size-2xl);
+  }
+
   :is(nuri-modal, nuri-bottom-sheet)[mode="full"]::before {
     display: none;
   }
 
   :is(nuri-modal, nuri-bottom-sheet)[mode="full"] > :is(nuri-modal-panel, nuri-bottom-sheet-panel) {
+    --nuri-scroll-flex-grow: 1;
+
     position: absolute;
     inset: 0;
     block-size: 100%;
     max-block-size: none;
   }
 
-  :is(nuri-modal, nuri-bottom-sheet) > :is(nuri-modal-panel, nuri-bottom-sheet-panel) > nuri-scroll {
-    max-block-size: 100%;
-  }
-
-  :is(nuri-modal, nuri-bottom-sheet)[mode="full"] > :is(nuri-modal-panel, nuri-bottom-sheet-panel) > nuri-scroll {
-    flex: 1;
-    block-size: 100%;
-  }
 }
 
 

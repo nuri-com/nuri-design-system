@@ -720,9 +720,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       "geometry": {
         "base": {
           "flexDirection": "column",
-          "alignItems": "stretch",
-          "flexGrow": 1,
-          "flexShrink": 0
+          "alignItems": "stretch"
         },
         "variants": {
           "mode": {
@@ -736,6 +734,11 @@ export const recipes: Record<string, BakedComponentRecipe> = {
               "shadowOpacity": 0.14,
               "shadowRadius": 20,
               "elevation": 16
+            },
+            "full": {
+              "flexGrow": 1,
+              "flexShrink": 1,
+              "minWidth": 0
             }
           }
         }
