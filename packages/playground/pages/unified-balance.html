@@ -92,30 +92,28 @@
     </template>
   </nuri-demo>
 
-  <!-- ADD MONEY · LARGE TITLE · the alternative chrome: the fixed transparent
-       bar keeps only the actions (scroll-under-topbar · the one-pass overlay
-       contract), and the welcome title lives in the scroll content — first
-       paint in the ordinary below-bar position, then it scrolls away behind
-       the transparent bar. -->
+  <!-- ADD MONEY · LARGE TITLE · the alternative chrome: the transparent bar
+       (only the actions) rides a top Dock — the overlay primitive content
+       passes behind — while the welcome title is ordinary scroll content
+       occupying the same 2xl bar band, so first paint matches the structural
+       board and the title scrolls away behind the fixed bar. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="buy bitcoin · large title">
     <template>
-      <nuri-screen>
-        <nuri-view chrome="canvas" fill></nuri-view>
+      <nuri-screen safe-area-top>
+        <nuri-dock edge="top">
+          <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+            <nuri-topbar surface="transparent">
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="qr-scan" variant="soft" aria-label="Scan QR code"></nuri-icon-button>
+                <nuri-icon-button icon="headphones" variant="soft" aria-label="Chat with support"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+          </nuri-header>
+        </nuri-dock>
 
-        <nuri-modal open mode="full" scroll-under-topbar>
-          <nuri-modal-panel>
-            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
-              <nuri-topbar surface="transparent">
-                <nuri-topbar-trailing>
-                  <nuri-icon-button icon="qr-scan" variant="soft" aria-label="Scan QR code"></nuri-icon-button>
-                  <nuri-icon-button icon="headphones" variant="soft" aria-label="Chat with support"></nuri-icon-button>
-                </nuri-topbar-trailing>
-              </nuri-topbar>
-            </nuri-header>
-
-            <nuri-scroll>
-              <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-y="md" fill>
-                <nuri-view padding-x="lg">
+        <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-bottom="md" fill>
+                <nuri-view direction="row" align="center" height="2xl" padding-x="lg">
                   <nuri-typography size="lg" emphasis>Welcome Satoshi!</nuri-typography>
                 </nuri-view>
 
@@ -176,9 +174,7 @@
                   </nuri-list-action>
                 </nuri-list>
               </nuri-view>
-            </nuri-scroll>
-          </nuri-modal-panel>
-        </nuri-modal>
+        </nuri-scroll>
       </nuri-screen>
     </template>
   </nuri-demo>
