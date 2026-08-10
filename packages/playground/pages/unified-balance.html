@@ -94,9 +94,11 @@
 
   <!-- ADD MONEY · LARGE TITLE · the alternative chrome: the transparent bar
        (only the actions) rides a top Dock — the overlay primitive content
-       passes behind — while the welcome title is ordinary scroll content
-       occupying the same 2xl bar band, so first paint matches the structural
-       board and the title scrolls away behind the fixed bar. -->
+       passes behind — while the welcome title rides its OWN transparent
+       Topbar as the first scroll row. Both bars share the component's
+       geometry contract (2xl band · insets · title preset), so first paint
+       matches the structural board and the title scrolls away behind the
+       fixed bar. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="buy bitcoin · large title">
     <template>
       <nuri-screen safe-area-top>
@@ -113,9 +115,9 @@
 
         <nuri-scroll>
               <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-bottom="md" fill>
-                <nuri-view direction="row" align="center" height="2xl" padding-x="lg">
-                  <nuri-typography size="lg" emphasis>Welcome Satoshi!</nuri-typography>
-                </nuri-view>
+                <nuri-topbar surface="transparent" layout="fluid">
+                  <nuri-topbar-title>Welcome Satoshi!</nuri-topbar-title>
+                </nuri-topbar>
 
                 <nuri-view direction="row" justify="between" align="center" aspect-ratio="card" padding-x="lg">
                   <nuri-icon-button
