@@ -55,10 +55,12 @@ const DIRS = [
   [resolve(DOC, 'harness'), 'assets/nuri/docs'],
 
   // @nuri/playground — keep pages/ and generated/ as siblings so their relative
-  // ../generated and ../../generated links survive. lib/ is required by boot.js.
+  // ../generated and ../../generated links survive. lib/ is required by boot.js;
+  // assets/ holds the consumer image assets (the flag avatars) the pages source.
   [resolve(PLAYGROUND, 'pages'), 'assets/playground/pages'],
   [resolve(PLAYGROUND, 'generated'), 'assets/playground/generated'],
   [resolve(PLAYGROUND, 'lib'), 'assets/playground/lib'],
+  [resolve(PLAYGROUND, 'assets'), 'assets/playground/assets'],
 
   // Relative neighbor for the playground boot module's ../../prototype imports.
   [resolve(PROTOTYPE, 'factory'), 'assets/prototype/factory'],
