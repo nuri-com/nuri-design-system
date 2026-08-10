@@ -92,6 +92,97 @@
     </template>
   </nuri-demo>
 
+  <!-- ADD MONEY · LARGE TITLE · the alternative chrome: the fixed transparent
+       bar keeps only the actions (scroll-under-topbar · the one-pass overlay
+       contract), and the welcome title lives in the scroll content — first
+       paint in the ordinary below-bar position, then it scrolls away behind
+       the transparent bar. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy bitcoin · large title">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full" scroll-under-topbar>
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="qr-scan" variant="soft" aria-label="Scan QR code"></nuri-icon-button>
+                  <nuri-icon-button icon="headphones" variant="soft" aria-label="Chat with support"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-y="md" fill>
+                <nuri-view padding-x="lg">
+                  <nuri-typography size="lg" emphasis>Welcome Satoshi!</nuri-typography>
+                </nuri-view>
+
+                <nuri-view direction="row" justify="between" align="center" aspect-ratio="card" padding-x="lg">
+                  <nuri-icon-button
+                    icon="transfer-vertical"
+                    variant="soft"
+                    aria-label="Switch display currency"
+                  ></nuri-icon-button>
+                  <nuri-typography size="3xl" align="end">€ 250.87</nuri-typography>
+                </nuri-view>
+
+                <nuri-view direction="column" align="stretch" padding-x="lg">
+                  <nuri-button size="lg" variant="solid">Add money</nuri-button>
+                </nuri-view>
+
+                <nuri-list>
+                  <nuri-list-action aria-label="Bitcoin, 86969 sats">
+                    <nuri-list-action-leading-avatar name="bitcoin" variant="solid" accent="orange"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Bitcoin</nuri-list-action-text>
+                    <nuri-list-action-text-muted>86969 ₿</nuri-list-action-text-muted>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                  <nuri-list-separator></nuri-list-separator>
+                  <nuri-list-action aria-label="Bitcoin Lightning, 0 sats">
+                    <nuri-list-action-leading-avatar name="lightning" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Bitcoin Lightning</nuri-list-action-text>
+                    <nuri-list-action-text-muted>0 ₿</nuri-list-action-text-muted>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                  <nuri-list-separator></nuri-list-separator>
+                  <nuri-list-action aria-label="Euro, 100 euros">
+                    <nuri-list-action-leading-avatar source="../assets/flags/eur.svg"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Euro</nuri-list-action-text>
+                    <nuri-list-action-text-muted>100.00 €</nuri-list-action-text-muted>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                  <nuri-list-separator></nuri-list-separator>
+                  <nuri-list-action aria-label="Dollar, 74.60 dollars">
+                    <nuri-list-action-leading-avatar source="../assets/flags/usa.svg"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Dollar</nuri-list-action-text>
+                    <nuri-list-action-text-muted>74.60 $</nuri-list-action-text-muted>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                  <nuri-list-separator></nuri-list-separator>
+                  <nuri-list-action aria-label="Visa and IBAN, 34.45 euros">
+                    <nuri-list-action-leading-avatar name="card" variant="solid" accent="neutral"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Visa and IBAN</nuri-list-action-text>
+                    <nuri-list-action-text-muted>34.45 €</nuri-list-action-text-muted>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                  <nuri-list-separator></nuri-list-separator>
+                  <nuri-list-action aria-label="Add virtual account, send TZS, BRL, ARS and more">
+                    <nuri-list-action-leading-avatar name="plus" variant="outline"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Add virtual account</nuri-list-action-text>
+                    <nuri-list-action-text-muted>Send TZS, BRL, ARS and more</nuri-list-action-text-muted>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                </nuri-list>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
   <!-- BITCOIN · the single-source detail behind the Bitcoin row: the sats
        balance (big) over its euro conversion in the card-ratio region, the
        transfer pair (orange = the bitcoin-context accent, as on the
