@@ -262,6 +262,28 @@ The zero-size iOS hardware-keyboard frame and Android resize/event ordering rema
 regression matrix. Physical acceptance was performed by the consumer on both devices against the same Expo
 demo bundle used for the implementation review.
 
+### Stacked hosts and presentation persistence follow-up · 2026-08-13
+
+A consumer report exposed a keyboard-ownership slice that the single-host matrix above did not exercise.
+Repro-first Jest coverage on `main` confirmed that two open full modals both consumed the same iOS
+`keyboardWillShow` frame. It also confirmed that an unmatched show frame survived close/reopen when the
+exit animation remained unfinished and the presented-layer subtree stayed mounted. A completed exit did
+not reproduce persistence because it unmounted the provider and a later presentation mounted fresh state.
+
+The follow-up makes keyboard ownership presentation-derived: the topmost open full modal is the only modal
+provider subscribed to keyboard events, Screen stands down while any full modal is open, and sheets remain
+transparent to full-modal ownership. Removing an open-modal registry entry immediately disables that
+provider even while its exit layer remains mounted, which clears the frame before a re-presentation; every
+fresh enable also starts from a zero frame as defense in depth. Jest now proves stacked topmost-only padding
+and Footer safe-area retention, close-time reset and ownership transfer, interrupted and completed
+close/reopen paths, consecutive show refires, Screen handoff, sheet-warning migration, and stable ordering
+when a lower modal re-renders. The existing Android show/hide and residual-inset tests remain unchanged.
+
+Simulator/device acceptance was not available in the implementation session: Xcode exposed no booted iOS
+simulator and no Android emulator tooling was present. The Receive, stacked Country Picker, FormSheet,
+rotation/background, and Android no-regression flows therefore remain coordinator handback residue before
+merge; physical consumer verification of Receive remains release residue for the next RN tag.
+
 ### First-layout assertions
 
 The decisive regression test must inspect the initial rendered geometry before manually firing any Header

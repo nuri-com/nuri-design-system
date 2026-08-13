@@ -9,6 +9,7 @@ import { View as RNView } from 'react-native';
 import type { LayoutChangeEvent, ViewStyle } from 'react-native';
 import { useNuriSafeAreaInsets } from '../safe-area';
 import { FixedRegionLayoutProvider, useFixedRegionLayout } from './FixedRegionLayout';
+import { useHasOpenFullModal } from './modal-stack';
 import { SCREEN_STYLE, withKeys } from './shared';
 
 export type ScreenProps = {
@@ -61,12 +62,13 @@ const ScreenImpl = React.forwardRef<React.ElementRef<typeof RNView>, ScreenProps
   onLayout,
 }, ref) => {
   const insets = useNuriSafeAreaInsets();
+  const hasOpenFullModal = useHasOpenFullModal();
   const requestedSafeAreaTop = safeArea || safeAreaTop ? insets.top : 0;
   const requestedSafeAreaBottom = safeArea || safeAreaBottom ? insets.bottom : 0;
 
   return (
     <FixedRegionLayoutProvider
-      keyboardEnabled
+      keyboardEnabled={!hasOpenFullModal}
       hostGeometry="fill"
       safeAreaTop={insets.top}
       safeAreaBottom={insets.bottom}

@@ -41,7 +41,10 @@
   one-pass Yoga/CSS with no measurement handshake; only Dock retains measured overlay insets. The automated
   and browser matrix plus physical Android and iOS Expo Go acceptance—including first autofocus, keyboard
   transitions, Footer pinning, safe-area restoration, and transparent Topbar under-scroll—is recorded in
-  [`fixed-region-yoga-refactor.md`](./fixed-region-yoga-refactor.md) §§10 and 13.
+  [`fixed-region-yoga-refactor.md`](./fixed-region-yoga-refactor.md) §§10 and 13. A consumer-reported follow-up
+  gap in stacked-host ownership and interrupted-presentation reset was closed 2026-08-13 by exclusive
+  presentation-derived keyboard ownership and open-time reset; its automated evidence and explicit
+  simulator/device handback residue are recorded in the same §10 matrix. R7 remains closed.
 
 - **R2 · pipeline schema validated late** — superseded: the CSS→DTCG→Style-Dictionary pipeline it
   worried about no longer exists; the spec is TS data, the descriptor schema is FROZEN and pinned

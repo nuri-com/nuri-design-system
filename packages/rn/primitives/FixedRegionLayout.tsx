@@ -125,6 +125,12 @@ export const FixedRegionLayoutProvider: React.FC<FixedRegionLayoutProviderProps>
       return;
     }
 
+    // Every fresh ownership subscription starts from resting geometry. The
+    // ordinary disable path already clears state; this rising-edge reset is
+    // defense in depth against a retained presented-layer subtree.
+    setKeyboardHeight(0);
+    setKeyboardScreenY(null);
+
     const updateKeyboardFrame = (event: KeyboardEvent) => {
       scheduleKeyboardLayout(event);
       const next = keyboardFrame(event);

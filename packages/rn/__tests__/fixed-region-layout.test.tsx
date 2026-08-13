@@ -210,4 +210,52 @@ describe('FixedRegionLayoutProvider keyboard frame geometry', () => {
     expect(current.frameKeyboardInset).toBe(365);
   });
 
+  test('ownership disable clears an unmatched frame and consecutive shows still refire', () => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'ios' });
+    const handlers: Partial<Record<string, Set<(event: KeyboardEvent) => void>>> = {};
+    jest.spyOn(Keyboard, 'addListener').mockImplementation((eventName, callback) => {
+      handlers[eventName] ??= new Set();
+      handlers[eventName]!.add(callback);
+      return { remove: () => handlers[eventName]?.delete(callback) } as never;
+    });
+    let current!: ReturnType<typeof useFixedRegionLayout>;
+    const tree = (keyboardEnabled: boolean) => (
+      <FixedRegionLayoutProvider
+        hostGeometry="fill"
+        keyboardEnabled={keyboardEnabled}
+        windowHeight={800}
+      >
+        <LayoutProbe onValue={(value) => (current = value)} />
+      </FixedRegionLayoutProvider>
+    );
+    let tr!: TestRenderer.ReactTestRenderer;
+    act(() => {
+      tr = TestRenderer.create(tree(true));
+    });
+
+    const fireShow = (height: number) => {
+      for (const show of [...(handlers.keyboardWillShow ?? [])]) {
+        show({ endCoordinates: { height, screenY: 800 - height } } as KeyboardEvent);
+      }
+    };
+    act(() => fireShow(280));
+    expect(current.frameKeyboardInset).toBe(280);
+    act(() => fireShow(360));
+    expect(current.frameKeyboardInset).toBe(360);
+
+    act(() => tr.update(tree(false)));
+    expect(current.keyboardEnabled).toBe(false);
+    expect(current.keyboardHeight).toBe(0);
+    expect(current.keyboardScreenY).toBeNull();
+    expect(current.frameKeyboardInset).toBe(0);
+    expect(handlers.keyboardWillShow?.size ?? 0).toBe(0);
+
+    act(() => tr.update(tree(true)));
+    expect(current.keyboardEnabled).toBe(true);
+    expect(current.keyboardHeight).toBe(0);
+    expect(current.keyboardScreenY).toBeNull();
+    expect(current.frameKeyboardInset).toBe(0);
+    expect(handlers.keyboardWillShow?.size).toBe(1);
+  });
+
 });
