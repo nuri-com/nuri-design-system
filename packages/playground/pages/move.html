@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuri · Playground · Move</title>
+  <link rel="stylesheet" href="../generated/playground.css" />
+  <script src="../generated/boot.js" type="module"></script>
+</head>
+<body>
+
+<nuri-playground-shell doc="Move">
+
+  <!-- MOVE · a full-modal conversion board built only from the current DS
+       vocabulary. The currency rows are intentionally static compositions:
+       their missing select-trigger contract is the evidence this board keeps. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="move">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-title>Move</nuri-topbar-title>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="sm" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-scope mode="dark">
+                  <nuri-view chrome="subtle" radius="lg" padding="lg" fill="grow">
+                    <nuri-view direction="column" gap="sm" fill="grow">
+                      <nuri-view direction="row" justify="between" align="center">
+                        <nuri-view direction="row" gap="xs" align="center">
+                          <nuri-typography size="sm" emphasis>From</nuri-typography>
+                          <nuri-icon-avatar size="sm" icon="bitcoin" variant="solid" accent="orange"></nuri-icon-avatar>
+                          <nuri-typography size="sm" emphasis>Bitcoin</nuri-typography>
+                          <nuri-icon name="chevron-down"></nuri-icon>
+                        </nuri-view>
+                        <nuri-typography size="md" emphasis>₿ 86969</nuri-typography>
+                      </nuri-view>
+
+                      <nuri-view direction="row" align="center" height="sm">
+                        <nuri-view fill="grow">
+                          <nuri-separator y-space="none"></nuri-separator>
+                        </nuri-view>
+                        <nuri-icon-button
+                          variant="solid"
+                          icon="transfer-vertical"
+                          aria-label="Swap Bitcoin and Euro"
+                        ></nuri-icon-button>
+                        <nuri-view fill="grow">
+                          <nuri-separator y-space="none"></nuri-separator>
+                        </nuri-view>
+                      </nuri-view>
+
+                      <nuri-view direction="row" gap="xs" align="center">
+                        <nuri-typography size="sm" emphasis>To</nuri-typography>
+                        <nuri-icon-avatar size="sm" source="../assets/flags/eur.svg"></nuri-icon-avatar>
+                        <nuri-typography size="sm" emphasis>Euro</nuri-typography>
+                        <nuri-icon name="chevron-down"></nuri-icon>
+                      </nuri-view>
+
+                      <nuri-view fill="grow" justify="end" align="end">
+                        <nuri-typography size="3xl" align="end">€ 48.18</nuri-typography>
+                      </nuri-view>
+                    </nuri-view>
+                  </nuri-view>
+                </nuri-scope>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-x="lg" padding-bottom="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Next</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- TRIGGER CANDIDATES · current SelectField chrome beside the board's
+       static row cluster. No candidate-only styling or invented attributes. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="trigger candidates">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" direction="row" align="center" gap="lg" distribute="even" padding="lg" fill>
+          <nuri-select-field aria-label="From currency" accessibility-value="Bitcoin">
+            <nuri-select-field-label>From</nuri-select-field-label>
+            <nuri-select-field-avatar name="bitcoin" variant="solid" accent="orange"></nuri-select-field-avatar>
+            <nuri-select-field-value>Bitcoin</nuri-select-field-value>
+            <nuri-select-field-chevron name="chevron-down"></nuri-select-field-chevron>
+          </nuri-select-field>
+
+          <nuri-view direction="row" gap="xs" align="center">
+            <nuri-typography size="sm" emphasis>From</nuri-typography>
+            <nuri-icon-avatar size="sm" icon="bitcoin" variant="solid" accent="orange"></nuri-icon-avatar>
+            <nuri-typography size="sm" emphasis>Bitcoin</nuri-typography>
+            <nuri-icon name="chevron-down"></nuri-icon>
+          </nuri-view>
+        </nuri-view>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+</body>
+</html>
