@@ -17,6 +17,7 @@ module.exports = {
   // span runtime/ + primitives/, so they live at the package root); scope Jest
   // to it so the suite stays the descriptor-consumption proof (not the whole package).
   roots: ['<rootDir>/__tests__'],
+  setupFilesAfterEnv: ['<rootDir>/test/modal-stack-test-setup.ts'],
   moduleNameMapper: {
     '^react$': react,
     '^react/jsx-runtime$': require.resolve('react/jsx-runtime'),

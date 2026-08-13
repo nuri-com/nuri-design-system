@@ -12,9 +12,20 @@
 
 import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { Animated, LayoutAnimation, ScrollView, Text, View } from 'react-native';
+import { Animated, Keyboard, LayoutAnimation, Platform, ScrollView, Text, View } from 'react-native';
+import type { KeyboardEvent } from 'react-native';
 import { NuriThemeProvider } from '../theme';
-import { Header, Modal, ModalPanel, OverlayProvider, Scroll } from '../index';
+import {
+  Footer,
+  Header,
+  Modal,
+  ModalPanel,
+  NuriSafeAreaProvider,
+  OverlayProvider,
+  Screen,
+  Scroll,
+} from '../index';
+import { space } from '../generated/data/tokens';
 
 function render(node: React.ReactElement): TestRenderer.ReactTestRenderer {
   let tr!: TestRenderer.ReactTestRenderer;
@@ -28,6 +39,30 @@ function flatStyle(style: unknown): Record<string, unknown> {
   return Array.isArray(style)
     ? Object.assign({}, ...style.filter(Boolean))
     : ((style ?? {}) as Record<string, unknown>);
+}
+
+function mockKeyboardListeners() {
+  const handlers: Partial<Record<string, Set<(event: KeyboardEvent) => void>>> = {};
+  jest.spyOn(Keyboard, 'addListener').mockImplementation((eventName, callback) => {
+    handlers[eventName] ??= new Set();
+    handlers[eventName]!.add(callback);
+    return { remove: () => handlers[eventName]?.delete(callback) } as never;
+  });
+  return {
+    fire(eventName: string, event: KeyboardEvent): void {
+      for (const handler of [...(handlers[eventName] ?? [])]) handler(event);
+    },
+    count(eventName: string): number {
+      return handlers[eventName]?.size ?? 0;
+    },
+  };
+}
+
+function modalSurfaces(tr: TestRenderer.ReactTestRenderer) {
+  return tr.root.findAllByType(View).filter((node) => {
+    const style = flatStyle(node.props.style);
+    return typeof node.props.onLayout === 'function' && Array.isArray(style.transform);
+  });
 }
 
 // The animated surface is styled with the enter-slide `transform`, so anchor on
@@ -273,5 +308,314 @@ describe('Modal — layout measurement latch + no LayoutAnimation arming (D3)', 
       </NuriThemeProvider>,
     );
     expect(tr.toJSON()).toBeNull();
+  });
+});
+
+describe('Modal — keyboard ownership', () => {
+  const originalPlatformOS = Platform.OS;
+
+  beforeEach(() => {
+    jest.spyOn(Animated, 'timing').mockImplementation(
+      () =>
+        ({
+          start: () => undefined,
+          stop: jest.fn(),
+          reset: jest.fn(),
+        }) as unknown as ReturnType<typeof Animated.timing>,
+    );
+  });
+
+  afterEach(() => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, get: () => originalPlatformOS });
+    jest.restoreAllMocks();
+  });
+
+  test('only the topmost of two open full modals lifts for the iOS keyboard', () => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'ios' });
+    const keyboard = mockKeyboardListeners();
+
+    const tr = render(
+      <NuriThemeProvider>
+        <NuriSafeAreaProvider bottom={34}>
+          <OverlayProvider>
+            <Modal open mode="full">
+              <ModalPanel>
+                <Text>Lower</Text>
+                <Footer testID="lower-footer" safeAreaBottom paddingY="sm" />
+              </ModalPanel>
+            </Modal>
+            <Modal open mode="full">
+              <ModalPanel>
+                <Text>Upper</Text>
+                <Footer testID="upper-footer" safeAreaBottom paddingY="sm" />
+              </ModalPanel>
+            </Modal>
+          </OverlayProvider>
+        </NuriSafeAreaProvider>
+      </NuriThemeProvider>,
+    );
+    expect(keyboard.count('keyboardWillShow')).toBe(1);
+
+    act(() => keyboard.fire(
+      'keyboardWillShow',
+      { endCoordinates: { height: 280, screenY: 520 } } as KeyboardEvent,
+    ));
+
+    const surfaces = tr.root.findAllByType(View).filter((node) => {
+      const style = flatStyle(node.props.style);
+      return typeof node.props.onLayout === 'function' &&
+        style.position === 'absolute' &&
+        Array.isArray(style.transform);
+    });
+    expect(surfaces).toHaveLength(2);
+    expect(flatStyle(surfaces[0].props.style).paddingBottom).toBeUndefined();
+    expect(flatStyle(surfaces[1].props.style).paddingBottom).toBe(280);
+    const lowerFooter = tr.root.findAllByType(View).find((node) => node.props.testID === 'lower-footer')!;
+    const upperFooter = tr.root.findAllByType(View).find((node) => node.props.testID === 'upper-footer')!;
+    expect(flatStyle(lowerFooter.props.style).paddingBottom)
+      .toBe(space.sm + 34);
+    expect(flatStyle(upperFooter.props.style).paddingBottom)
+      .toBe(space.sm);
+
+    act(() => keyboard.fire(
+      'keyboardWillShow',
+      { endCoordinates: { height: 360, screenY: 440 } } as KeyboardEvent,
+    ));
+    expect(flatStyle(surfaces[0].props.style).paddingBottom).toBeUndefined();
+    expect(flatStyle(surfaces[1].props.style).paddingBottom).toBe(360);
+  });
+
+  test('reopening during an unfinished exit cannot retain an unmatched keyboard frame', () => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'ios' });
+    const keyboard = mockKeyboardListeners();
+    const tree = (open: boolean) => (
+      <NuriThemeProvider>
+        <OverlayProvider>
+          <Modal open={open} mode="full">
+            <ModalPanel><Text>Receive</Text></ModalPanel>
+          </Modal>
+        </OverlayProvider>
+      </NuriThemeProvider>
+    );
+    const tr = render(tree(true));
+
+    act(() => keyboard.fire(
+      'keyboardWillShow',
+      { endCoordinates: { height: 280, screenY: 520 } } as KeyboardEvent,
+    ));
+    const surface = () => tr.root.findAllByType(View).find((node) => {
+      const style = flatStyle(node.props.style);
+      return typeof node.props.onLayout === 'function' &&
+        style.position === 'absolute' &&
+        Array.isArray(style.transform);
+    })!;
+    expect(flatStyle(surface().props.style).paddingBottom).toBe(280);
+
+    // The headless Animated driver never finishes the exit callback, so the
+    // presented-layer subtree stays mounted. Reopen it without a willHide.
+    act(() => tr.update(tree(false)));
+    expect(keyboard.count('keyboardWillShow')).toBe(0);
+    expect(flatStyle(surface().props.style).paddingBottom).toBeUndefined();
+    act(() => tr.update(tree(true)));
+    expect(keyboard.count('keyboardWillShow')).toBe(1);
+    expect(flatStyle(surface().props.style).paddingBottom).toBeUndefined();
+  });
+
+  test('a completed exit remounts clean after an unmatched keyboard frame', () => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'ios' });
+    const keyboard = mockKeyboardListeners();
+    let finishExit: ((result: { finished: boolean }) => void) | undefined;
+    jest.mocked(Animated.timing).mockImplementation((_value, config) =>
+      ({
+        start: (callback?: (result: { finished: boolean }) => void) => {
+          if (config.toValue === 0) finishExit = callback;
+        },
+        stop: jest.fn(),
+        reset: jest.fn(),
+      }) as unknown as ReturnType<typeof Animated.timing>,
+    );
+    const tree = (open: boolean) => (
+      <NuriThemeProvider>
+        <OverlayProvider>
+          <Modal open={open} mode="full">
+            <ModalPanel><Text>Receive</Text></ModalPanel>
+          </Modal>
+        </OverlayProvider>
+      </NuriThemeProvider>
+    );
+    const tr = render(tree(true));
+    act(() => keyboard.fire(
+      'keyboardWillShow',
+      { endCoordinates: { height: 280, screenY: 520 } } as KeyboardEvent,
+    ));
+    expect(flatStyle(modalSurfaces(tr)[0].props.style).paddingBottom).toBe(280);
+
+    act(() => tr.update(tree(false)));
+    act(() => finishExit?.({ finished: true }));
+    expect(tr.root.findAllByType(Text).map((node) => node.props.children)).not.toContain('Receive');
+
+    act(() => tr.update(tree(true)));
+    expect(flatStyle(modalSurfaces(tr)[0].props.style).paddingBottom).toBeUndefined();
+  });
+
+  test('closing the topmost full modal resets it during exit and transfers ownership beneath', () => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'ios' });
+    const keyboard = mockKeyboardListeners();
+    const tree = (upperOpen: boolean) => (
+      <NuriThemeProvider>
+        <NuriSafeAreaProvider bottom={34}>
+          <OverlayProvider>
+            <Modal open mode="full">
+              <ModalPanel>
+                <Text>Lower</Text>
+                <Footer testID="transfer-lower-footer" safeAreaBottom paddingY="sm" />
+              </ModalPanel>
+            </Modal>
+            <Modal open={upperOpen} mode="full">
+              <ModalPanel>
+                <Text>Upper</Text>
+                <Footer testID="transfer-upper-footer" safeAreaBottom paddingY="sm" />
+              </ModalPanel>
+            </Modal>
+          </OverlayProvider>
+        </NuriSafeAreaProvider>
+      </NuriThemeProvider>
+    );
+    const tr = render(tree(true));
+    expect(keyboard.count('keyboardWillShow')).toBe(1);
+
+    act(() => keyboard.fire(
+      'keyboardWillShow',
+      { endCoordinates: { height: 280, screenY: 520 } } as KeyboardEvent,
+    ));
+    let surfaces = modalSurfaces(tr).filter((node) => flatStyle(node.props.style).position === 'absolute');
+    expect(flatStyle(surfaces[0].props.style).paddingBottom).toBeUndefined();
+    expect(flatStyle(surfaces[1].props.style).paddingBottom).toBe(280);
+
+    act(() => tr.update(tree(false)));
+    surfaces = modalSurfaces(tr).filter((node) => flatStyle(node.props.style).position === 'absolute');
+    expect(surfaces).toHaveLength(2);
+    expect(flatStyle(surfaces[0].props.style).paddingBottom).toBeUndefined();
+    expect(flatStyle(surfaces[1].props.style).paddingBottom).toBeUndefined();
+    expect(keyboard.count('keyboardWillShow')).toBe(1);
+
+    act(() => keyboard.fire(
+      'keyboardWillShow',
+      { endCoordinates: { height: 320, screenY: 480 } } as KeyboardEvent,
+    ));
+    expect(flatStyle(surfaces[0].props.style).paddingBottom).toBe(320);
+    expect(flatStyle(surfaces[1].props.style).paddingBottom).toBeUndefined();
+    const lowerFooter = tr.root.findAllByType(View)
+      .find((node) => node.props.testID === 'transfer-lower-footer')!;
+    const upperFooter = tr.root.findAllByType(View)
+      .find((node) => node.props.testID === 'transfer-upper-footer')!;
+    expect(flatStyle(lowerFooter.props.style).paddingBottom).toBe(space.sm);
+    expect(flatStyle(upperFooter.props.style).paddingBottom).toBe(space.sm + 34);
+  });
+
+  test('Screen stands down for a full modal and resumes ownership after it closes', () => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'ios' });
+    const keyboard = mockKeyboardListeners();
+    const tree = (modalOpen: boolean) => (
+      <NuriThemeProvider>
+        <NuriSafeAreaProvider bottom={34}>
+          <OverlayProvider>
+            <Screen testID="base-screen" safeAreaBottom>
+              <Text>Screen</Text>
+              <Modal open={modalOpen} mode="full">
+                <ModalPanel><Text>Modal</Text></ModalPanel>
+              </Modal>
+            </Screen>
+          </OverlayProvider>
+        </NuriSafeAreaProvider>
+      </NuriThemeProvider>
+    );
+    const tr = render(tree(true));
+    const screen = () => tr.root.findAllByType(View)
+      .find((node) => node.props.testID === 'base-screen')!;
+    const fullSurfaces = () => modalSurfaces(tr)
+      .filter((node) => flatStyle(node.props.style).position === 'absolute');
+    expect(keyboard.count('keyboardWillShow')).toBe(1);
+
+    act(() => keyboard.fire(
+      'keyboardWillShow',
+      { endCoordinates: { height: 280, screenY: 520 } } as KeyboardEvent,
+    ));
+    expect(flatStyle(screen().props.style).paddingBottom).toBe(34);
+    expect(flatStyle(fullSurfaces()[0].props.style).paddingBottom).toBe(280);
+
+    act(() => tr.update(tree(false)));
+    expect(flatStyle(screen().props.style).paddingBottom).toBe(34);
+    expect(flatStyle(fullSurfaces()[0].props.style).paddingBottom).toBeUndefined();
+    expect(keyboard.count('keyboardWillShow')).toBe(1);
+
+    act(() => keyboard.fire(
+      'keyboardWillShow',
+      { endCoordinates: { height: 300, screenY: 500 } } as KeyboardEvent,
+    ));
+    expect(flatStyle(screen().props.style).paddingBottom).toBe(300);
+    expect(flatStyle(fullSurfaces()[0].props.style).paddingBottom).toBeUndefined();
+  });
+
+  test('a top sheet leaves full-modal ownership beneath it and preserves the dev warning', () => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'ios' });
+    const keyboard = mockKeyboardListeners();
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const tr = render(
+      <NuriThemeProvider>
+        <OverlayProvider>
+          <Modal open mode="full">
+            <ModalPanel><Text>Full</Text></ModalPanel>
+          </Modal>
+          <Modal open mode="sheet">
+            <ModalPanel><Text>Sheet</Text></ModalPanel>
+          </Modal>
+        </OverlayProvider>
+      </NuriThemeProvider>,
+    );
+    expect(keyboard.count('keyboardWillShow')).toBe(2);
+
+    act(() => keyboard.fire(
+      'keyboardWillShow',
+      { endCoordinates: { height: 280, screenY: 520 } } as KeyboardEvent,
+    ));
+    const fullSurface = modalSurfaces(tr)
+      .find((node) => flatStyle(node.props.style).position === 'absolute')!;
+    expect(flatStyle(fullSurface.props.style).paddingBottom).toBe(280);
+    expect(warn).toHaveBeenCalledWith(
+      '[nuri] The keyboard opened over <Modal mode="sheet">. Inputs belong in mode="full".',
+    );
+  });
+
+  test('a lower full modal re-render keeps its registry slot beneath the upper owner', () => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'ios' });
+    const keyboard = mockKeyboardListeners();
+    const upper = (
+      <Modal open mode="full">
+        <ModalPanel><Text>Upper</Text></ModalPanel>
+      </Modal>
+    );
+    const tree = (lowerLabel: string) => (
+      <NuriThemeProvider>
+        <OverlayProvider>
+          <Modal open mode="full">
+            <ModalPanel><Text>{lowerLabel}</Text></ModalPanel>
+          </Modal>
+          {upper}
+        </OverlayProvider>
+      </NuriThemeProvider>
+    );
+    const tr = render(tree('Lower v1'));
+    act(() => tr.update(tree('Lower v2')));
+    expect(keyboard.count('keyboardWillShow')).toBe(1);
+
+    act(() => keyboard.fire(
+      'keyboardWillShow',
+      { endCoordinates: { height: 280, screenY: 520 } } as KeyboardEvent,
+    ));
+    const surfaces = modalSurfaces(tr)
+      .filter((node) => flatStyle(node.props.style).position === 'absolute');
+    expect(flatStyle(surfaces[0].props.style).paddingBottom).toBeUndefined();
+    expect(flatStyle(surfaces[1].props.style).paddingBottom).toBe(280);
   });
 });

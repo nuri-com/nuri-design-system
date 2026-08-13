@@ -24,6 +24,12 @@ import {
 import { usePresentedLayer } from '../presented-layer';
 import { useNuriSafeAreaInsets } from '../safe-area';
 import { FixedRegionLayoutProvider, useFixedRegionLayout } from './FixedRegionLayout';
+import {
+  isTopmostOpenModal,
+  removeOpenModal,
+  upsertOpenModal,
+  useIsTopmostFullModal,
+} from './modal-stack';
 
 export type ModalMode = 'sheet' | 'full';
 export type ModalScrim = 'none' | 'dim';
@@ -97,8 +103,6 @@ const ModalSurface: React.FC<ModalSurfaceProps> = ({
 };
 ModalSurface.displayName = 'ModalSurface';
 
-type ActiveModal = { id: string; mode: ModalMode };
-const activeModals: ActiveModal[] = [];
 let warnedFullScrim = false;
 let warnedSheetKeyboard = false;
 
@@ -117,10 +121,12 @@ export const Modal: React.FC<ModalProps> = ({
   children,
 }) => {
   const modalId = React.useId();
+  const isSheet = mode === 'sheet';
   const safeAreaInsets = useNuriSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
   const [sheetHeight, setSheetHeight] = React.useState<number | null>(null);
   const measuredHeight = React.useRef<number | null>(null);
+  const isTopmostOpenFull = useIsTopmostFullModal(isSheet ? null : modalId);
 
   const handleSurfaceLayout = React.useCallback((event: LayoutChangeEvent) => {
     const next = Math.round(event.nativeEvent.layout.height);
@@ -135,24 +141,18 @@ export const Modal: React.FC<ModalProps> = ({
     console.warn('[nuri] <Modal mode="full"> ignores `scrim`; full modals paint edge to edge.');
   }, [mode, scrim]);
 
-  // A tiny dev-only registry lets each sheet tripwire ask whether it is the
-  // topmost blocking Modal. Updating an existing entry preserves mount order.
+  // Open membership follows presentation intent, not the presented-layer
+  // mount latch. Updating an existing entry preserves mount order so a lower
+  // modal re-render cannot jump above a later modal.
   React.useLayoutEffect(() => {
-    if (!isDev()) return;
-    const index = activeModals.findIndex((entry) => entry.id === modalId);
     if (!open) {
-      if (index >= 0) activeModals.splice(index, 1);
+      removeOpenModal(modalId);
       return;
     }
-    if (index >= 0) activeModals[index] = { id: modalId, mode };
-    else activeModals.push({ id: modalId, mode });
+    upsertOpenModal(modalId, mode);
   }, [modalId, mode, open]);
   React.useLayoutEffect(
-    () => () => {
-      if (!isDev()) return;
-      const index = activeModals.findIndex((entry) => entry.id === modalId);
-      if (index >= 0) activeModals.splice(index, 1);
-    },
+    () => () => removeOpenModal(modalId),
     [modalId],
   );
 
@@ -160,15 +160,13 @@ export const Modal: React.FC<ModalProps> = ({
     if (!isDev() || !open || mode !== 'sheet') return;
     const event = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
     const subscription = Keyboard.addListener(event, (_keyboardEvent: KeyboardEvent) => {
-      const top = activeModals[activeModals.length - 1];
-      if (warnedSheetKeyboard || top?.id !== modalId || top.mode !== 'sheet') return;
+      if (warnedSheetKeyboard || !isTopmostOpenModal(modalId, 'sheet')) return;
       warnedSheetKeyboard = true;
       console.warn('[nuri] The keyboard opened over <Modal mode="sheet">. Inputs belong in mode="full".');
     });
     return () => subscription.remove();
   }, [modalId, mode, open]);
 
-  const isSheet = mode === 'sheet';
   const sheetMaxHeight = Math.round(windowHeight * CONTENT_MAX_FRACTION);
   const surfaceStyle: ViewStyle = isSheet
     ? { width: '100%', maxHeight: sheetMaxHeight }
@@ -215,7 +213,7 @@ export const Modal: React.FC<ModalProps> = ({
           ) : null}
           <RNView pointerEvents="box-none" style={styles.host}>
             <FixedRegionLayoutProvider
-              keyboardEnabled={!isSheet}
+              keyboardEnabled={!isSheet && isTopmostOpenFull}
               hostGeometry={isSheet ? 'content' : 'fill'}
               headerPresentation={scrollUnderTopbar ? 'overlay' : 'structural'}
               safeAreaTop={isSheet ? 0 : safeAreaInsets.top}

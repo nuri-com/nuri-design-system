@@ -262,6 +262,34 @@ The zero-size iOS hardware-keyboard frame and Android resize/event ordering rema
 regression matrix. Physical acceptance was performed by the consumer on both devices against the same Expo
 demo bundle used for the implementation review.
 
+### Stacked hosts and presentation persistence follow-up · 2026-08-13
+
+A consumer report exposed a keyboard-ownership slice that the single-host matrix above did not exercise.
+Repro-first Jest coverage on `main` confirmed that two open full modals both consumed the same iOS
+`keyboardWillShow` frame. It also confirmed that an unmatched show frame survived close/reopen when the
+exit animation remained unfinished and the presented-layer subtree stayed mounted. A completed exit did
+not reproduce persistence because it unmounted the provider and a later presentation mounted fresh state.
+
+The follow-up makes keyboard ownership presentation-derived: the topmost open full modal is the only modal
+provider subscribed to keyboard events, Screen stands down while any full modal is open, and sheets remain
+transparent to full-modal ownership. Removing an open-modal registry entry immediately disables that
+provider even while its exit layer remains mounted, which clears the frame before a re-presentation; every
+fresh enable also starts from a zero frame as defense in depth. Jest now proves stacked topmost-only padding
+and Footer safe-area retention, close-time reset and ownership transfer, interrupted and completed
+close/reopen paths, consecutive show refires, Screen handoff, sheet-warning migration, and stable ordering
+when a lower modal re-renders. The existing Android show/hide and residual-inset tests remain unchanged.
+
+Simulator acceptance was recorded by the coordinator on 2026-08-13 (iPhone 16 Pro simulator, iOS 18.4,
+Expo Go 54.0.7, branch head `75e9b14`): a temporary in-app driver ran the real DS surfaces with
+programmatic focus — so the genuine iOS software keyboard and willShow/willHide events — while per-step
+screenshots were captured headlessly. All twelve frames pass: Receive (ShareAddressSheet) open/close/reopen
+with a pixel-identical resting footer; the driver form's footer riding the keyboard, then resting after a
+close-with-keyboard-up and reopen; the stacked pair padding only the topmost modal and leaving the lower
+footer untouched after the upper closed keyboard-up; a second late-session keyboard cycle; and a real
+background/foreground round-trip with consistent geometry. Android emulator tooling was not available —
+the Android path is engine-untouched and jest-pinned — so Android acceptance and physical consumer
+verification of Receive remain release residue for the next RN tag.
+
 ### First-layout assertions
 
 The decisive regression test must inspect the initial rendered geometry before manually firing any Header
