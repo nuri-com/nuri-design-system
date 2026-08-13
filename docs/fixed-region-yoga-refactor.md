@@ -279,10 +279,16 @@ and Footer safe-area retention, close-time reset and ownership transfer, interru
 close/reopen paths, consecutive show refires, Screen handoff, sheet-warning migration, and stable ordering
 when a lower modal re-renders. The existing Android show/hide and residual-inset tests remain unchanged.
 
-Simulator/device acceptance was not available in the implementation session: Xcode exposed no booted iOS
-simulator and no Android emulator tooling was present. The Receive, stacked Country Picker, FormSheet,
-rotation/background, and Android no-regression flows therefore remain coordinator handback residue before
-merge; physical consumer verification of Receive remains release residue for the next RN tag.
+Simulator acceptance was recorded by the coordinator on 2026-08-13 (iPhone 16 Pro simulator, iOS 18.4,
+Expo Go 54.0.7, branch head `75e9b14`): a temporary in-app driver ran the real DS surfaces with
+programmatic focus — so the genuine iOS software keyboard and willShow/willHide events — while per-step
+screenshots were captured headlessly. All twelve frames pass: Receive (ShareAddressSheet) open/close/reopen
+with a pixel-identical resting footer; the driver form's footer riding the keyboard, then resting after a
+close-with-keyboard-up and reopen; the stacked pair padding only the topmost modal and leaving the lower
+footer untouched after the upper closed keyboard-up; a second late-session keyboard cycle; and a real
+background/foreground round-trip with consistent geometry. Android emulator tooling was not available —
+the Android path is engine-untouched and jest-pinned — so Android acceptance and physical consumer
+verification of Receive remain release residue for the next RN tag.
 
 ### First-layout assertions
 
