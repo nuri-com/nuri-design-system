@@ -19,6 +19,14 @@ function subscribe(listener: () => void): () => void {
   return () => listeners.delete(listener);
 }
 
+function subscribeNoop(_listener: () => void): () => void {
+  return () => undefined;
+}
+
+function getFalseSnapshot(): false {
+  return false;
+}
+
 export function upsertOpenModal(id: string, mode: ModalStackMode): void {
   const index = openModals.findIndex((entry) => entry.id === id);
   if (index < 0) {
@@ -45,12 +53,19 @@ export function isTopmostOpenModal(id: string, mode: ModalStackMode): boolean {
   return top?.id === id && top.mode === mode;
 }
 
-export function useIsTopmostFullModal(id: string): boolean {
+export function useIsTopmostFullModal(id: string | null): boolean {
   const getSnapshot = React.useCallback(() => {
-    const topFull = [...openModals].reverse().find((entry) => entry.mode === 'full');
-    return topFull?.id === id;
+    for (let index = openModals.length - 1; index >= 0; index -= 1) {
+      const entry = openModals[index];
+      if (entry.mode === 'full') return entry.id === id;
+    }
+    return false;
   }, [id]);
-  return React.useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  return React.useSyncExternalStore(
+    id === null ? subscribeNoop : subscribe,
+    id === null ? getFalseSnapshot : getSnapshot,
+    id === null ? getFalseSnapshot : getSnapshot,
+  );
 }
 
 export function useHasOpenFullModal(): boolean {
@@ -64,6 +79,7 @@ export function useHasOpenFullModal(): boolean {
 // Raw react-test-renderer roots are not auto-unmounted between Jest cases.
 // Keep their intentionally module-level registrations from leaking across
 // cases without adding test behavior to the public package surface.
+/** @internal */
 export function resetModalStackForTests(): void {
   openModals = [];
   listeners.clear();

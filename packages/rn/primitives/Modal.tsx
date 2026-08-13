@@ -121,11 +121,12 @@ export const Modal: React.FC<ModalProps> = ({
   children,
 }) => {
   const modalId = React.useId();
+  const isSheet = mode === 'sheet';
   const safeAreaInsets = useNuriSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
   const [sheetHeight, setSheetHeight] = React.useState<number | null>(null);
   const measuredHeight = React.useRef<number | null>(null);
-  const isTopmostOpenFull = useIsTopmostFullModal(modalId);
+  const isTopmostOpenFull = useIsTopmostFullModal(isSheet ? null : modalId);
 
   const handleSurfaceLayout = React.useCallback((event: LayoutChangeEvent) => {
     const next = Math.round(event.nativeEvent.layout.height);
@@ -166,7 +167,6 @@ export const Modal: React.FC<ModalProps> = ({
     return () => subscription.remove();
   }, [modalId, mode, open]);
 
-  const isSheet = mode === 'sheet';
   const sheetMaxHeight = Math.round(windowHeight * CONTENT_MAX_FRACTION);
   const surfaceStyle: ViewStyle = isSheet
     ? { width: '100%', maxHeight: sheetMaxHeight }
