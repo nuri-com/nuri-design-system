@@ -221,8 +221,9 @@
                       <!-- The operator-approved seam: the swap rides the xs card
                            gap as the To card's first row (align-end shim centers
                            the disc on the seam; later sibling paints above the
-                           From card). The xs spacer keeps the disc ≥12px from
-                           the To trigger's press bounds. -->
+                           From card). Trigger clearance is operator-waived for
+                           this composition — the disc paints and hit-tests above
+                           by design. -->
                       <nuri-view direction="row" justify="center" align="end" height="sm" padding-bottom="2xs">
                         <nuri-icon-button
                           variant="solid"
@@ -230,7 +231,6 @@
                           aria-label="Swap Bitcoin and Euro"
                         ></nuri-icon-button>
                       </nuri-view>
-                      <nuri-view height="xs"></nuri-view>
                       <nuri-select-trigger aria-label="To" accessibility-value="Euro">
                         <nuri-select-trigger-label>To</nuri-select-trigger-label>
                         <nuri-select-trigger-avatar source="../assets/flags/eur.svg"></nuri-select-trigger-avatar>
