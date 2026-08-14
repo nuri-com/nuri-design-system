@@ -215,6 +215,7 @@ const ORACLE = [
   ['.nuri-palette[data-variant="ghost"]',  'background', 'transparent'], // the literal · no var, no resolution
   ['.nuri-palette[data-variant="outline"]','border',     '#dddac9'],     // border-subtle @ neutral/light
   ['.nuri-palette[data-variant="outline"][data-press-color]:active','background', '#fbf9ee'], // bg-subtle @ neutral/light
+  ['.nuri-palette[data-variant="soft"][data-press-color]:active','background', '#ece9da'], // bg-pressed @ neutral/light
 ];
 
 test('Guard C · the curated cells resolve to the restated design oracle (default scope)', () => {
@@ -268,4 +269,18 @@ test('Guard D · order-soundness (rest mutual-exclusivity + pressed strictly-mor
   // A's order-insensitive compare is sound. (Even a contract-violating variant+
   // chrome double-attr node: generated AND hand both emit the variant group before
   // the chrome group, so the equal-specificity tie resolves identically either way.)
+});
+
+test('Guard E · soft wash is interactive-gated and a static soft surface remains unaffected', () => {
+  const rules = layerRuleMap(generated);
+  assert.equal(
+    rules.get('.nuri-palette[data-variant="soft"][data-press-color]:active')?.get('background'),
+    'var(--nuri-bg-pressed)',
+    'the SelectTrigger subtle wash matches the soft Button role',
+  );
+  assert.equal(
+    rules.has('.nuri-palette[data-variant="soft"]:active'),
+    false,
+    'a static soft surface has no active selector; only pressColor opts into the wash',
+  );
 });

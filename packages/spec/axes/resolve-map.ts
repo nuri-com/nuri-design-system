@@ -53,6 +53,7 @@ export type FillCase = {
   shrink: number;
   basis?: number | 'auto';
   minInline?: 0;
+  fitContent?: true;
 };
 export type Field =
   | { via: 'scale'; prop: CanonicalId; scale: ScaleName } //       value = scale[input]
@@ -90,16 +91,24 @@ const JUSTIFY: Record<NonNullable<StackNS['justify']>, string> = {
 // centre). Each projection spells this neutral intent locally. A mechanism
 // difference, not a name → NOT a registry entry (decision 73 cl.2). Was
 // resolveFill's switch.
-// `hug` = the NO-FILL floor (web flex:0 0 auto · basis auto ⇒ content size, and
-// grow 0 + shrink 0 so the node NEITHER stretches NOR collapses below its content
-// — the "trailing action hugs its label" case · alert's AlertButton). Distinct
+// `hug` = the content-sized floor: flex:0 0 auto on the parent main axis plus a
+// cross-axis content clamp (web fit-content/max-inline-size · RN
+// alignSelf:flex-start/maxWidth:100%). The node neither stretches nor collapses
+// below its content, while long content remains bounded by its parent — the
+// "trailing action hugs its label" case · alert's AlertButton. Distinct
 // from the bare no-`fill` default (flex 0 1 auto · shrinks under row pressure);
 // `hug` is the explicit opt-out of that shrink. The 3rd versioned StackNS.fill add.
+// `shrink` = truncate-only: NO grow (Android Text measures a flexGrow child at
+// the full available width inside auto-sized parents — the select-trigger value
+// inflated every hugged cluster to the row), shrink past content with the
+// min-size-0 release so `flow:truncate` can bite. The content-sized sibling of
+// `grow-shrink` for parts inside hug clusters. The 4th versioned StackNS.fill add.
 const FILL: Record<NonNullable<StackNS['fill']>, FillCase> = {
   grow: { grow: 1, shrink: 0 },
   'grow-shrink': { grow: 1, shrink: 1, minInline: 0 },
+  shrink: { grow: 0, shrink: 1, minInline: 0 },
   even: { grow: 1, shrink: 1, basis: 0, minInline: 0 },
-  hug: { grow: 0, shrink: 0 },
+  hug: { grow: 0, shrink: 0, fitContent: true },
 };
 
 // distribute → the PARENT-side even split: each DIRECT CHILD becomes flex 1 1 0

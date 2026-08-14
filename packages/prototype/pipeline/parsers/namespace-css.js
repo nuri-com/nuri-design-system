@@ -40,8 +40,9 @@
  *      no vocabulary (RN passes the runtime value straight through). The web
  *      must ENUMERATE the inputs → `direction: row|column` (also erased schema).
  *   3. The `expand` arm's web declarations. The table carries neutral
- *      grow/shrink/basis/minInline intents; CSS writes the `flex` shorthand +
- *      logical min-size. A mechanism difference, not a name → NOT a registry
+ *      grow/shrink/basis/minInline/fitContent intents; CSS writes the `flex`
+ *      shorthand + logical min-size / bounded fit-content clamp. A mechanism
+ *      difference, not a name → NOT a registry
  *      entry (decision 73 cl.2), so its web spelling stays here.
  *
  * The vocabulary for the OTHER arms rides the table itself: `keyword`
@@ -85,6 +86,10 @@ function expandWebDecls(fill) {
   const basis = fill.basis === undefined ? 'auto' : String(fill.basis);
   const decls = [['flex', `${fill.grow} ${fill.shrink} ${basis}`]];
   if (fill.minInline !== undefined) decls.push(['min-inline-size', String(fill.minInline)]);
+  if (fill.fitContent) {
+    decls.push(['inline-size', 'fit-content']);
+    decls.push(['max-inline-size', '100%']);
+  }
   return decls;
 }
 

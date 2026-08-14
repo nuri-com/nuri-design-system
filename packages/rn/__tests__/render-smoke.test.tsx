@@ -47,6 +47,11 @@ import {
   SelectFieldAvatar,
   SelectFieldValue,
   SelectFieldChevron,
+  SelectTrigger,
+  SelectTriggerLabel,
+  SelectTriggerAvatar,
+  SelectTriggerValue,
+  SelectTriggerChevron,
   TextField,
   TextFieldLabel,
   TextFieldButton,
@@ -69,7 +74,7 @@ import type { Descriptor, Axes, TypographyNS } from '../contract';
 import { renderDescriptorInstance } from '../runtime/renderer';
 import type { BakedComponentRecipe } from '../runtime/resolve';
 import { buildNuriTheme } from '../runtime/theme-payload';
-import { space } from '../generated/data/tokens';
+import { size, space } from '../generated/data/tokens';
 import type { TextFieldHandle } from '../index';
 import { FocusScrollProvider } from '../runtime/focus-scroll';
 // The hand-authorable primitives (step ①) — aliased so the DS names don't clash
@@ -351,7 +356,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     // The suite renders named glyphs but never sweeps the register, so each new
     // SoT drawing gets a targeted mount: the register markup reaches SvgXml
     // inside the constant viewBox wrapper, colour normalized to currentColor.
-    for (const name of ['arrow-up', 'arrow-down', 'list-bullets', 'lightning'] as const) {
+    for (const name of ['arrow-up', 'arrow-down', 'caret-down', 'list-bullets', 'lightning'] as const) {
       const tr = render(
         <NuriThemeProvider>
           <NuriIcon name={name} />
@@ -1113,14 +1118,14 @@ describe('render-smoke — the ergonomic components mount headless', () => {
           <SelectFieldLabel>Country</SelectFieldLabel>
           <SelectFieldAvatar source={source} />
           <SelectFieldValue>Germany</SelectFieldValue>
-          <SelectFieldChevron name="chevron-down" />
+          <SelectFieldChevron name="caret-down" />
         </SelectField>
       </NuriThemeProvider>,
     );
 
     expect(tr.root.findAllByType(Text).map((node) => node.props.children)).toEqual(['Country', 'Germany']);
     expect(tr.root.findByType(Image).props.source).toEqual(source);
-    expect(tr.root.findByType(NuriIcon).props.name).toBe('chevron-down');
+    expect(tr.root.findByType(NuriIcon).props.name).toBe('caret-down');
     const [field] = pressableActions(tr);
     expect(field.props.accessibilityRole).toBe('button');
     expect(field.props.accessibilityLabel).toBe('Country');
@@ -1151,6 +1156,121 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.root.findAllByType(Image)).toHaveLength(0);
     expect(tr.root.findAllByType(NuriIcon)).toHaveLength(0);
     expect(tr.root.findAllByType(Text).map((node) => node.props.children)).toEqual(['Delivery', 'Standard']);
+  });
+
+  // ghost presses read through pure scale (no wash — operator 2026-08-14);
+  // subtle keeps scale + the soft wash.
+  test.each([
+    ['ghost', 'ghost', false],
+    ['subtle', 'soft', true],
+  ] as const)('SelectTrigger — %s scale, anatomy, a11y, and hugging geometry', (variant, surfaceRole, washes) => {
+    const onPress = jest.fn();
+    const source = { uri: 'https://example.test/eur.png' };
+    const tr = render(
+      <NuriThemeProvider>
+        <NuriView direction="column" align="stretch">
+          <SelectTrigger
+            variant={variant}
+            accessibilityLabel="From"
+            accessibilityValue="Euro"
+            onPress={onPress}
+          >
+            <SelectTriggerLabel>From</SelectTriggerLabel>
+            <SelectTriggerAvatar source={source} />
+            <SelectTriggerValue>Euro</SelectTriggerValue>
+            <SelectTriggerChevron name="caret-down" />
+          </SelectTrigger>
+        </NuriView>
+      </NuriThemeProvider>,
+    );
+
+    expect(tr.root.findAllByType(Text).map((node) => node.props.children)).toEqual(['From', 'Euro']);
+    expect(tr.root.findByType(Image).props.source).toEqual(source);
+    const caret = tr.root.findByType(NuriIcon);
+    expect(caret.props.name).toBe('caret-down');
+    expect(caret.props.dimension).toBe(size.xs);
+    const value = tr.root.findAllByType(Text).find((node) => node.props.children === 'Euro');
+    expect(value?.props.numberOfLines).toBe(1);
+    expect(value?.props.ellipsizeMode).toBe('tail');
+    expect(caret.props.color).toBe(flatStyleForTest(value?.props.style).color);
+
+    const [trigger] = pressableActions(tr);
+    expect(trigger.props.accessibilityRole).toBe('button');
+    expect(trigger.props.accessibilityLabel).toBe('From');
+    expect(trigger.props.accessibilityValue).toEqual({ text: 'Euro' });
+    expect(trigger.props.hitSlop).toBeUndefined();
+    const restingStyle = trigger.props.style({ pressed: false });
+    const pressedStyle = trigger.props.style({ pressed: true });
+    const theme = buildNuriTheme('lilac', 'light');
+    expect(restingStyle.backgroundColor).toBe(theme.surface[surfaceRole].bg);
+    expect(pressedStyle.backgroundColor).toBe(
+      washes ? theme.surface[surfaceRole].pressedBg : theme.surface[surfaceRole].bg,
+    );
+    expect(restingStyle.minHeight).toBe(size.lg);
+    expect(restingStyle.flexGrow).toBe(0);
+    expect(restingStyle.flexShrink).toBe(0);
+    expect(restingStyle.alignSelf).toBe('flex-start');
+    expect(restingStyle.maxWidth).toBe('100%');
+    expect(restingStyle.transform).toBeUndefined();
+    expect(pressedStyle.transform).toEqual([{ scale: theme.interaction.pressScale }]);
+    act(() => trigger.props.onPress());
+    expect(onPress).toHaveBeenCalledTimes(1);
+  });
+
+  test('SelectTrigger — without Avatar remains 48px and disabled suppresses the wash', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <SelectTrigger
+          variant="subtle"
+          disabled
+          accessibilityLabel="To"
+          accessibilityValue="Bitcoin"
+        >
+          <SelectTriggerLabel>To</SelectTriggerLabel>
+          <SelectTriggerValue>Bitcoin</SelectTriggerValue>
+          <SelectTriggerChevron name="caret-down" />
+        </SelectTrigger>
+      </NuriThemeProvider>,
+    );
+    expect(tr.root.findAllByType(Image)).toHaveLength(0);
+    const [trigger] = pressableActions(tr);
+    expect(trigger.props.accessibilityState).toEqual({ disabled: true });
+    const rest = trigger.props.style({ pressed: false });
+    const disabledPressed = trigger.props.style({ pressed: true });
+    const theme = buildNuriTheme('lilac', 'light');
+    expect(rest.minHeight).toBe(size.lg);
+    expect(rest.backgroundColor).toBe(theme.surface.soft.bg);
+    expect(disabledPressed.backgroundColor).toBe(rest.backgroundColor);
+    expect(disabledPressed.transform).toBeUndefined();
+    expect(disabledPressed.opacity).toBe(theme.interaction.disabledOpacity);
+  });
+
+  test('SelectTrigger satellite — a static soft View has no interactive wash or scale path', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <NuriView variant="soft" />
+      </NuriThemeProvider>,
+    );
+    const host = tr.root.findByType(View);
+    const theme = buildNuriTheme('neutral', 'light');
+    expect(flatStyleForTest(host.props.style)).toMatchObject({ backgroundColor: theme.surface.soft.bg });
+    expect(typeof host.props.style).not.toBe('function');
+  });
+
+  test('SelectTrigger — Label, Value, and Chevron are required anatomy', () => {
+    const quiet = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      expect(() => render(
+        <NuriThemeProvider>
+          <SelectTrigger>
+            <SelectTriggerLabel>From</SelectTriggerLabel>
+            <SelectTriggerValue>Bitcoin</SelectTriggerValue>
+          </SelectTrigger>
+        </NuriThemeProvider>,
+      )).toThrow("requires Chevron");
+    } finally {
+      quiet.mockRestore();
+    }
   });
 
   test('List — open container preserves positional rows and separators', () => {

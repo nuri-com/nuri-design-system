@@ -238,6 +238,13 @@ const EXPECTED_DESCRIPTORS = {
     interactivePart: 'box',
     interactive: ['pressColor', 'disabledOpacity'],
   },
+  'select-trigger': {
+    axes: { variant: ['ghost', 'subtle'] },
+    parts: ['label', 'avatar', 'value', 'chevron'],
+    // Base opt-in only: the wash (pressColor) rides the subtle VARIANT — ghost
+    // presses read through pure scale (operator 2026-08-14).
+    interactive: ['pressScale', 'disabledOpacity'],
+  },
   'text-field': {
     axes: { size: ['md', 'lg'] },
     parts: ['label', 'box', 'input', 'button', 'iconButton'],
@@ -492,7 +499,7 @@ const FROZEN_SCHEMA = {
       // the equal-basis-0 edge for true centring · decision 65 "versioned").
       // `hug` ADDED at the trailing-action slice (the 3rd versioned StackNS.fill
       // add · flex:0 0 auto — the no-shrink content floor · alert's AlertButton).
-      'fill?': "'grow' | 'grow-shrink' | 'even' | 'hug'",
+      'fill?': "'grow' | 'grow-shrink' | 'shrink' | 'even' | 'hug'",
       // `distribute` ADDED at the even-row slice (a versioned StackNS add · the FIRST
       // child-affecting stack property · web `> *` combinator · RN per-child inject).
       'distribute?': "'even'",

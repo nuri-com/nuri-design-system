@@ -108,7 +108,9 @@ export const recipes: Record<string, BakedComponentRecipe> = {
             },
             "hug": {
               "flexGrow": 0,
-              "flexShrink": 0
+              "flexShrink": 0,
+              "alignSelf": "flex-start",
+              "maxWidth": "100%"
             }
           }
         }
@@ -202,6 +204,8 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "base": {
           "flexGrow": 0,
           "flexShrink": 0,
+          "alignSelf": "flex-start",
+          "maxWidth": "100%",
           "width": 48,
           "height": 48,
           "borderRadius": 9999
@@ -252,7 +256,9 @@ export const recipes: Record<string, BakedComponentRecipe> = {
             },
             "fluid": {
               "flexGrow": 0,
-              "flexShrink": 0
+              "flexShrink": 0,
+              "alignSelf": "flex-start",
+              "maxWidth": "100%"
             }
           }
         }
@@ -323,7 +329,9 @@ export const recipes: Record<string, BakedComponentRecipe> = {
             },
             "fluid": {
               "flexGrow": 0,
-              "flexShrink": 0
+              "flexShrink": 0,
+              "alignSelf": "flex-start",
+              "maxWidth": "100%"
             }
           }
         }
@@ -577,6 +585,93 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "base": {
           "width": 24,
           "height": 24
+        },
+        "variants": {}
+      }
+    }
+  },
+  "select-trigger": {
+    "root": {
+      "el": "pressable",
+      "geometry": {
+        "base": {
+          "flexDirection": "row",
+          "alignItems": "center",
+          "flexGrow": 0,
+          "flexShrink": 0,
+          "alignSelf": "flex-start",
+          "maxWidth": "100%",
+          "minHeight": 48,
+          "borderRadius": 9999
+        },
+        "variants": {
+          "variant": {
+            "ghost": {
+              "gap": 4
+            },
+            "subtle": {
+              "gap": 6,
+              "paddingHorizontal": 18
+            }
+          }
+        }
+      },
+      "interactive": {
+        "base": {
+          "pressScale": true,
+          "disabledOpacity": true
+        },
+        "variants": {
+          "variant": {
+            "subtle": {
+              "pressColor": true
+            }
+          }
+        }
+      }
+    },
+    "label": {
+      "el": "text",
+      "geometry": {
+        "base": {},
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "sm",
+          "emphasis": true,
+          "align": "start",
+          "flow": "truncate",
+          "lines": 1
+        }
+      }
+    },
+    "value": {
+      "el": "text",
+      "geometry": {
+        "base": {
+          "flexGrow": 0,
+          "flexShrink": 1,
+          "minWidth": 0
+        },
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "sm",
+          "emphasis": true,
+          "align": "start",
+          "flow": "truncate",
+          "lines": 1
+        }
+      }
+    },
+    "chevron": {
+      "el": "icon",
+      "geometry": {
+        "base": {
+          "width": 18,
+          "height": 18
         },
         "variants": {}
       }

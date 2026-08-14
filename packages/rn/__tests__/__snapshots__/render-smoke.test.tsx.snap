@@ -244,6 +244,7 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
     style={
       {
         "alignItems": "center",
+        "alignSelf": "flex-start",
         "backgroundColor": "#beaaff",
         "borderRadius": 9999,
         "flexDirection": "row",
@@ -251,6 +252,7 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
         "flexShrink": 0,
         "gap": 4,
         "justifyContent": "center",
+        "maxWidth": "100%",
         "minHeight": 36,
         "paddingHorizontal": 18,
       }
@@ -659,6 +661,7 @@ exports[`render-smoke — the ergonomic components mount headless IconAvatar —
     }
     style={
       {
+        "alignSelf": "flex-start",
         "backgroundColor": "transparent",
         "borderColor": "#dddac9",
         "borderRadius": 9999,
@@ -666,6 +669,7 @@ exports[`render-smoke — the ergonomic components mount headless IconAvatar —
         "flexGrow": 0,
         "flexShrink": 0,
         "height": 48,
+        "maxWidth": "100%",
         "width": 48,
       }
     }
@@ -1738,6 +1742,7 @@ exports[`render-smoke — the ergonomic components mount headless SelectField �
         }
         style={
           {
+            "alignSelf": "flex-start",
             "backgroundColor": "transparent",
             "borderColor": "#dddac9",
             "borderRadius": 9999,
@@ -1745,6 +1750,7 @@ exports[`render-smoke — the ergonomic components mount headless SelectField �
             "flexGrow": 0,
             "flexShrink": 0,
             "height": 36,
+            "maxWidth": "100%",
             "width": 36,
           }
         }
@@ -1806,7 +1812,7 @@ exports[`render-smoke — the ergonomic components mount headless SelectField �
       vbHeight={32}
       vbWidth={32}
       width={24}
-      xml="<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M27.6966 10.2826C27.3004 9.89783 26.6673 9.90714 26.2826 10.3034L16 20.893L5.71743 10.3034C5.33269 9.90714 4.6996 9.89783 4.30337 10.2826C3.90714 10.6673 3.89783 11.3004 4.28257 11.6966L14.7643 22.4914C14.773 22.5003 14.7817 22.509 14.7907 22.5176C14.9535 22.6733 15.1444 22.7945 15.3514 22.8764C15.5583 22.9584 15.7785 23 16 23C16.2215 23 16.4417 22.9584 16.6486 22.8764C16.8556 22.7945 17.0465 22.6733 17.2093 22.5176C17.2183 22.509 17.227 22.5003 17.2357 22.4914L27.7174 11.6966C28.1022 11.3004 28.0929 10.6673 27.6966 10.2826Z" fill="currentColor"/></svg>"
+      xml="<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path d="M9.2014 10.963C9.3361 10.7291 9.5305 10.5354 9.7648 10.4015C9.9991 10.2676 10.2648 10.1984 10.5346 10.2011L21.4663 10.2011C21.7361 10.1984 22.0017 10.2676 22.236 10.4015C22.4703 10.5354 22.6647 10.7291 22.7994 10.963C22.9308 11.1879 23.0001 11.4437 23.0001 11.7042C23.0001 11.9648 22.9308 12.2206 22.7994 12.4455L17.3348 21.9378C17.1983 22.1703 17.0033 22.3631 16.7692 22.4971C16.5351 22.6311 16.2701 22.7016 16.0004 22.7016C15.7307 22.7016 15.4657 22.6311 15.2316 22.4971C14.9976 22.3631 14.8026 22.1703 14.666 21.9378L9.2002 12.4455C9.0689 12.2205 8.9999 11.9646 9.0001 11.7041C9.0003 11.4436 9.0698 11.1878 9.2014 10.963Z" fill="currentColor"/></svg>"
       xmlns="http://www.w3.org/2000/svg"
     >
       <RNSVGGroup
@@ -1822,18 +1828,15 @@ exports[`render-smoke — the ergonomic components mount headless SelectField �
         }
       >
         <RNSVGPath
-          clipRule={0}
-          d="M27.6966 10.2826C27.3004 9.89783 26.6673 9.90714 26.2826 10.3034L16 20.893L5.71743 10.3034C5.33269 9.90714 4.6996 9.89783 4.30337 10.2826C3.90714 10.6673 3.89783 11.3004 4.28257 11.6966L14.7643 22.4914C14.773 22.5003 14.7817 22.509 14.7907 22.5176C14.9535 22.6733 15.1444 22.7945 15.3514 22.8764C15.5583 22.9584 15.7785 23 16 23C16.2215 23 16.4417 22.9584 16.6486 22.8764C16.8556 22.7945 17.0465 22.6733 17.2093 22.5176C17.2183 22.509 17.227 22.5003 17.2357 22.4914L27.7174 11.6966C28.1022 11.3004 28.0929 10.6673 27.6966 10.2826Z"
+          d="M9.2014 10.963C9.3361 10.7291 9.5305 10.5354 9.7648 10.4015C9.9991 10.2676 10.2648 10.1984 10.5346 10.2011L21.4663 10.2011C21.7361 10.1984 22.0017 10.2676 22.236 10.4015C22.4703 10.5354 22.6647 10.7291 22.7994 10.963C22.9308 11.1879 23.0001 11.4437 23.0001 11.7042C23.0001 11.9648 22.9308 12.2206 22.7994 12.4455L17.3348 21.9378C17.1983 22.1703 17.0033 22.3631 16.7692 22.4971C16.5351 22.6311 16.2701 22.7016 16.0004 22.7016C15.7307 22.7016 15.4657 22.6311 15.2316 22.4971C14.9976 22.3631 14.8026 22.1703 14.666 21.9378L9.2002 12.4455C9.0689 12.2205 8.9999 11.9646 9.0001 11.7041C9.0003 11.4436 9.0698 11.1878 9.2014 10.963Z"
           fill={
             {
               "type": 2,
             }
           }
-          fillRule={0}
           propList={
             [
               "fill",
-              "fillRule",
             ]
           }
         />
@@ -2457,9 +2460,11 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — flu
     style={
       {
         "alignItems": "center",
+        "alignSelf": "flex-start",
         "flexDirection": "row",
         "flexGrow": 0,
         "flexShrink": 0,
+        "maxWidth": "100%",
         "paddingEnd": 6,
       }
     }
@@ -2487,11 +2492,13 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — flu
     style={
       {
         "alignItems": "center",
+        "alignSelf": "flex-start",
         "flexDirection": "row",
         "flexGrow": 0,
         "flexShrink": 0,
         "gap": 6,
         "justifyContent": "flex-end",
+        "maxWidth": "100%",
         "paddingStart": 6,
       }
     }
@@ -2560,11 +2567,13 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — tit
     style={
       {
         "alignItems": "center",
+        "alignSelf": "flex-start",
         "flexDirection": "row",
         "flexGrow": 0,
         "flexShrink": 0,
         "gap": 6,
         "justifyContent": "flex-end",
+        "maxWidth": "100%",
         "paddingStart": 6,
       }
     }

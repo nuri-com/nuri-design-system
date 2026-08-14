@@ -46,6 +46,7 @@
         { id: 'components/list',               label: 'List',               href: 'generated/components/list.html' },
         { id: 'components/list-action',        label: 'List Action',        href: 'generated/components/list-action.html' },
         { id: 'components/select-field',       label: 'Select Field',       href: 'generated/components/select-field.html' },
+        { id: 'components/select-trigger',     label: 'Select Trigger',     href: 'generated/components/select-trigger.html' },
         { id: 'components/text-field',         label: 'Text Field',         href: 'generated/components/text-field.html' },
         { id: 'components/tab-bar',            label: 'Tab Bar',            href: 'generated/components/tab-bar.html' },
         { id: 'components/tab-bar-item',       label: 'Tab Bar Item',       href: 'generated/components/tab-bar-item.html' },

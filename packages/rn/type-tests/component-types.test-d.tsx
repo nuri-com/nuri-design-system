@@ -34,6 +34,11 @@ import {
   SelectFieldChevron,
   SelectFieldLabel,
   SelectFieldValue,
+  SelectTrigger,
+  SelectTriggerAvatar,
+  SelectTriggerChevron,
+  SelectTriggerLabel,
+  SelectTriggerValue,
   TextField,
   TextFieldButton,
   TextFieldIconButton,
@@ -143,7 +148,7 @@ export const selectFieldOk = (
     <SelectFieldLabel>Country</SelectFieldLabel>
     <SelectFieldAvatar source={{ uri: 'https://example.test/deu.png' }} />
     <SelectFieldValue>Germany</SelectFieldValue>
-    <SelectFieldChevron name="chevron-down" />
+    <SelectFieldChevron name="caret-down" />
   </SelectField>
 );
 export const selectFieldWithoutAdornmentOk = (
@@ -158,6 +163,24 @@ export const selectFieldNoInputValue = <SelectField value="Germany"><SelectField
 export const selectFieldNoSmSize = <SelectField size="sm"><SelectFieldValue>Germany</SelectFieldValue></SelectField>;
 // @ts-expect-error The popup semantic is descriptor-authored, not consumer-selectable.
 export const selectFieldNoPopupProp = <SelectField popup="dialog"><SelectFieldValue>Germany</SelectFieldValue></SelectField>;
+
+// ── SelectTrigger — inline disclosure cluster; consumer owns dialog/state ──
+export const selectTriggerOk = (
+  <SelectTrigger variant="subtle" accessibilityLabel="From" accessibilityValue="Bitcoin" onPress={() => undefined}>
+    <SelectTriggerLabel>From</SelectTriggerLabel>
+    <SelectTriggerAvatar name="bitcoin" variant="solid" accent="orange" />
+    <SelectTriggerValue>Bitcoin</SelectTriggerValue>
+    <SelectTriggerChevron name="caret-down" />
+  </SelectTrigger>
+);
+// @ts-expect-error SelectTrigger has only ghost/subtle variants.
+export const selectTriggerBadVariant = <SelectTrigger variant="field" />;
+// @ts-expect-error open state remains consumer-owned.
+export const selectTriggerNoOpen = <SelectTrigger open />;
+// @ts-expect-error invisible hitSlop is not part of the component contract.
+export const selectTriggerNoHitSlop = <SelectTrigger hitSlop={12} />;
+// @ts-expect-error glyph names remain closed over the generated registry.
+export const selectTriggerBadChevron = <SelectTriggerChevron name="made-up" />;
 
 // ── TextField — input allowlist + label/button/icon-button composition ──
 export const textFieldOk = (

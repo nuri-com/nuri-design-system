@@ -202,6 +202,8 @@ const CELLS = [
   ['stack', '.nuri-stack[data-fill="grow"]', 'flex', '1 0 auto'],                  // expand (shorthand)
   ['stack', '.nuri-stack[data-fill="grow-shrink"]', 'min-inline-size', '0'],       // expand (logical min)
   ['stack', '.nuri-stack[data-fill="even"]', 'flex', '1 1 0'],                     // expand · the topbar edges (basis-0 equal split)
+  ['stack', '.nuri-stack[data-fill="hug"]', 'inline-size', 'fit-content'],         // expand · cross-axis content clamp
+  ['stack', '.nuri-stack[data-fill="hug"]', 'max-inline-size', '100%'],            // expand · bounded by the parent
 ];
 
 test('Guard C · resolved-value spot-check (generated → final value)', () => {

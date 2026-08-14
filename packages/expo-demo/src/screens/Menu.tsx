@@ -10,6 +10,7 @@ import { ShareAddressSheet } from '../sheets/ShareAddressSheet';
 import { SendAddressSheet } from '../sheets/SendAddressSheet';
 import { CountryPickerSheet } from '../sheets/CountryPickerSheet';
 import { TextFieldStress } from './TextFieldStress';
+import { Move } from './Move';
 
 type FormValues = {
   iban: string;
@@ -24,6 +25,7 @@ type FormValues = {
 // uses it, not in the router.
 export function Menu({ onBack }: { onBack: () => void }) {
   const [showTextFieldStress, setShowTextFieldStress] = React.useState(false);
+  const [showMove, setShowMove] = React.useState<false | 'regular' | 'stress'>(false);
   const activity = useSheet();
   const amount = useSheet();
   const actions = useSheet();
@@ -48,6 +50,10 @@ export function Menu({ onBack }: { onBack: () => void }) {
     return <TextFieldStress onBack={() => setShowTextFieldStress(false)} />;
   }
 
+  if (showMove) {
+    return <Move stress={showMove === 'stress'} onClose={() => setShowMove(false)} />;
+  }
+
   return (
     <Screen safeArea>
       <Topbar>
@@ -64,6 +70,8 @@ export function Menu({ onBack }: { onBack: () => void }) {
         <Button size="lg" onPress={sendAddress.show}>Send Bitcoin Address</Button>
         <Button size="lg" onPress={countryPicker.show}>Verify Phone · Country Picker</Button>
         <Button size="lg" variant="soft" onPress={() => setShowTextFieldStress(true)}>TextField Stress Harness</Button>
+        <Button size="lg" variant="soft" onPress={() => setShowMove('regular')}>Move · SelectTrigger parity</Button>
+        <Button size="lg" variant="soft" onPress={() => setShowMove('stress')}>Move · stress values</Button>
       </View>
 
       <ActivitySheet open={activity.open} onClose={activity.onClose} />

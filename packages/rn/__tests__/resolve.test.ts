@@ -357,6 +357,8 @@ describe('Topbar — same resolver, centred + fluid compound layouts (via flatte
       alignItems: 'center',
       flexGrow: 0,
       flexShrink: 0,
+      alignSelf: 'flex-start',
+      maxWidth: '100%',
       paddingEnd: space.sm,
     });
     expect(part('content', 'fluid').style).toEqual({
@@ -373,6 +375,8 @@ describe('Topbar — same resolver, centred + fluid compound layouts (via flatte
       gap: space.sm,
       flexGrow: 0,
       flexShrink: 0,
+      alignSelf: 'flex-start',
+      maxWidth: '100%',
       paddingStart: space.sm,
     });
   });

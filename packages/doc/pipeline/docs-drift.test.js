@@ -197,6 +197,28 @@ const PAGE_CONTRACT = {
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`accessibilityHint`', '`role="combobox"`'],
   },
+  'select-trigger': {
+    kind: 'api', source: 'select-trigger', title: 'Select Trigger', nav: 25,
+    cells: [
+      "| `variant` | no | `'ghost' | 'subtle'` | style axis |",
+      "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
+      '| `onPress` | no | `() => void` | pressable behaviour |',
+      '| `disabled` | no | `boolean` | pressable behaviour |',
+      '| `accessibilityLabel` | no | `string` | pressable behaviour |',
+      '| `accessibilityValue` | no | `string` | pressable behaviour |',
+      '| `children` | no | `React.ReactNode` | composition children |',
+      '### Select Trigger Label Props',
+      '| `children` | yes | `React.ReactNode` | slot content |',
+      '### Select Trigger Avatar Props',
+      '| `source` | no | `ImageSourcePropType` | image source |',
+      '### Select Trigger Value Props',
+      '| `children` | yes | `React.ReactNode` | slot content |',
+      '### Select Trigger Chevron Props',
+      '| `name` | yes | `IconName` | scalar icon name |',
+      '> `children` is not accepted (`children?: never`).',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`open`', '`selected`'],
+  },
   'tab-bar': {
     kind: 'api', source: 'tab-bar', title: 'Tab Bar', nav: 8,
     cells: [
@@ -467,7 +489,7 @@ const AXIS_CONTRACT = {
       '| `align` | `align-items` | `alignItems` | `start` → `flex-start`<br>`center` → `center`<br>`end` → `flex-end`<br>`stretch` → `stretch`<br>`baseline` → `baseline` |',
       // the mechanism-divergent expand arm (fill · no registry entry · rn → em-dash) ·
       // `even` (the topbar-slots slice · the equal-basis-0 edge for true centring)
-      '| `fill` | `flex` | — | `grow` → `grow: 1` · `shrink: 0`<br>`grow-shrink` → `grow: 1` · `shrink: 1` · `minInline: 0`<br>`even` → `grow: 1` · `shrink: 1` · `basis: 0` · `minInline: 0`<br>`hug` → `grow: 0` · `shrink: 0` |',
+      '| `fill` | `flex` | — | `grow` → `grow: 1` · `shrink: 0`<br>`grow-shrink` → `grow: 1` · `shrink: 1` · `minInline: 0`<br>`shrink` → `grow: 0` · `shrink: 1` · `minInline: 0`<br>`even` → `grow: 1` · `shrink: 1` · `basis: 0` · `minInline: 0`<br>`hug` → `grow: 0` · `shrink: 0` · `fitContent: true` |',
     ],
     includes: ['| Input | Web | RN | Value |'], // the locked grammar (CSS → Web · the N+47 rename)
   },

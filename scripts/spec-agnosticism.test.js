@@ -69,6 +69,7 @@ const ALLOW = [
       'components/icon-avatar.ts',
       'components/list-action.ts',
       'components/select-field.ts',
+      'components/select-trigger.ts',
       'components/text-field.ts',
       'axes/palette-surface.ts',
     ]),
