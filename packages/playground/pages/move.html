@@ -203,8 +203,8 @@
           <nuri-modal-panel>
             <nuri-scroll safe-area-top safe-area-bottom>
               <nuri-view direction="column" align="stretch" gap="xl" padding-x="lg" padding-y="lg" fill>
-                <nuri-scope mode="dark">
-                  <nuri-view direction="column" align="stretch" gap="none" fill="grow">
+                <nuri-view direction="column" align="stretch" gap="none" fill="grow">
+                  <nuri-scope mode="dark">
                     <nuri-view chrome="subtle" radius="lg" padding-x="lg" padding-y="sm">
                       <nuri-view direction="row" justify="between" align="center">
                         <nuri-select-trigger aria-label="From" accessibility-value="Bitcoin">
@@ -216,22 +216,24 @@
                         <nuri-typography size="md" emphasis>₿ 86969</nuri-typography>
                       </nuri-view>
                     </nuri-view>
+                  </nuri-scope>
 
-                    <!-- Web projection of the seam: a TRANSPARENT 48px lane —
-                         the disc fills it, tangent to both cards. The true
-                         straddle over a 4px seam needs overlap the web
-                         vocabulary lacks; the RN twin realises it via its
-                         consumer overlay. Equal trigger insets win here
-                         (operator-directed): both cards seat their trigger at
-                         the sm inset. -->
-                    <nuri-view direction="row" justify="center" align="center" height="lg">
-                      <nuri-icon-button
-                        variant="solid"
-                        icon="transfer-vertical"
-                        aria-label="Swap Bitcoin and Euro"
-                      ></nuri-icon-button>
-                    </nuri-view>
+                  <!-- Web projection of the seam: a TRANSPARENT 48px lane, the
+                       disc tangent to both cards. It sits OUTSIDE the dark
+                       scopes so its solid resolves against the page theme it
+                       actually rests on. The true 4px straddle needs overlap
+                       the web vocabulary lacks; the RN twin realises it via
+                       its consumer overlay. Equal trigger insets win here
+                       (operator-directed). -->
+                  <nuri-view direction="row" justify="center" align="center" height="lg">
+                    <nuri-icon-button
+                      variant="solid"
+                      icon="transfer-vertical"
+                      aria-label="Swap Bitcoin and Euro"
+                    ></nuri-icon-button>
+                  </nuri-view>
 
+                  <nuri-scope mode="dark">
                     <nuri-view chrome="subtle" radius="lg" padding-x="lg" padding-top="sm" padding-bottom="lg" fill="grow">
                       <nuri-select-trigger aria-label="To" accessibility-value="Euro">
                         <nuri-select-trigger-label>To</nuri-select-trigger-label>
@@ -244,8 +246,8 @@
                         <nuri-typography size="3xl" align="end">€ 48.18</nuri-typography>
                       </nuri-view>
                     </nuri-view>
-                  </nuri-view>
-                </nuri-scope>
+                  </nuri-scope>
+                </nuri-view>
 
                 <nuri-view direction="column" gap="sm">
                   <nuri-view direction="row" distribute="even" gap="sm">
