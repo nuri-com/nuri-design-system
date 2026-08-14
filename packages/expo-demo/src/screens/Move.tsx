@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { StyleSheet, View as RNView } from 'react-native';
 
 import {
   Button,
@@ -61,21 +62,13 @@ function Keypad() {
   );
 }
 
-export function Move({ onClose }: { onClose: () => void }) {
-  const [stress, setStress] = React.useState(false);
+export function Move({ stress = false, onClose }: { stress?: boolean; onClose: () => void }) {
   const story = stress ? ADVERSARIAL : REGULAR;
 
   return (
     <Screen safeArea>
       <Scroll>
         <View direction="column" align="stretch" gap="xl" paddingX="lg" paddingY="lg" fill="grow">
-          <View direction="row" justify="between" align="center" gap="md">
-            <Text size="lg" emphasis>Move</Text>
-            <Button size="sm" variant="soft" onPress={() => setStress((value) => !value)}>
-              {stress ? 'Regular values' : 'Stress values'}
-            </Button>
-          </View>
-
           <NuriScope mode="dark">
             <View fill="grow">
               {stress ? (
@@ -118,17 +111,18 @@ export function Move({ onClose }: { onClose: () => void }) {
                 </View>
               )}
 
-              {/* The 60px seam lane contains the complete 48px target. Its 6px
-                  caps plus each regular card's 6px trigger inset yield exactly
-                  12px clearance; native parent-bounds hit-testing sees the full disc. */}
-              <View chrome="canvas" direction="row" justify="center" align="center" height="xl">
+              {/* Consumer-local seam overlay (the operator-approved design):
+                  the immediate parent is exactly 48px tall and contains the
+                  complete disc, so native parent-bounds hit-testing sees the
+                  whole target; negative margins ride it onto the 4px seam. */}
+              <RNView pointerEvents="box-none" style={styles.seamParent}>
                 <IconButton
                   variant="solid"
                   icon="transfer-vertical"
                   accessibilityLabel={`Swap ${story.from} and ${story.to}`}
                   onPress={noop}
                 />
-              </View>
+              </RNView>
 
               {stress ? (
                 <View
@@ -172,7 +166,7 @@ export function Move({ onClose }: { onClose: () => void }) {
                     onPress={noop}
                   >
                     <SelectTriggerLabel>To</SelectTriggerLabel>
-                    <SelectTriggerAvatar name="euro" variant="outline" />
+                    <SelectTriggerAvatar source={require('../../assets/flags/eur.png')} />
                     <SelectTriggerValue>{story.to}</SelectTriggerValue>
                     <SelectTriggerChevron name="caret-down" />
                   </SelectTrigger>
@@ -198,3 +192,17 @@ export function Move({ onClose }: { onClose: () => void }) {
     </Screen>
   );
 }
+
+const SWAP_DISC = 48;
+const CARD_GAP = 4;
+
+const styles = StyleSheet.create({
+  seamParent: {
+    alignItems: 'center',
+    height: SWAP_DISC,
+    justifyContent: 'center',
+    marginBottom: -(SWAP_DISC / 2 - CARD_GAP),
+    marginTop: -(SWAP_DISC / 2),
+    zIndex: 1,
+  },
+});

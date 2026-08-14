@@ -204,7 +204,7 @@
             <nuri-scroll safe-area-top safe-area-bottom>
               <nuri-view direction="column" align="stretch" gap="xl" padding-x="lg" padding-y="lg" fill>
                 <nuri-scope mode="dark">
-                  <nuri-view direction="column" align="stretch" fill="grow">
+                  <nuri-view direction="column" align="stretch" gap="xs" fill="grow">
                     <nuri-view chrome="subtle" radius="lg" padding-x="lg" padding-y="sm">
                       <nuri-view direction="row" justify="between" align="center">
                         <nuri-select-trigger aria-label="From" accessibility-value="Bitcoin">
@@ -217,18 +217,20 @@
                       </nuri-view>
                     </nuri-view>
 
-                    <!-- The 60px seam lane contains the complete 48px swap target.
-                         Its 6px caps plus each card's 6px trigger inset produce
-                         exactly space.md (12px) clearance on both sides. -->
-                    <nuri-view chrome="canvas" direction="row" justify="center" align="center" height="xl">
-                      <nuri-icon-button
-                        variant="solid"
-                        icon="transfer-vertical"
-                        aria-label="Swap Bitcoin and Euro"
-                      ></nuri-icon-button>
-                    </nuri-view>
-
-                    <nuri-view chrome="subtle" radius="lg" padding-x="lg" padding-top="sm" padding-bottom="lg" fill="grow">
+                    <nuri-view chrome="subtle" radius="lg" padding-x="lg" padding-bottom="lg" fill="grow">
+                      <!-- The operator-approved seam: the swap rides the xs card
+                           gap as the To card's first row (align-end shim centers
+                           the disc on the seam; later sibling paints above the
+                           From card). The xs spacer keeps the disc ≥12px from
+                           the To trigger's press bounds. -->
+                      <nuri-view direction="row" justify="center" align="end" height="sm" padding-bottom="2xs">
+                        <nuri-icon-button
+                          variant="solid"
+                          icon="transfer-vertical"
+                          aria-label="Swap Bitcoin and Euro"
+                        ></nuri-icon-button>
+                      </nuri-view>
+                      <nuri-view height="xs"></nuri-view>
                       <nuri-select-trigger aria-label="To" accessibility-value="Euro">
                         <nuri-select-trigger-label>To</nuri-select-trigger-label>
                         <nuri-select-trigger-avatar source="../assets/flags/eur.svg"></nuri-select-trigger-avatar>
