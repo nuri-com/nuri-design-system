@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuri · Playground · Move</title>
+  <link rel="stylesheet" href="../generated/playground.css" />
+  <script src="../generated/boot.js" type="module"></script>
+</head>
+<body>
+
+<nuri-playground-shell doc="Move">
+
+  <!-- MOVE · a full-modal conversion board built only from the current DS
+       vocabulary. The currency rows are intentionally static compositions:
+       their missing select-trigger contract is the evidence this board keeps. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="move">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-title>Move</nuri-topbar-title>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll safe-area-bottom>
+              <nuri-view direction="column" align="stretch" gap="xl" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-scope mode="dark">
+                  <nuri-view chrome="subtle" radius="lg" padding="lg" fill="grow">
+                    <nuri-view direction="column" gap="sm" fill="grow">
+                      <nuri-view direction="row" justify="between" align="center">
+                        <nuri-view direction="row" gap="xs" align="center">
+                          <nuri-typography size="sm" emphasis>From</nuri-typography>
+                          <nuri-icon-avatar size="sm" icon="bitcoin" variant="solid" accent="orange"></nuri-icon-avatar>
+                          <nuri-typography size="sm" emphasis>Bitcoin</nuri-typography>
+                          <nuri-icon name="chevron-down"></nuri-icon>
+                        </nuri-view>
+                        <nuri-typography size="md" emphasis>₿ 86969</nuri-typography>
+                      </nuri-view>
+
+                      <nuri-view direction="row" align="center" height="sm">
+                        <nuri-view fill="grow">
+                          <nuri-separator y-space="none"></nuri-separator>
+                        </nuri-view>
+                        <nuri-icon-button
+                          variant="solid"
+                          icon="transfer-vertical"
+                          aria-label="Swap Bitcoin and Euro"
+                        ></nuri-icon-button>
+                        <nuri-view fill="grow">
+                          <nuri-separator y-space="none"></nuri-separator>
+                        </nuri-view>
+                      </nuri-view>
+
+                      <nuri-view direction="row" gap="xs" align="center">
+                        <nuri-typography size="sm" emphasis>To</nuri-typography>
+                        <nuri-icon-avatar size="sm" source="../assets/flags/eur.svg"></nuri-icon-avatar>
+                        <nuri-typography size="sm" emphasis>Euro</nuri-typography>
+                        <nuri-icon name="chevron-down"></nuri-icon>
+                      </nuri-view>
+
+                      <nuri-view fill="grow" justify="end" align="end">
+                        <nuri-typography size="3xl" align="end">€ 48.18</nuri-typography>
+                      </nuri-view>
+                    </nuri-view>
+                  </nuri-view>
+                </nuri-scope>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-button size="lg" variant="solid" accent="lilac">Next</nuri-button>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- MOVE · NO TOPBAR · alternative chrome: no Header/Topbar, the Scroll owns
+       both safe edges, and dismissal moves into a Cancel button beside Next. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="move · no topbar">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-scroll safe-area-top safe-area-bottom>
+              <nuri-view direction="column" align="stretch" gap="xl" padding-x="lg" padding-y="lg" fill>
+                <nuri-scope mode="dark">
+                  <nuri-view chrome="subtle" radius="lg" padding="lg" fill="grow">
+                    <nuri-view direction="column" gap="sm" fill="grow">
+                      <nuri-view direction="row" justify="between" align="center">
+                        <nuri-view direction="row" gap="xs" align="center">
+                          <nuri-typography size="sm" emphasis>From</nuri-typography>
+                          <nuri-icon-avatar size="sm" icon="bitcoin" variant="solid" accent="orange"></nuri-icon-avatar>
+                          <nuri-typography size="sm" emphasis>Bitcoin</nuri-typography>
+                          <nuri-icon name="chevron-down"></nuri-icon>
+                        </nuri-view>
+                        <nuri-typography size="md" emphasis>₿ 86969</nuri-typography>
+                      </nuri-view>
+
+                      <nuri-view direction="row" align="center" height="sm">
+                        <nuri-view fill="grow">
+                          <nuri-separator y-space="none"></nuri-separator>
+                        </nuri-view>
+                        <nuri-icon-button
+                          variant="solid"
+                          icon="transfer-vertical"
+                          aria-label="Swap Bitcoin and Euro"
+                        ></nuri-icon-button>
+                        <nuri-view fill="grow">
+                          <nuri-separator y-space="none"></nuri-separator>
+                        </nuri-view>
+                      </nuri-view>
+
+                      <nuri-view direction="row" gap="xs" align="center">
+                        <nuri-typography size="sm" emphasis>To</nuri-typography>
+                        <nuri-icon-avatar size="sm" source="../assets/flags/eur.svg"></nuri-icon-avatar>
+                        <nuri-typography size="sm" emphasis>Euro</nuri-typography>
+                        <nuri-icon name="chevron-down"></nuri-icon>
+                      </nuri-view>
+
+                      <nuri-view fill="grow" justify="end" align="end">
+                        <nuri-typography size="3xl" align="end">€ 48.18</nuri-typography>
+                      </nuri-view>
+                    </nuri-view>
+                  </nuri-view>
+                </nuri-scope>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="row" distribute="even" gap="sm">
+                  <nuri-button size="lg" variant="soft">Cancel</nuri-button>
+                  <nuri-button size="lg" variant="solid" accent="lilac">Next</nuri-button>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- MOVE · TWO CARDS · the no-topbar chrome with the conversion split into
+       an intrinsic From card and a growing To card; the swap button rides the
+       seam row between them. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="move · two cards">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-scroll safe-area-top safe-area-bottom>
+              <nuri-view direction="column" align="stretch" gap="xl" padding-x="lg" padding-y="lg" fill>
+                <nuri-scope mode="dark">
+                  <nuri-view direction="column" align="stretch" gap="xs" fill="grow">
+                    <nuri-view chrome="subtle" radius="lg" padding="lg">
+                      <nuri-view direction="row" justify="between" align="center">
+                        <nuri-view direction="row" gap="xs" align="center">
+                          <nuri-typography size="sm" emphasis>From</nuri-typography>
+                          <nuri-icon-avatar size="sm" icon="bitcoin" variant="solid" accent="orange"></nuri-icon-avatar>
+                          <nuri-typography size="sm" emphasis>Bitcoin</nuri-typography>
+                          <nuri-icon name="chevron-down"></nuri-icon>
+                        </nuri-view>
+                        <nuri-typography size="md" emphasis>₿ 86969</nuri-typography>
+                      </nuri-view>
+                    </nuri-view>
+
+                    <!-- The swap rides the seam the demo-1 way: an in-card row
+                         (no separators) as the To card's first child with no top
+                         padding, so the circle's overflow crosses the sm card gap
+                         and paints over the From card (later sibling paints
+                         above). Row height xs (18) + zero inner gap = the To
+                         trigger sits at the same space.lg offset as the From
+                         trigger in the first card. -->
+                    <nuri-view chrome="subtle" radius="lg" padding-x="lg" padding-bottom="lg" fill="grow">
+                      <nuri-view direction="column" gap="none" fill="grow">
+                        <nuri-view direction="row" justify="center" align="end" height="sm" padding-bottom="2xs">
+                          <nuri-icon-button
+                            variant="solid"
+                            icon="transfer-vertical"
+                            aria-label="Swap Bitcoin and Euro"
+                          ></nuri-icon-button>
+                        </nuri-view>
+
+                        <nuri-view direction="row" gap="xs" align="center">
+                          <nuri-typography size="sm" emphasis>To</nuri-typography>
+                          <nuri-icon-avatar size="sm" source="../assets/flags/eur.svg"></nuri-icon-avatar>
+                          <nuri-typography size="sm" emphasis>Euro</nuri-typography>
+                          <nuri-icon name="chevron-down"></nuri-icon>
+                        </nuri-view>
+
+                        <nuri-view fill="grow" justify="end" align="end">
+                          <nuri-typography size="3xl" align="end">€ 48.18</nuri-typography>
+                        </nuri-view>
+                      </nuri-view>
+                    </nuri-view>
+                  </nuri-view>
+                </nuri-scope>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="row" distribute="even" gap="sm">
+                  <nuri-button size="lg" variant="soft">Cancel</nuri-button>
+                  <nuri-button size="lg" variant="solid" accent="lilac">Next</nuri-button>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- TRIGGER CANDIDATES · current SelectField chrome beside the board's
+       static row cluster. No candidate-only styling or invented attributes. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="trigger candidates">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" direction="column" align="stretch" justify="center" gap="lg" padding="lg" fill>
+          <!-- 1 · the current non-inline answer: the country selector as shipped
+               in the country picker. -->
+          <nuri-select-field aria-label="Country" accessibility-value="Germany">
+            <nuri-select-field-label>Country</nuri-select-field-label>
+            <nuri-select-field-avatar source="../assets/flags/deu.svg"></nuri-select-field-avatar>
+            <nuri-select-field-value>Germany</nuri-select-field-value>
+            <nuri-select-field-chevron name="chevron-down"></nuri-select-field-chevron>
+          </nuri-select-field>
+
+          <!-- 2 · inline ghost cluster (the board's static row). -->
+          <nuri-view direction="row">
+            <nuri-view direction="row" gap="xs" align="center">
+              <nuri-typography size="sm" emphasis>From</nuri-typography>
+              <nuri-icon-avatar size="sm" icon="bitcoin" variant="solid" accent="orange"></nuri-icon-avatar>
+              <nuri-typography size="sm" emphasis>Bitcoin</nuri-typography>
+              <nuri-icon name="chevron-down"></nuri-icon>
+            </nuri-view>
+          </nuri-view>
+
+          <!-- 3 · inline pill (Frame 600): backgrounded variant composed from
+               vocabulary — subtle chrome, full radius. -->
+          <nuri-view direction="row">
+            <nuri-view chrome="subtle" radius="full" direction="row" gap="sm" align="center" padding-x="lg" padding-y="sm">
+              <nuri-typography size="sm" emphasis>From</nuri-typography>
+              <nuri-icon-avatar size="sm" icon="bitcoin" variant="solid" accent="orange"></nuri-icon-avatar>
+              <nuri-typography size="sm" emphasis>Bitcoin</nuri-typography>
+              <nuri-icon name="chevron-down"></nuri-icon>
+            </nuri-view>
+          </nuri-view>
+        </nuri-view>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+</body>
+</html>
