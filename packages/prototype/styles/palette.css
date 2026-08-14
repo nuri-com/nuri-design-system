@@ -36,4 +36,5 @@
   .nuri-palette[data-variant="soft"][data-press-color]:active { background: var(--nuri-bg-pressed); }
   .nuri-palette[data-variant="ghost"][data-press-color]:active { background: var(--nuri-bg-subtle); }
   .nuri-palette[data-variant="outline"][data-press-color]:active { background: var(--nuri-bg-subtle); }
+  .nuri-palette[data-chrome="subtle"][data-press-color]:active { background: var(--nuri-bg-strong); }
 }

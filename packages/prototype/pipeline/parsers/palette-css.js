@@ -21,10 +21,11 @@
  *     + optional border stroke.
  *     `variant` (solid/soft/ghost/subtle/outline) carries accent identity;
  *     `chrome` (canvas/subtle/strong) is the theme-only slot. variant XOR chrome.
- *   · PRESSED · `.nuri-palette[data-variant="<v>"][data-press-color]:active`
+ *   · PRESSED · `.nuri-palette[data-<axis>="<v>"][data-press-color]:active`
  *     swaps `background` (background-only · the scale/opacity transients are
  *     interactive's). Gated on `[data-press-color]` so a STATIC surface never
- *     matches :active. variant-only — the chrome slot + subtle have no pressed.
+ *     matches :active. Any row without an optional pressed paint emits no rule;
+ *     chrome.subtle is the one theme-only surface with an interactive wash.
  *
  * ── NO SHELL (palette is the MERGED-NODE axis · 65.3 §6 / B1.5 §4.2) ─
  * Unlike box/stack (custom-element wrappers · display:contents · :not(:defined)
@@ -77,7 +78,7 @@ export function paintToCss(paint) {
 // ── the merged-node dispatch selectors (NO element wrapper · the class IS the
 // painting node) ──
 const restSel = (axis, input) => `.nuri-palette[data-${axis}="${input}"]`;
-const pressedSel = (input) => `.nuri-palette[data-variant="${input}"][data-press-color]:active`;
+const pressedSel = (axis, input) => `.nuri-palette[data-${axis}="${input}"][data-press-color]:active`;
 
 // the two INPUT axes, in the emit / hand-CSS order (variant before chrome).
 const AXES = ['variant', 'chrome'];
@@ -105,13 +106,15 @@ export function rulesForSurface(surface) {
     }
   }
 
-  // PRESSED · variant-only (the chrome slot + subtle have no pressed channel).
-  // Iterate the variant axis; a row without a `pressed` paint emits no rule.
+  // PRESSED · optional on either input axis. A row without a `pressed` paint emits
+  // no rule; chrome.subtle is the trigger pill's theme-only interactive wash.
   const pressed = [];
-  for (const input of Object.keys(surface.variant)) {
-    const role = surface.variant[input];
-    if (role.pressed === undefined) continue; // subtle (fg-only) · no pressed swap
-    pressed.push({ sel: pressedSel(input), decls: [['background', paintToCss(role.pressed)]] });
+  for (const axis of AXES) {
+    for (const input of Object.keys(surface[axis])) {
+      const role = surface[axis][input];
+      if (role.pressed === undefined) continue;
+      pressed.push({ sel: pressedSel(axis, input), decls: [['background', paintToCss(role.pressed)]] });
+    }
   }
 
   return [...rest, ...pressed];

@@ -215,6 +215,7 @@ const ORACLE = [
   ['.nuri-palette[data-variant="ghost"]',  'background', 'transparent'], // the literal · no var, no resolution
   ['.nuri-palette[data-variant="outline"]','border',     '#dddac9'],     // border-subtle @ neutral/light
   ['.nuri-palette[data-variant="outline"][data-press-color]:active','background', '#fbf9ee'], // bg-subtle @ neutral/light
+  ['.nuri-palette[data-chrome="subtle"][data-press-color]:active','background', '#f3f1e2'], // bg-strong @ neutral/light
 ];
 
 test('Guard C · the curated cells resolve to the restated design oracle (default scope)', () => {
@@ -268,4 +269,18 @@ test('Guard D · order-soundness (rest mutual-exclusivity + pressed strictly-mor
   // A's order-insensitive compare is sound. (Even a contract-violating variant+
   // chrome double-attr node: generated AND hand both emit the variant group before
   // the chrome group, so the equal-specificity tie resolves identically either way.)
+});
+
+test('Guard E · chrome-subtle wash is interactive-gated and static subtle remains unaffected', () => {
+  const rules = layerRuleMap(generated);
+  assert.equal(
+    rules.get('.nuri-palette[data-chrome="subtle"][data-press-color]:active')?.get('background'),
+    'var(--nuri-bg-strong)',
+    'the SelectTrigger pill wash reaches chrome.bg-strong',
+  );
+  assert.equal(
+    rules.has('.nuri-palette[data-chrome="subtle"]:active'),
+    false,
+    'a static chrome-subtle view has no active selector and remains byte-identical at press time',
+  );
 });

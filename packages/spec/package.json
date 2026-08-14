@@ -16,6 +16,7 @@
     "./descriptors/list": "./components/list.ts",
     "./descriptors/list-action": "./components/list-action.ts",
     "./descriptors/select-field": "./components/select-field.ts",
+    "./descriptors/select-trigger": "./components/select-trigger.ts",
     "./descriptors/text-field": "./components/text-field.ts",
     "./descriptors/tab-bar-item": "./components/tab-bar-item.ts",
     "./descriptors/tab-bar": "./components/tab-bar.ts",

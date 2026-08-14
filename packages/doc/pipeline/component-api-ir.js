@@ -79,6 +79,16 @@ export const COMPONENT_API_DOCS = [
     lead: '`SelectField` is a disclosure button dressed as a field, not an input or combobox. Keep the static field label in `accessibilityLabel` and the current selection in `accessibilityValue`; the web projection composes them into one name and declares `aria-haspopup="dialog"`, while React Native exposes the value through its native accessibility-value channel.',
   },
   {
+    source: 'select-trigger',
+    name: 'select-trigger',
+    title: 'Select Trigger',
+    nav: 25,
+    file: 'packages/rn/generated/components/select-trigger.ts',
+    type: 'SelectTriggerProps',
+    relatedPrefix: 'SelectTrigger',
+    lead: '`SelectTrigger` is the cluster-sized inline disclosure control; use `SelectField` when the label must remain outside field chrome. `variant="ghost"` is transparent at rest and washes to `chrome.bg-subtle`; `variant="pill"` rests on `chrome.bg-subtle` and washes to `chrome.bg-strong`. Both variants keep one 48px-minimum, full-radius press target with no press scale. Keep at least `space.md` (12px) between the trigger bounds and every independent target; compositions must constrain or reposition long values instead of allowing overlap. Keep the static prompt in `accessibilityLabel` and the current selection in `accessibilityValue`; the component emits only `onPress`, and consumers own dialog, open, and selection state.',
+  },
+  {
     source: 'tab-bar',
     name: 'tab-bar',
     title: 'Tab Bar',

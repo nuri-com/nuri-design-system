@@ -201,7 +201,12 @@ function resolvePalette(ns: PaletteNS, theme: NuriTheme): ResolvedPalette {
   }
   if (ns.chrome !== undefined) {
     const role = theme.chrome[ns.chrome];
-    return { bg: role.bg, fg: ns.muted ? role.fgMuted : role.fg, fgMuted: role.fgMuted };
+    return {
+      bg: role.bg,
+      fg: ns.muted ? role.fgMuted : role.fg,
+      fgMuted: role.fgMuted,
+      pressedBg: role.pressedBg,
+    };
   }
   if (ns.muted) return { fg: theme.chrome.canvas.fgMuted, fgMuted: theme.chrome.canvas.fgMuted };
   return {}; // palette present but neither variant nor chrome → no colour

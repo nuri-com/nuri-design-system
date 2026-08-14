@@ -116,7 +116,7 @@ export function CountryPickerSheet({ open, onClose }: { open: boolean; onClose: 
                 <SelectFieldLabel>Country</SelectFieldLabel>
                 <SelectFieldAvatar source={country.flag} />
                 <SelectFieldValue>{country.name}</SelectFieldValue>
-                <SelectFieldChevron name="chevron-down" />
+                <SelectFieldChevron name="caret-down" />
               </SelectField>
 
               <View direction="row" align="end" gap="md">

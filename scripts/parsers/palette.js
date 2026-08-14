@@ -38,8 +38,9 @@
 // the ghostBg emit convention) the surface paints with. The evolution
 // of descriptors.js's SURFACE funnel (resolver-model §11): palette owns
 // ALL colour (65.3 `surface → palette`), adding the fgMuted column and
-// the theme-only chrome slot. `subtle` is fg-only; the chrome slot has
-// no pressed channel by contract.
+// the theme-only chrome slot. `subtle` is fg-only. Chrome surfaces are normally
+// static; chrome.subtle alone carries an optional pressed channel so an
+// INTERACTIVE node can opt into the pill wash without changing static views.
 export const PALETTE_CONTRACT = {
   variant: {
     solid:  { bg: '--nuri-accent-solid', fg: '--nuri-accent-on-solid', pressedBg: '--nuri-accent-solid-pressed' },
@@ -53,7 +54,7 @@ export const PALETTE_CONTRACT = {
   },
   chrome: {
     canvas: { bg: '--nuri-bg-canvas', fg: '--nuri-text-primary', fgMuted: '--nuri-text-muted' },
-    subtle: { bg: '--nuri-bg-subtle', fg: '--nuri-text-primary', fgMuted: '--nuri-text-muted' },
+    subtle: { bg: '--nuri-bg-subtle', fg: '--nuri-text-primary', fgMuted: '--nuri-text-muted', pressedBg: '--nuri-bg-strong' },
     strong: { bg: '--nuri-bg-strong', fg: '--nuri-text-primary', fgMuted: '--nuri-text-muted' },
     transparent: { bg: 'transparent', fg: '--nuri-text-primary', fgMuted: '--nuri-text-muted' },
   },
@@ -137,7 +138,7 @@ export function derivePalette({ surface, typographyAxis }, { classifiedGroups })
   // border}, modulo
   // the role-name → `--nuri-<role>` prefix (paintToVar) and the `transparent` literal.
   // The SoT's shape is honored, not special-cased: subtle is fg-only (no bg/pressed),
-  // the chrome slot has no pressed. fgMuted is typography's (section D), NOT a surface
+  // while chrome.subtle carries the trigger's optional pressed wash. fgMuted is typography's (section D), NOT a surface
   // channel. Both directions are checked — a contract cell with no SoT channel, an SoT
   // channel with no contract cell, a stray role/channel, all throw.
   const SURFACE_CHANNELS = [['bg', 'bg'], ['fg', 'fg'], ['pressedBg', 'pressed'], ['border', 'border']];
@@ -248,7 +249,8 @@ export function emitPaletteTs(cells) {
     ` *   · ghost.bg = the literal 'transparent' (NOT a ref) — the`,
     ` *     retired per-component button ghostBg convention.`,
     ` *   · subtle = fg-only (no bg/pressed) · the IconAvatar role.`,
-    ` *   · chrome = theme-only surfaces (no accent, no pressed).`,
+    ` *   · chrome = theme-only surfaces; chrome.subtle optionally washes to`,
+    ` *     chrome.bgStrong when an interactive node opts into pressColor.`,
     ` *   · pressedBg is DATA for the RN resolver; the web pressed`,
     ` *     dispatch is gated on the \`interactive\` flag (B2c).`,
     ` *   · outline.border carries the border-colour role for outlined surfaces.`,

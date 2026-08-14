@@ -58,7 +58,7 @@ const expectedChromeSlots = (mode: Theme) => {
   const c = chrome[mode];
   return {
     canvas: { bg: c.bgCanvas, fg: c.textPrimary, fgMuted: c.textMuted },
-    subtle: { bg: c.bgSubtle, fg: c.textPrimary, fgMuted: c.textMuted },
+    subtle: { bg: c.bgSubtle, fg: c.textPrimary, fgMuted: c.textMuted, pressedBg: c.bgStrong },
     strong: { bg: c.bgStrong, fg: c.textPrimary, fgMuted: c.textMuted },
     transparent: { bg: 'transparent', fg: c.textPrimary, fgMuted: c.textMuted },
   };

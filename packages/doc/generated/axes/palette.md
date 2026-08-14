@@ -26,6 +26,6 @@ The bespoke **palette** axis — the colour funnel: a surface role resolves a no
 | Chrome | Background | Foreground | Pressed | Border |
 | --- | --- | --- | --- | --- |
 | `canvas` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-canvas)"></span> `bg-canvas` `#fffdf2` | <span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `text-primary` `#222013` | — | — |
-| `subtle` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-subtle)"></span> `bg-subtle` `#fbf9ee` | <span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `text-primary` `#222013` | — | — |
+| `subtle` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-subtle)"></span> `bg-subtle` `#fbf9ee` | <span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `text-primary` `#222013` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-strong)"></span> `bg-strong` `#f3f1e2` | — |
 | `strong` | <span class="nuri-doc-swatch" style="background:var(--nuri-bg-strong)"></span> `bg-strong` `#f3f1e2` | <span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `text-primary` `#222013` | — | — |
 | `transparent` | <span class="nuri-doc-swatch" style="background:transparent"></span> `transparent` | <span class="nuri-doc-swatch" style="background:var(--nuri-text-primary)"></span> `text-primary` `#222013` | — | — |

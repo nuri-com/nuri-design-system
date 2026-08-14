@@ -50,6 +50,7 @@ export const DESCRIPTOR_COMPONENTS = [
   { name: 'list' },
   { name: 'list-action' },
   { name: 'select-field' },
+  { name: 'select-trigger' },
   { name: 'text-field' },
   { name: 'tab-bar-item' },
   { name: 'tab-bar' },

@@ -87,6 +87,7 @@ describe('baseline theme (resolver-model §11)', () => {
   test('chrome slot resolves (topbar canvas)', () => {
     expect(theme.chrome.canvas.bg).toBe(chrome.light.bgCanvas);
     expect(theme.chrome.canvas.fg).toBe(chrome.light.textPrimary);
+    expect(theme.chrome.subtle.pressedBg).toBe(chrome.light.bgStrong);
     expect(theme.chrome.transparent.bg).toBe('transparent');
     expect(theme.chrome.transparent.fg).toBe(chrome.light.textPrimary);
   });

@@ -37,6 +37,7 @@ await import('../recipes/list.js');
 await import('../recipes/list-action.js');
 await import('../recipes/alert.js');
 await import('../recipes/select-field.js');
+await import('../recipes/select-trigger.js');
 await import('../recipes/text-field.js');
 await import('../recipes/topbar.js');
 await import('../primitives/scroll.js');
@@ -807,7 +808,7 @@ test('C9 · <nuri-select-field> renders a real disclosure button with composed l
     '<nuri-select-field-label>Country</nuri-select-field-label>',
     '<nuri-select-field-avatar source="../../assets/flags/deu.svg"></nuri-select-field-avatar>',
     '<nuri-select-field-value>Germany</nuri-select-field-value>',
-    '<nuri-select-field-chevron name="chevron-down"></nuri-select-field-chevron>',
+    '<nuri-select-field-chevron name="caret-down"></nuri-select-field-chevron>',
   ].join('');
   mount(field);
   await tick();
@@ -832,7 +833,7 @@ test('C9 · <nuri-select-field> renders a real disclosure button with composed l
   assert.equal(button.getAttribute('data-gap'), 'sm', 'the field contents use the compact control gap');
   assert.equal(button.querySelector('nuri-icon-avatar')?.getAttribute('source'), '../../assets/flags/deu.svg');
   assert.equal(button.querySelector('nuri-icon-avatar')?.getAttribute('size'), 'sm', 'the trigger flag uses the compact avatar');
-  assert.equal(button.querySelector('nuri-icon')?.getAttribute('name'), 'chevron-down');
+  assert.equal(button.querySelector('nuri-icon')?.getAttribute('name'), 'caret-down');
 
   field.setAttribute('accessibility-value', 'Austria');
   await tick();
@@ -865,6 +866,59 @@ test('C9b · <nuri-select-field> unadorned composition omits optional avatar and
   assert.equal(button?.getAttribute('aria-label'), 'Delivery, Standard');
   assert.equal(button?.querySelector('nuri-icon-avatar'), null);
   assert.equal(button?.querySelector('nuri-icon'), null);
+});
+
+test('C10 · <nuri-select-trigger> renders a cluster-sized disclosure target in ghost and pill variants', async () => {
+  assert.ok(customElements.get('nuri-select-trigger'), 'SelectTrigger web twin is registered');
+  assert.deepEqual(
+    [...customElements.get('nuri-select-trigger').observedAttributes].sort(),
+    ['accent', 'accessibility-value', 'aria-label', 'disabled', 'variant'],
+  );
+
+  const compose = (variant) => {
+    const trigger = dom.window.document.createElement('nuri-select-trigger');
+    if (variant) trigger.setAttribute('variant', variant);
+    trigger.setAttribute('aria-label', 'From');
+    trigger.setAttribute('accessibility-value', 'Bitcoin');
+    trigger.innerHTML = [
+      '<nuri-select-trigger-label>From</nuri-select-trigger-label>',
+      '<nuri-select-trigger-avatar name="bitcoin" variant="solid" accent="orange"></nuri-select-trigger-avatar>',
+      '<nuri-select-trigger-value>Bitcoin</nuri-select-trigger-value>',
+      '<nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>',
+    ].join('');
+    mount(trigger);
+    return trigger;
+  };
+
+  const ghost = compose();
+  const pill = compose('pill');
+  await tick();
+
+  const ghostButton = ghost.querySelector('button.nuri-interactive');
+  const pillButton = pill.querySelector('button.nuri-interactive');
+  assert.ok(ghostButton && pillButton);
+  for (const button of [ghostButton, pillButton]) {
+    assert.equal(button.getAttribute('aria-haspopup'), 'dialog');
+    assert.equal(button.getAttribute('aria-label'), 'From, Bitcoin');
+    assert.equal(button.getAttribute('data-min-height'), 'lg', 'both variants floor the target at 48px');
+    assert.equal(button.getAttribute('data-radius'), 'full');
+    assert.equal(button.hasAttribute('data-press-color'), true, 'wash is opt-in on the pressable root');
+    assert.equal(button.hasAttribute('data-press-scale'), false, 'SelectTrigger never scales on press');
+    assert.equal(button.querySelector('nuri-icon-avatar')?.getAttribute('size'), 'sm');
+    assert.equal(
+      [...button.querySelectorAll('nuri-icon')].at(-1)?.getAttribute('name'),
+      'caret-down',
+    );
+    assert.equal(button.querySelectorAll('nuri-typography').length, 2);
+  }
+  assert.equal(ghostButton.getAttribute('data-variant'), 'ghost');
+  assert.equal(ghostButton.getAttribute('data-chrome'), null);
+  assert.equal(ghostButton.getAttribute('data-gap'), 'xs');
+  assert.equal(ghostButton.getAttribute('data-padding-x'), null, 'ghost has no invisible horizontal hit slop');
+  assert.equal(pillButton.getAttribute('data-chrome'), 'subtle');
+  assert.equal(pillButton.getAttribute('data-variant'), null);
+  assert.equal(pillButton.getAttribute('data-gap'), 'sm');
+  assert.equal(pillButton.getAttribute('data-padding-x'), 'lg');
 });
 
 // ══════════════════════════════════════════════════════════════════

@@ -197,6 +197,28 @@ const PAGE_CONTRACT = {
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`accessibilityHint`', '`role="combobox"`'],
   },
+  'select-trigger': {
+    kind: 'api', source: 'select-trigger', title: 'Select Trigger', nav: 25,
+    cells: [
+      "| `variant` | no | `'ghost' | 'pill'` | style axis |",
+      "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
+      '| `onPress` | no | `() => void` | pressable behaviour |',
+      '| `disabled` | no | `boolean` | pressable behaviour |',
+      '| `accessibilityLabel` | no | `string` | pressable behaviour |',
+      '| `accessibilityValue` | no | `string` | pressable behaviour |',
+      '| `children` | no | `React.ReactNode` | composition children |',
+      '### Select Trigger Label Props',
+      '| `children` | yes | `React.ReactNode` | slot content |',
+      '### Select Trigger Avatar Props',
+      '| `source` | no | `ImageSourcePropType` | image source |',
+      '### Select Trigger Value Props',
+      '| `children` | yes | `React.ReactNode` | slot content |',
+      '### Select Trigger Chevron Props',
+      '| `name` | yes | `IconName` | scalar icon name |',
+      '> `children` is not accepted (`children?: never`).',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`open`', '`selected`'],
+  },
   'tab-bar': {
     kind: 'api', source: 'tab-bar', title: 'Tab Bar', nav: 8,
     cells: [

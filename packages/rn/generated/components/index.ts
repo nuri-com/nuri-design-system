@@ -21,6 +21,8 @@ export { ListAction, ListActionLeadingAvatar, ListActionText, ListActionTextMute
 export type { ListActionProps, ListActionLeadingAvatarProps, ListActionTextProps, ListActionTextMutedProps, ListActionTrailingTextProps, ListActionTrailingTextMutedProps, ListActionTrailIconProps } from './list-action';
 export { SelectField, SelectFieldLabel, SelectFieldAvatar, SelectFieldValue, SelectFieldChevron } from './select-field';
 export type { SelectFieldProps, SelectFieldLabelProps, SelectFieldAvatarProps, SelectFieldValueProps, SelectFieldChevronProps } from './select-field';
+export { SelectTrigger, SelectTriggerLabel, SelectTriggerAvatar, SelectTriggerValue, SelectTriggerChevron } from './select-trigger';
+export type { SelectTriggerProps, SelectTriggerLabelProps, SelectTriggerAvatarProps, SelectTriggerValueProps, SelectTriggerChevronProps } from './select-trigger';
 export { TextField, TextFieldLabel, TextFieldButton, TextFieldIconButton } from './text-field';
 export type { TextFieldProps, TextFieldHandle, TextFieldLabelProps, TextFieldButtonProps, TextFieldIconButtonProps } from './text-field';
 export { TabBarItem, TabBarItemIcon, TabBarItemLabel } from './tab-bar-item';

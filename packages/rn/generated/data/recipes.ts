@@ -582,6 +582,82 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       }
     }
   },
+  "select-trigger": {
+    "root": {
+      "el": "pressable",
+      "geometry": {
+        "base": {
+          "flexDirection": "row",
+          "alignItems": "center",
+          "minHeight": 48,
+          "borderRadius": 9999
+        },
+        "variants": {
+          "variant": {
+            "ghost": {
+              "gap": 4
+            },
+            "pill": {
+              "gap": 6,
+              "paddingHorizontal": 18
+            }
+          }
+        }
+      },
+      "interactive": {
+        "base": {
+          "pressColor": true,
+          "disabledOpacity": true
+        }
+      }
+    },
+    "label": {
+      "el": "text",
+      "geometry": {
+        "base": {},
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "sm",
+          "emphasis": true,
+          "align": "start",
+          "flow": "truncate",
+          "lines": 1
+        }
+      }
+    },
+    "value": {
+      "el": "text",
+      "geometry": {
+        "base": {
+          "flexGrow": 1,
+          "flexShrink": 1,
+          "minWidth": 0
+        },
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "sm",
+          "emphasis": true,
+          "align": "start",
+          "flow": "truncate",
+          "lines": 1
+        }
+      }
+    },
+    "chevron": {
+      "el": "icon",
+      "geometry": {
+        "base": {
+          "width": 24,
+          "height": 24
+        },
+        "variants": {}
+      }
+    }
+  },
   "text-field": {
     "root": {
       "el": "view",
