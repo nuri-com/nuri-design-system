@@ -98,7 +98,7 @@ function fillCaseToRn(fill: FillCase): ViewStyle {
   };
   if (fill.basis !== undefined) out.flexBasis = fill.basis;
   if (fill.minInline !== undefined) out.minWidth = fill.minInline;
-  if (fill.crossHug) {
+  if (fill.fitContent) {
     out.alignSelf = 'flex-start';
     out.maxWidth = '100%';
   }

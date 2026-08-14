@@ -53,7 +53,7 @@ export type FillCase = {
   shrink: number;
   basis?: number | 'auto';
   minInline?: 0;
-  crossHug?: true;
+  fitContent?: true;
 };
 export type Field =
   | { via: 'scale'; prop: CanonicalId; scale: ScaleName } //       value = scale[input]
@@ -108,7 +108,7 @@ const FILL: Record<NonNullable<StackNS['fill']>, FillCase> = {
   'grow-shrink': { grow: 1, shrink: 1, minInline: 0 },
   shrink: { grow: 0, shrink: 1, minInline: 0 },
   even: { grow: 1, shrink: 1, basis: 0, minInline: 0 },
-  hug: { grow: 0, shrink: 0, crossHug: true },
+  hug: { grow: 0, shrink: 0, fitContent: true },
 };
 
 // distribute → the PARENT-side even split: each DIRECT CHILD becomes flex 1 1 0
