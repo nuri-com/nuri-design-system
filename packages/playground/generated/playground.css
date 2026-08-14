@@ -3361,7 +3361,7 @@ nuri-demo:not(:defined) {
   .nuri-stack[data-fill="grow"] { flex: 1 0 auto; }
   .nuri-stack[data-fill="grow-shrink"] { flex: 1 1 auto; min-inline-size: 0; }
   .nuri-stack[data-fill="even"] { flex: 1 1 0; min-inline-size: 0; }
-  .nuri-stack[data-fill="hug"] { flex: 0 0 auto; }
+  .nuri-stack[data-fill="hug"] { flex: 0 0 auto; inline-size: fit-content; max-inline-size: 100%; }
   .nuri-stack[data-distribute="even"] > * { flex: 1 1 0; min-inline-size: 0; }
 }
 
@@ -3507,7 +3507,6 @@ nuri-demo:not(:defined) {
   .nuri-palette[data-variant="soft"][data-press-color]:active { background: var(--nuri-bg-pressed); }
   .nuri-palette[data-variant="ghost"][data-press-color]:active { background: var(--nuri-bg-subtle); }
   .nuri-palette[data-variant="outline"][data-press-color]:active { background: var(--nuri-bg-subtle); }
-  .nuri-palette[data-chrome="subtle"][data-press-color]:active { background: var(--nuri-bg-strong); }
 }
 
 

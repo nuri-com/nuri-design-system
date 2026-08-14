@@ -23,7 +23,7 @@ import type { IconName } from '../data/icons';
 import { IconAvatar } from './icon-avatar';
 
 export type SelectTriggerProps = {
-  variant?: 'ghost' | 'pill';
+  variant?: 'ghost' | 'subtle';
   accent?: Accent;
   onPress?: () => void;
   disabled?: boolean;

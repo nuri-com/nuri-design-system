@@ -10,7 +10,7 @@
 import type { Descriptor } from './schema';
 
 type SelectTriggerAxes = {
-  variant: 'ghost' | 'pill';
+  variant: 'ghost' | 'subtle';
 };
 
 export const selectTriggerDescriptor: Descriptor<SelectTriggerAxes> = {
@@ -35,9 +35,9 @@ export const selectTriggerDescriptor: Descriptor<SelectTriggerAxes> = {
     },
     base: {
       root: {
-        stack: { direction: 'row', align: 'center' },
+        stack: { direction: 'row', align: 'center', fill: 'hug' },
         box: { minHeight: 'lg', radius: 'full' },
-        interactive: { pressColor: true, disabledOpacity: true },
+        interactive: { pressColor: true, pressScale: true, disabledOpacity: true },
       },
       label: {
         typography: { size: 'sm', emphasis: true, align: 'start', flow: 'truncate', lines: 1 },
@@ -47,8 +47,7 @@ export const selectTriggerDescriptor: Descriptor<SelectTriggerAxes> = {
         typography: { size: 'sm', emphasis: true, align: 'start', flow: 'truncate', lines: 1 },
       },
       chevron: {
-        box: { width: 'sm', height: 'sm' },
-        palette: { variant: 'subtle' },
+        box: { width: 'xs', height: 'xs' },
       },
     },
   },
@@ -57,8 +56,8 @@ export const selectTriggerDescriptor: Descriptor<SelectTriggerAxes> = {
       ghost: {
         root: { stack: { gap: 'xs' }, palette: { variant: 'ghost' } },
       },
-      pill: {
-        root: { stack: { gap: 'sm' }, box: { paddingX: 'lg' }, palette: { chrome: 'subtle' } },
+      subtle: {
+        root: { stack: { gap: 'sm' }, box: { paddingX: 'lg' }, palette: { variant: 'soft' } },
       },
     },
   },

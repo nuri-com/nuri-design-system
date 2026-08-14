@@ -84,6 +84,10 @@ function fillCaseToRn(fill) {
   };
   if (fill.basis !== undefined) out.flexBasis = fill.basis;
   if (fill.minInline !== undefined) out.minWidth = fill.minInline;
+  if (fill.crossHug) {
+    out.alignSelf = 'flex-start';
+    out.maxWidth = '100%';
+  }
   return out;
 }
 

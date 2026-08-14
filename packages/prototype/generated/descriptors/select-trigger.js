@@ -37,9 +37,9 @@ export const selectTriggerDescriptor = {
     },
     base: {
       root: {
-        stack: { direction: 'row', align: 'center' },
+        stack: { direction: 'row', align: 'center', fill: 'hug' },
         box: { minHeight: 'lg', radius: 'full' },
-        interactive: { pressColor: true, disabledOpacity: true },
+        interactive: { pressColor: true, pressScale: true, disabledOpacity: true },
       },
       label: {
         typography: { size: 'sm', emphasis: true, align: 'start', flow: 'truncate', lines: 1 },
@@ -49,8 +49,7 @@ export const selectTriggerDescriptor = {
         typography: { size: 'sm', emphasis: true, align: 'start', flow: 'truncate', lines: 1 },
       },
       chevron: {
-        box: { width: 'sm', height: 'sm' },
-        palette: { variant: 'subtle' },
+        box: { width: 'xs', height: 'xs' },
       },
     },
   },
@@ -59,8 +58,8 @@ export const selectTriggerDescriptor = {
       ghost: {
         root: { stack: { gap: 'xs' }, palette: { variant: 'ghost' } },
       },
-      pill: {
-        root: { stack: { gap: 'sm' }, box: { paddingX: 'lg' }, palette: { chrome: 'subtle' } },
+      subtle: {
+        root: { stack: { gap: 'sm' }, box: { paddingX: 'lg' }, palette: { variant: 'soft' } },
       },
     },
   },

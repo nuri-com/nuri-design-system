@@ -87,7 +87,6 @@ describe('baseline theme (resolver-model §11)', () => {
   test('chrome slot resolves (topbar canvas)', () => {
     expect(theme.chrome.canvas.bg).toBe(chrome.light.bgCanvas);
     expect(theme.chrome.canvas.fg).toBe(chrome.light.textPrimary);
-    expect(theme.chrome.subtle.pressedBg).toBe(chrome.light.bgStrong);
     expect(theme.chrome.transparent.bg).toBe('transparent');
     expect(theme.chrome.transparent.fg).toBe(chrome.light.textPrimary);
   });
@@ -358,6 +357,8 @@ describe('Topbar — same resolver, centred + fluid compound layouts (via flatte
       alignItems: 'center',
       flexGrow: 0,
       flexShrink: 0,
+      alignSelf: 'flex-start',
+      maxWidth: '100%',
       paddingEnd: space.sm,
     });
     expect(part('content', 'fluid').style).toEqual({
@@ -374,6 +375,8 @@ describe('Topbar — same resolver, centred + fluid compound layouts (via flatte
       gap: space.sm,
       flexGrow: 0,
       flexShrink: 0,
+      alignSelf: 'flex-start',
+      maxWidth: '100%',
       paddingStart: space.sm,
     });
   });

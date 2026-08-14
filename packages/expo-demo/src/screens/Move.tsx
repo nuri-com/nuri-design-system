@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { StyleSheet, View as RNView } from 'react-native';
 
 import {
   Button,
@@ -78,74 +77,114 @@ export function Move({ onClose }: { onClose: () => void }) {
           </View>
 
           <NuriScope mode="dark">
-            <RNView style={styles.cards}>
-              <View
-                chrome="subtle"
-                radius="lg"
-                paddingX="lg"
-                paddingTop="lg"
-                paddingBottom="xl"
-              >
-                <RNView style={styles.triggerConstraint}>
+            <View fill="grow">
+              {stress ? (
+                <View
+                  chrome="subtle"
+                  radius="lg"
+                  paddingX="lg"
+                  paddingTop="lg"
+                  paddingBottom="xl"
+                >
                   <SelectTrigger
                     accessibilityLabel="From"
                     accessibilityValue={story.from}
                     onPress={noop}
                   >
                     <SelectTriggerLabel>From</SelectTriggerLabel>
-                    <SelectTriggerAvatar name={stress ? 'bank' : 'bitcoin'} variant="solid" accent="orange" />
+                    <SelectTriggerAvatar name="bank" variant="solid" accent="orange" />
                     <SelectTriggerValue>{story.from}</SelectTriggerValue>
                     <SelectTriggerChevron name="caret-down" />
                   </SelectTrigger>
-                </RNView>
-                <Text size="md" emphasis align="end" flow="truncate" lines={1}>
-                  {story.fromBalance}
-                </Text>
-              </View>
+                  <Text size="md" emphasis align="end" flow="truncate" lines={1}>
+                    {story.fromBalance}
+                  </Text>
+                </View>
+              ) : (
+                <View chrome="subtle" radius="lg" paddingX="lg" paddingY="sm">
+                  <View direction="row" justify="between" align="center">
+                    <SelectTrigger
+                      accessibilityLabel="From"
+                      accessibilityValue={story.from}
+                      onPress={noop}
+                    >
+                      <SelectTriggerLabel>From</SelectTriggerLabel>
+                      <SelectTriggerAvatar name="bitcoin" variant="solid" accent="orange" />
+                      <SelectTriggerValue>{story.from}</SelectTriggerValue>
+                      <SelectTriggerChevron name="caret-down" />
+                    </SelectTrigger>
+                    <Text size="md" emphasis>{story.fromBalance}</Text>
+                  </View>
+                </View>
+              )}
 
-              {/* Consumer-local seam overlay. Its immediate parent is exactly
-                  48×48-high and contains the complete disc. Negative margins
-                  move that bounded parent onto the seam; neither iOS nor
-                  Android has to hit-test an overflowing child. */}
-              <RNView pointerEvents="box-none" style={styles.seamParent}>
+              {/* The 60px seam lane contains the complete 48px target. Its 6px
+                  caps plus each regular card's 6px trigger inset yield exactly
+                  12px clearance; native parent-bounds hit-testing sees the full disc. */}
+              <View chrome="canvas" direction="row" justify="center" align="center" height="xl">
                 <IconButton
                   variant="solid"
                   icon="transfer-vertical"
                   accessibilityLabel={`Swap ${story.from} and ${story.to}`}
                   onPress={noop}
                 />
-              </RNView>
+              </View>
 
-              <View
-                chrome="subtle"
-                radius="lg"
-                paddingX="lg"
-                paddingTop="xl"
-                paddingBottom="lg"
-                fill="grow"
-              >
-                <View height="xs" />
-                <RNView style={styles.triggerConstraint}>
+              {stress ? (
+                <View
+                  chrome="subtle"
+                  radius="lg"
+                  paddingX="lg"
+                  paddingTop="xl"
+                  paddingBottom="lg"
+                  fill="grow"
+                >
+                  <View height="xs" />
                   <SelectTrigger
-                    variant="ghost"
                     accessibilityLabel="To"
                     accessibilityValue={story.to}
                     onPress={noop}
                   >
                     <SelectTriggerLabel>To</SelectTriggerLabel>
-                    <SelectTriggerAvatar name={stress ? 'bank' : 'euro'} variant="outline" />
+                    <SelectTriggerAvatar name="bank" variant="outline" />
                     <SelectTriggerValue>{story.to}</SelectTriggerValue>
                     <SelectTriggerChevron name="caret-down" />
                   </SelectTrigger>
-                </RNView>
 
-                <View fill="grow" justify="end" align="end">
-                  <Text size="3xl" align="end" flow="truncate" lines={1}>
-                    {story.amount}
-                  </Text>
+                  <View fill="grow" justify="end" align="end">
+                    <Text size="3xl" align="end" flow="truncate" lines={1}>
+                      {story.amount}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            </RNView>
+              ) : (
+                <View
+                  chrome="subtle"
+                  radius="lg"
+                  paddingX="lg"
+                  paddingTop="sm"
+                  paddingBottom="lg"
+                  fill="grow"
+                >
+                  <SelectTrigger
+                    accessibilityLabel="To"
+                    accessibilityValue={story.to}
+                    onPress={noop}
+                  >
+                    <SelectTriggerLabel>To</SelectTriggerLabel>
+                    <SelectTriggerAvatar name="euro" variant="outline" />
+                    <SelectTriggerValue>{story.to}</SelectTriggerValue>
+                    <SelectTriggerChevron name="caret-down" />
+                  </SelectTrigger>
+
+                  <View fill="grow" justify="end" align="end">
+                    <Text size="3xl" align="end" flow="truncate" lines={1}>
+                      {story.amount}
+                    </Text>
+                  </View>
+                </View>
+              )}
+            </View>
           </NuriScope>
 
           <Keypad />
@@ -159,24 +198,3 @@ export function Move({ onClose }: { onClose: () => void }) {
     </Screen>
   );
 }
-
-const SWAP_DISC = 48;
-const CARD_GAP = 4;
-
-const styles = StyleSheet.create({
-  cards: {
-    flexGrow: 1,
-  },
-  triggerConstraint: {
-    alignSelf: 'flex-start',
-    maxWidth: '100%',
-  },
-  seamParent: {
-    alignItems: 'center',
-    height: SWAP_DISC,
-    justifyContent: 'center',
-    marginBottom: -(SWAP_DISC / 2 - CARD_GAP),
-    marginTop: -(SWAP_DISC / 2),
-    zIndex: 1,
-  },
-});

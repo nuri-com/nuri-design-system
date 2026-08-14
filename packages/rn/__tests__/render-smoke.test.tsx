@@ -1159,33 +1159,38 @@ describe('render-smoke — the ergonomic components mount headless', () => {
   });
 
   test.each([
-    ['ghost', 'transparent', 'subtle'],
-    ['pill', 'subtle', 'strong'],
-  ] as const)('SelectTrigger — %s wash, anatomy, a11y, and cluster geometry', (variant, restRole, pressedRole) => {
+    ['ghost', 'ghost'],
+    ['subtle', 'soft'],
+  ] as const)('SelectTrigger — %s wash, scale, anatomy, a11y, and hugging geometry', (variant, surfaceRole) => {
     const onPress = jest.fn();
     const source = { uri: 'https://example.test/eur.png' };
     const tr = render(
       <NuriThemeProvider>
-        <SelectTrigger
-          variant={variant}
-          accessibilityLabel="From"
-          accessibilityValue="Euro"
-          onPress={onPress}
-        >
-          <SelectTriggerLabel>From</SelectTriggerLabel>
-          <SelectTriggerAvatar source={source} />
-          <SelectTriggerValue>Euro</SelectTriggerValue>
-          <SelectTriggerChevron name="caret-down" />
-        </SelectTrigger>
+        <NuriView direction="column" align="stretch">
+          <SelectTrigger
+            variant={variant}
+            accessibilityLabel="From"
+            accessibilityValue="Euro"
+            onPress={onPress}
+          >
+            <SelectTriggerLabel>From</SelectTriggerLabel>
+            <SelectTriggerAvatar source={source} />
+            <SelectTriggerValue>Euro</SelectTriggerValue>
+            <SelectTriggerChevron name="caret-down" />
+          </SelectTrigger>
+        </NuriView>
       </NuriThemeProvider>,
     );
 
     expect(tr.root.findAllByType(Text).map((node) => node.props.children)).toEqual(['From', 'Euro']);
     expect(tr.root.findByType(Image).props.source).toEqual(source);
-    expect(tr.root.findByType(NuriIcon).props.name).toBe('caret-down');
+    const caret = tr.root.findByType(NuriIcon);
+    expect(caret.props.name).toBe('caret-down');
+    expect(caret.props.dimension).toBe(size.xs);
     const value = tr.root.findAllByType(Text).find((node) => node.props.children === 'Euro');
     expect(value?.props.numberOfLines).toBe(1);
     expect(value?.props.ellipsizeMode).toBe('tail');
+    expect(caret.props.color).toBe(flatStyleForTest(value?.props.style).color);
 
     const [trigger] = pressableActions(tr);
     expect(trigger.props.accessibilityRole).toBe('button');
@@ -1195,12 +1200,15 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const restingStyle = trigger.props.style({ pressed: false });
     const pressedStyle = trigger.props.style({ pressed: true });
     const theme = buildNuriTheme('lilac', 'light');
-    const expectedRest = restRole === 'transparent' ? 'transparent' : theme.chrome[restRole].bg;
-    expect(restingStyle.backgroundColor).toBe(expectedRest);
-    expect(pressedStyle.backgroundColor).toBe(theme.chrome[pressedRole].bg);
+    expect(restingStyle.backgroundColor).toBe(theme.surface[surfaceRole].bg);
+    expect(pressedStyle.backgroundColor).toBe(theme.surface[surfaceRole].pressedBg);
     expect(restingStyle.minHeight).toBe(size.lg);
+    expect(restingStyle.flexGrow).toBe(0);
+    expect(restingStyle.flexShrink).toBe(0);
+    expect(restingStyle.alignSelf).toBe('flex-start');
+    expect(restingStyle.maxWidth).toBe('100%');
     expect(restingStyle.transform).toBeUndefined();
-    expect(pressedStyle.transform).toBeUndefined();
+    expect(pressedStyle.transform).toEqual([{ scale: theme.interaction.pressScale }]);
     act(() => trigger.props.onPress());
     expect(onPress).toHaveBeenCalledTimes(1);
   });
@@ -1209,7 +1217,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const tr = render(
       <NuriThemeProvider>
         <SelectTrigger
-          variant="pill"
+          variant="subtle"
           disabled
           accessibilityLabel="To"
           accessibilityValue="Bitcoin"
@@ -1227,20 +1235,21 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const disabledPressed = trigger.props.style({ pressed: true });
     const theme = buildNuriTheme('lilac', 'light');
     expect(rest.minHeight).toBe(size.lg);
-    expect(rest.backgroundColor).toBe(theme.chrome.subtle.bg);
+    expect(rest.backgroundColor).toBe(theme.surface.soft.bg);
     expect(disabledPressed.backgroundColor).toBe(rest.backgroundColor);
+    expect(disabledPressed.transform).toBeUndefined();
     expect(disabledPressed.opacity).toBe(theme.interaction.disabledOpacity);
   });
 
-  test('SelectTrigger satellite — a static chrome-subtle View has no interactive wash path', () => {
+  test('SelectTrigger satellite — a static soft View has no interactive wash or scale path', () => {
     const tr = render(
       <NuriThemeProvider>
-        <NuriView chrome="subtle" />
+        <NuriView variant="soft" />
       </NuriThemeProvider>,
     );
     const host = tr.root.findByType(View);
     const theme = buildNuriTheme('neutral', 'light');
-    expect(flatStyleForTest(host.props.style)).toEqual({ backgroundColor: theme.chrome.subtle.bg });
+    expect(flatStyleForTest(host.props.style)).toMatchObject({ backgroundColor: theme.surface.soft.bg });
     expect(typeof host.props.style).not.toBe('function');
   });
 

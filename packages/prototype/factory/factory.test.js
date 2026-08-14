@@ -868,12 +868,17 @@ test('C9b · <nuri-select-field> unadorned composition omits optional avatar and
   assert.equal(button?.querySelector('nuri-icon'), null);
 });
 
-test('C10 · <nuri-select-trigger> renders a cluster-sized disclosure target in ghost and pill variants', async () => {
+test('C10 · <nuri-select-trigger> hugs a stretching column in ghost and subtle variants', async () => {
   assert.ok(customElements.get('nuri-select-trigger'), 'SelectTrigger web twin is registered');
   assert.deepEqual(
     [...customElements.get('nuri-select-trigger').observedAttributes].sort(),
     ['accent', 'accessibility-value', 'aria-label', 'disabled', 'variant'],
   );
+
+  const stretchColumn = dom.window.document.createElement('nuri-view');
+  stretchColumn.setAttribute('direction', 'column');
+  stretchColumn.setAttribute('align', 'stretch');
+  mount(stretchColumn);
 
   const compose = (variant) => {
     const trigger = dom.window.document.createElement('nuri-select-trigger');
@@ -886,39 +891,41 @@ test('C10 · <nuri-select-trigger> renders a cluster-sized disclosure target in 
       '<nuri-select-trigger-value>Bitcoin</nuri-select-trigger-value>',
       '<nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>',
     ].join('');
-    mount(trigger);
+    stretchColumn.appendChild(trigger);
     return trigger;
   };
 
   const ghost = compose();
-  const pill = compose('pill');
+  const subtle = compose('subtle');
   await tick();
 
   const ghostButton = ghost.querySelector('button.nuri-interactive');
-  const pillButton = pill.querySelector('button.nuri-interactive');
-  assert.ok(ghostButton && pillButton);
-  for (const button of [ghostButton, pillButton]) {
+  const subtleButton = subtle.querySelector('button.nuri-interactive');
+  assert.ok(ghostButton && subtleButton);
+  for (const button of [ghostButton, subtleButton]) {
     assert.equal(button.getAttribute('aria-haspopup'), 'dialog');
     assert.equal(button.getAttribute('aria-label'), 'From, Bitcoin');
     assert.equal(button.getAttribute('data-min-height'), 'lg', 'both variants floor the target at 48px');
     assert.equal(button.getAttribute('data-radius'), 'full');
+    assert.equal(button.getAttribute('data-fill'), 'hug', 'the target opts out of its stretch parent');
     assert.equal(button.hasAttribute('data-press-color'), true, 'wash is opt-in on the pressable root');
-    assert.equal(button.hasAttribute('data-press-scale'), false, 'SelectTrigger never scales on press');
+    assert.equal(button.hasAttribute('data-press-scale'), true, 'both variants use the Button press scale');
     assert.equal(button.querySelector('nuri-icon-avatar')?.getAttribute('size'), 'sm');
-    assert.equal(
-      [...button.querySelectorAll('nuri-icon')].at(-1)?.getAttribute('name'),
-      'caret-down',
-    );
+    const caret = [...button.querySelectorAll('nuri-icon')].at(-1);
+    assert.equal(caret?.getAttribute('name'), 'caret-down');
+    assert.equal(caret?.getAttribute('data-width'), 'xs', 'SelectTrigger caret is 18px wide');
+    assert.equal(caret?.getAttribute('data-height'), 'xs', 'SelectTrigger caret is 18px tall');
+    assert.equal(caret?.getAttribute('data-variant'), null, 'caret inherits the flowing text foreground');
     assert.equal(button.querySelectorAll('nuri-typography').length, 2);
   }
   assert.equal(ghostButton.getAttribute('data-variant'), 'ghost');
   assert.equal(ghostButton.getAttribute('data-chrome'), null);
   assert.equal(ghostButton.getAttribute('data-gap'), 'xs');
   assert.equal(ghostButton.getAttribute('data-padding-x'), null, 'ghost has no invisible horizontal hit slop');
-  assert.equal(pillButton.getAttribute('data-chrome'), 'subtle');
-  assert.equal(pillButton.getAttribute('data-variant'), null);
-  assert.equal(pillButton.getAttribute('data-gap'), 'sm');
-  assert.equal(pillButton.getAttribute('data-padding-x'), 'lg');
+  assert.equal(subtleButton.getAttribute('data-chrome'), null);
+  assert.equal(subtleButton.getAttribute('data-variant'), 'soft');
+  assert.equal(subtleButton.getAttribute('data-gap'), 'sm');
+  assert.equal(subtleButton.getAttribute('data-padding-x'), 'lg');
 });
 
 // ══════════════════════════════════════════════════════════════════

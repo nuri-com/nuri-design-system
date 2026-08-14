@@ -108,7 +108,9 @@ export const recipes: Record<string, BakedComponentRecipe> = {
             },
             "hug": {
               "flexGrow": 0,
-              "flexShrink": 0
+              "flexShrink": 0,
+              "alignSelf": "flex-start",
+              "maxWidth": "100%"
             }
           }
         }
@@ -202,6 +204,8 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "base": {
           "flexGrow": 0,
           "flexShrink": 0,
+          "alignSelf": "flex-start",
+          "maxWidth": "100%",
           "width": 48,
           "height": 48,
           "borderRadius": 9999
@@ -252,7 +256,9 @@ export const recipes: Record<string, BakedComponentRecipe> = {
             },
             "fluid": {
               "flexGrow": 0,
-              "flexShrink": 0
+              "flexShrink": 0,
+              "alignSelf": "flex-start",
+              "maxWidth": "100%"
             }
           }
         }
@@ -323,7 +329,9 @@ export const recipes: Record<string, BakedComponentRecipe> = {
             },
             "fluid": {
               "flexGrow": 0,
-              "flexShrink": 0
+              "flexShrink": 0,
+              "alignSelf": "flex-start",
+              "maxWidth": "100%"
             }
           }
         }
@@ -589,6 +597,10 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "base": {
           "flexDirection": "row",
           "alignItems": "center",
+          "flexGrow": 0,
+          "flexShrink": 0,
+          "alignSelf": "flex-start",
+          "maxWidth": "100%",
           "minHeight": 48,
           "borderRadius": 9999
         },
@@ -597,7 +609,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
             "ghost": {
               "gap": 4
             },
-            "pill": {
+            "subtle": {
               "gap": 6,
               "paddingHorizontal": 18
             }
@@ -607,6 +619,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       "interactive": {
         "base": {
           "pressColor": true,
+          "pressScale": true,
           "disabledOpacity": true
         }
       }
@@ -651,8 +664,8 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       "el": "icon",
       "geometry": {
         "base": {
-          "width": 24,
-          "height": 24
+          "width": 18,
+          "height": 18
         },
         "variants": {}
       }

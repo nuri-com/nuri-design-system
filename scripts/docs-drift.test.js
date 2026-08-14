@@ -239,9 +239,9 @@ const EXPECTED_DESCRIPTORS = {
     interactive: ['pressColor', 'disabledOpacity'],
   },
   'select-trigger': {
-    axes: { variant: ['ghost', 'pill'] },
+    axes: { variant: ['ghost', 'subtle'] },
     parts: ['label', 'avatar', 'value', 'chevron'],
-    interactive: ['pressColor', 'disabledOpacity'],
+    interactive: ['pressColor', 'pressScale', 'disabledOpacity'],
   },
   'text-field': {
     axes: { size: ['md', 'lg'] },
@@ -417,7 +417,7 @@ const EXPECTED_PALETTE = {
   },
   chrome: {
     canvas: { bg: 'chrome.bgCanvas', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
-    subtle: { bg: 'chrome.bgSubtle', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted', pressedBg: 'chrome.bgStrong' },
+    subtle: { bg: 'chrome.bgSubtle', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
     strong: { bg: 'chrome.bgStrong', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
     transparent: { bg: 'transparent', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
   },

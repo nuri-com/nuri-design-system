@@ -9,7 +9,7 @@ nav_order: 25
 
 # Select Trigger
 
-`SelectTrigger` is the cluster-sized inline disclosure control; use `SelectField` when the label must remain outside field chrome. `variant="ghost"` is transparent at rest and washes to `chrome.bg-subtle`; `variant="pill"` rests on `chrome.bg-subtle` and washes to `chrome.bg-strong`. Both variants keep one 48px-minimum, full-radius press target with no press scale. Keep at least `space.md` (12px) between the trigger bounds and every independent target; compositions must constrain or reposition long values instead of allowing overlap. Keep the static prompt in `accessibilityLabel` and the current selection in `accessibilityValue`; the component emits only `onPress`, and consumers own dialog, open, and selection state.
+`SelectTrigger` is the cluster-sized inline disclosure control; its root explicitly hugs content even in stretching columns. Use `SelectField` when the label must remain outside field chrome: SelectTrigger uses an 18px text-coloured caret, while SelectField intentionally keeps its 24px subtle caret. `variant="ghost"` is transparent at rest and washes to `chrome.bg-subtle`; `variant="subtle"` matches the soft Button surface, resting on `chrome.bg-strong` and washing to `chrome.bg-pressed`. Both variants keep one 48px-minimum, full-radius press target and use Button's press scale. Keep at least `space.md` (12px) between the trigger bounds and every independent target; compositions must constrain or reposition long values instead of allowing overlap. Keep the static prompt in `accessibilityLabel` and the current selection in `accessibilityValue`; the component emits only `onPress`, and consumers own dialog, open, and selection state.
 
 ## API
 
@@ -17,7 +17,7 @@ nav_order: 25
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
-| `variant` | no | `'ghost' | 'pill'` | style axis |
+| `variant` | no | `'ghost' | 'subtle'` | style axis |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `onPress` | no | `() => void` | pressable behaviour |
 | `disabled` | no | `boolean` | pressable behaviour |

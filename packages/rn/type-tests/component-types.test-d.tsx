@@ -166,14 +166,14 @@ export const selectFieldNoPopupProp = <SelectField popup="dialog"><SelectFieldVa
 
 // ── SelectTrigger — inline disclosure cluster; consumer owns dialog/state ──
 export const selectTriggerOk = (
-  <SelectTrigger variant="pill" accessibilityLabel="From" accessibilityValue="Bitcoin" onPress={() => undefined}>
+  <SelectTrigger variant="subtle" accessibilityLabel="From" accessibilityValue="Bitcoin" onPress={() => undefined}>
     <SelectTriggerLabel>From</SelectTriggerLabel>
     <SelectTriggerAvatar name="bitcoin" variant="solid" accent="orange" />
     <SelectTriggerValue>Bitcoin</SelectTriggerValue>
     <SelectTriggerChevron name="caret-down" />
   </SelectTrigger>
 );
-// @ts-expect-error SelectTrigger has only ghost/pill variants.
+// @ts-expect-error SelectTrigger has only ghost/subtle variants.
 export const selectTriggerBadVariant = <SelectTrigger variant="field" />;
 // @ts-expect-error open state remains consumer-owned.
 export const selectTriggerNoOpen = <SelectTrigger open />;

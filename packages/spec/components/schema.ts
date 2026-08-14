@@ -113,7 +113,8 @@ export type TypeKey = TypeSize;
 // `flex:none` centre region lands at the bar's TRUE centre regardless of
 // edge-content asymmetry (the TopbarLeading/Trailing edges · the centring
 // forcing function). Distinct from `grow-shrink` (basis auto · the old pivot).
-// `hug` (flex 0 0 auto · the 3rd versioned fill add) = the no-shrink content floor.
+// `hug` (flex 0 0 auto + a bounded cross-axis content clamp · the 3rd versioned
+// fill add) = the no-shrink content floor, including inside stretching columns.
 // `distribute` (a versioned add) is the PARENT-side even split — every DIRECT CHILD
 // takes an equal share (flex 1 1 0), the concise "N equal buttons/chips in a row"
 // without a per-child `fill`. The FIRST stack property whose effect lands on CHILDREN,

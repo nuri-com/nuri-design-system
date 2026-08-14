@@ -12,7 +12,7 @@
  * rebuild; NO per-render re-collapse.
  *
  *   surface   { solid·soft·ghost·subtle·outline } → { bg?·fg·fgMuted?·pressedBg?·border? }
- *   chrome    { canvas·subtle·strong·transparent } → { bg·fg·fgMuted·pressedBg? }  (theme-only slot)
+ *   chrome    { canvas·subtle·strong·transparent } → { bg·fg·fgMuted }  (theme-only slot)
  *   text·border                            (the chrome text/border roles)
  *   type                                  (theme-invariant type scale)
  *   interaction { pressScale·disabledOpacity }   (the not-colour effects)
@@ -70,7 +70,7 @@ export type SurfaceRole = {
   pressedBg?: string;
   border?: string;
 };
-export type ChromeRole = { bg: string; fg: string; fgMuted: string; pressedBg?: string };
+export type ChromeRole = { bg: string; fg: string; fgMuted: string };
 
 // NuriTheme · the RESOLVED colour theme (the variant→role mapping applied). The
 // PRIMARY factory read: `theme.surface[variant]` / `theme.chrome[slot]`. Kept as
@@ -144,9 +144,6 @@ function buildChrome(chromeSlice: ChromeSlice, accentSlice: AccentSlice): Record
       bg: bindColor(cell.bg, chromeSlice, accentSlice) as string,
       fg: bindColor(cell.fg, chromeSlice, accentSlice) as string,
       fgMuted: bindColor(cell.fgMuted, chromeSlice, accentSlice) as string,
-      ...(cell.pressedBg !== undefined
-        ? { pressedBg: bindColor(cell.pressedBg, chromeSlice, accentSlice) }
-        : {}),
     };
   });
   return out;

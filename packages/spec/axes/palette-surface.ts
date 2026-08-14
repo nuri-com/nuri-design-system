@@ -31,7 +31,7 @@
  *   variant=subtle   — (fg-only)         border-strong      —
  *   variant=outline  <transparent>       text-muted         bg-subtle border-subtle
  *   chrome=canvas    bg-canvas           text-primary       —
- *   chrome=subtle    bg-subtle           text-primary       bg-strong
+ *   chrome=subtle    bg-subtle           text-primary       —
  *   chrome=strong    bg-strong           text-primary       —
  *   chrome=transparent <transparent>     text-primary       —
  *
@@ -39,10 +39,10 @@
  *   · fg-only (subtle)   → `bg` is OPTIONAL (absent ⇒ no background channel · the
  *     one near-invisible glyph role · decision 50).
  *   · border colour (outline) → `border` is OPTIONAL (absent ⇒ no outline stroke).
- *   · optional pressed    → `pressed` is OPTIONAL (absent ⇒ no :active swap).
- *     chrome remains theme-only; its subtle role alone opts into bg-strong so
- *     an interactive pill can wash without changing static subtle surfaces.
- *     Outline uses bg-subtle for pressed feedback while retaining its border.
+ *   · no-pressed (chrome
+ *     slot + subtle)      → `pressed` is OPTIONAL (absent ⇒ no :active swap). The
+ *     chrome slot is theme-only (no accent identity, no press); outline uses
+ *     bg-subtle for pressed feedback while retaining its border.
  *   · ghost's transparent → a `{ literal }` paint, structurally DISTINCT from a
  *     role reference — the same `{ ref } | { value }` split dimensions.ts uses for
  *     the px-backed vs. literal leaves. An EXPLICIT `background: transparent` (the
@@ -70,7 +70,7 @@ type Paint = string | { literal: string };
 
 // A surface role — the complete pair. `fg` is ALWAYS present (every row paints a
 // foreground, incl. the fg-only `subtle`); `bg` absent ⇒ fg-only; `pressed`
-// absent ⇒ no :active swap; `border` absent ⇒ no stroke.
+// absent ⇒ no :active swap (the chrome slot + subtle); `border` absent ⇒ no stroke.
 type Surface = { bg?: Paint; fg: Paint; pressed?: Paint; border?: Paint };
 
 // The table is split by the two mutually-exclusive INPUT axes (variant XOR
@@ -90,7 +90,7 @@ export const surface = {
   },
   chrome: {
     canvas: { bg: 'bg-canvas', fg: 'text-primary' },
-    subtle: { bg: 'bg-subtle', fg: 'text-primary', pressed: 'bg-strong' },
+    subtle: { bg: 'bg-subtle', fg: 'text-primary' },
     strong: { bg: 'bg-strong', fg: 'text-primary' },
     transparent: { bg: { literal: 'transparent' }, fg: 'text-primary' },
   },

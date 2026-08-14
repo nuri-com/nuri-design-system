@@ -21,8 +21,7 @@
  *   · ghost.bg = the literal 'transparent' (NOT a ref) — the
  *     retired per-component button ghostBg convention.
  *   · subtle = fg-only (no bg/pressed) · the IconAvatar role.
- *   · chrome = theme-only surfaces; chrome.subtle optionally washes to
- *     chrome.bgStrong when an interactive node opts into pressColor.
+ *   · chrome = theme-only surfaces (no accent, no pressed).
  *   · pressedBg is DATA for the RN resolver; the web pressed
  *     dispatch is gated on the `interactive` flag (B2c).
  *   · outline.border carries the border-colour role for outlined surfaces.
@@ -80,7 +79,6 @@ export const palette = {
       bg:         { group: 'chrome', leaf: 'bgSubtle'     } as const satisfies ColorRef,
       fg:         { group: 'chrome', leaf: 'textPrimary'  } as const satisfies ColorRef,
       fgMuted:    { group: 'chrome', leaf: 'textMuted'    } as const satisfies ColorRef,
-      pressedBg:  { group: 'chrome', leaf: 'bgStrong'     } as const satisfies ColorRef,
     },
     strong: {
       bg:         { group: 'chrome', leaf: 'bgStrong'     } as const satisfies ColorRef,

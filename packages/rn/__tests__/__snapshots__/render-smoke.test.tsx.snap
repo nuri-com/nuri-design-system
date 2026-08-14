@@ -244,6 +244,7 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
     style={
       {
         "alignItems": "center",
+        "alignSelf": "flex-start",
         "backgroundColor": "#beaaff",
         "borderRadius": 9999,
         "flexDirection": "row",
@@ -251,6 +252,7 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
         "flexShrink": 0,
         "gap": 4,
         "justifyContent": "center",
+        "maxWidth": "100%",
         "minHeight": 36,
         "paddingHorizontal": 18,
       }
@@ -659,6 +661,7 @@ exports[`render-smoke — the ergonomic components mount headless IconAvatar —
     }
     style={
       {
+        "alignSelf": "flex-start",
         "backgroundColor": "transparent",
         "borderColor": "#dddac9",
         "borderRadius": 9999,
@@ -666,6 +669,7 @@ exports[`render-smoke — the ergonomic components mount headless IconAvatar —
         "flexGrow": 0,
         "flexShrink": 0,
         "height": 48,
+        "maxWidth": "100%",
         "width": 48,
       }
     }
@@ -1738,6 +1742,7 @@ exports[`render-smoke — the ergonomic components mount headless SelectField �
         }
         style={
           {
+            "alignSelf": "flex-start",
             "backgroundColor": "transparent",
             "borderColor": "#dddac9",
             "borderRadius": 9999,
@@ -1745,6 +1750,7 @@ exports[`render-smoke — the ergonomic components mount headless SelectField �
             "flexGrow": 0,
             "flexShrink": 0,
             "height": 36,
+            "maxWidth": "100%",
             "width": 36,
           }
         }
@@ -2454,9 +2460,11 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — flu
     style={
       {
         "alignItems": "center",
+        "alignSelf": "flex-start",
         "flexDirection": "row",
         "flexGrow": 0,
         "flexShrink": 0,
+        "maxWidth": "100%",
         "paddingEnd": 6,
       }
     }
@@ -2484,11 +2492,13 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — flu
     style={
       {
         "alignItems": "center",
+        "alignSelf": "flex-start",
         "flexDirection": "row",
         "flexGrow": 0,
         "flexShrink": 0,
         "gap": 6,
         "justifyContent": "flex-end",
+        "maxWidth": "100%",
         "paddingStart": 6,
       }
     }
@@ -2557,11 +2567,13 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — tit
     style={
       {
         "alignItems": "center",
+        "alignSelf": "flex-start",
         "flexDirection": "row",
         "flexGrow": 0,
         "flexShrink": 0,
         "gap": 6,
         "justifyContent": "flex-end",
+        "maxWidth": "100%",
         "paddingStart": 6,
       }
     }
