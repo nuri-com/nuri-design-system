@@ -290,19 +290,35 @@
   <nuri-demo layout="board" controls="device,theme,accent" label="trigger candidates">
     <template>
       <nuri-screen>
-        <nuri-view chrome="canvas" direction="row" align="center" gap="lg" distribute="even" padding="lg" fill>
-          <nuri-select-field aria-label="From currency" accessibility-value="Bitcoin">
-            <nuri-select-field-label>From</nuri-select-field-label>
-            <nuri-select-field-avatar name="bitcoin" variant="solid" accent="orange"></nuri-select-field-avatar>
-            <nuri-select-field-value>Bitcoin</nuri-select-field-value>
+        <nuri-view chrome="canvas" direction="column" align="stretch" justify="center" gap="lg" padding="lg" fill>
+          <!-- 1 · the current non-inline answer: the country selector as shipped
+               in the country picker. -->
+          <nuri-select-field aria-label="Country" accessibility-value="Germany">
+            <nuri-select-field-label>Country</nuri-select-field-label>
+            <nuri-select-field-avatar source="../assets/flags/deu.svg"></nuri-select-field-avatar>
+            <nuri-select-field-value>Germany</nuri-select-field-value>
             <nuri-select-field-chevron name="chevron-down"></nuri-select-field-chevron>
           </nuri-select-field>
 
-          <nuri-view direction="row" gap="xs" align="center">
-            <nuri-typography size="sm" emphasis>From</nuri-typography>
-            <nuri-icon-avatar size="sm" icon="bitcoin" variant="solid" accent="orange"></nuri-icon-avatar>
-            <nuri-typography size="sm" emphasis>Bitcoin</nuri-typography>
-            <nuri-icon name="chevron-down"></nuri-icon>
+          <!-- 2 · inline ghost cluster (the board's static row). -->
+          <nuri-view direction="row">
+            <nuri-view direction="row" gap="xs" align="center">
+              <nuri-typography size="sm" emphasis>From</nuri-typography>
+              <nuri-icon-avatar size="sm" icon="bitcoin" variant="solid" accent="orange"></nuri-icon-avatar>
+              <nuri-typography size="sm" emphasis>Bitcoin</nuri-typography>
+              <nuri-icon name="chevron-down"></nuri-icon>
+            </nuri-view>
+          </nuri-view>
+
+          <!-- 3 · inline pill (Frame 600): backgrounded variant composed from
+               vocabulary — subtle chrome, full radius. -->
+          <nuri-view direction="row">
+            <nuri-view chrome="subtle" radius="full" direction="row" gap="sm" align="center" padding-x="lg" padding-y="md">
+              <nuri-typography size="md" emphasis>From</nuri-typography>
+              <nuri-icon-avatar size="sm" icon="bitcoin" variant="solid" accent="orange"></nuri-icon-avatar>
+              <nuri-typography size="md" emphasis>Bitcoin</nuri-typography>
+              <nuri-icon name="chevron-down"></nuri-icon>
+            </nuri-view>
           </nuri-view>
         </nuri-view>
       </nuri-screen>
