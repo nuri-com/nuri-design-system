@@ -30,8 +30,8 @@
               </nuri-topbar>
             </nuri-header>
 
-            <nuri-scroll>
-              <nuri-view direction="column" align="stretch" justify="between" gap="sm" padding-x="lg" padding-bottom="lg" fill>
+            <nuri-scroll safe-area-bottom>
+              <nuri-view direction="column" align="stretch" gap="sm" padding-x="lg" padding-bottom="lg" fill>
                 <nuri-scope mode="dark">
                   <nuri-view chrome="subtle" radius="lg" padding="lg" fill="grow">
                     <nuri-view direction="column" gap="sm" fill="grow">
@@ -95,12 +95,10 @@
                     <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
                   </nuri-view>
                 </nuri-view>
+
+                <nuri-button size="lg" variant="solid" accent="lilac">Next</nuri-button>
               </nuri-view>
             </nuri-scroll>
-
-            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-x="lg" padding-bottom="lg">
-              <nuri-button size="lg" variant="solid" accent="lilac">Next</nuri-button>
-            </nuri-footer>
           </nuri-modal-panel>
         </nuri-modal>
       </nuri-screen>
