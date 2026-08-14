@@ -497,7 +497,7 @@ const FROZEN_SCHEMA = {
       // the equal-basis-0 edge for true centring · decision 65 "versioned").
       // `hug` ADDED at the trailing-action slice (the 3rd versioned StackNS.fill
       // add · flex:0 0 auto — the no-shrink content floor · alert's AlertButton).
-      'fill?': "'grow' | 'grow-shrink' | 'even' | 'hug'",
+      'fill?': "'grow' | 'grow-shrink' | 'shrink' | 'even' | 'hug'",
       // `distribute` ADDED at the even-row slice (a versioned StackNS add · the FIRST
       // child-affecting stack property · web `> *` combinator · RN per-child inject).
       'distribute?': "'even'",

@@ -644,7 +644,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       "el": "text",
       "geometry": {
         "base": {
-          "flexGrow": 1,
+          "flexGrow": 0,
           "flexShrink": 1,
           "minWidth": 0
         },

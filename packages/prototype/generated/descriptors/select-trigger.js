@@ -45,7 +45,9 @@ export const selectTriggerDescriptor = {
         typography: { size: 'sm', emphasis: true, align: 'start', flow: 'truncate', lines: 1 },
       },
       value: {
-        stack: { fill: 'grow-shrink' },
+        // shrink, never grow: grow is useless inside the hugged cluster and
+        // Android inflates flexGrow Text to the full available width.
+        stack: { fill: 'shrink' },
         typography: { size: 'sm', emphasis: true, align: 'start', flow: 'truncate', lines: 1 },
       },
       chevron: {

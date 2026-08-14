@@ -125,7 +125,7 @@ export type StackNS = {
   justify?: 'start' | 'center' | 'end' | 'between' | 'around';
   gap?: SpaceLeaf;
   wrap?: boolean;
-  fill?: 'grow' | 'grow-shrink' | 'even' | 'hug';
+  fill?: 'grow' | 'grow-shrink' | 'shrink' | 'even' | 'hug';
   distribute?: 'even';
 };
 

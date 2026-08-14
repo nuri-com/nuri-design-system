@@ -98,9 +98,15 @@ const JUSTIFY: Record<NonNullable<StackNS['justify']>, string> = {
 // "trailing action hugs its label" case · alert's AlertButton. Distinct
 // from the bare no-`fill` default (flex 0 1 auto · shrinks under row pressure);
 // `hug` is the explicit opt-out of that shrink. The 3rd versioned StackNS.fill add.
+// `shrink` = truncate-only: NO grow (Android Text measures a flexGrow child at
+// the full available width inside auto-sized parents — the select-trigger value
+// inflated every hugged cluster to the row), shrink past content with the
+// min-size-0 release so `flow:truncate` can bite. The content-sized sibling of
+// `grow-shrink` for parts inside hug clusters. The 4th versioned StackNS.fill add.
 const FILL: Record<NonNullable<StackNS['fill']>, FillCase> = {
   grow: { grow: 1, shrink: 0 },
   'grow-shrink': { grow: 1, shrink: 1, minInline: 0 },
+  shrink: { grow: 0, shrink: 1, minInline: 0 },
   even: { grow: 1, shrink: 1, basis: 0, minInline: 0 },
   hug: { grow: 0, shrink: 0, crossHug: true },
 };
