@@ -1158,10 +1158,12 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.root.findAllByType(Text).map((node) => node.props.children)).toEqual(['Delivery', 'Standard']);
   });
 
+  // ghost presses read through pure scale (no wash — operator 2026-08-14);
+  // subtle keeps scale + the soft wash.
   test.each([
-    ['ghost', 'ghost'],
-    ['subtle', 'soft'],
-  ] as const)('SelectTrigger — %s wash, scale, anatomy, a11y, and hugging geometry', (variant, surfaceRole) => {
+    ['ghost', 'ghost', false],
+    ['subtle', 'soft', true],
+  ] as const)('SelectTrigger — %s scale, anatomy, a11y, and hugging geometry', (variant, surfaceRole, washes) => {
     const onPress = jest.fn();
     const source = { uri: 'https://example.test/eur.png' };
     const tr = render(
@@ -1201,7 +1203,9 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const pressedStyle = trigger.props.style({ pressed: true });
     const theme = buildNuriTheme('lilac', 'light');
     expect(restingStyle.backgroundColor).toBe(theme.surface[surfaceRole].bg);
-    expect(pressedStyle.backgroundColor).toBe(theme.surface[surfaceRole].pressedBg);
+    expect(pressedStyle.backgroundColor).toBe(
+      washes ? theme.surface[surfaceRole].pressedBg : theme.surface[surfaceRole].bg,
+    );
     expect(restingStyle.minHeight).toBe(size.lg);
     expect(restingStyle.flexGrow).toBe(0);
     expect(restingStyle.flexShrink).toBe(0);

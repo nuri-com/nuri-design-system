@@ -618,9 +618,15 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       },
       "interactive": {
         "base": {
-          "pressColor": true,
           "pressScale": true,
           "disabledOpacity": true
+        },
+        "variants": {
+          "variant": {
+            "subtle": {
+              "pressColor": true
+            }
+          }
         }
       }
     },

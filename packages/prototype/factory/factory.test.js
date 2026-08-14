@@ -908,7 +908,13 @@ test('C10 · <nuri-select-trigger> hugs a stretching column in ghost and subtle 
     assert.equal(button.getAttribute('data-min-height'), 'lg', 'both variants floor the target at 48px');
     assert.equal(button.getAttribute('data-radius'), 'full');
     assert.equal(button.getAttribute('data-fill'), 'hug', 'the target opts out of its stretch parent');
-    assert.equal(button.hasAttribute('data-press-color'), true, 'wash is opt-in on the pressable root');
+    // Ghost presses read through pure scale (operator 2026-08-14); only the
+    // subtle variant carries the soft wash.
+    assert.equal(
+      button.hasAttribute('data-press-color'),
+      button === subtleButton,
+      'wash is subtle-only on the pressable root',
+    );
     assert.equal(button.hasAttribute('data-press-scale'), true, 'both variants use the Button press scale');
     assert.equal(button.querySelector('nuri-icon-avatar')?.getAttribute('size'), 'sm');
     const caret = [...button.querySelectorAll('nuri-icon')].at(-1);

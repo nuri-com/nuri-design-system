@@ -241,7 +241,9 @@ const EXPECTED_DESCRIPTORS = {
   'select-trigger': {
     axes: { variant: ['ghost', 'subtle'] },
     parts: ['label', 'avatar', 'value', 'chevron'],
-    interactive: ['pressColor', 'pressScale', 'disabledOpacity'],
+    // Base opt-in only: the wash (pressColor) rides the subtle VARIANT — ghost
+    // presses read through pure scale (operator 2026-08-14).
+    interactive: ['pressScale', 'disabledOpacity'],
   },
   'text-field': {
     axes: { size: ['md', 'lg'] },

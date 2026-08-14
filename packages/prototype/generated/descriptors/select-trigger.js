@@ -39,7 +39,9 @@ export const selectTriggerDescriptor = {
       root: {
         stack: { direction: 'row', align: 'center', fill: 'hug' },
         box: { minHeight: 'lg', radius: 'full' },
-        interactive: { pressColor: true, pressScale: true, disabledOpacity: true },
+        // Scale + disabled are shared; the wash is subtle-only (operator
+        // 2026-08-14): ghost presses read through pure scale.
+        interactive: { pressScale: true, disabledOpacity: true },
       },
       label: {
         typography: { size: 'sm', emphasis: true, align: 'start', flow: 'truncate', lines: 1 },
@@ -61,7 +63,12 @@ export const selectTriggerDescriptor = {
         root: { stack: { gap: 'xs' }, palette: { variant: 'ghost' } },
       },
       subtle: {
-        root: { stack: { gap: 'sm' }, box: { paddingX: 'lg' }, palette: { variant: 'soft' } },
+        root: {
+          stack: { gap: 'sm' },
+          box: { paddingX: 'lg' },
+          palette: { variant: 'soft' },
+          interactive: { pressColor: true },
+        },
       },
     },
   },
