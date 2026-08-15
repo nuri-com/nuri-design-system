@@ -42,6 +42,7 @@ import type {
   InteractiveNS,
   TypographyNS,
   EffectNS,
+  BleedNS,
   PartId,
   El,
   PartAnatomy,
@@ -56,7 +57,7 @@ import type { NuriTheme } from './theme-payload';
 // this file holds the RN applier that consumes it + the per-target resolver
 // registry (RN column). The per-target property NAME comes from the property-
 // spelling registry (@nuri/spec/property-spelling · the `.rn` column).
-import { STACK_FIELDS, BOX_FIELDS } from '@nuri/spec/resolve-map';
+import { STACK_FIELDS, BOX_FIELDS, BLEED_FIELDS } from '@nuri/spec/resolve-map';
 import type { Field, FillCase, ScaleName } from '@nuri/spec/resolve-map';
 import type { StackNS } from '@nuri/spec/descriptors/schema';
 import { PROPERTY_SPELLING } from '@nuri/spec/property-spelling';
@@ -140,6 +141,9 @@ function applyFields(fields: Record<string, Field>, ns: Record<string, unknown>)
       case 'scale':
         set(rnProp(f.prop), SCALES[f.scale][value as string]);
         break;
+      case 'negativeScale':
+        set(rnProp(f.prop), -SCALES[f.scale][value as string]);
+        break;
       case 'scaleMulti':
         for (const prop of f.props) set(rnProp(prop), SCALES[f.scale][value as string]);
         break;
@@ -174,6 +178,13 @@ function applyFields(fields: Record<string, Field>, ns: Record<string, unknown>)
     }
   }
   return out;
+}
+
+// Bleed is a standalone layout element, not a descriptor namespace. It still
+// rides the same generic Field applier as box/stack so the spec table remains
+// the sole attr→style mapping on RN.
+export function resolveBleed(ns: BleedNS): ViewStyle {
+  return applyFields(BLEED_FIELDS, ns as Record<string, unknown>);
 }
 
 // ── palette → colour (theme.surface / theme.chrome · §12 fg-by-scope) ──

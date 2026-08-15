@@ -16,6 +16,7 @@ import {
   Text,
   View,
 } from '@ds';
+import { CurrencyPickerSheet } from '../sheets/CurrencyPickerSheet';
 
 const noop = () => undefined;
 
@@ -64,11 +65,13 @@ function Keypad() {
 
 export function Move({ stress = false, onClose }: { stress?: boolean; onClose: () => void }) {
   const story = stress ? ADVERSARIAL : REGULAR;
+  const [picker, setPicker] = React.useState<'from' | 'to' | null>(null);
 
   return (
-    <Screen safeArea>
-      <Scroll>
-        <View direction="column" align="stretch" gap="xl" paddingX="lg" paddingY="lg" fill="grow">
+    <>
+      <Screen safeArea>
+        <Scroll>
+          <View direction="column" align="stretch" gap="xl" paddingX="lg" paddingY="lg" fill="grow">
           <NuriScope mode="dark">
             <View fill="grow">
               {stress ? (
@@ -82,7 +85,7 @@ export function Move({ stress = false, onClose }: { stress?: boolean; onClose: (
                   <SelectTrigger
                     accessibilityLabel="From"
                     accessibilityValue={story.from}
-                    onPress={noop}
+                    onPress={() => setPicker('from')}
                   >
                     <SelectTriggerLabel>From</SelectTriggerLabel>
                     <SelectTriggerAvatar name="bank" variant="solid" accent="orange" />
@@ -99,7 +102,7 @@ export function Move({ stress = false, onClose }: { stress?: boolean; onClose: (
                     <SelectTrigger
                       accessibilityLabel="From"
                       accessibilityValue={story.from}
-                      onPress={noop}
+                      onPress={() => setPicker('from')}
                     >
                       <SelectTriggerLabel>From</SelectTriggerLabel>
                       <SelectTriggerAvatar name="bitcoin" variant="solid" accent="orange" />
@@ -137,7 +140,7 @@ export function Move({ stress = false, onClose }: { stress?: boolean; onClose: (
                   <SelectTrigger
                     accessibilityLabel="To"
                     accessibilityValue={story.to}
-                    onPress={noop}
+                    onPress={() => setPicker('to')}
                   >
                     <SelectTriggerLabel>To</SelectTriggerLabel>
                     <SelectTriggerAvatar name="bank" variant="outline" />
@@ -163,7 +166,7 @@ export function Move({ stress = false, onClose }: { stress?: boolean; onClose: (
                   <SelectTrigger
                     accessibilityLabel="To"
                     accessibilityValue={story.to}
-                    onPress={noop}
+                    onPress={() => setPicker('to')}
                   >
                     <SelectTriggerLabel>To</SelectTriggerLabel>
                     <SelectTriggerAvatar source={require('../../assets/flags/eur.png')} />
@@ -187,9 +190,15 @@ export function Move({ stress = false, onClose }: { stress?: boolean; onClose: (
             <Button size="lg" variant="soft" onPress={onClose}>Cancel</Button>
             <Button size="lg" variant="solid" accent="lilac" onPress={noop}>Next</Button>
           </View>
-        </View>
-      </Scroll>
-    </Screen>
+          </View>
+        </Scroll>
+      </Screen>
+      <CurrencyPickerSheet
+        open={picker !== null}
+        title={picker === 'from' ? 'From currency' : 'To currency'}
+        onClose={() => setPicker(null)}
+      />
+    </>
   );
 }
 

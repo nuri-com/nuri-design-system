@@ -14,8 +14,9 @@
  * spec must never import from a build/ that relocates with it).
  *
  * FROZEN as of B3 (N+19 · decision 65 step 5 · "an enforced freeze, not
- * honorary"). The schema SHAPE — the five namespace field vocabularies
- * (Stack/Box/Typography/Palette/Interactive NS), the leaf vocabs (SizeLeaf/
+ * honorary"). The schema SHAPE — the namespace field vocabularies
+ * (Stack/Box/Typography/Palette/Interactive/Effect NS plus the standalone
+ * BleedNS element contract), the leaf vocabs (SizeLeaf/
  * SpaceLeaf/RadiusLeaf/TypeKey), and the Descriptor/PartAnatomy/PartMap/
  * PartId/El envelope — is locked by Guard F (pipeline/docs-drift.test.js · the
  * FROZEN_SCHEMA pin); a field added/removed/renamed/retyped breaks the build.
@@ -161,6 +162,18 @@ export type BoxNS = {
   radius?: RadiusLeaf;
   radiusTop?: RadiusLeaf;
   aspectRatio?: RatioLeaf;
+};
+
+// `bleed` — controlled negative space for the dedicated Bleed layout element.
+// This is deliberately NOT a namespace on `NS`: descriptors and View cannot opt
+// into overlap. Bleed alone consumes these four space-scale leaves and each
+// projection realizes them as negative margins. `x`/`y` mirror the house
+// paddingX/paddingY suffix grammar; all/start/end are deliberate refusals.
+export type BleedNS = {
+  top?: SpaceLeaf;
+  bottom?: SpaceLeaf;
+  x?: SpaceLeaf;
+  y?: SpaceLeaf;
 };
 
 // `typography` — text presentation only, NO colour (decision 64 · the single text-style

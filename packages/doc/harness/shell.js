@@ -52,6 +52,7 @@
         { id: 'components/tab-bar-item',       label: 'Tab Bar Item',       href: 'generated/components/tab-bar-item.html' },
         { id: 'components/topbar',             label: 'Topbar',             href: 'generated/components/topbar.html' },
         { id: 'components/view',               label: 'View',               href: 'generated/components/view.html' },
+        { id: 'components/bleed',              label: 'Bleed',              href: 'generated/components/bleed.html' },
         { id: 'components/typography',         label: 'Typography',         href: 'generated/components/typography.html' },
         { id: 'components/icon',               label: 'Icon',               href: 'generated/components/icon.html' },
         { id: 'components/pressable',          label: 'Pressable',          href: 'generated/components/pressable.html' },

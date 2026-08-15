@@ -284,6 +284,60 @@
     </template>
   </nuri-demo>
 
+  <!-- MOVE · CURRENCY PICKER · full modal reference opened by either Move
+       trigger. No search: currency avatar, name, and trailing balance only. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="move · currency picker">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-leading>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back to Move"></nuri-icon-button>
+                </nuri-topbar-leading>
+                <nuri-topbar-content>
+                  <nuri-topbar-title>Currencies</nuri-topbar-title>
+                </nuri-topbar-content>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view padding-top="sm">
+                <nuri-list>
+                  <nuri-list-action aria-label="Bitcoin, balance 0.00055427 Bitcoin">
+                    <nuri-list-action-leading-avatar name="bitcoin" variant="solid" accent="orange"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Bitcoin</nuri-list-action-text>
+                    <nuri-list-action-trailing-text>₿ 0.00055427</nuri-list-action-trailing-text>
+                  </nuri-list-action>
+                  <nuri-list-action aria-label="Euro, balance 48.18 euro">
+                    <nuri-list-action-leading-avatar source="../assets/flags/eur.svg"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Euro</nuri-list-action-text>
+                    <nuri-list-action-trailing-text>€ 48.18</nuri-list-action-trailing-text>
+                  </nuri-list-action>
+                  <nuri-list-action aria-label="Polish zloty, balance 108.42 zloty">
+                    <nuri-list-action-leading-avatar source="../assets/flags/pol.svg"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Polish zloty</nuri-list-action-text>
+                    <nuri-list-action-trailing-text>zł 108.42</nuri-list-action-trailing-text>
+                  </nuri-list-action>
+                  <nuri-list-action aria-label="Ukrainian hryvnia, balance 3840.00 hryvnia">
+                    <nuri-list-action-leading-avatar source="../assets/flags/ukr.svg"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Ukrainian hryvnia</nuri-list-action-text>
+                    <nuri-list-action-trailing-text>₴ 3,840.00</nuri-list-action-trailing-text>
+                  </nuri-list-action>
+                </nuri-list>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom chrome="strong" padding-y="sm"></nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
   <!-- TRIGGER CANDIDATES · current SelectField chrome beside both real
        SelectTrigger variants. No candidate-only styling or invented attributes. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="trigger candidates">

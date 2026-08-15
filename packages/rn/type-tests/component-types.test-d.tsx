@@ -51,6 +51,7 @@ import {
   ModalPanel,
   Footer,
   View,
+  Bleed,
   Text,
   Pressable,
   Scroll,
@@ -340,6 +341,11 @@ export const pressableNoDistribute = <Pressable distribute="even">Child</Pressab
 
 // ── Open primitives — curated native plumbing, never appearance ──
 export const viewNativePlumbingOk = <View testID="view" onLayout={() => undefined} ref={React.createRef()} />;
+export const bleedOk = <Bleed top="xl" bottom="lg" x="md" y="sm"><View /></Bleed>;
+// @ts-expect-error Bleed has no all shorthand.
+export const bleedNoAll = <Bleed all="xl"><View /></Bleed>;
+// @ts-expect-error Bleed does not accept View axes.
+export const bleedNoGap = <Bleed gap="md"><View /></Bleed>;
 export const textNativePlumbingOk = <Text testID="amount" accessibilityLabel="3,433 satoshis" onLayout={() => undefined} ref={React.createRef()}>3433 Sats</Text>;
 export const textMonoOk = <Text size="md" emphasis mono>bc1q address</Text>;
 // @ts-expect-error mono belongs to TypographyNS, which View does not expose.

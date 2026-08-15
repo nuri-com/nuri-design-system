@@ -175,6 +175,13 @@ function buildVarMap() {
 function resolveVarValue(value, varMap, depth = 0) {
   if (depth > 8) throw new Error(`var resolution too deep for '${value}'`);
   const m = value.match(/^var\((--[\w-]+)\)$/);
+  const negative = value.match(/^calc\(-1 \* var\((--[\w-]+)\)\)$/);
+  if (negative) {
+    const next = varMap.get(negative[1]);
+    if (next === undefined) throw new Error(`unresolved var ${negative[1]}`);
+    const resolved = resolveVarValue(next.trim(), varMap, depth + 1);
+    return resolved === '0' ? '0' : `-${resolved}`;
+  }
   if (!m) return value; // a literal (12px · auto · center · 1 0 auto)
   const next = varMap.get(m[1]);
   if (next === undefined) throw new Error(`unresolved var ${m[1]}`);
@@ -204,6 +211,10 @@ const CELLS = [
   ['stack', '.nuri-stack[data-fill="even"]', 'flex', '1 1 0'],                     // expand · the topbar edges (basis-0 equal split)
   ['stack', '.nuri-stack[data-fill="hug"]', 'inline-size', 'fit-content'],         // expand · cross-axis content clamp
   ['stack', '.nuri-stack[data-fill="hug"]', 'max-inline-size', '100%'],            // expand · bounded by the parent
+  ['bleed', '.nuri-bleed[data-x="md"]', 'margin-inline', '-12px'],                // controlled negative inline space
+  ['bleed', '.nuri-bleed[data-y="sm"]', 'margin-block', '-6px'],                  // controlled negative block space
+  ['bleed', '.nuri-bleed[data-top="xl"]', 'margin-block-start', '-24px'],         // specific block-start edge
+  ['bleed', '.nuri-bleed[data-bottom="lg"]', 'margin-block-end', '-18px'],        // specific block-end edge
 ];
 
 test('Guard C · resolved-value spot-check (generated → final value)', () => {
@@ -216,6 +227,18 @@ test('Guard C · resolved-value spot-check (generated → final value)', () => {
     assert.ok(raw !== undefined, `'${sel}' has no '${prop}' declaration`);
     assert.equal(resolveVarValue(raw, varMap), expected, `${sel} { ${prop} } resolved`);
   }
+});
+
+test('Bleed shell owns fixed lift + measured-box containment without an authorable z channel', () => {
+  const shell = layerRuleMap(genByNs.get('bleed')).get('.nuri-bleed');
+  assert.ok(shell, 'generated Bleed shell exists');
+  assert.deepEqual(Object.fromEntries(shell), {
+    display: 'flex',
+    'flex-direction': 'column',
+    'flex-shrink': '0',
+    position: 'relative',
+    'z-index': '1',
+  });
 });
 
 // ══════════════════════════════════════════════════════════════════

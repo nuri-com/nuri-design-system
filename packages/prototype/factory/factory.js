@@ -196,6 +196,7 @@ export function mergeAttrs(ns) {
   };
   if (ns.stack) { classes.push('nuri-stack'); dispatch(ns.stack); }
   if (ns.box) { classes.push('nuri-box'); dispatch(ns.box); }
+  if (ns.bleed) { classes.push('nuri-bleed'); dispatch(ns.bleed); }
   if (ns.palette) {
     classes.push('nuri-palette');
     // The palette SURFACE dispatch keys (palette.css): variant XOR chrome. fg

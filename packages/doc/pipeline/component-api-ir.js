@@ -125,6 +125,32 @@ export const COMPONENT_API_DOCS = [
     type: 'ViewProps',
   },
   {
+    source: 'bleed',
+    title: 'Bleed',
+    nav: 11.1,
+    lead: '`Bleed` / `<nuri-bleed>` creates controlled negative space around exactly one child. It has no paint or other layout axes of its own; its fixed lift paints the contained child above siblings, while the containing box keeps the complete interactive child inside native hit-test bounds.',
+    file: 'packages/rn/primitives/Bleed.tsx',
+    type: 'BleedProps',
+    sections: [
+      {
+        title: 'Contract',
+        body: [
+          '`top`, `bottom`, `x`, and `y` resolve space-scale leaves to negative margins on both projections. There is no `all`, `start`, `end`, authorable z-order, or multi-child form.',
+          '',
+          'Lift and measured-box containment are internal promises: authors choose only the negative-space leaves.',
+        ],
+      },
+      {
+        title: 'Pattern: Move seam',
+        body: [
+          'The admitted Move pattern places a 48px (`height="lg"`) control row inside `Bleed top="xl" bottom="xl"`. The ±24px margins reduce that row to zero flow height. A parent stack `gap="2xs"` then appears **twice**—once above and once below the zero-height row—so 2 × 2px produces the 4px seam and centres the disc on the boundary.',
+          '',
+          '> The current Stack gap contract does not expose `2xs`. The executable Move reference remains intentionally blocked instead of widening Stack in this Bleed-only change.',
+        ],
+      },
+    ],
+  },
+  {
     source: 'typography',
     title: 'Typography',
     nav: 12,
@@ -213,6 +239,10 @@ export const COMPONENT_API_DOCS = [
 ];
 
 const NOTE_BY_PROP = {
+  top: 'negative space',
+  bottom: 'negative space',
+  x: 'negative space',
+  y: 'negative space',
   variant: 'style axis',
   size: 'style axis',
   width: 'style axis',
@@ -298,6 +328,7 @@ function noteForProp(name, type, typeName, isPrimaryType, childrenNote, behaviou
   // 'default content slot'; children accepted only for typed slot/region
   // composition are 'composition children' — the docs never promise a bare-
   // children sink the engine does not have.
+  if (typeName === 'BleedProps' && name === 'children') return 'exactly one host child';
   if (name === 'children') return isPrimaryType ? (childrenNote ?? 'default content slot') : 'slot content';
   if (typeName === 'NuriRootProps' && name === 'mode') return 'theme selection; defaults to light';
   if (typeName === 'NuriRootProps' && name === 'accent') return 'theme selection; defaults to lilac';
@@ -571,6 +602,7 @@ export function componentApiIrFromSource(spec, source, extraSources = []) {
     title: spec.title,
     nav: spec.nav,
     lead: spec.lead,
+    sections: spec.sections,
     typeName: primaryTypeName,
     src: spec.file,
     types,

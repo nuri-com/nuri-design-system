@@ -31,8 +31,8 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { View, Text, Pressable, Screen, Header, Scroll, Footer, Dock, Separator, ListSeparator } from '../primitives';
-import { STACK_FIELDS, BOX_FIELDS } from '@nuri/spec/resolve-map';
+import { View, Bleed, Text, Pressable, Screen, Header, Scroll, Footer, Dock, Separator, ListSeparator } from '../primitives';
+import { STACK_FIELDS, BOX_FIELDS, BLEED_FIELDS } from '@nuri/spec/resolve-map';
 import { opts as INTERACTIVE_OPTS } from '@nuri/spec/interactive-effects';
 import { PALETTE_KEYS, TYPOGRAPHY_KEYS, EFFECT_KEYS } from '@nuri/spec/descriptors/schema';
 
@@ -42,6 +42,7 @@ import { PALETTE_KEYS, TYPOGRAPHY_KEYS, EFFECT_KEYS } from '@nuri/spec/descripto
 // palette/typography from the schema's totality-pinned runtime key lists. ──
 const STACK_KEYS = Object.keys(STACK_FIELDS);
 const BOX_KEYS = Object.keys(BOX_FIELDS);
+const BLEED_KEYS = Object.keys(BLEED_FIELDS);
 const INTERACTIVE_KEYS = Object.keys(INTERACTIVE_OPTS);
 
 const sorted = (a: readonly string[]): string[] => [...a].sort();
@@ -90,6 +91,10 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
   // ── RN props ≡ schema NS keys (the drift guard · every primitive) ──
   test('View props ≡ box ∪ stack ∪ palette ∪ effect keys', () => {
     expect(sorted(View.propKeys)).toEqual(union(BOX_KEYS, STACK_KEYS, PALETTE_KEYS, EFFECT_KEYS));
+  });
+
+  test('Bleed props ≡ the standalone bleed field keys', () => {
+    expect(sorted(Bleed.propKeys)).toEqual(sorted(BLEED_KEYS));
   });
 
   test('Text props ≡ typography ∪ palette keys', () => {
@@ -152,6 +157,10 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
   // ── web ATTRS leg ──
   test('web <nuri-view> ATTRS ≡ box ∪ stack ∪ palette ∪ effect keys (the #102-deferred leg, now bidirectional)', () => {
     expect(sorted(viewAttrs())).toEqual(sorted(union(BOX_KEYS, STACK_KEYS, PALETTE_KEYS, EFFECT_KEYS).map(kebab)));
+  });
+
+  test('web <nuri-bleed> ATTRS ≡ RN Bleed props ≡ standalone bleed field keys', () => {
+    expect(sorted(webAttrs('bleed.js'))).toEqual(sorted(BLEED_KEYS.map(kebab)));
   });
 
   test('web <nuri-screen> ATTRS expose the local device safe-area contract', () => {

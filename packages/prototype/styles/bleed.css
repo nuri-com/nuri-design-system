@@ -1,0 +1,45 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · NAMESPACE CSS · BLEED · GENERATED — DO NOT EDIT BY HAND
+ *
+ * GENERATED from the Field table (packages/spec/axes/resolve-map.ts ·
+ * BLEED_FIELDS) + the web spelling layer
+ * (prototype/pipeline/parsers/namespace-css.js) by prototype/pipeline/css-preview.js,
+ * wired into npm run build -w @nuri/prototype (its own build · regenerates IN PLACE
+ * over this file · prototype/styles/bleed.css). This is the LIVE namespace CSS — the
+ * pages link it and the web factory (prototype/factory/factory.js) styles the nuri-*
+ * merged nodes with it. decision 2 reversed for the namespace layer (decision 74 ·
+ * executing decision 70 · the L3c flip · N+38 · carved to @nuri/prototype at N+41):
+ * the hand SoT retired (git-recoverable) and the generator is the sole source. Re-run
+ * npm run build -w @nuri/prototype to regenerate; freshness gated by
+ * prototype/pipeline/css-preview.test.js.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design (decision 37 · layout primitives parametrize semantic
+   * vocabulary via prop, not via component-token aliasing). Mirrors the hand
+   * bleed.css. */
+}
+
+@layer rules {
+  .nuri-bleed { display: flex; flex-direction: column; flex-shrink: 0; position: relative; z-index: 1; }
+  .nuri-bleed[data-x="xs"] { margin-inline: calc(-1 * var(--nuri-space-xs)); }
+  .nuri-bleed[data-x="sm"] { margin-inline: calc(-1 * var(--nuri-space-sm)); }
+  .nuri-bleed[data-x="md"] { margin-inline: calc(-1 * var(--nuri-space-md)); }
+  .nuri-bleed[data-x="lg"] { margin-inline: calc(-1 * var(--nuri-space-lg)); }
+  .nuri-bleed[data-x="xl"] { margin-inline: calc(-1 * var(--nuri-space-xl)); }
+  .nuri-bleed[data-y="xs"] { margin-block: calc(-1 * var(--nuri-space-xs)); }
+  .nuri-bleed[data-y="sm"] { margin-block: calc(-1 * var(--nuri-space-sm)); }
+  .nuri-bleed[data-y="md"] { margin-block: calc(-1 * var(--nuri-space-md)); }
+  .nuri-bleed[data-y="lg"] { margin-block: calc(-1 * var(--nuri-space-lg)); }
+  .nuri-bleed[data-y="xl"] { margin-block: calc(-1 * var(--nuri-space-xl)); }
+  .nuri-bleed[data-top="xs"] { margin-block-start: calc(-1 * var(--nuri-space-xs)); }
+  .nuri-bleed[data-top="sm"] { margin-block-start: calc(-1 * var(--nuri-space-sm)); }
+  .nuri-bleed[data-top="md"] { margin-block-start: calc(-1 * var(--nuri-space-md)); }
+  .nuri-bleed[data-top="lg"] { margin-block-start: calc(-1 * var(--nuri-space-lg)); }
+  .nuri-bleed[data-top="xl"] { margin-block-start: calc(-1 * var(--nuri-space-xl)); }
+  .nuri-bleed[data-bottom="xs"] { margin-block-end: calc(-1 * var(--nuri-space-xs)); }
+  .nuri-bleed[data-bottom="sm"] { margin-block-end: calc(-1 * var(--nuri-space-sm)); }
+  .nuri-bleed[data-bottom="md"] { margin-block-end: calc(-1 * var(--nuri-space-md)); }
+  .nuri-bleed[data-bottom="lg"] { margin-block-end: calc(-1 * var(--nuri-space-lg)); }
+  .nuri-bleed[data-bottom="xl"] { margin-block-end: calc(-1 * var(--nuri-space-xl)); }
+}

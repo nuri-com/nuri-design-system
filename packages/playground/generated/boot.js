@@ -12,6 +12,7 @@ await import('../../prototype/primitives/icon.js');
 await import('../../prototype/primitives/input.js');
 await import('../../prototype/primitives/pressable.js');
 await import('../../prototype/primitives/view.js');
+await import('../../prototype/primitives/bleed.js');
 await import('../../prototype/primitives/typography.js');
 await import('../../prototype/primitives/screen.js');
 await import('../../prototype/primitives/header.js');

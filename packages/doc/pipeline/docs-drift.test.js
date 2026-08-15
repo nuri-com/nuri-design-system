@@ -276,6 +276,21 @@ const PAGE_CONTRACT = {
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
+  bleed: {
+    kind: 'api', source: 'bleed', title: 'Bleed', nav: 11.1,
+    cells: [
+      '`Bleed` / `<nuri-bleed>` creates controlled negative space around exactly one child.',
+      "| `top` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | negative space |",
+      "| `bottom` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | negative space |",
+      "| `x` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | negative space |",
+      "| `y` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | negative space |",
+      '| `children` | yes | `React.ReactElement` | exactly one host child |',
+      '## Pattern: Move seam',
+      'A parent stack `gap="2xs"` then appears **twice**',
+      'The current Stack gap contract does not expose `2xs`.',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`all` |', '`start` |', '`end` |'],
+  },
   typography: {
     kind: 'api', source: 'typography', title: 'Typography', nav: 12,
     cells: [
