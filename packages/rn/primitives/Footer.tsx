@@ -4,6 +4,7 @@ import type { LayoutChangeEvent, ViewStyle } from 'react-native';
 import type { BoxNS, PaletteNS, StackNS } from '../contract';
 import { useFixedRegionLayout } from './FixedRegionLayout';
 import { FIXED_REGION_STYLE_KEYS, numericPadding, useResolvedNode, withKeys, withSurface } from './shared';
+import { useAssertNotBandContent } from './Bleed';
 
 type FooterStyleProps =
   Pick<PaletteNS, 'chrome'> &
@@ -25,6 +26,7 @@ const FooterImpl = React.forwardRef<React.ElementRef<typeof RNView>, FooterProps
   onLayout,
   ...props
 }, ref) => {
+  useAssertNotBandContent('Footer');
   const { keyboardHeight, safeAreaBottom: hostSafeAreaBottom } = useFixedRegionLayout();
   const { node } = useResolvedNode(props);
   const resolvedViewStyle = node.view as ViewStyle;

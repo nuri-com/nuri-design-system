@@ -2,7 +2,7 @@ import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { View as RNView } from 'react-native';
 
-import { Bleed, Pressable, Separator, Text, View } from '../primitives';
+import { Bleed, Dock, Footer, Header, Pressable, Scroll, Screen, Separator, Text, View } from '../primitives';
 import { IconAvatar } from '../index';
 import { NuriThemeProvider } from '../theme';
 import { Image as RNImage, Text as RNText } from 'react-native';
@@ -217,6 +217,46 @@ describe('Bleed — controlled negative space', () => {
     expect(plainTextStyle.pointerEvents).toBeUndefined();
     const plainHairline = plain.root.findAllByType(RNView).find((n) => n.props.accessibilityRole === 'none');
     expect(plainHairline!.props.pointerEvents).toBeUndefined();
+  });
+
+  test('scaffolding and gesture-owning primitives fail named inside a band, at any depth', () => {
+    // Review P2 round 4: the documented exclusion is ENFORCED — Screen, Header,
+    // Scroll, Footer, and Dock throw when rendered inside a Bleed band, even
+    // nested below other hosts; all render normally outside a band.
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      const cases: [string, React.ReactElement][] = [
+        ['Header', <Header chrome="transparent" />],
+        ['Footer', <Footer />],
+        ['Dock', <Dock edge="top" />],
+        ['Scroll', <Scroll />],
+        ['Screen', <Screen />],
+      ];
+      for (const [name, el] of cases) {
+        expect(() =>
+          render(
+            <NuriThemeProvider>
+              <Bleed top="xl" bottom="xl">
+                <View direction="column">{el}</View>
+              </Bleed>
+            </NuriThemeProvider>,
+          ),
+        ).toThrow(new RegExp(`<${name}>.*not valid <Bleed> band content`));
+      }
+      // outside a band the same primitives mount normally
+      expect(() =>
+        render(
+          <NuriThemeProvider>
+            <View direction="column">
+              <Header chrome="transparent" />
+              <Footer />
+            </View>
+          </NuriThemeProvider>,
+        ),
+      ).not.toThrow();
+    } finally {
+      spy.mockRestore();
+    }
   });
 
   test('one child is enforced, including rejection of fragment escape hatches', () => {

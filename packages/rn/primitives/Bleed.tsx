@@ -24,6 +24,21 @@ const LIFT_STYLE: ViewStyle = { position: 'relative', zIndex: 1 };
 // consumed by primitives/View, never public API.
 export const BleedHitTransparencyContext = React.createContext(false);
 
+// Screen scaffolding and gesture-owning primitives are NOT valid band content
+// (a transparent Scroll cannot pan; screen chrome inside a negative-space band
+// is a composition error) — the documented exclusion, ENFORCED: each of them
+// calls this and fails named when rendered inside a Bleed band, at any depth,
+// through any component (review P2 round 4).
+export function useAssertNotBandContent(name: string): void {
+  const inBleedBand = React.useContext(BleedHitTransparencyContext);
+  if (inBleedBand) {
+    throw new Error(
+      `[nuri] <${name}> is screen scaffolding / gesture-owning and is not valid <Bleed> band content ` +
+      '(the hit-transparency contract — see the Bleed doc).',
+    );
+  }
+}
+
 const BleedImpl: React.FC<BleedProps> = ({ children, ...bleed }) => {
   const child = React.Children.only(children);
   if (child.type === React.Fragment) {
