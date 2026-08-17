@@ -3,6 +3,8 @@ import TestRenderer, { act } from 'react-test-renderer';
 import { View as RNView } from 'react-native';
 
 import { Bleed, Pressable, View } from '../primitives';
+import { IconAvatar } from '../index';
+import { NuriThemeProvider } from '../theme';
 import { resolveNS } from '../runtime/resolve';
 import { buildNuriTheme } from '../runtime/theme-payload';
 
@@ -99,6 +101,53 @@ describe('Bleed — controlled negative space', () => {
     const outside = render(<View testID="plain" />);
     const plain = outside.root.findAll((n) => n.props.testID === 'plain' && n.type === RNView)[0];
     expect(plain.props.pointerEvents).toBeUndefined();
+  });
+
+  test('the cascade covers paths beyond Bleed > View > Pressable: distribute wrappers and descriptor view hosts', () => {
+    // Review P2 round 2: the transparency contract must hold for EVERY static
+    // host path the band can contain, not only the demonstrated composition.
+    // 1 · distribute wrappers (raw RNViews created by wrapDistributedChildren)
+    const distributed = render(
+      <Bleed top="xl" bottom="xl">
+        <View direction="row" distribute="even" height="lg" testID="dist-row">
+          <Pressable accessibilityLabel="A" testID="a" onPress={() => undefined} />
+          <Pressable accessibilityLabel="B" testID="b" onPress={() => undefined} />
+        </View>
+      </Bleed>,
+    );
+    const distRow = distributed.root.findAll((n) => n.props.testID === 'dist-row' && n.type === RNView)[0];
+    // the distribute wrappers are the equal-basis RNViews wrapDistributedChildren injects
+    const wrappers = distRow.findAllByType(RNView).filter((n) => {
+      const st = flat(n.props.style);
+      return st.flexGrow === 1 && st.flexBasis === 0;
+    });
+    expect(wrappers.length).toBe(2);
+    for (const wrapper of wrappers) expect(wrapper.props.pointerEvents).toBe('box-none');
+    // the wrapped Pressables stay hit-testable
+    expect(distributed.root.findAll((n) => n.props.testID === 'a').length).toBeGreaterThan(0);
+
+    // 2 · a descriptor-rendered static `view` host (IconAvatar root)
+    const withComponent = render(
+      <NuriThemeProvider>
+        <Bleed top="xl" bottom="xl">
+          <IconAvatar icon="bitcoin" />
+        </Bleed>
+      </NuriThemeProvider>,
+    );
+    const bleedWrapper = withComponent.root.findAllByType(RNView)[0];
+    const avatarRoot = bleedWrapper.findAllByType(RNView).find((n) => n.props.accessibilityElementsHidden === true);
+    expect(avatarRoot).toBeTruthy();
+    expect(avatarRoot!.props.pointerEvents).toBe('box-none');
+
+    // 3 · the same descriptor host OUTSIDE a Bleed stays untouched
+    const outside = render(
+      <NuriThemeProvider>
+        <IconAvatar icon="bitcoin" />
+      </NuriThemeProvider>,
+    );
+    const plainRoot = outside.root.findAllByType(RNView).find((n) => n.props.accessibilityElementsHidden === true);
+    expect(plainRoot).toBeTruthy();
+    expect(plainRoot!.props.pointerEvents).toBeUndefined();
   });
 
   test('one child is enforced, including rejection of fragment escape hatches', () => {

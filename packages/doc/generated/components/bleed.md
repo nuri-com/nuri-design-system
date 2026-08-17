@@ -27,6 +27,8 @@ nav_order: 11.1
 
 Lift and measured-box containment are internal promises: authors choose only the negative-space leaves.
 
+Hit transparency is the third internal promise: the lifted band never eats sibling input. Static DS hosts inside the band are touch-transparent on both projections (web: an inherited pointer-events cascade with interactive leaves re-enabled; RN: an internal context that renders DS layout Views, descriptor view hosts, and distribute wrappers `box-none`), while pressables and inputs stay full targets. The contract covers DS elements and components only — a raw (non-DS) view inside a Bleed band is outside the design-system contract, as it is everywhere else.
+
 ## Pattern: Move seam
 
 The Move pattern places a 48px (`height="lg"`) control row inside `Bleed top="xl" bottom="xl"`. The ±24px margins reduce that row to zero flow height. The parent stack `gap="xs"` then appears **twice**—once above and once below the zero-height row—so 2 × 3px produces the 6px seam and centres the disc on the boundary (the space-scale retune of 2026-08-15 supersedes the admission's `2xs` arithmetic: `xs` is 3px and `2xs` is retired). The executable reference lives on the playground Move page.

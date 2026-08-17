@@ -138,6 +138,8 @@ export const COMPONENT_API_DOCS = [
           '`top`, `bottom`, `x`, and `y` resolve space-scale leaves to negative margins on both projections. There is no `all`, `start`, `end`, authorable z-order, or multi-child form.',
           '',
           'Lift and measured-box containment are internal promises: authors choose only the negative-space leaves.',
+          '',
+          'Hit transparency is the third internal promise: the lifted band never eats sibling input. Static DS hosts inside the band are touch-transparent on both projections (web: an inherited pointer-events cascade with interactive leaves re-enabled; RN: an internal context that renders DS layout Views, descriptor view hosts, and distribute wrappers `box-none`), while pressables and inputs stay full targets. The contract covers DS elements and components only — a raw (non-DS) view inside a Bleed band is outside the design-system contract, as it is everywhere else.',
         ],
       },
       {

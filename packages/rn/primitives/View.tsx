@@ -27,11 +27,11 @@ export type ViewProps = BoxNS & StackNS & PaletteNS & EffectNS & {
 const ViewImpl = React.forwardRef<React.ElementRef<typeof RNView>, ViewProps>((props, ref) => {
   const { children, testID, onLayout, ...nsProps } = props;
   const { node } = useResolvedNode(nsProps);
-  const distributedChildren = wrapDistributedChildren(nsProps.distribute, children);
   // Inside a Bleed band, static layout Views are touch-transparent (`box-none`)
   // so the lifted band never eats sibling touches — the RN mirror of the web
   // `.nuri-bleed` pointer-events cascade (#212 addendum · internal, no API).
   const inBleedBand = React.useContext(BleedHitTransparencyContext);
+  const distributedChildren = wrapDistributedChildren(nsProps.distribute, children, inBleedBand);
   return (
     <RNView
       ref={ref}

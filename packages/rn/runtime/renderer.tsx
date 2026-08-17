@@ -28,6 +28,7 @@ import type { NuriTheme } from './theme-payload';
 import { resolveAnatomy, flattenBakedPart, assertNever } from './resolve';
 import type { AnatomyNode, Selection, BakedComponentRecipe } from './resolve';
 import { NuriIcon } from '../primitives/NuriIcon';
+import { BleedHitTransparencyContext } from '../primitives/Bleed';
 import { useFocusable } from './focus-scroll';
 import { PressableHost } from './pressable-host';
 import { setTextAndSelection } from './native-text-input-command';
@@ -242,6 +243,9 @@ type RenderCtx<A extends Axes> = {
   descriptor: Descriptor<A>;
   recipe: BakedComponentRecipe;
   theme: NuriTheme;
+  // Inside a Bleed band, static `view` hosts render `box-none` (the
+  // hit-transparency cascade · #212 addendum · review P2 round 2).
+  inBleedBand: boolean;
   selection: Selection;
   content: Partial<Record<string, NuriContent>>;
   composition: Partial<Record<string, NuriCompositionEntry<string>[]>>;
@@ -667,6 +671,7 @@ function renderPart<A extends Axes>(
       return (
         <View
           key={node.name}
+          pointerEvents={ctx.inBleedBand ? 'box-none' : undefined}
           style={flat.style}
           accessibilityRole={isRoot ? ctx.descriptor.api.role : undefined}
           {...a11yHide}
@@ -832,6 +837,7 @@ export function renderDescriptorInstance<A extends Axes, PId extends PartId = Pa
   const anatomy = resolveAnatomy(descriptor);
   const theme = useNuriTheme();
   const ambient = React.useContext(NuriSurfaceContext);
+  const inBleedBand = React.useContext(BleedHitTransparencyContext);
   const inputRef = React.useRef<TextInput>(null);
   React.useImperativeHandle(inputHandle, () => ({
     focus: () => inputRef.current?.focus(),
@@ -848,6 +854,7 @@ export function renderDescriptorInstance<A extends Axes, PId extends PartId = Pa
     anatomy,
     {
       descriptor,
+      inBleedBand,
       recipe,
       theme,
       selection,
