@@ -275,10 +275,8 @@
    * a collapsed gutter · literal 0 (decision 32 retired --nuri-px-0; 0 needs no
    * primitive). Added N+8.1 alongside the Separator y-space prop. */
   --nuri-space-none: 0;
-  /* space.2xs · finest granularity · hairline gap between adjacent micro-elements */
-  --nuri-space-2xs: 2px;
   /* space.xs  · tight gap · icon-to-label inside a control, label-to-glyph */
-  --nuri-space-xs:  4px;
+  --nuri-space-xs:  3px;
   /* space.sm  · compact gap · stacked rows in a dense list */
   --nuri-space-sm:  6px;
   /* space.md  · default gap · siblings inside a card, row-gap in a grid */

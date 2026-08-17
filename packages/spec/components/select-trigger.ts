@@ -35,8 +35,10 @@ export const selectTriggerDescriptor: Descriptor<SelectTriggerAxes> = {
     },
     base: {
       root: {
-        stack: { direction: 'row', align: 'center', fill: 'hug' },
-        box: { minHeight: 'lg', radius: 'full' },
+        // gap unified across variants + 36px min-height (operator 2026-08-15;
+        // supersedes the 48px of the admission record).
+        stack: { direction: 'row', align: 'center', gap: 'sm', fill: 'hug' },
+        box: { minHeight: 'md', radius: 'full' },
         // Scale + disabled are shared; the wash is subtle-only (operator
         // 2026-08-14): ghost presses read through pure scale.
         interactive: { pressScale: true, disabledOpacity: true },
@@ -58,11 +60,10 @@ export const selectTriggerDescriptor: Descriptor<SelectTriggerAxes> = {
   variants: {
     variant: {
       ghost: {
-        root: { stack: { gap: 'xs' }, palette: { variant: 'ghost' } },
+        root: { palette: { variant: 'ghost' } },
       },
       subtle: {
         root: {
-          stack: { gap: 'sm' },
           box: { paddingX: 'lg' },
           palette: { variant: 'soft' },
           interactive: { pressColor: true },

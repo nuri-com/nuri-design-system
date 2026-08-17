@@ -87,7 +87,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "variants": {
           "size": {
             "sm": {
-              "gap": 4,
+              "gap": 3,
               "minHeight": 36,
               "paddingHorizontal": 18,
               "borderRadius": 9999
@@ -181,8 +181,8 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "variants": {
           "size": {
             "sm": {
-              "width": 36,
-              "height": 36
+              "width": 24,
+              "height": 24
             }
           }
         }
@@ -195,7 +195,14 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "width": 24,
           "height": 24
         },
-        "variants": {}
+        "variants": {
+          "size": {
+            "sm": {
+              "width": 18,
+              "height": 18
+            }
+          }
+        }
       }
     },
     "image": {
@@ -213,8 +220,8 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "variants": {
           "size": {
             "sm": {
-              "width": 36,
-              "height": 36
+              "width": 24,
+              "height": 24
             }
           }
         }
@@ -583,8 +590,8 @@ export const recipes: Record<string, BakedComponentRecipe> = {
       "el": "icon",
       "geometry": {
         "base": {
-          "width": 24,
-          "height": 24
+          "width": 18,
+          "height": 18
         },
         "variants": {}
       }
@@ -597,20 +604,17 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "base": {
           "flexDirection": "row",
           "alignItems": "center",
+          "gap": 6,
           "flexGrow": 0,
           "flexShrink": 0,
           "alignSelf": "flex-start",
           "maxWidth": "100%",
-          "minHeight": 48,
+          "minHeight": 36,
           "borderRadius": 9999
         },
         "variants": {
           "variant": {
-            "ghost": {
-              "gap": 4
-            },
             "subtle": {
-              "gap": 6,
               "paddingHorizontal": 18
             }
           }
@@ -751,7 +755,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "flexDirection": "column",
           "alignItems": "center",
           "justifyContent": "center",
-          "gap": 4,
+          "gap": 3,
           "flexGrow": 1,
           "flexShrink": 1,
           "flexBasis": 0,

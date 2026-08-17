@@ -76,7 +76,7 @@ export type TypeSize = keyof typeof import('../tokens/typography').type;
 
 // padding + gap take the curated 5-leaf semantic space subset the layout
 // primitives dispatch (stack.css gap · box.css padding* · the Stack/Box
-// SpaceLeaf). NOT the full `space` scale — none/2xs/2xl have no primitive
+// SpaceLeaf). NOT the full `space` scale — none/2xl have no primitive
 // dispatch, so the contract does not over-promise them.
 export type SpaceLeaf = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 

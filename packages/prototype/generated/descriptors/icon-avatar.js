@@ -49,9 +49,13 @@ export const iconAvatarDescriptor = {
       outline: { root: { palette: { variant: 'outline' } } },
     },
     size: {
+      // sm re-specced 36→24 (operator 2026-08-15): the compact inline circle
+      // for trigger/field clusters. The glyph steps down with it (18px · the
+      // `xs` size leaf) — a 24px glyph would fill the 24px circle edge-to-edge.
       sm: {
-        root: { box: { width: 'md', height: 'md' } },
-        image: { box: { width: 'md', height: 'md' } },
+        root: { box: { width: 'sm', height: 'sm' } },
+        icon: { box: { width: 'xs', height: 'xs' } },
+        image: { box: { width: 'sm', height: 'sm' } },
       },
       md: {},
     },

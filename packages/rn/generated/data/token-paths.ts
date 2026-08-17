@@ -31,7 +31,6 @@ export type TokenPath =
   | 'accent.bgSubtle'
   | 'accent.bgSubtlePressed'
   | 'space.none'
-  | 'space.2xs'
   | 'space.xs'
   | 'space.sm'
   | 'space.md'

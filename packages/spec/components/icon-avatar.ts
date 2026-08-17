@@ -18,7 +18,8 @@
  * its own always-on hairline ring; the root variant still paints underneath but
  * is occluded. Consequently `variant="outline"` + `source` is a documented
  * no-op-by-convention rather than a guarded combination. Size `md` is the 48px
- * default; `sm` is 36px. The glyph remains 24px in both circles.
+ * default with the 24px glyph; `sm` is the 24px compact circle with the 18px
+ * glyph (re-specced 36→24 · operator 2026-08-15).
  *
  * The old hand CSS/page oracle is retired; this descriptor is now the SOLE SoT.
  * Guard D (scripts/docs-drift.test.js) re-emits the browser-ESM twin and pins the
@@ -71,9 +72,13 @@ export const iconAvatarDescriptor: Descriptor<IconAvatarAxes> = {
       outline: { root: { palette: { variant: 'outline' } } },
     },
     size: {
+      // sm re-specced 36→24 (operator 2026-08-15): the compact inline circle
+      // for trigger/field clusters. The glyph steps down with it (18px · the
+      // `xs` size leaf) — a 24px glyph would fill the 24px circle edge-to-edge.
       sm: {
-        root: { box: { width: 'md', height: 'md' } },
-        image: { box: { width: 'md', height: 'md' } },
+        root: { box: { width: 'sm', height: 'sm' } },
+        icon: { box: { width: 'xs', height: 'xs' } },
+        image: { box: { width: 'sm', height: 'sm' } },
       },
       md: {},
     },

@@ -318,10 +318,8 @@ const SEMANTIC_EXPECTED = {
   // resolver returns the CSS literal as-is.
   '--nuri-space-none': { neutral: { light: '0', dark: '0' },
                          lilac:   { light: '0', dark: '0' } },
-  '--nuri-space-2xs': { neutral: { light: '2px',  dark: '2px'  },
-                        lilac:   { light: '2px',  dark: '2px'  } },
-  '--nuri-space-xs':  { neutral: { light: '4px',  dark: '4px'  },
-                        lilac:   { light: '4px',  dark: '4px'  } },
+  '--nuri-space-xs':  { neutral: { light: '3px',  dark: '3px'  },
+                        lilac:   { light: '3px',  dark: '3px'  } },
   '--nuri-space-sm':  { neutral: { light: '6px',  dark: '6px'  },
                         lilac:   { light: '6px',  dark: '6px'  } },
   '--nuri-space-md':  { neutral: { light: '12px', dark: '12px' },
