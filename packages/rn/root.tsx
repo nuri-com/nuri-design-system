@@ -5,7 +5,7 @@
  *
  *   NuriThemeProvider
  *     OverlayProvider
- *       View chrome="canvas" fill="grow"
+ *       View chrome="canvas" fill="grow-shrink"
  *         NuriSafeAreaProvider
  *           ToastProvider
  *
