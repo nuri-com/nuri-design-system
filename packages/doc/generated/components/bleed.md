@@ -29,6 +29,4 @@ Lift and measured-box containment are internal promises: authors choose only the
 
 ## Pattern: Move seam
 
-The admitted Move pattern places a 48px (`height="lg"`) control row inside `Bleed top="xl" bottom="xl"`. The ±24px margins reduce that row to zero flow height. A parent stack `gap="2xs"` then appears **twice**—once above and once below the zero-height row—so 2 × 2px produces the 4px seam and centres the disc on the boundary.
-
-> The current Stack gap contract does not expose `2xs`. The executable Move reference remains intentionally blocked instead of widening Stack in this Bleed-only change.
+The Move pattern places a 48px (`height="lg"`) control row inside `Bleed top="xl" bottom="xl"`. The ±24px margins reduce that row to zero flow height. The parent stack `gap="xs"` then appears **twice**—once above and once below the zero-height row—so 2 × 3px produces the 6px seam and centres the disc on the boundary (the space-scale retune of 2026-08-15 supersedes the admission's `2xs` arithmetic: `xs` is 3px and `2xs` is retired). The executable reference lives on the playground Move page.

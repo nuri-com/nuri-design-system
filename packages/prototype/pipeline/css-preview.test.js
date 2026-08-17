@@ -238,7 +238,16 @@ test('Bleed shell owns fixed lift + measured-box containment without an authorab
     'flex-shrink': '0',
     position: 'relative',
     'z-index': '1',
+    // HIT TRANSPARENCY (the #212 addendum · review P2): the lifted band never
+    // eats sibling input — inherited none + the interactive re-enable below.
+    'pointer-events': 'none',
   });
+  const bleedRules = layerRuleMap(genByNs.get('bleed'));
+  for (const leaf of ['button', 'a', 'input', 'select', 'textarea', '[tabindex]', '[role="button"]']) {
+    const reenable = bleedRules.get(`.nuri-bleed ${leaf}`);
+    assert.ok(reenable, `the interactive-leaf re-enable rule exists for '${leaf}'`);
+    assert.deepEqual(Object.fromEntries(reenable), { 'pointer-events': 'auto' });
+  }
 });
 
 // ══════════════════════════════════════════════════════════════════

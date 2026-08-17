@@ -286,8 +286,10 @@ const PAGE_CONTRACT = {
       "| `y` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | negative space |",
       '| `children` | yes | `React.ReactElement` | exactly one host child |',
       '## Pattern: Move seam',
-      'A parent stack `gap="2xs"` then appears **twice**',
-      'The current Stack gap contract does not expose `2xs`.',
+      // The retuned arithmetic (2026-08-15 · the #212 addendum): gap="xs" fires
+      // twice around the zero-flow-height row — 2 × 3px = the 6px seam.
+      'The parent stack `gap="xs"` then appears **twice**',
+      'so 2 × 3px produces the 6px seam',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`all` |', '`start` |', '`end` |'],
   },

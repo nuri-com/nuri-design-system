@@ -135,7 +135,12 @@ const SHELLS = {
   bleed: {
     // Bleed is a real containing flex item: its border box continues to wrap
     // the child while negative margins reposition it. The fixed lift is an
-    // internal promise, never an authorable value.
+    // internal promise, never an authorable value. HIT TRANSPARENCY is the
+    // other internal promise (the #212 addendum · review P2): the lift makes
+    // the band overlap siblings, so the band must never eat their input —
+    // `pointer-events: none` inherits through the whole layout subtree, and
+    // the interactive-leaf re-enable below restores real targets (the RN
+    // mirror: Bleed's box-none wrapper + the View-level context cascade).
     pre: [
       {
         sel: '.nuri-bleed',
@@ -145,8 +150,18 @@ const SHELLS = {
           ['flex-shrink', '0'],
           ['position', 'relative'],
           ['z-index', '1'],
+          ['pointer-events', 'none'],
         ],
       },
+      // One rule per interactive leaf — comma-free selectors keep every naive
+      // rule-splitter (the test harnesses' layerRuleMap) sound.
+      { sel: '.nuri-bleed button', decls: [['pointer-events', 'auto']] },
+      { sel: '.nuri-bleed a', decls: [['pointer-events', 'auto']] },
+      { sel: '.nuri-bleed input', decls: [['pointer-events', 'auto']] },
+      { sel: '.nuri-bleed select', decls: [['pointer-events', 'auto']] },
+      { sel: '.nuri-bleed textarea', decls: [['pointer-events', 'auto']] },
+      { sel: '.nuri-bleed [tabindex]', decls: [['pointer-events', 'auto']] },
+      { sel: '.nuri-bleed [role="button"]', decls: [['pointer-events', 'auto']] },
     ],
     post: [],
   },

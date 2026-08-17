@@ -17,14 +17,29 @@ export type BleedProps = BleedNS & {
 // stacking promise explicit on web parity; zIndex is the RN realization.
 const LIFT_STYLE: ViewStyle = { position: 'relative', zIndex: 1 };
 
+// HIT-TRANSPARENCY CASCADE (the RN mirror of the web `.nuri-bleed`
+// pointer-events cascade): static layout Views inside a Bleed band render
+// `box-none` so the lifted band never eats sibling touches; interactive hosts
+// (Pressable subtrees) are their own targets and are unaffected. INTERNAL —
+// consumed by primitives/View, never public API.
+export const BleedHitTransparencyContext = React.createContext(false);
+
 const BleedImpl: React.FC<BleedProps> = ({ children, ...bleed }) => {
   const child = React.Children.only(children);
   if (child.type === React.Fragment) {
     throw new Error('Bleed expects exactly one host child; fragments are not accepted.');
   }
   return (
-    <RNView style={[resolveBleed(bleed), LIFT_STYLE]}>
-      {child}
+    // HIT TRANSPARENCY (the element contract · #212 addendum item 2): the lift
+    // makes the bleed band overlap siblings, so the container must never eat
+    // their touches — `box-none` keeps the wrapper transparent while its child
+    // subtree stays fully hit-testable (the retired consumer overlay's
+    // behaviour, promoted into the element; web mirror: styles/bleed.css
+    // pointer-events cascade).
+    <RNView pointerEvents="box-none" style={[resolveBleed(bleed), LIFT_STYLE]}>
+      <BleedHitTransparencyContext.Provider value={true}>
+        {child}
+      </BleedHitTransparencyContext.Provider>
     </RNView>
   );
 };

@@ -9,7 +9,7 @@ nav_order: 4
 
 # Icon Avatar
 
-`IconAvatar` accepts exactly one of `icon` or `source`; both remain optional at the type level and a development warning catches both/neither. `source` wins when both are supplied. Size `md` is the 48px default and `sm` is 36px; the glyph remains 24px at either size. In image mode the image fills the circle and owns its hairline ring; `variant` still paints the occluded root, so `variant="outline"` with `source` is a no-op by convention.
+`IconAvatar` accepts exactly one of `icon` or `source`; both remain optional at the type level and a development warning catches both/neither. `source` wins when both are supplied. Size `md` is the 48px default with a 24px glyph; `sm` is the 24px compact circle with an 18px glyph. In image mode the bitmap fills the full circle and owns its translucent ring (`border-translucent` — black 10% in light, white 10% in dark); the root's variant paint is suppressed by the internal content-derived `mode` axis, so `variant` with `source` is a no-op by mechanism.
 
 ## API
 

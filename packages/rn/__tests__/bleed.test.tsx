@@ -71,6 +71,36 @@ describe('Bleed — controlled negative space', () => {
     expect(onPress).toHaveBeenCalledTimes(2);
   });
 
+  test('the band is touch-transparent: box-none wrapper, box-none layout Views inside, Pressables untouched', () => {
+    // The element contract (#212 addendum · review P2): the lifted band never
+    // eats sibling touches. Structural proof of the routing preconditions —
+    // real hit ROUTING is asserted by the browser probe on the boards
+    // (elementFromPoint over the trigger edge pixels) and the native touch
+    // pass remains the named device residue.
+    const tr = render(
+      <Bleed top="xl" bottom="xl">
+        <View direction="row" justify="center" align="center" height="lg" testID="band-row">
+          <Pressable height="lg" accessibilityLabel="Swap" testID="disc" onPress={() => undefined} />
+        </View>
+      </Bleed>,
+    );
+    // 1 · the Bleed wrapper itself is box-none
+    const wrapper = tr.root.findAllByType(RNView)[0];
+    expect(wrapper.props.pointerEvents).toBe('box-none');
+    // 2 · the static layout View INSIDE the band inherits box-none via context
+    const bandRow = tr.root.findAll((n) => n.props.testID === 'band-row' && n.type === RNView)[0];
+    expect(bandRow.props.pointerEvents).toBe('box-none');
+    // 3 · the interactive child is NOT flattened — its subtree stays hit-testable
+    const disc = tr.root.findAll((n) => n.props.testID === 'disc')
+      .find((n) => typeof n.props.style === 'function');
+    expect(disc).toBeTruthy();
+    expect(disc!.props.pointerEvents).not.toBe('none');
+    // 4 · a View OUTSIDE any Bleed stays untouched (no global behaviour change)
+    const outside = render(<View testID="plain" />);
+    const plain = outside.root.findAll((n) => n.props.testID === 'plain' && n.type === RNView)[0];
+    expect(plain.props.pointerEvents).toBeUndefined();
+  });
+
   test('one child is enforced, including rejection of fragment escape hatches', () => {
     expect(() => render(
       <Bleed top="xl">

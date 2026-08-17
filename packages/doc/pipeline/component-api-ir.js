@@ -38,7 +38,7 @@ export const COMPONENT_API_DOCS = [
     file: 'packages/rn/generated/components/icon-avatar.ts',
     type: 'IconAvatarProps',
     relatedPrefix: 'IconAvatar',
-    lead: '`IconAvatar` accepts exactly one of `icon` or `source`; both remain optional at the type level and a development warning catches both/neither. `source` wins when both are supplied. Size `md` is the 48px default and `sm` is 36px; the glyph remains 24px at either size. In image mode the image fills the circle and owns its hairline ring; `variant` still paints the occluded root, so `variant="outline"` with `source` is a no-op by convention.',
+    lead: '`IconAvatar` accepts exactly one of `icon` or `source`; both remain optional at the type level and a development warning catches both/neither. `source` wins when both are supplied. Size `md` is the 48px default with a 24px glyph; `sm` is the 24px compact circle with an 18px glyph. In image mode the bitmap fills the full circle and owns its translucent ring (`border-translucent` — black 10% in light, white 10% in dark); the root\'s variant paint is suppressed by the internal content-derived `mode` axis, so `variant` with `source` is a no-op by mechanism.',
   },
   {
     source: 'list',
@@ -86,7 +86,7 @@ export const COMPONENT_API_DOCS = [
     file: 'packages/rn/generated/components/select-trigger.ts',
     type: 'SelectTriggerProps',
     relatedPrefix: 'SelectTrigger',
-    lead: '`SelectTrigger` is the cluster-sized inline disclosure control; its root explicitly hugs content even in stretching columns. Use `SelectField` when the label must remain outside field chrome: SelectTrigger uses an 18px text-coloured caret, while SelectField intentionally keeps its 24px subtle caret. `variant="ghost"` is transparent at rest and washes to `chrome.bg-subtle`; `variant="subtle"` matches the soft Button surface, resting on `chrome.bg-strong` and washing to `chrome.bg-pressed`. Both variants keep one 48px-minimum, full-radius press target and use Button\'s press scale. Keep at least `space.md` (12px) between the trigger bounds and every independent target; compositions must constrain or reposition long values instead of allowing overlap. Keep the static prompt in `accessibilityLabel` and the current selection in `accessibilityValue`; the component emits only `onPress`, and consumers own dialog, open, and selection state.',
+    lead: '`SelectTrigger` is the cluster-sized inline disclosure control; its root explicitly hugs content even in stretching columns. Use `SelectField` when the label must remain outside field chrome: SelectTrigger uses an 18px text-coloured caret, while SelectField keeps the same 18px caret in its subtle colour. `variant="ghost"` is transparent at rest and washes to `chrome.bg-subtle`; `variant="subtle"` matches the soft Button surface, resting on `chrome.bg-strong` and washing to `chrome.bg-pressed`. Both variants share one `sm` (6px) internal gap and keep one 36px-minimum, full-radius press target with Button\'s press scale. Keep at least `space.md` (12px) between the trigger bounds and every independent target; compositions must constrain or reposition long values instead of allowing overlap. Keep the static prompt in `accessibilityLabel` and the current selection in `accessibilityValue`; the component emits only `onPress`, and consumers own dialog, open, and selection state.',
   },
   {
     source: 'tab-bar',
@@ -143,9 +143,7 @@ export const COMPONENT_API_DOCS = [
       {
         title: 'Pattern: Move seam',
         body: [
-          'The admitted Move pattern places a 48px (`height="lg"`) control row inside `Bleed top="xl" bottom="xl"`. The ±24px margins reduce that row to zero flow height. A parent stack `gap="2xs"` then appears **twice**—once above and once below the zero-height row—so 2 × 2px produces the 4px seam and centres the disc on the boundary.',
-          '',
-          '> The current Stack gap contract does not expose `2xs`. The executable Move reference remains intentionally blocked instead of widening Stack in this Bleed-only change.',
+          'The Move pattern places a 48px (`height="lg"`) control row inside `Bleed top="xl" bottom="xl"`. The ±24px margins reduce that row to zero flow height. The parent stack `gap="xs"` then appears **twice**—once above and once below the zero-height row—so 2 × 3px produces the 6px seam and centres the disc on the boundary (the space-scale retune of 2026-08-15 supersedes the admission\'s `2xs` arithmetic: `xs` is 3px and `2xs` is retired). The executable reference lives on the playground Move page.',
         ],
       },
     ],

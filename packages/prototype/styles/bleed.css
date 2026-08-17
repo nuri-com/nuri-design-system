@@ -21,7 +21,14 @@
 }
 
 @layer rules {
-  .nuri-bleed { display: flex; flex-direction: column; flex-shrink: 0; position: relative; z-index: 1; }
+  .nuri-bleed { display: flex; flex-direction: column; flex-shrink: 0; position: relative; z-index: 1; pointer-events: none; }
+  .nuri-bleed button { pointer-events: auto; }
+  .nuri-bleed a { pointer-events: auto; }
+  .nuri-bleed input { pointer-events: auto; }
+  .nuri-bleed select { pointer-events: auto; }
+  .nuri-bleed textarea { pointer-events: auto; }
+  .nuri-bleed [tabindex] { pointer-events: auto; }
+  .nuri-bleed [role="button"] { pointer-events: auto; }
   .nuri-bleed[data-x="xs"] { margin-inline: calc(-1 * var(--nuri-space-xs)); }
   .nuri-bleed[data-x="sm"] { margin-inline: calc(-1 * var(--nuri-space-sm)); }
   .nuri-bleed[data-x="md"] { margin-inline: calc(-1 * var(--nuri-space-md)); }
