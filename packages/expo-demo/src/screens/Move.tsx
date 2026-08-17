@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { StyleSheet, View as RNView } from 'react-native';
 
 import {
+  Bleed,
   Button,
   ButtonIcon,
   IconButton,
@@ -73,7 +73,7 @@ export function Move({ stress = false, onClose }: { stress?: boolean; onClose: (
         <Scroll>
           <View direction="column" align="stretch" gap="xl" paddingX="lg" paddingY="lg" fill="grow">
           <NuriScope mode="dark">
-            <View fill="grow">
+            <View direction="column" align="stretch" gap="xs" fill="grow">
               {stress ? (
                 <View
                   chrome="subtle"
@@ -114,18 +114,20 @@ export function Move({ stress = false, onClose }: { stress?: boolean; onClose: (
                 </View>
               )}
 
-              {/* Consumer-local seam overlay (the operator-approved design):
-                  the immediate parent is exactly 48px tall and contains the
-                  complete disc, so native parent-bounds hit-testing sees the
-                  whole target; negative margins ride it onto the 4px seam. */}
-              <RNView pointerEvents="box-none" style={styles.seamParent}>
-                <IconButton
-                  variant="solid"
-                  icon="transfer-vertical"
-                  accessibilityLabel={`Swap ${story.from} and ${story.to}`}
-                  onPress={noop}
-                />
-              </RNView>
+              {/* The seam, via Bleed (#212): zero-flow-height row riding the
+                  card boundary; the parent gap fires twice around it, so the
+                  seam = 2 × gap = 6px with gap="xs" (space retune 2026-08-15:
+                  xs 4→3, 2xs retired). Mirrors the playground board 1:1. */}
+              <Bleed top="xl" bottom="xl">
+                <View direction="row" justify="center" align="center" height="lg">
+                  <IconButton
+                    variant="solid"
+                    icon="transfer-vertical"
+                    accessibilityLabel={`Swap ${story.from} and ${story.to}`}
+                    onPress={noop}
+                  />
+                </View>
+              </Bleed>
 
               {stress ? (
                 <View
@@ -195,23 +197,10 @@ export function Move({ stress = false, onClose }: { stress?: boolean; onClose: (
       </Screen>
       <CurrencyPickerSheet
         open={picker !== null}
-        title={picker === 'from' ? 'From currency' : 'To currency'}
+        title={picker === 'from' ? 'Move from' : 'Move to'}
+        selectedKey={picker === 'from' ? 'BTC' : 'EUR'}
         onClose={() => setPicker(null)}
       />
     </>
   );
 }
-
-const SWAP_DISC = 48;
-const CARD_GAP = 4;
-
-const styles = StyleSheet.create({
-  seamParent: {
-    alignItems: 'center',
-    height: SWAP_DISC,
-    justifyContent: 'center',
-    marginBottom: -(SWAP_DISC / 2 - CARD_GAP),
-    marginTop: -(SWAP_DISC / 2),
-    zIndex: 1,
-  },
-});

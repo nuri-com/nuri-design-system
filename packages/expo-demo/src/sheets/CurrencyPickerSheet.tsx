@@ -2,106 +2,164 @@ import * as React from 'react';
 import type { ImageSourcePropType } from 'react-native';
 
 import {
-  Footer,
   Header,
   IconButton,
   List,
   ListAction,
   ListActionLeadingAvatar,
   ListActionText,
-  ListActionTrailingText,
+  ListActionTextMuted,
+  ListActionTrailIcon,
   Modal,
   ModalPanel,
   Scroll,
+  Separator,
+  Text,
   Topbar,
   TopbarContent,
-  TopbarLeading,
   TopbarTitle,
+  TopbarTrailing,
   View,
 } from '@ds';
 import type { IconName } from '@ds';
 
-type Currency = {
-  code: string;
+type Account = {
+  key: string;
   name: string;
-  balance: string;
-  avatar: { name: IconName; variant: 'solid'; accent: 'orange' } | { source: ImageSourcePropType };
+  balance?: string;
+  avatar:
+    | { name: IconName; variant: 'solid' | 'outline'; accent?: 'orange' | 'lilac' }
+    | { source: ImageSourcePropType };
 };
 
-const CURRENCIES: Currency[] = [
+type Provider = { label: string; accounts: Account[] };
+
+// Mirrors the unified-balance large-title board: provider bands as labelled
+// dividers, balances inline-muted, mixed row types (balances · card · IBAN).
+const PROVIDERS: Provider[] = [
   {
-    code: 'BTC',
-    name: 'Bitcoin',
-    balance: '₿ 0.00055427',
-    avatar: { name: 'bitcoin', variant: 'solid', accent: 'orange' },
+    label: 'Nuri wallet',
+    accounts: [
+      {
+        key: 'BTC',
+        name: 'Bitcoin',
+        balance: '86969 ₿',
+        avatar: { source: require('../../assets/logos/bitcoin.png') },
+      },
+      {
+        key: 'EUR',
+        name: 'Euro',
+        balance: '100.00 €',
+        avatar: { source: require('../../assets/flags/eur.png') },
+      },
+      {
+        key: 'USD',
+        name: 'Dollar',
+        balance: '74.60 $',
+        avatar: { source: require('../../assets/flags/usa.png') },
+      },
+    ],
   },
   {
-    code: 'EUR',
-    name: 'Euro',
-    balance: '€ 48.18',
-    avatar: { source: require('../../assets/flags/eur.png') },
+    label: 'Arkade wallet',
+    accounts: [
+      {
+        key: 'LN',
+        name: 'Bitcoin Lightning',
+        balance: '0 ₿',
+        avatar: { source: require('../../assets/logos/lightning.png') },
+      },
+    ],
   },
   {
-    code: 'PLN',
-    name: 'Polish zloty',
-    balance: 'zł 108.42',
-    avatar: { source: require('../../assets/flags/pol.png') },
-  },
-  {
-    code: 'UAH',
-    name: 'Ukrainian hryvnia',
-    balance: '₴ 3,840.00',
-    avatar: { source: require('../../assets/flags/ukr.png') },
+    label: 'Wirex wallet',
+    accounts: [
+      {
+        key: 'VISA',
+        name: 'Visa credit card',
+        balance: '34.45 €',
+        avatar: { name: 'card', variant: 'outline' },
+      },
+      {
+        key: 'IBAN',
+        name: 'IBAN account',
+        avatar: { name: 'bank', variant: 'outline' },
+      },
+    ],
   },
 ];
+
+function ProviderBand({ label }: { label: string }) {
+  return (
+    <View direction="row" align="center" gap="sm" height="md" paddingX="md">
+      <View fill="grow"><Separator ySpace="none" /></View>
+      <Text size="sm" emphasis muted>{label}</Text>
+      <View fill="grow"><Separator ySpace="none" /></View>
+    </View>
+  );
+}
 
 export function CurrencyPickerSheet({
   open,
   title,
+  selectedKey,
   onClose,
 }: {
   open: boolean;
   title: string;
+  selectedKey: string;
   onClose: () => void;
 }) {
   return (
-    <Modal open={open} mode="full" onOpenChange={(next) => !next && onClose()}>
+    <Modal open={open} mode="sheet" onOpenChange={(next) => !next && onClose()}>
       <ModalPanel>
-        <Header safeAreaTop chrome="transparent" safeAreaChrome="canvas">
+        <Header chrome="transparent">
           <Topbar surface="transparent" layout="fluid">
-            <TopbarLeading>
-              <IconButton
-                icon="chevron-left"
-                variant="soft"
-                accessibilityLabel="Back to Move"
-                onPress={onClose}
-              />
-            </TopbarLeading>
             <TopbarContent>
               <TopbarTitle>{title}</TopbarTitle>
             </TopbarContent>
+            <TopbarTrailing>
+              <IconButton
+                icon="cross"
+                variant="soft"
+                accessibilityLabel="Close"
+                onPress={onClose}
+              />
+            </TopbarTrailing>
           </Topbar>
         </Header>
 
-        <Scroll>
-          <View paddingTop="sm">
+        <Scroll safeAreaBottom>
+          <View direction="column" align="stretch" gap="sm" paddingBottom="lg">
             <List>
-              {CURRENCIES.map((currency) => (
-                <ListAction
-                  key={currency.code}
-                  accessibilityLabel={`${currency.name}, balance ${currency.balance}`}
-                  onPress={onClose}
-                >
-                  <ListActionLeadingAvatar {...currency.avatar} />
-                  <ListActionText>{currency.name}</ListActionText>
-                  <ListActionTrailingText>{currency.balance}</ListActionTrailingText>
-                </ListAction>
+              {PROVIDERS.map((provider) => (
+                <React.Fragment key={provider.label}>
+                  <ProviderBand label={provider.label} />
+                  {provider.accounts.map((account) => (
+                    <ListAction
+                      key={account.key}
+                      accessibilityLabel={[
+                        account.name,
+                        account.balance,
+                        account.key === selectedKey ? 'selected' : undefined,
+                      ].filter(Boolean).join(', ')}
+                      onPress={onClose}
+                    >
+                      <ListActionLeadingAvatar {...account.avatar} />
+                      <ListActionText>{account.name}</ListActionText>
+                      {account.balance ? (
+                        <ListActionTextMuted>{account.balance}</ListActionTextMuted>
+                      ) : null}
+                      {account.key === selectedKey ? (
+                        <ListActionTrailIcon name="check-circle" />
+                      ) : null}
+                    </ListAction>
+                  ))}
+                </React.Fragment>
               ))}
             </List>
           </View>
         </Scroll>
-
-        <Footer safeAreaBottom chrome="strong" paddingY="sm" />
       </ModalPanel>
     </Modal>
   );
