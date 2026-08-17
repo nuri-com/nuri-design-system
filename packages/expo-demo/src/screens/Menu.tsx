@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Button, IconButton, Screen, Topbar, View } from '@ds';
+import { Button, IconButton, Screen, Scroll, Topbar, View } from '@ds';
 import { useSheet } from '../hooks/useSheet';
 import { ActionsSheet } from '../sheets/ActionsSheet';
 import { ActivitySheet } from '../sheets/ActivitySheet';
@@ -11,6 +11,7 @@ import { SendAddressSheet } from '../sheets/SendAddressSheet';
 import { CountryPickerSheet } from '../sheets/CountryPickerSheet';
 import { TextFieldStress } from './TextFieldStress';
 import { Move } from './Move';
+import { Scan } from './Scan';
 
 type FormValues = {
   iban: string;
@@ -26,6 +27,7 @@ type FormValues = {
 export function Menu({ onBack }: { onBack: () => void }) {
   const [showTextFieldStress, setShowTextFieldStress] = React.useState(false);
   const [showMove, setShowMove] = React.useState<false | 'regular' | 'stress'>(false);
+  const [showScan, setShowScan] = React.useState(false);
   const activity = useSheet();
   const amount = useSheet();
   const actions = useSheet();
@@ -54,13 +56,18 @@ export function Menu({ onBack }: { onBack: () => void }) {
     return <Move stress={showMove === 'stress'} onClose={() => setShowMove(false)} />;
   }
 
+  if (showScan) {
+    return <Scan onClose={() => setShowScan(false)} />;
+  }
+
   return (
     <Screen safeArea>
       <Topbar>
         <IconButton icon="chevron-left" variant="soft" accessibilityLabel="Back to wallet" onPress={onBack} />
       </Topbar>
 
-      <View direction="column" align="stretch" justify="center" gap="md" paddingX="lg" paddingY="lg" fill="grow">
+      <Scroll>
+        <View direction="column" align="stretch" justify="center" gap="md" paddingX="lg" paddingY="lg" fill="grow">
         <Button size="lg" onPress={activity.show}>Activity Sheet</Button>
         <Button size="lg" onPress={amount.show}>Amount Sheet</Button>
         <Button size="lg" onPress={actions.show}>Actions Sheet</Button>
@@ -72,7 +79,9 @@ export function Menu({ onBack }: { onBack: () => void }) {
         <Button size="lg" variant="soft" onPress={() => setShowTextFieldStress(true)}>TextField Stress Harness</Button>
         <Button size="lg" variant="soft" onPress={() => setShowMove('regular')}>Move · SelectTrigger parity</Button>
         <Button size="lg" variant="soft" onPress={() => setShowMove('stress')}>Move · stress values</Button>
-      </View>
+        <Button size="lg" variant="soft" onPress={() => setShowScan(true)}>Scan · recipient (docked panel)</Button>
+        </View>
+      </Scroll>
 
       <ActivitySheet open={activity.open} onClose={activity.onClose} />
       <AmountSheet open={amount.open} onClose={amount.onClose} />
