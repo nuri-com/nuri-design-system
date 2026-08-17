@@ -250,7 +250,7 @@ exports[`render-smoke — the ergonomic components mount headless Alert — soft
         "flexDirection": "row",
         "flexGrow": 0,
         "flexShrink": 0,
-        "gap": 4,
+        "gap": 3,
         "justifyContent": "center",
         "maxWidth": "100%",
         "minHeight": 36,
@@ -644,7 +644,7 @@ exports[`render-smoke — the ergonomic components mount headless IconAvatar —
   style={
     {
       "alignItems": "center",
-      "backgroundColor": "#f3f1e2",
+      "backgroundColor": "transparent",
       "borderRadius": 9999,
       "height": 48,
       "justifyContent": "center",
@@ -660,18 +660,21 @@ exports[`render-smoke — the ergonomic components mount headless IconAvatar —
       }
     }
     style={
-      {
-        "alignSelf": "flex-start",
-        "backgroundColor": "transparent",
-        "borderColor": "#dddac9",
-        "borderRadius": 9999,
-        "borderWidth": 1,
-        "flexGrow": 0,
-        "flexShrink": 0,
-        "height": 48,
-        "maxWidth": "100%",
-        "width": 48,
-      }
+      [
+        {
+          "alignSelf": "flex-start",
+          "borderRadius": 9999,
+          "flexGrow": 0,
+          "flexShrink": 0,
+          "height": 48,
+          "maxWidth": "100%",
+          "width": 48,
+        },
+        {
+          "borderColor": "rgba(0, 0, 0, 0.10)",
+          "borderWidth": 1,
+        },
+      ]
     }
   />
 </View>
@@ -1724,12 +1727,10 @@ exports[`render-smoke — the ergonomic components mount headless SelectField �
         {
           "alignItems": "center",
           "backgroundColor": "transparent",
-          "borderColor": "#dddac9",
           "borderRadius": 9999,
-          "borderWidth": 1,
-          "height": 36,
+          "height": 24,
           "justifyContent": "center",
-          "width": 36,
+          "width": 24,
         }
       }
     >
@@ -1741,18 +1742,21 @@ exports[`render-smoke — the ergonomic components mount headless SelectField �
           }
         }
         style={
-          {
-            "alignSelf": "flex-start",
-            "backgroundColor": "transparent",
-            "borderColor": "#dddac9",
-            "borderRadius": 9999,
-            "borderWidth": 1,
-            "flexGrow": 0,
-            "flexShrink": 0,
-            "height": 36,
-            "maxWidth": "100%",
-            "width": 36,
-          }
+          [
+            {
+              "alignSelf": "flex-start",
+              "borderRadius": 9999,
+              "flexGrow": 0,
+              "flexShrink": 0,
+              "height": 24,
+              "maxWidth": "100%",
+              "width": 24,
+            },
+            {
+              "borderColor": "rgba(0, 0, 0, 0.10)",
+              "borderWidth": 1,
+            },
+          ]
         }
       />
     </View>
@@ -1787,12 +1791,12 @@ exports[`render-smoke — the ergonomic components mount headless SelectField �
     </Text>
     <RNSVGSvgView
       align="xMidYMid"
-      bbHeight={24}
-      bbWidth={24}
+      bbHeight={18}
+      bbWidth={18}
       color="#bfbcac"
       fill="currentColor"
       focusable={false}
-      height={24}
+      height={18}
       meetOrSlice={0}
       minX={0}
       minY={0}
@@ -1804,14 +1808,14 @@ exports[`render-smoke — the ergonomic components mount headless SelectField �
           },
           {
             "flex": 0,
-            "height": 24,
-            "width": 24,
+            "height": 18,
+            "width": 18,
           },
         ]
       }
       vbHeight={32}
       vbWidth={32}
-      width={24}
+      width={18}
       xml="<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path d="M9.2014 10.963C9.3361 10.7291 9.5305 10.5354 9.7648 10.4015C9.9991 10.2676 10.2648 10.1984 10.5346 10.2011L21.4663 10.2011C21.7361 10.1984 22.0017 10.2676 22.236 10.4015C22.4703 10.5354 22.6647 10.7291 22.7994 10.963C22.9308 11.1879 23.0001 11.4437 23.0001 11.7042C23.0001 11.9648 22.9308 12.2206 22.7994 12.4455L17.3348 21.9378C17.1983 22.1703 17.0033 22.3631 16.7692 22.4971C16.5351 22.6311 16.2701 22.7016 16.0004 22.7016C15.7307 22.7016 15.4657 22.6311 15.2316 22.4971C14.9976 22.3631 14.8026 22.1703 14.666 21.9378L9.2002 12.4455C9.0689 12.2205 8.9999 11.9646 9.0001 11.7041C9.0003 11.4436 9.0698 11.1878 9.2014 10.963Z" fill="currentColor"/></svg>"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -1899,7 +1903,7 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
         "flexDirection": "column",
         "flexGrow": 1,
         "flexShrink": 1,
-        "gap": 4,
+        "gap": 3,
         "justifyContent": "center",
         "minWidth": 0,
       }
@@ -2079,7 +2083,7 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
         "flexDirection": "column",
         "flexGrow": 1,
         "flexShrink": 1,
-        "gap": 4,
+        "gap": 3,
         "justifyContent": "center",
         "minWidth": 0,
       }
@@ -2211,7 +2215,7 @@ exports[`render-smoke — the ergonomic components mount headless TabBar — OPE
         "flexDirection": "column",
         "flexGrow": 1,
         "flexShrink": 1,
-        "gap": 4,
+        "gap": 3,
         "justifyContent": "center",
         "minWidth": 0,
       }

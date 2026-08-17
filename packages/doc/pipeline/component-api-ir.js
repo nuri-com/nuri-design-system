@@ -38,7 +38,7 @@ export const COMPONENT_API_DOCS = [
     file: 'packages/rn/generated/components/icon-avatar.ts',
     type: 'IconAvatarProps',
     relatedPrefix: 'IconAvatar',
-    lead: '`IconAvatar` accepts exactly one of `icon` or `source`; both remain optional at the type level and a development warning catches both/neither. `source` wins when both are supplied. Size `md` is the 48px default and `sm` is 36px; the glyph remains 24px at either size. In image mode the image fills the circle and owns its hairline ring; `variant` still paints the occluded root, so `variant="outline"` with `source` is a no-op by convention.',
+    lead: '`IconAvatar` accepts exactly one of `icon` or `source`; both remain optional at the type level and a development warning catches both/neither. `source` wins when both are supplied. Size `md` is the 48px default with a 24px glyph; `sm` is the 24px compact circle with an 18px glyph. In image mode the bitmap fills the full circle and owns its translucent ring (`border-translucent` — black 10% in light, white 10% in dark); the root\'s variant paint is suppressed by the internal content-derived `mode` axis, so `variant` with `source` is a no-op by mechanism.',
   },
   {
     source: 'list',
@@ -86,7 +86,7 @@ export const COMPONENT_API_DOCS = [
     file: 'packages/rn/generated/components/select-trigger.ts',
     type: 'SelectTriggerProps',
     relatedPrefix: 'SelectTrigger',
-    lead: '`SelectTrigger` is the cluster-sized inline disclosure control; its root explicitly hugs content even in stretching columns. Use `SelectField` when the label must remain outside field chrome: SelectTrigger uses an 18px text-coloured caret, while SelectField intentionally keeps its 24px subtle caret. `variant="ghost"` is transparent at rest and washes to `chrome.bg-subtle`; `variant="subtle"` matches the soft Button surface, resting on `chrome.bg-strong` and washing to `chrome.bg-pressed`. Both variants keep one 48px-minimum, full-radius press target and use Button\'s press scale. Keep at least `space.md` (12px) between the trigger bounds and every independent target; compositions must constrain or reposition long values instead of allowing overlap. Keep the static prompt in `accessibilityLabel` and the current selection in `accessibilityValue`; the component emits only `onPress`, and consumers own dialog, open, and selection state.',
+    lead: '`SelectTrigger` is the cluster-sized inline disclosure control; its root explicitly hugs content even in stretching columns. Use `SelectField` when the label must remain outside field chrome: SelectTrigger uses an 18px text-coloured caret, while SelectField keeps the same 18px caret in its subtle colour. `variant="ghost"` is transparent at rest and washes to `chrome.bg-subtle`; `variant="subtle"` matches the soft Button surface, resting on `chrome.bg-strong` and washing to `chrome.bg-pressed`. Both variants share one `sm` (6px) internal gap and keep one 36px-minimum, full-radius press target with Button\'s press scale. Keep at least `space.md` (12px) between the trigger bounds and every independent target; compositions must constrain or reposition long values instead of allowing overlap. Keep the static prompt in `accessibilityLabel` and the current selection in `accessibilityValue`; the component emits only `onPress`, and consumers own dialog, open, and selection state.',
   },
   {
     source: 'tab-bar',
@@ -123,6 +123,32 @@ export const COMPONENT_API_DOCS = [
     lead: 'Column layout uses `<View>` with the schema default direction; rows use `direction="row"`.',
     file: 'packages/rn/primitives/View.tsx',
     type: 'ViewProps',
+  },
+  {
+    source: 'bleed',
+    title: 'Bleed',
+    nav: 11.1,
+    lead: '`Bleed` / `<nuri-bleed>` creates controlled negative space around exactly one child. It has no paint or other layout axes of its own; its fixed lift paints the contained child above siblings, while the containing box keeps the complete interactive child inside native hit-test bounds.',
+    file: 'packages/rn/primitives/Bleed.tsx',
+    type: 'BleedProps',
+    sections: [
+      {
+        title: 'Contract',
+        body: [
+          '`top`, `bottom`, `x`, and `y` resolve space-scale leaves to negative margins on both projections. There is no `all`, `start`, `end`, authorable z-order, or multi-child form.',
+          '',
+          'Lift and measured-box containment are internal promises: authors choose only the negative-space leaves.',
+          '',
+          'Hit transparency is the third internal promise: the lifted band never eats sibling input. Static DS content inside the band is touch-transparent on both projections — web through an inherited pointer-events cascade with interactive leaves re-enabled; RN through an internal context covering layout Views, distribute wrappers, descriptor view/text/icon/image hosts, and the Text, NuriIcon, and Separator primitives — while pressables and inputs stay full targets. Two exclusions are deliberate: gesture-owning and screen-scaffolding primitives (Scroll, Screen, Header, Footer, Dock) are not band content — a transparent Scroll could not pan, and screen chrome has no place inside a negative-space band — and this is ENFORCED: each of them fails named when rendered inside a band, at any depth, on both projections. A raw (non-DS) view inside a band is outside the design-system contract, as it is everywhere else.',
+        ],
+      },
+      {
+        title: 'Pattern: Move seam',
+        body: [
+          'The Move pattern places a 48px (`height="lg"`) control row inside `Bleed top="xl" bottom="xl"`. The ±24px margins reduce that row to zero flow height. The parent stack `gap="xs"` then appears **twice**—once above and once below the zero-height row—so 2 × 3px produces the 6px seam and centres the disc on the boundary (the space-scale retune of 2026-08-15 supersedes the admission\'s `2xs` arithmetic: `xs` is 3px and `2xs` is retired). The executable reference lives on the playground Move page.',
+        ],
+      },
+    ],
   },
   {
     source: 'typography',
@@ -213,6 +239,10 @@ export const COMPONENT_API_DOCS = [
 ];
 
 const NOTE_BY_PROP = {
+  top: 'negative space',
+  bottom: 'negative space',
+  x: 'negative space',
+  y: 'negative space',
   variant: 'style axis',
   size: 'style axis',
   width: 'style axis',
@@ -298,6 +328,7 @@ function noteForProp(name, type, typeName, isPrimaryType, childrenNote, behaviou
   // 'default content slot'; children accepted only for typed slot/region
   // composition are 'composition children' — the docs never promise a bare-
   // children sink the engine does not have.
+  if (typeName === 'BleedProps' && name === 'children') return 'exactly one host child';
   if (name === 'children') return isPrimaryType ? (childrenNote ?? 'default content slot') : 'slot content';
   if (typeName === 'NuriRootProps' && name === 'mode') return 'theme selection; defaults to light';
   if (typeName === 'NuriRootProps' && name === 'accent') return 'theme selection; defaults to lilac';
@@ -571,6 +602,7 @@ export function componentApiIrFromSource(spec, source, extraSources = []) {
     title: spec.title,
     nav: spec.nav,
     lead: spec.lead,
+    sections: spec.sections,
     typeName: primaryTypeName,
     src: spec.file,
     types,

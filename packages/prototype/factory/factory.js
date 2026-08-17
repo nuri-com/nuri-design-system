@@ -196,6 +196,7 @@ export function mergeAttrs(ns) {
   };
   if (ns.stack) { classes.push('nuri-stack'); dispatch(ns.stack); }
   if (ns.box) { classes.push('nuri-box'); dispatch(ns.box); }
+  if (ns.bleed) { classes.push('nuri-bleed'); dispatch(ns.bleed); }
   if (ns.palette) {
     classes.push('nuri-palette');
     // The palette SURFACE dispatch keys (palette.css): variant XOR chrome. fg
@@ -748,15 +749,17 @@ function renderIcon(node, ns, ctx) {
 }
 
 // image → native <img src=X>. Like every leaf it renders only when content is
-// routed for its part. Geometry/radius/border are the same merged namespace
-// classes and data attributes used by the other elements; only cover-cropping is
-// intrinsic to this leaf.
+// routed for its part. Geometry/radius are the same merged namespace classes and
+// data attributes used by the other elements; cover-cropping AND the always-on
+// blend ring (`.nuri-image` · primitives/image.css · border-translucent) are
+// intrinsic to this leaf — element contract, not palette.
 function renderImage(node, ns, ctx) {
   const source = ctx.content[node.name];
   if (source == null) return null;
   const el = document.createElement('img');
   el.setAttribute('src', String(source));
   el.style.objectFit = 'cover';
+  el.classList.add('nuri-image');
   const { classes, data } = mergeAttrs(ns);
   if (classes.length) el.classList.add(...classes);
   for (const [k, v] of Object.entries(data)) el.setAttribute(k, v);
@@ -828,6 +831,16 @@ export function buildComponent(descriptor, selection = {}, props = {}) {
     }
   }
 
+  // THE content-presence BRIDGE (propMaps.contentMode · the `selected` bridge
+  // sibling · the RN adapter mirror): routed content on the named slot drives
+  // an INTERNAL axis (icon-avatar `mode`: source ⇒ image | glyph).
+  const contentModeMap = descriptor.api?.propMaps?.contentMode;
+  if (contentModeMap) {
+    const modeSlot = descriptor.api.slots[contentModeMap.slot];
+    sel[contentModeMap.axis] =
+      modeSlot && content[modeSlot.part] != null ? contentModeMap.present : contentModeMap.absent;
+  }
+
   return renderPart(anatomy, {
     descriptor,
     selection: sel,
@@ -877,7 +890,16 @@ export const nuriNames = (kebab) => ({ web: `nuri-${kebab}`, rn: pascalCase(keba
 export function defineNuriComponent(descriptor, tagName, options = {}) {
   const descriptorName = tagName.startsWith('nuri-') ? tagName.slice('nuri-'.length) : tagName;
   NURI_COMPONENT_TAGS.set(descriptorName, tagName);
-  const axisNames = descriptor.variants ? Object.keys(descriptor.variants) : [];
+  // Bridge-driven axes are INTERNAL — never author attributes: the `selected`
+  // boolean attr drives propMaps.selected.axis, and routed content drives
+  // propMaps.contentMode.axis (icon-avatar `mode`). Everything else in
+  // `variants` is a public axis attribute.
+  const bridgeAxes = new Set(
+    [descriptor.api?.propMaps?.selected?.axis, descriptor.api?.propMaps?.contentMode?.axis].filter(Boolean),
+  );
+  const axisNames = (descriptor.variants ? Object.keys(descriptor.variants) : []).filter(
+    (axis) => !bridgeAxes.has(axis),
+  );
   const anatomy = resolveAnatomy(descriptor);
   const apiSlots = descriptor.api?.slots || {};
   const defaultSlotSpec = Object.values(apiSlots).find((spec) => spec.default === true);

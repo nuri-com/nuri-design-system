@@ -30,13 +30,15 @@ export const iconAvatarDescriptor = {
       // dimension). NAMING OFFSET: the icon's public size `md` ↔ the `sm` size
       // leaf (icon `sm` ↔ size `xs`) — anchors below element heights by design.
       icon: { box: { width: 'sm', height: 'sm' } },
-      // The image is the full 48px circle, not the 24px glyph box. Its own
-      // outline palette supplies the always-on hairline ring over light image
-      // bands; the root's variant paint remains underneath and is occluded.
+      // The image is the full 48px circle, not the 24px glyph box. The always-on
+      // hairline ring over light image bands is the IMAGE ELEMENT's own contract
+      // (border-translucent · black 10% light / white 10% dark · blends over the
+      // bitmap — the Separator precedent: an element consuming a border role
+      // structurally), NOT a palette variant; the root's variant paint remains
+      // underneath and is occluded.
       image: {
         box: { width: 'lg', height: 'lg', radius: 'full' },
         stack: { fill: 'hug' },
-        palette: { variant: 'outline' },
       },
     },
   },
@@ -49,11 +51,26 @@ export const iconAvatarDescriptor = {
       outline: { root: { palette: { variant: 'outline' } } },
     },
     size: {
+      // sm re-specced 36→24 (operator 2026-08-15): the compact inline circle
+      // for trigger/field clusters. The glyph steps down with it (18px · the
+      // `xs` size leaf) — a 24px glyph would fill the 24px circle edge-to-edge.
       sm: {
-        root: { box: { width: 'md', height: 'md' } },
-        image: { box: { width: 'md', height: 'md' } },
+        root: { box: { width: 'sm', height: 'sm' } },
+        icon: { box: { width: 'xs', height: 'xs' } },
+        image: { box: { width: 'sm', height: 'sm' } },
       },
       md: {},
+    },
+    // mode · INTERNAL content-derived axis (api.propMaps.contentMode — source
+    // routed ⇒ image, else glyph · never a public prop). In image mode the
+    // root's variant paint is SUPPRESSED (later-wins merge → ghost: transparent,
+    // no border): "outline + source = no-op" promoted from convention to
+    // mechanism, so the bitmap fills the full circle and the image leaf's own
+    // translucent ring is the only border. Keyed AFTER variant deliberately —
+    // axis order is the merge order.
+    mode: {
+      glyph: {},
+      image: { root: { palette: { variant: 'ghost' } } },
     },
   },
   // The PUBLIC defaults (R1.5 · N+50): an unset `variant` resolves to soft (NOT
@@ -76,6 +93,9 @@ export const iconAvatarDescriptor = {
   api: {
     axes: ['variant', 'size'],
     themeScope: { accent: true },
+    propMaps: {
+      contentMode: { slot: 'source', axis: 'mode', present: 'image', absent: 'glyph' },
+    },
     slots: {
       icon: { part: 'icon', kind: 'icon-name', prop: 'icon' },
       source: { part: 'image', kind: 'image-source', prop: 'source' },

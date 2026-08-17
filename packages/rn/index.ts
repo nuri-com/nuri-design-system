@@ -69,6 +69,7 @@ export type { NuriIconProps } from './primitives';
 // SAME runtime/resolve.ts appliers (no second mapping · the drift rule). NOT descriptors.
 export {
   View,
+  Bleed,
   Text,
   Pressable,
   Screen,
@@ -85,6 +86,7 @@ export {
 } from './primitives';
 export type {
   ViewProps,
+  BleedProps,
   TextProps,
   PressableProps,
   ScreenProps,

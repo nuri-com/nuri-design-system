@@ -57,7 +57,10 @@ export const selectFieldDescriptor: Descriptor<SelectFieldAxes> = {
         typography: { size: 'md', align: 'start', flow: 'truncate', lines: 1 },
       },
       chevron: {
-        box: { width: 'sm', height: 'sm' },
+        // 18px caret matching the trigger's glyph size (operator 2026-08-15);
+        // the SUBTLE palette stays — the field keeps its receded chevron
+        // colour, deliberately NOT the trigger's text-coloured caret.
+        box: { width: 'xs', height: 'xs' },
         palette: { variant: 'subtle' },
       },
     },

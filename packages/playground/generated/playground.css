@@ -747,6 +747,7 @@
   --nuri-border-subtle:            var(--nuri-color-neutral-6-light);
   --nuri-border-default:           var(--nuri-color-neutral-7-light);
   --nuri-border-strong:            var(--nuri-color-neutral-8-light);
+  --nuri-border-translucent:       var(--nuri-color-black-alpha-2);
   --nuri-focus-ring:               var(--nuri-color-lilac-8-light);
   --nuri-accent-fg:                var(--nuri-color-neutral-12-light);
   --nuri-accent-solid:             var(--nuri-color-neutral-1-dark);
@@ -771,6 +772,7 @@
   --nuri-border-subtle:            var(--nuri-color-neutral-6-dark);
   --nuri-border-default:           var(--nuri-color-neutral-7-dark);
   --nuri-border-strong:            var(--nuri-color-neutral-8-dark);
+  --nuri-border-translucent:       var(--nuri-color-white-alpha-2);
   --nuri-focus-ring:               var(--nuri-color-lilac-8-dark);
   --nuri-accent-fg:                var(--nuri-color-neutral-12-dark);
   --nuri-accent-solid:             var(--nuri-color-neutral-1-light);
@@ -886,10 +888,8 @@
    * a collapsed gutter · literal 0 (decision 32 retired --nuri-px-0; 0 needs no
    * primitive). Added N+8.1 alongside the Separator y-space prop. */
   --nuri-space-none: 0;
-  /* space.2xs · finest granularity · hairline gap between adjacent micro-elements */
-  --nuri-space-2xs: 2px;
   /* space.xs  · tight gap · icon-to-label inside a control, label-to-glyph */
-  --nuri-space-xs:  4px;
+  --nuri-space-xs:  3px;
   /* space.sm  · compact gap · stacked rows in a dense list */
   --nuri-space-sm:  6px;
   /* space.md  · default gap · siblings inside a card, row-gap in a grid */
@@ -3079,6 +3079,27 @@ nuri-demo:not(:defined) {
 }
 
 
+/* @nuri/prototype primitive image · primitives/image.css */
+/* ──────────────────────────────────────────────────────────────
+ * NURI · PRIMITIVE · IMAGE LEAF (factory `el: 'image'` · `.nuri-image`)
+ *
+ * Structural paint intrinsic to the bitmap leaf (the Separator precedent: an
+ * element consuming a border role directly). The always-on BLEND ring —
+ * border-translucent · black 10% light / white 10% dark — keeps light bitmap
+ * bands (flags, photos) defined on matching surfaces and disappears over
+ * contrast; the mode flip rides the semantic role, so a dark scope swaps it
+ * automatically. Geometry/radius stay namespace-driven (nuri-box); the ring is
+ * element contract, deliberately NOT a palette variant (outline keeps its
+ * opaque border-subtle for real outlined surfaces · 2026-08-15).
+ * ────────────────────────────────────────────────────────────── */
+
+@layer rules {
+  .nuri-image {
+    border: var(--nuri-border-1) solid var(--nuri-border-translucent);
+  }
+}
+
+
 /* @nuri/prototype primitive separator · primitives/separator.css */
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT · SEPARATOR
@@ -3146,7 +3167,7 @@ nuri-demo:not(:defined) {
    * margin-block (NOT padding / border / block-size) so the visible
    * hairline stays exactly 1px at every value. Attribute-selector
    * dispatch over `none` + `xs–xl` — the same prop-surface subset as
-   * Stack `gap` (2xs/2xl excluded), plus `none` for a flush hairline.
+   * Stack `gap` (2xl excluded), plus `none` for a flush hairline.
    * Layout-primitive prop-driven pattern (decision 37). `sm` default. */
   nuri-separator[y-space="none"] { margin-block: var(--nuri-space-none); }
   nuri-separator[y-space="xs"]   { margin-block: var(--nuri-space-xs); }
@@ -3561,6 +3582,61 @@ nuri-demo:not(:defined) {
 @layer rules {
   .nuri-effect { min-width: 0; }
   .nuri-effect[data-elevation="raised"] { box-shadow: 0 -14px 34px -18px rgba(0, 0, 0, 0.42); }
+}
+
+
+/* @nuri/prototype namespace bleed · styles/bleed.css */
+/* ──────────────────────────────────────────────────────────────
+ * NURI · NAMESPACE CSS · BLEED · GENERATED — DO NOT EDIT BY HAND
+ *
+ * GENERATED from the Field table (packages/spec/axes/resolve-map.ts ·
+ * BLEED_FIELDS) + the web spelling layer
+ * (prototype/pipeline/parsers/namespace-css.js) by prototype/pipeline/css-preview.js,
+ * wired into npm run build -w @nuri/prototype (its own build · regenerates IN PLACE
+ * over this file · prototype/styles/bleed.css). This is the LIVE namespace CSS — the
+ * pages link it and the web factory (prototype/factory/factory.js) styles the nuri-*
+ * merged nodes with it. decision 2 reversed for the namespace layer (decision 74 ·
+ * executing decision 70 · the L3c flip · N+38 · carved to @nuri/prototype at N+41):
+ * the hand SoT retired (git-recoverable) and the generator is the sole source. Re-run
+ * npm run build -w @nuri/prototype to regenerate; freshness gated by
+ * prototype/pipeline/css-preview.test.js.
+ * ────────────────────────────────────────────────────────────── */
+
+@layer tokens {
+  /* Empty by design (decision 37 · layout primitives parametrize semantic
+   * vocabulary via prop, not via component-token aliasing). Mirrors the hand
+   * bleed.css. */
+}
+
+@layer rules {
+  .nuri-bleed { display: flex; flex-direction: column; flex-shrink: 0; position: relative; z-index: 1; pointer-events: none; }
+  .nuri-bleed button { pointer-events: auto; }
+  .nuri-bleed a { pointer-events: auto; }
+  .nuri-bleed input { pointer-events: auto; }
+  .nuri-bleed select { pointer-events: auto; }
+  .nuri-bleed textarea { pointer-events: auto; }
+  .nuri-bleed [tabindex] { pointer-events: auto; }
+  .nuri-bleed [role="button"] { pointer-events: auto; }
+  .nuri-bleed[data-x="xs"] { margin-inline: calc(-1 * var(--nuri-space-xs)); }
+  .nuri-bleed[data-x="sm"] { margin-inline: calc(-1 * var(--nuri-space-sm)); }
+  .nuri-bleed[data-x="md"] { margin-inline: calc(-1 * var(--nuri-space-md)); }
+  .nuri-bleed[data-x="lg"] { margin-inline: calc(-1 * var(--nuri-space-lg)); }
+  .nuri-bleed[data-x="xl"] { margin-inline: calc(-1 * var(--nuri-space-xl)); }
+  .nuri-bleed[data-y="xs"] { margin-block: calc(-1 * var(--nuri-space-xs)); }
+  .nuri-bleed[data-y="sm"] { margin-block: calc(-1 * var(--nuri-space-sm)); }
+  .nuri-bleed[data-y="md"] { margin-block: calc(-1 * var(--nuri-space-md)); }
+  .nuri-bleed[data-y="lg"] { margin-block: calc(-1 * var(--nuri-space-lg)); }
+  .nuri-bleed[data-y="xl"] { margin-block: calc(-1 * var(--nuri-space-xl)); }
+  .nuri-bleed[data-top="xs"] { margin-block-start: calc(-1 * var(--nuri-space-xs)); }
+  .nuri-bleed[data-top="sm"] { margin-block-start: calc(-1 * var(--nuri-space-sm)); }
+  .nuri-bleed[data-top="md"] { margin-block-start: calc(-1 * var(--nuri-space-md)); }
+  .nuri-bleed[data-top="lg"] { margin-block-start: calc(-1 * var(--nuri-space-lg)); }
+  .nuri-bleed[data-top="xl"] { margin-block-start: calc(-1 * var(--nuri-space-xl)); }
+  .nuri-bleed[data-bottom="xs"] { margin-block-end: calc(-1 * var(--nuri-space-xs)); }
+  .nuri-bleed[data-bottom="sm"] { margin-block-end: calc(-1 * var(--nuri-space-sm)); }
+  .nuri-bleed[data-bottom="md"] { margin-block-end: calc(-1 * var(--nuri-space-md)); }
+  .nuri-bleed[data-bottom="lg"] { margin-block-end: calc(-1 * var(--nuri-space-lg)); }
+  .nuri-bleed[data-bottom="xl"] { margin-block-end: calc(-1 * var(--nuri-space-xl)); }
 }
 
 

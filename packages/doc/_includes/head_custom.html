@@ -40,11 +40,13 @@
 <link rel="stylesheet" href="{{ '/assets/nuri/prototype/primitives/icon.css' | relative_url }}" />
 <link rel="stylesheet" href="{{ '/assets/nuri/prototype/primitives/spinner.css' | relative_url }}" />
 <link rel="stylesheet" href="{{ '/assets/nuri/prototype/primitives/input.css' | relative_url }}" />
+<link rel="stylesheet" href="{{ '/assets/nuri/prototype/primitives/image.css' | relative_url }}" />
 <link rel="stylesheet" href="{{ '/assets/nuri/prototype/styles/typography.css' | relative_url }}" />
 <link rel="stylesheet" href="{{ '/assets/nuri/prototype/styles/stack.css' | relative_url }}" />
 <link rel="stylesheet" href="{{ '/assets/nuri/prototype/styles/box.css' | relative_url }}" />
 <link rel="stylesheet" href="{{ '/assets/nuri/prototype/styles/palette.css' | relative_url }}" />
 <link rel="stylesheet" href="{{ '/assets/nuri/prototype/styles/interactive.css' | relative_url }}" />
+<link rel="stylesheet" href="{{ '/assets/nuri/prototype/styles/bleed.css' | relative_url }}" />
 <link rel="stylesheet" href="{{ '/assets/nuri/prototype/factory/reset.css' | relative_url }}" />
 <link rel="stylesheet" href="{{ '/assets/nuri/prototype/demo/demo.css' | relative_url }}" />
 
@@ -76,6 +78,7 @@
 <script src="{{ '/assets/nuri/prototype/demo/control.js' | relative_url }}" defer></script>
 <!-- @nuri/prototype · <nuri-scope> (the per-demo local theming wrapper). -->
 <script src="{{ '/assets/nuri/prototype/primitives/scope.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/nuri/prototype/primitives/bleed.js' | relative_url }}" type="module"></script>
 <!-- The 3 factory-backed recipe MODULES — each self-imports the factory + its
      primitive element defs + its descriptor twin (decision 74 · the L3c flip).
      Loading these defines nuri-button / icon-avatar / topbar + the primitives

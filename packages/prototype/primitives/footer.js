@@ -41,6 +41,12 @@ class NuriFooter extends HTMLElement {
   #innerTag = null;
 
   connectedCallback() {
+      // Screen scaffolding / gesture-owning elements are not valid <nuri-bleed>
+      // band content (the hit-transparency contract · the Bleed doc) — fail
+      // named, mirroring the RN useAssertNotBandContent guard.
+      if (this.closest('nuri-bleed')) {
+        throw new Error('[nuri] <nuri-footer> is not valid <nuri-bleed> band content (the hit-transparency contract).');
+      }
     if (!this.#inner) {
       this.#replaceInner((this.getAttribute('as') || 'div').toLowerCase());
     }

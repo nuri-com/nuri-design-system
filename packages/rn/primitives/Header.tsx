@@ -5,6 +5,7 @@ import type { BoxNS, PaletteNS, StackNS } from '../contract';
 import { size } from '../generated/data/tokens';
 import { useFixedRegionLayout } from './FixedRegionLayout';
 import { FIXED_REGION_STYLE_KEYS, numericPadding, useResolvedNode, withKeys, withSurface } from './shared';
+import { useAssertNotBandContent } from './Bleed';
 
 type HeaderStyleProps =
   Pick<PaletteNS, 'chrome'> &
@@ -28,6 +29,7 @@ const HeaderImpl = React.forwardRef<React.ElementRef<typeof RNView>, HeaderProps
   onLayout,
   ...props
 }, ref) => {
+  useAssertNotBandContent('Header');
   const { headerPresentation, safeAreaTop: hostSafeAreaTop } = useFixedRegionLayout();
   const { node } = useResolvedNode(props);
   const { node: safeAreaNode } = useResolvedNode({ chrome: safeAreaChrome });

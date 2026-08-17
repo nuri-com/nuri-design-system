@@ -272,11 +272,12 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       const image = imageOnly.root.findByType(Image);
       expect(image.props.source).toEqual(source);
       expect(image.props.resizeMode).toBe('cover');
-      expect(image.props.style).toMatchObject({
+      const imageStyle = Object.assign({}, ...[image.props.style].flat().filter(Boolean));
+      expect(imageStyle).toMatchObject({
         width: 48,
         height: 48,
         borderRadius: 9999,
-        borderColor: '#dddac9',
+        borderColor: 'rgba(0, 0, 0, 0.10)',
         borderWidth: 1,
       });
 
@@ -301,7 +302,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     }
   });
 
-  test('IconAvatar — sm is a 36px circle while glyph size remains 24px', () => {
+  test('IconAvatar — sm is the 24px compact circle with the 18px glyph', () => {
     const glyphAvatar = render(
       <NuriThemeProvider>
         <IconAvatar size="sm" icon="apple" />
@@ -311,15 +312,15 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const glyphRootStyle = Array.isArray(glyphRoot.props.style)
       ? Object.assign({}, ...glyphRoot.props.style.filter(Boolean))
       : glyphRoot.props.style;
-    expect(glyphRootStyle).toMatchObject({ width: 36, height: 36 });
-    expect(glyphAvatar.root.findByType(NuriIcon).props.dimension).toBe(24);
+    expect(glyphRootStyle).toMatchObject({ width: 24, height: 24 });
+    expect(glyphAvatar.root.findByType(NuriIcon).props.dimension).toBe(18);
 
     const imageAvatar = render(
       <NuriThemeProvider>
         <IconAvatar size="sm" source={{ uri: 'data:image/png;base64,flag' }} />
       </NuriThemeProvider>,
     );
-    expect(imageAvatar.root.findByType(Image).props.style).toMatchObject({ width: 36, height: 36 });
+    expect(Object.assign({}, ...[imageAvatar.root.findByType(Image).props.style].flat().filter(Boolean))).toMatchObject({ width: 24, height: 24 });
   });
 
   test('IconAvatar — outline variant paints a transparent border affordance with muted glyph', () => {
@@ -1206,7 +1207,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(pressedStyle.backgroundColor).toBe(
       washes ? theme.surface[surfaceRole].pressedBg : theme.surface[surfaceRole].bg,
     );
-    expect(restingStyle.minHeight).toBe(size.lg);
+    expect(restingStyle.minHeight).toBe(size.md);
     expect(restingStyle.flexGrow).toBe(0);
     expect(restingStyle.flexShrink).toBe(0);
     expect(restingStyle.alignSelf).toBe('flex-start');
@@ -1238,7 +1239,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     const rest = trigger.props.style({ pressed: false });
     const disabledPressed = trigger.props.style({ pressed: true });
     const theme = buildNuriTheme('lilac', 'light');
-    expect(rest.minHeight).toBe(size.lg);
+    expect(rest.minHeight).toBe(size.md);
     expect(rest.backgroundColor).toBe(theme.surface.soft.bg);
     expect(disabledPressed.backgroundColor).toBe(rest.backgroundColor);
     expect(disabledPressed.transform).toBeUndefined();

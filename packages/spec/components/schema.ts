@@ -14,8 +14,9 @@
  * spec must never import from a build/ that relocates with it).
  *
  * FROZEN as of B3 (N+19 · decision 65 step 5 · "an enforced freeze, not
- * honorary"). The schema SHAPE — the five namespace field vocabularies
- * (Stack/Box/Typography/Palette/Interactive NS), the leaf vocabs (SizeLeaf/
+ * honorary"). The schema SHAPE — the namespace field vocabularies
+ * (Stack/Box/Typography/Palette/Interactive/Effect NS plus the standalone
+ * BleedNS element contract), the leaf vocabs (SizeLeaf/
  * SpaceLeaf/RadiusLeaf/TypeKey), and the Descriptor/PartAnatomy/PartMap/
  * PartId/El envelope — is locked by Guard F (pipeline/docs-drift.test.js · the
  * FROZEN_SCHEMA pin); a field added/removed/renamed/retyped breaks the build.
@@ -75,7 +76,7 @@ export type TypeSize = keyof typeof import('../tokens/typography').type;
 
 // padding + gap take the curated 5-leaf semantic space subset the layout
 // primitives dispatch (stack.css gap · box.css padding* · the Stack/Box
-// SpaceLeaf). NOT the full `space` scale — none/2xs/2xl have no primitive
+// SpaceLeaf). NOT the full `space` scale — none/2xl have no primitive
 // dispatch, so the contract does not over-promise them.
 export type SpaceLeaf = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -161,6 +162,18 @@ export type BoxNS = {
   radius?: RadiusLeaf;
   radiusTop?: RadiusLeaf;
   aspectRatio?: RatioLeaf;
+};
+
+// `bleed` — controlled negative space for the dedicated Bleed layout element.
+// This is deliberately NOT a namespace on `NS`: descriptors and View cannot opt
+// into overlap. Bleed alone consumes these four space-scale leaves and each
+// projection realizes them as negative margins. `x`/`y` mirror the house
+// paddingX/paddingY suffix grammar; all/start/end are deliberate refusals.
+export type BleedNS = {
+  top?: SpaceLeaf;
+  bottom?: SpaceLeaf;
+  x?: SpaceLeaf;
+  y?: SpaceLeaf;
 };
 
 // `typography` — text presentation only, NO colour (decision 64 · the single text-style
@@ -398,6 +411,12 @@ export type SlotSpec<P extends PartId = PartId> = {
 // the press affordance, ONLY where declared and the target part is `interactive`;
 // `propMaps.selected` = the `selected`→state-axis bridge as DATA (kills the
 // `'state' extends keyof A` factory magic); `slots` = the content entry points.
+// `propMaps.contentMode` = the content-presence bridge (a versioned post-freeze
+// api add · 2026-08-15): routed content on the named slot drives an INTERNAL
+// axis (never in `axes`, never an author attribute) — both bindings derive it
+// as DATA (RN codegen from the slot's scalar prop · web buildComponent from the
+// routed content). First consumer: icon-avatar `mode` (source → image | glyph),
+// promoting "outline + source = no-op by convention" to mechanism.
 export type InputBehaviourProp = 'value'
   | 'onChangeText'
   | 'placeholder'
@@ -424,7 +443,10 @@ export type ComponentApi<P extends PartId = PartId> = {
     };
     input?: { target: P; focusTarget?: P; labelPart?: P; props: InputBehaviourProp[] };
   };
-  propMaps?: { selected?: { axis: string; true: string; false: string } };
+  propMaps?: {
+    selected?: { axis: string; true: string; false: string };
+    contentMode?: { slot: string; axis: string; present: string; absent: string };
+  };
   slots: Record<string, SlotSpec<P>>;
 };
 

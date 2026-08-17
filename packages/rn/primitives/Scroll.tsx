@@ -15,6 +15,7 @@ import { size } from '../generated/data/tokens';
 import { FocusScrollProvider, type FocusScrollApi } from '../runtime/focus-scroll';
 import { useFixedRegionLayout } from './FixedRegionLayout';
 import { withKeys } from './shared';
+import { useAssertNotBandContent } from './Bleed';
 
 export type ScrollInsetBottom = 'none' | 'dock';
 export type ScrollInsetTop = 'none' | 'dock';
@@ -58,6 +59,7 @@ const ScrollImpl = React.forwardRef<React.ElementRef<typeof RNScrollView>, Scrol
   testID,
   onLayout,
 }, forwardedRef) => {
+  useAssertNotBandContent('Scroll');
   const {
     keyboardEnabled,
     hostGeometry,

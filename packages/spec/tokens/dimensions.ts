@@ -18,8 +18,7 @@ type Leaf = { value: number; unit: 'px' | 'none' };
 // (decision 36). Anchors smaller than size by design.
 export const space = {
   none:  { value: 0, unit: 'px' },
-  '2xs': { value: 2, unit: 'px' },
-  xs:    { value: 4, unit: 'px' },
+  xs:    { value: 3, unit: 'px' },
   sm:    { value: 6, unit: 'px' },
   md:    { value: 12, unit: 'px' },
   lg:    { value: 18, unit: 'px' },

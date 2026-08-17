@@ -122,13 +122,17 @@ export function withSurface(fg: string | undefined, children: React.ReactNode): 
 export function wrapDistributedChildren(
   distribute: StackNS['distribute'],
   children: React.ReactNode,
+  // Inside a Bleed band the structural wrappers must be touch-transparent too
+  // (the hit-transparency cascade · #212 addendum · review P2 round 2).
+  touchTransparent = false,
 ): React.ReactNode {
   if (distribute === undefined) return children;
   const childStyle = childFillStyle(distribute);
+  const pointerEvents = touchTransparent ? ('box-none' as const) : undefined;
   return React.Children.map(children, (child) =>
     child === null || child === undefined || child === false || child === true
       ? child
-      : <RNView style={childStyle}>{child}</RNView>,
+      : <RNView pointerEvents={pointerEvents} style={childStyle}>{child}</RNView>,
   );
 }
 

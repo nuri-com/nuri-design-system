@@ -1,0 +1,18 @@
+/* ──────────────────────────────────────────────────────────────
+ * NURI · PRIMITIVE · IMAGE LEAF (factory `el: 'image'` · `.nuri-image`)
+ *
+ * Structural paint intrinsic to the bitmap leaf (the Separator precedent: an
+ * element consuming a border role directly). The always-on BLEND ring —
+ * border-translucent · black 10% light / white 10% dark — keeps light bitmap
+ * bands (flags, photos) defined on matching surfaces and disappears over
+ * contrast; the mode flip rides the semantic role, so a dark scope swaps it
+ * automatically. Geometry/radius stay namespace-driven (nuri-box); the ring is
+ * element contract, deliberately NOT a palette variant (outline keeps its
+ * opaque border-subtle for real outlined surfaces · 2026-08-15).
+ * ────────────────────────────────────────────────────────────── */
+
+@layer rules {
+  .nuri-image {
+    border: var(--nuri-border-1) solid var(--nuri-border-translucent);
+  }
+}

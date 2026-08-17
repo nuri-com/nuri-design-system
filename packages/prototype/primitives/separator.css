@@ -64,7 +64,7 @@
    * margin-block (NOT padding / border / block-size) so the visible
    * hairline stays exactly 1px at every value. Attribute-selector
    * dispatch over `none` + `xs–xl` — the same prop-surface subset as
-   * Stack `gap` (2xs/2xl excluded), plus `none` for a flush hairline.
+   * Stack `gap` (2xl excluded), plus `none` for a flush hairline.
    * Layout-primitive prop-driven pattern (decision 37). `sm` default. */
   nuri-separator[y-space="none"] { margin-block: var(--nuri-space-none); }
   nuri-separator[y-space="xs"]   { margin-block: var(--nuri-space-xs); }

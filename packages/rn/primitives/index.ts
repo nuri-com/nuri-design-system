@@ -37,6 +37,8 @@
 
 export { View } from './View';
 export type { ViewProps } from './View';
+export { Bleed } from './Bleed';
+export type { BleedProps } from './Bleed';
 export { Text } from './Text';
 export type { TextProps } from './Text';
 export { Pressable } from './Pressable';

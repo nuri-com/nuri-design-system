@@ -289,12 +289,12 @@ describe('IconAvatar — same resolver, static, the subtle role (via flattenPart
     expect(icon.style).toEqual({ width: size.sm, height: size.sm });
   });
 
-  test('sm is a 36px root and image while the glyph remains 24px', () => {
-    expect(root('soft', 'sm').style).toMatchObject({ width: size.md, height: size.md });
+  test('sm is the 24px compact root and image with the 18px glyph', () => {
+    expect(root('soft', 'sm').style).toMatchObject({ width: size.sm, height: size.sm });
     expect(flattenPart(iconAvatarDescriptor, theme, 'image', { size: 'sm' }, {}).style)
-      .toMatchObject({ width: size.md, height: size.md });
+      .toMatchObject({ width: size.sm, height: size.sm });
     expect(flattenPart(iconAvatarDescriptor, theme, 'icon', { size: 'sm' }, {}).style)
-      .toEqual({ width: size.sm, height: size.sm });
+      .toEqual({ width: size.xs, height: size.xs });
   });
 });
 

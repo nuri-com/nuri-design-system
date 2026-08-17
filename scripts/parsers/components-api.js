@@ -103,13 +103,47 @@ function publicPropsForDescriptor(descriptor) {
   if (descriptor.api.themeScope?.accent) props.add('accent');
   for (const prop of descriptor.api.behaviour?.pressable?.props || []) props.add(prop);
   for (const prop of descriptor.api.behaviour?.input?.props || []) props.add(prop);
-  for (const prop of Object.keys(descriptor.api.propMaps || {})) props.add(prop);
+  // Of the prop maps, only `selected` IS a public prop (the boolean bridge);
+  // contentMode is content-derived — internal, never a prop (review P2 · 2026-08-15).
+  if (descriptor.api.propMaps?.selected) props.add('selected');
   for (const [slotName, slot] of Object.entries(descriptor.api.slots || {})) {
     if (slot.default === true) props.add('children');
     if (slot.prop) props.add(slot.prop);
     else if (!slot.component && (slot.kind === 'icon-name' || slot.kind === 'image-source' || slot.kind === 'text')) props.add(slotName);
   }
   return props;
+}
+
+// ── propMaps bridge validation (review P2 · 2026-08-15) ─────────────
+// A mistyped slot/axis/arm in a bridge would keep every gate green while the
+// two bindings derive different selections — so the bridges are validated as
+// DATA at emit time, in the same fail-loudly style as the anatomy walk.
+function validatePropMapBridges(name, descriptor) {
+  const variants = descriptor.variants || {};
+  const publicAxes = new Set(descriptor.api?.axes || []);
+
+  const assertAxisArm = (bridge, axis, arm, value) => {
+    const table = variants[axis];
+    if (!table) throw new Error(`[components-api] ${name}: propMaps.${bridge} names axis '${axis}', which is not a variants axis`);
+    if (!(value in table)) throw new Error(`[components-api] ${name}: propMaps.${bridge}.${arm} value '${value}' is not a '${axis}' variant`);
+  };
+
+  const selected = descriptor.api?.propMaps?.selected;
+  if (selected) {
+    assertAxisArm('selected', selected.axis, 'true', selected.true);
+    assertAxisArm('selected', selected.axis, 'false', selected.false);
+    if (publicAxes.has(selected.axis)) throw new Error(`[components-api] ${name}: propMaps.selected axis '${selected.axis}' must be INTERNAL (not in api.axes) — the boolean bridge is the public surface`);
+  }
+
+  const contentMode = descriptor.api?.propMaps?.contentMode;
+  if (contentMode) {
+    const slot = descriptor.api?.slots?.[contentMode.slot];
+    if (!slot) throw new Error(`[components-api] ${name}: propMaps.contentMode names slot '${contentMode.slot}', which is not declared in api.slots`);
+    if (!slot.prop) throw new Error(`[components-api] ${name}: propMaps.contentMode slot '${contentMode.slot}' must be a scalar prop slot — presence is derived from the routed prop`);
+    assertAxisArm('contentMode', contentMode.axis, 'present', contentMode.present);
+    assertAxisArm('contentMode', contentMode.axis, 'absent', contentMode.absent);
+    if (publicAxes.has(contentMode.axis)) throw new Error(`[components-api] ${name}: propMaps.contentMode axis '${contentMode.axis}' must be INTERNAL (not in api.axes) — content presence is the only driver`);
+  }
 }
 
 export function validateComponentReferences(catalog) {
@@ -190,6 +224,8 @@ function assertLocalPart(name, partSet, part, surface) {
 export function validateDescriptorLocalParts(name, descriptor) {
   const parts = anatomyParts(descriptor.structure?.anatomy);
   const partSet = new Set(parts);
+
+  validatePropMapBridges(name, descriptor);
 
   const base = descriptor.structure?.base || {};
   for (const part of Object.keys(base)) assertLocalPart(name, partSet, part, 'structure.base');
@@ -357,6 +393,18 @@ function emitSelection(descriptor) {
       '  if (typeof props.selected === \'boolean\') {',
       `    selection[${q(selected.axis)}] = props.selected ? ${q(selected.true)} : ${q(selected.false)};`,
       '  }',
+    );
+  }
+
+  // THE content-presence BRIDGE (propMaps.contentMode · the selected-bridge
+  // sibling): the named slot's scalar prop drives an INTERNAL axis — data in the
+  // descriptor, one derived line in the adapter (web mirror: buildComponent).
+  const contentMode = descriptor.api.propMaps && descriptor.api.propMaps.contentMode;
+  if (contentMode) {
+    const slot = descriptor.api.slots[contentMode.slot];
+    const prop = (slot && slot.prop) || contentMode.slot;
+    lines.push(
+      `  selection[${q(contentMode.axis)}] = props.${prop} != null ? ${q(contentMode.present)} : ${q(contentMode.absent)};`,
     );
   }
   return lines;

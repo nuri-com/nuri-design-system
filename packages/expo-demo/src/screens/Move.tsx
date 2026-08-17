@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { StyleSheet, View as RNView } from 'react-native';
 
 import {
+  Bleed,
   Button,
   ButtonIcon,
   IconButton,
@@ -16,6 +16,7 @@ import {
   Text,
   View,
 } from '@ds';
+import { CurrencyPickerSheet } from '../sheets/CurrencyPickerSheet';
 
 const noop = () => undefined;
 
@@ -64,13 +65,15 @@ function Keypad() {
 
 export function Move({ stress = false, onClose }: { stress?: boolean; onClose: () => void }) {
   const story = stress ? ADVERSARIAL : REGULAR;
+  const [picker, setPicker] = React.useState<'from' | 'to' | null>(null);
 
   return (
-    <Screen safeArea>
-      <Scroll>
-        <View direction="column" align="stretch" gap="xl" paddingX="lg" paddingY="lg" fill="grow">
+    <>
+      <Screen safeArea>
+        <Scroll>
+          <View direction="column" align="stretch" gap="xl" paddingX="lg" paddingY="lg" fill="grow">
           <NuriScope mode="dark">
-            <View fill="grow">
+            <View direction="column" align="stretch" gap="xs" fill="grow">
               {stress ? (
                 <View
                   chrome="subtle"
@@ -82,7 +85,7 @@ export function Move({ stress = false, onClose }: { stress?: boolean; onClose: (
                   <SelectTrigger
                     accessibilityLabel="From"
                     accessibilityValue={story.from}
-                    onPress={noop}
+                    onPress={() => setPicker('from')}
                   >
                     <SelectTriggerLabel>From</SelectTriggerLabel>
                     <SelectTriggerAvatar name="bank" variant="solid" accent="orange" />
@@ -99,7 +102,7 @@ export function Move({ stress = false, onClose }: { stress?: boolean; onClose: (
                     <SelectTrigger
                       accessibilityLabel="From"
                       accessibilityValue={story.from}
-                      onPress={noop}
+                      onPress={() => setPicker('from')}
                     >
                       <SelectTriggerLabel>From</SelectTriggerLabel>
                       <SelectTriggerAvatar name="bitcoin" variant="solid" accent="orange" />
@@ -111,18 +114,20 @@ export function Move({ stress = false, onClose }: { stress?: boolean; onClose: (
                 </View>
               )}
 
-              {/* Consumer-local seam overlay (the operator-approved design):
-                  the immediate parent is exactly 48px tall and contains the
-                  complete disc, so native parent-bounds hit-testing sees the
-                  whole target; negative margins ride it onto the 4px seam. */}
-              <RNView pointerEvents="box-none" style={styles.seamParent}>
-                <IconButton
-                  variant="solid"
-                  icon="transfer-vertical"
-                  accessibilityLabel={`Swap ${story.from} and ${story.to}`}
-                  onPress={noop}
-                />
-              </RNView>
+              {/* The seam, via Bleed (#212): zero-flow-height row riding the
+                  card boundary; the parent gap fires twice around it, so the
+                  seam = 2 × gap = 6px with gap="xs" (space retune 2026-08-15:
+                  xs 4→3, 2xs retired). Mirrors the playground board 1:1. */}
+              <Bleed top="xl" bottom="xl">
+                <View direction="row" justify="center" align="center" height="lg">
+                  <IconButton
+                    variant="solid"
+                    icon="transfer-vertical"
+                    accessibilityLabel={`Swap ${story.from} and ${story.to}`}
+                    onPress={noop}
+                  />
+                </View>
+              </Bleed>
 
               {stress ? (
                 <View
@@ -137,7 +142,7 @@ export function Move({ stress = false, onClose }: { stress?: boolean; onClose: (
                   <SelectTrigger
                     accessibilityLabel="To"
                     accessibilityValue={story.to}
-                    onPress={noop}
+                    onPress={() => setPicker('to')}
                   >
                     <SelectTriggerLabel>To</SelectTriggerLabel>
                     <SelectTriggerAvatar name="bank" variant="outline" />
@@ -163,7 +168,7 @@ export function Move({ stress = false, onClose }: { stress?: boolean; onClose: (
                   <SelectTrigger
                     accessibilityLabel="To"
                     accessibilityValue={story.to}
-                    onPress={noop}
+                    onPress={() => setPicker('to')}
                   >
                     <SelectTriggerLabel>To</SelectTriggerLabel>
                     <SelectTriggerAvatar source={require('../../assets/flags/eur.png')} />
@@ -187,22 +192,15 @@ export function Move({ stress = false, onClose }: { stress?: boolean; onClose: (
             <Button size="lg" variant="soft" onPress={onClose}>Cancel</Button>
             <Button size="lg" variant="solid" accent="lilac" onPress={noop}>Next</Button>
           </View>
-        </View>
-      </Scroll>
-    </Screen>
+          </View>
+        </Scroll>
+      </Screen>
+      <CurrencyPickerSheet
+        open={picker !== null}
+        title={picker === 'from' ? 'Move from' : 'Move to'}
+        selectedKey={picker === 'from' ? 'BTC' : 'EUR'}
+        onClose={() => setPicker(null)}
+      />
+    </>
   );
 }
-
-const SWAP_DISC = 48;
-const CARD_GAP = 4;
-
-const styles = StyleSheet.create({
-  seamParent: {
-    alignItems: 'center',
-    height: SWAP_DISC,
-    justifyContent: 'center',
-    marginBottom: -(SWAP_DISC / 2 - CARD_GAP),
-    marginTop: -(SWAP_DISC / 2),
-    zIndex: 1,
-  },
-});

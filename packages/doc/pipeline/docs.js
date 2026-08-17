@@ -522,6 +522,12 @@ export function emitComponentApiPage(ir) {
     }
     renderApiPropTable(lines, apiType);
   }
+  for (const section of ir.sections || []) {
+    lines.push(`## ${section.title}`);
+    lines.push('');
+    lines.push(...section.body);
+    lines.push('');
+  }
   return lines.join('\n');
 }
 

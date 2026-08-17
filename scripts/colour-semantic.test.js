@@ -129,9 +129,9 @@ test('Guard A · the generated cascade ≡ the committed tokens-semantic.css cas
 test('Guard A · the cascade shape: full light blocks · minimal dark overrides · P4 omission', () => {
   const gen = cascadeRuleMap(region);
   const props = (sel) => [...gen.get(sel).keys()].sort();
-  // 1 / 2 · chrome(13) + neutral accent(6) = 19 (full theme pair)
-  assert.equal(gen.get(':root, [data-theme="light"]').size, 19, 'block 1');
-  assert.equal(gen.get('[data-theme="dark"]').size, 19, 'block 2');
+  // 1 / 2 · chrome(14) + neutral accent(6) = 20 (full theme pair)
+  assert.equal(gen.get(':root, [data-theme="light"]').size, 20, 'block 1');
+  assert.equal(gen.get('[data-theme="dark"]').size, 20, 'block 2');
   // 3 / 4 / 4b · neutral accent · all 6 (every neutral token swaps light↔dark)
   for (const sel of ['[data-accent="neutral"]', '[data-accent="neutral"][data-theme="dark"]', '[data-theme="dark"] [data-accent="neutral"]']) {
     assert.equal(gen.get(sel).size, 6, sel);

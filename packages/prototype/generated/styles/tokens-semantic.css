@@ -136,6 +136,7 @@
   --nuri-border-subtle:            var(--nuri-color-neutral-6-light);
   --nuri-border-default:           var(--nuri-color-neutral-7-light);
   --nuri-border-strong:            var(--nuri-color-neutral-8-light);
+  --nuri-border-translucent:       var(--nuri-color-black-alpha-2);
   --nuri-focus-ring:               var(--nuri-color-lilac-8-light);
   --nuri-accent-fg:                var(--nuri-color-neutral-12-light);
   --nuri-accent-solid:             var(--nuri-color-neutral-1-dark);
@@ -160,6 +161,7 @@
   --nuri-border-subtle:            var(--nuri-color-neutral-6-dark);
   --nuri-border-default:           var(--nuri-color-neutral-7-dark);
   --nuri-border-strong:            var(--nuri-color-neutral-8-dark);
+  --nuri-border-translucent:       var(--nuri-color-white-alpha-2);
   --nuri-focus-ring:               var(--nuri-color-lilac-8-dark);
   --nuri-accent-fg:                var(--nuri-color-neutral-12-dark);
   --nuri-accent-solid:             var(--nuri-color-neutral-1-light);
@@ -275,10 +277,8 @@
    * a collapsed gutter · literal 0 (decision 32 retired --nuri-px-0; 0 needs no
    * primitive). Added N+8.1 alongside the Separator y-space prop. */
   --nuri-space-none: 0;
-  /* space.2xs · finest granularity · hairline gap between adjacent micro-elements */
-  --nuri-space-2xs: 2px;
   /* space.xs  · tight gap · icon-to-label inside a control, label-to-glyph */
-  --nuri-space-xs:  4px;
+  --nuri-space-xs:  3px;
   /* space.sm  · compact gap · stacked rows in a dense list */
   --nuri-space-sm:  6px;
   /* space.md  · default gap · siblings inside a card, row-gap in a grid */

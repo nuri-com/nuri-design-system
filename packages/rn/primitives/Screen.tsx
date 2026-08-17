@@ -11,6 +11,7 @@ import { useNuriSafeAreaInsets } from '../safe-area';
 import { FixedRegionLayoutProvider, useFixedRegionLayout } from './FixedRegionLayout';
 import { useHasOpenFullModal } from './modal-stack';
 import { SCREEN_STYLE, withKeys } from './shared';
+import { useAssertNotBandContent } from './Bleed';
 
 export type ScreenProps = {
   safeArea?: boolean;
@@ -61,6 +62,7 @@ const ScreenImpl = React.forwardRef<React.ElementRef<typeof RNView>, ScreenProps
   testID,
   onLayout,
 }, ref) => {
+  useAssertNotBandContent('Screen');
   const insets = useNuriSafeAreaInsets();
   const hasOpenFullModal = useHasOpenFullModal();
   const requestedSafeAreaTop = safeArea || safeAreaTop ? insets.top : 0;

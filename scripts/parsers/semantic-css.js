@@ -69,11 +69,18 @@ export function refToVar(ref) {
     throw new Error(`[semantic-css] semantic ref is not a string: ${JSON.stringify(ref)}`);
   }
   const parts = ref.split('.');
-  if (parts.length !== 3 || !THEMES.includes(parts[2])) {
-    throw new Error(`[semantic-css] bad colour ref '${ref}' — want 'scale.step.theme' (theme ∈ {${THEMES.join(',')}})`);
+  // Theme-invariant L1 alpha overlays take a 2-segment 'scale.step' ref (no
+  // theme leg — the mode flip lives in the semantic pair, across scales).
+  const isAlphaRef = parts.length === 2 && ALPHA_SCALES.includes(parts[0]);
+  if (!isAlphaRef && (parts.length !== 3 || !THEMES.includes(parts[2]))) {
+    throw new Error(`[semantic-css] bad colour ref '${ref}' — want 'scale.step.theme' (theme ∈ {${THEMES.join(',')}}) or an alpha 'scale.step' (scale ∈ {${ALPHA_SCALES.join(',')}})`);
   }
   return `var(--nuri-color-${parts.join('-')})`;
 }
+
+// The theme-invariant L1 overlay scales (colours.ts blackAlpha/whiteAlpha ·
+// emitted --nuri-color-{black,white}-alpha-N).
+export const ALPHA_SCALES = ['black-alpha', 'white-alpha'];
 
 // ── the cascade model · the 8 blocks from the matrix ────────────────
 // chrome decls for a theme (full · chrome is theme-paired): [[--nuri-<key>, rhs], …].

@@ -32,7 +32,7 @@
  * home re-org is convergence phase 4.
  * ══════════════════════════════════════════════════════════════════ */
 
-import type { StackNS, BoxNS } from '../components/schema';
+import type { StackNS, BoxNS, BleedNS } from '../components/schema';
 import type { CanonicalId } from './property-spelling';
 
 // The token scales the agnostic mappings draw values from, named (neutral):
@@ -57,6 +57,7 @@ export type FillCase = {
 };
 export type Field =
   | { via: 'scale'; prop: CanonicalId; scale: ScaleName } //       value = scale[input]
+  | { via: 'negativeScale'; prop: CanonicalId; scale: ScaleName } // value = -scale[input]
   | { via: 'scaleMulti'; props: readonly CanonicalId[]; scale: ScaleName } // value = scale[input] applied to each prop
   | { via: 'keyword'; prop: CanonicalId; map: Record<string, string> } // value = map[input]
   | { via: 'literal'; prop: CanonicalId } //                       value = input (passthrough)
@@ -171,4 +172,16 @@ export const BOX_FIELDS: Record<keyof BoxNS, Field> = {
     scale: 'radius',
   },
   aspectRatio: { via: 'scale', prop: 'aspectRatio', scale: 'ratio' },
+};
+
+// ── bleed → controlled negative space · the dedicated Bleed element only ──
+// Axis shorthands emit first, then physical block edges, mirroring the box
+// padding precedence: a specific top/bottom value wins over y when both occur.
+// x/y use the same logical-property model as paddingX/paddingY; RN absorbs the
+// logical→physical spelling in property-spelling.ts.
+export const BLEED_FIELDS: Record<keyof BleedNS, Field> = {
+  x: { via: 'negativeScale', prop: 'marginInline', scale: 'space' },
+  y: { via: 'negativeScale', prop: 'marginBlock', scale: 'space' },
+  top: { via: 'negativeScale', prop: 'marginBlockStart', scale: 'space' },
+  bottom: { via: 'negativeScale', prop: 'marginBlockEnd', scale: 'space' },
 };

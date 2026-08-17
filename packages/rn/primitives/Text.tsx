@@ -12,6 +12,7 @@ import type { TypographyNS, PaletteNS } from '../contract';
 import { typeStyle } from '../theme';
 import { PALETTE_KEYS, TYPOGRAPHY_KEYS } from '@nuri/spec/descriptors/schema';
 import { useResolvedNode, withKeys, scopedByAccent } from './shared';
+import { BleedHitTransparencyContext } from './Bleed';
 
 export type TextProps = TypographyNS & PaletteNS & {
   children?: React.ReactNode;
@@ -24,6 +25,10 @@ export type TextProps = TypographyNS & PaletteNS & {
 const TextImpl = React.forwardRef<React.ElementRef<typeof RNText>, TextProps>((props, ref) => {
   const { children, testID, onLayout, accessibilityLabel, ...nsProps } = props;
   const { node, fg } = useResolvedNode(nsProps);
+  // Static text inside a Bleed band is touch-transparent (the hit-transparency
+  // cascade · #212 addendum · review P2 round 3); inside a pressable subtree
+  // this is equally correct — touches fall through to the pressable host.
+  const inBleedBand = React.useContext(BleedHitTransparencyContext);
   const flowProps =
     node.textFlow?.flow === 'truncate'
       ? { numberOfLines: node.textFlow.lines, ellipsizeMode: 'tail' as const }
@@ -40,6 +45,7 @@ const TextImpl = React.forwardRef<React.ElementRef<typeof RNText>, TextProps>((p
         fg ? { color: fg } : null,
         ...(node.text ? [node.text] : []),
         node.view as TextStyle,
+        ...(inBleedBand ? [{ pointerEvents: 'none' } as TextStyle] : []),
       ]}
     >
       {children}

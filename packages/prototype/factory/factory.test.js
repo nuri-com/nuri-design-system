@@ -161,13 +161,13 @@ test('A2 · buildComponent(IconAvatar) · an EXPLICIT variant wins over the defa
   assert.equal(el.getAttribute('data-variant'), 'subtle', 'an explicit axis value is passed straight through');
 });
 
-test('A2b · buildComponent(IconAvatar) · sm is a 36px circle with the same 24px glyph', () => {
+test('A2b · buildComponent(IconAvatar) · sm is the 24px compact circle with the 18px glyph', () => {
   const el = buildComponent(iconAvatarDescriptor, { size: 'sm' }, { icon: 'card' });
   const icon = el.querySelector('nuri-icon');
-  assert.equal(el.getAttribute('data-width'), 'md');
-  assert.equal(el.getAttribute('data-height'), 'md');
-  assert.equal(icon.getAttribute('data-width'), 'sm');
-  assert.equal(icon.getAttribute('data-height'), 'sm');
+  assert.equal(el.getAttribute('data-width'), 'sm');
+  assert.equal(el.getAttribute('data-height'), 'sm');
+  assert.equal(icon.getAttribute('data-width'), 'xs');
+  assert.equal(icon.getAttribute('data-height'), 'xs');
 });
 
 test('A3 · buildComponent(IconAvatar) · source renders a generic image leaf with cover geometry and its own ring', () => {
@@ -177,11 +177,12 @@ test('A3 · buildComponent(IconAvatar) · source renders a generic image leaf wi
   assert.ok(image, 'the routed source renders a native img leaf');
   assert.equal(image.getAttribute('src'), source);
   assert.equal(image.style.objectFit, 'cover');
-  assert.deepEqual(classesOf(image), ['nuri-box', 'nuri-palette', 'nuri-stack']);
+  assert.deepEqual(classesOf(image), ['nuri-box', 'nuri-image', 'nuri-stack'], 'the intrinsic image leaf class (ring) — no palette dispatch');
   assert.equal(image.getAttribute('data-width'), 'lg');
   assert.equal(image.getAttribute('data-height'), 'lg');
   assert.equal(image.getAttribute('data-radius'), 'full');
-  assert.equal(image.getAttribute('data-variant'), 'outline', 'the image part owns the always-on hairline palette');
+  assert.equal(image.getAttribute('data-variant'), null, 'no palette dispatch on the image leaf');
+
   assert.equal(el.querySelector('nuri-icon'), null, 'an absent icon slot renders nothing');
 });
 
@@ -905,7 +906,7 @@ test('C10 · <nuri-select-trigger> hugs a stretching column in ghost and subtle 
   for (const button of [ghostButton, subtleButton]) {
     assert.equal(button.getAttribute('aria-haspopup'), 'dialog');
     assert.equal(button.getAttribute('aria-label'), 'From, Bitcoin');
-    assert.equal(button.getAttribute('data-min-height'), 'lg', 'both variants floor the target at 48px');
+    assert.equal(button.getAttribute('data-min-height'), 'md', 'both variants floor the target at 36px');
     assert.equal(button.getAttribute('data-radius'), 'full');
     assert.equal(button.getAttribute('data-fill'), 'hug', 'the target opts out of its stretch parent');
     // Ghost presses read through pure scale (operator 2026-08-14); only the
@@ -926,7 +927,7 @@ test('C10 · <nuri-select-trigger> hugs a stretching column in ghost and subtle 
   }
   assert.equal(ghostButton.getAttribute('data-variant'), 'ghost');
   assert.equal(ghostButton.getAttribute('data-chrome'), null);
-  assert.equal(ghostButton.getAttribute('data-gap'), 'xs');
+  assert.equal(ghostButton.getAttribute('data-gap'), 'sm', 'gap unified across variants (operator 2026-08-15)');
   assert.equal(ghostButton.getAttribute('data-padding-x'), null, 'ghost has no invisible horizontal hit slop');
   assert.equal(subtleButton.getAttribute('data-chrome'), null);
   assert.equal(subtleButton.getAttribute('data-variant'), 'soft');

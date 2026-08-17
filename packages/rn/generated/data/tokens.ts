@@ -12,9 +12,9 @@
  * Shape is classify-by-cascade (decision 28 · N+5.5): each
  * export's nesting depth = the dimensions its source CSS var
  * spans across [data-<dim>=…] selectors. Groups in this build:
- *  · chrome (theme): bgCanvas, bgSubtle, bgStrong, bgPressed, bgInverse, bgInverseMuted, textPrimary, textMuted, textOnInverse, borderSubtle, borderDefault, borderStrong, focusRing
+ *  · chrome (theme): bgCanvas, bgSubtle, bgStrong, bgPressed, bgInverse, bgInverseMuted, textPrimary, textMuted, textOnInverse, borderSubtle, borderDefault, borderStrong, borderTranslucent, focusRing
  *  · accent (accent-major · two-layer (flat | {light,dark})): fg, solid, solidPressed, onSolid, bgSubtle, bgSubtlePressed
- *  · space (singleton): none, 2xs, xs, sm, md, lg, xl, 2xl
+ *  · space (singleton): none, xs, sm, md, lg, xl, 2xl
  *  · size (singleton): xs, sm, md, lg, xl, 2xl, 3xl
  *  · radius (singleton): sm, md, lg, full
  *  · ratio (singleton): square, card
@@ -50,37 +50,40 @@ export const chrome: Record<Theme, {
   borderSubtle: string;
   borderDefault: string;
   borderStrong: string;
+  borderTranslucent: string;
   focusRing: string;
 }> = {
   light: {
-    bgCanvas:        '#fffdf2',
-    bgSubtle:        '#fbf9ee',
-    bgStrong:        '#f3f1e2',
-    bgPressed:       '#ece9da',
-    bgInverse:       '#12110b',
-    bgInverseMuted:  '#666455',
-    textPrimary:     '#222013',
-    textMuted:       '#666455',
-    textOnInverse:   '#f0eee3',
-    borderSubtle:    '#dddac9',
-    borderDefault:   '#d2cfbf',
-    borderStrong:    '#bfbcac',
-    focusRing:       '#ae91ff',
+    bgCanvas:           '#fffdf2',
+    bgSubtle:           '#fbf9ee',
+    bgStrong:           '#f3f1e2',
+    bgPressed:          '#ece9da',
+    bgInverse:          '#12110b',
+    bgInverseMuted:     '#666455',
+    textPrimary:        '#222013',
+    textMuted:          '#666455',
+    textOnInverse:      '#f0eee3',
+    borderSubtle:       '#dddac9',
+    borderDefault:      '#d2cfbf',
+    borderStrong:       '#bfbcac',
+    borderTranslucent:  'rgba(0, 0, 0, 0.10)',
+    focusRing:          '#ae91ff',
   },
   dark: {
-    bgCanvas:        '#12110b',
-    bgSubtle:        '#1a1913',
-    bgStrong:        '#242319',
-    bgPressed:       '#2c2a1e',
-    bgInverse:       '#fffdf2',
-    bgInverseMuted:  '#b7b4a4',
-    textPrimary:     '#f0eee3',
-    textMuted:       '#b7b4a4',
-    textOnInverse:   '#222013',
-    borderSubtle:    '#3d3b2e',
-    borderDefault:   '#4b483b',
-    borderStrong:    '#636153',
-    focusRing:       '#6c58a3',
+    bgCanvas:           '#12110b',
+    bgSubtle:           '#1a1913',
+    bgStrong:           '#242319',
+    bgPressed:          '#2c2a1e',
+    bgInverse:          '#fffdf2',
+    bgInverseMuted:     '#b7b4a4',
+    textPrimary:        '#f0eee3',
+    textMuted:          '#b7b4a4',
+    textOnInverse:      '#222013',
+    borderSubtle:       '#3d3b2e',
+    borderDefault:      '#4b483b',
+    borderStrong:       '#636153',
+    borderTranslucent:  'rgba(255, 255, 255, 0.10)',
+    focusRing:          '#6c58a3',
   },
 };
 
@@ -122,7 +125,6 @@ export const accent: Record<Accent, {
 // ── space · singleton ──
 export const space: {
   none: number;
-  '2xs': number;
   xs: number;
   sm: number;
   md: number;
@@ -131,8 +133,7 @@ export const space: {
   '2xl': number;
 } = {
   none:   0,
-  '2xs':  2,
-  xs:     4,
+  xs:     3,
   sm:     6,
   md:     12,
   lg:     18,

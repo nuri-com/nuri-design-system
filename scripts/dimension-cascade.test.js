@@ -109,7 +109,7 @@ test('Guard B · tokens-semantic.css is fresh (re-emit byte-identical)', () => {
 // CSS or the SoT module; if a value here disagrees with either, one is wrong.
 // These are the FINAL resolved strings (space.none + radius.full are the literal
 // sentinels direct-authored by design.
-const SPACE_FINAL = { none: '0', '2xs': '2px', xs: '4px', sm: '6px', md: '12px', lg: '18px', xl: '24px', '2xl': '36px' };
+const SPACE_FINAL = { none: '0', xs: '3px', sm: '6px', md: '12px', lg: '18px', xl: '24px', '2xl': '36px' };
 const SIZE_FINAL = { xs: '18px', sm: '24px', md: '36px', lg: '48px', xl: '60px', '2xl': '72px', '3xl': '90px' };
 const RADIUS_FINAL = { sm: '6px', md: '9px', lg: '18px', full: '9999px' };
 // The ratio scale is UNITLESS — the final strings carry NO `px` (the named-risk

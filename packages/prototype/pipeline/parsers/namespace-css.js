@@ -132,6 +132,39 @@ const SHELLS = {
       { sel: '.nuri-box[data-center="true"]', decls: [['margin-inline', 'auto']] },
     ],
   },
+  bleed: {
+    // Bleed is a real containing flex item: its border box continues to wrap
+    // the child while negative margins reposition it. The fixed lift is an
+    // internal promise, never an authorable value. HIT TRANSPARENCY is the
+    // other internal promise (the #212 addendum · review P2): the lift makes
+    // the band overlap siblings, so the band must never eat their input —
+    // `pointer-events: none` inherits through the whole layout subtree, and
+    // the interactive-leaf re-enable below restores real targets (the RN
+    // mirror: Bleed's box-none wrapper + the View-level context cascade).
+    pre: [
+      {
+        sel: '.nuri-bleed',
+        decls: [
+          ['display', 'flex'],
+          ['flex-direction', 'column'],
+          ['flex-shrink', '0'],
+          ['position', 'relative'],
+          ['z-index', '1'],
+          ['pointer-events', 'none'],
+        ],
+      },
+      // One rule per interactive leaf — comma-free selectors keep every naive
+      // rule-splitter (the test harnesses' layerRuleMap) sound.
+      { sel: '.nuri-bleed button', decls: [['pointer-events', 'auto']] },
+      { sel: '.nuri-bleed a', decls: [['pointer-events', 'auto']] },
+      { sel: '.nuri-bleed input', decls: [['pointer-events', 'auto']] },
+      { sel: '.nuri-bleed select', decls: [['pointer-events', 'auto']] },
+      { sel: '.nuri-bleed textarea', decls: [['pointer-events', 'auto']] },
+      { sel: '.nuri-bleed [tabindex]', decls: [['pointer-events', 'auto']] },
+      { sel: '.nuri-bleed [role="button"]', decls: [['pointer-events', 'auto']] },
+    ],
+    post: [],
+  },
 };
 
 // ══════════════════════════════════════════════════════════════════
@@ -159,6 +192,14 @@ function rulesForField(ns, key, field, scaleVocab, registry) {
       const vocab = scaleVocab[field.scale];
       if (!vocab) throw new Error(`[namespace-css] ${ns}.${key}: no scale vocab for '${field.scale}'`);
       return vocab.map((leaf) => ({ sel: sel(leaf), decls: [[prop, `var(--nuri-${field.scale}-${leaf})`]] }));
+    }
+    case 'negativeScale': {
+      const vocab = scaleVocab[field.scale];
+      if (!vocab) throw new Error(`[namespace-css] ${ns}.${key}: no scale vocab for '${field.scale}'`);
+      return vocab.map((leaf) => ({
+        sel: sel(leaf),
+        decls: [[prop, `calc(-1 * var(--nuri-${field.scale}-${leaf}))`]],
+      }));
     }
     case 'scaleMulti': {
       const vocab = scaleVocab[field.scale];
@@ -218,7 +259,7 @@ function serializeRule({ sel, decls }) {
 // spec = { ns, title, fields, scaleVocab }. Layout: provenance header +
 // empty `@layer tokens` (mirrors hand · layout primitives alias no token) +
 // `@layer rules` { pre-shell · field dispatch (table order) · post-shell }.
-export function emitNamespaceCss({ ns, title, fields, scaleVocab, registry }) {
+export function emitNamespaceCss({ ns, title, fieldsKey, fields, scaleVocab, registry }) {
   const shell = SHELLS[ns];
   if (!shell) throw new Error(`[namespace-css] no shell for namespace '${ns}'`);
 
@@ -238,7 +279,7 @@ export function emitNamespaceCss({ ns, title, fields, scaleVocab, registry }) {
     ` * NURI · NAMESPACE CSS · ${title} · GENERATED — DO NOT EDIT BY HAND`,
     ` *`,
     ` * GENERATED from the Field table (packages/spec/axes/resolve-map.ts ·`,
-    ` * ${ns === 'box' ? 'BOX_FIELDS' : 'STACK_FIELDS'}) + the web spelling layer`,
+    ` * ${fieldsKey}) + the web spelling layer`,
     ` * (prototype/pipeline/parsers/namespace-css.js) by prototype/pipeline/css-preview.js,`,
     ` * wired into npm run build -w @nuri/prototype (its own build · regenerates IN PLACE`,
     ` * over this file · prototype/styles/${ns}.css). This is the LIVE namespace CSS — the`,
@@ -307,12 +348,16 @@ export async function readScaleVocab(semanticCssPath) {
 export async function loadFieldTable(resolveMapPath) {
   const mod = await loadTsDataFromPath(resolveMapPath);
   // Sanity — a loader regression must fail LOUD here, not silently emit garbage.
-  for (const name of ['STACK_FIELDS', 'BOX_FIELDS']) {
+  for (const name of ['STACK_FIELDS', 'BOX_FIELDS', 'BLEED_FIELDS']) {
     if (!mod[name] || typeof mod[name] !== 'object' || !Object.keys(mod[name]).length) {
       throw new Error(`[namespace-css] loadFieldTable: resolve-map has no usable ${name} (loader regression?)`);
     }
   }
-  return { STACK_FIELDS: mod.STACK_FIELDS, BOX_FIELDS: mod.BOX_FIELDS };
+  return {
+    STACK_FIELDS: mod.STACK_FIELDS,
+    BOX_FIELDS: mod.BOX_FIELDS,
+    BLEED_FIELDS: mod.BLEED_FIELDS,
+  };
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -341,4 +386,5 @@ export async function loadRegistry(registryTsPath) {
 export const NS_SPECS = [
   { ns: 'box', title: 'BOX', fieldsKey: 'BOX_FIELDS' },
   { ns: 'stack', title: 'STACK', fieldsKey: 'STACK_FIELDS' },
+  { ns: 'bleed', title: 'BLEED', fieldsKey: 'BLEED_FIELDS' },
 ];

@@ -86,6 +86,7 @@ export async function generateAll() {
     css: emitNamespaceCss({
       ns: spec.ns,
       title: spec.title,
+      fieldsKey: spec.fieldsKey,
       fields: table[spec.fieldsKey],
       scaleVocab,
       registry,

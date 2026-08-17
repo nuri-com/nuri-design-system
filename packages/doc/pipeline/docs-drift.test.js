@@ -276,6 +276,23 @@ const PAGE_CONTRACT = {
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },
+  bleed: {
+    kind: 'api', source: 'bleed', title: 'Bleed', nav: 11.1,
+    cells: [
+      '`Bleed` / `<nuri-bleed>` creates controlled negative space around exactly one child.',
+      "| `top` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | negative space |",
+      "| `bottom` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | negative space |",
+      "| `x` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | negative space |",
+      "| `y` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | negative space |",
+      '| `children` | yes | `React.ReactElement` | exactly one host child |',
+      '## Pattern: Move seam',
+      // The retuned arithmetic (2026-08-15 · the #212 addendum): gap="xs" fires
+      // twice around the zero-flow-height row — 2 × 3px = the 6px seam.
+      'The parent stack `gap="xs"` then appears **twice**',
+      'so 2 × 3px produces the 6px seam',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`all` |', '`start` |', '`end` |'],
+  },
   typography: {
     kind: 'api', source: 'typography', title: 'Typography', nav: 12,
     cells: [

@@ -6,6 +6,7 @@ import { View as RNView } from 'react-native';
 import type { LayoutChangeEvent, ViewStyle } from 'react-native';
 import { useRegisterDockInset } from './FixedRegionLayout';
 import { withKeys } from './shared';
+import { useAssertNotBandContent } from './Bleed';
 
 export type DockEdge = 'bottom' | 'top';
 export type DockProps = {
@@ -22,6 +23,7 @@ const DockImpl = React.forwardRef<React.ElementRef<typeof RNView>, DockProps>(({
   testID,
   onLayout,
 }, ref) => {
+  useAssertNotBandContent('Dock');
   const handleLayout = useRegisterDockInset(edge, onLayout);
 
   return (

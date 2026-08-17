@@ -23,10 +23,12 @@ import { classifyComposition } from '@nuri/spec/composition-classify';
 import { LEAF_ELS } from '@nuri/spec/descriptors/schema';
 import type { Descriptor, Axes, IconName, PartId } from '../contract';
 import { typeStyle, useNuriTheme } from '../theme';
+import { border as contractBorder } from '../contract';
 import type { NuriTheme } from './theme-payload';
 import { resolveAnatomy, flattenBakedPart, assertNever } from './resolve';
 import type { AnatomyNode, Selection, BakedComponentRecipe } from './resolve';
 import { NuriIcon } from '../primitives/NuriIcon';
+import { BleedHitTransparencyContext } from '../primitives/Bleed';
 import { useFocusable } from './focus-scroll';
 import { PressableHost } from './pressable-host';
 import { setTextAndSelection } from './native-text-input-command';
@@ -241,6 +243,9 @@ type RenderCtx<A extends Axes> = {
   descriptor: Descriptor<A>;
   recipe: BakedComponentRecipe;
   theme: NuriTheme;
+  // Inside a Bleed band, static `view` hosts render `box-none` (the
+  // hit-transparency cascade · #212 addendum · review P2 round 2).
+  inBleedBand: boolean;
   selection: Selection;
   content: Partial<Record<string, NuriContent>>;
   composition: Partial<Record<string, NuriCompositionEntry<string>[]>>;
@@ -666,6 +671,7 @@ function renderPart<A extends Axes>(
       return (
         <View
           key={node.name}
+          pointerEvents={ctx.inBleedBand ? 'box-none' : undefined}
           style={flat.style}
           accessibilityRole={isRoot ? ctx.descriptor.api.role : undefined}
           {...a11yHide}
@@ -727,6 +733,9 @@ function renderPart<A extends Axes>(
             fg ? { color: fg } : null,
             { flexShrink: 1, textAlign: 'center' },
             flat.style,
+            // static text leaves are touch-transparent inside a Bleed band
+            // (the hit-transparency cascade · review P2 round 3)
+            ...(ctx.inBleedBand ? [{ pointerEvents: 'none' } as TextStyle] : []),
           ]}
         >
           {ctx.content[node.name] as React.ReactNode}
@@ -755,12 +764,20 @@ function renderPart<A extends Axes>(
     case 'image': {
       const source = ctx.content[node.name];
       if (source != null) {
+        // The always-on blend ring is the image LEAF's own contract (mirrors the
+        // web factory's intrinsic border · border-translucent blends over the
+        // bitmap · the Separator role-consumption precedent), not a palette cell.
         return (
           <Image
             key={node.name}
             source={source as ImageSourcePropType}
             resizeMode="cover"
-            style={flat.style as StyleProp<ImageStyle>}
+            style={[
+              flat.style as StyleProp<ImageStyle>,
+              { borderWidth: contractBorder[1], borderColor: ctx.theme.border.translucent },
+              // static image leaves are touch-transparent inside a Bleed band
+              ...(ctx.inBleedBand ? [{ pointerEvents: 'none' } as ImageStyle] : []),
+            ]}
           />
         );
       }
@@ -825,6 +842,7 @@ export function renderDescriptorInstance<A extends Axes, PId extends PartId = Pa
   const anatomy = resolveAnatomy(descriptor);
   const theme = useNuriTheme();
   const ambient = React.useContext(NuriSurfaceContext);
+  const inBleedBand = React.useContext(BleedHitTransparencyContext);
   const inputRef = React.useRef<TextInput>(null);
   React.useImperativeHandle(inputHandle, () => ({
     focus: () => inputRef.current?.focus(),
@@ -841,6 +859,7 @@ export function renderDescriptorInstance<A extends Axes, PId extends PartId = Pa
     anatomy,
     {
       descriptor,
+      inBleedBand,
       recipe,
       theme,
       selection,
