@@ -733,6 +733,9 @@ function renderPart<A extends Axes>(
             fg ? { color: fg } : null,
             { flexShrink: 1, textAlign: 'center' },
             flat.style,
+            // static text leaves are touch-transparent inside a Bleed band
+            // (the hit-transparency cascade · review P2 round 3)
+            ...(ctx.inBleedBand ? [{ pointerEvents: 'none' } as TextStyle] : []),
           ]}
         >
           {ctx.content[node.name] as React.ReactNode}
@@ -772,6 +775,8 @@ function renderPart<A extends Axes>(
             style={[
               flat.style as StyleProp<ImageStyle>,
               { borderWidth: contractBorder[1], borderColor: ctx.theme.border.translucent },
+              // static image leaves are touch-transparent inside a Bleed band
+              ...(ctx.inBleedBand ? [{ pointerEvents: 'none' } as ImageStyle] : []),
             ]}
           />
         );

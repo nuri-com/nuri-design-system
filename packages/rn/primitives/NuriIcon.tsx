@@ -23,6 +23,8 @@
 
 import * as React from 'react';
 import { SvgXml } from 'react-native-svg';
+import { View as RNView } from 'react-native';
+import { BleedHitTransparencyContext } from './Bleed';
 import {
   icons,
   iconMotion,
@@ -43,14 +45,19 @@ export type NuriIconProps = {
 
 export const NuriIcon: React.FC<NuriIconProps> = ({ name, color, dimension = size.sm }) => {
   const theme = useNuriTheme();
+  // Static glyphs inside a Bleed band are touch-transparent (the
+  // hit-transparency cascade · #212 addendum · review P2 round 3).
+  const inBleedBand = React.useContext(BleedHitTransparencyContext);
+  const leafPointerEvents = inBleedBand ? ('none' as const) : undefined;
   const xml = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor">${icons[name]}</svg>`;
   const resolvedColor = color ?? theme.text.primary;
   const motion = iconMotion[name];
   if (!motion) {
-    return <SvgXml xml={xml} width={dimension} height={dimension} color={resolvedColor} />;
+    return <SvgXml pointerEvents={leafPointerEvents} xml={xml} width={dimension} height={dimension} color={resolvedColor} />;
   }
   if (motion === 'ring') {
-    return <SpinnerRing xml={xml} dimension={dimension} color={resolvedColor} />;
+    const ring = <SpinnerRing xml={xml} dimension={dimension} color={resolvedColor} />;
+    return inBleedBand ? <RNView pointerEvents="none">{ring}</RNView> : ring;
   }
-  return <SvgXml xml={xml} width={dimension} height={dimension} color={resolvedColor} />;
+  return <SvgXml pointerEvents={leafPointerEvents} xml={xml} width={dimension} height={dimension} color={resolvedColor} />;
 };

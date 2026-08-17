@@ -2,9 +2,11 @@ import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import { View as RNView } from 'react-native';
 
-import { Bleed, Pressable, View } from '../primitives';
+import { Bleed, Pressable, Separator, Text, View } from '../primitives';
 import { IconAvatar } from '../index';
 import { NuriThemeProvider } from '../theme';
+import { Image as RNImage, Text as RNText } from 'react-native';
+import { SvgXml } from 'react-native-svg';
 import { resolveNS } from '../runtime/resolve';
 import { buildNuriTheme } from '../runtime/theme-payload';
 
@@ -148,6 +150,73 @@ describe('Bleed — controlled negative space', () => {
     const plainRoot = outside.root.findAllByType(RNView).find((n) => n.props.accessibilityElementsHidden === true);
     expect(plainRoot).toBeTruthy();
     expect(plainRoot!.props.pointerEvents).toBeUndefined();
+  });
+
+  test('the cascade covers static LEAVES: icon and image descriptor leaves, Text and Separator primitives', () => {
+    // Review P2 round 3: leaves can win hit testing too — every static leaf
+    // path inside the band must be transparent, and untouched outside.
+    // 1 · the icon leaf inside a descriptor host (IconAvatar glyph → SvgXml)
+    const glyph = render(
+      <NuriThemeProvider>
+        <Bleed top="xl" bottom="xl">
+          <IconAvatar icon="bitcoin" />
+        </Bleed>
+      </NuriThemeProvider>,
+    );
+    expect(glyph.root.findByType(SvgXml).props.pointerEvents).toBe('none');
+
+    // 2 · the image leaf (IconAvatar source mode)
+    const image = render(
+      <NuriThemeProvider>
+        <Bleed top="xl" bottom="xl">
+          <IconAvatar source={{ uri: 'data:image/png;base64,flag' }} />
+        </Bleed>
+      </NuriThemeProvider>,
+    );
+    const imgStyle = Object.assign(
+      {},
+      ...[image.root.findByType(RNImage).props.style].flat(Infinity).filter(Boolean),
+    );
+    expect(imgStyle.pointerEvents).toBe('none');
+
+    // 3 · the Text and Separator primitives inside the band
+    const prose = render(
+      <NuriThemeProvider>
+        <Bleed top="xl" bottom="xl">
+          <View direction="column">
+            <Text size="sm">badge</Text>
+            <Separator ySpace="none" />
+          </View>
+        </Bleed>
+      </NuriThemeProvider>,
+    );
+    const textStyle = Object.assign(
+      {},
+      ...[prose.root.findByType(RNText).props.style].flat(Infinity).filter(Boolean),
+    );
+    expect(textStyle.pointerEvents).toBe('none');
+    const hairline = prose.root.findAllByType(RNView).find((n) => n.props.accessibilityRole === 'none');
+    expect(hairline).toBeTruthy();
+    expect(hairline!.props.pointerEvents).toBe('none');
+
+    // 4 · all of them untouched OUTSIDE a band
+    const plain = render(
+      <NuriThemeProvider>
+        <View direction="column">
+          <IconAvatar icon="bitcoin" />
+          <Text size="sm">badge</Text>
+          <Separator ySpace="none" />
+        </View>
+      </NuriThemeProvider>,
+    );
+    expect(plain.root.findByType(SvgXml).props.pointerEvents).toBeUndefined();
+    const plainTextStyle = Object.assign(
+      {},
+      ...[plain.root.findByType(RNText).props.style].flat(Infinity).filter(Boolean),
+    );
+    expect(plainTextStyle.pointerEvents).toBeUndefined();
+    const plainHairline = plain.root.findAllByType(RNView).find((n) => n.props.accessibilityRole === 'none');
+    expect(plainHairline!.props.pointerEvents).toBeUndefined();
   });
 
   test('one child is enforced, including rejection of fragment escape hatches', () => {
