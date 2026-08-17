@@ -23,7 +23,7 @@
         <nuri-modal open mode="full">
           <nuri-modal-panel>
             <nuri-scroll safe-area-top safe-area-bottom>
-              <nuri-view direction="column" align="stretch" gap="xl" padding-x="lg" padding-y="lg" fill>
+              <nuri-view direction="column" align="stretch" gap="lg" padding-x="lg" padding-y="lg" fill>
                 <!-- The seam, via Bleed (#212): one dark scope wraps both cards
                      AND the swap row (solid resolves light, per the mock). The
                      zero-flow-height Bleed row rides the card boundary; the
@@ -117,7 +117,7 @@
         <nuri-modal open mode="full">
           <nuri-modal-panel>
             <nuri-scroll safe-area-top safe-area-bottom>
-              <nuri-view direction="column" align="stretch" gap="xl" padding-x="lg" padding-y="lg" fill>
+              <nuri-view direction="column" align="stretch" gap="lg" padding-x="lg" padding-y="lg" fill>
                 <nuri-scope mode="dark">
                   <nuri-view direction="column" align="stretch" gap="xs" fill="grow">
                     <nuri-view chrome="subtle" radius="lg" padding-x="lg" padding-y="md" fill="grow">
@@ -192,6 +192,216 @@
     </template>
   </nuri-demo>
 
+  <!-- MOVE · INSUFFICIENT BALANCE · the canonical board in its blocked state:
+       a ghost Alert joins the dark card stack, carrying Max as its own trailing
+       action, and Next is disabled. The Max on the trigger row is REMOVED here:
+       the alert's action is the same affordance, so keeping both would duplicate
+       it (same rule as the in-card board).
+       Composition note: the dark scope wraps ONLY the two cards + the seam, so
+       the Alert stays a sibling in the same gap="xs" stack while resolving on
+       the surface it actually paints on (the cream panel) — a ghost Alert is
+       transparent, so inside the dark scope it would paint light-on-light.
+       nuri-scope is display:contents, so pulling it inward leaves From/Bleed/To
+       direct flex children and the 6px seam arithmetic intact (measured). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="move · insufficient balance">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-scroll safe-area-top safe-area-bottom>
+              <nuri-view direction="column" align="stretch" gap="lg" padding-x="lg" padding-y="lg" fill>
+                <nuri-view direction="column" align="stretch" gap="xs" fill="grow">
+                  <nuri-scope mode="dark">
+                    <nuri-view chrome="subtle" radius="lg" padding-x="lg" height="xl" justify="center">
+                      <nuri-view direction="row" justify="between" align="center">
+                        <nuri-select-trigger aria-label="From" accessibility-value="Bitcoin">
+                          <nuri-select-trigger-label>From</nuri-select-trigger-label>
+                          <nuri-select-trigger-avatar name="bitcoin" variant="solid" accent="orange"></nuri-select-trigger-avatar>
+                          <nuri-select-trigger-value>Bitcoin</nuri-select-trigger-value>
+                          <nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>
+                        </nuri-select-trigger>
+                        <!-- ₿ 180508 = € 100 at this page's implied rate
+                             (₿ 86969 = € 48.18 on the canonical board), so the
+                             From balance agrees with the alert's figure. -->
+                        <nuri-typography size="md" emphasis>₿ 180508</nuri-typography>
+                      </nuri-view>
+                    </nuri-view>
+
+                    <nuri-bleed top="xl" bottom="xl">
+                      <nuri-view direction="row" justify="center" align="center" height="lg">
+                        <nuri-icon-button
+                          variant="solid"
+                          icon="arrow-down"
+                          aria-label="Swap Bitcoin and Euro"
+                        ></nuri-icon-button>
+                      </nuri-view>
+                    </nuri-bleed>
+
+                    <nuri-view chrome="subtle" radius="lg" padding-x="lg" padding-y="md" fill="grow">
+                      <nuri-select-trigger aria-label="To" accessibility-value="Euro">
+                        <nuri-select-trigger-label>To</nuri-select-trigger-label>
+                        <nuri-select-trigger-avatar source="../assets/flags/eur.svg"></nuri-select-trigger-avatar>
+                        <nuri-select-trigger-value>Euro</nuri-select-trigger-value>
+                        <nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>
+                      </nuri-select-trigger>
+
+                      <nuri-view fill="grow" justify="end" align="end">
+                        <nuri-typography size="3xl" align="end">€ 120.00</nuri-typography>
+                      </nuri-view>
+                    </nuri-view>
+                  </nuri-scope>
+
+                  <!-- padding-top="xs" tops up the stack's own gap="xs" (3px) to
+                       the 6px the alert row wants. The gap itself CANNOT be
+                       raised to "sm": it is the same property that fires twice
+                       around the zero-flow-height Bleed to make the 6px seam,
+                       so raising it would double the seam. Alert exposes only
+                       variant/accent (no box attrs), hence the View wrapper. -->
+                  <nuri-view padding-top="xs">
+                    <nuri-alert variant="ghost">
+                      <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
+                      Only € 100 available
+                      <nuri-alert-button>Max</nuri-alert-button>
+                    </nuri-alert>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="row" distribute="even" gap="sm">
+                  <nuri-button size="lg" variant="soft">Cancel</nuri-button>
+                  <nuri-button size="lg" variant="solid" accent="lilac" disabled>Next</nuri-button>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- MOVE · INVERTED · INSUFFICIENT BALANCE · the inverted weights in the same
+       blocked state. Amounts are the inverted board's own reading: the typed
+       amount is the LARGE ₿ figure in the From card, so it is ₿ 216610 (= € 120
+       at this page's implied rate) against a € 100 balance — the balance itself
+       is not otherwise on screen here, which is exactly why the alert carries
+       the figure. Same alert construction as the canonical blocked board:
+       scope around the cards only, View wrapper topping the stack gap up to
+       6px, Max as the alert's trailing action, Next disabled. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="move · inverted · insufficient balance">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-scroll safe-area-top safe-area-bottom>
+              <nuri-view direction="column" align="stretch" gap="lg" padding-x="lg" padding-y="lg" fill>
+                <nuri-view direction="column" align="stretch" gap="xs" fill="grow">
+                  <nuri-scope mode="dark">
+                    <nuri-view chrome="subtle" radius="lg" padding-x="lg" padding-y="md" fill="grow">
+                      <nuri-select-trigger aria-label="From" accessibility-value="Bitcoin">
+                        <nuri-select-trigger-label>From</nuri-select-trigger-label>
+                        <nuri-select-trigger-avatar name="bitcoin" variant="solid" accent="orange"></nuri-select-trigger-avatar>
+                        <nuri-select-trigger-value>Bitcoin</nuri-select-trigger-value>
+                        <nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>
+                      </nuri-select-trigger>
+
+                      <nuri-view fill="grow" justify="end" align="end">
+                        <nuri-typography size="3xl" align="end">₿ 216610</nuri-typography>
+                      </nuri-view>
+                    </nuri-view>
+
+                    <nuri-bleed top="xl" bottom="xl">
+                      <nuri-view direction="row" justify="center" align="center" height="lg">
+                        <nuri-icon-button
+                          variant="solid"
+                          icon="arrow-down"
+                          aria-label="Swap Bitcoin and Euro"
+                        ></nuri-icon-button>
+                      </nuri-view>
+                    </nuri-bleed>
+
+                    <nuri-view chrome="subtle" radius="lg" padding-x="lg" height="xl" justify="center">
+                      <nuri-view direction="row" justify="between" align="center">
+                        <nuri-select-trigger aria-label="To" accessibility-value="Euro">
+                          <nuri-select-trigger-label>To</nuri-select-trigger-label>
+                          <nuri-select-trigger-avatar source="../assets/flags/eur.svg"></nuri-select-trigger-avatar>
+                          <nuri-select-trigger-value>Euro</nuri-select-trigger-value>
+                          <nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>
+                        </nuri-select-trigger>
+                        <nuri-typography size="md" emphasis>€ 120.00</nuri-typography>
+                      </nuri-view>
+                    </nuri-view>
+                  </nuri-scope>
+
+                  <nuri-view padding-top="xs">
+                    <nuri-alert variant="ghost">
+                      <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
+                      Only € 100 available
+                      <nuri-alert-button>Max</nuri-alert-button>
+                    </nuri-alert>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="row" distribute="even" gap="sm">
+                  <nuri-button size="lg" variant="soft">Cancel</nuri-button>
+                  <nuri-button size="lg" variant="solid" accent="lilac" disabled>Next</nuri-button>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
   <!-- MOVE · CURRENCY PICKER · bottom-sheet reference opened by either Move
        trigger (mode="sheet", content-height, keyboardless by contract — no
        search). Currency avatar, name, and trailing balance only. -->
@@ -215,17 +425,12 @@
 
             <nuri-scroll safe-area-bottom>
               <nuri-view direction="column" align="stretch" gap="sm" padding-bottom="lg">
-                <!-- The unified-balance list grammar (the large-title board):
-                     provider bands as labelled dividers, rows with the balance
-                     inline-muted after the name. Selection rows, no navigation
-                     chevron. -->
+                <!-- The unified-balance list grammar: rows with the balance
+                     inline-muted after the name, selection rows, no navigation
+                     chevron. ONE labelled divider only — the wallet accounts run
+                     unbanded at the top, and the divider introduces the Visa
+                     balances below it. -->
                 <nuri-list>
-                  <nuri-view direction="row" align="center" gap="sm" height="md" padding-x="md">
-                    <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
-                    <nuri-typography size="sm" emphasis muted>Nuri wallet</nuri-typography>
-                    <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
-                  </nuri-view>
-
                   <nuri-list-action aria-label="Bitcoin, 86969 sats, selected">
                     <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
                     <nuri-list-action-text>Bitcoin</nuri-list-action-text>
@@ -242,13 +447,6 @@
                     <nuri-list-action-text>Dollar</nuri-list-action-text>
                     <nuri-list-action-text-muted>74.60 $</nuri-list-action-text-muted>
                   </nuri-list-action>
-
-                  <nuri-view direction="row" align="center" gap="sm" height="md" padding-x="md">
-                    <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
-                    <nuri-typography size="sm" emphasis muted>Arkade wallet</nuri-typography>
-                    <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
-                  </nuri-view>
-
                   <nuri-list-action aria-label="Bitcoin Lightning, 0 sats">
                     <nuri-list-action-leading-avatar source="../assets/logos/lightning.svg"></nuri-list-action-leading-avatar>
                     <nuri-list-action-text>Bitcoin Lightning</nuri-list-action-text>
@@ -257,18 +455,19 @@
 
                   <nuri-view direction="row" align="center" gap="sm" height="md" padding-x="md">
                     <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
-                    <nuri-typography size="sm" emphasis muted>Wirex wallet</nuri-typography>
+                    <nuri-typography size="sm" emphasis muted>Visa Balance</nuri-typography>
                     <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
                   </nuri-view>
 
-                  <nuri-list-action aria-label="Visa credit card, 34.45 euros">
-                    <nuri-list-action-leading-avatar name="card" variant="outline"></nuri-list-action-leading-avatar>
-                    <nuri-list-action-text>Visa credit card</nuri-list-action-text>
+                  <nuri-list-action aria-label="Euro, 34.45 euros">
+                    <nuri-list-action-leading-avatar source="../assets/logos/visa-eur.svg"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Euro</nuri-list-action-text>
                     <nuri-list-action-text-muted>34.45 €</nuri-list-action-text-muted>
                   </nuri-list-action>
-                  <nuri-list-action aria-label="IBAN account">
-                    <nuri-list-action-leading-avatar name="bank" variant="outline"></nuri-list-action-leading-avatar>
-                    <nuri-list-action-text>IBAN account</nuri-list-action-text>
+                  <nuri-list-action aria-label="Dollar, 25.00 dollars">
+                    <nuri-list-action-leading-avatar source="../assets/logos/visa-usd.svg"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Dollar</nuri-list-action-text>
+                    <nuri-list-action-text-muted>25.00 $</nuri-list-action-text-muted>
                   </nuri-list-action>
                 </nuri-list>
               </nuri-view>
