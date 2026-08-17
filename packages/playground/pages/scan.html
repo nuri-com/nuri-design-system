@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuri · Playground · Scan</title>
+  <link rel="stylesheet" href="../generated/playground.css" />
+  <script src="../generated/boot.js" type="module"></script>
+</head>
+<body>
+
+<nuri-playground-shell doc="Scan">
+
+  <!-- SCAN · RECIPIENT · EXPLORATIVE (operator mock 2026-08-17). The shared
+       QR-scanner step (flow-inventory §6) redesigned: "Who is your recipient?"
+       — camera viewfinder with Paste · Upload · Scan. The dark region is a
+       CAMERA PLACEHOLDER by declared scope (no camera implementation, ever,
+       in the playground).
+
+       OPERATOR RULING 2026-08-17: the screen-owned docked panel is THE
+       composition. The scrimless-sheet alternative was built, compared, and
+       PRUNED — git history keeps it. Notes applied: title lg (not xl) · panel
+       top corners rounded like a bottom sheet · more air between the copy and
+       the buttons.
+
+       Grammar of the ruled board: the camera view fills the full modal panel
+       edge-to-edge; nuri-dock edge="bottom" overlays the panel view on top of
+       it (chrome="canvas" radius-top="lg"), so the rounded corner cutouts
+       reveal the camera behind — the mock's construction. Footer is NOT used:
+       nuri-footer does not forward radius-top (recorded gap) and an in-flow
+       footer's corners would sit on the panel background, not the camera.
+       Open on the RN side (the expo-demo prototype): who owns the status-bar
+       style over the dark camera (nothing in the DS drives StatusBar today),
+       and the safe-area story for a docked panel (Footer has safe-area-bottom;
+       Dock styles nothing — the web board approximates with padding-bottom). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="scan · recipient · docked panel">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-scope mode="dark">
+              <nuri-view chrome="canvas" fill="grow" direction="column" align="stretch">
+                <nuri-header safe-area-top chrome="transparent">
+                  <nuri-topbar surface="transparent" layout="fluid">
+                    <nuri-topbar-content></nuri-topbar-content>
+                    <nuri-topbar-trailing>
+                      <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                    </nuri-topbar-trailing>
+                  </nuri-topbar>
+                </nuri-header>
+              </nuri-view>
+            </nuri-scope>
+
+            <nuri-dock edge="bottom">
+              <nuri-view chrome="canvas" radius-top="lg" direction="column" align="stretch" gap="xl" padding-x="lg" padding-top="xl">
+                <nuri-view direction="column" align="stretch" gap="sm" padding-bottom="md">
+                  <nuri-typography size="lg" emphasis>Who is your recipient?</nuri-typography>
+                  <nuri-typography size="md" muted>Scan or upload a QR code, bill, invoice or screenshot to add details automatically</nuri-typography>
+                </nuri-view>
+                <!-- Footer INSIDE the docked panel, not around it: it is the only
+                     primitive that adds the device safe-area to its authored
+                     padding (calc(authored + safe-area)), which is what puts the
+                     Scan button on the same line as Move's Cancel/Next (lg + the
+                     device inset). It cannot host the rounded corners itself —
+                     it does not forward radius-top — so the painted panel stays
+                     the View and the Footer sits within it. Dock takes only
+                     `edge`, so it cannot supply the inset. -->
+                <nuri-footer safe-area-bottom direction="column" align="stretch" gap="sm" padding-bottom="lg">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button size="lg" variant="soft">Paste</nuri-button>
+                    <nuri-button size="lg" variant="soft">Upload</nuri-button>
+                  </nuri-view>
+                  <nuri-button size="lg" variant="solid" accent="lilac">Scan</nuri-button>
+                </nuri-footer>
+              </nuri-view>
+            </nuri-dock>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+</body>
+</html>

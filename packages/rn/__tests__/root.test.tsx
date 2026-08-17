@@ -87,10 +87,14 @@ describe('NuriRoot', () => {
 
     expect({ mode: theme.mode, accent: theme.accent }).toEqual({ mode: 'light', accent: 'lilac' });
     const canvas = findPaintedCanvas(tr, expected.bg);
+    // The root grows AND shrinks (grow-shrink, the #200 correction): it must
+    // stay bounded by the host viewport so the DS Scroll receives overflow —
+    // a flexShrink:0 root expands to long Screen content on RN-web.
     expect(flatStyle(canvas.props.style)).toMatchObject({
       backgroundColor: expected.bg,
       flexGrow: 1,
-      flexShrink: 0,
+      flexShrink: 1,
+      minWidth: 0,
     });
     expect(flatStyle(tr.root.findByType(RNText).props.style).color).toBe(expected.fg);
   });
