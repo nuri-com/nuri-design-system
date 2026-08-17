@@ -660,18 +660,21 @@ exports[`render-smoke — the ergonomic components mount headless IconAvatar —
       }
     }
     style={
-      {
-        "alignSelf": "flex-start",
-        "backgroundColor": "transparent",
-        "borderColor": "#dddac9",
-        "borderRadius": 9999,
-        "borderWidth": 1,
-        "flexGrow": 0,
-        "flexShrink": 0,
-        "height": 48,
-        "maxWidth": "100%",
-        "width": 48,
-      }
+      [
+        {
+          "alignSelf": "flex-start",
+          "borderRadius": 9999,
+          "flexGrow": 0,
+          "flexShrink": 0,
+          "height": 48,
+          "maxWidth": "100%",
+          "width": 48,
+        },
+        {
+          "borderColor": "rgba(0, 0, 0, 0.10)",
+          "borderWidth": 1,
+        },
+      ]
     }
   />
 </View>
@@ -1741,18 +1744,21 @@ exports[`render-smoke — the ergonomic components mount headless SelectField �
           }
         }
         style={
-          {
-            "alignSelf": "flex-start",
-            "backgroundColor": "transparent",
-            "borderColor": "#dddac9",
-            "borderRadius": 9999,
-            "borderWidth": 1,
-            "flexGrow": 0,
-            "flexShrink": 0,
-            "height": 24,
-            "maxWidth": "100%",
-            "width": 24,
-          }
+          [
+            {
+              "alignSelf": "flex-start",
+              "borderRadius": 9999,
+              "flexGrow": 0,
+              "flexShrink": 0,
+              "height": 24,
+              "maxWidth": "100%",
+              "width": 24,
+            },
+            {
+              "borderColor": "rgba(0, 0, 0, 0.10)",
+              "borderWidth": 1,
+            },
+          ]
         }
       />
     </View>

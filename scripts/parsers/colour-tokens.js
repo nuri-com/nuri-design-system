@@ -52,11 +52,21 @@ function makeRefResolver(colours, neutral) {
     );
   }
   const sotScales = { neutral: scales, ...colours.accentScales };
+  // Theme-invariant L1 alpha overlays: 2-segment 'scale.step' refs (no theme
+  // leg — the mode flip lives in the semantic pair, across scales).
+  const alphaScales = { 'black-alpha': colours.blackAlpha, 'white-alpha': colours.whiteAlpha };
   return function resolveRef(ref) {
     if (typeof ref !== 'string') {
       throw new Error(`[colour-tokens] colour ref is not a bare string: ${JSON.stringify(ref)}`);
     }
     const parts = ref.split('.');
+    if (parts.length === 2 && alphaScales[parts[0]]) {
+      const leaf = alphaScales[parts[0]][parts[1]];
+      if (!leaf || typeof leaf.value !== 'string') {
+        throw new Error(`[colour-tokens] no alpha primitive for ref '${ref}'`);
+      }
+      return leaf.value;
+    }
     if (parts.length !== 3 || !THEMES.includes(parts[2])) {
       throw new Error(`[colour-tokens] bad colour ref '${ref}' — want 'scale.step.theme' (theme ∈ {${THEMES.join(',')}})`);
     }

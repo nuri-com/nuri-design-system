@@ -23,6 +23,7 @@ import { classifyComposition } from '@nuri/spec/composition-classify';
 import { LEAF_ELS } from '@nuri/spec/descriptors/schema';
 import type { Descriptor, Axes, IconName, PartId } from '../contract';
 import { typeStyle, useNuriTheme } from '../theme';
+import { border as contractBorder } from '../contract';
 import type { NuriTheme } from './theme-payload';
 import { resolveAnatomy, flattenBakedPart, assertNever } from './resolve';
 import type { AnatomyNode, Selection, BakedComponentRecipe } from './resolve';
@@ -755,12 +756,18 @@ function renderPart<A extends Axes>(
     case 'image': {
       const source = ctx.content[node.name];
       if (source != null) {
+        // The always-on blend ring is the image LEAF's own contract (mirrors the
+        // web factory's intrinsic border · border-translucent blends over the
+        // bitmap · the Separator role-consumption precedent), not a palette cell.
         return (
           <Image
             key={node.name}
             source={source as ImageSourcePropType}
             resizeMode="cover"
-            style={flat.style as StyleProp<ImageStyle>}
+            style={[
+              flat.style as StyleProp<ImageStyle>,
+              { borderWidth: contractBorder[1], borderColor: ctx.theme.border.translucent },
+            ]}
           />
         );
       }

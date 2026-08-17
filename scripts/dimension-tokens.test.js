@@ -163,6 +163,7 @@ const UNION_ORACLE = [
   'chrome.bgCanvas', 'chrome.bgSubtle', 'chrome.bgStrong', 'chrome.bgPressed',
   'chrome.bgInverse', 'chrome.bgInverseMuted', 'chrome.textPrimary', 'chrome.textMuted',
   'chrome.textOnInverse', 'chrome.borderSubtle', 'chrome.borderDefault', 'chrome.borderStrong',
+  'chrome.borderTranslucent',
   'chrome.focusRing',
   'accent.fg', 'accent.solid', 'accent.solidPressed', 'accent.onSolid', 'accent.bgSubtle',
   'accent.bgSubtlePressed',

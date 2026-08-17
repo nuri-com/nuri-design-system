@@ -650,7 +650,7 @@ function buildGroupValues(group, resolved) {
 // Mirrors the equivalent specific-before-general ordering in
 // lib/docs/tokens.js TYPE_PREFIXES.
 function semanticLeafTsTypeByPrefix(cssVar) {
-  if (/^--nuri-border-(subtle|default|strong)$/.test(cssVar)) return 'string';
+  if (/^--nuri-border-(subtle|default|strong|translucent)$/.test(cssVar)) return 'string';
   const t = inferType(cssVar);
   if (t === 'dimension' || t === 'duration') return 'number';
   return 'string';

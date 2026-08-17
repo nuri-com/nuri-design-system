@@ -22,6 +22,7 @@ const CSS_INPUTS = [
   ['@nuri/prototype primitive scroll', 'primitives/scroll.css'],
   ['@nuri/prototype primitive footer', 'primitives/footer.css'],
   ['@nuri/prototype primitive dock', 'primitives/dock.css'],
+  ['@nuri/prototype primitive image', 'primitives/image.css'],
   ['@nuri/prototype primitive separator', 'primitives/separator.css'],
   ['@nuri/prototype primitive list separator', 'primitives/list-separator.css'],
   ['@nuri/prototype primitive spacer', 'primitives/spacer.css'],

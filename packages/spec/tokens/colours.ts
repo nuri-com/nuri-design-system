@@ -285,6 +285,12 @@ export const chrome = {
   'border-subtle':    { light: 'neutral.6.light',  dark: 'neutral.6.dark' },
   'border-default':   { light: 'neutral.7.light',  dark: 'neutral.7.dark' },
   'border-strong':    { light: 'neutral.8.light',  dark: 'neutral.8.dark' },
+  // border-translucent · the alpha hairline that BLENDS over whatever it rests
+  // on (imagery edges, any surface) — black 10% in light, white 10% in dark.
+  // The one border that refs the L1 alpha overlays: a 2-segment
+  // 'scale.step' ref (the overlays are theme-invariant · no theme leg); the
+  // mode flip lives HERE, across the two overlay scales.
+  'border-translucent': { light: 'black-alpha.2', dark: 'white-alpha.2' },
   // focus-ring · always brand (lilac) regardless of accent (DS convention · pops vs any bg)
   'focus-ring':       { light: 'lilac.8.light',    dark: 'lilac.8.dark' },
 } as const satisfies Record<string, RefPair>;

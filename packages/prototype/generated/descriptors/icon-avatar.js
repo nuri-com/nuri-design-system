@@ -30,13 +30,15 @@ export const iconAvatarDescriptor = {
       // dimension). NAMING OFFSET: the icon's public size `md` ↔ the `sm` size
       // leaf (icon `sm` ↔ size `xs`) — anchors below element heights by design.
       icon: { box: { width: 'sm', height: 'sm' } },
-      // The image is the full 48px circle, not the 24px glyph box. Its own
-      // outline palette supplies the always-on hairline ring over light image
-      // bands; the root's variant paint remains underneath and is occluded.
+      // The image is the full 48px circle, not the 24px glyph box. The always-on
+      // hairline ring over light image bands is the IMAGE ELEMENT's own contract
+      // (border-translucent · black 10% light / white 10% dark · blends over the
+      // bitmap — the Separator precedent: an element consuming a border role
+      // structurally), NOT a palette variant; the root's variant paint remains
+      // underneath and is occluded.
       image: {
         box: { width: 'lg', height: 'lg', radius: 'full' },
         stack: { fill: 'hug' },
-        palette: { variant: 'outline' },
       },
     },
   },

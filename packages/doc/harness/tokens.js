@@ -47,7 +47,7 @@
     [/^--nuri-color-/,       'color'],
     [/^--nuri-bg-/,          'color'],
     [/^--nuri-text-/,        'color'],
-    [/^--nuri-border-(subtle|default|strong)/, 'color'],
+    [/^--nuri-border-(subtle|default|strong|translucent)/, 'color'],
     [/^--nuri-accent-/,      'color'],
     [/^--nuri-focus-/,       'color'],
     [/^--nuri-px-/,          'dimension'],

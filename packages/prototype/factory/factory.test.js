@@ -177,11 +177,12 @@ test('A3 · buildComponent(IconAvatar) · source renders a generic image leaf wi
   assert.ok(image, 'the routed source renders a native img leaf');
   assert.equal(image.getAttribute('src'), source);
   assert.equal(image.style.objectFit, 'cover');
-  assert.deepEqual(classesOf(image), ['nuri-box', 'nuri-palette', 'nuri-stack']);
+  assert.deepEqual(classesOf(image), ['nuri-box', 'nuri-image', 'nuri-stack'], 'the intrinsic image leaf class (ring) — no palette dispatch');
   assert.equal(image.getAttribute('data-width'), 'lg');
   assert.equal(image.getAttribute('data-height'), 'lg');
   assert.equal(image.getAttribute('data-radius'), 'full');
-  assert.equal(image.getAttribute('data-variant'), 'outline', 'the image part owns the always-on hairline palette');
+  assert.equal(image.getAttribute('data-variant'), null, 'no palette dispatch on the image leaf');
+
   assert.equal(el.querySelector('nuri-icon'), null, 'an absent icon slot renders nothing');
 });
 

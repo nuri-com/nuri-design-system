@@ -27,6 +27,7 @@ The colour semantics — the cascade’s L2 role matrix, composed from the [prim
 | `border-subtle` | `neutral.6.light` | <span class="nuri-doc-swatch" style="background:var(--nuri-border-subtle)"></span> `#dddac9` |
 | `border-default` | `neutral.7.light` | <span class="nuri-doc-swatch" style="background:var(--nuri-border-default)"></span> `#d2cfbf` |
 | `border-strong` | `neutral.8.light` | <span class="nuri-doc-swatch" style="background:var(--nuri-border-strong)"></span> `#bfbcac` |
+| `border-translucent` | `black-alpha.2` | <span class="nuri-doc-swatch" style="background:var(--nuri-border-translucent)"></span> `rgba(0, 0, 0, 0.10)` |
 | `focus-ring` | `lilac.8.light` | <span class="nuri-doc-swatch" style="background:var(--nuri-focus-ring)"></span> `#ae91ff` |
 
 ## Accent

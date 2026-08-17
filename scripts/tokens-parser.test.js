@@ -257,6 +257,11 @@ const SEMANTIC_EXPECTED = {
                              lilac:   { light: '#d2cfbf', dark: '#4b483b' } },
   '--nuri-border-strong':  { neutral: { light: '#bfbcac', dark: '#636153' },
                              lilac:   { light: '#bfbcac', dark: '#636153' } },
+  // border-translucent · the alpha hairline (blends over imagery/any surface):
+  // black 10% light / white 10% dark — the L1 overlay primitives, mode-flipped
+  // ACROSS the two theme-invariant scales.
+  '--nuri-border-translucent': { neutral: { light: 'rgba(0, 0, 0, 0.10)', dark: 'rgba(255, 255, 255, 0.10)' },
+                                 lilac:   { light: 'rgba(0, 0, 0, 0.10)', dark: 'rgba(255, 255, 255, 0.10)' } },
 
   // ── Focus · brand-coloured ring · chrome · accent-invariant ──
   // NOTE · lilac-8 is NOT in the bright-frozen set (only lilac-9 and

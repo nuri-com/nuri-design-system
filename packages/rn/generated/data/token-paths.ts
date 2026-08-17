@@ -23,6 +23,7 @@ export type TokenPath =
   | 'chrome.borderSubtle'
   | 'chrome.borderDefault'
   | 'chrome.borderStrong'
+  | 'chrome.borderTranslucent'
   | 'chrome.focusRing'
   | 'accent.fg'
   | 'accent.solid'

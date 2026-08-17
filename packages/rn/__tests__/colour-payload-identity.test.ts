@@ -83,7 +83,7 @@ describe('SEED-4 · the provider payload is byte-identical to the pre-rework col
 
         // The chrome text/border roles are the raw chrome leaves, verbatim.
         expect(p.text).toEqual({ primary: chrome[mode].textPrimary, muted: chrome[mode].textMuted, onInverse: chrome[mode].textOnInverse });
-        expect(p.border).toEqual({ subtle: chrome[mode].borderSubtle, default: chrome[mode].borderDefault, strong: chrome[mode].borderStrong });
+        expect(p.border).toEqual({ subtle: chrome[mode].borderSubtle, default: chrome[mode].borderDefault, strong: chrome[mode].borderStrong, translucent: chrome[mode].borderTranslucent });
       });
     }
   }

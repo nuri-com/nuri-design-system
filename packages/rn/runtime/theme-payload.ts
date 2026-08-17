@@ -80,7 +80,7 @@ export type NuriTheme = {
   surface: Record<PaletteVariant, SurfaceRole>;
   chrome: Record<PaletteChrome, ChromeRole>;
   text: { primary: string; muted: string; onInverse: string };
-  border: { subtle: string; default: string; strong: string };
+  border: { subtle: string; default: string; strong: string; translucent: string };
   focusRing: string;
   type: typeof typeScale;
   interaction: { pressScale: number; disabledOpacity: number };
@@ -183,6 +183,7 @@ export function buildNuriTheme(accent: Accent, mode: Theme): ThemePayload {
       subtle: chromeSlice.borderSubtle,
       default: chromeSlice.borderDefault,
       strong: chromeSlice.borderStrong,
+      translucent: chromeSlice.borderTranslucent,
     },
     focusRing: chromeSlice.focusRing,
     type: typeScale,

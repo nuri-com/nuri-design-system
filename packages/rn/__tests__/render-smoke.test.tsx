@@ -272,11 +272,12 @@ describe('render-smoke — the ergonomic components mount headless', () => {
       const image = imageOnly.root.findByType(Image);
       expect(image.props.source).toEqual(source);
       expect(image.props.resizeMode).toBe('cover');
-      expect(image.props.style).toMatchObject({
+      const imageStyle = Object.assign({}, ...[image.props.style].flat().filter(Boolean));
+      expect(imageStyle).toMatchObject({
         width: 48,
         height: 48,
         borderRadius: 9999,
-        borderColor: '#dddac9',
+        borderColor: 'rgba(0, 0, 0, 0.10)',
         borderWidth: 1,
       });
 
@@ -319,7 +320,7 @@ describe('render-smoke — the ergonomic components mount headless', () => {
         <IconAvatar size="sm" source={{ uri: 'data:image/png;base64,flag' }} />
       </NuriThemeProvider>,
     );
-    expect(imageAvatar.root.findByType(Image).props.style).toMatchObject({ width: 24, height: 24 });
+    expect(Object.assign({}, ...[imageAvatar.root.findByType(Image).props.style].flat().filter(Boolean))).toMatchObject({ width: 24, height: 24 });
   });
 
   test('IconAvatar — outline variant paints a transparent border affordance with muted glyph', () => {

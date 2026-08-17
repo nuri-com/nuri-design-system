@@ -747,6 +747,7 @@
   --nuri-border-subtle:            var(--nuri-color-neutral-6-light);
   --nuri-border-default:           var(--nuri-color-neutral-7-light);
   --nuri-border-strong:            var(--nuri-color-neutral-8-light);
+  --nuri-border-translucent:       var(--nuri-color-black-alpha-2);
   --nuri-focus-ring:               var(--nuri-color-lilac-8-light);
   --nuri-accent-fg:                var(--nuri-color-neutral-12-light);
   --nuri-accent-solid:             var(--nuri-color-neutral-1-dark);
@@ -771,6 +772,7 @@
   --nuri-border-subtle:            var(--nuri-color-neutral-6-dark);
   --nuri-border-default:           var(--nuri-color-neutral-7-dark);
   --nuri-border-strong:            var(--nuri-color-neutral-8-dark);
+  --nuri-border-translucent:       var(--nuri-color-white-alpha-2);
   --nuri-focus-ring:               var(--nuri-color-lilac-8-dark);
   --nuri-accent-fg:                var(--nuri-color-neutral-12-dark);
   --nuri-accent-solid:             var(--nuri-color-neutral-1-light);
@@ -3073,6 +3075,27 @@ nuri-demo:not(:defined) {
     position: absolute;
     inset-inline: 0;
     inset-block-start: 0;
+  }
+}
+
+
+/* @nuri/prototype primitive image · primitives/image.css */
+/* ──────────────────────────────────────────────────────────────
+ * NURI · PRIMITIVE · IMAGE LEAF (factory `el: 'image'` · `.nuri-image`)
+ *
+ * Structural paint intrinsic to the bitmap leaf (the Separator precedent: an
+ * element consuming a border role directly). The always-on BLEND ring —
+ * border-translucent · black 10% light / white 10% dark — keeps light bitmap
+ * bands (flags, photos) defined on matching surfaces and disappears over
+ * contrast; the mode flip rides the semantic role, so a dark scope swaps it
+ * automatically. Geometry/radius stay namespace-driven (nuri-box); the ring is
+ * element contract, deliberately NOT a palette variant (outline keeps its
+ * opaque border-subtle for real outlined surfaces · 2026-08-15).
+ * ────────────────────────────────────────────────────────────── */
+
+@layer rules {
+  .nuri-image {
+    border: var(--nuri-border-1) solid var(--nuri-border-translucent);
   }
 }
 

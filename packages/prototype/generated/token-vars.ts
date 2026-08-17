@@ -24,6 +24,7 @@ export const tokenVars = {
     borderSubtle: '--nuri-border-subtle',
     borderDefault: '--nuri-border-default',
     borderStrong: '--nuri-border-strong',
+    borderTranslucent: '--nuri-border-translucent',
     focusRing: '--nuri-focus-ring',
   },
   accent: {

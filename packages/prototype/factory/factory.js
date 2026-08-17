@@ -749,15 +749,17 @@ function renderIcon(node, ns, ctx) {
 }
 
 // image → native <img src=X>. Like every leaf it renders only when content is
-// routed for its part. Geometry/radius/border are the same merged namespace
-// classes and data attributes used by the other elements; only cover-cropping is
-// intrinsic to this leaf.
+// routed for its part. Geometry/radius are the same merged namespace classes and
+// data attributes used by the other elements; cover-cropping AND the always-on
+// blend ring (`.nuri-image` · primitives/image.css · border-translucent) are
+// intrinsic to this leaf — element contract, not palette.
 function renderImage(node, ns, ctx) {
   const source = ctx.content[node.name];
   if (source == null) return null;
   const el = document.createElement('img');
   el.setAttribute('src', String(source));
   el.style.objectFit = 'cover';
+  el.classList.add('nuri-image');
   const { classes, data } = mergeAttrs(ns);
   if (classes.length) el.classList.add(...classes);
   for (const [k, v] of Object.entries(data)) el.setAttribute(k, v);
