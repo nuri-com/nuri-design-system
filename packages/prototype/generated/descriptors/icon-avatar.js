@@ -61,6 +61,17 @@ export const iconAvatarDescriptor = {
       },
       md: {},
     },
+    // mode · INTERNAL content-derived axis (api.propMaps.contentMode — source
+    // routed ⇒ image, else glyph · never a public prop). In image mode the
+    // root's variant paint is SUPPRESSED (later-wins merge → ghost: transparent,
+    // no border): "outline + source = no-op" promoted from convention to
+    // mechanism, so the bitmap fills the full circle and the image leaf's own
+    // translucent ring is the only border. Keyed AFTER variant deliberately —
+    // axis order is the merge order.
+    mode: {
+      glyph: {},
+      image: { root: { palette: { variant: 'ghost' } } },
+    },
   },
   // The PUBLIC defaults (R1.5 · N+50): an unset `variant` resolves to soft (NOT
   // the variant-order first value `solid`) and an unset size resolves to the 48px
@@ -82,6 +93,9 @@ export const iconAvatarDescriptor = {
   api: {
     axes: ['variant', 'size'],
     themeScope: { accent: true },
+    propMaps: {
+      contentMode: { slot: 'source', axis: 'mode', present: 'image', absent: 'glyph' },
+    },
     slots: {
       icon: { part: 'icon', kind: 'icon-name', prop: 'icon' },
       source: { part: 'image', kind: 'image-source', prop: 'source' },

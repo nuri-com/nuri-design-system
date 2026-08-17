@@ -15,9 +15,10 @@
  * never data. Static surface — no `interactive` opt-in (65.3 · the IconAvatar
  * story); the full surface INCLUDING `subtle` (the fg-only role · 65.1).
  * Glyph mode reads `variant` normally. Image mode fills the circle and carries
- * its own always-on hairline ring; the root variant still paints underneath but
- * is occluded. Consequently `variant="outline"` + `source` is a documented
- * no-op-by-convention rather than a guarded combination. Size `md` is the 48px
+ * its own always-on translucent ring (the image element's contract); the root's
+ * variant paint is SUPPRESSED by the internal content-derived `mode` axis
+ * (api.propMaps.contentMode), so `variant` + `source` is a no-op by MECHANISM,
+ * not convention. Size `md` is the 48px
  * default with the 24px glyph; `sm` is the 24px compact circle with the 18px
  * glyph (re-specced 36→24 · operator 2026-08-15).
  *
@@ -36,6 +37,9 @@ import type { Descriptor } from './schema';
 type IconAvatarAxes = {
   variant: 'solid' | 'soft' | 'ghost' | 'subtle' | 'outline';
   size: 'sm' | 'md';
+  // INTERNAL content-derived axis (api.propMaps.contentMode) — in the axes
+  // type so the variants table typechecks; NOT in api.axes, so no public prop.
+  mode: 'glyph' | 'image';
 };
 
 export const iconAvatarDescriptor: Descriptor<IconAvatarAxes> = {
@@ -84,6 +88,17 @@ export const iconAvatarDescriptor: Descriptor<IconAvatarAxes> = {
       },
       md: {},
     },
+    // mode · INTERNAL content-derived axis (api.propMaps.contentMode — source
+    // routed ⇒ image, else glyph · never a public prop). In image mode the
+    // root's variant paint is SUPPRESSED (later-wins merge → ghost: transparent,
+    // no border): "outline + source = no-op" promoted from convention to
+    // mechanism, so the bitmap fills the full circle and the image leaf's own
+    // translucent ring is the only border. Keyed AFTER variant deliberately —
+    // axis order is the merge order.
+    mode: {
+      glyph: {},
+      image: { root: { palette: { variant: 'ghost' } } },
+    },
   },
   // The PUBLIC defaults (R1.5 · N+50): an unset `variant` resolves to soft (NOT
   // the variant-order first value `solid`) and an unset size resolves to the 48px
@@ -105,6 +120,9 @@ export const iconAvatarDescriptor: Descriptor<IconAvatarAxes> = {
   api: {
     axes: ['variant', 'size'],
     themeScope: { accent: true },
+    propMaps: {
+      contentMode: { slot: 'source', axis: 'mode', present: 'image', absent: 'glyph' },
+    },
     slots: {
       icon: { part: 'icon', kind: 'icon-name', prop: 'icon' },
       source: { part: 'image', kind: 'image-source', prop: 'source' },

@@ -185,7 +185,11 @@ const EXPECTED_DESCRIPTORS = {
     interactive: ['pressColor', 'pressScale', 'disabledOpacity'], // the collapsed root opt-in (§8 · no compound)
   },
   'icon-avatar': {
-    axes: { variant: ['solid', 'soft', 'ghost', 'subtle', 'outline'], size: ['sm', 'md'] },
+    // `mode` ADDED 2026-08-15 (a versioned per-component axis add): the INTERNAL
+    // content-derived axis (api.propMaps.contentMode · source ⇒ image | glyph) —
+    // image mode suppresses the root's variant paint (ghost), so the bitmap owns
+    // the full circle and the image leaf's translucent ring is the only border.
+    axes: { variant: ['solid', 'soft', 'ghost', 'subtle', 'outline'], size: ['sm', 'md'], mode: ['glyph', 'image'] },
     parts: ['icon', 'image'],
     interactive: [], // static · no `interactive` (65.3 · the IconAvatar story)
   },
@@ -648,7 +652,10 @@ const FROZEN_SCHEMA = {
     'role?': "'tablist'",
     'themeScope?': '{ accent: true }',
     'behaviour?': "{ pressable?: { target: P; role?: 'button' | 'tab'; popup?: 'dialog'; props: ('onPress' | 'disabled' | 'accessibilityLabel' | 'accessibilityValue')[]; }; input?: { target: P; focusTarget?: P; labelPart?: P; props: InputBehaviourProp[] }; }",
-    'propMaps?': '{ selected?: { axis: string; true: string; false: string } }',
+    // contentMode ADDED 2026-08-15 (a versioned post-freeze api add · the
+    // content-presence bridge): routed slot content drives an INTERNAL axis —
+    // both bindings derive it as data (icon-avatar `mode`).
+    'propMaps?': '{ selected?: { axis: string; true: string; false: string }; contentMode?: { slot: string; axis: string; present: string; absent: string }; }',
     'slots': 'Record<string, SlotSpec<P>>',
   },
   SlotSpec: {

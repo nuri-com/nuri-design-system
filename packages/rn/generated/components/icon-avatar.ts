@@ -43,7 +43,9 @@ const IconAvatarInner: React.FC<IconAvatarProps> = (props) => {
   const selection: Record<string, string> = {
     "variant": props.variant ?? "soft",
     "size": props.size ?? "md",
+    "mode": "glyph",
   };
+  selection["mode"] = props.source != null ? "image" : "glyph";
   const content: Partial<Record<IconAvatarPart, NuriContent>> = {};
   if (props.icon !== undefined && props.source === undefined) content["icon"] = props.icon;
   if (props.source !== undefined) content["image"] = props.source;

@@ -644,7 +644,7 @@ exports[`render-smoke — the ergonomic components mount headless IconAvatar —
   style={
     {
       "alignItems": "center",
-      "backgroundColor": "#f3f1e2",
+      "backgroundColor": "transparent",
       "borderRadius": 9999,
       "height": 48,
       "justifyContent": "center",
@@ -1727,9 +1727,7 @@ exports[`render-smoke — the ergonomic components mount headless SelectField �
         {
           "alignItems": "center",
           "backgroundColor": "transparent",
-          "borderColor": "#dddac9",
           "borderRadius": 9999,
-          "borderWidth": 1,
           "height": 24,
           "justifyContent": "center",
           "width": 24,

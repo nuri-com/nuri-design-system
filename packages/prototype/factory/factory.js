@@ -831,6 +831,16 @@ export function buildComponent(descriptor, selection = {}, props = {}) {
     }
   }
 
+  // THE content-presence BRIDGE (propMaps.contentMode · the `selected` bridge
+  // sibling · the RN adapter mirror): routed content on the named slot drives
+  // an INTERNAL axis (icon-avatar `mode`: source ⇒ image | glyph).
+  const contentModeMap = descriptor.api?.propMaps?.contentMode;
+  if (contentModeMap) {
+    const modeSlot = descriptor.api.slots[contentModeMap.slot];
+    sel[contentModeMap.axis] =
+      modeSlot && content[modeSlot.part] != null ? contentModeMap.present : contentModeMap.absent;
+  }
+
   return renderPart(anatomy, {
     descriptor,
     selection: sel,
@@ -880,7 +890,16 @@ export const nuriNames = (kebab) => ({ web: `nuri-${kebab}`, rn: pascalCase(keba
 export function defineNuriComponent(descriptor, tagName, options = {}) {
   const descriptorName = tagName.startsWith('nuri-') ? tagName.slice('nuri-'.length) : tagName;
   NURI_COMPONENT_TAGS.set(descriptorName, tagName);
-  const axisNames = descriptor.variants ? Object.keys(descriptor.variants) : [];
+  // Bridge-driven axes are INTERNAL — never author attributes: the `selected`
+  // boolean attr drives propMaps.selected.axis, and routed content drives
+  // propMaps.contentMode.axis (icon-avatar `mode`). Everything else in
+  // `variants` is a public axis attribute.
+  const bridgeAxes = new Set(
+    [descriptor.api?.propMaps?.selected?.axis, descriptor.api?.propMaps?.contentMode?.axis].filter(Boolean),
+  );
+  const axisNames = (descriptor.variants ? Object.keys(descriptor.variants) : []).filter(
+    (axis) => !bridgeAxes.has(axis),
+  );
   const anatomy = resolveAnatomy(descriptor);
   const apiSlots = descriptor.api?.slots || {};
   const defaultSlotSpec = Object.values(apiSlots).find((spec) => spec.default === true);

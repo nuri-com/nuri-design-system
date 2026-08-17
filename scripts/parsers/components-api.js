@@ -359,6 +359,18 @@ function emitSelection(descriptor) {
       '  }',
     );
   }
+
+  // THE content-presence BRIDGE (propMaps.contentMode · the selected-bridge
+  // sibling): the named slot's scalar prop drives an INTERNAL axis — data in the
+  // descriptor, one derived line in the adapter (web mirror: buildComponent).
+  const contentMode = descriptor.api.propMaps && descriptor.api.propMaps.contentMode;
+  if (contentMode) {
+    const slot = descriptor.api.slots[contentMode.slot];
+    const prop = (slot && slot.prop) || contentMode.slot;
+    lines.push(
+      `  selection[${q(contentMode.axis)}] = props.${prop} != null ? ${q(contentMode.present)} : ${q(contentMode.absent)};`,
+    );
+  }
   return lines;
 }
 

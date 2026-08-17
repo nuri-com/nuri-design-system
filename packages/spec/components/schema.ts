@@ -411,6 +411,12 @@ export type SlotSpec<P extends PartId = PartId> = {
 // the press affordance, ONLY where declared and the target part is `interactive`;
 // `propMaps.selected` = the `selected`→state-axis bridge as DATA (kills the
 // `'state' extends keyof A` factory magic); `slots` = the content entry points.
+// `propMaps.contentMode` = the content-presence bridge (a versioned post-freeze
+// api add · 2026-08-15): routed content on the named slot drives an INTERNAL
+// axis (never in `axes`, never an author attribute) — both bindings derive it
+// as DATA (RN codegen from the slot's scalar prop · web buildComponent from the
+// routed content). First consumer: icon-avatar `mode` (source → image | glyph),
+// promoting "outline + source = no-op by convention" to mechanism.
 export type InputBehaviourProp = 'value'
   | 'onChangeText'
   | 'placeholder'
@@ -437,7 +443,10 @@ export type ComponentApi<P extends PartId = PartId> = {
     };
     input?: { target: P; focusTarget?: P; labelPart?: P; props: InputBehaviourProp[] };
   };
-  propMaps?: { selected?: { axis: string; true: string; false: string } };
+  propMaps?: {
+    selected?: { axis: string; true: string; false: string };
+    contentMode?: { slot: string; axis: string; present: string; absent: string };
+  };
   slots: Record<string, SlotSpec<P>>;
 };
 
