@@ -45,7 +45,11 @@ export function NuriRoot({
   return (
     <NuriThemeProvider mode={mode} accent={accent}>
       <OverlayProvider>
-        <View chrome="canvas" fill="grow">
+        {/* fill="grow-shrink", not "grow": the root must stay bounded by the
+            host viewport so the DS Scroll receives the overflow — a no-shrink
+            root expands to long Screen content on RN-web and the viewport
+            never constrains it (the #200 correction). */}
+        <View chrome="canvas" fill="grow-shrink">
           <NuriSafeAreaProvider top={safeArea?.top} bottom={safeArea?.bottom}>
             <ToastProvider>{children}</ToastProvider>
           </NuriSafeAreaProvider>
