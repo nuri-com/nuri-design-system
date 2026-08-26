@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuri · Playground · Cards</title>
+  <link rel="stylesheet" href="../generated/playground.css" />
+  <script src="../generated/boot.js" type="module"></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  PLAYGROUND · CARDS
+  ═══════════════════════════════════════════════════════════════
+
+  Exploration bench for the BALANCE CARD on the home screen: the draft
+  replaces unified-balance's bare card-ratio region with a real surface
+  (chrome=subtle · radius=lg) that carries a source cluster + label at the
+  top and the converted total at the bottom-right, and pairs Move (soft)
+  with Add money (solid).
+
+  Pure composition — every board below is <nuri-view> / <nuri-typography> /
+  <nuri-icon-avatar> / <nuri-button> / <nuri-list-action>, no page-local CSS
+  (the demo-screens-are-RN-translatable rule). Where the draft needs
+  vocabulary the DS does not have, the board stops at what IS expressible and
+  the gap is named in the comment — see the CAROUSEL note on board 1.
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-playground-shell doc="Cards">
+
+  <!-- BALANCE CARD · the draft, as far as pure composition reaches.
+
+       The card = one <nuri-view chrome="subtle" radius="lg" aspect-ratio="card">
+       with justify="between": the source cluster + label ride the top edge, the
+       total rides the bottom on align="end". Same list + same rows as the
+       unified-balance home; only the balance region and the action pair change.
+
+       ⚠ CAROUSEL GAP (not invented here): the draft shows a SECOND card peeking
+       past the right edge — a horizontally scrolling, ~85%-width card rail. The
+       DS has neither axis: <nuri-scroll> is block-axis only (scroll.css: no
+       overflow-x, no snap) and the box `width` scale tops out at 90px (no
+       fractional / viewport width). So this board renders the single card at
+       content width.
+
+       LIST · Transaction history opens the list unbanded, then the TIER bands
+       group the sources: Cash accounts (startup · no KYC · no rails — bitcoin,
+       lightning, euro, dollar) and Spend accounts (multisig · KYC · Visa+IBAN
+       rails). The band carries the tier, so row titles stay the bare currency;
+       on an account view's card head the same word returns inline as the muted
+       qualifier after the name.
+
+       ⚠ AVATAR CLUSTER: the overlapping pair is spelled with <nuri-bleed x> —
+       the controlled-negative-space primitive, the same seam trick as move.html.
+       It works, but the pull is symmetric (x bleeds BOTH sides), so the label
+       gap has to absorb the right-side pull. A real cluster/stack pattern is
+       the honest fix. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="balance card">
+    <template>
+      <nuri-screen>
+        <nuri-header safe-area-top chrome="canvas">
+          <nuri-topbar layout="fluid">
+            <nuri-topbar-title>Welcome Satoshi!</nuri-topbar-title>
+            <nuri-topbar-trailing>
+              <nuri-icon-button icon="settings" variant="soft" aria-label="Settings"></nuri-icon-button>
+            </nuri-topbar-trailing>
+          </nuri-topbar>
+        </nuri-header>
+
+        <nuri-scroll>
+          <nuri-view direction="column" align="stretch" justify="start" gap="md" padding-y="md" fill>
+            <nuri-view direction="column" align="stretch" padding-x="lg">
+              <nuri-view
+                chrome="strong"
+                radius="lg"
+                aspect-ratio="card"
+                padding="md"
+                direction="column"
+                justify="between"
+                align="stretch"
+              >
+                <nuri-view direction="row" align="center" gap="md">
+                  <nuri-view direction="row" align="center">
+                    <nuri-icon-avatar size="sm" source="../assets/flags/eur.svg"></nuri-icon-avatar>
+                    <nuri-bleed x="sm">
+                      <nuri-icon-avatar size="sm" source="../assets/logos/bitcoin.svg"></nuri-icon-avatar>
+                    </nuri-bleed>
+                  </nuri-view>
+                  <nuri-typography size="md" emphasis>Total Balance</nuri-typography>
+                </nuri-view>
+
+                <!-- The AMOUNT REGION · a fixed 3xl-height box on EVERY card: the
+                     3xl figure anchors to its top, so the big amount sits at the
+                     SAME y across the carousel whether or not a second line fills
+                     the space below (3xl line 67.8px + md line 21.9px = the 90px
+                     3xl size leaf — measured, not tuned). -->
+                <nuri-view height="3xl" direction="column" align="end" justify="start">
+                  <nuri-typography size="3xl" align="end">€ 25.87</nuri-typography>
+                </nuri-view>
+              </nuri-view>
+            </nuri-view>
+
+            <nuri-view direction="row" align="center" gap="sm" distribute="even" padding-x="lg">
+              <nuri-button size="lg" variant="soft">Move</nuri-button>
+              <nuri-button size="lg" variant="solid">Add money</nuri-button>
+            </nuri-view>
+
+            <nuri-list>
+              <nuri-list-action aria-label="Transaction history, 153 activities">
+                <nuri-list-action-leading-avatar name="list-bullets" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Transaction history</nuri-list-action-text>
+                <nuri-list-action-text-muted>153 Activities</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+
+              <!-- The labelled band · the unified-balance large-title pattern
+                   (a size-md row, md inset, two grown separators flanking the
+                   muted label). Here the two bands carry the
+                   TIER, so row titles stay the bare currency. -->
+              <nuri-view direction="row" align="center" gap="sm" height="md" padding-x="md">
+                <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+                <nuri-typography size="sm" emphasis muted>Cash accounts</nuri-typography>
+                <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+              </nuri-view>
+
+              <nuri-list-action aria-label="Bitcoin, 86969 sats">
+                <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Bitcoin</nuri-list-action-text>
+                <nuri-list-action-text-muted>86969 ₿</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Bitcoin Lightning, 0 sats">
+                <nuri-list-action-leading-avatar source="../assets/logos/lightning.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Bitcoin Lightning</nuri-list-action-text>
+                <nuri-list-action-text-muted>0 ₿</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Euro, Cash account, 100 euros">
+                <nuri-list-action-leading-avatar source="../assets/flags/eur.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Euro</nuri-list-action-text>
+                <nuri-list-action-text-muted>100.00 €</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Dollar, Cash account, 74.60 dollars">
+                <nuri-list-action-leading-avatar source="../assets/flags/usa.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Dollar</nuri-list-action-text>
+                <nuri-list-action-text-muted>74.60 $</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-view direction="row" align="center" gap="sm" height="md" padding-x="md">
+                <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+                <nuri-typography size="sm" emphasis muted>Spend accounts</nuri-typography>
+                <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+              </nuri-view>
+
+              <nuri-list-action aria-label="Euro, Spend account, 34.45 euros">
+                <nuri-list-action-leading-avatar source="../assets/logos/visa-eur.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Euro</nuri-list-action-text>
+                <nuri-list-action-text-muted>34.45 &euro;</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Dollar, Spend account, 25.00 dollars">
+                <nuri-list-action-leading-avatar source="../assets/logos/visa-usd.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Dollar</nuri-list-action-text>
+                <nuri-list-action-text-muted>25.00 $</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+          </nuri-view>
+        </nuri-scroll>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BALANCE CARD · SCROLLING TOPBAR · the same composition with the chrome
+       DE-PINNED: no <nuri-header>, so the topbar is the first row INSIDE the
+       scroll and rides away with the content. The top safe area moves onto
+       <nuri-screen safe-area-top> (the header was reserving it); the column
+       drops its top padding because the topbar's own 2xl band now opens the
+       scroll. surface="transparent" — a scrolling bar occludes nothing.
+
+       Differs from the unified-balance large-title board on purpose: THAT one
+       keeps a top <nuri-dock> for the actions and only scrolls the title. Here
+       the WHOLE bar scrolls, actions included — nothing stays pinned. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="balance card · scrolling topbar">
+    <template>
+      <nuri-screen safe-area-top>
+        <nuri-scroll>
+          <nuri-view direction="column" align="stretch" justify="start" gap="md" padding-bottom="md" fill>
+            <nuri-topbar surface="transparent" layout="fluid">
+              <nuri-topbar-title>Welcome Satoshi!</nuri-topbar-title>
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="settings" variant="soft" aria-label="Settings"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+
+            <nuri-view direction="column" align="stretch" padding-x="lg">
+              <nuri-view
+                chrome="strong"
+                radius="lg"
+                aspect-ratio="card"
+                padding="md"
+                direction="column"
+                justify="between"
+                align="stretch"
+              >
+                <nuri-view direction="row" align="center" gap="md">
+                  <nuri-view direction="row" align="center">
+                    <nuri-icon-avatar size="sm" source="../assets/flags/eur.svg"></nuri-icon-avatar>
+                    <nuri-bleed x="sm">
+                      <nuri-icon-avatar size="sm" source="../assets/logos/bitcoin.svg"></nuri-icon-avatar>
+                    </nuri-bleed>
+                  </nuri-view>
+                  <nuri-typography size="md" emphasis>Total Balance</nuri-typography>
+                </nuri-view>
+
+                <nuri-view height="3xl" direction="column" align="end" justify="start">
+                  <nuri-typography size="3xl" align="end">€ 25.87</nuri-typography>
+                </nuri-view>
+              </nuri-view>
+            </nuri-view>
+
+            <nuri-view direction="row" align="center" gap="sm" distribute="even" padding-x="lg">
+              <nuri-button size="lg" variant="soft">Move</nuri-button>
+              <nuri-button size="lg" variant="solid">Add money</nuri-button>
+            </nuri-view>
+
+            <nuri-list>
+              <nuri-list-action aria-label="Transaction history, 153 activities">
+                <nuri-list-action-leading-avatar name="list-bullets" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Transaction history</nuri-list-action-text>
+                <nuri-list-action-text-muted>153 Activities</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+
+              <!-- The labelled band · the unified-balance large-title pattern
+                   (a size-md row, md inset, two grown separators flanking the
+                   muted label). Here the two bands carry the
+                   TIER, so row titles stay the bare currency. -->
+              <nuri-view direction="row" align="center" gap="sm" height="md" padding-x="md">
+                <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+                <nuri-typography size="sm" emphasis muted>Cash accounts</nuri-typography>
+                <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+              </nuri-view>
+
+              <nuri-list-action aria-label="Bitcoin, 86969 sats">
+                <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Bitcoin</nuri-list-action-text>
+                <nuri-list-action-text-muted>86969 ₿</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Bitcoin Lightning, 0 sats">
+                <nuri-list-action-leading-avatar source="../assets/logos/lightning.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Bitcoin Lightning</nuri-list-action-text>
+                <nuri-list-action-text-muted>0 ₿</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Euro, Cash account, 100 euros">
+                <nuri-list-action-leading-avatar source="../assets/flags/eur.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Euro</nuri-list-action-text>
+                <nuri-list-action-text-muted>100.00 €</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Dollar, Cash account, 74.60 dollars">
+                <nuri-list-action-leading-avatar source="../assets/flags/usa.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Dollar</nuri-list-action-text>
+                <nuri-list-action-text-muted>74.60 $</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-view direction="row" align="center" gap="sm" height="md" padding-x="md">
+                <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+                <nuri-typography size="sm" emphasis muted>Spend accounts</nuri-typography>
+                <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+              </nuri-view>
+
+              <nuri-list-action aria-label="Euro, Spend account, 34.45 euros">
+                <nuri-list-action-leading-avatar source="../assets/logos/visa-eur.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Euro</nuri-list-action-text>
+                <nuri-list-action-text-muted>34.45 &euro;</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Dollar, Spend account, 25.00 dollars">
+                <nuri-list-action-leading-avatar source="../assets/logos/visa-usd.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Dollar</nuri-list-action-text>
+                <nuri-list-action-text-muted>25.00 $</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+          </nuri-view>
+        </nuri-scroll>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- EURO CASH · ACCOUNT VIEW · the account-view pattern on the cash euro: EU
+       flag head with the Cash qualifier, the account's OWN balance (€ 100.00 —
+       each card carries its figure, never the total), Send on lilac, and one
+       identity row under the band — the address (a cash account has no rails:
+       no card, no IBAN). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="euro cash · account view">
+    <template>
+      <nuri-screen safe-area-top>
+        <nuri-scroll>
+          <nuri-view direction="column" align="stretch" justify="start" gap="md" padding-bottom="md" fill>
+            <!-- No title, so the bar drops layout="fluid" and takes the DEFAULT
+                 centered layout: leading + trailing are fill="even", which holds
+                 them at the two edges (the screens.html back-bar spelling). fluid
+                 would hug them and, with no content pivot between, collapse both
+                 to the left. -->
+            <nuri-topbar surface="transparent">
+              <nuri-topbar-leading>
+                <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+              </nuri-topbar-leading>
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="settings" variant="soft" aria-label="Settings"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+
+            <nuri-view direction="column" align="stretch" padding-x="lg">
+              <nuri-view
+                chrome="strong"
+                radius="lg"
+                aspect-ratio="card"
+                padding="md"
+                direction="column"
+                justify="between"
+                align="stretch"
+              >
+                <nuri-view direction="row" align="center" gap="sm">
+                  <nuri-icon-avatar size="sm" source="../assets/flags/eur.svg"></nuri-icon-avatar>
+                  <nuri-typography size="md" emphasis>Euro</nuri-typography>
+                  <nuri-typography size="md" muted>Cash account</nuri-typography>
+                </nuri-view>
+
+                <nuri-view height="3xl" direction="column" align="end" justify="start">
+                  <nuri-typography size="3xl" align="end">&euro; 100.00</nuri-typography>
+                </nuri-view>
+              </nuri-view>
+            </nuri-view>
+
+            <nuri-view direction="row" align="center" gap="sm" distribute="even" padding-x="lg">
+              <nuri-button size="lg" variant="soft">Move</nuri-button>
+              <nuri-button size="lg" variant="solid" accent="lilac">Send</nuri-button>
+            </nuri-view>
+
+            <nuri-list>
+              <nuri-list-action aria-label="Transaction history, 153 activities">
+                <nuri-list-action-leading-avatar name="list-bullets" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Transaction history</nuri-list-action-text>
+                <nuri-list-action-text-muted>153 Activities</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+
+              <!-- The labelled band, now introducing the IDENTITY rows instead of
+                   the account group it carried on the boards before. -->
+              <nuri-view direction="row" align="center" gap="sm" height="md" padding-x="md">
+                <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+                <nuri-typography size="sm" emphasis muted>Account details</nuri-typography>
+                <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+              </nuri-view>
+
+              <nuri-list-action aria-label="Address, 0x71C7 to 976F">
+                <nuri-list-action-leading-avatar name="qr" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Address</nuri-list-action-text>
+                <nuri-list-action-text-muted>0x71C7 &bull;&bull;&bull;&bull; 976F</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+          </nuri-view>
+        </nuri-scroll>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- EURO VISA · ACCOUNT VIEW · the account-view pattern (the carousel slide
+       model): back topbar, the composed head with the tier qualifier, Move/Send,
+       then Transaction history and the Account details band introducing the rails
+       THIS account owns (card PAN · IBAN). No accounts list — the way back out is
+       the back button (carousel → slide 0). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="euro visa · account view">
+    <template>
+      <nuri-screen safe-area-top>
+        <nuri-scroll>
+          <nuri-view direction="column" align="stretch" justify="start" gap="md" padding-bottom="md" fill>
+            <!-- No title, so the bar drops layout="fluid" and takes the DEFAULT
+                 centered layout: leading + trailing are fill="even", which holds
+                 them at the two edges (the screens.html back-bar spelling). fluid
+                 would hug them and, with no content pivot between, collapse both
+                 to the left. -->
+            <nuri-topbar surface="transparent">
+              <nuri-topbar-leading>
+                <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+              </nuri-topbar-leading>
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="settings" variant="soft" aria-label="Settings"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+
+            <nuri-view direction="column" align="stretch" padding-x="lg">
+              <nuri-view
+                chrome="strong"
+                radius="lg"
+                aspect-ratio="card"
+                padding="md"
+                direction="column"
+                justify="between"
+                align="stretch"
+              >
+                <nuri-view direction="row" align="center" gap="sm">
+                  <nuri-icon-avatar size="sm" source="../assets/logos/visa-eur.svg"></nuri-icon-avatar>
+                  <nuri-typography size="md" emphasis>Euro</nuri-typography>
+                  <nuri-typography size="md" muted>Spend account</nuri-typography>
+                </nuri-view>
+
+                <nuri-view height="3xl" direction="column" align="end" justify="start">
+                  <nuri-typography size="3xl" align="end">&euro; 34.45</nuri-typography>
+                </nuri-view>
+              </nuri-view>
+            </nuri-view>
+
+            <nuri-view direction="row" align="center" gap="sm" distribute="even" padding-x="lg">
+              <nuri-button size="lg" variant="soft">Move</nuri-button>
+              <nuri-button size="lg" variant="solid" accent="lilac">Send</nuri-button>
+            </nuri-view>
+
+            <nuri-list>
+              <nuri-list-action aria-label="Transaction history, 153 activities">
+                <nuri-list-action-leading-avatar name="list-bullets" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Transaction history</nuri-list-action-text>
+                <nuri-list-action-text-muted>153 Activities</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+
+              <!-- The labelled band, now introducing the IDENTITY rows instead of
+                   the account group it carried on the boards before. -->
+              <nuri-view direction="row" align="center" gap="sm" height="md" padding-x="md">
+                <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+                <nuri-typography size="sm" emphasis muted>Account details</nuri-typography>
+                <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+              </nuri-view>
+
+              <nuri-list-action aria-label="Visa card details, card ending 4729">
+                <nuri-list-action-leading-avatar name="card" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Visa card details</nuri-list-action-text>
+                <nuri-list-action-text-muted>4539 &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; 4729</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="IBAN, DE89 ending 3000">
+                <nuri-list-action-leading-avatar name="bank" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>IBAN</nuri-list-action-text>
+                <nuri-list-action-text-muted>DE89 3704 0044 0532 0130 00</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+          </nuri-view>
+        </nuri-scroll>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BITCOIN · ACCOUNT VIEW · the cash-tier bitcoin slide: the sats balance,
+       Send on the orange bitcoin context accent, and the onchain address row.
+       NO tier qualifier on the head — "Bitcoin Cash account" would read as BCH,
+       and the naming rule qualifies only where a collision exists (the two
+       Euros / two Dollars); bitcoin has none, so the name stays bare. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="bitcoin · account view">
+    <template>
+      <nuri-screen safe-area-top>
+        <nuri-scroll>
+          <nuri-view direction="column" align="stretch" justify="start" gap="md" padding-bottom="md" fill>
+            <!-- No title, so the bar drops layout="fluid" and takes the DEFAULT
+                 centered layout: leading + trailing are fill="even", which holds
+                 them at the two edges (the screens.html back-bar spelling). fluid
+                 would hug them and, with no content pivot between, collapse both
+                 to the left. -->
+            <nuri-topbar surface="transparent">
+              <nuri-topbar-leading>
+                <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+              </nuri-topbar-leading>
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="settings" variant="soft" aria-label="Settings"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+
+            <nuri-view direction="column" align="stretch" padding-x="lg">
+              <nuri-view
+                chrome="strong"
+                radius="lg"
+                aspect-ratio="card"
+                padding="md"
+                direction="column"
+                justify="between"
+                align="stretch"
+              >
+                <nuri-view direction="row" align="center" gap="sm">
+                  <nuri-icon-avatar size="sm" source="../assets/logos/bitcoin.svg"></nuri-icon-avatar>
+                  <nuri-typography size="md" emphasis>Bitcoin</nuri-typography>
+                </nuri-view>
+
+                <nuri-view height="3xl" direction="column" align="end" justify="start">
+                  <nuri-typography size="3xl" align="end">₿ 86969</nuri-typography>
+                  <nuri-typography size="md" align="end">&euro; 41.82</nuri-typography>
+                </nuri-view>
+              </nuri-view>
+            </nuri-view>
+
+            <nuri-view direction="row" align="center" gap="sm" distribute="even" padding-x="lg">
+              <nuri-button size="lg" variant="soft">Move</nuri-button>
+              <nuri-button size="lg" variant="solid" accent="orange">Send</nuri-button>
+            </nuri-view>
+
+            <nuri-list>
+              <nuri-list-action aria-label="Transaction history, 153 activities">
+                <nuri-list-action-leading-avatar name="list-bullets" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Transaction history</nuri-list-action-text>
+                <nuri-list-action-text-muted>153 Activities</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+
+              <!-- The labelled band, now introducing the IDENTITY rows instead of
+                   the account group it carried on the boards before. -->
+              <nuri-view direction="row" align="center" gap="sm" height="md" padding-x="md">
+                <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+                <nuri-typography size="sm" emphasis muted>Account details</nuri-typography>
+                <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+              </nuri-view>
+
+              <nuri-list-action aria-label="Address, bc1qct to gsl6r4">
+                <nuri-list-action-leading-avatar name="qr" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Address</nuri-list-action-text>
+                <nuri-list-action-text-muted>bc1qct &bull;&bull;&bull;&bull; gsl6r4</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+          </nuri-view>
+        </nuri-scroll>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+</body>
+</html>

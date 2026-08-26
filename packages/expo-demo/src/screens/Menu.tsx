@@ -12,6 +12,7 @@ import { CountryPickerSheet } from '../sheets/CountryPickerSheet';
 import { TextFieldStress } from './TextFieldStress';
 import { Move } from './Move';
 import { Scan } from './Scan';
+import { Cards } from './Cards';
 
 type FormValues = {
   iban: string;
@@ -28,6 +29,7 @@ export function Menu({ onBack }: { onBack: () => void }) {
   const [showTextFieldStress, setShowTextFieldStress] = React.useState(false);
   const [showMove, setShowMove] = React.useState<false | 'regular' | 'stress'>(false);
   const [showScan, setShowScan] = React.useState(false);
+  const [showCards, setShowCards] = React.useState(false);
   const activity = useSheet();
   const amount = useSheet();
   const actions = useSheet();
@@ -60,6 +62,10 @@ export function Menu({ onBack }: { onBack: () => void }) {
     return <Scan onClose={() => setShowScan(false)} />;
   }
 
+  if (showCards) {
+    return <Cards onClose={() => setShowCards(false)} />;
+  }
+
   return (
     <Screen safeArea>
       <Topbar>
@@ -80,6 +86,7 @@ export function Menu({ onBack }: { onBack: () => void }) {
         <Button size="lg" variant="soft" onPress={() => setShowMove('regular')}>Move · SelectTrigger parity</Button>
         <Button size="lg" variant="soft" onPress={() => setShowMove('stress')}>Move · stress values</Button>
         <Button size="lg" variant="soft" onPress={() => setShowScan(true)}>Scan · recipient (docked panel)</Button>
+        <Button size="lg" variant="soft" onPress={() => setShowCards(true)}>Cards · carousel prototype</Button>
         </View>
       </Scroll>
 
