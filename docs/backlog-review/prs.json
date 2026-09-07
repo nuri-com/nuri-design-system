@@ -1,0 +1,110 @@
+[
+  {
+    "snapshot": {
+      "baseRefName": "main",
+      "body": "## Summary\n\n- add self-contained Nuri Delivery claim and handoff instructions to `AGENTS.md`\n- keep the rules usable when an agent cannot read the canonical `nuri-infra` contract\n- make Claude Code load `AGENTS.md` through its documented `@AGENTS.md` import\n\n## Rules carried locally\n\n- Project `Ready` is the only implementation authorization\n- any approved agent or operator may claim; Nuri Forge is one implementer, not the exclusive path\n- claim fields plus immediate readback coordinate the first version\n- Nuri Sentinel reviews every PR exact head\n- eligible `nuri-expo` PRs additionally require Nuri QA\n\n## Verification\n\n- `git diff --check`\n- only `AGENTS.md` and `CLAUDE.md` changed\n- required claim/fallback/review markers and Claude import validated locally\n- branch published through the Nuri Forge GitHub App Commit API; GitHub reported the remote commit signature as verified\n\nTracks nuri-com/nuri-infra#95.\n",
+      "closingIssuesReferences": [],
+      "comments": [],
+      "commits": [
+        {
+          "authoredDate": "2026-08-14T18:50:12Z",
+          "authors": [
+            {
+              "email": "307109797+nuri-forge[bot]@users.noreply.github.com",
+              "id": "BOT_kgDOEk4fpQ",
+              "login": "nuri-forge[bot]",
+              "name": "nuri-forge[bot]"
+            }
+          ],
+          "committedDate": "2026-08-14T18:50:12Z",
+          "messageBody": "",
+          "messageHeadline": "docs(delivery): add Nuri claim instructions",
+          "oid": "d964c117bacb9fa8c0e39b501f99b4040b4ee287"
+        }
+      ],
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "additions": 17,
+          "deletions": 0,
+          "changeType": "MODIFIED"
+        },
+        {
+          "path": "CLAUDE.md",
+          "additions": 5,
+          "deletions": 0,
+          "changeType": "ADDED"
+        }
+      ],
+      "headRefOid": "d964c117bacb9fa8c0e39b501f99b4040b4ee287",
+      "isDraft": false,
+      "mergeStateStatus": "BLOCKED",
+      "mergeable": "MERGEABLE",
+      "number": 210,
+      "reviewDecision": "REVIEW_REQUIRED",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-08-14T18:51:55Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/nuri-com/nuri-design-system/actions/runs/31830615918/job/94865146536",
+          "name": "spec",
+          "startedAt": "2026-08-14T18:51:31Z",
+          "status": "COMPLETED",
+          "workflowName": "gates"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-08-14T18:52:03Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/nuri-com/nuri-design-system/actions/runs/31830615918/job/94865146504",
+          "name": "prototype",
+          "startedAt": "2026-08-14T18:51:31Z",
+          "status": "COMPLETED",
+          "workflowName": "gates"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-08-14T18:51:59Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/nuri-com/nuri-design-system/actions/runs/31830615918/job/94865146478",
+          "name": "doc",
+          "startedAt": "2026-08-14T18:51:31Z",
+          "status": "COMPLETED",
+          "workflowName": "gates"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-08-14T18:52:10Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/nuri-com/nuri-design-system/actions/runs/31830615918/job/94865146681",
+          "name": "rn",
+          "startedAt": "2026-08-14T18:51:31Z",
+          "status": "COMPLETED",
+          "workflowName": "gates"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-08-14T18:52:01Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/nuri-com/nuri-design-system/actions/runs/31830615918/job/94865146445",
+          "name": "expo-demo",
+          "startedAt": "2026-08-14T18:51:31Z",
+          "status": "COMPLETED",
+          "workflowName": "gates"
+        }
+      ],
+      "title": "docs(delivery): add Nuri claim instructions",
+      "url": "https://github.com/nuri-com/nuri-design-system/pull/210"
+    },
+    "review": {
+      "number": 210,
+      "task_numbers": [],
+      "external_tasks": [
+        "https://github.com/nuri-com/nuri-infra/issues/95"
+      ],
+      "mapping_de": "Reiner Delivery-Dokumentations-PR, keine Zuordnung zu den sieben lokalen Design-System-Issues. Der vollständige PR-Text nennt ausschließlich nuri-com/nuri-infra#95 als Tracking-Auftrag; closingIssuesReferences ist leer. Der gelesene Diff verändert nur AGENTS.md und fügt CLAUDE.md mit @AGENTS.md-Import hinzu. Quelle: https://github.com/nuri-com/nuri-design-system/pull/210 ; geprüfter Head d964c117bacb9fa8c0e39b501f99b4040b4ee287.",
+      "remaining_de": "PR unverändert offen lassen. Snapshot: MERGEABLE, aber BLOCKED und REVIEW_REQUIRED; fünf gespeicherte CI-Checks erfolgreich, keine abgelegte Freigabe. Vor einem späteren Merge unabhängige Exact-Head-/Sentinel-Freigabe sowie Aktualität gegenüber dem kanonischen Infra-Vertrag prüfen. Die Claim-Regeln sind eine projektfeldbasierte Koordination, keine atomare Sperre; parallele Claim-Übernahmen werden allein durch Write-plus-Readback nicht allgemein ausgeschlossen. Keine GitHub-Mutation, kein Merge und keine neue CI-, Runtime-, Visual-QA- oder Deployment-Bestätigung in diesem Audit."
+    }
+  }
+]
