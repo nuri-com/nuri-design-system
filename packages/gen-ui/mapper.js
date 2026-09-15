@@ -28,6 +28,7 @@ export function schemaToTree(tool) {
     key: propName,
     label: (prop.title || propName).replace(/_/g, ' '),
     helper: prop.description,
+    collapseAfter: 80,
     required: required.has(propName),
     ...fieldComponent(propName, prop, required.has(propName)),
   }));
@@ -35,6 +36,9 @@ export function schemaToTree(tool) {
     component: 'Card',
     props: { title: title || name },
     children: [
+      ...(tool.description
+        ? [{ component: 'Paragraph', props: { text: tool.description, collapseAfter: 80 } }]
+        : []),
       ...fields,
       { component: 'Button', props: { label: title || name, onPress: `submit:${name}` } },
     ],
@@ -58,6 +62,7 @@ export function valuesToArgs(values, inputSchema = {}) {
 const FIXTURE = {
   name: 'payouts',
   title: 'Send money to a saved recipient',
+  description: 'Create a payout to a recipient you have paid before. SEPA arrives in 1-2 business days.',
   inputSchema: {
     type: 'object',
     properties: {

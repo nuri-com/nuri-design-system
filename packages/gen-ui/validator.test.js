@@ -73,3 +73,14 @@ test('accepts string leaf children', () => {
   const tree = { type: 'Card', children: ['hello'] };
   assert.deepEqual(validate(tree), []);
 });
+
+test('rejects Paragraph with 500 chars and no collapseAfter', () => {
+  const tree = { type: 'Paragraph', props: { text: 'x'.repeat(500) } };
+  const errors = validate(tree);
+  assert.ok(errors.some((e) => /exceeds collapseAfter 80/.test(e)));
+});
+
+test('accepts long Paragraph within explicit collapseAfter', () => {
+  const tree = { type: 'Paragraph', props: { text: 'x'.repeat(500), collapseAfter: 500 } };
+  assert.deepEqual(validate(tree), []);
+});

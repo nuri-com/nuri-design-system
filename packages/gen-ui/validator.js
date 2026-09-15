@@ -28,6 +28,13 @@ function validateNode(node, path) {
         errors.push(`${path} <${node.type}>: missing required prop "${key}"`);
       }
     }
+    if (node.type === 'Paragraph') {
+      const limit = typeof props.collapseAfter === 'number' ? props.collapseAfter : 80;
+      const text = typeof props.text === 'string' ? props.text : '';
+      if (text.length > limit) {
+        errors.push(`${path} <Paragraph>: text length ${text.length} exceeds collapseAfter ${limit}`);
+      }
+    }
   }
   const children = node.children ?? [];
   if (!Array.isArray(children)) {
