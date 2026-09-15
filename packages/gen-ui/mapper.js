@@ -20,13 +20,29 @@ function fieldComponent(name, prop, required) {
   }
 }
 
+// Human label: first sentence of description, else snake_case -> Title Case
+function fieldLabel(propName, prop) {
+  const desc = (prop.description || '').split(/(?<=[.!?])\s/)[0]?.trim();
+  if (desc) return desc;
+  return propName.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+// Field classification from description cues
+function fieldClass(prop) {
+  const d = prop.description || '';
+  if (/earlier result|earlier reference|previous result|reference id/i.test(d)) return 'auto';
+  if (/leave out|unless/i.test(d)) return 'advanced';
+  return 'normal';
+}
+
 // inputSchema -> UI tree: Card > fields... > submit Button
 export function schemaToTree(tool) {
   const { name, title, inputSchema = {} } = tool;
   const required = new Set(inputSchema.required || []);
   const fields = Object.entries(inputSchema.properties || {}).map(([propName, prop]) => ({
     key: propName,
-    label: (prop.title || propName).replace(/_/g, ' '),
+    label: fieldLabel(propName, prop),
+    class: fieldClass(prop),
     helper: prop.description,
     collapseAfter: 80,
     required: required.has(propName),
@@ -66,10 +82,11 @@ const FIXTURE = {
   inputSchema: {
     type: 'object',
     properties: {
-      recipient_id: { type: 'string', description: 'Recipient ID' },
-      amount: { type: 'number', description: 'Amount in EUR' },
-      reference: { type: 'string', description: 'Payment reference' },
-      urgent: { type: 'boolean', description: 'Instant payout' },
+      recipient_id: { type: 'string', description: 'Reference to an earlier result of a saved recipient lookup.' },
+      amount: { type: 'number', description: 'How much do you want to send? Amount in EUR.' },
+      reference: { type: 'string', description: 'Payment reference shown to the recipient.' },
+      urgent: { type: 'boolean', description: 'Leave out unless you need an instant payout.' },
+      note_for_recipient: { type: 'string' },
       method: { type: 'string', title: 'Method', enum: ['sepa', 'instant', 'swift'], description: 'Payout method' },
     },
     required: ['recipient_id', 'amount'],
