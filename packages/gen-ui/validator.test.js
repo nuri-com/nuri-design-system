@@ -80,6 +80,23 @@ test('rejects Paragraph with 500 chars and no collapseAfter', () => {
   assert.ok(errors.some((e) => /exceeds collapseAfter 80/.test(e)));
 });
 
+test('rejects snake_case in visible label', () => {
+  const tree = { type: 'Button', props: { label: 'request_id', onPress: 'fn' } };
+  const errors = validate(tree);
+  assert.ok(errors.some((e) => /looks like snake_case/.test(e)));
+});
+
+test('rejects snake_case in Paragraph text', () => {
+  const tree = { type: 'Paragraph', props: { text: 'enter your_first_name' } };
+  const errors = validate(tree);
+  assert.ok(errors.some((e) => /looks like snake_case/.test(e)));
+});
+
+test('accepts human-readable label', () => {
+  const tree = { type: 'Button', props: { label: 'Request ID', onPress: 'fn' } };
+  assert.deepEqual(validate(tree), []);
+});
+
 test('accepts long Paragraph within explicit collapseAfter', () => {
   const tree = { type: 'Paragraph', props: { text: 'x'.repeat(500), collapseAfter: 500 } };
   assert.deepEqual(validate(tree), []);

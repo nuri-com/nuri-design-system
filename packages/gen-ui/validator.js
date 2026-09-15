@@ -28,6 +28,13 @@ function validateNode(node, path) {
         errors.push(`${path} <${node.type}>: missing required prop "${key}"`);
       }
     }
+    // Translator rule: visible text must be human-readable, not raw snake_case ids.
+    for (const key of ['label', 'text', 'title']) {
+      const value = props[key];
+      if (typeof value === 'string' && /\b[a-z][a-z0-9]*_[a-z0-9_]+\b/.test(value)) {
+        errors.push(`${path} <${node.type}>: ${key} "${value}" looks like snake_case; use human-readable text`);
+      }
+    }
     if (node.type === 'Paragraph') {
       const limit = typeof props.collapseAfter === 'number' ? props.collapseAfter : 80;
       const text = typeof props.text === 'string' ? props.text : '';
