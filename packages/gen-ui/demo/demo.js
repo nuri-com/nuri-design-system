@@ -1,6 +1,6 @@
 // Demo client: tool select -> schemaToTree -> renderTree -> POST /api/call -> render response HTML.
 import { schemaToTree, valuesToArgs } from '../mapper.js';
-import { renderTree } from '../renderer.js';
+import { renderTree, renderNode } from '../renderer.js';
 
 const toolSelect = document.querySelector('#tool');
 const form = document.querySelector('#form');
@@ -12,13 +12,6 @@ let tools = [];
 function toRenderNode(node) {
   const { component, children = [], props = {}, ...rest } = node;
   return { type: component, props: { ...rest, ...props }, children: children.map(toRenderNode) };
-}
-
-function helperRow(text) {
-  const span = document.createElement('span');
-  span.className = 'nuri-helper nuri-field-helper';
-  span.textContent = text;
-  return span;
 }
 
 function buildForm(tool) {
@@ -49,7 +42,8 @@ function buildForm(tool) {
       span.textContent = field.label + (field.required ? ' *' : '');
       container.prepend(span);
     }
-    if (field.helper) container.append(helperRow(field.helper));
+    // Helper text via renderer: long text collapses to teaser + mehr-toggle.
+    if (field.helper) container.insertAdjacentHTML('beforeend', renderNode({ type: 'Helper', props: { text: field.helper } }));
   });
 }
 

@@ -39,6 +39,11 @@ function fillRequired(node) {
     node.children = [];
     return;
   }
+  // Text rule: Paragraph text may not exceed collapseAfter; clamp to teaser.
+  if (node.type === 'Paragraph' && typeof node.props?.text === 'string') {
+    const limit = typeof node.props.collapseAfter === 'number' ? node.props.collapseAfter : 80;
+    if (node.props.text.length > limit) node.props.text = node.props.text.slice(0, limit - 1).trimEnd() + '…';
+  }
   if (component) {
     for (const [key, meta] of Object.entries(component.props)) {
       if (meta.required && meta.type !== 'ReactNode' && !(key in (node.props ?? {}))) {
