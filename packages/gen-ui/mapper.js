@@ -4,14 +4,14 @@
 
 // JSON Schema property -> catalog component
 function fieldComponent(name, prop, required) {
-  if (prop.enum) return { component: 'InputField', options: prop.enum }; // catalog has no select; enum rendered as InputField with options hint
+  if (prop.enum) return { component: 'Dropdown', options: prop.enum };
   switch (prop.type) {
     case 'number':
     case 'integer':
       if (/amount|sum|price|value/i.test(name)) return { component: 'AmountInput' };
       return { component: 'InputField', keyboardType: 'numeric' };
     case 'boolean':
-      return { component: 'InputField', keyboardType: 'default', hint: 'true/false' };
+      return { component: 'Switch' };
     default: {
       const f = { component: 'InputField', keyboardType: 'default' };
       if (/email/i.test(name) || prop.format === 'email') f.keyboardType = 'email-address';
@@ -26,15 +26,16 @@ export function schemaToTree(tool) {
   const required = new Set(inputSchema.required || []);
   const fields = Object.entries(inputSchema.properties || {}).map(([propName, prop]) => ({
     key: propName,
-    label: prop.title || prop.description || propName,
+    label: (prop.title || propName).replace(/_/g, ' '),
+    helper: prop.description,
     required: required.has(propName),
     ...fieldComponent(propName, prop, required.has(propName)),
   }));
   return {
-    component: 'ModalSheet',
+    component: 'Card',
     props: { title: title || name },
     children: [
-      { component: 'Card', children: fields },
+      ...fields,
       { component: 'Button', props: { label: title || name, onPress: `submit:${name}` } },
     ],
   };
@@ -64,6 +65,7 @@ const FIXTURE = {
       amount: { type: 'number', description: 'Amount in EUR' },
       reference: { type: 'string', description: 'Payment reference' },
       urgent: { type: 'boolean', description: 'Instant payout' },
+      method: { type: 'string', title: 'Method', enum: ['sepa', 'instant', 'swift'], description: 'Payout method' },
     },
     required: ['recipient_id', 'amount'],
   },
