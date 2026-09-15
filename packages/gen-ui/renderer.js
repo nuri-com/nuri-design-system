@@ -8,6 +8,17 @@ const text = (s) => escapeHtml(s ?? '');
 
 // type -> (props, childrenHtml) -> html. onPress/onChange handlers render as data-action attributes.
 const renderers = {
+  Headline: (p) => `<h2 class="nuri-headline">${text(p.text)}</h2>`,
+  Paragraph: (p) => `<p class="nuri-paragraph">${text(p.text)}</p>`,
+  Dropdown: (p) =>
+    `<label class="nuri-field">${p.label ? `<span class="nuri-field-label">${text(p.label)}</span>` : ''}` +
+    `<select class="nuri-dropdown"${p.disabled ? ' disabled' : ''}>${(p.options || []).map((o) => `<option value="${text(o.value ?? o)}"${(o.value ?? o) === p.value ? ' selected' : ''}>${text(o.label ?? o)}</option>`).join('')}</select></label>`,
+  List: (p, kids) => `<ul class="nuri-list">${kids}</ul>`,
+  Switch: (p) =>
+    `<label class="nuri-switch">${p.label ? `<span class="nuri-field-label">${text(p.label)}</span>` : ''}` +
+    `<input type="checkbox" role="switch"${p.value ? ' checked' : ''}${p.disabled ? ' disabled' : ''}/></label>`,
+  Details: (p) => `<details class="nuri-details"><summary>${text(p.summary)}</summary><pre>${text(p.text)}</pre></details>`,
+  ListItem: (p, kids) => `<li class="nuri-list-item">${kids}</li>`,
   Button: (p, kids) =>
     `<button class="nuri-btn nuri-btn-${p.variant || 'primary'}"${p.disabled ? ' disabled' : ''}${p.loading ? ' data-loading' : ''}>${p.loading ? '…' : text(p.label)}</button>`,
   IconButton: (p) =>
@@ -53,12 +64,19 @@ if (process.argv[2] === '--demo') {
     type: 'Card',
     props: { padding: 'md' },
     children: [
+      { type: 'Headline', props: { text: 'Send money' }, children: [] },
+      { type: 'Paragraph', props: { text: 'Fast SEPA transfer.' }, children: [] },
+      { type: 'Dropdown', props: { label: 'Account', value: 'main', options: [{ value: 'main', label: 'Main' }, { value: 'savings', label: 'Savings' }] }, children: [] },
+      { type: 'List', props: {}, children: [{ type: 'ListItem', props: {}, children: [{ type: 'Card', props: { padding: 'sm' }, children: [{ type: 'Paragraph', props: { text: 'Fee: 0.00 EUR' }, children: [] }] }] }] },
+      { type: 'Switch', props: { label: 'Instant', value: true }, children: [] },
       { type: 'TextLink', props: { label: 'Balance: 1,234.56 EUR' }, children: [] },
       { type: 'AmountInput', props: { value: '50', currency: 'EUR' }, children: [] },
       { type: 'InputField', props: { label: 'Recipient', value: '', placeholder: 'IBAN', error: 'Required' }, children: [] },
       { type: 'Button', props: { label: 'Send', variant: 'primary' }, children: [] },
       { type: 'Button', props: { label: 'Cancel', variant: 'secondary' }, children: [] },
       { type: 'Spinner', props: { size: 'sm', label: 'Loading rates' }, children: [] },
+      { type: 'IconButton', props: { icon: '?', accessibilityLabel: 'Help' }, children: [] },
+      { type: 'ModalSheet', props: { visible: true, title: 'Confirm' }, children: [{ type: 'Paragraph', props: { text: 'Send 50 EUR?' }, children: [] }] },
     ],
   };
 
