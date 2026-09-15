@@ -1,0 +1,81 @@
+#!/usr/bin/env node
+// Renders a gen-ui component tree to DOM HTML with nuri DS classes.
+// Usage: node renderer.js --demo  (prints HTML for fixture tree + response tree)
+import { toolResponseToTree } from './response-mapper.js';
+
+const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const text = (s) => escapeHtml(s ?? '');
+
+// type -> (props, childrenHtml) -> html. onPress/onChange handlers render as data-action attributes.
+const renderers = {
+  Button: (p, kids) =>
+    `<button class="nuri-btn nuri-btn-${p.variant || 'primary'}"${p.disabled ? ' disabled' : ''}${p.loading ? ' data-loading' : ''}>${p.loading ? '…' : text(p.label)}</button>`,
+  IconButton: (p) =>
+    `<button class="nuri-icon-btn" aria-label="${text(p.accessibilityLabel)}"${p.disabled ? ' disabled' : ''}>${text(p.icon)}</button>`,
+  TextLink: (p) =>
+    `<button class="nuri-text-link"${p.disabled ? ' disabled' : ''}>${text(p.label)}</button>`,
+  InputField: (p) =>
+    `<label class="nuri-field">${p.label ? `<span class="nuri-field-label">${text(p.label)}</span>` : ''}` +
+    `<input class="nuri-input${p.error ? ' nuri-input-error' : ''}" type="${p.keyboardType === 'numeric' ? 'number' : p.keyboardType === 'email-address' ? 'email' : 'text'}" value="${text(p.value)}" placeholder="${text(p.placeholder)}"/>` +
+    `${p.error ? `<span class="nuri-field-error">${text(p.error)}</span>` : ''}</label>`,
+  AmountInput: (p) =>
+    `<div class="nuri-amount"><input class="nuri-input nuri-amount-input" type="number" value="${text(p.value)}"${p.autoFocus ? ' autofocus' : ''}/><span class="nuri-amount-currency">${text(p.currency)}</span></div>`,
+  Card: (p, kids) => `<div class="nuri-card nuri-p-${p.padding || 'md'}">${kids}</div>`,
+  ModalSheet: (p, kids) =>
+    p.visible
+      ? `<div class="nuri-modal-backdrop"><div class="nuri-modal-sheet">${p.title ? `<div class="nuri-modal-title">${text(p.title)}</div>` : ''}${kids}</div></div>`
+      : '',
+  Spinner: (p) => `<div class="nuri-spinner nuri-spinner-${p.size || 'md'}" role="status">${p.label ? `<span>${text(p.label)}</span>` : ''}</div>`,
+};
+
+export function renderNode(node) {
+  const r = renderers[node.type];
+  if (!r) return `<!-- unknown component: ${text(node.type)} -->`;
+  const kids = (node.children || []).map(renderNode).join('');
+  return r(node.props || {}, kids);
+}
+
+export function renderTree(node) {
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="stylesheet" href="./gen-ui.css"/>
+<title>nuri gen-ui</title>
+</head>
+<body class="nuri-root">${renderNode(node)}</body>
+</html>`;
+}
+
+if (process.argv[2] === '--demo') {
+  const fixture = {
+    type: 'Card',
+    props: { padding: 'md' },
+    children: [
+      { type: 'TextLink', props: { label: 'Balance: 1,234.56 EUR' }, children: [] },
+      { type: 'AmountInput', props: { value: '50', currency: 'EUR' }, children: [] },
+      { type: 'InputField', props: { label: 'Recipient', value: '', placeholder: 'IBAN', error: 'Required' }, children: [] },
+      { type: 'Button', props: { label: 'Send', variant: 'primary' }, children: [] },
+      { type: 'Button', props: { label: 'Cancel', variant: 'secondary' }, children: [] },
+      { type: 'Spinner', props: { size: 'sm', label: 'Loading rates' }, children: [] },
+    ],
+  };
+
+  const toolResponse = {
+    content: [
+      {
+        type: 'text',
+        text: JSON.stringify([
+          { title: 'Groceries -42.10 EUR' },
+          { title: 'Salary +2,500.00 EUR' },
+        ]),
+      },
+    ],
+  };
+  const responseTree = toolResponseToTree('list_transactions', toolResponse);
+
+  console.log(renderTree(fixture));
+  console.log('\n<!-- tool response tree: list_transactions -->');
+  console.log(renderNode(responseTree));
+}
