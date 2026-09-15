@@ -1,5 +1,22 @@
 # Working on Nuri
 
+## Nuri Delivery claim and handoff rules
+
+These rules are complete even when this agent cannot read the [canonical contract](https://github.com/nuri-com/nuri-infra/blob/main/docs/delivery-control-plane/claim-contract.md).
+
+1. Before changing code, verify the canonical issue is on [Nuri Delivery](https://github.com/orgs/nuri-com/projects/4) with status `Ready`; labels, assignment, forms, branches, or chat are not authorization.
+2. Confirm **Current actor** has no live claimant, then claim by setting status `In Progress`, **Current actor** to your stable identity, **Execution** to the run/branch/worktree, and **Last checkpoint** to an ISO-8601 timestamp plus evidence.
+3. Re-read the Project item. Only the claimant shown after readback may modify code; if another claimant won, stop without touching the branch.
+4. If you cannot read or write the Project, comment `CLAIM REQUEST — <identity> — <execution link>` on the issue and wait for the router's Project-backed claim receipt. The comment alone is not a claim.
+5. Follow this repository's branch, release, security, admission, and verification rules. Nuri Forge is one possible implementer, not the mandatory path.
+6. Update **Last checkpoint** when evidence or the next action materially changes. Never overwrite a live claim or force-push another actor's branch; verify execution is dead and record recovery before takeover.
+7. If blocked, record why and return to `Ready` when the same scope can resume, `Shaping` when scope must change, or `Decision Needed` for bounded human judgment.
+8. When a PR is ready, link it in **Execution**, move to `Verification Pending`, clear the implementation claim, and hand the exact head to **Nuri Sentinel**.
+9. Sentinel reviews every PR regardless of implementer; every new head invalidates the old verdict. Eligible `nuri-expo` PRs additionally require **Nuri QA**; Sentinel never replaces QA.
+10. Only after required exact-head checks, Sentinel, and QA pass may work move through `Verified` to `Human Review`. A PR, branch, local test, or completion message is never `Done`.
+
+Start without a claim service or lease daemon: Project fields plus immediate readback are the coordination mechanism; automate only an observed recurring failure.
+
 Router for the **spec-authoring agent** — the persona that modifies Nuri itself (the spec data, the
 codegen, the projections, the docs). Read [`README.md`](./README.md) first: it is the operational source
 of truth (what Nuri is, the package shape, how resolution works, how to build it, the common tasks). This
