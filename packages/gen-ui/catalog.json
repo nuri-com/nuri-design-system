@@ -1,7 +1,23 @@
 {
   "name": "nuri-gen-ui-catalog",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "components": [
+    {
+      "name": "Headline",
+      "description": "Section or screen title.",
+      "props": {
+        "text": { "type": "string", "required": true },
+        "level": { "type": "'h1' | 'h2' | 'h3'", "required": false, "default": "'h2'" }
+      }
+    },
+    {
+      "name": "Paragraph",
+      "description": "Body text block.",
+      "props": {
+        "text": { "type": "string", "required": true },
+        "muted": { "type": "boolean", "required": false, "default": "false" }
+      }
+    },
     {
       "name": "Button",
       "description": "Command action. Never use text or icons as bare clickables.",
@@ -10,25 +26,6 @@
         "variant": { "type": "'primary' | 'secondary' | 'destructive'", "required": false, "default": "'primary'" },
         "disabled": { "type": "boolean", "required": false, "default": "false" },
         "loading": { "type": "boolean", "required": false, "default": "false" },
-        "onPress": { "type": "() => void", "required": true }
-      }
-    },
-    {
-      "name": "IconButton",
-      "description": "Clickable icon. Plain icons are never clickable.",
-      "props": {
-        "icon": { "type": "IconName", "required": true },
-        "accessibilityLabel": { "type": "string", "required": true },
-        "disabled": { "type": "boolean", "required": false, "default": "false" },
-        "onPress": { "type": "() => void", "required": true }
-      }
-    },
-    {
-      "name": "TextLink",
-      "description": "Clickable text. Plain text is never clickable.",
-      "props": {
-        "label": { "type": "string", "required": true },
-        "disabled": { "type": "boolean", "required": false, "default": "false" },
         "onPress": { "type": "() => void", "required": true }
       }
     },
@@ -45,13 +42,22 @@
       }
     },
     {
-      "name": "AmountInput",
-      "description": "Currency amount input with fiat/crypto display.",
+      "name": "Dropdown",
+      "description": "Single-choice selector from a fixed option list.",
       "props": {
+        "label": { "type": "string", "required": false },
+        "options": { "type": "Array<{ value: string; label: string }>", "required": true },
         "value": { "type": "string", "required": true },
-        "currency": { "type": "'BTC' | 'EUR' | 'USD'", "required": true },
-        "onChange": { "type": "(amount: string) => void", "required": true },
-        "autoFocus": { "type": "boolean", "required": false, "default": "false" }
+        "onChange": { "type": "(value: string) => void", "required": true },
+        "disabled": { "type": "boolean", "required": false, "default": "false" }
+      }
+    },
+    {
+      "name": "List",
+      "description": "Vertical list of labelled rows.",
+      "props": {
+        "items": { "type": "Array<{ id: string; label: string; detail?: string }>", "required": true },
+        "onPressItem": { "type": "(id: string) => void", "required": false }
       }
     },
     {
@@ -63,13 +69,23 @@
       }
     },
     {
-      "name": "ModalSheet",
-      "description": "Bottom-sheet modal for flows and choices.",
+      "name": "Switch",
+      "description": "Binary on/off toggle.",
       "props": {
-        "visible": { "type": "boolean", "required": true },
-        "title": { "type": "string", "required": false },
-        "onClose": { "type": "() => void", "required": true },
-        "children": { "type": "ReactNode", "required": true }
+        "label": { "type": "string", "required": false },
+        "value": { "type": "boolean", "required": true },
+        "onChange": { "type": "(value: boolean) => void", "required": true },
+        "disabled": { "type": "boolean", "required": false, "default": "false" }
+      }
+    },
+    {
+      "name": "AmountInput",
+      "description": "Currency amount input with fiat/crypto display.",
+      "props": {
+        "value": { "type": "string", "required": true },
+        "currency": { "type": "'BTC' | 'EUR' | 'USD'", "required": true },
+        "onChange": { "type": "(amount: string) => void", "required": true },
+        "autoFocus": { "type": "boolean", "required": false, "default": "false" }
       }
     },
     {

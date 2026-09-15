@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Prints the gen-ui component catalog: 8 typed UI components with props.
+// Prints the gen-ui component catalog: 10 typed UI components with props.
 import catalog from './catalog.json' with { type: 'json' };
 
 for (const c of catalog.components) {
