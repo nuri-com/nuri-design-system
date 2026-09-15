@@ -71,7 +71,7 @@ const FIXTURE = {
   },
 };
 
-if (process.argv.includes('--demo')) {
+if (typeof process !== 'undefined' && process.argv?.includes('--demo')) {
   const tree = schemaToTree(FIXTURE);
   console.log('UI tree:');
   console.log(JSON.stringify(tree, null, 2));

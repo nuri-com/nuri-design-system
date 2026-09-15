@@ -59,7 +59,7 @@ export function renderTree(node) {
 </html>`;
 }
 
-if (process.argv[2] === '--demo') {
+if (typeof process !== 'undefined' && process.argv?.[2] === '--demo') {
   const fixture = {
     type: 'Card',
     props: { padding: 'md' },
