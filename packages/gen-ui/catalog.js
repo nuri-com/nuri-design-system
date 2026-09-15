@@ -2,6 +2,8 @@
 // Prints the gen-ui component catalog: 10 typed UI components with props.
 import catalog from './catalog.json' with { type: 'json' };
 
+console.log(`${catalog.name} v${catalog.version}`);
+console.log(`  meta.minimalTextRule: ${catalog.meta.minimalTextRule}\n`);
 for (const c of catalog.components) {
   console.log(`${c.name}`);
   console.log(`  ${c.description}`);

@@ -1,6 +1,9 @@
 {
   "name": "nuri-gen-ui-catalog",
   "version": "0.2.0",
+  "meta": {
+    "minimalTextRule": "Keep UI text minimal. Body and helper texts collapse after `collapseAfter` characters (default 80) with an expand affordance."
+  },
   "components": [
     {
       "name": "Headline",
@@ -15,7 +18,8 @@
       "description": "Body text block.",
       "props": {
         "text": { "type": "string", "required": true },
-        "muted": { "type": "boolean", "required": false, "default": "false" }
+        "muted": { "type": "boolean", "required": false, "default": "false" },
+        "collapseAfter": { "type": "number", "required": false, "default": "80" }
       }
     },
     {
@@ -37,6 +41,7 @@
         "value": { "type": "string", "required": true },
         "placeholder": { "type": "string", "required": false },
         "error": { "type": "string", "required": false },
+        "collapseAfter": { "type": "number", "required": false, "default": "80" },
         "keyboardType": { "type": "'default' | 'email-address' | 'numeric'", "required": false, "default": "'default'" },
         "onChangeText": { "type": "(text: string) => void", "required": true }
       }
@@ -49,7 +54,8 @@
         "options": { "type": "Array<{ value: string; label: string }>", "required": true },
         "value": { "type": "string", "required": true },
         "onChange": { "type": "(value: string) => void", "required": true },
-        "disabled": { "type": "boolean", "required": false, "default": "false" }
+        "disabled": { "type": "boolean", "required": false, "default": "false" },
+        "collapseAfter": { "type": "number", "required": false, "default": "80" }
       }
     },
     {
@@ -75,7 +81,8 @@
         "label": { "type": "string", "required": false },
         "value": { "type": "boolean", "required": true },
         "onChange": { "type": "(value: boolean) => void", "required": true },
-        "disabled": { "type": "boolean", "required": false, "default": "false" }
+        "disabled": { "type": "boolean", "required": false, "default": "false" },
+        "collapseAfter": { "type": "number", "required": false, "default": "80" }
       }
     },
     {
@@ -93,7 +100,8 @@
       "description": "Indeterminate loading indicator.",
       "props": {
         "size": { "type": "'sm' | 'md' | 'lg'", "required": false, "default": "'md'" },
-        "label": { "type": "string", "required": false }
+        "label": { "type": "string", "required": false },
+        "collapseAfter": { "type": "number", "required": false, "default": "80" }
       }
     }
   ]
