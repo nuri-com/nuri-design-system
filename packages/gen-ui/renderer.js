@@ -41,7 +41,7 @@ const renderers = {
     `${p.error ? `<span class="nuri-field-error">${text(p.error)}</span>` : ''}</label>`,
   AmountInput: (p) =>
     `<div class="nuri-amount"><input class="nuri-input nuri-amount-input" type="number" value="${text(p.value)}"${p.autoFocus ? ' autofocus' : ''}/><span class="nuri-amount-currency">${text(p.currency)}</span></div>`,
-  Card: (p, kids) => `<div class="nuri-card nuri-p-${p.padding || 'md'}">${kids}</div>`,
+  Card: (p, kids) => `<div class="nuri-card nuri-p-${p.padding || 'md'}${p.bubble ? ' nuri-bubble' : ''}">${kids}</div>`,
   ModalSheet: (p, kids) =>
     p.visible
       ? `<div class="nuri-modal-backdrop"><div class="nuri-modal-sheet">${p.title ? `<div class="nuri-modal-title">${text(p.title)}</div>` : ''}${kids}</div></div>`
@@ -52,8 +52,13 @@ const renderers = {
 export function renderNode(node) {
   const r = renderers[node.type];
   if (!r) return `<!-- unknown component: ${text(node.type)} -->`;
-  const kids = (node.children || []).map(renderNode).join('');
-  return r(node.props || {}, kids);
+  if (node.props?.class === 'auto') return '';
+  const kids = (node.children || []).filter((c) => c.props?.class !== 'auto');
+  const normal = kids.filter((c) => c.props?.class !== 'advanced');
+  const advanced = kids.filter((c) => c.props?.class === 'advanced');
+  let kidsHtml = normal.map(renderNode).join('');
+  if (advanced.length) kidsHtml += `<details class="nuri-details"><summary>Erweitert</summary>${advanced.map(renderNode).join('')}</details>`;
+  return r(node.props || {}, kidsHtml);
 }
 
 export function renderTree(node) {
@@ -83,6 +88,9 @@ if (typeof process !== 'undefined' && process.argv?.[2] === '--demo') {
       { type: 'TextLink', props: { label: 'Balance: 1,234.56 EUR' }, children: [] },
       { type: 'AmountInput', props: { value: '50', currency: 'EUR' }, children: [] },
       { type: 'InputField', props: { label: 'Recipient', value: '', placeholder: 'IBAN', error: 'Required' }, children: [] },
+      { type: 'InputField', props: { label: 'Recipient ID (auto)', value: 'rec_42', class: 'auto' }, children: [] },
+      { type: 'Switch', props: { label: 'Urgent', value: false, class: 'advanced' }, children: [] },
+      { type: 'InputField', props: { label: 'Note for recipient', value: '', class: 'advanced' }, children: [] },
       { type: 'Button', props: { label: 'Send', variant: 'primary' }, children: [] },
       { type: 'Button', props: { label: 'Cancel', variant: 'secondary' }, children: [] },
       { type: 'Spinner', props: { size: 'sm', label: 'Loading rates' }, children: [] },
@@ -113,10 +121,13 @@ if (typeof process !== 'undefined' && process.argv?.[2] === '--demo') {
   const longResponseTree = toolResponseToTree('account_summary', longToolResponse);
 
   const responseTree = toolResponseToTree('list_transactions', toolResponse);
+  const textResponseTree = toolResponseToTree('account_summary', { content: [{ type: 'text', text: 'Balance looks fine.' }] });
 
   console.log(renderTree(fixture));
   console.log('\n<!-- tool response tree: list_transactions -->');
   console.log(renderNode(responseTree));
   console.log('\n<!-- tool response tree: account_summary (long text) -->');
   console.log(renderNode(longResponseTree));
+  console.log('\n<!-- tool response tree: account_summary (short text) -->');
+  console.log(renderNode(textResponseTree));
 }

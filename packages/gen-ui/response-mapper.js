@@ -5,7 +5,12 @@
 const COLLAPSE_AFTER = 80;
 const para = (text) => ({ type: 'Paragraph', props: { text, ...(String(text).length > COLLAPSE_AFTER ? { collapseAfter: COLLAPSE_AFTER } : {}) }, children: [] });
 
-const rawDetails = (data) => ({ type: 'Details', props: { summary: 'Raw JSON', text: JSON.stringify(data, null, 2) }, children: [] });
+const rawDetails = (data) => ({ type: 'Details', props: { summary: 'Developer', text: JSON.stringify(data, null, 2) }, children: [] });
+
+// snake_case key -> human label
+const human = (k) => k.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+const kv = (k, v) => para(`${human(k)}: ${typeof v === 'object' ? JSON.stringify(v) : v}`);
+const bubble = (children) => ({ type: 'Card', props: { padding: 'md', bubble: true }, children });
 
 // Heuristic mapping by data shape; extend per tool as needed.
 export function toolResponseToTree(name, result) {
@@ -15,7 +20,7 @@ export function toolResponseToTree(name, result) {
     .join('\n');
 
   if (result?.isError) {
-    return { type: 'Card', props: { padding: 'md' }, children: [para(`Error in ${name}: ${text}`)] };
+    return bubble([para(`Error in ${name}: ${text}`)]);
   }
 
   let data;
@@ -27,7 +32,7 @@ export function toolResponseToTree(name, result) {
 
   // Plain text (not JSON) -> Paragraph
   if (data === null) {
-    return para(text || '(empty response)');
+    return bubble([para(text || '(empty response)')]);
   }
 
   const body = [];
@@ -45,7 +50,7 @@ export function toolResponseToTree(name, result) {
             ? {
                 type: 'Card',
                 props: { padding: 'sm' },
-                children: Object.entries(item).map(([k, v]) => para(`${k}: ${typeof v === 'object' ? JSON.stringify(v) : v}`)),
+                children: Object.entries(item).map(([k, v]) => kv(k, v)),
               }
             : para(String(item)),
         ],
@@ -56,10 +61,10 @@ export function toolResponseToTree(name, result) {
     body.push({
       type: 'Card',
       props: { padding: 'md' },
-      children: Object.entries(data).map(([k, v]) => para(`${k}: ${typeof v === 'object' ? JSON.stringify(v) : v}`)),
+      children: Object.entries(data).map(([k, v]) => kv(k, v)),
     });
   }
 
   body.push(rawDetails(data));
-  return { type: 'Card', props: { padding: 'md' }, children: body };
+  return bubble(body);
 }

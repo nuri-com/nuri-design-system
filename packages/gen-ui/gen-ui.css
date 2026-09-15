@@ -58,6 +58,14 @@
 .nuri-p-lg { padding: var(--nuri-space-lg); }
 .nuri-card-error { border-color: var(--nuri-destructive); color: var(--nuri-destructive); }
 
+/* Response as chat bubble */
+.nuri-bubble {
+  background: #eef4ff;
+  border-color: transparent;
+  border-radius: var(--nuri-radius) var(--nuri-radius) var(--nuri-radius) 4px;
+  max-width: 420px;
+}
+
 .nuri-btn {
   padding: 10px var(--nuri-space-md);
   border: none;
