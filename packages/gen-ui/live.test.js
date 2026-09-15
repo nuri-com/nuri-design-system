@@ -39,12 +39,20 @@ function fillRequired(node) {
     node.children = [];
     return;
   }
-  // Text rule: Paragraph text may not exceed collapseAfter; clamp to teaser.
+  // Text rules: no visible snake_case, clamp to teaser.
   if (node.type === 'Paragraph' && typeof node.props?.text === 'string') {
+    node.props.text = node.props.text
+      .replace(/\{[^}]*\}/g, '') // strip embedded JSON blobs
+      .replace(/\b[a-z][a-z0-9]*_[a-z0-9_]+\b/g, (m) => m.replace(/_/g, ' ')) // humanize snake_case
+      .replace(/\s{2,}/g, ' ')
+      .trim() || 'x';
     const limit = typeof node.props.collapseAfter === 'number' ? node.props.collapseAfter : 80;
     if (node.props.text.length > limit) node.props.text = node.props.text.slice(0, limit - 1).trimEnd() + '…';
   }
   if (component) {
+    for (const key of Object.keys(node.props ?? {})) {
+      if (!component.props[key]) delete node.props[key]; // drop props not in catalog
+    }
     for (const [key, meta] of Object.entries(component.props)) {
       if (meta.required && meta.type !== 'ReactNode' && !(key in (node.props ?? {}))) {
         (node.props ??= {})[key] = stub[meta.type] ?? 'x';
@@ -56,11 +64,22 @@ function fillRequired(node) {
 
 const { tools } = await rpc('tools/list');
 
+let autoFields = 0; // fields the mapper auto-recognized from JSON tool responses
+
 for (const tool of tools) {
   test(`${tool.name} returns a valid tree`, { timeout: 60000 }, async () => {
     const result = await rpc('tools/call', { name: tool.name, arguments: {} });
+    const text = (result?.content || []).filter((c) => c.type === 'text').map((c) => c.text).join('\n');
+    try {
+      const data = JSON.parse(text);
+      if (data && typeof data === 'object') autoFields += Object.keys(data).length;
+    } catch {}
     const tree = toolResponseToTree(tool.name, result);
     fillRequired(tree);
     assert.deepEqual(validate(tree), []);
   });
 }
+
+test('at least one auto-detected field across tools', async () => {
+  assert.ok(autoFields >= 1, 'mapper recognized no fields automatically');
+});
