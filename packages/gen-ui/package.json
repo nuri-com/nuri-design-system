@@ -1,0 +1,10 @@
+{
+  "name": "@nuri/gen-ui",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "demo": "node serve.js",
+    "test": "node --test *.test.js"
+  }
+}
