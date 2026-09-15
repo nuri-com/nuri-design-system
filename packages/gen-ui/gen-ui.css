@@ -23,6 +23,16 @@
   line-height: 1.4;
 }
 
+.nuri-app {
+  max-width: 420px;
+  margin: var(--nuri-space-lg) auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--nuri-space-md);
+}
+.nuri-headline { margin: 0; }
+.nuri-helper { margin: 0; color: var(--nuri-text-muted); }
+
 .nuri-card {
   display: flex;
   flex-direction: column;
@@ -34,6 +44,7 @@
 .nuri-p-sm { padding: var(--nuri-space-sm); }
 .nuri-p-md { padding: var(--nuri-space-md); }
 .nuri-p-lg { padding: var(--nuri-space-lg); }
+.nuri-card-error { border-color: var(--nuri-destructive); color: var(--nuri-destructive); }
 
 .nuri-btn {
   padding: 10px var(--nuri-space-md);

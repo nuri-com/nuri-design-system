@@ -54,8 +54,10 @@ const server = createServer(async (req, res) => {
     }
     // static
     const rel = url.pathname === '/' ? 'demo/index.html' : url.pathname.replace(/^\/+/, '');
-    const file = join(ROOT, rel);
-    if (!file.startsWith(ROOT)) throw new Error('forbidden');
+    const file = url.pathname.startsWith('/prototype/')
+      ? join(ROOT, '..', 'prototype', rel.slice('prototype/'.length))
+      : join(ROOT, rel);
+    if (!file.startsWith(ROOT) && !file.startsWith(join(ROOT, '..', 'prototype'))) throw new Error('forbidden');
     const data = await readFile(file);
     res.writeHead(200, { 'Content-Type': MIME[extname(file)] || 'application/octet-stream' });
     res.end(data);

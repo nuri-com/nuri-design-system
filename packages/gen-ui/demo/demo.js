@@ -46,16 +46,17 @@ form.addEventListener('submit', async (e) => {
     const type = props[name]?.type;
     args[name] = type === 'number' || type === 'integer' ? Number(raw) : type === 'boolean' ? raw === 'true' : raw;
   }
-  result.innerHTML = '<div class="nuri-spinner nuri-spinner-md" role="status"></div>';
+  result.innerHTML = '<div class="nuri-spinner nuri-spinner-md" role="status" aria-label="Loading"></div>';
   try {
     const res = await fetch('/api/call', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: tool.name, arguments: args }),
     });
-    result.innerHTML = await res.text();
+    const html = await res.text();
+    result.innerHTML = res.ok ? html : `<div class="nuri-card nuri-card-error nuri-p-md" role="alert">${html}</div>`;
   } catch (err) {
-    result.innerHTML = `<div class="nuri-card nuri-p-md">${err.message}</div>`;
+    result.innerHTML = `<div class="nuri-card nuri-card-error nuri-p-md" role="alert">${err.message}</div>`;
   }
 });
 

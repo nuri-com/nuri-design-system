@@ -3,18 +3,27 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="stylesheet" href="/prototype/generated/styles/tokens-primitive.css"/>
+<link rel="stylesheet" href="/prototype/generated/styles/tokens-semantic.css"/>
+<link rel="stylesheet" href="/prototype/generated/styles/typography.css"/>
+<link rel="stylesheet" href="/prototype/styles/palette.css"/>
+<link rel="stylesheet" href="/prototype/styles/typography.css"/>
 <link rel="stylesheet" href="/gen-ui.css"/>
 <title>nuri gen-ui demo</title>
 </head>
 <body class="nuri-root">
-  <div class="nuri-card nuri-p-md">
-    <label class="nuri-field">
-      <span class="nuri-field-label">Tool</span>
-      <select id="tool" class="nuri-input"></select>
-    </label>
-    <form id="form"></form>
-  </div>
-  <div id="result"></div>
+  <main class="nuri-app">
+    <h1 class="nuri-headline" data-type-style="xl">nuri gen-ui</h1>
+    <p class="nuri-helper" data-type-style="sm" data-muted>Pick a tool, fill the form, run the call.</p>
+    <div class="nuri-card nuri-p-md">
+      <label class="nuri-field">
+        <span class="nuri-field-label" data-type-style="sm">Tool</span>
+        <select id="tool" class="nuri-input"></select>
+      </label>
+      <form id="form"></form>
+    </div>
+    <div id="result"></div>
+  </main>
   <script type="module" src="/demo/demo.js"></script>
 </body>
 </html>
