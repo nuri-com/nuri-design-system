@@ -1,0 +1,84 @@
+{
+  "name": "nuri-gen-ui-catalog",
+  "version": "0.1.0",
+  "components": [
+    {
+      "name": "Button",
+      "description": "Command action. Never use text or icons as bare clickables.",
+      "props": {
+        "label": { "type": "string", "required": true },
+        "variant": { "type": "'primary' | 'secondary' | 'destructive'", "required": false, "default": "'primary'" },
+        "disabled": { "type": "boolean", "required": false, "default": "false" },
+        "loading": { "type": "boolean", "required": false, "default": "false" },
+        "onPress": { "type": "() => void", "required": true }
+      }
+    },
+    {
+      "name": "IconButton",
+      "description": "Clickable icon. Plain icons are never clickable.",
+      "props": {
+        "icon": { "type": "IconName", "required": true },
+        "accessibilityLabel": { "type": "string", "required": true },
+        "disabled": { "type": "boolean", "required": false, "default": "false" },
+        "onPress": { "type": "() => void", "required": true }
+      }
+    },
+    {
+      "name": "TextLink",
+      "description": "Clickable text. Plain text is never clickable.",
+      "props": {
+        "label": { "type": "string", "required": true },
+        "disabled": { "type": "boolean", "required": false, "default": "false" },
+        "onPress": { "type": "() => void", "required": true }
+      }
+    },
+    {
+      "name": "InputField",
+      "description": "Single-line text input with label and error state.",
+      "props": {
+        "label": { "type": "string", "required": false },
+        "value": { "type": "string", "required": true },
+        "placeholder": { "type": "string", "required": false },
+        "error": { "type": "string", "required": false },
+        "keyboardType": { "type": "'default' | 'email-address' | 'numeric'", "required": false, "default": "'default'" },
+        "onChangeText": { "type": "(text: string) => void", "required": true }
+      }
+    },
+    {
+      "name": "AmountInput",
+      "description": "Currency amount input with fiat/crypto display.",
+      "props": {
+        "value": { "type": "string", "required": true },
+        "currency": { "type": "'BTC' | 'EUR' | 'USD'", "required": true },
+        "onChange": { "type": "(amount: string) => void", "required": true },
+        "autoFocus": { "type": "boolean", "required": false, "default": "false" }
+      }
+    },
+    {
+      "name": "Card",
+      "description": "Content container surface.",
+      "props": {
+        "children": { "type": "ReactNode", "required": true },
+        "padding": { "type": "keyof space", "required": false, "default": "'md'" }
+      }
+    },
+    {
+      "name": "ModalSheet",
+      "description": "Bottom-sheet modal for flows and choices.",
+      "props": {
+        "visible": { "type": "boolean", "required": true },
+        "title": { "type": "string", "required": false },
+        "onClose": { "type": "() => void", "required": true },
+        "children": { "type": "ReactNode", "required": true }
+      }
+    },
+    {
+      "name": "Spinner",
+      "description": "Indeterminate loading indicator.",
+      "props": {
+        "size": { "type": "'sm' | 'md' | 'lg'", "required": false, "default": "'md'" },
+        "label": { "type": "string", "required": false }
+      }
+    }
+  ]
+}
