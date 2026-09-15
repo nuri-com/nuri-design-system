@@ -7,9 +7,19 @@ const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', 
 const text = (s) => escapeHtml(s ?? '');
 
 // type -> (props, childrenHtml) -> html. onPress/onChange handlers render as data-action attributes.
+// Teaser + native <details> mehr-toggle for long texts; teaser capped at 80 chars.
+const collapsibleText = (s, after, cls) => {
+  const full = String(s ?? '');
+  const cut = Math.min(after, 80);
+  if (full.length <= cut) return `<p class="${cls}">${text(full)}</p>`;
+  const teaser = full.slice(0, cut).replace(/\s+\S*$/, '');
+  return `<details class="nuri-toggle ${cls}"><summary>${text(teaser)}&hellip; <span class="nuri-toggle-more">mehr</span></summary><p class="${cls}">${text(full)}</p></details>`;
+};
+
 const renderers = {
   Headline: (p) => `<h2 class="nuri-headline">${text(p.text)}</h2>`,
-  Paragraph: (p) => `<p class="nuri-paragraph">${text(p.text)}</p>`,
+  Paragraph: (p) => (p.collapseAfter ? collapsibleText(p.text, p.collapseAfter, 'nuri-paragraph') : `<p class="nuri-paragraph">${text(p.text)}</p>`),
+  Helper: (p) => collapsibleText(p.text, p.collapseAfter ?? 80, 'nuri-helper'),
   Dropdown: (p) =>
     `<label class="nuri-field">${p.label ? `<span class="nuri-field-label">${text(p.label)}</span>` : ''}` +
     `<select class="nuri-dropdown"${p.disabled ? ' disabled' : ''}>${(p.options || []).map((o) => `<option value="${text(o.value ?? o)}"${(o.value ?? o) === p.value ? ' selected' : ''}>${text(o.label ?? o)}</option>`).join('')}</select></label>`,
@@ -66,6 +76,7 @@ if (typeof process !== 'undefined' && process.argv?.[2] === '--demo') {
     children: [
       { type: 'Headline', props: { text: 'Send money' }, children: [] },
       { type: 'Paragraph', props: { text: 'Fast SEPA transfer.' }, children: [] },
+      { type: 'Helper', props: { text: 'SEPA transfers are free of charge within the EU and usually arrive within one business day. Instant transfers cost 0.50 EUR and arrive in seconds. Daily limit: 10,000 EUR per account.', collapseAfter: 80 }, children: [] },
       { type: 'Dropdown', props: { label: 'Account', value: 'main', options: [{ value: 'main', label: 'Main' }, { value: 'savings', label: 'Savings' }] }, children: [] },
       { type: 'List', props: {}, children: [{ type: 'ListItem', props: {}, children: [{ type: 'Card', props: { padding: 'sm' }, children: [{ type: 'Paragraph', props: { text: 'Fee: 0.00 EUR' }, children: [] }] }] }] },
       { type: 'Switch', props: { label: 'Instant', value: true }, children: [] },
@@ -91,9 +102,21 @@ if (typeof process !== 'undefined' && process.argv?.[2] === '--demo') {
       },
     ],
   };
+  const longToolResponse = {
+    content: [
+      {
+        type: 'text',
+        text: 'Your account balance is healthy. Over the last 30 days you spent 1,240.55 EUR on groceries, rent, and subscriptions, while receiving 2,500.00 EUR in salary. Your savings rate is roughly 50 percent, well above the recommended 20 percent.',
+      },
+    ],
+  };
+  const longResponseTree = toolResponseToTree('account_summary', longToolResponse);
+
   const responseTree = toolResponseToTree('list_transactions', toolResponse);
 
   console.log(renderTree(fixture));
   console.log('\n<!-- tool response tree: list_transactions -->');
   console.log(renderNode(responseTree));
+  console.log('\n<!-- tool response tree: account_summary (long text) -->');
+  console.log(renderNode(longResponseTree));
 }

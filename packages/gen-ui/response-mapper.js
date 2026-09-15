@@ -1,6 +1,10 @@
 // Maps an MCP tool response to a gen-ui component tree.
 // Tree node shape: { type: string, props: object, children: node[] }
 
+// Long texts (> 80 chars) get collapseAfter so the renderer shows a teaser + mehr-toggle.
+const COLLAPSE_AFTER = 80;
+const para = (text) => ({ type: 'Paragraph', props: { text, ...(String(text).length > COLLAPSE_AFTER ? { collapseAfter: COLLAPSE_AFTER } : {}) }, children: [] });
+
 const rawDetails = (data) => ({ type: 'Details', props: { summary: 'Raw JSON', text: JSON.stringify(data, null, 2) }, children: [] });
 
 // Heuristic mapping by data shape; extend per tool as needed.
@@ -11,7 +15,7 @@ export function toolResponseToTree(name, result) {
     .join('\n');
 
   if (result?.isError) {
-    return { type: 'Card', props: { padding: 'md' }, children: [{ type: 'Paragraph', props: { text: `Error in ${name}: ${text}` }, children: [] }] };
+    return { type: 'Card', props: { padding: 'md' }, children: [para(`Error in ${name}: ${text}`)] };
   }
 
   let data;
@@ -23,7 +27,7 @@ export function toolResponseToTree(name, result) {
 
   // Plain text (not JSON) -> Paragraph
   if (data === null) {
-    return { type: 'Paragraph', props: { text: text || '(empty response)' }, children: [] };
+    return para(text || '(empty response)');
   }
 
   const body = [];
@@ -41,13 +45,9 @@ export function toolResponseToTree(name, result) {
             ? {
                 type: 'Card',
                 props: { padding: 'sm' },
-                children: Object.entries(item).map(([k, v]) => ({
-                  type: 'Paragraph',
-                  props: { text: `${k}: ${typeof v === 'object' ? JSON.stringify(v) : v}` },
-                  children: [],
-                })),
+                children: Object.entries(item).map(([k, v]) => para(`${k}: ${typeof v === 'object' ? JSON.stringify(v) : v}`)),
               }
-            : { type: 'Paragraph', props: { text: String(item) }, children: [] },
+            : para(String(item)),
         ],
       })),
     });
@@ -56,11 +56,7 @@ export function toolResponseToTree(name, result) {
     body.push({
       type: 'Card',
       props: { padding: 'md' },
-      children: Object.entries(data).map(([k, v]) => ({
-        type: 'Paragraph',
-        props: { text: `${k}: ${typeof v === 'object' ? JSON.stringify(v) : v}` },
-        children: [],
-      })),
+      children: Object.entries(data).map(([k, v]) => para(`${k}: ${typeof v === 'object' ? JSON.stringify(v) : v}`)),
     });
   }
 
