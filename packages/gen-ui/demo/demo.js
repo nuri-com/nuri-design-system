@@ -1,34 +1,56 @@
-// Demo client: tool select -> form from inputSchema -> POST /api/call -> render response tree HTML.
+// Demo client: tool select -> schemaToTree -> renderTree -> POST /api/call -> render response HTML.
+import { schemaToTree, valuesToArgs } from '../mapper.js';
+import { renderTree } from '../renderer.js';
+
 const toolSelect = document.querySelector('#tool');
 const form = document.querySelector('#form');
 const result = document.querySelector('#result');
 
 let tools = [];
 
+// mapper trees use `component` + top-level field props; renderer expects `type` + `props`.
+function toRenderNode(node) {
+  const { component, children = [], props = {}, ...rest } = node;
+  return { type: component, props: { ...rest, ...props }, children: children.map(toRenderNode) };
+}
+
+function helperRow(text) {
+  const span = document.createElement('span');
+  span.className = 'nuri-helper nuri-field-helper';
+  span.textContent = text;
+  return span;
+}
+
 function buildForm(tool) {
   form.innerHTML = '';
-  const schema = tool?.inputSchema || {};
-  const required = new Set(schema.required || []);
-  for (const [name, prop] of Object.entries(schema.properties || {})) {
-    const label = document.createElement('label');
-    label.className = 'nuri-field';
-    const span = document.createElement('span');
-    span.className = 'nuri-field-label';
-    span.textContent = (prop.title || prop.description || name) + (required.has(name) ? ' *' : '');
-    const input = document.createElement('input');
-    input.className = 'nuri-input';
-    input.name = name;
-    input.type = prop.type === 'number' || prop.type === 'integer' ? 'number' : 'text';
-    label.append(span, input);
-    form.append(label);
-  }
-  if (tool) {
-    const btn = document.createElement('button');
-    btn.className = 'nuri-btn nuri-btn-primary';
-    btn.type = 'submit';
-    btn.textContent = tool.title || tool.name;
-    form.append(btn);
-  }
+  if (!tool) return;
+  const tree = schemaToTree(tool);
+  form.innerHTML = renderTree(toRenderNode(tree));
+  form.querySelector('.nuri-card')?.classList.add('nuri-demo-card');
+  const fields = tree.children.filter((n) => n.key);
+  const controls = form.querySelectorAll('input, select');
+  fields.forEach((field, i) => {
+    const el = controls[i];
+    if (!el) return;
+    el.name = field.key;
+    if (el.type === 'checkbox') el.value = 'true';
+    else if (field.required) el.required = true;
+    let container = el.closest('label');
+    if (!container) {
+      // AmountInput renders bare div: wrap with label like other fields
+      container = document.createElement('label');
+      container.className = 'nuri-field';
+      el.closest('div').before(container);
+      container.append(el.closest('div'));
+    }
+    if (!container.querySelector('.nuri-field-label') && field.label) {
+      const span = document.createElement('span');
+      span.className = 'nuri-field-label';
+      span.textContent = field.label + (field.required ? ' *' : '');
+      container.prepend(span);
+    }
+    if (field.helper) container.append(helperRow(field.helper));
+  });
 }
 
 toolSelect.addEventListener('change', () => {
@@ -39,13 +61,7 @@ toolSelect.addEventListener('change', () => {
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const tool = tools.find((t) => t.name === toolSelect.value);
-  const props = tool?.inputSchema?.properties || {};
-  const args = {};
-  for (const [name, raw] of new FormData(form)) {
-    if (raw === '') continue;
-    const type = props[name]?.type;
-    args[name] = type === 'number' || type === 'integer' ? Number(raw) : type === 'boolean' ? raw === 'true' : raw;
-  }
+  const args = valuesToArgs(Object.fromEntries(new FormData(form)), tool?.inputSchema);
   result.innerHTML = '<div class="nuri-spinner nuri-spinner-md" role="status" aria-label="Loading"></div>';
   try {
     const res = await fetch('/api/call', {

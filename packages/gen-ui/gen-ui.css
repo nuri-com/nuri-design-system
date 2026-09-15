@@ -79,6 +79,26 @@
 
 .nuri-field { display: flex; flex-direction: column; gap: 4px; }
 .nuri-field-label { font-size: 13px; color: var(--nuri-text-muted); }
+.nuri-field-helper {
+  font-size: 13px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.nuri-dropdown {
+  padding: 10px 12px;
+  border: 1px solid var(--nuri-border);
+  border-radius: 8px;
+  font: inherit;
+  background: var(--nuri-bg);
+  color: var(--nuri-text);
+}
+.nuri-demo-card {
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
 .nuri-field-error { font-size: 13px; color: var(--nuri-destructive); }
 .nuri-input {
   padding: 10px 12px;
