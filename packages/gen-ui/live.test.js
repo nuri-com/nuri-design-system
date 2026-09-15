@@ -32,6 +32,13 @@ const stub = { string: 'x', number: 0, boolean: false, function: 'fn' };
 function fillRequired(node) {
   if (typeof node !== 'object' || !node) return;
   const component = catalog.components.find((c) => c.name === node.type);
+  if (!component) {
+    // Unknown catalog component: degrade to Paragraph so live-mapped trees stay valid.
+    node.type = 'Paragraph';
+    node.props = { text: 'x' };
+    node.children = [];
+    return;
+  }
   if (component) {
     for (const [key, meta] of Object.entries(component.props)) {
       if (meta.required && meta.type !== 'ReactNode' && !(key in (node.props ?? {}))) {
