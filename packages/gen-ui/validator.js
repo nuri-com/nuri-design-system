@@ -15,18 +15,18 @@ function validateNode(node, path) {
   const component = components.get(node.type);
   if (!component) {
     errors.push(`${path}: unknown component "${node.type}"`);
-    return errors; // cannot validate children of unknown component safely, still recurse
-  }
-  const knownProps = component.props;
-  const props = node.props ?? {};
-  for (const key of Object.keys(props)) {
-    if (!(key in knownProps)) {
-      errors.push(`${path} <${node.type}>: unknown prop "${key}"`);
+  } else {
+    const knownProps = component.props;
+    const props = node.props ?? {};
+    for (const key of Object.keys(props)) {
+      if (!(key in knownProps)) {
+        errors.push(`${path} <${node.type}>: unknown prop "${key}"`);
+      }
     }
-  }
-  for (const [key, meta] of Object.entries(knownProps)) {
-    if (meta.required && meta.type !== 'ReactNode' && !(key in props)) {
-      errors.push(`${path} <${node.type}>: missing required prop "${key}"`);
+    for (const [key, meta] of Object.entries(knownProps)) {
+      if (meta.required && meta.type !== 'ReactNode' && !(key in props)) {
+        errors.push(`${path} <${node.type}>: missing required prop "${key}"`);
+      }
     }
   }
   const children = node.children ?? [];
