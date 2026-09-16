@@ -4,6 +4,15 @@
 import catalog from './catalog.json' with { type: 'json' };
 
 const components = new Map(catalog.components.map((c) => [c.name, c]));
+// Badge is a renderer builtin (not in catalog): status enum -> variant/icon/label.
+components.set('Badge', {
+  name: 'Badge',
+  props: {
+    variant: { type: 'string', required: true },
+    icon: { type: 'string' },
+    label: { type: 'string', required: true },
+  },
+});
 
 function validateNode(node, path) {
   const errors = [];
@@ -33,6 +42,10 @@ function validateNode(node, path) {
       const value = props[key];
       if (typeof value === 'string' && /\b[a-z][a-z0-9]*_[a-z0-9_]+\b/.test(value)) {
         errors.push(`${path} <${node.type}>: ${key} "${value}" looks like snake_case; use human-readable text`);
+      }
+      // Status values must be a Badge, not plain text.
+      if (node.type !== 'Badge' && typeof value === 'string' && /^(status|state)\s*:/i.test(value)) {
+        errors.push(`${path} <${node.type}>: ${key} "${value}" is a status; use <Badge> instead of plain text`);
       }
     }
     if (node.type === 'Paragraph') {

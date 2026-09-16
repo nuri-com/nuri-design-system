@@ -97,6 +97,25 @@ test('accepts human-readable label', () => {
   assert.deepEqual(validate(tree), []);
 });
 
+test('rejects plain-text status instead of Badge', () => {
+  const tree = { type: 'Paragraph', props: { text: 'Status: pending' } };
+  const errors = validate(tree);
+  assert.ok(errors.some((e) => /use <Badge>/.test(e)));
+});
+
+test('accepts Badge for a status value', () => {
+  const tree = {
+    type: 'Card',
+    children: [{ type: 'Badge', props: { variant: 'warn', icon: 'clock', label: 'Pending' } }],
+  };
+  assert.deepEqual(validate(tree), []);
+});
+
+test('rejects Badge without required variant', () => {
+  const errors = validate({ type: 'Badge', props: { label: 'Pending' } });
+  assert.ok(errors.some((e) => /missing required prop "variant"/.test(e)));
+});
+
 test('accepts long Paragraph within explicit collapseAfter', () => {
   const tree = { type: 'Paragraph', props: { text: 'x'.repeat(500), collapseAfter: 500 } };
   assert.deepEqual(validate(tree), []);
