@@ -33,7 +33,7 @@ async function rpc(method, params) {
   return msg.result;
 }
 
-const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json' };
+const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2', '.woff': 'font/woff', '.ttf': 'font/ttf' };
 
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
@@ -53,11 +53,14 @@ const server = createServer(async (req, res) => {
       return res.end(renderNode(tree));
     }
     // static
-    const rel = url.pathname === '/' ? 'demo/index.html' : url.pathname.replace(/^\/+/, '');
+    const rel = url.pathname === '/' ? 'demo/index.html' : url.pathname === '/app' ? 'app/index.html' : url.pathname.replace(/^\/+/, '');
+    const DS = join(ROOT, '..', '..', 'ds-bundle');
     const file = url.pathname.startsWith('/prototype/')
       ? join(ROOT, '..', 'prototype', rel.slice('prototype/'.length))
+      : url.pathname.startsWith('/ds/')
+      ? join(DS, rel.slice('ds/'.length))
       : join(ROOT, rel);
-    if (!file.startsWith(ROOT) && !file.startsWith(join(ROOT, '..', 'prototype'))) throw new Error('forbidden');
+    if (!file.startsWith(ROOT) && !file.startsWith(join(ROOT, '..', 'prototype')) && !file.startsWith(DS)) throw new Error('forbidden');
     const data = await readFile(file);
     res.writeHead(200, { 'Content-Type': MIME[extname(file)] || 'application/octet-stream' });
     res.end(data);
