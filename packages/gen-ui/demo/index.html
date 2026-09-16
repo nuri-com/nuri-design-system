@@ -14,8 +14,12 @@
 <body class="nuri-root">
   <main class="nuri-app">
     <h1 class="nuri-headline" data-type-style="xl">nuri gen-ui</h1>
-    <div id="actions"></div>
-    <div id="history"></div>
+    <form id="prompt" style="display:flex;gap:12px">
+      <input class="nuri-input" id="prompt-input" type="text" placeholder="What do you want to do?" autocomplete="off" style="flex:1"/>
+      <button class="nuri-btn nuri-btn-primary" type="submit">Send</button>
+    </form>
+    <div id="actions" style="display:flex;flex-direction:column;gap:12px"></div>
+    <div id="history" style="display:flex;flex-direction:column;gap:24px"></div>
   </main>
   <script type="module" src="/demo/demo.js"></script>
 </body>
