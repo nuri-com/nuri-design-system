@@ -1,0 +1,91 @@
+/* Nuri app screens: hero, card widget, pills, quote rows. Colors come from the bundle tokens. */
+:root {
+  --app-ink: #191821;
+  --app-ink-soft: #6d6a78;
+  --app-lilac: #6f5bd6;
+  --app-lilac-deep: #4c39ad;
+  --app-surface: #f4f3f8;
+  --app-line: #e4e2ee;
+  --app-green: #1d7a4f;
+}
+
+.app-hero {
+  border-radius: 20px;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--app-lilac) 0%, var(--app-lilac-deep) 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.app-hero [data-nuri], .app-hero .app-hero-balance { color: #fff !important; }
+.app-hero-sub { opacity: 0.82; font-size: 14px; }
+.app-hero-balance { font-size: 34px; font-weight: 700; letter-spacing: -0.5px; }
+
+.app-pill {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+.app-pill--ready { background: rgba(255, 255, 255, 0.22); }
+
+.app-card-widget {
+  border-radius: 18px;
+  padding: 18px;
+  background: var(--app-ink);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 120px;
+  justify-content: space-between;
+}
+.app-card-widget .app-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  opacity: 0.85;
+}
+.app-card-widget .app-card-number { font-size: 18px; letter-spacing: 2px; font-weight: 600; }
+.app-card-widget .app-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  opacity: 0.75;
+}
+.app-card-widget svg { color: #fff; }
+
+.app-quote-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--app-line);
+  font-size: 15px;
+}
+.app-quote-row:last-child { border-bottom: 0; }
+.app-quote-row .app-quote-label { color: var(--app-ink-soft); }
+.app-quote-row .app-quote-value { font-weight: 600; }
+
+.app-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 15px;
+}
+.app-progress-row--pending { color: var(--app-ink-soft); }
+.app-progress-row--active { color: var(--app-ink); font-weight: 600; }
+.app-progress-row--done { color: var(--app-green); }
+.app-progress-row svg { width: 20px; height: 20px; }
+.app-spin { animation: app-spin 0.9s linear infinite; }
+@keyframes app-spin { to { transform: rotate(360deg); } }
