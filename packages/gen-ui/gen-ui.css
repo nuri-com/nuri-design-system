@@ -1,16 +1,20 @@
 /* nuri gen-ui DS styling */
 :root {
-  --nuri-bg: #ffffff;
-  --nuri-surface: #f6f6f7;
-  --nuri-text: #14141a;
-  --nuri-text-muted: #6b6b76;
-  --nuri-primary: #0f62fe;
-  --nuri-destructive: #d92d20;
-  --nuri-border: #e2e2e6;
-  --nuri-radius: 12px;
-  --nuri-space-sm: 8px;
-  --nuri-space-md: 16px;
-  --nuri-space-lg: 24px;
+  --nuri-bg: #0b0b0e;
+  --nuri-surface: #16161c;
+  --nuri-text: #f2f2f5;
+  --nuri-text-muted: #9a9aa6;
+  --nuri-primary: #6b8afd;
+  --nuri-destructive: #f97066;
+  --nuri-border: #2a2a33;
+  --nuri-radius: 20px;
+  --nuri-space-sm: 12px;
+  --nuri-space-md: 24px;
+  --nuri-space-lg: 40px;
+  --nuri-success: #32d583;
+  --nuri-warn: #fdb022;
+  --nuri-error: #f97066;
+  --nuri-info: #6b8afd;
 }
 
 .nuri-root {
@@ -18,7 +22,7 @@
   padding: var(--nuri-space-md);
   background: var(--nuri-bg);
   color: var(--nuri-text);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
   font-size: 16px;
   line-height: 1.4;
 }
@@ -60,7 +64,7 @@
 
 /* Response as chat bubble */
 .nuri-bubble {
-  background: #eef4ff;
+  background: #1b2340;
   border-color: transparent;
   border-radius: var(--nuri-radius) var(--nuri-radius) var(--nuri-radius) 4px;
   max-width: 420px;
@@ -164,3 +168,53 @@
 .nuri-spinner-md::before { width: 20px; height: 20px; }
 .nuri-spinner-lg::before { width: 32px; height: 32px; }
 @keyframes nuri-spin { to { transform: rotate(360deg); } }
+
+/* Action card: prominent CTA card with generous padding */
+.nuri-action-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nuri-space-md);
+  padding: var(--nuri-space-lg);
+  background: var(--nuri-surface);
+  border: 1px solid var(--nuri-border);
+  border-radius: var(--nuri-radius);
+}
+
+/* Status badge with color variants */
+.nuri-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.nuri-badge--success { background: color-mix(in srgb, var(--nuri-success) 15%, transparent); color: var(--nuri-success); }
+.nuri-badge--warn { background: color-mix(in srgb, var(--nuri-warn) 15%, transparent); color: var(--nuri-warn); }
+.nuri-badge--error { background: color-mix(in srgb, var(--nuri-error) 15%, transparent); color: var(--nuri-error); }
+.nuri-badge--info { background: color-mix(in srgb, var(--nuri-info) 15%, transparent); color: var(--nuri-info); }
+
+/* Hero amount display */
+.nuri-amount-hero {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.nuri-amount-hero .nuri-amount-currency { font-size: 24px; }
+
+/* Chip: small pill, e.g. for tags or quick replies */
+.nuri-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--nuri-surface);
+  border: 1px solid var(--nuri-border);
+  border-radius: 999px;
+  color: var(--nuri-text);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
