@@ -2,6 +2,7 @@
 // Renders a gen-ui component tree to DOM HTML with nuri DS classes.
 // Usage: node renderer.js --demo  (prints HTML for fixture tree + response tree)
 import { toolResponseToTree } from './response-mapper.js';
+import { icons } from './icons.js';
 
 const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const text = (s) => escapeHtml(s ?? '');
@@ -40,7 +41,9 @@ const renderers = {
     `<input class="nuri-input${p.error ? ' nuri-input-error' : ''}" type="${p.keyboardType === 'numeric' ? 'number' : p.keyboardType === 'email-address' ? 'email' : 'text'}" value="${text(p.value)}" placeholder="${text(p.placeholder)}"/>` +
     `${p.error ? `<span class="nuri-field-error">${text(p.error)}</span>` : ''}</label>`,
   AmountInput: (p) =>
-    `<div class="nuri-amount"><input class="nuri-input nuri-amount-input" type="number" value="${text(p.value)}"${p.autoFocus ? ' autofocus' : ''}/><span class="nuri-amount-currency">${text(p.currency)}</span></div>`,
+    `<div class="nuri-amount nuri-amount-hero"><input class="nuri-input nuri-amount-input" style="text-align:center" type="number" inputmode="decimal" value="${text(p.value)}"${p.autoFocus ? ' autofocus' : ''}/><span class="nuri-badge nuri-badge--info nuri-amount-currency">${text(p.currency)}</span></div>`,
+  Badge: (p) =>
+    `<span class="nuri-badge nuri-badge--${p.variant || 'info'}">${icons[p.icon] || ''}${text(p.label)}</span>`,
   Card: (p, kids) => `<div class="nuri-card nuri-p-${p.padding || 'md'}${p.bubble ? ' nuri-bubble' : ''}">${kids}</div>`,
   ModalSheet: (p, kids) =>
     p.visible
@@ -123,7 +126,14 @@ if (typeof process !== 'undefined' && process.argv?.[2] === '--demo') {
   const responseTree = toolResponseToTree('list_transactions', toolResponse);
   const textResponseTree = toolResponseToTree('account_summary', { content: [{ type: 'text', text: 'Balance looks fine.' }] });
 
+  const statusResponse = {
+    content: [{ type: 'text', text: JSON.stringify({ status: 'COMPLETED', amount: 128.5, currency: 'EUR', reference: 'Invoice 2024-0815' }) }],
+  };
+  const statusTree = toolResponseToTree('get_transfer', statusResponse);
+
   console.log(renderTree(fixture));
+  console.log('\n<!-- tool response tree: get_transfer (status + amount) -->');
+  console.log(renderNode(statusTree));
   console.log('\n<!-- tool response tree: list_transactions -->');
   console.log(renderNode(responseTree));
   console.log('\n<!-- tool response tree: account_summary (long text) -->');
