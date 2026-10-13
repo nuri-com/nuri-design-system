@@ -56,13 +56,17 @@ export const PALETTE_CONTRACT = {
     subtle: { bg: '--nuri-bg-subtle', fg: '--nuri-text-primary', fgMuted: '--nuri-text-muted' },
     strong: { bg: '--nuri-bg-strong', fg: '--nuri-text-primary', fgMuted: '--nuri-text-muted' },
     transparent: { bg: 'transparent', fg: '--nuri-text-primary', fgMuted: '--nuri-text-muted' },
+    // inverse-muted (the Switch slice · admission C1): the toggle's OFF track — the
+    // neutral-11 fill under text-on-inverse. fgMuted is the shared typography muted
+    // role like every chrome row (nominal here: nothing draws muted text on a track).
+    'inverse-muted': { bg: '--nuri-bg-inverse-muted', fg: '--nuri-text-on-inverse', fgMuted: '--nuri-text-muted' },
   },
 };
 
 // Canonical orderings — the emit is deterministic regardless of the SoT's
 // source declaration order (the descriptors.js convention).
 const AXIS_ORDER    = ['variant', 'chrome'];
-const ROW_ORDER     = { variant: ['solid', 'soft', 'ghost', 'subtle', 'outline'], chrome: ['canvas', 'subtle', 'strong', 'transparent'] };
+const ROW_ORDER     = { variant: ['solid', 'soft', 'ghost', 'subtle', 'outline'], chrome: ['canvas', 'subtle', 'strong', 'transparent', 'inverse-muted'] };
 const CHANNEL_ORDER = ['bg', 'fg', 'fgMuted', 'pressedBg', 'border'];
 
 // ── SoT reading helpers ───────────────────────────────────────────────
@@ -272,7 +276,9 @@ export function emitPaletteTs(cells) {
   for (const axis of AXIS_ORDER) {
     lines.push(`  ${axis}: {`);
     for (const row of Object.keys(cells[axis])) {
-      lines.push(`    ${row}: {`);
+      // A hyphenated row (`inverse-muted`) is not a bare identifier — quote it.
+      const rowKey = /^[A-Za-z_$][\w$]*$/.test(row) ? row : `'${row}'`;
+      lines.push(`    ${rowKey}: {`);
       for (const [channel, value] of Object.entries(cells[axis][row])) {
         const label = `${channel}:`.padEnd(labelWidth + 1);
         const ref = refOf(value);

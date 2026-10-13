@@ -21,6 +21,8 @@ import {
   ListActionText,
   ListActionTextMuted,
   ListActionTrailIcon,
+  ListSwitch,
+  ListSwitchText,
   Screen,
   Scroll,
   Separator,
@@ -352,6 +354,12 @@ const HomeList = React.memo(function HomeList({ onJump }: { onJump: (index: numb
 
 /** One account's detail list · re-renders only when the account changes. */
 const AccountList = React.memo(function AccountList({ account }: { account: Account }) {
+  // Card settings · the payment-capability toggles (the operator mock). The DS row
+  // is dumb: the demo owns the value and flips it in onPress (per-item checked +
+  // onPress · the TabBarItem grammar). No accessibilityLabel on purpose — the row
+  // text names the control (the admission ⚠ "RN accessible-name" check).
+  const [bitcoinPayments, setBitcoinPayments] = React.useState(true);
+  const [cardsAndBank, setCardsAndBank] = React.useState(false);
   return (
     <List>
       <ListAction accessibilityLabel="Transaction history, 153 activities">
@@ -369,6 +377,17 @@ const AccountList = React.memo(function AccountList({ account }: { account: Acco
           <ListActionTrailIcon name="chevron-right" />
         </ListAction>
       ))}
+      {account.tier === 'spend' ? (
+        <>
+          <Band label="Card settings" />
+          <ListSwitch checked={bitcoinPayments} onPress={() => setBitcoinPayments((v) => !v)}>
+            <ListSwitchText>Bitcoin payments</ListSwitchText>
+          </ListSwitch>
+          <ListSwitch checked={cardsAndBank} onPress={() => setCardsAndBank((v) => !v)}>
+            <ListSwitchText>Cards and bank</ListSwitchText>
+          </ListSwitch>
+        </>
+      ) : null}
     </List>
   );
 });

@@ -61,6 +61,7 @@
     'accessibility-value',
     'role',
     'aria-selected',
+    'aria-checked',
     'aria-haspopup',
   ];
 
@@ -166,6 +167,14 @@
         this.#btn.setAttribute('aria-selected', selected);
       } else {
         this.#btn.removeAttribute('aria-selected');
+      }
+      // The toggle state (role="switch" · the factory's aria-checked from the
+      // propMaps.checked bridge) mirrors to the inner button like aria-selected.
+      const checked = this.getAttribute('aria-checked');
+      if (checked != null) {
+        this.#btn.setAttribute('aria-checked', checked);
+      } else {
+        this.#btn.removeAttribute('aria-checked');
       }
     }
   }

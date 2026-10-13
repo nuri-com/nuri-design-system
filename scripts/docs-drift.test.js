@@ -279,6 +279,24 @@ const EXPECTED_DESCRIPTORS = {
     parts: [],
     interactive: [],
   },
+  // switch (the binary setting toggle · prompts/admission-switch.md §A) — a pressable
+  // track + ONE private thumb; the internal `state` axis (on solid / off the
+  // accent-invariant inverse-muted chrome) bridged by `checked`; disabledOpacity
+  // ONLY (no press-down effect by ruling · the thumb snap is the feedback).
+  switch: {
+    axes: { state: ['on', 'off'] },
+    parts: ['thumb'],
+    interactive: ['disabledOpacity'],
+  },
+  // list-switch (the row whose WHOLE row is a switch · admission §B) — the
+  // list-action row geometry + content column, a STATIC trailing track/thumb copy of
+  // the switch look (pinned by scripts/switch-contract.test.js), `checked` bridged
+  // onto the same `state` axis; the row washes (pressColor) + dims.
+  'list-switch': {
+    axes: { state: ['on', 'off'] },
+    parts: ['content', 'text', 'textMuted', 'track', 'thumb'],
+    interactive: ['pressColor', 'disabledOpacity'],
+  },
 };
 
 // The anatomy's non-root parts (the structural declaration).
@@ -426,6 +444,8 @@ const EXPECTED_PALETTE = {
     subtle: { bg: 'chrome.bgSubtle', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
     strong: { bg: 'chrome.bgStrong', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
     transparent: { bg: 'transparent', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
+    // inverse-muted (the Switch slice · admission C1): the toggle's OFF track.
+    'inverse-muted': { bg: 'chrome.bgInverseMuted', fg: 'chrome.textOnInverse', fgMuted: 'chrome.textMuted' },
   },
 };
 
@@ -564,7 +584,11 @@ const FROZEN_SCHEMA = {
     // bg · text-muted fg · 1px border-subtle stroke) — closes decision 30's
     // "palette outline = reserved, mapped-not-built".
     PaletteVariant: ['solid', 'soft', 'ghost', 'subtle', 'outline'],
-    PaletteChrome: ['canvas', 'subtle', 'strong', 'transparent'],
+    // `inverse-muted` ADDED at the Switch slice (prompts/admission-switch.md C1 · the
+    // 2nd deliberate post-freeze PaletteChrome add · decision 65 "post-freeze changes
+    // are versioned"): the binary toggle's accent-invariant OFF track — the
+    // `bg-inverse-muted` fill decision 44 created, under `text-on-inverse`.
+    PaletteChrome: ['canvas', 'subtle', 'strong', 'transparent', 'inverse-muted'],
     InputBehaviourProp: [
       'value',
       'onChangeText',
@@ -651,11 +675,11 @@ const FROZEN_SCHEMA = {
     // static tablist role and the pressable channel declares button|tab.
     'role?': "'tablist'",
     'themeScope?': '{ accent: true }',
-    'behaviour?': "{ pressable?: { target: P; role?: 'button' | 'tab'; popup?: 'dialog'; props: ('onPress' | 'disabled' | 'accessibilityLabel' | 'accessibilityValue')[]; }; input?: { target: P; focusTarget?: P; labelPart?: P; props: InputBehaviourProp[] }; }",
+    'behaviour?': "{ pressable?: { target: P; role?: 'button' | 'tab' | 'switch'; popup?: 'dialog'; props: ('onPress' | 'disabled' | 'accessibilityLabel' | 'accessibilityValue')[]; }; input?: { target: P; focusTarget?: P; labelPart?: P; props: InputBehaviourProp[] }; }",
     // contentMode ADDED 2026-08-15 (a versioned post-freeze api add · the
     // content-presence bridge): routed slot content drives an INTERNAL axis —
     // both bindings derive it as data (icon-avatar `mode`).
-    'propMaps?': '{ selected?: { axis: string; true: string; false: string }; contentMode?: { slot: string; axis: string; present: string; absent: string }; }',
+    'propMaps?': '{ selected?: { axis: string; true: string; false: string }; checked?: { axis: string; true: string; false: string }; contentMode?: { slot: string; axis: string; present: string; absent: string }; }',
     'slots': 'Record<string, SlotSpec<P>>',
   },
   SlotSpec: {

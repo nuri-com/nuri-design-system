@@ -33,6 +33,10 @@ export function classifyComposition<
     ambientContent: Content;
     isHostEl: (el: unknown) => boolean;
     isMultiPart: (part: string) => boolean;
+    // A part some api slot targets. An untargeted subtree with NO slot part is pure
+    // structure and renders static in anatomy order (ListSwitch's track/thumb);
+    // omitted → every part counts as slot-bearing (the pre-Switch behaviour).
+    isSlotPart?: (part: string) => boolean;
     inputTarget?: string;
     labelPart?: string;
     errorPrefix: string;

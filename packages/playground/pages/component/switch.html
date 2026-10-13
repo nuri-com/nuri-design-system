@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuri · Playground · Switch</title>
+  <link rel="stylesheet" href="../../generated/playground.css" />
+  <script src="../../generated/boot.js" type="module"></script>
+</head>
+<body>
+
+<nuri-playground-shell doc="Switch">
+
+  <!-- states · the standalone binary toggle (prompts/admission-switch.md §A): one
+       60×36 pill, one size. Row 1: on · off. Row 2: on under the lilac and orange
+       accents (the ON track follows the accent; the OFF track never does — it is
+       the accent-invariant inverse-muted chrome). Row 3: disabled on · disabled off. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="states">
+    <template>
+      <nuri-view direction="column" align="center" justify="center" gap="lg" fill>
+        <nuri-view direction="row" align="center" justify="center" gap="lg">
+          <nuri-switch checked aria-label="Bitcoin payments"></nuri-switch>
+          <nuri-switch aria-label="Cards and bank"></nuri-switch>
+        </nuri-view>
+        <nuri-view direction="row" align="center" justify="center" gap="lg">
+          <nuri-switch checked accent="lilac" aria-label="On · lilac"></nuri-switch>
+          <nuri-switch accent="lilac" aria-label="Off · lilac"></nuri-switch>
+          <nuri-switch checked accent="orange" aria-label="On · orange"></nuri-switch>
+          <nuri-switch accent="orange" aria-label="Off · orange"></nuri-switch>
+        </nuri-view>
+        <nuri-view direction="row" align="center" justify="center" gap="lg">
+          <nuri-switch checked disabled aria-label="On · disabled"></nuri-switch>
+          <nuri-switch disabled aria-label="Off · disabled"></nuri-switch>
+        </nuri-view>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
+  <!-- in a row · the standalone pill beside a long label in a CONSUMER row (a card
+       surface would compose it like this): the track keeps its 60px (a view node
+       never shrinks · Yoga's flex-shrink 0 mirrored on web) while the label truncates.
+       Prefer <nuri-list-switch> where the row IS the control. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="beside a long label">
+    <template>
+      <nuri-view direction="column" align="stretch" justify="center" gap="md" padding-x="md" fill>
+        <nuri-view direction="row" align="center" gap="md">
+          <nuri-view direction="column" align="stretch" fill="grow-shrink">
+            <nuri-typography size="md" emphasis flow="truncate" lines="1">A deliberately long setting name that must truncate before the pill</nuri-typography>
+          </nuri-view>
+          <nuri-switch checked aria-label="A deliberately long setting name"></nuri-switch>
+        </nuri-view>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+</body>
+</html>

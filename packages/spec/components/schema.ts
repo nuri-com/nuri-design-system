@@ -207,7 +207,13 @@ export type TypographyNS = {
 // adds the first border-colour channel; solid.fgMuted stays mapped-not-built
 // (decision 30).
 export type PaletteVariant = 'solid' | 'soft' | 'ghost' | 'subtle' | 'outline';
-export type PaletteChrome = 'canvas' | 'subtle' | 'strong' | 'transparent';
+// `inverse-muted` (the Switch slice · prompts/admission-switch.md C1 · the 2nd
+// deliberate post-freeze PaletteChrome add, after `transparent`): the OFF track of a
+// binary toggle — `bg-inverse-muted` (the neutral-11 fill decision 44 created for
+// exactly this) under `text-on-inverse`. A CHROME slot, not a variant, because the
+// off state must stay accent-invariant (grey under lilac AND orange). No pressed
+// channel, like every chrome slot — the toggle carries no press-down effect by ruling.
+export type PaletteChrome = 'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted';
 export type PaletteNS = {
   variant?: PaletteVariant;
   accent?: Accent;
@@ -417,6 +423,15 @@ export type SlotSpec<P extends PartId = PartId> = {
 // as DATA (RN codegen from the slot's scalar prop · web buildComponent from the
 // routed content). First consumer: icon-avatar `mode` (source → image | glyph),
 // promoting "outline + source = no-op by convention" to mechanism.
+// `propMaps.checked` + `behaviour.pressable.role: 'switch'` (the Switch slice ·
+// prompts/admission-switch.md C2 + C3 · 2026-10-13): the `selected` bridge's sibling
+// for BINARY TOGGLES — same shape, same validation (an INTERNAL axis · real values ·
+// never in `axes`), a different announcement (RN `accessibilityState.checked` · web
+// `aria-checked`) under the `switch` role. The two are coupled both ways and
+// mutually exclusive with `selected` (one state semantic per control · the codegen
+// validator + the switch-contract guard). `selected` is NOT generalised. The `switch`
+// role is reachable ONLY through a descriptor: the open Pressable primitive keeps
+// `'button' | 'tab'`, so its public surface is unchanged.
 export type InputBehaviourProp = 'value'
   | 'onChangeText'
   | 'placeholder'
@@ -437,7 +452,7 @@ export type ComponentApi<P extends PartId = PartId> = {
   behaviour?: {
     pressable?: {
       target: P;
-      role?: 'button' | 'tab';
+      role?: 'button' | 'tab' | 'switch';
       popup?: 'dialog';
       props: ('onPress' | 'disabled' | 'accessibilityLabel' | 'accessibilityValue')[];
     };
@@ -445,6 +460,7 @@ export type ComponentApi<P extends PartId = PartId> = {
   };
   propMaps?: {
     selected?: { axis: string; true: string; false: string };
+    checked?: { axis: string; true: string; false: string };
     contentMode?: { slot: string; axis: string; present: string; absent: string };
   };
   slots: Record<string, SlotSpec<P>>;

@@ -31,3 +31,7 @@ export { TabBar } from './tab-bar';
 export type { TabBarProps } from './tab-bar';
 export { ModalPanel } from './modal-panel';
 export type { ModalPanelProps } from './modal-panel';
+export { Switch } from './switch';
+export type { SwitchProps } from './switch';
+export { ListSwitch, ListSwitchText, ListSwitchTextMuted } from './list-switch';
+export type { ListSwitchProps, ListSwitchTextProps, ListSwitchTextMutedProps } from './list-switch';

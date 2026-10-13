@@ -106,6 +106,7 @@ function publicPropsForDescriptor(descriptor) {
   // Of the prop maps, only `selected` IS a public prop (the boolean bridge);
   // contentMode is content-derived — internal, never a prop (review P2 · 2026-08-15).
   if (descriptor.api.propMaps?.selected) props.add('selected');
+  if (descriptor.api.propMaps?.checked) props.add('checked');
   for (const [slotName, slot] of Object.entries(descriptor.api.slots || {})) {
     if (slot.default === true) props.add('children');
     if (slot.prop) props.add(slot.prop);
@@ -133,6 +134,23 @@ function validatePropMapBridges(name, descriptor) {
     assertAxisArm('selected', selected.axis, 'true', selected.true);
     assertAxisArm('selected', selected.axis, 'false', selected.false);
     if (publicAxes.has(selected.axis)) throw new Error(`[components-api] ${name}: propMaps.selected axis '${selected.axis}' must be INTERNAL (not in api.axes) — the boolean bridge is the public surface`);
+  }
+
+  // The `checked` bridge (the Switch slice · admission C2 + C3): the `selected`
+  // sibling for binary toggles — same validation, PLUS the role coupling both ways
+  // (role 'switch' ⇔ checked) and mutual exclusion with `selected` (one state
+  // semantic per control). Mirrored as a guard in scripts/switch-contract.test.js.
+  const checked = descriptor.api?.propMaps?.checked;
+  const role = descriptor.api?.behaviour?.pressable?.role;
+  if (checked) {
+    assertAxisArm('checked', checked.axis, 'true', checked.true);
+    assertAxisArm('checked', checked.axis, 'false', checked.false);
+    if (publicAxes.has(checked.axis)) throw new Error(`[components-api] ${name}: propMaps.checked axis '${checked.axis}' must be INTERNAL (not in api.axes) — the boolean bridge is the public surface`);
+    if (role !== 'switch') throw new Error(`[components-api] ${name}: propMaps.checked requires behaviour.pressable.role 'switch' — a checked state is announced only on a switch`);
+    if (selected) throw new Error(`[components-api] ${name}: propMaps.selected and propMaps.checked are mutually exclusive — one state semantic per control`);
+  }
+  if (role === 'switch' && !checked) {
+    throw new Error(`[components-api] ${name}: behaviour.pressable.role 'switch' requires a declared propMaps.checked bridge`);
   }
 
   const contentMode = descriptor.api?.propMaps?.contentMode;
@@ -333,6 +351,7 @@ function buildProps(api, variants, descriptor) {
   for (const p of inputProps) lines.push(`  ${p}?: ${INPUT_TS[p]};`);
 
   if (api.propMaps && api.propMaps.selected) lines.push('  selected?: boolean;');
+  if (api.propMaps && api.propMaps.checked) lines.push('  checked?: boolean;');
 
   for (const [slotName, slot] of Object.entries(api.slots)) {
     if (slot.default === true) {
@@ -392,6 +411,14 @@ function emitSelection(descriptor) {
     lines.push(
       '  if (typeof props.selected === \'boolean\') {',
       `    selection[${q(selected.axis)}] = props.selected ? ${q(selected.true)} : ${q(selected.false)};`,
+      '  }',
+    );
+  }
+  const checked = descriptor.api.propMaps && descriptor.api.propMaps.checked;
+  if (checked) {
+    lines.push(
+      '  if (typeof props.checked === \'boolean\') {',
+      `    selection[${q(checked.axis)}] = props.checked ? ${q(checked.true)} : ${q(checked.false)};`,
       '  }',
     );
   }
@@ -484,6 +511,8 @@ function emitBehaviour(api, partTypeName) {
     // false — mirroring the web factory's `ctx.base.selected === true` (every tab
     // carries the selected state; never a silent native/web divergence).
     if (api.propMaps?.selected) lines.push('    selected: props.selected === true,');
+    // Same coercion for the toggle bridge: an OMITTED `checked` announces false.
+    if (api.propMaps?.checked) lines.push('    checked: props.checked === true,');
     for (const prop of pressable.props) lines.push(`    ${prop}: props.${prop},`);
     lines.push('  };');
   }

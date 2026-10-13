@@ -452,6 +452,20 @@
                 <nuri-list-action-text-muted>DE89 3704 0044 0532 0130 00</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
+
+              <!-- Card settings · the payment-capability toggles (the operator mock ·
+                   docs/evidence/switch/list-switch-mock.png): each row IS the switch. -->
+              <nuri-view direction="row" align="center" gap="sm" height="md" padding-x="md">
+                <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+                <nuri-typography size="sm" emphasis muted>Card settings</nuri-typography>
+                <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+              </nuri-view>
+              <nuri-list-switch checked>
+                <nuri-list-switch-text>Bitcoin payments</nuri-list-switch-text>
+              </nuri-list-switch>
+              <nuri-list-switch>
+                <nuri-list-switch-text>Cards and bank</nuri-list-switch-text>
+              </nuri-list-switch>
             </nuri-list>
           </nuri-view>
         </nuri-scroll>

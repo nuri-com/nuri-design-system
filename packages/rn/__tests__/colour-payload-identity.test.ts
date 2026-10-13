@@ -61,6 +61,9 @@ const expectedChromeSlots = (mode: Theme) => {
     subtle: { bg: c.bgSubtle, fg: c.textPrimary, fgMuted: c.textMuted },
     strong: { bg: c.bgStrong, fg: c.textPrimary, fgMuted: c.textMuted },
     transparent: { bg: 'transparent', fg: c.textPrimary, fgMuted: c.textMuted },
+    // inverse-muted (the Switch OFF track · admission C1): the neutral-11 fill under
+    // text-on-inverse; fgMuted is the shared muted role like every chrome row.
+    'inverse-muted': { bg: c.bgInverseMuted, fg: c.textOnInverse, fgMuted: c.textMuted },
   };
 };
 

@@ -36,7 +36,7 @@ nav_order: 14
 | `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `muted` | no | `boolean` | style axis |
-| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | style axis |
+| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted'` | style axis |
 | `pressColor` | no | `boolean` | component prop |
 | `pressScale` | no | `boolean` | component prop |
 | `disabledOpacity` | no | `boolean` | component prop |

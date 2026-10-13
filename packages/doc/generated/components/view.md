@@ -39,7 +39,7 @@ Column layout uses `<View>` with the schema default direction; rows use `directi
 | `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `muted` | no | `boolean` | style axis |
-| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | style axis |
+| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted'` | style axis |
 | `elevation` | no | `'none' | 'raised'` | style axis |
 | `children` | no | `React.ReactNode` | default content slot |
 | `testID` | no | `string` | native test hook |

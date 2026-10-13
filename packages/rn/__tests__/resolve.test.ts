@@ -89,6 +89,12 @@ describe('baseline theme (resolver-model §11)', () => {
     expect(theme.chrome.canvas.fg).toBe(chrome.light.textPrimary);
     expect(theme.chrome.transparent.bg).toBe('transparent');
     expect(theme.chrome.transparent.fg).toBe(chrome.light.textPrimary);
+    // inverse-muted (the Switch OFF track · admission C1): the neutral-11 fill under
+    // text-on-inverse — accent-invariant (a chrome slot), so lilac and orange agree.
+    expect(theme.chrome['inverse-muted'].bg).toBe(chrome.light.bgInverseMuted);
+    expect(theme.chrome['inverse-muted'].fg).toBe(chrome.light.textOnInverse);
+    expect(buildNuriTheme('orange', 'light').chrome['inverse-muted'].bg).toBe(chrome.light.bgInverseMuted);
+    expect(buildNuriTheme('lilac', 'dark').chrome['inverse-muted'].bg).toBe(chrome.dark.bgInverseMuted);
   });
 
   test('neutral solid inverts with mode (the N+15 lesson)', () => {

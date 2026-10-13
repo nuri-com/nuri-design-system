@@ -13,7 +13,7 @@ nav_order: 18
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
-| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | style axis |
+| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted'` | style axis |
 | `direction` | no | `'row' | 'column'` | style axis |
 | `align` | no | `'start' | 'center' | 'end' | 'stretch' | 'baseline'` | style axis |
 | `justify` | no | `'start' | 'center' | 'end' | 'between' | 'around'` | style axis |

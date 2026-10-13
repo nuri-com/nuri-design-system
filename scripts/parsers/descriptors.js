@@ -55,6 +55,8 @@ export const DESCRIPTOR_COMPONENTS = [
   { name: 'tab-bar-item' },
   { name: 'tab-bar' },
   { name: 'modal-panel' },
+  { name: 'switch' },
+  { name: 'list-switch' },
 ];
 
 // ── NAME → the export identifier / camelCase ─────────────────────────

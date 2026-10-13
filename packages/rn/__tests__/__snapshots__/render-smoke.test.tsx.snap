@@ -1637,6 +1637,257 @@ exports[`render-smoke — the ergonomic components mount headless ListAction —
 </View>
 `;
 
+exports[`render-smoke — the ergonomic components mount headless ListSwitch — the WHOLE row is one role=switch control · text names it · the pill is a static copy, never a nested pressable 1`] = `
+<View
+  style={
+    {
+      "alignItems": "stretch",
+      "flexDirection": "column",
+      "paddingHorizontal": 6,
+    }
+  }
+>
+  <View
+    accessibilityRole="switch"
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": true,
+        "disabled": false,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "transparent",
+        "borderRadius": 18,
+        "flexDirection": "row",
+        "gap": 12,
+        "padding": 12,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "alignItems": "stretch",
+          "flexDirection": "column",
+          "flexGrow": 1,
+          "flexShrink": 1,
+          "justifyContent": "center",
+          "minWidth": 0,
+        }
+      }
+    >
+      <Text
+        ellipsizeMode="tail"
+        numberOfLines={1}
+        style={
+          [
+            {
+              "fontSize": 17,
+              "fontWeight": "600",
+              "letterSpacing": -0.34,
+              "lineHeight": 21.93,
+            },
+            {
+              "color": "#222013",
+            },
+            {
+              "flexShrink": 1,
+              "textAlign": "center",
+            },
+            {
+              "textAlign": "left",
+            },
+          ]
+        }
+      >
+        Bitcoin payments
+      </Text>
+    </View>
+    <View
+      style={
+        {
+          "alignItems": "stretch",
+          "backgroundColor": "#beaaff",
+          "borderRadius": 9999,
+          "flexDirection": "row",
+          "height": 36,
+          "justifyContent": "flex-end",
+          "padding": 3,
+          "width": 60,
+        }
+      }
+    >
+      <View
+        style={
+          {
+            "aspectRatio": 1,
+            "backgroundColor": "#fffdf2",
+            "borderRadius": 9999,
+          }
+        }
+      />
+    </View>
+  </View>
+  <View
+    accessibilityRole="switch"
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": false,
+        "disabled": false,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "transparent",
+        "borderRadius": 18,
+        "flexDirection": "row",
+        "gap": 12,
+        "padding": 12,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "alignItems": "stretch",
+          "flexDirection": "column",
+          "flexGrow": 1,
+          "flexShrink": 1,
+          "justifyContent": "center",
+          "minWidth": 0,
+        }
+      }
+    >
+      <Text
+        ellipsizeMode="tail"
+        numberOfLines={1}
+        style={
+          [
+            {
+              "fontSize": 17,
+              "fontWeight": "600",
+              "letterSpacing": -0.34,
+              "lineHeight": 21.93,
+            },
+            {
+              "color": "#222013",
+            },
+            {
+              "flexShrink": 1,
+              "textAlign": "center",
+            },
+            {
+              "textAlign": "left",
+            },
+          ]
+        }
+      >
+        Cards and bank
+      </Text>
+      <Text
+        ellipsizeMode="tail"
+        numberOfLines={1}
+        style={
+          [
+            {
+              "fontSize": 14.5,
+              "fontWeight": "400",
+              "letterSpacing": -0.145,
+              "lineHeight": 19.285,
+            },
+            {
+              "color": "#666455",
+            },
+            {
+              "flexShrink": 1,
+              "textAlign": "center",
+            },
+            {
+              "textAlign": "left",
+            },
+          ]
+        }
+      >
+        Visa, Mastercard, SEPA
+      </Text>
+    </View>
+    <View
+      style={
+        {
+          "alignItems": "stretch",
+          "backgroundColor": "#666455",
+          "borderRadius": 9999,
+          "flexDirection": "row",
+          "height": 36,
+          "justifyContent": "flex-start",
+          "padding": 3,
+          "width": 60,
+        }
+      }
+    >
+      <View
+        style={
+          {
+            "aspectRatio": 1,
+            "backgroundColor": "#fffdf2",
+            "borderRadius": 9999,
+          }
+        }
+      />
+    </View>
+  </View>
+</View>
+`;
+
 exports[`render-smoke — the ergonomic components mount headless SelectField — disclosure value renders optional avatar/chevron and forwards native a11y value 1`] = `
 <View
   style={
@@ -1848,6 +2099,177 @@ exports[`render-smoke — the ergonomic components mount headless SelectField �
     </RNSVGSvgView>
   </View>
 </View>
+`;
+
+exports[`render-smoke — the ergonomic components mount headless Switch — a role=switch pressable announcing checked · on parks the thumb at the end on the solid track, off at the start on inverse-muted 1`] = `
+[
+  <View
+    accessibilityLabel="Bitcoin payments"
+    accessibilityRole="switch"
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": true,
+        "disabled": false,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "stretch",
+        "backgroundColor": "#beaaff",
+        "borderRadius": 9999,
+        "flexDirection": "row",
+        "height": 36,
+        "justifyContent": "flex-end",
+        "padding": 3,
+        "width": 60,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "aspectRatio": 1,
+          "backgroundColor": "#fffdf2",
+          "borderRadius": 9999,
+        }
+      }
+    />
+  </View>,
+  <View
+    accessibilityLabel="Cards and bank"
+    accessibilityRole="switch"
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": false,
+        "disabled": false,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "stretch",
+        "backgroundColor": "#666455",
+        "borderRadius": 9999,
+        "flexDirection": "row",
+        "height": 36,
+        "justifyContent": "flex-start",
+        "padding": 3,
+        "width": 60,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "aspectRatio": 1,
+          "backgroundColor": "#fffdf2",
+          "borderRadius": 9999,
+        }
+      }
+    />
+  </View>,
+  <View
+    accessibilityLabel="Disabled"
+    accessibilityRole="switch"
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": false,
+        "disabled": true,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "stretch",
+        "backgroundColor": "#666455",
+        "borderRadius": 9999,
+        "flexDirection": "row",
+        "height": 36,
+        "justifyContent": "flex-start",
+        "opacity": 0.4,
+        "padding": 3,
+        "width": 60,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "aspectRatio": 1,
+          "backgroundColor": "#fffdf2",
+          "borderRadius": 9999,
+        }
+      }
+    />
+  </View>,
+]
 `;
 
 exports[`render-smoke — the ergonomic components mount headless TabBar — OPEN container renders its positional Tab children · selected + unselected items 1`] = `

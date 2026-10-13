@@ -93,5 +93,9 @@ export const surface = {
     subtle: { bg: 'bg-subtle', fg: 'text-primary' },
     strong: { bg: 'bg-strong', fg: 'text-primary' },
     transparent: { bg: { literal: 'transparent' }, fg: 'text-primary' },
+    // inverse-muted · the binary toggle's OFF track (the Switch slice · admission C1):
+    // the neutral-11 fill decision 44 created for exactly this, under text-on-inverse
+    // (the fill is dark in light mode). Accent-invariant by construction (a chrome slot).
+    'inverse-muted': { bg: 'bg-inverse-muted', fg: 'text-on-inverse' },
   },
 } as const satisfies SurfaceTable;

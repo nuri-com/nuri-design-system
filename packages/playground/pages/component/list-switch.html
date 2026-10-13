@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuri · Playground · List Switch</title>
+  <link rel="stylesheet" href="../../generated/playground.css" />
+  <script src="../../generated/boot.js" type="module"></script>
+</head>
+<body>
+
+<nuri-playground-shell doc="List Switch">
+
+  <!-- settings · the operator mock (docs/evidence/switch/list-switch-mock.png): two
+       rows whose WHOLE row is the switch (prompts/admission-switch.md §B). The row
+       text names the control, the full row is the tap target, the row washes on press. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="settings">
+    <template>
+      <nuri-list>
+        <nuri-list-switch checked>
+          <nuri-list-switch-text>Bitcoin payments</nuri-list-switch-text>
+        </nuri-list-switch>
+        <nuri-list-separator></nuri-list-separator>
+        <nuri-list-switch>
+          <nuri-list-switch-text>Cards and bank</nuri-list-switch-text>
+        </nuri-list-switch>
+      </nuri-list>
+    </template>
+  </nuri-demo>
+
+  <!-- two-line · a muted detail line under the title (the list-action content
+       twin); a disabled row (the whole row dims · inert); a long title that
+       truncates while the 60px track keeps its width. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="two-line · disabled · long">
+    <template>
+      <nuri-list>
+        <nuri-list-switch checked>
+          <nuri-list-switch-text>Cards and bank</nuri-list-switch-text>
+          <nuri-list-switch-text-muted>Visa, Mastercard, SEPA</nuri-list-switch-text-muted>
+        </nuri-list-switch>
+        <nuri-list-separator></nuri-list-separator>
+        <nuri-list-switch disabled>
+          <nuri-list-switch-text>Lightning payments</nuri-list-switch-text>
+          <nuri-list-switch-text-muted>Available after verification</nuri-list-switch-text-muted>
+        </nuri-list-switch>
+        <nuri-list-separator></nuri-list-separator>
+        <nuri-list-switch checked disabled>
+          <nuri-list-switch-text>Contactless</nuri-list-switch-text>
+        </nuri-list-switch>
+        <nuri-list-separator></nuri-list-separator>
+        <nuri-list-switch>
+          <nuri-list-switch-text>A deliberately long setting name that must truncate before the pill</nuri-list-switch-text>
+          <nuri-list-switch-text-muted>And a muted line that is also far too long for one row width</nuri-list-switch-text-muted>
+        </nuri-list-switch>
+      </nuri-list>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+</body>
+</html>

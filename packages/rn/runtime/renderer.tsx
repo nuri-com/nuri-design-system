@@ -195,12 +195,15 @@ export function harvestNuriComposition<PId extends PartId = PartId>(
 export type NuriBehaviour<PId extends PartId = PartId> = {
   pressable?: {
     target: PId;
-    role?: 'button' | 'tab';
+    role?: 'button' | 'tab' | 'switch';
     // Static disclosure semantic. Web maps it to aria-haspopup="dialog"; RN has
     // NO native equivalent, so the renderer deliberately never consumes it (the
     // locked ruling: RN -> no-op). Not a dead field — do not "clean it up".
     popup?: 'dialog';
     selected?: boolean;
+    // The toggle state (propMaps.checked · role 'switch'): accessibilityState.checked
+    // on RN · aria-checked on web. Coerced by the generated adapter (omitted → false).
+    checked?: boolean;
     onPress?: () => void;
     disabled?: boolean;
     accessibilityLabel?: string;
@@ -590,6 +593,9 @@ function renderPart<A extends Axes>(
         isHostEl: (el) => Boolean(el && !LEAF_ELS.includes(el as typeof LEAF_ELS[number])),
         isMultiPart: (part) => Object.values(ctx.descriptor.api?.slots ?? {})
           .some((slot) => slot.part === part && slot.multiple === true),
+        // A part no api slot targets is pure structure: an untargeted subtree with
+        // NO slot part renders static, in anatomy order (ListSwitch's track/thumb).
+        isSlotPart: (part) => Object.values(ctx.descriptor.api?.slots ?? {}).some((slot) => slot.part === part),
         inputTarget: ctx.behaviour.input?.target,
         labelPart: ctx.behaviour.input?.labelPart,
         errorPrefix: 'nuri-factory:',
@@ -700,6 +706,7 @@ function renderPart<A extends Axes>(
           disabled={disabled}
           role={pressable.role}
           selected={pressable.selected}
+          checked={pressable.checked}
           accessibilityLabel={pressable.accessibilityLabel}
           accessibilityValue={
             pressable.accessibilityValue === undefined

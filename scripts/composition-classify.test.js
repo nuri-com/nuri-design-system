@@ -51,6 +51,38 @@ test('inserts the static input sibling at its anatomy position', () => {
   );
 });
 
+test('renders an untargeted PURE-STRUCTURE subtree static in anatomy order, and keeps an untargeted slot-bearing subtree absent', () => {
+  // ListSwitch's shape: a slot-bearing content column + a trailing track/thumb no
+  // slot can ever target. With the slot predicate, the track is STATIC (rendered
+  // in its anatomy position); without it (the conservative default) the old
+  // behaviour holds — an untargeted host is skipped.
+  const node = host('root', [host('content', [leaf('text'), leaf('textMuted')]), host('track', [host('thumb')])]);
+  const isSlotPart = (part) => part === 'text' || part === 'textMuted';
+  const withSlots = classify(node, [{ part: 'text', content: 'Bitcoin payments' }], { isSlotPart });
+  assert.deepEqual(
+    withSlots.ordered.map((item) => (item.kind === 'group' ? `group:${item.part}` : `${item.kind}:${item.child.name}`)),
+    ['group:content', 'static:track'],
+  );
+  // The default predicate treats every part as slot-bearing → no static item (the
+  // pre-Switch behaviour · nothing changes for a caller that passes no predicate).
+  const legacy = classify(node, [{ part: 'text', content: 'Bitcoin payments' }]);
+  assert.deepEqual(legacy.ordered.map((item) => item.kind), ['group']);
+  // An untargeted subtree that DOES contain slot parts stays absent (ListAction's
+  // optional `trailing` column the consumer did not compose · the bare-collapse).
+  const row = host('root', [host('content', [leaf('text')]), host('trailing', [leaf('trailingText')]), host('track', [host('thumb')])]);
+  const result = classify(row, [{ part: 'text', content: 'x' }], {
+    isSlotPart: (part) => part === 'text' || part === 'trailingText',
+  });
+  assert.deepEqual(
+    result.ordered.map((item) => (item.kind === 'group' ? `group:${item.part}` : `${item.kind}:${item.child.name}`)),
+    ['group:content', 'static:track'],
+  );
+  // Anatomy order is preserved: a static subtree BEFORE a composed sibling lands first.
+  const led = host('root', [host('track', [host('thumb')]), host('content', [leaf('text')])]);
+  const ordered = classify(led, [{ part: 'text', content: 'x' }], { isSlotPart: (part) => part === 'text' });
+  assert.deepEqual(ordered.ordered.map((item) => item.kind), ['static', 'group']);
+});
+
 test('throws with the injected prefix when a singular part is targeted twice', () => {
   const node = host('root', [leaf('item')]);
   assert.throws(
