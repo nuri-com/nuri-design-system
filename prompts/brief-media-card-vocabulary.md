@@ -96,8 +96,8 @@ photo's width follows its own ratio × the card height.
 
 ## 4 · Sequence · gates · evidence
 
-Branch `feat/media-card-vocabulary` STACKED on `feat/toggle-switch` (the board is the evidence;
-rebase onto main once the Switch PR merges). Order: §1 → §2 → §3 → board swap → demo card → docs →
+Branch `feat/media-card-vocabulary` from `main` (#223 merged 2026-10-14 — the Profile board with the
+flagged stand-in is on main, so no stacking is needed). Order: §1 → §2 → §3 → board swap → demo card → docs →
 full gate suite (root · prototype · playground · doc · rn jest + tsc · expo tsc · re-emit
 determinism) → evidence screenshots (web board; Expo web preview; a long-copy board proving the
 card height never moves) → admission draft updated with the executed evidence → draft PR (never

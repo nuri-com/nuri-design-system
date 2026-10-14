@@ -9,10 +9,13 @@ previous handoff (Bleed + Move reference, 2026-08-15) is fully superseded — th
 
 State at the end of the 2026-10-13/14 session (this addendum supersedes nothing below; it adds):
 
-- **Branch `feat/toggle-switch`, 8 commits, NOT pushed, no PR.** Switch + ListSwitch (option 2:
+- **MERGED as nuri-com/nuri-design-system#223 (squash `455e715` · 2026-10-14) · `main` is GREEN
+  again** — the first green since 2026-09-16: the PR also carried the `package-lock.json` fix for
+  the `@nuri/gen-ui` workspace the `racer(...)` commits had pushed to main unregistered. Branch
+  deleted local + remote. Content — Switch + ListSwitch (option 2:
   the row's pill is a static copy under a parity guard) + schema deltas C1–C3 (`PaletteChrome`
   `inverse-muted` · pressable role `switch` · `propMaps.checked`) + the 72px list-row floor
-  (`box.minHeight: '2xl'` on list-action/list-switch) + the bare `check` glyph + the Profile
+  (`box.minHeight: '2xl'` on list-action/list-switch) + the Profile
   playground page (`pages/profile.html`: overlay transparent bar via Dock + `inset-top="dock"`,
   two boards incl. the "Bank and Cards" CTA card with a FLAGGED non-DS photo stand-in). Engine
   correction shipped with it: the composition classifier now renders untargeted PURE-STRUCTURE
@@ -24,10 +27,17 @@ State at the end of the 2026-10-13/14 session (this addendum supersedes nothing 
   close), RN accessible-name derivation on device, consumer owner + nuri-expo link, the named
   architect. Native residue: Yoga `aspectRatio`-on-stretch thumb, VoiceOver/TalkBack, press feel.
 - **Next arc (hand-off, operator-chosen):** `prompts/brief-media-card-vocabulary.md` — `Image`
-  primitive · `box.clip` · ratio leaves (`portrait` · `banner`), on a branch stacked on
-  `feat/toggle-switch`; five rulings listed in its §6 to settle first.
-- **Operator's pending go:** push + draft PR for `feat/toggle-switch`, publish the admission draft
-  as an issue, the #201 cross-reference comment. Never merge.
+  primitive · `box.clip` · ratio leaves (`portrait` · `banner`), on a branch from `main` (#223 is
+  merged — no stacking). Its five rulings are RATIFIED (§6): the session starts at §1. The
+  "verified" badge uses `check-circle` in currentColor (a bare `check` glyph was added and
+  withdrawn the same day — operator ruling: no lilac for now; the icon set is unchanged).
+- **Operator's pending go:** publish `prompts/admission-switch.md` as an issue (the admission is
+  still PENDING — #223 merged as evidence, not as admission), the #201 cross-reference comment,
+  the tag decision (`rn/v0.1.0-alpha.15`? last tag `rn/v0.1.0-alpha.14` — the consumer vendors by
+  tag), and what to do about `packages/gen-ui` (35 commits by Emin Mahrt pushed straight to main
+  on 2026-09-16, outside the PR/admission flow; no README; `live.test.js` calls an external MCP
+  endpoint; couples to prototype CSS by path; not covered by the 5 gates). Never merge, never tag
+  without the explicit go.
 - Lesson filed in memory: assert a composed descriptor's STRUCTURAL parts render on both targets
   by geometry; roles/states/first-run snapshots do not prove presence.
 
