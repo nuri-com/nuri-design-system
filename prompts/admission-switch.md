@@ -124,6 +124,20 @@ keeps a 72 pitch. With the floor every list row is 72, content centred: avatar r
 geometry, so it is named here for the architect as a sibling item of the request (the alternative —
 consumer-side spacing — has no DS vocabulary and would be a CSS patch).
 
+### E · The bare `check` glyph (operator instruction 2026-10-14 · the Profile "verified" badge)
+
+`packages/spec/icons/check.svg` joins the set (40 glyphs): the check-circle's inner check sub-path,
+scaled about the grid centre to the house extents (4–28 on the 32 grid · absolute M/C/L/Z only ·
+render-checked name↔drawing on the Profile board). First consumer: the verified badge beside the
+handle — an `sm` solid lilac icon-avatar carrying the glyph. Named here because the icon set is
+public surface (the caret-down precedent in the SelectTrigger record).
+
+**Finding for a SEPARATE request (not admitted here):** the Profile "Bank and Cards" CTA card needs a
+free-standing photo, and the DS has NO image primitive on either target (RN exports no `Image`; the
+web `image` leaf exists only inside icon-avatar). The board carries a flagged non-DS stand-in
+(the factory image-leaf shape, hand-authored) so the gap is visible: a `<nuri-image source fit radius>`
+primitive is the missing vocabulary before that card can be a consumer pattern.
+
 ### Proposed anti-scope (refused generalisation)
 
 - No `variant` or `size` axis on either component — one pill, one size (decision 44's anti-scope upheld).

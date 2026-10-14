@@ -49,9 +49,13 @@
         <nuri-scroll safe-area-bottom inset-top="dock">
           <nuri-view direction="column" align="stretch" justify="start" gap="md" padding-bottom="xl" fill>
 
-            <!-- handle · scrolls away behind the pinned bar -->
-            <nuri-view padding-x="lg" padding-top="md">
+            <!-- handle + the VERIFIED badge (a 24px lilac disc with the bare `check`
+                 glyph · an sm solid icon-avatar) · scrolls away behind the pinned bar.
+                 IconAvatar is decorative (hidden from AT), so the row text carries the
+                 meaning for screen readers via aria-label. -->
+            <nuri-view direction="row" align="center" gap="sm" padding-x="lg" padding-top="md" aria-label="@Dario, verified">
               <nuri-typography size="lg" emphasis>@Dario</nuri-typography>
+              <nuri-icon-avatar size="sm" variant="solid" accent="lilac" icon="check"></nuri-icon-avatar>
             </nuri-view>
 
             <nuri-list>
@@ -76,6 +80,141 @@
             </nuri-view>
             <!-- accent="lilac": the toggles' ON track is the brand lilac regardless of
                  the page accent (the mock) — the component's Tier-2 self-scope. -->
+            <nuri-list>
+              <nuri-list-switch checked accent="lilac">
+                <nuri-list-switch-text>Bitcoin payments</nuri-list-switch-text>
+              </nuri-list-switch>
+              <nuri-list-switch accent="lilac">
+                <nuri-list-switch-text>Cards and bank</nuri-list-switch-text>
+              </nuri-list-switch>
+            </nuri-list>
+
+            <!-- Settings · value rows (title over the muted current value) -->
+            <nuri-view padding-x="lg"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+            <nuri-view padding-x="lg" padding-top="xl">
+              <nuri-typography size="lg" emphasis>Settings</nuri-typography>
+            </nuri-view>
+            <nuri-list>
+              <nuri-list-action aria-label="Language, English">
+                <nuri-list-action-text>Language</nuri-list-action-text>
+                <nuri-list-action-text-muted>English</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Currency, Euro">
+                <nuri-list-action-text>Currency</nuri-list-action-text>
+                <nuri-list-action-text-muted>Euro</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Crypto wallet, connect one to add funds">
+                <nuri-list-action-text>Crypto wallet</nuri-list-action-text>
+                <nuri-list-action-text-muted>Connect one to add funds</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+
+            <!-- Shop -->
+            <nuri-view padding-x="lg"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+            <nuri-view padding-x="lg" padding-top="xl">
+              <nuri-typography size="lg" emphasis>Shop</nuri-typography>
+            </nuri-view>
+            <nuri-list>
+              <nuri-list-action aria-label="eSIM">
+                <nuri-list-action-text>eSIM</nuri-list-action-text>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+
+            <!-- Account -->
+            <nuri-view padding-x="lg"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+            <nuri-view padding-x="lg" padding-top="xl">
+              <nuri-typography size="lg" emphasis>Account</nuri-typography>
+            </nuri-view>
+            <nuri-list>
+              <nuri-list-action aria-label="Log out">
+                <nuri-list-action-text>Log out</nuri-list-action-text>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+
+            <!-- version line -->
+            <nuri-view padding-x="lg"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+            <nuri-view padding-x="lg">
+              <nuri-typography size="sm" muted>Version 0.104.0</nuri-typography>
+            </nuri-view>
+
+          </nuri-view>
+        </nuri-scroll>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- PROFILE · BANK AND CARDS CTA (operator mock 2026-10-14, right frame): the same
+       screen with an activation card between the first list and Notifications (the
+       card takes the separator's place, as in the mock). The card is a `strong`
+       chrome surface (`lg` radius) in a row: a text column (md emphasis title · sm
+       muted copy · an sm solid Button) beside the photo.
+
+       THE PHOTO IS A NON-DS STAND-IN, flagged on purpose: the DS has no free-standing
+       image primitive on EITHER target (RN exports no Image; the web `image` leaf
+       exists only inside icon-avatar). The <img> below hand-authors exactly what the
+       factory's image leaf emits (class nuri-image + the box radius attr + the
+       factory's own inline object-fit) — nothing else — so this board shows the
+       gap, not a patch: a `<nuri-image source fit radius>` primitive (RN + web) is
+       the missing vocabulary before this card can be a consumer pattern. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="profile · bank and cards cta">
+    <template>
+      <nuri-screen>
+        <nuri-dock edge="top">
+          <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+            <nuri-topbar surface="transparent">
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+          </nuri-header>
+        </nuri-dock>
+
+        <nuri-scroll safe-area-bottom inset-top="dock">
+          <nuri-view direction="column" align="stretch" justify="start" gap="md" padding-bottom="xl" fill>
+
+            <nuri-view padding-x="lg" padding-top="md">
+              <nuri-typography size="lg" emphasis>@Dario</nuri-typography>
+            </nuri-view>
+
+            <nuri-list>
+              <nuri-list-action aria-label="Payment link">
+                <nuri-list-action-text>Payment link</nuri-list-action-text>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Address book">
+                <nuri-list-action-text>Address book</nuri-list-action-text>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Support">
+                <nuri-list-action-text>Support</nuri-list-action-text>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+
+            <!-- the activation card (takes the separator's place) -->
+            <nuri-view padding-x="lg" padding-top="md">
+              <nuri-view direction="row" align="stretch" chrome="strong" radius="lg">
+                <nuri-view direction="column" align="start" justify="center" gap="xs" padding="lg" fill="grow-shrink">
+                  <nuri-typography size="md" emphasis>Bank and Cards</nuri-typography>
+                  <nuri-typography size="sm" muted>Open a euro account and get a Visa card to spend anywhere.</nuri-typography>
+                  <nuri-view padding-top="md">
+                    <nuri-button variant="solid" size="sm">Activate</nuri-button>
+                  </nuri-view>
+                </nuri-view>
+                <!-- NON-DS STAND-IN (see the board note): the factory image-leaf shape. -->
+                <img class="nuri-image nuri-box" data-radius="lg" style="object-fit: cover" src="../assets/photos/bank-and-cards.png" alt="" />
+              </nuri-view>
+            </nuri-view>
+
+            <!-- Notifications · the two toggles (each row IS the switch) -->
+            <nuri-view padding-x="lg" padding-top="xl">
+              <nuri-typography size="lg" emphasis>Notifications</nuri-typography>
+            </nuri-view>
             <nuri-list>
               <nuri-list-switch checked accent="lilac">
                 <nuri-list-switch-text>Bitcoin payments</nuri-list-switch-text>
