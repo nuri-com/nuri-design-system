@@ -543,6 +543,10 @@ function appendComposition(host, node, ctx) {
     isHostEl: (el) => HOST_ELS.includes(el),
     isMultiPart: (part) => Object.values(ctx.descriptor.api?.slots || {})
       .some((slot) => slot.part === part && slot.multiple === true),
+    // A part no api slot targets is pure structure: an untargeted subtree with NO
+    // slot part renders static, in anatomy order (ListSwitch's track/thumb · the
+    // RN renderer passes the same predicate — one classifier, two engines).
+    isSlotPart: (part) => Object.values(ctx.descriptor.api?.slots || {}).some((slot) => slot.part === part),
     inputTarget: ctx.inputBehaviour?.target,
     labelPart: ctx.inputBehaviour?.labelPart,
     errorPrefix: '[nuri-factory]',
@@ -605,6 +609,11 @@ function renderInteractiveView(node, ns, ctx) {
   if (pressable?.popup) host.setAttribute('aria-haspopup', pressable.popup);
   if (pressable && ctx.descriptor.api?.propMaps?.selected) {
     host.setAttribute('aria-selected', String(ctx.base.selected === true));
+  }
+  // The toggle bridge (propMaps.checked · role 'switch'): aria-checked, coerced the
+  // same way (an omitted `checked` announces false · mirrors the RN adapter).
+  if (pressable && ctx.descriptor.api?.propMaps?.checked) {
+    host.setAttribute('aria-checked', String(ctx.base.checked === true));
   }
 
   // children parts + this part's own routed content (appended to the host; the
@@ -803,6 +812,11 @@ export function buildComponent(descriptor, selection = {}, props = {}) {
   if (typeof props.selected === 'boolean' && selectedMap) {
     sel[selectedMap.axis] = props.selected ? selectedMap.true : selectedMap.false;
   }
+  // THE `checked` BOOLEAN BRIDGE (the switch · the `selected` sibling).
+  const checkedMap = descriptor.api?.propMaps?.checked;
+  if (typeof props.checked === 'boolean' && checkedMap) {
+    sel[checkedMap.axis] = props.checked ? checkedMap.true : checkedMap.false;
+  }
 
   // `children` → the declared default slot (Button's label), unless `content`
   // already set it (the generated RN adapter routing). An `icon` primary part
@@ -895,7 +909,11 @@ export function defineNuriComponent(descriptor, tagName, options = {}) {
   // propMaps.contentMode.axis (icon-avatar `mode`). Everything else in
   // `variants` is a public axis attribute.
   const bridgeAxes = new Set(
-    [descriptor.api?.propMaps?.selected?.axis, descriptor.api?.propMaps?.contentMode?.axis].filter(Boolean),
+    [
+      descriptor.api?.propMaps?.selected?.axis,
+      descriptor.api?.propMaps?.checked?.axis,
+      descriptor.api?.propMaps?.contentMode?.axis,
+    ].filter(Boolean),
   );
   const axisNames = (descriptor.variants ? Object.keys(descriptor.variants) : []).filter(
     (axis) => !bridgeAxes.has(axis),
@@ -1000,6 +1018,10 @@ export function defineNuriComponent(descriptor, tagName, options = {}) {
   // createNuriComponent boolean bridge). Observed so a live toggle re-renders.
   const selectedMap = descriptor.api?.propMaps?.selected;
   if (selectedMap) observed.push('selected');
+  // `checked` boolean ATTR → the toggle's `state` axis (the switch · the `selected`
+  // sibling). Observed so a live toggle re-renders.
+  const checkedMap = descriptor.api?.propMaps?.checked;
+  if (checkedMap) observed.push('checked');
   // a11y name — if the descriptor declares the RN pressable accessibilityLabel
   // prop, the web catalog twin accepts the platform-native aria-label override.
   if (supportsAccessibleName) observed.push('aria-label');
@@ -1104,6 +1126,8 @@ export function defineNuriComponent(descriptor, tagName, options = {}) {
       // `selected` boolean attr → props.selected (buildComponent bridges it to the
       // `state` axis · present = selected · absent = unselected).
       if (selectedMap) props.selected = this.hasAttribute('selected');
+      // `checked` boolean attr → props.checked (present = on · absent = off).
+      if (checkedMap) props.checked = this.hasAttribute('checked');
       const accent = this.getAttribute('accent');
       if (accent) props.accent = accent; // Tier-2 self-scope (threaded to the merged node)
       // Ergonomic per-part attributes (prefix/suffix text · the `icon` glyph part) →

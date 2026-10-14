@@ -402,6 +402,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "flexDirection": "row",
           "alignItems": "center",
           "gap": 12,
+          "minHeight": 72,
           "padding": 12,
           "borderRadius": 18
         },
@@ -841,6 +842,146 @@ export const recipes: Record<string, BakedComponentRecipe> = {
             }
           }
         }
+      }
+    }
+  },
+  "switch": {
+    "root": {
+      "el": "pressable",
+      "geometry": {
+        "base": {
+          "flexDirection": "row",
+          "alignItems": "stretch",
+          "width": 60,
+          "height": 36,
+          "padding": 3,
+          "borderRadius": 9999
+        },
+        "variants": {
+          "state": {
+            "on": {
+              "justifyContent": "flex-end"
+            },
+            "off": {
+              "justifyContent": "flex-start"
+            }
+          }
+        }
+      },
+      "interactive": {
+        "base": {
+          "disabledOpacity": true
+        }
+      }
+    },
+    "thumb": {
+      "el": "view",
+      "geometry": {
+        "base": {
+          "borderRadius": 9999,
+          "aspectRatio": 1
+        },
+        "variants": {}
+      }
+    }
+  },
+  "list-switch": {
+    "root": {
+      "el": "pressable",
+      "geometry": {
+        "base": {
+          "flexDirection": "row",
+          "alignItems": "center",
+          "gap": 12,
+          "minHeight": 72,
+          "padding": 12,
+          "borderRadius": 18
+        },
+        "variants": {}
+      },
+      "interactive": {
+        "base": {
+          "pressColor": true,
+          "disabledOpacity": true
+        }
+      }
+    },
+    "content": {
+      "el": "view",
+      "geometry": {
+        "base": {
+          "flexDirection": "column",
+          "alignItems": "stretch",
+          "justifyContent": "center",
+          "flexGrow": 1,
+          "flexShrink": 1,
+          "minWidth": 0
+        },
+        "variants": {}
+      }
+    },
+    "text": {
+      "el": "text",
+      "geometry": {
+        "base": {},
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "md",
+          "emphasis": true,
+          "align": "start",
+          "flow": "truncate",
+          "lines": 1
+        }
+      }
+    },
+    "textMuted": {
+      "el": "text",
+      "geometry": {
+        "base": {},
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "sm",
+          "align": "start",
+          "flow": "truncate",
+          "lines": 1
+        }
+      }
+    },
+    "track": {
+      "el": "view",
+      "geometry": {
+        "base": {
+          "flexDirection": "row",
+          "alignItems": "stretch",
+          "width": 60,
+          "height": 36,
+          "padding": 3,
+          "borderRadius": 9999
+        },
+        "variants": {
+          "state": {
+            "on": {
+              "justifyContent": "flex-end"
+            },
+            "off": {
+              "justifyContent": "flex-start"
+            }
+          }
+        }
+      }
+    },
+    "thumb": {
+      "el": "view",
+      "geometry": {
+        "base": {
+          "borderRadius": 9999,
+          "aspectRatio": 1
+        },
+        "variants": {}
       }
     }
   }

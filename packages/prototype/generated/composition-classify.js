@@ -37,6 +37,7 @@ function subtreeHasPart(node, part) {
  *   ambientContent: Record<string, unknown>,
  *   isHostEl: (el: unknown) => boolean,
  *   isMultiPart: (part: string) => boolean,
+ *   isSlotPart?: (part: string) => boolean,
  *   inputTarget?: string,
  *   labelPart?: string,
  *   errorPrefix: string,
@@ -86,9 +87,21 @@ export function classifyComposition(node, entries, options) {
     targets.set(entry.part, (targets.get(entry.part) ?? 0) + 1);
   }
 
+  // STATIC children — anatomy children no entry targets, rendered in anatomy order
+  // alongside the composed entries. Two cases: (a) the subtree hosts the INPUT
+  // target (TextField's box · structure, not a slot); (b) the subtree is PURE
+  // STRUCTURE — it contains NO slot-targetable part at all (ListSwitch's trailing
+  // track + thumb · the Switch slice), so no composition could ever reach it and
+  // skipping it would silently drop authored chrome. An untargeted subtree that
+  // DOES contain slot parts stays absent (an optional flank the consumer did not
+  // compose · ListAction's `trailing` · the bare-collapse), exactly as before.
+  const isSlotPart = options.isSlotPart ?? (() => true);
+  const subtreeHasSlotPart = (child) =>
+    isSlotPart(child.name) || (child.children ?? []).some(subtreeHasSlotPart);
   for (const child of node.children) {
     if (targets.has(child.name)) continue;
-    if (!inputTarget || !subtreeHasPart(child, inputTarget)) continue;
+    const hostsInput = Boolean(inputTarget) && subtreeHasPart(child, inputTarget);
+    if (!hostsInput && subtreeHasSlotPart(child)) continue;
     const staticItem = { kind: 'static', child };
     const staticIndex = childIndex.get(child.name) ?? 0;
     const before = ordered.findIndex((item) => {

@@ -21,6 +21,8 @@
     "./descriptors/tab-bar-item": "./components/tab-bar-item.ts",
     "./descriptors/tab-bar": "./components/tab-bar.ts",
     "./descriptors/modal-panel": "./components/modal-panel.ts",
+    "./descriptors/switch": "./components/switch.ts",
+    "./descriptors/list-switch": "./components/list-switch.ts",
     "./bottom-sheet-chrome": "./components/bottom-sheet-chrome.ts",
     "./resolve-map": "./axes/resolve-map.ts",
     "./property-spelling": "./axes/property-spelling.ts",

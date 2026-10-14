@@ -212,6 +212,8 @@ const ORACLE = [
   ['.nuri-palette[data-variant="solid"]',  'color',      '#f0eee3'],     // accent-on-solid @ neutral/light
   ['.nuri-palette[data-variant="soft"]',   'color',      '#222013'],     // text-primary @ neutral/light
   ['.nuri-palette[data-chrome="canvas"]',  'background', '#fffdf2'],     // bg-canvas @ neutral/light
+  ['.nuri-palette[data-chrome="inverse-muted"]', 'background', '#666455'], // bg-inverse-muted @ neutral/light · the Switch OFF track (neutral-11)
+  ['.nuri-palette[data-chrome="inverse-muted"]', 'color',      '#f0eee3'], // text-on-inverse @ neutral/light
   ['.nuri-palette[data-variant="ghost"]',  'background', 'transparent'], // the literal · no var, no resolution
   ['.nuri-palette[data-variant="outline"]','border',     '#dddac9'],     // border-subtle @ neutral/light
   ['.nuri-palette[data-variant="outline"][data-press-color]:active','background', '#fbf9ee'], // bg-subtle @ neutral/light
@@ -246,7 +248,8 @@ test('Guard D · order-soundness (rest mutual-exclusivity + pressed strictly-mor
   // only if a node carries BOTH attrs — excluded by the variant-XOR-chrome contract
   // (PaletteNS · resolve.ts resolvePalette: "variant wins over chrome"). So at most
   // ONE rest rule paints any node ⇒ rest-rule order is irrelevant.
-  const REST_ONE_ATTR = /^\.nuri-palette\[data-(?:variant|chrome)="[a-z]+"\]$/;
+  // A value may be hyphenated (`inverse-muted` · the Switch OFF track) — still ONE attr.
+  const REST_ONE_ATTR = /^\.nuri-palette\[data-(?:variant|chrome)="[a-z][a-z-]*"\]$/;
   for (const s of rest) {
     assert.match(s, REST_ONE_ATTR, `rest rule '${s}' is not a single [data-variant|chrome] dispatch — the order-soundness argument assumes it`);
   }

@@ -56,6 +56,10 @@ import {
   TextFieldLabel,
   TextFieldButton,
   TextFieldIconButton,
+  Switch,
+  ListSwitch,
+  ListSwitchText,
+  ListSwitchTextMuted,
   TabBar,
   TabBarItem,
   TabBarItemIcon,
@@ -568,6 +572,102 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     // mirrors the web factory's coercion) — not a silent undefined.
     expect(tabs[1].props.accessibilityState).toEqual({ disabled: false, selected: false });
     expect(tabs[2].props.accessibilityState).toEqual({ disabled: false, selected: false });
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  // Flatten a style prop (object · array · nested arrays) for the Switch assertions.
+  const flat = (s: unknown): Record<string, unknown> =>
+    Object.assign({}, ...(Array.isArray(s) ? (s.flat(Infinity) as object[]) : [s as object]));
+
+  test('Switch — a role=switch pressable announcing checked · on parks the thumb at the end on the solid track, off at the start on inverse-muted', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <Switch checked onPress={() => undefined} accessibilityLabel="Bitcoin payments" />
+        <Switch onPress={() => undefined} accessibilityLabel="Cards and bank" />
+        <Switch checked={false} disabled accessibilityLabel="Disabled" />
+      </NuriThemeProvider>,
+    );
+    expect(tr.toJSON()).toBeTruthy();
+    const switches = tr.root.findAll(
+      (node) => node.props?.accessibilityRole === 'switch' && typeof node.props?.style === 'function',
+    );
+    expect(switches).toHaveLength(3);
+    // The checked state rides the bridge; an OMITTED `checked` announces false (the
+    // adapter coerces · mirrors the web factory), never a silent undefined.
+    expect(switches[0].props.accessibilityState).toEqual({ disabled: false, checked: true });
+    expect(switches[1].props.accessibilityState).toEqual({ disabled: false, checked: false });
+    expect(switches[2].props.accessibilityState).toEqual({ disabled: true, checked: false });
+    expect(switches[0].props.accessibilityLabel).toBe('Bitcoin payments');
+    // The track: 60×36 (size xl × md), the 3px (space xs) inset, full radius; ON
+    // parks the thumb at the end on the accent solid (the provider's default accent
+    // is lilac → lilac solid light #beaaff · the mock), OFF at the start on the
+    // accent-invariant inverse-muted (neutral-11 light → #666455).
+    const on = flat(switches[0].props.style({ pressed: false }));
+    const off = flat(switches[1].props.style({ pressed: false }));
+    expect(on.width).toBe(60);
+    expect(on.height).toBe(36);
+    expect(on.padding).toBe(3);
+    expect(on.justifyContent).toBe('flex-end');
+    expect(on.backgroundColor).toBe('#beaaff');
+    expect(off.justifyContent).toBe('flex-start');
+    expect(off.backgroundColor).toBe('#666455');
+    // No press-down effect by ruling: the pressed style is byte-identical to rest.
+    expect(flat(switches[0].props.style({ pressed: true }))).toEqual(on);
+    // The thumb: ONE square-ratio full-radius disc per switch, on the canvas chrome
+    // (bg-canvas @ light → #fffdf2), stretched to the inner height (no explicit size).
+    // (host instances only — `findAll` also yields each DS composite wrapper.)
+    const thumbs = tr.root.findAll(
+      (node) => typeof node.type === 'string' && typeof node.props?.style !== 'function' && flat(node.props?.style).aspectRatio === 1,
+    );
+    expect(thumbs).toHaveLength(3);
+    expect(flat(thumbs[0].props.style).backgroundColor).toBe('#fffdf2');
+    expect(flat(thumbs[0].props.style).width).toBeUndefined();
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('ListSwitch — the WHOLE row is one role=switch control · text names it · the pill is a static copy, never a nested pressable', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <List>
+          <ListSwitch checked onPress={() => undefined}>
+            <ListSwitchText>Bitcoin payments</ListSwitchText>
+          </ListSwitch>
+          <ListSwitch onPress={() => undefined}>
+            <ListSwitchText>Cards and bank</ListSwitchText>
+            <ListSwitchTextMuted>Visa, Mastercard, SEPA</ListSwitchTextMuted>
+          </ListSwitch>
+        </List>
+      </NuriThemeProvider>,
+    );
+    expect(tr.toJSON()).toBeTruthy();
+    const labels = tr.root.findAllByType(Text).map((t) => t.props.children);
+    expect(labels).toEqual(['Bitcoin payments', 'Cards and bank', 'Visa, Mastercard, SEPA']);
+    const rows = tr.root.findAll(
+      (node) => node.props?.accessibilityRole === 'switch' && typeof node.props?.style === 'function',
+    );
+    expect(rows).toHaveLength(2);
+    expect(rows[0].props.accessibilityState).toEqual({ disabled: false, checked: true });
+    expect(rows[1].props.accessibilityState).toEqual({ disabled: false, checked: false });
+    // ONE pressable per row — no button-in-button: every pressable host in the tree
+    // is one of the two rows.
+    const pressables = tr.root.findAll((node) => typeof node.props?.style === 'function' && node.props?.accessibilityRole !== undefined);
+    expect(pressables).toHaveLength(2);
+    // The trailing pill RENDERS although no slot targets it (pure structure is
+    // static in the composition path · the classifier rule): one 60×36 track per
+    // row — ON on the accent solid parked end, OFF on inverse-muted parked start —
+    // each hosting one square-ratio canvas thumb.
+    const tracks = tr.root.findAll(
+      (node) => typeof node.type === 'string' && typeof node.props?.style !== 'function' && flat(node.props?.style).width === 60 && flat(node.props?.style).height === 36,
+    );
+    expect(tracks).toHaveLength(2);
+    expect(flat(tracks[0].props.style).justifyContent).toBe('flex-end');
+    expect(flat(tracks[0].props.style).backgroundColor).toBe('#beaaff');
+    expect(flat(tracks[1].props.style).justifyContent).toBe('flex-start');
+    expect(flat(tracks[1].props.style).backgroundColor).toBe('#666455');
+    const thumbs = tr.root.findAll(
+      (node) => typeof node.type === 'string' && typeof node.props?.style !== 'function' && flat(node.props?.style).aspectRatio === 1,
+    );
+    expect(thumbs).toHaveLength(2);
     expect(tr.toJSON()).toMatchSnapshot();
   });
 

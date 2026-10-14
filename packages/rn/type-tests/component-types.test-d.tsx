@@ -43,6 +43,10 @@ import {
   TextFieldButton,
   TextFieldIconButton,
   TextFieldLabel,
+  Switch,
+  ListSwitch,
+  ListSwitchText,
+  ListSwitchTextMuted,
   TabBarItem,
   TabBarItemIcon,
   TabBarItemLabel,
@@ -244,6 +248,31 @@ export const textFieldIconButtonMissingName = <TextFieldIconButton accessibility
 export const textFieldIconButtonMissingAccessibilityLabel = <TextFieldIconButton name="eye-hidden" />;
 // @ts-expect-error TextFieldIconButton is icon-only and forbids children.
 export const textFieldIconButtonNoChildren = <TextFieldIconButton name="eye-hidden">Hide</TextFieldIconButton>;
+
+// ── Switch — the binary toggle: checked bridge + onPress/disabled/a11yLabel · no axes, no children ──
+export const switchOk = (
+  <Switch checked onPress={() => undefined} disabled={false} accessibilityLabel="Bitcoin payments" accent="lilac" />
+);
+// @ts-expect-error Switch has no public style axis — one pill, one size (admission anti-scope).
+export const switchNoVariant = <Switch variant="solid" />;
+// @ts-expect-error Switch announces `checked`, never `selected` (one state semantic per control).
+export const switchNoSelected = <Switch selected />;
+// @ts-expect-error Switch has no RN-style value/onValueChange pair — per-item `checked` + `onPress` is the grammar.
+export const switchNoValue = <Switch value={true} />;
+// @ts-expect-error Switch accepts no children (children?: never) — a label row is ListSwitch.
+export const switchNoChildren = <Switch>Bitcoin payments</Switch>;
+
+// ── ListSwitch — the row-sized switch: composed text/textMuted · checked bridge · no scalar text ──
+export const listSwitchOk = (
+  <ListSwitch checked onPress={() => undefined} accessibilityLabel="Cards and bank">
+    <ListSwitchText>Cards and bank</ListSwitchText>
+    <ListSwitchTextMuted>Visa, Mastercard, SEPA</ListSwitchTextMuted>
+  </ListSwitch>
+);
+// @ts-expect-error ListSwitch announces `checked`, never `selected`.
+export const listSwitchNoSelected = <ListSwitch selected />;
+// @ts-expect-error ListSwitch has no scalar `text` prop — compose ListSwitchText.
+export const listSwitchNoScalarText = <ListSwitch text="Cards and bank" />;
 
 // ── TabBarItem — selected bridge + onPress/a11yLabel · composed icon/label · no scalar props ──
 export const tabItemOk = (

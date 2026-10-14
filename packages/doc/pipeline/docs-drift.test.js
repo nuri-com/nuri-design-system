@@ -124,6 +124,34 @@ const PAGE_CONTRACT = {
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`variant` |', '`onPress`'],
   },
+  switch: {
+    kind: 'api', source: 'switch', title: 'Switch', nav: 26,
+    cells: [
+      "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
+      '| `onPress` | no | `() => void` | pressable behaviour |',
+      '| `disabled` | no | `boolean` | pressable behaviour |',
+      '| `accessibilityLabel` | no | `string` | pressable behaviour |',
+      '| `checked` | no | `boolean` | state axis |',
+      '> `children` is not accepted (`children?: never`).',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`selected`', '`variant`', '`size`'],
+  },
+  'list-switch': {
+    kind: 'api', source: 'list-switch', title: 'List Switch', nav: 27,
+    cells: [
+      "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
+      '| `onPress` | no | `() => void` | pressable behaviour |',
+      '| `disabled` | no | `boolean` | pressable behaviour |',
+      '| `accessibilityLabel` | no | `string` | pressable behaviour |',
+      '| `checked` | no | `boolean` | state axis |',
+      '| `children` | no | `React.ReactNode` | composition children |',
+      '### List Switch Text Props',
+      '| `children` | no | `React.ReactNode` | slot content |',
+      '### List Switch Text Muted Props',
+      '| `children` | no | `React.ReactNode` | slot content |',
+    ],
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`selected`', '### List Switch Content Props', '### List Switch Track Props', '### List Switch Thumb Props'],
+  },
   'list-action': {
     kind: 'api', source: 'list-action', title: 'List Action', nav: 6,
     cells: [
@@ -299,7 +327,7 @@ const PAGE_CONTRACT = {
       "| `size` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '3xl'` | style axis |",
       '| `emphasis` | no | `boolean` | style axis |',
       "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |",
-      "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | style axis |",
+      "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted'` | style axis |",
       '| `children` | no | `React.ReactNode` | default content slot |',
       '| `accessibilityLabel` | no | `string` | read-out override |',
       '| `onLayout` | no | `(event: LayoutChangeEvent) => void` | RN-only native layout event |',
@@ -350,8 +378,8 @@ const PAGE_CONTRACT = {
   header: {
     kind: 'api', source: 'header', title: 'Header', nav: 16,
     cells: [
-      "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | style axis |",
-      "| `safeAreaChrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | safe-area chrome role |",
+      "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted'` | style axis |",
+      "| `safeAreaChrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted'` | safe-area chrome role |",
       "| `paddingBottom` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |",
       '| `safeAreaTop` | no | `boolean` | safe-area reserve |',
       '| `children` | no | `React.ReactNode` | default content slot |',
@@ -378,7 +406,7 @@ const PAGE_CONTRACT = {
   footer: {
     kind: 'api', source: 'footer', title: 'Footer', nav: 18,
     cells: [
-      "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent'` | style axis |",
+      "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted'` | style axis |",
       '| `safeAreaBottom` | no | `boolean` | safe-area reserve |',
       '| `children` | no | `React.ReactNode` | default content slot |',
       '| `testID` | no | `string` | native test hook |',

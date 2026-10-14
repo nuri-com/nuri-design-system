@@ -38,6 +38,8 @@ await import('../recipes/list-action.js');
 await import('../recipes/alert.js');
 await import('../recipes/select-field.js');
 await import('../recipes/select-trigger.js');
+await import('../recipes/switch.js');
+await import('../recipes/list-switch.js');
 await import('../recipes/text-field.js');
 await import('../recipes/topbar.js');
 await import('../primitives/scroll.js');
@@ -95,6 +97,83 @@ test('primitive TabBar · open host captures authored item slots before item upg
   const secondButton = tabBar.querySelectorAll('nuri-tab-bar-item')[1]?.querySelector('nuri-pressable > button.nuri-interactive');
   assert.equal(secondButton?.getAttribute('role'), 'tab');
   assert.equal(secondButton?.getAttribute('aria-selected'), 'false', 'the false bridge arm is announced as unselected');
+});
+
+test('C11 · <nuri-switch> is ONE role=switch button announcing aria-checked from the checked bridge · no press-down effect', async () => {
+  assert.ok(customElements.get('nuri-switch'), 'Switch web twin is registered');
+  assert.deepEqual(
+    [...customElements.get('nuri-switch').observedAttributes].sort(),
+    ['accent', 'aria-label', 'checked', 'disabled'],
+    'the public attrs: accent · aria-label · checked · disabled — no axis attr, no selected',
+  );
+  document.body.innerHTML = '<nuri-switch checked aria-label="Bitcoin payments"></nuri-switch>';
+  await tick();
+  const host = document.querySelector('nuri-switch');
+  const button = host.querySelector('nuri-pressable > button.nuri-interactive');
+  assert.ok(button, 'the switch owns one visible interactive button');
+  assert.equal(host.querySelectorAll('button').length, 1, 'exactly one native button — nothing nested');
+  assert.equal(button.getAttribute('role'), 'switch', 'announces as a switch, never a checkbox (decision 44)');
+  assert.equal(button.getAttribute('aria-checked'), 'true', 'the checked state rides the bridge');
+  assert.equal(button.getAttribute('aria-label'), 'Bitcoin payments');
+  assert.deepEqual(classesOf(button), ['nuri-box', 'nuri-interactive', 'nuri-palette', 'nuri-stack']);
+  assert.equal(button.getAttribute('data-width'), 'xl', 'the 60px track');
+  assert.equal(button.getAttribute('data-height'), 'md', 'the 36px track');
+  assert.equal(button.getAttribute('data-padding'), 'xs', 'the 3px inset');
+  assert.equal(button.getAttribute('data-radius'), 'full');
+  assert.equal(button.getAttribute('data-variant'), 'solid', 'ON paints the accent solid');
+  assert.equal(button.getAttribute('data-justify'), 'end', 'ON parks the thumb at the end');
+  assert.equal(button.hasAttribute('data-press-scale'), false, 'no press-down scale by ruling');
+  assert.equal(button.hasAttribute('data-press-color'), false, 'no press-down wash by ruling');
+  const thumb = button.querySelector('.nuri-box[data-aspect-ratio="square"]');
+  assert.ok(thumb, 'the thumb is a square-ratio box stretched to the inner height');
+  assert.equal(thumb.getAttribute('data-chrome'), 'canvas', 'the thumb lifts off either track');
+  assert.equal(thumb.getAttribute('data-radius'), 'full');
+  // A live toggle: removing `checked` re-renders the OFF look + state.
+  host.removeAttribute('checked');
+  await tick();
+  const off = host.querySelector('nuri-pressable > button.nuri-interactive');
+  assert.equal(off.getAttribute('aria-checked'), 'false', 'an absent checked announces false');
+  assert.equal(off.getAttribute('data-chrome'), 'inverse-muted', 'OFF paints the accent-invariant inverse-muted chrome');
+  assert.equal(off.hasAttribute('data-variant'), false, 'variant XOR chrome on the track');
+  assert.equal(off.getAttribute('data-justify'), 'start', 'OFF parks the thumb at the start');
+});
+
+test('C12 · <nuri-list-switch> — the WHOLE row is one switch · the pill is a static copy, never a nested control', async () => {
+  assert.ok(customElements.get('nuri-list-switch'), 'ListSwitch web twin is registered');
+  document.body.innerHTML = `
+    <nuri-list>
+      <nuri-list-switch checked>
+        <nuri-list-switch-text>Bitcoin payments</nuri-list-switch-text>
+      </nuri-list-switch>
+      <nuri-list-switch>
+        <nuri-list-switch-text>Cards and bank</nuri-list-switch-text>
+        <nuri-list-switch-text-muted>Visa, Mastercard, SEPA</nuri-list-switch-text-muted>
+      </nuri-list-switch>
+    </nuri-list>
+  `;
+  await tick();
+  const rows = document.querySelectorAll('nuri-list-switch');
+  assert.equal(rows.length, 2);
+  const [on, off] = rows;
+  assert.equal(on.querySelectorAll('button').length, 1, 'ONE native button per row — no button-in-button');
+  assert.equal(on.querySelector('nuri-switch'), null, 'the pill is NOT an embedded nuri-switch');
+  const onBtn = on.querySelector('nuri-pressable > button.nuri-interactive');
+  assert.equal(onBtn.getAttribute('role'), 'switch');
+  assert.equal(onBtn.getAttribute('aria-checked'), 'true');
+  assert.ok(onBtn.textContent.includes('Bitcoin payments'), 'the row text names the control');
+  assert.ok(onBtn.hasAttribute('data-press-color'), 'the ROW washes on press (the control acknowledges)');
+  const track = onBtn.querySelector('.nuri-box[data-width="xl"][data-height="md"]');
+  assert.ok(track, 'the trailing track is a static 60×36 box');
+  assert.equal(track.getAttribute('data-variant'), 'solid', 'ON track = accent solid');
+  assert.equal(track.getAttribute('data-justify'), 'end');
+  assert.equal(track.hasAttribute('data-press-color'), false, 'the static track never reacts');
+  assert.ok(track.querySelector('.nuri-box[data-aspect-ratio="square"][data-chrome="canvas"]'), 'the thumb');
+  const offBtn = off.querySelector('nuri-pressable > button.nuri-interactive');
+  assert.equal(offBtn.getAttribute('aria-checked'), 'false');
+  const offTrack = offBtn.querySelector('.nuri-box[data-width="xl"]');
+  assert.equal(offTrack.getAttribute('data-chrome'), 'inverse-muted');
+  assert.equal(offTrack.getAttribute('data-justify'), 'start');
+  assert.ok(offBtn.textContent.includes('Visa, Mastercard, SEPA'), 'the muted line renders');
 });
 
 test('primitive Scroll · dock insets reflect onto the content-inset path', () => {
