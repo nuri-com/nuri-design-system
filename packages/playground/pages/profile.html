@@ -14,15 +14,16 @@
   <!-- PROFILE · the account/settings screen (operator mock 2026-10-14): a STICKY
        TRANSPARENT topbar (the × close action) over a scrolling column of sections.
 
-       The bar is a <nuri-header> — the Screen's pinned top region, a sibling ABOVE
-       the scroll (the expo-demo sheets' construction: Header safeAreaTop
-       chrome="transparent" safeAreaChrome="canvas"). Sticky by construction, no inset
-       to declare: the content starts exactly at the bar's bottom edge, so the space
-       above "@Dario" is the bar band (status bar + the 2xl topbar band) plus the
-       title row's own `md` — the mock's spacing. The header owns the top safe area
-       (the status band painted canvas); the screen declares none, or the band would
-       count twice. (The overlay variant — a top <nuri-dock> + inset-top="dock",
-       content passing behind the bar — needs the same single safe-area owner.)
+       The bar rides a top <nuri-dock> — the OVERLAY primitive: it pins above the
+       scroll and the content passes BEHIND it (the iOS model the operator asked
+       for), while the dock reports its height to the screen scope and the Scroll's
+       inset-top="dock" pads the content by it, so on first paint "@Dario" starts
+       exactly at the bar's bottom edge: the space above it is the bar band (status
+       bar + the 2xl topbar band) plus the title row's own `md` — the mock's spacing.
+       ONE safe-area owner: the header inside the dock (safe-area-top · the status
+       band painted canvas, so scrolled content hides under it while the bar band
+       stays transparent); <nuri-screen> declares none — a screen safe-area-top on
+       top of the dock inset would count the status band twice (~47px too low).
 
        Every row is DS vocabulary, syntax-translatable to RN (no page-local CSS):
        · chevron rows → <nuri-list-action> + text (+ muted) + trail-icon
@@ -35,15 +36,17 @@
   <nuri-demo layout="board" controls="device,theme,accent" label="profile">
     <template>
       <nuri-screen>
-        <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
-          <nuri-topbar surface="transparent">
-            <nuri-topbar-trailing>
-              <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
-            </nuri-topbar-trailing>
-          </nuri-topbar>
-        </nuri-header>
+        <nuri-dock edge="top">
+          <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+            <nuri-topbar surface="transparent">
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+          </nuri-header>
+        </nuri-dock>
 
-        <nuri-scroll safe-area-bottom>
+        <nuri-scroll safe-area-bottom inset-top="dock">
           <nuri-view direction="column" align="stretch" justify="start" gap="md" padding-bottom="xl" fill>
 
             <!-- handle · scrolls away behind the pinned bar -->
