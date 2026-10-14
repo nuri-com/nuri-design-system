@@ -95,12 +95,12 @@ export function Profile({ onClose }: { onClose: () => void }) {
           {/* the activation card (takes the separator's place) — the media card */}
           <View paddingX="lg" paddingTop="md">
             <View direction="row" align="stretch" chrome="strong" radius="lg" clip aspectRatio="banner">
-              <View direction="column" align="start" justify="center" gap="xs" padding="lg" fill="grow-shrink">
-                <Text size="md" emphasis>Bank and Cards</Text>
-                <Text size="sm" muted>Verify your account and get an IBAN and a Visa card.</Text>
-                <View paddingTop="md">
-                  <Button variant="solid" size="sm">Activate</Button>
+              <View direction="column" align="start" justify="between" padding="lg" fill="grow-shrink">
+                <View direction="column" align="start" gap="xs">
+                  <Text size="md" emphasis>Bank and Cards</Text>
+                  <Text size="sm" muted>Verify your account and get an IBAN and a Visa card.</Text>
                 </View>
+                <Button variant="solid" size="sm">Activate</Button>
               </View>
               <Image source={BANK_AND_CARDS} fit="cover" aspectRatio="portrait" />
             </View>
