@@ -69,9 +69,11 @@ State at the end of the 2026-10-14 hand-off session (adds to the addendum above;
 - **Operator-local state preserved:** `.claude/launch.json` (dev-server entries) and
   `packages/expo-demo/src/screens/index.tsx` (the LOCAL-ONLY harness) were NOT staged; the harness was
   pointed at Profile only for the RN-web evidence and restored byte-identical afterwards.
-- **Native residue (operator · device):** the asset `require` + cover on device · Yoga `width: 'auto'`
-  + `aspectRatio`-on-stretch for an Image host (the thumb precedent was a View) · VoiceOver/TalkBack
-  silence for the decorative photo · the ring in dark mode · Android clipping at the rounded corners.
+- **iOS native verified on the simulator** (Expo Go SDK 54 · iPhone 16 Plus · `expo start --ios`
+  installs the matching client; App-Store Expo Go is SDK 57 now, so a physical iPhone needs a dev build):
+  card ≈394×197 pt, photo ≈130 pt wide, clipped at the corners, ring on — `ios-sim-profile.png`. The
+  text column is `justify="between"` (operator ask · `b822d36`). **Residue still the operator's:**
+  VoiceOver/TalkBack on the decorative photo · the ring in dark mode on device · Android corner clipping.
 - **Operator's pending go (unchanged + one more):** publish the Switch admission (`admission-switch.md`)
   AND the media-card admission as issues · the #201 cross-reference · the tag decision (last tag
   `rn/v0.1.0-alpha.14`; #223 + #225 both unreleased) · `packages/gen-ui` · the orphan

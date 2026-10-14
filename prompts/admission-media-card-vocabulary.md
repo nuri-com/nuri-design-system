@@ -269,7 +269,14 @@ experiment or a fast lane; references use canonical `owner/repo#number` form.
     Generated deltas exactly as predicted: the two ratio tokens (RN `tokens.ts` · `token-paths.ts` ·
     the semantic token CSS · `box.css` 2 rules) + the `clip` rule + the doc pages (`view` · `pressable`
     · `box` axis · `dimension` foundation · the new `image` page) + the playground bundle.
-  - **Native residue for the operator (device / Expo Go):** the asset `require` + cover on device ·
-    Yoga's `width: 'auto'` + `aspectRatio`-on-stretch for an Image host (the thumb precedent was a
-    View) · VoiceOver/TalkBack silence for the decorative photo and "image, Bank card" for a labelled
-    one · the ring over the photo in dark mode · Android clipping at the rounded card corners.
+  - **iOS native (Expo Go SDK 54 on the iPhone 16 Plus simulator · `docs/evidence/media-card/
+    ios-sim-profile.png`):** the card renders at ≈394×197 pt (2:1) with the photo column ≈130 pt
+    (= 197 × 2⁄3), cover-cropped from the bundled `require` asset, clipped at the card's rounded
+    corners, the ring visible, the Activate button 18 pt from the bottom with the auto gap. This
+    retires three residue items: the asset `require` + cover on device, Yoga's `width: 'auto'` +
+    `aspectRatio`-on-stretch for an Image host, iOS clipping at the rounded corners.
+  - **Native residue still the operator's:** VoiceOver/TalkBack silence for the decorative photo and
+    "image, Bank card" for a labelled one (needs a device or the Accessibility Inspector) · the ring
+    over the photo in dark mode on device · Android clipping at the rounded card corners (no emulator
+    in this session). Expo Go on the App Store moved to SDK 57, so a physical iPhone needs a dev build
+    or the simulator route (`expo start --ios` installs the SDK-54 Expo Go).
