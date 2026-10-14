@@ -49,13 +49,14 @@
         <nuri-scroll safe-area-bottom inset-top="dock">
           <nuri-view direction="column" align="stretch" justify="start" gap="md" padding-bottom="xl" fill>
 
-            <!-- handle + the VERIFIED badge (a 24px lilac disc with the bare `check`
-                 glyph · an sm solid icon-avatar) · scrolls away behind the pinned bar.
-                 IconAvatar is decorative (hidden from AT), so the row text carries the
-                 meaning for screen readers via aria-label. -->
+            <!-- handle + the VERIFIED badge: the existing `check-circle` glyph (24px · the
+                 icon's default size) in currentColor — operator ruling 2026-10-14: no lilac
+                 for now (icons are currentColor only · decision 38; a lilac disc would need a
+                 lilac surface + a bare check, i.e. new vocabulary). Scrolls away behind the
+                 pinned bar; the icon is aria-hidden, so the row carries the meaning. -->
             <nuri-view direction="row" align="center" gap="sm" padding-x="lg" padding-top="md" aria-label="@Dario, verified">
               <nuri-typography size="lg" emphasis>@Dario</nuri-typography>
-              <nuri-icon-avatar size="sm" variant="solid" accent="lilac" icon="check"></nuri-icon-avatar>
+              <nuri-icon name="check-circle"></nuri-icon>
             </nuri-view>
 
             <nuri-list>

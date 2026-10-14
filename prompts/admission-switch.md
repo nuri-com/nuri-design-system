@@ -124,13 +124,14 @@ keeps a 72 pitch. With the floor every list row is 72, content centred: avatar r
 geometry, so it is named here for the architect as a sibling item of the request (the alternative —
 consumer-side spacing — has no DS vocabulary and would be a CSS patch).
 
-### E · The bare `check` glyph (operator instruction 2026-10-14 · the Profile "verified" badge)
+### E · The "verified" badge — WITHDRAWN glyph (operator ruling 2026-10-14)
 
-`packages/spec/icons/check.svg` joins the set (40 glyphs): the check-circle's inner check sub-path,
-scaled about the grid centre to the house extents (4–28 on the 32 grid · absolute M/C/L/Z only ·
-render-checked name↔drawing on the Profile board). First consumer: the verified badge beside the
-handle — an `sm` solid lilac icon-avatar carrying the glyph. Named here because the icon set is
-public surface (the caret-down precedent in the SelectTrigger record).
+A bare `check` glyph was added for a lilac badge (a solid lilac `sm` icon-avatar + a white check:
+the only pure-DS way to a lilac disc, since icons are currentColor-only · decision 38) and then
+**withdrawn the same day**: the operator ruled the badge uses the EXISTING `check-circle` in
+currentColor, no lilac for now. The icon set is unchanged (39 glyphs). Reopening condition: a
+ruling for an accent-coloured badge, which needs either a lilac surface + a bare check (one glyph)
+or an icon colour channel (a decision-38 reversal).
 
 **Finding for a SEPARATE request (not admitted here):** the Profile "Bank and Cards" CTA card needs a
 free-standing photo, and the DS has NO image primitive on either target (RN exports no `Image`; the
