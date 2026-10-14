@@ -330,6 +330,12 @@ experiment or a fast lane; references use canonical `owner/repo#number` form.
   code is EVIDENCE for this request: it does not admit, does not Ready, and must not merge until
   `Admit` + Project `Ready` exist. The `interactive` ruling (no press-down effect) and option 2 are
   implemented as recorded above; the ⚠ items stay open for the operator.
+- **Merged as EVIDENCE 2026-10-14** (nuri-com/nuri-design-system#223 · squash `455e715`) on the
+  operator's own merge. This does NOT admit: the request is still pending publication as an issue,
+  the architect decision is still open, and the ⚠ items stand. Per the policy's sequencing, the
+  executed evidence (web + RN-web · the gates · the deterministic regeneration) is now attachable
+  against the merged implementation; the native residue (Yoga thumb on device · VoiceOver/TalkBack ·
+  press feel) remains the operator's.
 - **Scope amendment surfaced by execution (2026-10-13 · recorded for the architect):** the shared
   composition classifier (`packages/spec/composition/classify.js`) skipped any anatomy child no slot
   targets unless it hosted the input target — so `ListSwitch`'s trailing `track`/`thumb` (pure
