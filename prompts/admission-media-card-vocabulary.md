@@ -148,9 +148,10 @@ primitive with the box namespace accepts it automatically (the flat-props bucket
 
 ## Requested DS architect / admission recorder
 
-⚠ @darioaschero to name. Precedent: #221 requested @taner-caliskan (requested, not appointed). If the
-operator records the decision, the operator is also the requester → a second named human
-architectural reviewer is required in the decision record. No architect decision exists in this request.
+@darioaschero (named by the operator himself, 2026-10-14). ⚠ The operator is ALSO the requester, so the
+policy's overlap clause requires a second named human architectural reviewer in the decision record —
+OR the operator's #197 position (a fresh agent session / CI as the independent review) written in as an
+explicit choice. Open at the time of writing; no architect decision exists in this request.
 
 ## Architect decision record location (architect-owned)
 
@@ -248,6 +249,9 @@ experiment or a fast lane; references use canonical `owner/repo#number` form.
   the always-on ring.
 - Implementation STARTED 2026-10-14 on `feat/media-card-vocabulary` on the operator's instruction,
   BEFORE admission — recorded now, not retroactively. The code is EVIDENCE for this request.
+- **Merged as EVIDENCE 2026-10-14** (nuri-com/nuri-design-system#225 · squash `66d31d6`) on the
+  operator's own merge, 5/5 gates green. This does NOT admit: the request is still pending publication
+  as an issue, the architect overlap above is unresolved, and the native residue stands.
 - **Executed evidence (2026-10-14 · branch `feat/media-card-vocabulary` · draft
   nuri-com/nuri-design-system#225 · never merged):**
   - **Web (playground `profile.html` · by probe, not by eye):** every clipped card measures 354×177
