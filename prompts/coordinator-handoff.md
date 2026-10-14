@@ -79,10 +79,15 @@ State at the end of the 2026-10-14 hand-off session (adds to the addendum above;
   card ≈394×197 pt, photo ≈130 pt wide, clipped at the corners, ring on — `ios-sim-profile.png`. The
   text column is `justify="between"` (operator ask · `b822d36`). **Residue still the operator's:**
   VoiceOver/TalkBack on the decorative photo · the ring in dark mode on device · Android corner clipping.
-- **Operator's pending go (unchanged + one more):** publish the Switch admission (`admission-switch.md`)
-  AND the media-card admission as issues · the #201 cross-reference · the tag decision (last tag
-  `rn/v0.1.0-alpha.14`; #223 + #225 both unreleased) · `packages/gen-ui` · the orphan
-  `native-text-input-command.web.ts`.
+- **RELEASED: `rn/v0.1.0-alpha.15`** tagged on `main@66d31d6` and pushed (2026-10-14 · the operator's
+  explicit go). Carries #223 (Switch · ListSwitch · the three schema deltas · ⚠ the 72px list-row floor,
+  a visible geometry change on `list-action`) and #225 (Image · `box.clip` · `portrait`/`banner`); the
+  tag message lists the delta and the un-verified native residue. Both arcs ship as EVIDENCE ahead of
+  their admission issues — a deliberate operator call, recorded. Next: the consumer pin bump to
+  alpha.15 through the UNPATCHED pull flow (tree≡tag); a pull-script patch = fix here + re-tag.
+- **Operator's pending go (unchanged):** publish the Switch admission (`admission-switch.md`) AND the
+  media-card admission as issues (the architect-overlap choice first) · the #201 cross-reference ·
+  `packages/gen-ui` · the orphan `native-text-input-command.web.ts`.
 
 ## Mode for the next session
 
