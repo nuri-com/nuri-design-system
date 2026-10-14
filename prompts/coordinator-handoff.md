@@ -41,12 +41,13 @@ State at the end of the 2026-10-13/14 session (this addendum supersedes nothing 
 - Lesson filed in memory: assert a composed descriptor's STRUCTURAL parts render on both targets
   by geometry; roles/states/first-run snapshots do not prove presence.
 
-## Addendum · 2026-10-14 (2) · the media-card arc is OPEN as draft #225 (branch pushed · gates green locally)
+## Addendum · 2026-10-14 (2) · the media-card arc is MERGED as evidence (#225 · squash `66d31d6`)
 
 State at the end of the 2026-10-14 hand-off session (adds to the addendum above; supersedes nothing):
 
-- **Draft nuri-com/nuri-design-system#225** on `feat/media-card-vocabulary` (`cb97080` + the handoff
-  commit) from `main@c5e830d` — the `prompts/brief-media-card-vocabulary.md` arc executed in ONE
+- **MERGED as nuri-com/nuri-design-system#225 (squash `66d31d6` · 2026-10-14 · the operator's own
+  merge · the 5 gates green) · `main` is GREEN.** Branch deleted local + remote. The arc shipped from
+  `main@c5e830d` — the `prompts/brief-media-card-vocabulary.md` arc executed in ONE
   session, §1 → §3 → board swap → demo screen → docs → gates → evidence: ratio leaves `portrait`/`banner`
   · `box.clip` (the 4th versioned `BoxNS` add · Guard-F pin moved) · the `Image` / `<nuri-image>`
   primitive (box only · `fit` cover|contain · `accessibility-label` mirror · absent ⇒ decorative · the
@@ -54,11 +55,15 @@ State at the end of the 2026-10-14 hand-off session (adds to the addendum above;
   expo-demo `Profile.tsx` is the RN twin (Menu → "Profile · media card"). Evidence under
   `docs/evidence/media-card/` (web boards · RN-web twin), all by probe. Local gates: root 125 ·
   prototype 127 · doc 3 · rn 299 + tsc · expo-demo 21 + tsc · re-emit hash-identical over 94 files.
-  CI on #225 not yet observed at hand-off — check the 5 gates before anything else.
+  CI on #225: 5/5 green before the merge.
 - **Admission draft:** `prompts/admission-media-card-vocabulary.md` (unposted · the executed evidence
-  + native residue filled in). The PR is EVIDENCE, not admission — the record is still to be published
-  as an issue, the independent architect verdict and Project `Ready` are still open. Never merge, never
-  tag without the explicit go.
+  + native residue filled in). The merge is EVIDENCE, not admission (the #223 precedent) — the record
+  is still to be published as an issue, and the architect question is OPEN: the operator named HIMSELF
+  as architect (2026-10-14) while also being the requester, which the policy's overlap clause does not
+  allow without a second named human reviewer. Three options were put to him (a second human · the
+  #197 "fresh agent session as independent review" position, written in as an explicit choice · post
+  as-is with the overlap declared); no answer yet. Do not post the issue until he picks one. Never tag
+  without the explicit go.
 - **Correction the arc surfaced (memory: rn-static-assets-carry-intrinsic-size):** the brief's "RN
   Image never derives a dimension from the asset" is FALSE for bundled static resources on native AND
   react-native-web; the primitive neutralises the default (`width/height: 'auto'` ahead of the box).
@@ -74,10 +79,15 @@ State at the end of the 2026-10-14 hand-off session (adds to the addendum above;
   card ≈394×197 pt, photo ≈130 pt wide, clipped at the corners, ring on — `ios-sim-profile.png`. The
   text column is `justify="between"` (operator ask · `b822d36`). **Residue still the operator's:**
   VoiceOver/TalkBack on the decorative photo · the ring in dark mode on device · Android corner clipping.
-- **Operator's pending go (unchanged + one more):** publish the Switch admission (`admission-switch.md`)
-  AND the media-card admission as issues · the #201 cross-reference · the tag decision (last tag
-  `rn/v0.1.0-alpha.14`; #223 + #225 both unreleased) · `packages/gen-ui` · the orphan
-  `native-text-input-command.web.ts`.
+- **RELEASED: `rn/v0.1.0-alpha.15`** tagged on `main@66d31d6` and pushed (2026-10-14 · the operator's
+  explicit go). Carries #223 (Switch · ListSwitch · the three schema deltas · ⚠ the 72px list-row floor,
+  a visible geometry change on `list-action`) and #225 (Image · `box.clip` · `portrait`/`banner`); the
+  tag message lists the delta and the un-verified native residue. Both arcs ship as EVIDENCE ahead of
+  their admission issues — a deliberate operator call, recorded. Next: the consumer pin bump to
+  alpha.15 through the UNPATCHED pull flow (tree≡tag); a pull-script patch = fix here + re-tag.
+- **Operator's pending go (unchanged):** publish the Switch admission (`admission-switch.md`) AND the
+  media-card admission as issues (the architect-overlap choice first) · the #201 cross-reference ·
+  `packages/gen-ui` · the orphan `native-text-input-command.web.ts`.
 
 ## Mode for the next session
 
