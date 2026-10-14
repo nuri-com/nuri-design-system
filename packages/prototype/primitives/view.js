@@ -61,7 +61,7 @@ import { mergeAttrs } from '../factory/factory.js';
 const BOX_ATTRS = [
   'width', 'height', 'min-height', 'min-width',
   'padding', 'padding-x', 'padding-y', 'padding-start', 'padding-end', 'padding-top', 'padding-bottom',
-  'radius', 'radius-top', 'aspect-ratio',
+  'radius', 'radius-top', 'aspect-ratio', 'clip',
 ];
 const STACK_ATTRS = ['direction', 'align', 'justify', 'gap', 'wrap', 'fill', 'distribute'];
 const PALETTE_ATTRS = ['variant', 'accent', 'muted', 'chrome'];
@@ -174,12 +174,16 @@ class NuriView extends HTMLElement {
   // Keys stay kebab — mergeAttrs's camelToKebab is the identity on an already-kebab
   // key, so the emitted data-* spelling is identical to the factory's (e.g.
   // 'aspect-ratio' → data-aspect-ratio). The only non-passthrough values are the
-  // stack booleans/enums normalized to the stack.css vocabulary (wrap, fill).
+  // box/stack booleans/enums normalized to the namespace-CSS vocabulary (clip, wrap, fill).
   #readNS() {
     const ns = {};
 
     const box = {};
-    for (const a of BOX_ATTRS) if (this.hasAttribute(a)) box[a] = this.getAttribute(a);
+    for (const a of BOX_ATTRS) {
+      if (!this.hasAttribute(a)) continue;
+      if (a === 'clip') box.clip = true; // presence flag → mergeAttrs emits data-clip='true' (the wrap convention)
+      else box[a] = this.getAttribute(a);
+    }
     if (Object.keys(box).length) ns.box = box;
 
     const stack = {};

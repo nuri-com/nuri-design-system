@@ -43,6 +43,7 @@ await import('../recipes/list-switch.js');
 await import('../recipes/text-field.js');
 await import('../recipes/topbar.js');
 await import('../primitives/scroll.js');
+await import('../primitives/image.js');
 // The factory + the descriptor twins, for the buildComponent-direct assertions
 // (same cached module instances the recipes use).
 const { buildComponent, defineNuriComponent } = await import('../factory/factory.js');
@@ -174,6 +175,58 @@ test('C12 · <nuri-list-switch> — the WHOLE row is one switch · the pill is a
   assert.equal(offTrack.getAttribute('data-chrome'), 'inverse-muted');
   assert.equal(offTrack.getAttribute('data-justify'), 'start');
   assert.ok(offBtn.textContent.includes('Visa, Mastercard, SEPA'), 'the muted line renders');
+});
+
+test('primitive Image · <nuri-image> is ONE inner <img class="nuri-image nuri-box"> · box attrs via mergeAttrs · decorative unless labelled · fit → object-fit', () => {
+  document.body.innerHTML = `
+    <nuri-image source="../assets/photos/bank-and-cards.png" aspect-ratio="portrait"></nuri-image>
+    <nuri-image id="labelled" source="logo.svg" fit="contain" width="lg" height="lg" radius="full" clip accessibility-label="Bank logo"></nuri-image>
+  `;
+  const [decorative, labelled] = document.querySelectorAll('nuri-image');
+
+  // the factory image-leaf shape, byte-for-byte (the Profile stand-in it replaces)
+  assert.equal(decorative.children.length, 1, 'exactly one inner element');
+  const img = decorative.firstElementChild;
+  assert.equal(img.tagName.toLowerCase(), 'img');
+  assert.deepEqual(classesOf(img), ['nuri-box', 'nuri-image']);
+  assert.equal(img.getAttribute('src'), '../assets/photos/bank-and-cards.png');
+  assert.equal(img.getAttribute('data-aspect-ratio'), 'portrait');
+  assert.equal(img.hasAttribute('data-clip'), false, 'no clip attr → no data-clip');
+  assert.equal(img.style.objectFit, 'cover', 'fit defaults to cover');
+  // DECORATIVE when unlabelled (the IconAvatar precedent · RN accessible={false})
+  assert.equal(img.getAttribute('alt'), '');
+  assert.equal(img.getAttribute('aria-hidden'), 'true');
+
+  // labelled → an announced image · contain · the clip flag · the full box bucket
+  const limg = labelled.firstElementChild;
+  assert.equal(limg.getAttribute('alt'), 'Bank logo');
+  assert.equal(limg.hasAttribute('aria-hidden'), false);
+  assert.equal(limg.style.objectFit, 'contain');
+  assert.equal(limg.getAttribute('data-width'), 'lg');
+  assert.equal(limg.getAttribute('data-height'), 'lg');
+  assert.equal(limg.getAttribute('data-radius'), 'full');
+  assert.equal(limg.getAttribute('data-clip'), 'true', 'presence flag → data-clip="true" (the wrap convention)');
+
+  // re-sync: dropping an attr drops its data-* · adding the label un-hides
+  labelled.removeAttribute('clip');
+  labelled.setAttribute('fit', 'cover');
+  decorative.setAttribute('accessibility-label', 'Bank card');
+  assert.equal(limg.hasAttribute('data-clip'), false);
+  assert.equal(limg.style.objectFit, 'cover');
+  assert.equal(img.getAttribute('alt'), 'Bank card');
+  assert.equal(img.hasAttribute('aria-hidden'), false);
+  assert.strictEqual(labelled.firstElementChild, limg, 'the inner <img> is never torn down on re-sync');
+});
+
+test('primitive View · <nuri-view clip> → data-clip="true" on the merged node (the media-card crop) · removal drops it', () => {
+  document.body.innerHTML = `<nuri-view direction="row" align="stretch" chrome="strong" radius="lg" clip aspect-ratio="banner"></nuri-view>`;
+  const card = document.querySelector('nuri-view');
+  assert.deepEqual(classesOf(card), ['nuri-box', 'nuri-palette', 'nuri-stack']);
+  assert.equal(card.getAttribute('data-clip'), 'true');
+  assert.equal(card.getAttribute('data-aspect-ratio'), 'banner');
+  assert.equal(card.getAttribute('data-radius'), 'lg');
+  card.removeAttribute('clip');
+  assert.equal(card.hasAttribute('data-clip'), false);
 });
 
 test('primitive Scroll · dock insets reflect onto the content-inset path', () => {

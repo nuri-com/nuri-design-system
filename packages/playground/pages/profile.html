@@ -155,13 +155,13 @@
        chrome surface (`lg` radius) in a row: a text column (md emphasis title · sm
        muted copy · an sm solid Button) beside the photo.
 
-       THE PHOTO IS A NON-DS STAND-IN, flagged on purpose: the DS has no free-standing
-       image primitive on EITHER target (RN exports no Image; the web `image` leaf
-       exists only inside icon-avatar). The <img> below hand-authors exactly what the
-       factory's image leaf emits (class nuri-image + the box radius attr + the
-       factory's own inline object-fit) — nothing else — so this board shows the
-       gap, not a patch: a `<nuri-image source fit radius>` primitive (RN + web) is
-       the missing vocabulary before this card can be a consumer pattern. -->
+       THE MEDIA CARD (the media-card vocabulary · 2026-10-14): the card is a
+       `clip aspect-ratio="banner"` row — it CLIPS its children at its own corners
+       and its HEIGHT follows its 2:1 ratio, never the copy length; the photo is a
+       `<nuri-image fit="cover" aspect-ratio="portrait">` whose WIDTH follows its
+       own 2:3 ratio × the card height (the row stretches it). The photo has NO
+       radius of its own — the card crops it. Pure DS composition; the former
+       non-DS <img> stand-in is gone. RN twin: expo-demo screens/Profile.tsx. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="profile · bank and cards cta">
     <template>
       <nuri-screen>
@@ -199,7 +199,7 @@
 
             <!-- the activation card (takes the separator's place) -->
             <nuri-view padding-x="lg" padding-top="md">
-              <nuri-view direction="row" align="stretch" chrome="strong" radius="lg">
+              <nuri-view direction="row" align="stretch" chrome="strong" radius="lg" clip aspect-ratio="banner">
                 <nuri-view direction="column" align="start" justify="center" gap="xs" padding="lg" fill="grow-shrink">
                   <nuri-typography size="md" emphasis>Bank and Cards</nuri-typography>
                   <nuri-typography size="sm" muted>Verify your account and get an IBAN and a Visa card.</nuri-typography>
@@ -207,8 +207,7 @@
                     <nuri-button variant="solid" size="sm">Activate</nuri-button>
                   </nuri-view>
                 </nuri-view>
-                <!-- NON-DS STAND-IN (see the board note): the factory image-leaf shape. -->
-                <img class="nuri-image nuri-box" data-radius="lg" style="object-fit: cover" src="../assets/photos/bank-and-cards.png" alt="" />
+                <nuri-image source="../assets/photos/bank-and-cards.png" fit="cover" aspect-ratio="portrait"></nuri-image>
               </nuri-view>
             </nuri-view>
 
@@ -276,6 +275,53 @@
             <nuri-view padding-x="lg"><nuri-separator y-space="none"></nuri-separator></nuri-view>
             <nuri-view padding-x="lg">
               <nuri-typography size="sm" muted>Version 0.104.0</nuri-typography>
+            </nuri-view>
+
+          </nuri-view>
+        </nuri-scroll>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- MEDIA CARD · COPY LENGTHS (the acceptance probe, not a mock): the same card
+       with one-line, four-line and bare copy. Because the card's height follows its
+       `banner` ratio (width ÷ 2), all three cards measure the SAME height; the copy
+       column centres in it and the photo column keeps its 2:3 width. A card whose
+       copy overflowed its ratio height would be a design error, not a layout one —
+       the ratio is the contract. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="profile · media card · copy lengths">
+    <template>
+      <nuri-screen>
+        <nuri-scroll safe-area-top safe-area-bottom>
+          <nuri-view direction="column" align="stretch" gap="md" padding-x="lg" padding-y="lg" fill>
+
+            <nuri-view direction="row" align="stretch" chrome="strong" radius="lg" clip aspect-ratio="banner">
+              <nuri-view direction="column" align="start" justify="center" gap="xs" padding="lg" fill="grow-shrink">
+                <nuri-typography size="md" emphasis>Bank and Cards</nuri-typography>
+                <nuri-typography size="sm" muted>One line of copy.</nuri-typography>
+                <nuri-view padding-top="md">
+                  <nuri-button variant="solid" size="sm">Activate</nuri-button>
+                </nuri-view>
+              </nuri-view>
+              <nuri-image source="../assets/photos/bank-and-cards.png" fit="cover" aspect-ratio="portrait"></nuri-image>
+            </nuri-view>
+
+            <nuri-view direction="row" align="stretch" chrome="strong" radius="lg" clip aspect-ratio="banner">
+              <nuri-view direction="column" align="start" justify="center" gap="xs" padding="lg" fill="grow-shrink">
+                <nuri-typography size="md" emphasis>Bank and Cards</nuri-typography>
+                <nuri-typography size="sm" muted>Verify your account to get an IBAN and a Visa card, spend anywhere cards are accepted, and move money between your accounts in seconds.</nuri-typography>
+                <nuri-view padding-top="md">
+                  <nuri-button variant="solid" size="sm">Activate</nuri-button>
+                </nuri-view>
+              </nuri-view>
+              <nuri-image source="../assets/photos/bank-and-cards.png" fit="cover" aspect-ratio="portrait"></nuri-image>
+            </nuri-view>
+
+            <nuri-view direction="row" align="stretch" chrome="strong" radius="lg" clip aspect-ratio="banner">
+              <nuri-view direction="column" align="start" justify="center" gap="xs" padding="lg" fill="grow-shrink">
+                <nuri-typography size="md" emphasis>Bank and Cards</nuri-typography>
+              </nuri-view>
+              <nuri-image source="../assets/photos/bank-and-cards.png" fit="contain" aspect-ratio="portrait" accessibility-label="Bank card and coins"></nuri-image>
             </nuri-view>
 
           </nuri-view>

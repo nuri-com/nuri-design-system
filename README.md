@@ -56,7 +56,7 @@ concept belongs in the shared core.
     components/     the per-descriptor API adapters (Path C)
   contract.ts       imports ./generated/data/*
   runtime/          the INTERNAL engine: resolve · renderer · theme-payload builder
-  primitives/       the open primitive layer (View/Text/Pressable/Screen/Scroll · NuriIcon)
+  primitives/       the open primitive layer (View/Text/Pressable/Image/Screen/Scroll · NuriIcon)
   theme.tsx         NuriThemeProvider / NuriScope / the resolved theme payload
   toast.tsx         ToastProvider / useToast · imperative overlay tenant
 

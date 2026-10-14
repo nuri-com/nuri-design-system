@@ -28,7 +28,8 @@ Column layout uses `<View>` with the schema default direction; rows use `directi
 | `paddingBottom` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |
 | `radius` | no | `'sm' | 'md' | 'lg' | 'full'` | style axis |
 | `radiusTop` | no | `'sm' | 'md' | 'lg' | 'full'` | style axis |
-| `aspectRatio` | no | `'square' | 'card'` | style axis |
+| `aspectRatio` | no | `'square' | 'card' | 'portrait' | 'banner'` | style axis |
+| `clip` | no | `boolean` | style axis |
 | `direction` | no | `'row' | 'column'` | style axis |
 | `align` | no | `'start' | 'center' | 'end' | 'stretch' | 'baseline'` | style axis |
 | `justify` | no | `'start' | 'center' | 'end' | 'between' | 'around'` | style axis |

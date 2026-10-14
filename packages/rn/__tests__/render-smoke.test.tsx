@@ -85,6 +85,7 @@ import { FocusScrollProvider } from '../runtime/focus-scroll';
 // with the raw react-native View/Text imported above for the catalog tests.
 import {
   View as NuriView,
+  Image as NuriImage,
   Text as NuriText,
   Pressable as NuriPressable,
   Screen as NuriScreen,
@@ -1344,6 +1345,69 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(disabledPressed.backgroundColor).toBe(rest.backgroundColor);
     expect(disabledPressed.transform).toBeUndefined();
     expect(disabledPressed.opacity).toBe(theme.interaction.disabledOpacity);
+  });
+
+  // ── Image · the free-standing bitmap leaf (the media-card slice) ──
+  test('Image — box geometry + the always-on ring · cover by default · DECORATIVE when unlabelled', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <NuriImage source={{ uri: 'https://example.test/photo.png' }} aspectRatio="portrait" radius="lg" />
+      </NuriThemeProvider>,
+    );
+    const img = tr.root.findByType(Image);
+    const theme = buildNuriTheme('neutral', 'light');
+    expect(img.props.resizeMode).toBe('cover');
+    expect(img.props.accessible).toBe(false);
+    expect(img.props.accessibilityLabel).toBeUndefined();
+    expect(img.props.accessibilityRole).toBeUndefined();
+    const style = flatStyleForTest(img.props.style);
+    expect(style).toEqual({
+      // the asset's intrinsic size is neutralised (RN's static-resource default)
+      width: 'auto',
+      height: 'auto',
+      aspectRatio: 0.667,
+      borderRadius: 18,
+      borderWidth: 1,
+      borderColor: theme.border.translucent,
+    });
+    expect(typeof style.aspectRatio).toBe('number');
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('Image — a label makes it an announced image · fit="contain" reaches resizeMode', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <NuriImage source={{ uri: 'https://example.test/logo.png' }} fit="contain" width="lg" height="lg" accessibilityLabel="Bank logo" />
+      </NuriThemeProvider>,
+    );
+    const img = tr.root.findByType(Image);
+    expect(img.props.resizeMode).toBe('contain');
+    expect(img.props.accessible).toBe(true);
+    expect(img.props.accessibilityRole).toBe('image');
+    expect(img.props.accessibilityLabel).toBe('Bank logo');
+    // an authored box dimension WINS over the neutralised intrinsic default
+    expect(flatStyleForTest(img.props.style)).toMatchObject({ width: 48, height: 48 });
+  });
+
+  test('media card — a clip + banner row crops a portrait photo column: overflow hidden on the card · aspectRatio on both nodes', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <NuriView direction="row" align="stretch" chrome="strong" radius="lg" clip aspectRatio="banner" testID="card">
+          <NuriView direction="column" justify="center" gap="xs" padding="lg" fill="grow-shrink">
+            <NuriText size="md" emphasis>Bank and Cards</NuriText>
+          </NuriView>
+          <NuriImage source={{ uri: 'https://example.test/photo.png' }} fit="cover" aspectRatio="portrait" />
+        </NuriView>
+      </NuriThemeProvider>,
+    );
+    const card = tr.root.findByProps({ testID: 'card' }).findByType(View);
+    const cardStyle = flatStyleForTest(card.props.style);
+    expect(cardStyle).toMatchObject({ overflow: 'hidden', aspectRatio: 2, borderRadius: 18, flexDirection: 'row', alignItems: 'stretch' });
+    const photo = tr.root.findByType(Image);
+    const photoStyle = flatStyleForTest(photo.props.style);
+    expect(photoStyle.aspectRatio).toBe(0.667);
+    expect(photoStyle.borderRadius).toBeUndefined(); // the photo has NO radius of its own — the card clips it
+    expect(tr.toJSON()).toMatchSnapshot();
   });
 
   test('SelectTrigger satellite — a static soft View has no interactive wash or scale path', () => {

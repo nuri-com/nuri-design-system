@@ -99,6 +99,9 @@ export const PROPERTY_SPELLING = {
   // aspect-ratio is the rare concept whose RN key, web property, and canonical id
   // all coincide (no logical/physical divergence) — both targets spell it the same.
   aspectRatio:        { rn: 'aspectRatio',       css: 'aspect-ratio' },
+  // overflow · the clip flag's property: RN key, web property and canonical id
+  // coincide (like aspect-ratio · no logical/physical divergence).
+  overflow:           { rn: 'overflow',          css: 'overflow' },
 } as const satisfies PropertySpelling;
 
 // The canonical ids — the registry's OWN keys (typed · typo-safe). resolve-map.ts's

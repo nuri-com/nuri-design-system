@@ -29,3 +29,4 @@ The agnostic **box** namespace — geometry (sizing · padding · radii) as a Fi
 | `radius` | `border-radius` | `borderRadius` | `radius` scale |
 | `radiusTop` | `border-start-start-radius · border-start-end-radius` | `borderTopLeftRadius · borderTopRightRadius` | `radius` scale |
 | `aspectRatio` | `aspect-ratio` | `aspectRatio` | `ratio` scale |
+| `clip` | `overflow` | `overflow` | `hidden` / `visible` |

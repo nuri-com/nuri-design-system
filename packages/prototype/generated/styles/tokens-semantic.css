@@ -366,7 +366,8 @@
  * the value is identical on both targets, no unit divergence). They sit
  * OUTSIDE the px scale by design (the named-risk surface · no `px`).
  * square = 1:1; card = 1.586:1 (ISO/IEC 7810 ID-1 · the credit-card /
- * payment-card surface). Box-aspect-ratio slice.
+ * payment-card surface); portrait = 2:3 and banner = 2:1 (the media-card
+ * pair · 2026-10-14). Box-aspect-ratio slice.
  * ══════════════════════════════════════════════════════════════ */
 
 :root {
@@ -377,6 +378,10 @@
   --nuri-ratio-square: 1;
   /* ratio.card   · 1.586:1 · the credit-card / payment-card surface (ISO 7810 ID-1) */
   --nuri-ratio-card:   1.586;
+  /* ratio.portrait · 2:3 · a cover-cropped photo column (the media card's photo) */
+  --nuri-ratio-portrait: 0.667;
+  /* ratio.banner · 2:1 · a media card whose height follows its width, never its copy */
+  --nuri-ratio-banner: 2;
 }
 
 

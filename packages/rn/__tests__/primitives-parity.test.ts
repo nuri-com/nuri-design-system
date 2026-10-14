@@ -31,7 +31,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { View, Bleed, Text, Pressable, Screen, Header, Scroll, Footer, Dock, Separator, ListSeparator } from '../primitives';
+import { View, Bleed, Image, Text, Pressable, Screen, Header, Scroll, Footer, Dock, Separator, ListSeparator } from '../primitives';
 import { STACK_FIELDS, BOX_FIELDS, BLEED_FIELDS } from '@nuri/spec/resolve-map';
 import { opts as INTERACTIVE_OPTS } from '@nuri/spec/interactive-effects';
 import { PALETTE_KEYS, TYPOGRAPHY_KEYS, EFFECT_KEYS } from '@nuri/spec/descriptors/schema';
@@ -97,6 +97,10 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
     expect(sorted(Bleed.propKeys)).toEqual(sorted(BLEED_KEYS));
   });
 
+  test('Image props ≡ box keys only (no stack · no palette · no interactive)', () => {
+    expect(sorted(Image.propKeys)).toEqual(sorted(BOX_KEYS));
+  });
+
   test('Text props ≡ typography ∪ palette keys', () => {
     expect(sorted(Text.propKeys)).toEqual(union(TYPOGRAPHY_KEYS, PALETTE_KEYS));
   });
@@ -157,6 +161,20 @@ describe('primitive parity gate — web ATTRS ≡ RN props ≡ schema NS keys', 
   // ── web ATTRS leg ──
   test('web <nuri-view> ATTRS ≡ box ∪ stack ∪ palette ∪ effect keys (the #102-deferred leg, now bidirectional)', () => {
     expect(sorted(viewAttrs())).toEqual(sorted(union(BOX_KEYS, STACK_KEYS, PALETTE_KEYS, EFFECT_KEYS).map(kebab)));
+  });
+
+  test('web <nuri-image> box ATTRS ≡ RN Image props ≡ box keys · the local contract is exactly source/fit/accessibility-label', () => {
+    // image.js lists its box attrs in BOX_ATTRS and its element-local contract
+    // in LOCAL_ATTRS (ATTRS is their spread, unreadable by the generic grab).
+    const src = fs.readFileSync(path.resolve(__dirname, '../../prototype/primitives/image.js'), 'utf8');
+    const grab = (name: string): string[] => {
+      const m = src.match(new RegExp(`const ${name} = \\[([\\s\\S]*?)\\]`));
+      if (!m) throw new Error(`no ${name} array in image.js`);
+      return m[1].split(',').map((s) => s.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
+    };
+    expect(sorted(grab('BOX_ATTRS'))).toEqual(sorted(BOX_KEYS.map(kebab)));
+    expect(sorted(grab('BOX_ATTRS'))).toEqual(sorted(Image.propKeys.map(kebab)));
+    expect(sorted(grab('LOCAL_ATTRS'))).toEqual(['accessibility-label', 'fit', 'source']);
   });
 
   test('web <nuri-bleed> ATTRS ≡ RN Bleed props ≡ standalone bleed field keys', () => {

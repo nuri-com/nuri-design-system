@@ -374,6 +374,10 @@ const SEMANTIC_EXPECTED = {
                            lilac:   { light: '1',     dark: '1'     } },
   '--nuri-ratio-card':   { neutral: { light: '1.586', dark: '1.586' },
                            lilac:   { light: '1.586', dark: '1.586' } },
+  '--nuri-ratio-portrait': { neutral: { light: '0.667', dark: '0.667' },
+                             lilac:   { light: '0.667', dark: '0.667' } },
+  '--nuri-ratio-banner': { neutral: { light: '2',     dark: '2'     },
+                           lilac:   { light: '2',     dark: '2'     } },
 
   // ── Semantic border · cascade-invariant · shared hairline ──
   '--nuri-border-1': { neutral: { light: '1px', dark: '1px' },

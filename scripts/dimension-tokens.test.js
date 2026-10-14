@@ -80,7 +80,7 @@ const SIZE_FINAL = { xs: 18, sm: 24, md: 36, lg: 48, xl: 60, '2xl': 72, '3xl': 9
 const RADIUS_FINAL = { sm: 6, md: 9, lg: 18, full: 9999 };
 // The ratio scale is UNITLESS — the RN values are BARE numbers (no `px` · the named
 // risk surfaces here: a px leak makes litToNum mis-read or the value carry a unit).
-const RATIO_FINAL = { square: 1, card: 1.586 };
+const RATIO_FINAL = { square: 1, card: 1.586, portrait: 0.667, banner: 2 };
 const BORDER_FINAL = { 1: 1 };
 const DIM_ORACLE = { space: SPACE_FINAL, size: SIZE_FINAL, radius: RADIUS_FINAL, ratio: RATIO_FINAL, border: BORDER_FINAL };
 
@@ -170,7 +170,7 @@ const UNION_ORACLE = [
   'space.none', 'space.xs', 'space.sm', 'space.md', 'space.lg', 'space.xl', 'space.2xl',
   'size.xs', 'size.sm', 'size.md', 'size.lg', 'size.xl', 'size.2xl', 'size.3xl',
   'radius.sm', 'radius.md', 'radius.lg', 'radius.full',
-  'ratio.square', 'ratio.card',
+  'ratio.square', 'ratio.card', 'ratio.portrait', 'ratio.banner',
   'border.1',
 ];
 

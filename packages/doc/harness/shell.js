@@ -58,6 +58,7 @@
         { id: 'components/typography',         label: 'Typography',         href: 'generated/components/typography.html' },
         { id: 'components/icon',               label: 'Icon',               href: 'generated/components/icon.html' },
         { id: 'components/pressable',          label: 'Pressable',          href: 'generated/components/pressable.html' },
+        { id: 'components/image',              label: 'Image',              href: 'generated/components/image.html' },
         { id: 'components/screen',             label: 'Screen',             href: 'generated/components/screen.html' },
         { id: 'components/header',             label: 'Header',             href: 'generated/components/header.html' },
         { id: 'components/scroll',             label: 'Scroll',             href: 'generated/components/scroll.html' },
