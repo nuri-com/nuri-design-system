@@ -420,6 +420,20 @@ describe('genericity + the resolved geometry (three descriptors, ONE resolver)',
     expect(typeof style.aspectRatio).toBe('number'); // unitless · not '1.586px'
   });
 
+  // box `clip` (the media-card slice) — the boolean FLAG field's RN emit: `true` →
+  // overflow 'hidden' (the one admitted clip), an explicit `false` restates the
+  // default ('visible'), and absent emits nothing (the table skips undefined).
+  test('box clip — a presence flag resolving to overflow hidden (false restates visible · absent emits nothing)', () => {
+    const theme = buildNuriTheme('neutral', 'light');
+    const clipBox = (clip?: boolean): Descriptor<Record<string, never>> => ({
+      structure: { anatomy: { el: 'view' }, base: { root: { box: clip === undefined ? { radius: 'lg' } : { radius: 'lg', clip } } } },
+      api: { axes: [], slots: {} },
+    });
+    expect(flattenPart(clipBox(true), theme, 'root', {}, {}).style).toEqual({ borderRadius: 18, overflow: 'hidden' });
+    expect(flattenPart(clipBox(false), theme, 'root', {}, {}).style).toEqual({ borderRadius: 18, overflow: 'visible' });
+    expect(flattenPart(clipBox(), theme, 'root', {}, {}).style).toEqual({ borderRadius: 18 });
+  });
+
   test('flattenPart concrete cell — Button solid/lg pressed (the render path anchor)', () => {
     const theme = buildNuriTheme('lilac', 'light');
     const pressed = flattenPart(buttonDescriptor, theme, 'root', { variant: 'solid', size: 'lg' }, { pressed: true }).style;

@@ -143,10 +143,16 @@ export type StackNS = {
 // paddingX absorbed by the border-box floor) while the FLANKED form grows past
 // it — the standard icon-button primitive (a real first consumer · decision 30).
 // `aspectRatio` (the box-aspect-ratio slice · the 3rd deliberate post-freeze BoxNS
-// add) is the box's width:height ratio — a `ratio`-scale leaf (square · card), the
-// FIRST box field backed by a non-px scale. UNITLESS on both targets (web
-// `aspect-ratio: var(--nuri-ratio-card)` · RN `{ aspectRatio: 1.586 }`); the `card`
-// payment-card surface is its first consumer (decision 30).
+// add) is the box's width:height ratio — a `ratio`-scale leaf (square · card ·
+// portrait · banner), the FIRST box field backed by a non-px scale. UNITLESS on
+// both targets (web `aspect-ratio: var(--nuri-ratio-card)` · RN `{ aspectRatio:
+// 1.586 }`); the `card` payment-card surface is its first consumer (decision 30).
+// `clip` (the media-card slice · the 4th deliberate post-freeze BoxNS add) is a
+// boolean FLAG: the node clips its children at its own box and radius —
+// `overflow: hidden` on both targets (the `wrap` flag precedent · one Field-table
+// entry, two engines). A flag, NOT an `overflow` keyword: the only clip the DS
+// admits is "at my own box" (scrolling is Scroll's · operator ruling 2026-10-14).
+// Its first consumer is the media card cropping a cover photo at its corners.
 export type BoxNS = {
   width?: SizeLeaf;
   height?: SizeLeaf;
@@ -162,6 +168,7 @@ export type BoxNS = {
   radius?: RadiusLeaf;
   radiusTop?: RadiusLeaf;
   aspectRatio?: RatioLeaf;
+  clip?: boolean;
 };
 
 // `bleed` — controlled negative space for the dedicated Bleed layout element.

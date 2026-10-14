@@ -15,4 +15,23 @@
   .nuri-image {
     border: var(--nuri-border-1) solid var(--nuri-border-translucent);
   }
+
+  /* <nuri-image> (image.js · the hand-authorable primitive · the web twin of the
+   * RN `Image`): a display:contents HOST (the nuri-button precedent) around ONE
+   * inner <img class="nuri-image nuri-box"> that IS the flex item — so a row's
+   * align="stretch" stretches the bitmap itself and its `aspect-ratio` transfers
+   * to the other axis, exactly as RN's Image host behaves under Yoga. The inner
+   * <img> takes the Yoga item defaults a bitmap needs on the web: flex-shrink:0
+   * (the view.css rationale · RN/Yoga never shrink an item by default) and a zero
+   * automatic minimum (a replaced element's min-content is its natural pixel
+   * width — a 240px asset would refuse to crop into a 2:3 column). The factory's
+   * image LEAF (icon-avatar) is untouched: these two rules key on the host. */
+  nuri-image {
+    display: contents;
+  }
+  nuri-image > .nuri-image {
+    flex-shrink: 0;
+    min-inline-size: 0;
+    min-block-size: 0;
+  }
 }

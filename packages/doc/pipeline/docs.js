@@ -237,6 +237,7 @@ const NAV_ORDER = {
   typography: 13,
   icon: 14,
   pressable: 15,
+  image: 15.5,
   screen: 16,
   header: 17,
   scroll: 18,

@@ -50,6 +50,8 @@ The dimension foundation — direct `space` · `size` · `radius` · `ratio` · 
 | --- | --- | --- |
 | `ratio.square` | `literal` | `1` |
 | `ratio.card` | `literal` | `1.586` |
+| `ratio.portrait` | `literal` | `0.667` |
+| `ratio.banner` | `literal` | `2` |
 
 ## Border
 

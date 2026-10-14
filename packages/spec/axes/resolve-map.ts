@@ -172,6 +172,10 @@ export const BOX_FIELDS: Record<keyof BoxNS, Field> = {
     scale: 'radius',
   },
   aspectRatio: { via: 'scale', prop: 'aspectRatio', scale: 'ratio' },
+  // clip · the box clips its children at its own box + radius (the media-card
+  // slice). A presence flag like stack.wrap: `on` is the one admitted value,
+  // `off` restates the default so an explicit `clip={false}` is honest on RN.
+  clip: { via: 'flag', prop: 'overflow', on: 'hidden', off: 'visible' },
 };
 
 // ── bleed → controlled negative space · the dedicated Bleed element only ──

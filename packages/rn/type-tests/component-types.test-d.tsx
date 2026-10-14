@@ -56,6 +56,7 @@ import {
   Footer,
   View,
   Bleed,
+  Image,
   Text,
   Pressable,
   Scroll,
@@ -375,6 +376,24 @@ export const bleedOk = <Bleed top="xl" bottom="lg" x="md" y="sm"><View /></Bleed
 export const bleedNoAll = <Bleed all="xl"><View /></Bleed>;
 // @ts-expect-error Bleed does not accept View axes.
 export const bleedNoGap = <Bleed gap="md"><View /></Bleed>;
+// Image · box geometry + source/fit/accessibilityLabel + the curated native plumbing; nothing else.
+export const imageOk = <Image source={{ uri: 'https://example.test/photo.png' }} fit="contain" aspectRatio="portrait" radius="lg" clip accessibilityLabel="Bank card" testID="photo" onLayout={() => undefined} ref={React.createRef()} />;
+export const imageDecorativeOk = <Image source={0} aspectRatio="banner" />;
+export const viewClipOk = <View clip aspectRatio="banner" radius="lg" />;
+// @ts-expect-error source is required — an Image without a bitmap is not a surface.
+export const imageNoSource = <Image aspectRatio="portrait" />;
+// @ts-expect-error fit is the closed cover|contain union.
+export const imageNoFill = <Image source={0} fit="fill" />;
+// @ts-expect-error an image has no children (no stack namespace).
+export const imageNoChildren = <Image source={0}><View /></Image>;
+// @ts-expect-error an image has no stack axes.
+export const imageNoGap = <Image source={0} gap="md" />;
+// @ts-expect-error an image has no palette (a bitmap has no colour).
+export const imageNoVariant = <Image source={0} variant="soft" />;
+// @ts-expect-error an image has no interactive channel — wrap it in a Pressable.
+export const imageNoOnPress = <Image source={0} onPress={() => undefined} />;
+// @ts-expect-error clip is a boolean flag, not an overflow keyword.
+export const viewNoOverflowKeyword = <View clip="scroll" />;
 export const textNativePlumbingOk = <Text testID="amount" accessibilityLabel="3,433 satoshis" onLayout={() => undefined} ref={React.createRef()}>3433 Sats</Text>;
 export const textMonoOk = <Text size="md" emphasis mono>bc1q address</Text>;
 // @ts-expect-error mono belongs to TypographyNS, which View does not expose.

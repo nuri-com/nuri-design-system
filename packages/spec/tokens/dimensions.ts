@@ -51,11 +51,16 @@ export const radius = {
 // ratio is a BARE number that ports verbatim across targets (CSS
 // `aspect-ratio: 1.586`, RN `aspectRatio: 1.586` · the value is identical, no
 // unit divergence). `square` = 1:1; `card` = 1.586:1
-// (ISO/IEC 7810 ID-1, the credit-card ratio · a payment-card surface). The `none`
-// unit makes the emit drop `px` (the named risk).
+// (ISO/IEC 7810 ID-1, the credit-card ratio · a payment-card surface);
+// `portrait` = 2:3 (a cover-cropped photo column) and `banner` = 2:1 (a media
+// card whose height follows its width, never its copy) — the media-card pair
+// (operator ruling 2026-10-14 · names + values). The `none` unit makes the emit
+// drop `px` (the named risk).
 export const ratio = {
-  square: { value: 1, unit: 'none' },
-  card:   { value: 1.586, unit: 'none' },
+  square:   { value: 1, unit: 'none' },
+  card:     { value: 1.586, unit: 'none' },
+  portrait: { value: 0.667, unit: 'none' },
+  banner:   { value: 2, unit: 'none' },
 } as const satisfies Record<string, Leaf>;
 
 // Border widths promoted only when consumed. Current DS contract usage is the

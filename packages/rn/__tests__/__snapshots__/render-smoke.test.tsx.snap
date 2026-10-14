@@ -862,6 +862,34 @@ exports[`render-smoke — the ergonomic components mount headless IconButton —
 </View>
 `;
 
+exports[`render-smoke — the ergonomic components mount headless Image — box geometry + the always-on ring · cover by default · DECORATIVE when unlabelled 1`] = `
+<Image
+  accessible={false}
+  resizeMode="cover"
+  source={
+    {
+      "uri": "https://example.test/photo.png",
+    }
+  }
+  style={
+    [
+      {
+        "height": "auto",
+        "width": "auto",
+      },
+      {
+        "aspectRatio": 0.667,
+        "borderRadius": 18,
+      },
+      {
+        "borderColor": "rgba(0, 0, 0, 0.10)",
+        "borderWidth": 1,
+      },
+    ]
+  }
+/>
+`;
+
 exports[`render-smoke — the ergonomic components mount headless List — open container preserves positional rows and separators 1`] = `
 <View
   style={
@@ -3013,6 +3041,79 @@ exports[`render-smoke — the ergonomic components mount headless Topbar — tit
       accessibilityLabel="title-trailing"
     />
   </View>
+</View>
+`;
+
+exports[`render-smoke — the ergonomic components mount headless media card — a clip + banner row crops a portrait photo column: overflow hidden on the card · aspectRatio on both nodes 1`] = `
+<View
+  style={
+    {
+      "alignItems": "stretch",
+      "aspectRatio": 2,
+      "backgroundColor": "#f3f1e2",
+      "borderRadius": 18,
+      "flexDirection": "row",
+      "overflow": "hidden",
+    }
+  }
+  testID="card"
+>
+  <View
+    style={
+      {
+        "flexDirection": "column",
+        "flexGrow": 1,
+        "flexShrink": 1,
+        "gap": 3,
+        "justifyContent": "center",
+        "minWidth": 0,
+        "padding": 18,
+      }
+    }
+  >
+    <Text
+      style={
+        [
+          {
+            "fontSize": 17,
+            "fontWeight": "600",
+            "letterSpacing": -0.34,
+            "lineHeight": 21.93,
+          },
+          {
+            "color": "#222013",
+          },
+          {},
+        ]
+      }
+    >
+      Bank and Cards
+    </Text>
+  </View>
+  <Image
+    accessible={false}
+    resizeMode="cover"
+    source={
+      {
+        "uri": "https://example.test/photo.png",
+      }
+    }
+    style={
+      [
+        {
+          "height": "auto",
+          "width": "auto",
+        },
+        {
+          "aspectRatio": 0.667,
+        },
+        {
+          "borderColor": "rgba(0, 0, 0, 0.10)",
+          "borderWidth": 1,
+        },
+      ]
+    }
+  />
 </View>
 `;
 

@@ -51,4 +51,6 @@ export type TokenPath =
   | 'radius.full'
   | 'ratio.square'
   | 'ratio.card'
+  | 'ratio.portrait'
+  | 'ratio.banner'
   | 'border.1';

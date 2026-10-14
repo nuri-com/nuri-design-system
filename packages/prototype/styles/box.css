@@ -95,5 +95,8 @@
   .nuri-box[data-radius-top="full"] { border-start-start-radius: var(--nuri-radius-full); border-start-end-radius: var(--nuri-radius-full); }
   .nuri-box[data-aspect-ratio="square"] { aspect-ratio: var(--nuri-ratio-square); }
   .nuri-box[data-aspect-ratio="card"] { aspect-ratio: var(--nuri-ratio-card); }
+  .nuri-box[data-aspect-ratio="portrait"] { aspect-ratio: var(--nuri-ratio-portrait); }
+  .nuri-box[data-aspect-ratio="banner"] { aspect-ratio: var(--nuri-ratio-banner); }
+  .nuri-box[data-clip="true"] { overflow: hidden; }
   .nuri-box[data-center="true"] { margin-inline: auto; }
 }

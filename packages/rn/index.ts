@@ -70,6 +70,7 @@ export type { NuriIconProps } from './primitives';
 export {
   View,
   Bleed,
+  Image,
   Text,
   Pressable,
   Screen,
@@ -87,6 +88,8 @@ export {
 export type {
   ViewProps,
   BleedProps,
+  ImageProps,
+  ImageFit,
   TextProps,
   PressableProps,
   ScreenProps,

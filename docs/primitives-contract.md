@@ -28,6 +28,7 @@ Column layout uses `<View>` with the schema-default direction. Rows use `directi
 | Layout and surface | `<nuri-view>` | `View` | box ⊕ stack ⊕ palette ⊕ effect |
 | Text | `<nuri-typography>` | `Text` | typography ⊕ palette |
 | Interaction | `<nuri-pressable>` | `Pressable` | box ⊕ stack ⊕ palette ⊕ interactive |
+| Image | `<nuri-image>` | `Image` | box ⊕ `source` · `fit` (cover/contain) · accessible name (absent = decorative); always-on blend ring |
 | Icon | `<nuri-icon>` | `NuriIcon` | typed `IconName`, dimension, colour |
 | Screen | `<nuri-screen>` | `Screen` | safe-area structure |
 | Header | `<nuri-header>` | `Header` | structural top region; Modal may explicitly overlay its Topbar block |

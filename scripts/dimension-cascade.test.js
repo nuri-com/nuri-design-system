@@ -114,7 +114,7 @@ const SIZE_FINAL = { xs: '18px', sm: '24px', md: '36px', lg: '48px', xl: '60px',
 const RADIUS_FINAL = { sm: '6px', md: '9px', lg: '18px', full: '9999px' };
 // The ratio scale is UNITLESS — the final strings carry NO `px` (the named-risk
 // oracle: a px leak on the aspect-ratio emit fails HERE, in both resolution paths).
-const RATIO_FINAL = { square: '1', card: '1.586' };
+const RATIO_FINAL = { square: '1', card: '1.586', portrait: '0.667', banner: '2' };
 const BORDER_FINAL = { 1: '1px' };
 
 test('Guard C · the px scale is not present in the dimension SoT', () => {

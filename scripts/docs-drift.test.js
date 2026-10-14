@@ -535,6 +535,9 @@ const FROZEN_SCHEMA = {
     // `aspectRatio` ADDED at the box-aspect-ratio slice (a deliberate, versioned
     // post-freeze BoxNS add · decision 65 "post-freeze changes are versioned"): the
     // width:height ratio, the first box field backed by a non-px scale (`ratio`).
+    // `clip` ADDED at the media-card slice (the 4th deliberate, versioned post-freeze
+    // BoxNS add): the boolean "clip my children at my own box + radius" flag
+    // (`overflow: hidden` on both targets · the `wrap` flag precedent).
     BoxNS: {
       'width?': 'SizeLeaf', 'height?': 'SizeLeaf', 'minHeight?': 'SizeLeaf', 'minWidth?': 'SizeLeaf',
       'padding?': 'SpaceLeaf', 'paddingX?': 'SpaceLeaf', 'paddingY?': 'SpaceLeaf',
@@ -542,6 +545,7 @@ const FROZEN_SCHEMA = {
       'paddingTop?': 'SpaceLeaf', 'paddingBottom?': 'SpaceLeaf', 'radius?': 'RadiusLeaf',
       'radiusTop?': 'RadiusLeaf',
       'aspectRatio?': 'RatioLeaf',
+      'clip?': 'boolean',
     },
     // BleedNS ADDED for the admitted dedicated Bleed element. It is standalone:
     // the descriptor `NS` envelope and View stay closed, so this cannot become a

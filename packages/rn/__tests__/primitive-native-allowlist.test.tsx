@@ -1,6 +1,7 @@
 import * as React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 import {
+  Image as RNImage,
   Pressable as RNPressable,
   ScrollView as RNScrollView,
   Text as RNText,
@@ -11,6 +12,7 @@ import {
   Dock,
   Footer,
   Header,
+  Image,
   Pressable,
   Screen,
   Scroll,
@@ -29,6 +31,7 @@ describe('open primitives — curated native allowlist', () => {
       scroll: React.createRef<React.ElementRef<typeof RNScrollView>>(),
       footer: React.createRef<React.ElementRef<typeof RNView>>(),
       dock: React.createRef<React.ElementRef<typeof RNView>>(),
+      image: React.createRef<React.ElementRef<typeof RNImage>>(),
     };
     act(() => {
       TestRenderer.create(
@@ -39,6 +42,7 @@ describe('open primitives — curated native allowlist', () => {
               <View ref={refs.view} testID="view" accent="orange">
                 <Text ref={refs.text} testID="text" accent="lilac">Label</Text>
                 <Pressable ref={refs.pressable} testID="pressable" accent="orange" />
+                <Image ref={refs.image} testID="image" source={0} aspectRatio="square" />
               </View>
             </Scroll>
             <Footer ref={refs.footer} testID="footer" />
@@ -66,6 +70,9 @@ describe('open primitives — curated native allowlist', () => {
     expect(refs.scroll.current).toBeInstanceOf(RNScrollView);
     expect(refs.footer.current).toBeInstanceOf(RNView);
     expect(refs.dock.current).toBeInstanceOf(RNView);
+    expect(refs.image.current).toBeInstanceOf(RNImage);
+    expect(Image.displayName).toBe('Image');
+    expect(Image.propKeys).not.toContain('source');
     expect(View.displayName).toBe('View');
     expect(Text.displayName).toBe('Text');
     expect(Pressable.displayName).toBe('Pressable');

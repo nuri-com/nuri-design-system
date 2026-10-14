@@ -293,7 +293,9 @@ const PAGE_CONTRACT = {
     cells: [
       "| `width` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |",
       "| `radiusTop` | no | `'sm' | 'md' | 'lg' | 'full'` | style axis |",
-      "| `aspectRatio` | no | `'square' | 'card'` | style axis |",
+      "| `aspectRatio` | no | `'square' | 'card' | 'portrait' | 'banner'` | style axis |",
+      // the media-card slice: the boolean clip flag on every box-bearing primitive
+      '| `clip` | no | `boolean` | style axis |',
       "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
       "| `elevation` | no | `'none' | 'raised'` | style axis |",
@@ -361,6 +363,24 @@ const PAGE_CONTRACT = {
       '| `ref` | no | `React.Ref<React.ElementRef<typeof RNPressable>>` | RN-only native host ref |',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '| `distribute` |'],
+  },
+  image: {
+    kind: 'api', source: 'image', title: 'Image', nav: 14.5,
+    cells: [
+      '`Image` / `<nuri-image>` is the free-standing bitmap leaf',
+      "| `aspectRatio` | no | `'square' | 'card' | 'portrait' | 'banner'` | style axis |",
+      '| `clip` | no | `boolean` | style axis |',
+      '| `source` | yes | `ImageSourcePropType` | image source |',
+      "| `fit` | no | `'cover' | 'contain'` | image fit |",
+      '| `accessibilityLabel` | no | `string` | accessible name; absent means decorative |',
+      '| `testID` | no | `string` | native test hook |',
+      '| `onLayout` | no | `(event: LayoutChangeEvent) => void` | RN-only native layout event |',
+      '| `ref` | no | `React.Ref<React.ElementRef<typeof RNImage>>` | RN-only native host ref |',
+      '## Sizing',
+      '## Accessibility',
+    ],
+    // no stack · no palette · no interactive · no children
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '| `gap` |', '| `variant` |', '| `pressScale` |', '| `children` |', '| `onPress` |'],
   },
   screen: {
     kind: 'api', source: 'screen', title: 'Screen', nav: 15,

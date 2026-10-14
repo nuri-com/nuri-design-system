@@ -17,7 +17,7 @@
  *  · space (singleton): none, xs, sm, md, lg, xl, 2xl
  *  · size (singleton): xs, sm, md, lg, xl, 2xl, 3xl
  *  · radius (singleton): sm, md, lg, full
- *  · ratio (singleton): square, card
+ *  · ratio (singleton): square, card, portrait, banner
  *  · border (singleton): 1
  *
  * COLOUR is re-sourced from packages/spec/tokens/colours.ts (N+59 · Slice 3b·1 ·
@@ -177,9 +177,13 @@ export const radius: {
 export const ratio: {
   square: number;
   card: number;
+  portrait: number;
+  banner: number;
 } = {
-  square:  1,
-  card:    1.586,
+  square:    1,
+  card:      1.586,
+  portrait:  0.667,
+  banner:    2,
 };
 
 // ── border · singleton ──

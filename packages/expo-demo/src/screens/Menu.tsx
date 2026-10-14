@@ -13,6 +13,7 @@ import { TextFieldStress } from './TextFieldStress';
 import { Move } from './Move';
 import { Scan } from './Scan';
 import { Cards } from './Cards';
+import { Profile } from './Profile';
 
 type FormValues = {
   iban: string;
@@ -30,6 +31,7 @@ export function Menu({ onBack }: { onBack: () => void }) {
   const [showMove, setShowMove] = React.useState<false | 'regular' | 'stress'>(false);
   const [showScan, setShowScan] = React.useState(false);
   const [showCards, setShowCards] = React.useState(false);
+  const [showProfile, setShowProfile] = React.useState(false);
   const activity = useSheet();
   const amount = useSheet();
   const actions = useSheet();
@@ -66,6 +68,10 @@ export function Menu({ onBack }: { onBack: () => void }) {
     return <Cards onClose={() => setShowCards(false)} />;
   }
 
+  if (showProfile) {
+    return <Profile onClose={() => setShowProfile(false)} />;
+  }
+
   return (
     <Screen safeArea>
       <Topbar>
@@ -87,6 +93,7 @@ export function Menu({ onBack }: { onBack: () => void }) {
         <Button size="lg" variant="soft" onPress={() => setShowMove('stress')}>Move · stress values</Button>
         <Button size="lg" variant="soft" onPress={() => setShowScan(true)}>Scan · recipient (docked panel)</Button>
         <Button size="lg" variant="soft" onPress={() => setShowCards(true)}>Cards · carousel prototype</Button>
+        <Button size="lg" variant="soft" onPress={() => setShowProfile(true)}>Profile · media card</Button>
         </View>
       </Scroll>
 

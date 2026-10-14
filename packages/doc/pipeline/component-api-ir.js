@@ -192,6 +192,28 @@ export const COMPONENT_API_DOCS = [
     type: 'PressableProps',
   },
   {
+    source: 'image',
+    title: 'Image',
+    nav: 14.5,
+    lead: '`Image` / `<nuri-image>` is the free-standing bitmap leaf: box geometry only (no stack, palette, or interactive axes), `fit` as `cover` or `contain` (`cover` by default), and the always-on translucent blend ring that keeps light bitmaps defined on matching surfaces.',
+    file: 'packages/rn/primitives/Image.tsx',
+    type: 'ImageProps',
+    sections: [
+      {
+        title: 'Sizing',
+        body: [
+          'An image\'s layout never follows its asset\'s pixel size. React Native applies a bundled static resource\'s intrinsic dimensions as the Image\'s default width and height (react-native-web does the same from the asset registry); `Image` neutralises that default, so the only sizing inputs are the box props and the row. Declare `aspectRatio` plus one dimension, or let the row stretch it (`align="stretch"`) with an `aspectRatio` so the other axis follows — the media-card photo column is `<Image aspectRatio="portrait" />` beside a growing text column inside a `clip aspectRatio="banner"` row. The web `<img>` falls back to its natural ratio only when `aspectRatio` is absent, so always pass one.',
+        ],
+      },
+      {
+        title: 'Accessibility',
+        body: [
+          'Without `accessibilityLabel` (web `accessibility-label`) the image is DECORATIVE on both projections: RN `accessible={false}`, web `alt=""` with `aria-hidden`. With a label it is an announced image carrying that name. A pressable image is `<Pressable><Image /></Pressable>` — Image has no interaction channel of its own.',
+        ],
+      },
+    ],
+  },
+  {
     source: 'screen',
     title: 'Screen',
     nav: 15,
@@ -279,6 +301,8 @@ const NOTE_BY_PROP = {
   radius: 'style axis',
   radiusTop: 'style axis',
   aspectRatio: 'style axis',
+  clip: 'style axis',
+  fit: 'image fit',
   direction: 'style axis',
   align: 'style axis',
   justify: 'style axis',
@@ -355,6 +379,7 @@ function noteForProp(name, type, typeName, isPrimaryType, childrenNote, behaviou
   if (typeName === 'NuriRootProps' && name === 'accent') return 'theme selection; defaults to lilac';
   if (typeName === 'NuriRootProps' && name === 'safeArea') return 'consumer-resolved inset numbers';
   if (typeName === 'TextProps' && name === 'accessibilityLabel') return 'read-out override';
+  if (typeName === 'ImageProps' && name === 'accessibilityLabel') return 'accessible name; absent means decorative';
   if (!isPrimaryType && (name === 'variant' || name === 'accent')) return 'delegated component prop';
   if (isPrimaryType && behaviourNotes.inputProps?.includes(name)) return 'input behaviour';
   if (isPrimaryType && behaviourNotes.pressableProps?.includes(name)) return 'pressable behaviour';

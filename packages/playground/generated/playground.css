@@ -977,7 +977,8 @@
  * the value is identical on both targets, no unit divergence). They sit
  * OUTSIDE the px scale by design (the named-risk surface · no `px`).
  * square = 1:1; card = 1.586:1 (ISO/IEC 7810 ID-1 · the credit-card /
- * payment-card surface). Box-aspect-ratio slice.
+ * payment-card surface); portrait = 2:3 and banner = 2:1 (the media-card
+ * pair · 2026-10-14). Box-aspect-ratio slice.
  * ══════════════════════════════════════════════════════════════ */
 
 :root {
@@ -988,6 +989,10 @@
   --nuri-ratio-square: 1;
   /* ratio.card   · 1.586:1 · the credit-card / payment-card surface (ISO 7810 ID-1) */
   --nuri-ratio-card:   1.586;
+  /* ratio.portrait · 2:3 · a cover-cropped photo column (the media card's photo) */
+  --nuri-ratio-portrait: 0.667;
+  /* ratio.banner · 2:1 · a media card whose height follows its width, never its copy */
+  --nuri-ratio-banner: 2;
 }
 
 
@@ -3097,6 +3102,25 @@ nuri-demo:not(:defined) {
   .nuri-image {
     border: var(--nuri-border-1) solid var(--nuri-border-translucent);
   }
+
+  /* <nuri-image> (image.js · the hand-authorable primitive · the web twin of the
+   * RN `Image`): a display:contents HOST (the nuri-button precedent) around ONE
+   * inner <img class="nuri-image nuri-box"> that IS the flex item — so a row's
+   * align="stretch" stretches the bitmap itself and its `aspect-ratio` transfers
+   * to the other axis, exactly as RN's Image host behaves under Yoga. The inner
+   * <img> takes the Yoga item defaults a bitmap needs on the web: flex-shrink:0
+   * (the view.css rationale · RN/Yoga never shrink an item by default) and a zero
+   * automatic minimum (a replaced element's min-content is its natural pixel
+   * width — a 240px asset would refuse to crop into a 2:3 column). The factory's
+   * image LEAF (icon-avatar) is untouched: these two rules key on the host. */
+  nuri-image {
+    display: contents;
+  }
+  nuri-image > .nuri-image {
+    flex-shrink: 0;
+    min-inline-size: 0;
+    min-block-size: 0;
+  }
 }
 
 
@@ -3486,6 +3510,9 @@ nuri-demo:not(:defined) {
   .nuri-box[data-radius-top="full"] { border-start-start-radius: var(--nuri-radius-full); border-start-end-radius: var(--nuri-radius-full); }
   .nuri-box[data-aspect-ratio="square"] { aspect-ratio: var(--nuri-ratio-square); }
   .nuri-box[data-aspect-ratio="card"] { aspect-ratio: var(--nuri-ratio-card); }
+  .nuri-box[data-aspect-ratio="portrait"] { aspect-ratio: var(--nuri-ratio-portrait); }
+  .nuri-box[data-aspect-ratio="banner"] { aspect-ratio: var(--nuri-ratio-banner); }
+  .nuri-box[data-clip="true"] { overflow: hidden; }
   .nuri-box[data-center="true"] { margin-inline: auto; }
 }
 
