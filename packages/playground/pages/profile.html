@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuri · Playground · Profile</title>
+  <link rel="stylesheet" href="../generated/playground.css" />
+  <script src="../generated/boot.js" type="module"></script>
+</head>
+<body>
+
+<nuri-playground-shell doc="Profile">
+
+  <!-- PROFILE · the account/settings screen (operator mock 2026-10-14): a STICKY
+       TRANSPARENT topbar (the × close action) over a scrolling column of sections.
+
+       The bar rides a top <nuri-dock> — the overlay primitive: it pins above the
+       scroll, the content passes BEHIND it, and the dock reports its height to the
+       screen scope so the Scroll's top inset matches (the unified-balance large-title
+       board's construction). surface="transparent" on the bar + chrome="transparent"
+       on the header, with the status-bar band kept on canvas (safe-area-chrome).
+
+       Every row is DS vocabulary, syntax-translatable to RN (no page-local CSS):
+       · chevron rows → <nuri-list-action> + text (+ muted) + trail-icon
+       · toggles      → <nuri-list-switch> (the WHOLE row is the switch)
+       · section = a hairline <nuri-separator> inset to the gutter + a `lg` emphasis
+         heading + its <nuri-list>. The 18px text gutter is list paddingX(sm) + row
+         padding(md); headings/separators sit in a padding-x="lg" view to meet it.
+       Row rhythm is the DS's (48px single-line · 68px two-line), not the app's
+       taller rows — a difference for the operator to rule on, not a CSS patch. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="profile">
+    <template>
+      <nuri-screen safe-area-top>
+        <nuri-dock edge="top">
+          <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+            <nuri-topbar surface="transparent">
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+          </nuri-header>
+        </nuri-dock>
+
+        <!-- inset-top="dock": the content pads by the dock's reported height, so the
+             handle starts BELOW the pinned bar and then scrolls away behind it. -->
+        <nuri-scroll safe-area-bottom inset-top="dock">
+          <nuri-view direction="column" align="stretch" justify="start" gap="md" padding-bottom="xl" fill>
+
+            <!-- handle · scrolls away behind the pinned bar -->
+            <nuri-view padding-x="lg" padding-top="md">
+              <nuri-typography size="lg" emphasis>@Dario</nuri-typography>
+            </nuri-view>
+
+            <nuri-list>
+              <nuri-list-action aria-label="Payment link">
+                <nuri-list-action-text>Payment link</nuri-list-action-text>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Address book">
+                <nuri-list-action-text>Address book</nuri-list-action-text>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Support">
+                <nuri-list-action-text>Support</nuri-list-action-text>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+
+            <!-- Notifications · the two toggles (each row IS the switch) -->
+            <nuri-view padding-x="lg"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+            <nuri-view padding-x="lg" padding-top="xl">
+              <nuri-typography size="lg" emphasis>Notifications</nuri-typography>
+            </nuri-view>
+            <nuri-list>
+              <nuri-list-switch checked>
+                <nuri-list-switch-text>Bitcoin payments</nuri-list-switch-text>
+              </nuri-list-switch>
+              <nuri-list-switch>
+                <nuri-list-switch-text>Cards and bank</nuri-list-switch-text>
+              </nuri-list-switch>
+            </nuri-list>
+
+            <!-- Settings · value rows (title over the muted current value) -->
+            <nuri-view padding-x="lg"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+            <nuri-view padding-x="lg" padding-top="xl">
+              <nuri-typography size="lg" emphasis>Settings</nuri-typography>
+            </nuri-view>
+            <nuri-list>
+              <nuri-list-action aria-label="Language, English">
+                <nuri-list-action-text>Language</nuri-list-action-text>
+                <nuri-list-action-text-muted>English</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Currency, Euro">
+                <nuri-list-action-text>Currency</nuri-list-action-text>
+                <nuri-list-action-text-muted>Euro</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Crypto wallet, connect one to add funds">
+                <nuri-list-action-text>Crypto wallet</nuri-list-action-text>
+                <nuri-list-action-text-muted>Connect one to add funds</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+
+            <!-- Shop -->
+            <nuri-view padding-x="lg"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+            <nuri-view padding-x="lg" padding-top="xl">
+              <nuri-typography size="lg" emphasis>Shop</nuri-typography>
+            </nuri-view>
+            <nuri-list>
+              <nuri-list-action aria-label="eSIM">
+                <nuri-list-action-text>eSIM</nuri-list-action-text>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+
+            <!-- Account -->
+            <nuri-view padding-x="lg"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+            <nuri-view padding-x="lg" padding-top="xl">
+              <nuri-typography size="lg" emphasis>Account</nuri-typography>
+            </nuri-view>
+            <nuri-list>
+              <nuri-list-action aria-label="Log out">
+                <nuri-list-action-text>Log out</nuri-list-action-text>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+
+            <!-- version line -->
+            <nuri-view padding-x="lg"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+            <nuri-view padding-x="lg">
+              <nuri-typography size="sm" muted>Version 0.104.0</nuri-typography>
+            </nuri-view>
+
+          </nuri-view>
+        </nuri-scroll>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+</body>
+</html>
