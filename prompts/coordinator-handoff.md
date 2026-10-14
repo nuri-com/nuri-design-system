@@ -41,6 +41,42 @@ State at the end of the 2026-10-13/14 session (this addendum supersedes nothing 
 - Lesson filed in memory: assert a composed descriptor's STRUCTURAL parts render on both targets
   by geometry; roles/states/first-run snapshots do not prove presence.
 
+## Addendum · 2026-10-14 (2) · the media-card arc is OPEN as draft #225 (branch pushed · gates green locally)
+
+State at the end of the 2026-10-14 hand-off session (adds to the addendum above; supersedes nothing):
+
+- **Draft nuri-com/nuri-design-system#225** on `feat/media-card-vocabulary` (`cb97080` + the handoff
+  commit) from `main@c5e830d` — the `prompts/brief-media-card-vocabulary.md` arc executed in ONE
+  session, §1 → §3 → board swap → demo screen → docs → gates → evidence: ratio leaves `portrait`/`banner`
+  · `box.clip` (the 4th versioned `BoxNS` add · Guard-F pin moved) · the `Image` / `<nuri-image>`
+  primitive (box only · `fit` cover|contain · `accessibility-label` mirror · absent ⇒ decorative · the
+  ring). `profile.html` board 2 is pure DS (the flagged stand-in is gone) + a copy-lengths board;
+  expo-demo `Profile.tsx` is the RN twin (Menu → "Profile · media card"). Evidence under
+  `docs/evidence/media-card/` (web boards · RN-web twin), all by probe. Local gates: root 125 ·
+  prototype 127 · doc 3 · rn 299 + tsc · expo-demo 21 + tsc · re-emit hash-identical over 94 files.
+  CI on #225 not yet observed at hand-off — check the 5 gates before anything else.
+- **Admission draft:** `prompts/admission-media-card-vocabulary.md` (unposted · the executed evidence
+  + native residue filled in). The PR is EVIDENCE, not admission — the record is still to be published
+  as an issue, the independent architect verdict and Project `Ready` are still open. Never merge, never
+  tag without the explicit go.
+- **Correction the arc surfaced (memory: rn-static-assets-carry-intrinsic-size):** the brief's "RN
+  Image never derives a dimension from the asset" is FALSE for bundled static resources on native AND
+  react-native-web; the primitive neutralises the default (`width/height: 'auto'` ahead of the box).
+  The web board had passed and proved nothing about RN — probe RN-web by geometry before verifying.
+- **Decisionlog practice (observed):** `decisionlog.md` is untouched since #140 (archived · immutable);
+  #223 recorded its schema deltas in the Guard-F pin comment + the admission record, and #225 follows
+  the same practice. The Switch record's "decisionlog amendment" acceptance line is stale wording.
+- **Operator-local state preserved:** `.claude/launch.json` (dev-server entries) and
+  `packages/expo-demo/src/screens/index.tsx` (the LOCAL-ONLY harness) were NOT staged; the harness was
+  pointed at Profile only for the RN-web evidence and restored byte-identical afterwards.
+- **Native residue (operator · device):** the asset `require` + cover on device · Yoga `width: 'auto'`
+  + `aspectRatio`-on-stretch for an Image host (the thumb precedent was a View) · VoiceOver/TalkBack
+  silence for the decorative photo · the ring in dark mode · Android clipping at the rounded corners.
+- **Operator's pending go (unchanged + one more):** publish the Switch admission (`admission-switch.md`)
+  AND the media-card admission as issues · the #201 cross-reference · the tag decision (last tag
+  `rn/v0.1.0-alpha.14`; #223 + #225 both unreleased) · `packages/gen-ui` · the orphan
+  `native-text-input-command.web.ts`.
+
 ## Mode for the next session
 
 Coordination over closures and follow-ups — no live implementation arc is open. The named

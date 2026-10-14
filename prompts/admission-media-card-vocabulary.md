@@ -248,7 +248,8 @@ experiment or a fast lane; references use canonical `owner/repo#number` form.
   the always-on ring.
 - Implementation STARTED 2026-10-14 on `feat/media-card-vocabulary` on the operator's instruction,
   BEFORE admission — recorded now, not retroactively. The code is EVIDENCE for this request.
-- **Executed evidence (2026-10-14 · branch `feat/media-card-vocabulary` · draft PR, never merged):**
+- **Executed evidence (2026-10-14 · branch `feat/media-card-vocabulary` · draft
+  nuri-com/nuri-design-system#225 · never merged):**
   - **Web (playground `profile.html` · by probe, not by eye):** every clipped card measures 354×177
     (ratio 2.000 · `overflow: hidden` · 18px radius) with 2-line, 1-line, 5-line and bare copy — the
     height never moves; every photo measures 118.05×177 (ratio 0.667 · expected 118.0) with NO own
