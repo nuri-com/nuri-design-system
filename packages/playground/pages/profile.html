@@ -74,11 +74,13 @@
             <nuri-view padding-x="lg" padding-top="xl">
               <nuri-typography size="lg" emphasis>Notifications</nuri-typography>
             </nuri-view>
+            <!-- accent="lilac": the toggles' ON track is the brand lilac regardless of
+                 the page accent (the mock) — the component's Tier-2 self-scope. -->
             <nuri-list>
-              <nuri-list-switch checked>
+              <nuri-list-switch checked accent="lilac">
                 <nuri-list-switch-text>Bitcoin payments</nuri-list-switch-text>
               </nuri-list-switch>
-              <nuri-list-switch>
+              <nuri-list-switch accent="lilac">
                 <nuri-list-switch-text>Cards and bank</nuri-list-switch-text>
               </nuri-list-switch>
             </nuri-list>

@@ -57,7 +57,10 @@ export const listSwitchDescriptor: Descriptor<ListSwitchAxes> = {
       // The row (≡ list-action root): the ghost wash + disabled dim on the ONE control.
       root: {
         stack: { direction: 'row', align: 'center', gap: 'md' },
-        box: { padding: 'md', radius: 'lg' },
+        // The 72px row floor (`2xl` · ≡ list-action · operator ruling 2026-10-14): the
+        // 36px track alone would make a 60px row; the floor keeps every list row on
+        // one rhythm, the pill centred.
+        box: { padding: 'md', minHeight: '2xl', radius: 'lg' },
         palette: { variant: 'ghost' },
         interactive: { pressColor: true, disabledOpacity: true },
       },

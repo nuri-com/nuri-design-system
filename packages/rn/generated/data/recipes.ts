@@ -402,6 +402,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "flexDirection": "row",
           "alignItems": "center",
           "gap": 12,
+          "minHeight": 72,
           "padding": 12,
           "borderRadius": 18
         },
@@ -892,6 +893,7 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           "flexDirection": "row",
           "alignItems": "center",
           "gap": 12,
+          "minHeight": 72,
           "padding": 12,
           "borderRadius": 18
         },

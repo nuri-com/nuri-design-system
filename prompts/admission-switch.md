@@ -113,6 +113,17 @@ the next screen family; its settings page cannot be expressed in pure DS on the 
    guards ×2 · web factory ×4 · RN renderer + host) gains a `checked` twin. `selected` itself is NOT
    generalised or renamed (that would make this Mixed).
 
+### D · List rows gain a 72px floor (operator ruling 2026-10-14 · added after the Profile board)
+
+`list-action` and `list-switch` root `box` += `minHeight: '2xl'` (72 · on the size scale). A list
+row had no height rule — it was `padding md` around its tallest flank, so the catalog's rows measured
+72 (a 48px avatar), 60 (a 36px switch track), 65 (two text lines) or 48 (a bare chevron row), and the
+first avatar-less consumer (the Profile screen) showed three heights on one screen while the mock
+keeps a 72 pitch. With the floor every list row is 72, content centred: avatar rows are byte-identical
+(already 72), avatar-less, two-line and toggle rows grow. This touches `list-action`'s observable
+geometry, so it is named here for the architect as a sibling item of the request (the alternative —
+consumer-side spacing — has no DS vocabulary and would be a CSS patch).
+
 ### Proposed anti-scope (refused generalisation)
 
 - No `variant` or `size` axis on either component — one pill, one size (decision 44's anti-scope upheld).

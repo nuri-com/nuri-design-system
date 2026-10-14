@@ -911,6 +911,7 @@ exports[`render-smoke — the ergonomic components mount headless List — open 
         "borderRadius": 18,
         "flexDirection": "row",
         "gap": 12,
+        "minHeight": 72,
         "padding": 12,
       }
     }
@@ -1154,6 +1155,7 @@ exports[`render-smoke — the ergonomic components mount headless List — open 
         "borderRadius": 18,
         "flexDirection": "row",
         "gap": 12,
+        "minHeight": 72,
         "padding": 12,
       }
     }
@@ -1366,6 +1368,7 @@ exports[`render-smoke — the ergonomic components mount headless ListAction —
       "borderRadius": 18,
       "flexDirection": "row",
       "gap": 12,
+      "minHeight": 72,
       "padding": 12,
     }
   }
@@ -1685,6 +1688,7 @@ exports[`render-smoke — the ergonomic components mount headless ListSwitch —
         "borderRadius": 18,
         "flexDirection": "row",
         "gap": 12,
+        "minHeight": 72,
         "padding": 12,
       }
     }
@@ -1791,6 +1795,7 @@ exports[`render-smoke — the ergonomic components mount headless ListSwitch —
         "borderRadius": 18,
         "flexDirection": "row",
         "gap": 12,
+        "minHeight": 72,
         "padding": 12,
       }
     }
