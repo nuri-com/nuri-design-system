@@ -119,11 +119,13 @@ both nodes.
 - Nothing is lost by waiting: the consumer evidence is committed and flagged; the rulings can be
   settled now in prose and carried in this brief.
 
-## 6 · Rulings to carry in (settle before the session starts)
+## 6 · Rulings — RATIFIED by the operator 2026-10-14, as proposed
 
-1. Ratio names + values: `portrait` 2:3 and `banner` 2:1 (proposed).
-2. `clip` as a boolean box flag (proposed) vs an `overflow="hidden"` keyword.
-3. Image accessible-name prop: `accessibility-label` (proposed · the mirror rule) vs `alt`.
-4. `fit` default `cover`, vocabulary `cover | contain` (proposed).
-5. Whether the always-on blend ring stays an element contract for a free-standing image (proposed:
-   yes, as today's leaf).
+1. Ratio names + values: `portrait` 2:3 (0.667) and `banner` 2:1 (2).
+2. `clip` is a boolean box flag (`<nuri-view clip>` · `<View clip />`), not an `overflow` keyword.
+3. The image's accessible name is `accessibility-label` / `accessibilityLabel` (the decision-21
+   mirror rule, like Pressable); absent → decorative on both targets.
+4. `fit` defaults to `cover`; vocabulary `cover | contain`.
+5. The always-on blend ring stays the element contract for the free-standing image.
+
+No further design decision is open: the next session starts straight from §1.
