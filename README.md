@@ -4,6 +4,16 @@
 > decisions lives in the historical archive ([`decisionlog.md`](./decisionlog.md) ·
 > [`roadmap/`](./roadmap/)) — you rarely need it; this doc + the code are the source of truth.
 
+## Logs
+
+Version context: package 0.0.1 (unchanged). Updated 2026-09-20 by Emin / Hermes.
+
+- [CHANGELOG.md](./CHANGELOG.md) — dated changes/decisions with exact source SHAs.
+- [PROMPTLOG.md](./PROMPTLOG.md) — distilled instructions and their source.
+- Pending proposals only: mixed-weight field labels (nuri-com/nuri-design-system#219)
+  and separate italic Text (nuri-com/nuri-design-system#218). Neither is an admitted,
+  implemented or released capability; stable API and release version are unchanged.
+
 ## What it is
 
 Nuri is a **mobile-first design system for Expo · React Native**. RN is the **production** target; the
