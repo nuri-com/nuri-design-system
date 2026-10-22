@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuri · Playground · Send</title>
+  <link rel="stylesheet" href="../generated/playground.css" />
+  <script src="../generated/boot.js" type="module"></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  SEND · Lightning / ark to a saved contact (brief 2026-10-22)
+  ═══════════════════════════════════════════════════════════════
+
+  Three boards, one per step of the nuri-expo send journey
+  (docs/research/wireframes/send-lightning-contact.md · S1 → S2 → S3).
+  Pure DS composition (decision 57 · the playground is the "composes"
+  step made visible): DS elements + their attributes only, no page CSS,
+  no inline styles, nothing the RN twin could not express 1:1. Every
+  slightly-off composition is listed in the MISFIT LOG at the end of the
+  page — that log is the deliverable; the boards are how it is read.
+
+  Flow-page skeleton, header, keypad and footer copied verbatim from
+  receive-bitcoin.html ("set amount"); source chip from move.html; list
+  rows + the labelled divider from move.html ("currency picker").
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-playground-shell doc="Send">
+
+  <!-- S1 · RECIPIENT · one field for every rail, Scan QR, then the contact
+       sections. No footer: rows advance on tap. The sheet's two sections
+       (RECENT · CONTACTS) are drawn with the brief's names; dividers use the
+       move.html labelled-divider recipe inside the list. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send · recipient">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading></nuri-topbar-leading>
+                <nuri-topbar-center>
+                  <nuri-typography size="lg" emphasis>Send</nuri-typography>
+                </nuri-topbar-center>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll safe-area-bottom>
+              <nuri-view direction="column" align="stretch" gap="md" padding-x="lg" padding-bottom="lg">
+                <nuri-text-field placeholder="Name, @username, address or invoice" input-mode="text" aria-label="Recipient">
+                  <nuri-text-field-button>Paste</nuri-text-field-button>
+                </nuri-text-field>
+
+                <nuri-list>
+                  <nuri-list-action aria-label="Scan QR">
+                    <nuri-list-action-leading-avatar name="qr-scan" variant="outline"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Scan QR</nuri-list-action-text>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+
+                  <nuri-view direction="row" align="center" gap="sm" height="md" padding-x="md">
+                    <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+                    <nuri-typography size="sm" emphasis muted>Recent</nuri-typography>
+                    <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+                  </nuri-view>
+
+                  <nuri-list-action aria-label="Emil, at emil, 3 sends">
+                    <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Emil</nuri-list-action-text>
+                    <nuri-list-action-text-muted>@emil · 3 sends</nuri-list-action-text-muted>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                  <nuri-list-action aria-label="Anna Schmidt, bank account">
+                    <nuri-list-action-leading-avatar name="bank" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Anna Schmidt</nuri-list-action-text>
+                    <nuri-list-action-text-muted>Bank account</nuri-list-action-text-muted>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+
+                  <nuri-view direction="row" align="center" gap="sm" height="md" padding-x="md">
+                    <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+                    <nuri-typography size="sm" emphasis muted>Contacts</nuri-typography>
+                    <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
+                  </nuri-view>
+
+                  <nuri-list-action aria-label="Ben">
+                    <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Ben</nuri-list-action-text>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                  <nuri-list-action aria-label="Carla">
+                    <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Carla</nuri-list-action-text>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                  <nuri-list-action aria-label="Dana, at dana">
+                    <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Dana</nuri-list-action-text>
+                    <nuri-list-action-text-muted>@dana</nuri-list-action-text-muted>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                </nuri-list>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- S2 · AMOUNT · the set-amount split (receive-bitcoin.html) with the source
+       chip (P3 · preselected, visible, flips in one tap) and the cost line ON
+       THIS STEP ("Fee ≈ 12 sats · Seconds" — the Lightning case; an ark send
+       would read "No fee · Instant"). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send · amount">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                </nuri-topbar-leading>
+                <nuri-topbar-center>
+                  <nuri-typography size="lg" emphasis>Send to Emil</nuri-typography>
+                </nuri-topbar-center>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="sm" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-view direction="row" align="center" justify="between">
+                    <nuri-icon-button icon="transfer-vertical" variant="soft" aria-label="Swap unit"></nuri-icon-button>
+                    <nuri-typography size="3xl" align="end">₿ 21 000</nuri-typography>
+                  </nuri-view>
+                  <nuri-typography size="md" align="end" muted>≈ € 19.80</nuri-typography>
+
+                  <nuri-view direction="row" align="center" justify="between">
+                    <nuri-select-trigger aria-label="From" accessibility-value="Bitcoin, 86 969 sats">
+                      <nuri-select-trigger-label>From</nuri-select-trigger-label>
+                      <nuri-select-trigger-avatar name="bitcoin" variant="solid" accent="orange"></nuri-select-trigger-avatar>
+                      <nuri-select-trigger-value>Bitcoin · ₿ 86 969</nuri-select-trigger-value>
+                      <nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>
+                    </nuri-select-trigger>
+                  </nuri-view>
+                  <nuri-typography size="sm" muted>Fee ≈ 12 sats · Seconds</nuri-typography>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- S3 · REVIEW · the one review before the passkey. Key/value rows composed
+       from a between-row + a trailing column; the targeted trust line ("Known
+       contact · 3 sends") is a muted caption, not a screen. No irreversibility
+       line for Lightning (the sheet reserves it for on-chain). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send · review">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                </nuri-topbar-leading>
+                <nuri-topbar-center>
+                  <nuri-typography size="lg" emphasis>Review</nuri-typography>
+                </nuri-topbar-center>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" gap="md" padding-x="lg" padding-bottom="lg">
+                <nuri-view direction="row" justify="between" align="start" gap="md">
+                  <nuri-typography size="md" muted>To</nuri-typography>
+                  <nuri-view direction="column" align="end">
+                    <nuri-typography size="md" align="end">Emil</nuri-typography>
+                    <nuri-typography size="sm" align="end" muted>@emil</nuri-typography>
+                    <nuri-typography size="sm" align="end" muted>Known contact · 3 sends</nuri-typography>
+                  </nuri-view>
+                </nuri-view>
+                <nuri-view direction="row" justify="between" align="start" gap="md">
+                  <nuri-typography size="md" muted>You send</nuri-typography>
+                  <nuri-view direction="column" align="end">
+                    <nuri-typography size="md" align="end">₿ 21 000</nuri-typography>
+                    <nuri-typography size="sm" align="end" muted>≈ € 19.80</nuri-typography>
+                  </nuri-view>
+                </nuri-view>
+                <nuri-view direction="row" justify="between" align="start" gap="md">
+                  <nuri-typography size="md" muted>From</nuri-typography>
+                  <nuri-typography size="md" align="end">Bitcoin</nuri-typography>
+                </nuri-view>
+                <nuri-view direction="row" justify="between" align="start" gap="md">
+                  <nuri-typography size="md" muted>Fee</nuri-typography>
+                  <nuri-typography size="md" align="end">≈ 12 sats</nuri-typography>
+                </nuri-view>
+                <nuri-view direction="row" justify="between" align="start" gap="md">
+                  <nuri-typography size="md" muted>Arrives</nuri-typography>
+                  <nuri-typography size="md" align="end">Seconds</nuri-typography>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Send ₿ 21 000</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+<!--
+  MISFIT LOG · send.html · board · what the sheet asked · what was done · the DS element, axis or value that would remove the workaround
+  send · recipient · RECENT / CONTACTS section labels · composed: the move.html labelled-divider recipe (a row of two growing separators flanking a sm emphasis muted typography) placed as a bare child inside nuri-list · a list section-header element (list-header / list-label) so the label is list vocabulary, not a page recipe
+  send · recipient · contact rows with a portrait avatar (◉) · dropped the portrait: icon-avatar glyph "nuri" variant="soft" stands in (assets/photos has no portrait; the icon set has no person glyph) · a portrait asset in assets/photos (icon-avatar already takes `source`) and/or a `user` icon
+  send · recipient · field with no visible label ("Name, @username, address or invoice" is the placeholder) · composed: nuri-text-field with aria-label and no nuri-text-field-label — the descriptor's documented compact placement · none (sanctioned); logged so the operator sees the label-less field once
+  send · amount · unit switch glyph "⇄ €" beside the amount · composed: icon-button transfer-vertical soft (the set-amount precedent) · none beyond the precedent; a `transfer-horizontal` glyph would match the sheet's ⇄ but the receive flow already settled on vertical
+  send · amount · quick amounts [ 5 000 ] [ 10 000 ] [ Max ] under the cost line · dropped: the brief's tree omits them and the keypad board has no vertical room for a third row group at the default device · a quick-amount chip row (soft sm buttons) would compose today — the drop is a brief decision, not a DS gap
+  send · amount · "(◉) Emil" contact line at the top of the step · dropped: the brief's tree omits it (the title "Send to Emil" carries the recipient) · none — composable today as a list-action or an avatar + typography row
+  send · review · key/value rows (To / You send / From / Fee / Arrives) · composed: nuri-view row justify="between" align="start" with a muted md key and an end-aligned value column · a key/value (description) row element — review screens repeat this exact shape on every send journey
+  send · review · "Known contact · 3 sends" as a badge/tag · composed: nuri-typography size="sm" muted under the recipient name · a badge/tag element (the sheet's OQ 24)
+-->
+
+</body>
+</html>

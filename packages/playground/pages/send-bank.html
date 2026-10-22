@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuri · Playground · Send to bank</title>
+  <link rel="stylesheet" href="../generated/playground.css" />
+  <script src="../generated/boot.js" type="module"></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  SEND TO BANK · Euro to an IBAN (brief 2026-10-22)
+  ═══════════════════════════════════════════════════════════════
+
+  Five boards from the nuri-expo send-euro-iban journey
+  (docs/research/wireframes/send-euro-iban.md): S1 recipient (IBAN
+  recognised) · S2 amount, variant (b) card short · S3 review, two legs ·
+  S1 variant (c) locked · G1 activate. Same rule as send.html: pure DS
+  composition (decision 57), no page CSS, no inline styles; every
+  slightly-off composition is in the MISFIT LOG at the end of the page.
+
+  Skeleton / keypad / footer: receive-bitcoin.html ("set amount"). Source
+  chip: move.html. Text field: component/text-field.html (the IBAN
+  example). Alert: component/alert.html. Tab bar: component/tab-bar.html.
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-playground-shell doc="Send to bank">
+
+  <!-- S1 · RECIPIENT · the one field recognised an IBAN, so the bank fields
+       appear inline (sheet W3-1): parsed line, Personal | Company toggle,
+       Name, optional reference. No "To bank" product, no chooser. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="bank · recipient">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading></nuri-topbar-leading>
+                <nuri-topbar-center>
+                  <nuri-typography size="lg" emphasis>Send</nuri-typography>
+                </nuri-topbar-center>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" gap="md" padding-x="lg" padding-bottom="lg">
+                <nuri-text-field value="DE89 3704 0044 0532 0130 00" input-mode="text" placeholder="Name, @username, address or invoice" aria-label="Recipient">
+                  <nuri-text-field-button>Paste</nuri-text-field-button>
+                </nuri-text-field>
+                <nuri-typography size="sm" muted>Bank account · Germany</nuri-typography>
+
+                <nuri-tab-bar surface="transparent">
+                  <nuri-tab-bar-item selected aria-label="Personal">
+                    <nuri-tab-bar-item-label>Personal</nuri-tab-bar-item-label>
+                  </nuri-tab-bar-item>
+                  <nuri-tab-bar-item aria-label="Company">
+                    <nuri-tab-bar-item-label>Company</nuri-tab-bar-item-label>
+                  </nuri-tab-bar-item>
+                </nuri-tab-bar>
+
+                <nuri-text-field value="Anna Schmidt" placeholder="Name">
+                  <nuri-text-field-label>Name</nuri-text-field-label>
+                </nuri-text-field>
+
+                <nuri-list>
+                  <nuri-list-action aria-label="Add reference, optional">
+                    <nuri-list-action-leading-avatar name="plus" variant="outline"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Add reference</nuri-list-action-text>
+                    <nuri-list-action-text-muted>Optional</nuri-list-action-text-muted>
+                  </nuri-list-action>
+                </nuri-list>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Continue</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- S2 (b) · AMOUNT · CARD SHORT · Card €180, amount €200: the shortfall is an
+       inline offer on the amount step in P5's words (Alert + AlertButton · tap =
+       accept), Review disabled until accepted. The source chip shows Card (the
+       default; it may flip to Euro). Cost + arrival on this step. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="bank · amount · card short">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                </nuri-topbar-leading>
+                <nuri-topbar-center>
+                  <nuri-typography size="lg" emphasis>Send to Anna Schmidt</nuri-typography>
+                </nuri-topbar-center>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="sm" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-view direction="row" align="center" gap="xs">
+                    <nuri-icon name="bank" size="sm"></nuri-icon>
+                    <nuri-typography size="sm" muted>DE89 3704 … 0130 00</nuri-typography>
+                  </nuri-view>
+                  <nuri-typography size="3xl" align="end">€ 200</nuri-typography>
+
+                  <nuri-view direction="row" align="center" justify="between">
+                    <nuri-select-trigger aria-label="From" accessibility-value="Card, 180 euros">
+                      <nuri-select-trigger-label>From</nuri-select-trigger-label>
+                      <nuri-select-trigger-avatar source="../assets/logos/visa-eur.svg"></nuri-select-trigger-avatar>
+                      <nuri-select-trigger-value>Card · € 180</nuri-select-trigger-value>
+                      <nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>
+                    </nuri-select-trigger>
+                  </nuri-view>
+
+                  <!-- ghost, not the sheet's boxed soft bar: at the default
+                       device the soft Alert truncates "Card is €20 short" beside
+                       its action (the row has no wrap); ghost frees the box
+                       padding and the P5 copy fits — the move.html insufficient-
+                       balance precedent. Logged. -->
+                  <nuri-alert variant="ghost">
+                    <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
+                    Card is €20 short
+                    <nuri-alert-button>Move €20 from Euro</nuri-alert-button>
+                  </nuri-alert>
+
+                  <nuri-typography size="sm" muted>No fee · Arrives today</nuri-typography>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac" disabled>Review €200</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- S3 (b) · REVIEW · TWO LEGS · one review, one passkey: leg 1 (Euro → Card,
+       the passkey signs this) and leg 2 (Card → bank, chained). Numbered steps
+       are composed from an emphasis "1"/"2" + a text column. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="bank · review · two legs">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                </nuri-topbar-leading>
+                <nuri-topbar-center>
+                  <nuri-typography size="lg" emphasis>Review</nuri-typography>
+                </nuri-topbar-center>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" gap="md" padding-x="lg" padding-bottom="lg">
+                <nuri-view direction="row" justify="between" align="start" gap="md">
+                  <nuri-typography size="md" muted>To</nuri-typography>
+                  <nuri-view direction="column" align="end">
+                    <nuri-typography size="md" align="end">Anna Schmidt</nuri-typography>
+                    <nuri-typography size="sm" align="end" muted>DE89 3704 0044 0532 …</nuri-typography>
+                    <nuri-typography size="sm" align="end" muted>Known account · 2 sends</nuri-typography>
+                  </nuri-view>
+                </nuri-view>
+                <nuri-view direction="row" justify="between" align="start" gap="md">
+                  <nuri-typography size="md" muted>They get</nuri-typography>
+                  <nuri-typography size="md" align="end">€ 200</nuri-typography>
+                </nuri-view>
+
+                <nuri-separator></nuri-separator>
+
+                <nuri-view direction="row" align="start" gap="sm">
+                  <nuri-typography size="md" emphasis>1</nuri-typography>
+                  <nuri-view direction="column" align="stretch" fill="grow-shrink">
+                    <nuri-typography size="md">Move €20 from Euro to Card</nuri-typography>
+                    <nuri-typography size="sm" muted>No fee · a few minutes</nuri-typography>
+                  </nuri-view>
+                </nuri-view>
+                <nuri-view direction="row" align="start" gap="sm">
+                  <nuri-typography size="md" emphasis>2</nuri-typography>
+                  <nuri-view direction="column" align="stretch" fill="grow-shrink">
+                    <nuri-typography size="md">Send €200 from Card</nuri-typography>
+                    <nuri-typography size="sm" muted>No fee · arrives today</nuri-typography>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-typography size="sm" muted>One confirmation covers both.</nuri-typography>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Send €200</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- S1 (c) · RECIPIENT · LOCKED · the bank rail is not activated: the IBAN is
+       recognised and KEPT, the locked notice replaces the name fields, the
+       footer leads to the gate. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="bank · recipient · locked">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading></nuri-topbar-leading>
+                <nuri-topbar-center>
+                  <nuri-typography size="lg" emphasis>Send</nuri-typography>
+                </nuri-topbar-center>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" gap="md" padding-x="lg" padding-bottom="lg">
+                <nuri-text-field value="DE89 3704 0044 0532 0130 00" input-mode="text" placeholder="Name, @username, address or invoice" aria-label="Recipient">
+                  <nuri-text-field-button>Paste</nuri-text-field-button>
+                </nuri-text-field>
+                <nuri-typography size="sm" muted>Bank account · Germany</nuri-typography>
+
+                <!-- Composed, not an Alert: the Alert message is single-line by
+                     contract (typography flow truncate · lines 1) and cuts
+                     "· about 2 min" at the default device. A soft View box with
+                     the glyph and two lines carries the sheet's boxed notice in
+                     full. No lock glyph in the icon set → warning-circle. Logged. -->
+                <nuri-view variant="soft" radius="lg" padding="md" direction="row" align="start" gap="sm">
+                  <nuri-icon name="warning-circle" size="sm"></nuri-icon>
+                  <nuri-view direction="column" align="stretch" fill="grow-shrink">
+                    <nuri-typography size="sm" emphasis>Locked</nuri-typography>
+                    <nuri-typography size="sm" muted>Bank transfers aren't activated yet · about 2 min</nuri-typography>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Activate bank transfers</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- G1 · ACTIVATE BANK TRANSFERS · the just-in-time gate: what it unlocks,
+       what you need, how long — then back to S1 with the IBAN kept. The
+       bullet lists are list-action rows (the only list row today). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="bank · activate">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                </nuri-topbar-leading>
+                <nuri-topbar-center>
+                  <nuri-typography size="lg" emphasis>Activate bank transfers</nuri-typography>
+                </nuri-topbar-center>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" gap="md" padding-x="lg" padding-bottom="lg">
+                <nuri-typography size="md" emphasis>What you get</nuri-typography>
+                <nuri-list>
+                  <nuri-list-action aria-label="Transfers to any bank account">
+                    <nuri-list-action-leading-avatar name="arrow-up" variant="outline"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Transfers to any bank account</nuri-list-action-text>
+                  </nuri-list-action>
+                  <nuri-list-action aria-label="Your bank details, IBAN">
+                    <nuri-list-action-leading-avatar name="bank" variant="outline"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Your bank details (IBAN)</nuri-list-action-text>
+                  </nuri-list-action>
+                  <nuri-list-action aria-label="Your Nuri card">
+                    <nuri-list-action-leading-avatar name="card" variant="outline"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Your Nuri card</nuri-list-action-text>
+                  </nuri-list-action>
+                </nuri-list>
+
+                <nuri-typography size="md" emphasis>What you need</nuri-typography>
+                <nuri-list>
+                  <nuri-list-action aria-label="An ID document">
+                    <nuri-list-action-leading-avatar name="copy" variant="outline"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>An ID document</nuri-list-action-text>
+                  </nuri-list-action>
+                  <nuri-list-action aria-label="A selfie">
+                    <nuri-list-action-leading-avatar name="eye" variant="outline"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>A selfie</nuri-list-action-text>
+                  </nuri-list-action>
+                </nuri-list>
+
+                <nuri-typography size="sm" muted>Takes about 2 minutes. The first time is slower; after that it is instant.</nuri-typography>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Start verification</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+<!--
+  MISFIT LOG · send-bank.html · board · what the sheet asked · what was done · the DS element, axis or value that would remove the workaround
+  bank · recipient · ( Personal │ Company ) segmented toggle · composed: nuri-tab-bar surface="transparent" with two label-only nuri-tab-bar-item (decision 56 makes TabBar the bottom destination switcher, distinct from the in-page Tabs) · an in-page Tabs / segmented control component
+  bank · recipient · "+ Add reference (optional)" as a text link · composed: nuri-list-action with a plus outline avatar + "Add reference" / "Optional" (Button has no ghost variant; only IconButton does) · Button variant="ghost" (a text-link button)
+  bank · recipient · field with no visible label (the IBAN sits in the one recipient field) · composed: nuri-text-field with aria-label and no label slot · none (sanctioned compact placement)
+  bank · amount · card short · "⌂ DE89 3704 … 0130 00" (glyph + muted line) · composed: nuri-view row with nuri-icon name="bank" size="sm" + sm muted typography — the icon paints the primary fg while the text is muted (nuri-icon exposes no muted attr; icon.css already has the [data-muted] rule the Alert icon uses) · a public `muted` on the Icon primitive (or an inline-icon typography slot)
+  bank · amount · card short · amount centred under the IBAN line · composed: typography 3xl align="end" (the set-amount precedent right-aligns; no unit switch on a Euro send, so no swap row) · none — a layout choice carried from receive-bitcoin.html
+  bank · amount · card short · the boxed P5 offer "Card is €20 short · [ Move €20 from Euro ]" · composed: nuri-alert variant="ghost" + AlertButton — the sheet's boxed (soft) Alert truncates the message beside its action at the default device (the row never wraps; the action hugs, the message takes the shrink), ghost frees the box padding and the copy fits, matching the move.html insufficient-balance precedent; the action label itself is at the truncation edge (natural 141px in 138px) · an Alert layout where the message wraps (lines > 1) or the action drops to its own row, so the boxed offer fits a 390 device
+  bank · amount · card short · source chip "From Card · €180" · composed: select-trigger with the visa-eur logo as the avatar (the move.html picker's Visa row) rather than the `card` glyph · none — both exist; the operator picks the card identity
+  bank · review · two legs · numbered steps "1 … / 2 …" · composed: row gap="sm" with an emphasis md "1"/"2" + a text column; the number is plain text, not a disc or a timeline dot · a numbered-step / timeline element (the sheet's OQ 24 three-dot vertical list)
+  bank · review · two legs · key/value rows (To / They get) · composed: between-row + end-aligned value column (same as send.html) · a key/value (description) row element
+  bank · review · two legs · "Known account · 2 sends" badge · composed: sm muted typography under the IBAN line · a badge/tag element (OQ 24)
+  bank · recipient · locked · a boxed two-line notice "Locked · Bank transfers aren't activated yet · about 2 min" with a lock glyph · composed: a soft View box (radius lg · padding md) holding a warning-circle icon + a two-line typography column — the brief's ghost Alert was tried first and its single-line message (typography flow truncate · lines 1) cut "· about 2 min" at the default device (natural 396px in 330px) · a multi-line Alert (the deferred AlertTitle / AlertDescription parts) + a `lock` icon
+  bank · activate · "What you get" / "What you need" bullet lists · composed: nuri-list-action rows (pressable, with press colour) used as static bullets — `list-item`, the non-pressable row, is reserved but not in the catalog (decision 84) · the non-pressable list-item row
+  bank · activate · "An ID document" and "A selfie" glyphs · composed: closest existing icons — `copy` for the document, `eye` for the selfie · `id-card` (or `passport`) and `camera` (or `user`) icons
+-->
+
+</body>
+</html>
