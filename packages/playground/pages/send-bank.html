@@ -52,24 +52,29 @@
             </nuri-header>
 
             <nuri-scroll>
-              <nuri-view direction="column" align="stretch" gap="md" padding-x="lg" padding-bottom="lg">
-                <nuri-text-field value="DE89 3704 0044 0532 0130 00" input-mode="text" placeholder="Name, @username, address or invoice" aria-label="Recipient">
-                  <nuri-text-field-button>Paste</nuri-text-field-button>
-                </nuri-text-field>
-                <nuri-typography size="sm" muted>Bank account · Germany</nuri-typography>
+              <!-- No horizontal padding on the outer column (profile.html): the
+                   fields keep their own lg gutter in an inner column, the list
+                   sits bare so its 18px text gutter (list sm + row md) lines up. -->
+              <nuri-view direction="column" align="stretch" gap="md" padding-bottom="lg">
+                <nuri-view direction="column" align="stretch" gap="md" padding-x="lg">
+                  <nuri-text-field value="DE89 3704 0044 0532 0130 00" input-mode="text" placeholder="Name, @username, address or invoice" aria-label="Recipient">
+                    <nuri-text-field-button>Paste</nuri-text-field-button>
+                  </nuri-text-field>
+                  <nuri-typography size="sm" muted>Bank account · Germany</nuri-typography>
 
-                <nuri-tab-bar surface="transparent">
-                  <nuri-tab-bar-item selected aria-label="Personal">
-                    <nuri-tab-bar-item-label>Personal</nuri-tab-bar-item-label>
-                  </nuri-tab-bar-item>
-                  <nuri-tab-bar-item aria-label="Company">
-                    <nuri-tab-bar-item-label>Company</nuri-tab-bar-item-label>
-                  </nuri-tab-bar-item>
-                </nuri-tab-bar>
+                  <nuri-tab-bar surface="transparent">
+                    <nuri-tab-bar-item selected aria-label="Personal">
+                      <nuri-tab-bar-item-label>Personal</nuri-tab-bar-item-label>
+                    </nuri-tab-bar-item>
+                    <nuri-tab-bar-item aria-label="Company">
+                      <nuri-tab-bar-item-label>Company</nuri-tab-bar-item-label>
+                    </nuri-tab-bar-item>
+                  </nuri-tab-bar>
 
-                <nuri-text-field value="Anna Schmidt" placeholder="Name">
-                  <nuri-text-field-label>Name</nuri-text-field-label>
-                </nuri-text-field>
+                  <nuri-text-field value="Anna Schmidt" placeholder="Name">
+                    <nuri-text-field-label>Name</nuri-text-field-label>
+                  </nuri-text-field>
+                </nuri-view>
 
                 <nuri-list>
                   <nuri-list-action aria-label="Add reference, optional">
@@ -328,8 +333,12 @@
             </nuri-header>
 
             <nuri-scroll>
-              <nuri-view direction="column" align="stretch" gap="md" padding-x="lg" padding-bottom="lg">
-                <nuri-typography size="md" emphasis>What you get</nuri-typography>
+              <!-- No horizontal padding on the column (profile.html): headings
+                   and the caption wrap their own lg gutter, the lists sit bare. -->
+              <nuri-view direction="column" align="stretch" gap="md" padding-bottom="lg">
+                <nuri-view padding-x="lg">
+                  <nuri-typography size="md" emphasis>What you get</nuri-typography>
+                </nuri-view>
                 <nuri-list>
                   <nuri-list-action aria-label="Transfers to any bank account">
                     <nuri-list-action-leading-avatar name="arrow-up" variant="outline"></nuri-list-action-leading-avatar>
@@ -345,7 +354,9 @@
                   </nuri-list-action>
                 </nuri-list>
 
-                <nuri-typography size="md" emphasis>What you need</nuri-typography>
+                <nuri-view padding-x="lg">
+                  <nuri-typography size="md" emphasis>What you need</nuri-typography>
+                </nuri-view>
                 <nuri-list>
                   <nuri-list-action aria-label="An ID document">
                     <nuri-list-action-leading-avatar name="copy" variant="outline"></nuri-list-action-leading-avatar>
@@ -357,7 +368,9 @@
                   </nuri-list-action>
                 </nuri-list>
 
-                <nuri-typography size="sm" muted>Takes about 2 minutes. The first time is slower; after that it is instant.</nuri-typography>
+                <nuri-view padding-x="lg">
+                  <nuri-typography size="sm" muted>Takes about 2 minutes. The first time is slower; after that it is instant.</nuri-typography>
+                </nuri-view>
               </nuri-view>
             </nuri-scroll>
 

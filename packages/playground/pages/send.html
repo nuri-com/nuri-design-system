@@ -54,10 +54,16 @@
             </nuri-header>
 
             <nuri-scroll safe-area-bottom>
-              <nuri-view direction="column" align="stretch" gap="md" padding-x="lg" padding-bottom="lg">
-                <nuri-text-field placeholder="Name, @username, address or invoice" input-mode="text" aria-label="Recipient">
-                  <nuri-text-field-button>Paste</nuri-text-field-button>
-                </nuri-text-field>
+              <!-- The column carries NO horizontal padding (the profile.html
+                   precedent): the field wraps its own lg gutter, the list sits
+                   bare so its 18px text gutter = list paddingX(sm) + row
+                   padding(md) lines up with the field edge — not lg + sm + md. -->
+              <nuri-view direction="column" align="stretch" gap="md" padding-bottom="lg">
+                <nuri-view padding-x="lg">
+                  <nuri-text-field placeholder="Name, @username, address or invoice" input-mode="text" aria-label="Recipient">
+                    <nuri-text-field-button>Paste</nuri-text-field-button>
+                  </nuri-text-field>
+                </nuri-view>
 
                 <nuri-list>
                   <nuri-list-action aria-label="Scan QR">
