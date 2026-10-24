@@ -189,8 +189,17 @@ const EXPECTED_DESCRIPTORS = {
     // content-derived axis (api.propMaps.contentMode · source ⇒ image | glyph) —
     // image mode suppresses the root's variant paint (ghost), so the bitmap owns
     // the full circle and the image leaf's translucent ring is the only border.
-    axes: { variant: ['solid', 'soft', 'ghost', 'subtle', 'outline'], size: ['sm', 'md'], mode: ['glyph', 'image'] },
-    parts: ['icon', 'image'],
+    // #231 (2026-10-24 · admitted): `mode` gains `initials` (the third content mode ·
+    // paints soft whatever variant/accent say); the public `accessorySurface` axis
+    // paints the rail disc; parts `initials` (text) + `accessory` (the overlay view
+    // host) + `accessoryIcon` (its glyph).
+    axes: {
+      variant: ['solid', 'soft', 'ghost', 'subtle', 'outline'],
+      size: ['sm', 'md'],
+      accessorySurface: ['canvas', 'inverse'],
+      mode: ['glyph', 'image', 'initials'],
+    },
+    parts: ['icon', 'image', 'initials', 'accessory', 'accessoryIcon'],
     interactive: [], // static · no `interactive` (65.3 · the IconAvatar story)
   },
   // topbar (the topbar-slots slice · the catalog's first
@@ -446,6 +455,8 @@ const EXPECTED_PALETTE = {
     transparent: { bg: 'transparent', fg: 'chrome.textPrimary', fgMuted: 'chrome.textMuted' },
     // inverse-muted (the Switch slice · admission C1): the toggle's OFF track.
     'inverse-muted': { bg: 'chrome.bgInverseMuted', fg: 'chrome.textOnInverse', fgMuted: 'chrome.textMuted' },
+    // inverse (the IconAvatar accessory · nuri-com/nuri-design-system#231): the Nuri-user disc.
+    inverse: { bg: 'chrome.bgInverse', fg: 'chrome.textOnInverse', fgMuted: 'chrome.textMuted' },
   },
 };
 
@@ -592,7 +603,10 @@ const FROZEN_SCHEMA = {
     // 2nd deliberate post-freeze PaletteChrome add · decision 65 "post-freeze changes
     // are versioned"): the binary toggle's accent-invariant OFF track — the
     // `bg-inverse-muted` fill decision 44 created, under `text-on-inverse`.
-    PaletteChrome: ['canvas', 'subtle', 'strong', 'transparent', 'inverse-muted'],
+    // `inverse` ADDED at the IconAvatar initials + accessory slice (nuri-com/nuri-design-system#231
+    // · surface 4 of the ONE #231 move · see the PartAnatomy pin): the accessory's Nuri-user
+    // disc — `bg-inverse` under `text-on-inverse`, accent-invariant (a chrome slot).
+    PaletteChrome: ['canvas', 'subtle', 'strong', 'transparent', 'inverse-muted', 'inverse'],
     InputBehaviourProp: [
       'value',
       'onChangeText',
@@ -645,11 +659,26 @@ const FROZEN_SCHEMA = {
     'component': 'string',
     'props?': 'Record<string, string | boolean | number | null>',
   },
+  // ── THE #231 MOVE (2026-10-24 · IconAvatar `initials` + corner `accessory` · admitted in
+  // https://github.com/nuri-com/nuri-design-system/issues/231#issuecomment-6388320227) ──
+  // ONE deliberate, versioned move across FOUR frozen surfaces (decision 65 "post-freeze
+  // changes are versioned"; the decisionlog is archived, so this comment + the decision
+  // record are the log):
+  //   1. PartAnatomy `overlay?: 'corner-accessory'` — descriptor-only placement (corner
+  //      pin + space.xs outset · 2px bg-canvas ring · canvas hairline · content gating),
+  //      realised generically by both engines; allowlist guard: only
+  //      `icon-avatar.accessory` (scripts/component-api.test.js) — narrowly revisits BleedNS.
+  //   2. SlotSpec.kind `+ 'initials'` — the scalar, prop-legal text kind (routing only);
+  //      a plain `text` slot must now be `component` or `default` (guard).
+  //   3. ComponentApi.propMaps.contentMode — one slot → an ORDERED `present` list (array
+  //      order = precedence · icon-avatar source > initials > icon).
+  //   4. PaletteChrome `+ 'inverse'` (the leafUnions pin above).
   PartAnatomy: {
     'el?': 'El',
     'component?': 'string',
     'props?': "ComponentRef['props']",
     'open?': 'boolean',
+    'overlay?': "'corner-accessory'",
     'parts?': "Partial<Record<Exclude<P, 'root'>, PartAnatomy<P>>>",
   },
   // `defaults` (R1.5 per-axis public default) + `decorative` (decision 50 a11y
@@ -682,13 +711,16 @@ const FROZEN_SCHEMA = {
     'behaviour?': "{ pressable?: { target: P; role?: 'button' | 'tab' | 'switch'; popup?: 'dialog'; props: ('onPress' | 'disabled' | 'accessibilityLabel' | 'accessibilityValue')[]; }; input?: { target: P; focusTarget?: P; labelPart?: P; props: InputBehaviourProp[] }; }",
     // contentMode ADDED 2026-08-15 (a versioned post-freeze api add · the
     // content-presence bridge): routed slot content drives an INTERNAL axis —
-    // both bindings derive it as data (icon-avatar `mode`).
-    'propMaps?': '{ selected?: { axis: string; true: string; false: string }; checked?: { axis: string; true: string; false: string }; contentMode?: { slot: string; axis: string; present: string; absent: string }; }',
+    // both bindings derive it as data (icon-avatar `mode`). RESHAPED at #231
+    // (surface 3 of the #231 move · see the PartAnatomy pin): one slot → the ordered
+    // `present` list, first present slot wins.
+    'propMaps?': '{ selected?: { axis: string; true: string; false: string }; checked?: { axis: string; true: string; false: string }; contentMode?: { axis: string; present: { slot: string; value: string }[]; absent: string }; }',
     'slots': 'Record<string, SlotSpec<P>>',
   },
   SlotSpec: {
     'part': 'P',
-    'kind': "'text' | 'icon-name' | 'image-source' | 'node' | 'region' | 'children'",
+    // `initials` ADDED at #231 (surface 2 of the #231 move · see the PartAnatomy pin).
+    'kind': "'text' | 'icon-name' | 'image-source' | 'initials' | 'node' | 'region' | 'children'",
     'prop?': 'string',
     'default?': 'true',
     'component?': 'true',

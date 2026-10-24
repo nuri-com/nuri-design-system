@@ -112,9 +112,24 @@ const PAGE_CONTRACT = {
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
       '| `icon` | no | `IconName` | scalar icon name |',
       '| `source` | no | `ImageSourcePropType` | image source |',
+      // #231 · initials + the corner accessory; the accessory props carry `md only`.
+      "| `accessorySurface` | no | `'canvas' | 'inverse'` | style axis; md only |",
+      '| `initials` | no | `string` | scalar initials text |',
+      '| `accessory` | no | `IconName` | scalar icon name; md only |',
       '> `children` is not accepted (`children?: never`).',
+      // the lead's anti-scope sentences (#231 acceptance 6): decorative accessory + the
+      // rail named in row text or label · md only · canvas ring · fixed-size initials ·
+      // the step's letter-spacing.
+      'the accessory is never the only carrier of the rail',
+      'is specified for `md` only',
+      'The ring is always `bg-canvas`',
+      'the initials keep a fixed size at every OS text size',
+      "the type step's own letter-spacing",
     ],
-    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`onPress`', '`disabled`', '`accessibilityLabel`'],
+    // A decorative, non-interactive component exposes no behaviour PROPS. The a11y
+    // exclusion keys on the prop ROW (#231: the lead names the ROW's accessibilityLabel
+    // as where the rail is spoken, which is prose, not an IconAvatar prop).
+    excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`onPress`', '`disabled`', '| `accessibilityLabel` |'],
   },
   list: {
     kind: 'api', source: 'list', title: 'List', nav: 5,
@@ -166,6 +181,10 @@ const PAGE_CONTRACT = {
       '| `source` | no | `ImageSourcePropType` | image source |',
       "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | delegated component prop |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | delegated component prop |",
+      // #231 · the forwarded person-row props, typed from IconAvatar's api.
+      '| `initials` | no | `string` | scalar initials text |',
+      '| `accessory` | no | `IconName` | scalar icon name; md only |',
+      "| `accessorySurface` | no | `'canvas' | 'inverse'` | style axis; md only |",
       '### List Action Text Muted Props',
       '| `children` | no | `React.ReactNode` | slot content |',
       '### List Action Trailing Text Muted Props',
@@ -291,7 +310,7 @@ const PAGE_CONTRACT = {
   view: {
     kind: 'api', source: 'view', title: 'View', nav: 11,
     cells: [
-      "| `width` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |",
+      "| `width` | no | `'2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |",
       "| `radiusTop` | no | `'sm' | 'md' | 'lg' | 'full'` | style axis |",
       "| `aspectRatio` | no | `'square' | 'card' | 'portrait' | 'banner'` | style axis |",
       // the media-card slice: the boolean clip flag on every box-bearing primitive
@@ -329,7 +348,7 @@ const PAGE_CONTRACT = {
       "| `size` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '3xl'` | style axis |",
       '| `emphasis` | no | `boolean` | style axis |',
       "| `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |",
-      "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted'` | style axis |",
+      "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted' | 'inverse'` | style axis |",
       '| `children` | no | `React.ReactNode` | default content slot |',
       '| `accessibilityLabel` | no | `string` | read-out override |',
       '| `onLayout` | no | `(event: LayoutChangeEvent) => void` | RN-only native layout event |',
@@ -398,8 +417,8 @@ const PAGE_CONTRACT = {
   header: {
     kind: 'api', source: 'header', title: 'Header', nav: 16,
     cells: [
-      "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted'` | style axis |",
-      "| `safeAreaChrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted'` | safe-area chrome role |",
+      "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted' | 'inverse'` | style axis |",
+      "| `safeAreaChrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted' | 'inverse'` | safe-area chrome role |",
       "| `paddingBottom` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |",
       '| `safeAreaTop` | no | `boolean` | safe-area reserve |',
       '| `children` | no | `React.ReactNode` | default content slot |',
@@ -426,7 +445,7 @@ const PAGE_CONTRACT = {
   footer: {
     kind: 'api', source: 'footer', title: 'Footer', nav: 18,
     cells: [
-      "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted'` | style axis |",
+      "| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted' | 'inverse'` | style axis |",
       '| `safeAreaBottom` | no | `boolean` | safe-area reserve |',
       '| `children` | no | `React.ReactNode` | default content slot |',
       '| `testID` | no | `string` | native test hook |',

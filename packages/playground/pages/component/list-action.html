@@ -68,6 +68,41 @@
     </template>
   </nuri-demo>
 
+  <!-- people (#231) · person rows carry initials + the rail accessory: Nuri users on the
+       inverse disc, every other rail on the canvas disc. The initials stay soft although the
+       row forwards its outline default (the mode lock). The accessory is decorative, so each
+       row names its rail in the label ("Nuri user", "N26 account"…), never only by the glyph.
+       Actions in the same list keep the outline glyph avatar. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="people">
+    <template>
+      <nuri-list>
+        <nuri-list-action aria-label="Emil Berg, Nuri user, @emil">
+          <nuri-list-action-leading-avatar initials="EB" accessory="nuri" accessory-surface="inverse"></nuri-list-action-leading-avatar>
+          <nuri-list-action-text>Emil Berg</nuri-list-action-text>
+          <nuri-list-action-text-muted>@emil</nuri-list-action-text-muted>
+          <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+        </nuri-list-action>
+        <nuri-list-action aria-label="Claude M., N26 account ending 4521">
+          <nuri-list-action-leading-avatar initials="CM" accessory="bank"></nuri-list-action-leading-avatar>
+          <nuri-list-action-text>Claude M.</nuri-list-action-text>
+          <nuri-list-action-text-muted>N26 ···4521</nuri-list-action-text-muted>
+          <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+        </nuri-list-action>
+        <nuri-list-action aria-label="Anna K., Bitcoin address bc1q…9m7t">
+          <nuri-list-action-leading-avatar initials="AK" accessory="bitcoin"></nuri-list-action-leading-avatar>
+          <nuri-list-action-text>Anna K.</nuri-list-action-text>
+          <nuri-list-action-text-muted>bc1q…9m7t</nuri-list-action-text-muted>
+          <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+        </nuri-list-action>
+        <nuri-list-action aria-label="New recipient">
+          <nuri-list-action-leading-avatar name="plus" variant="outline"></nuri-list-action-leading-avatar>
+          <nuri-list-action-text>New recipient</nuri-list-action-text>
+          <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+        </nuri-list-action>
+      </nuri-list>
+    </template>
+  </nuri-demo>
+
 </nuri-playground-shell>
 
 </body>

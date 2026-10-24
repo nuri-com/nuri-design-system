@@ -15,10 +15,10 @@ nav_order: 14.5
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
-| `width` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |
-| `height` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |
-| `minHeight` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |
-| `minWidth` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |
+| `width` | no | `'2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |
+| `height` | no | `'2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |
+| `minHeight` | no | `'2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |
+| `minWidth` | no | `'2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |
 | `padding` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |
 | `paddingX` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |
 | `paddingY` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |

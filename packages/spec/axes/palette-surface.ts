@@ -34,6 +34,8 @@
  *   chrome=subtle    bg-subtle           text-primary       —
  *   chrome=strong    bg-strong           text-primary       —
  *   chrome=transparent <transparent>     text-primary       —
+ *   chrome=inverse-muted bg-inverse-muted text-on-inverse   —
+ *   chrome=inverse   bg-inverse          text-on-inverse    —
  *
  * THE THREE IRREGULARITIES, modelled by SHAPE (not special-cased downstream):
  *   · fg-only (subtle)   → `bg` is OPTIONAL (absent ⇒ no background channel · the
@@ -97,5 +99,9 @@ export const surface = {
     // the neutral-11 fill decision 44 created for exactly this, under text-on-inverse
     // (the fill is dark in light mode). Accent-invariant by construction (a chrome slot).
     'inverse-muted': { bg: 'bg-inverse-muted', fg: 'text-on-inverse' },
+    // inverse · the IconAvatar accessory disc for Nuri users (nuri-com/nuri-design-system#231):
+    // bg-inverse under text-on-inverse — the neutral accent-solid pair pixel for pixel, but
+    // a chrome slot, so it stays neutral under lilac and orange (no lilac Nuri badge).
+    inverse: { bg: 'bg-inverse', fg: 'text-on-inverse' },
   },
 } as const satisfies SurfaceTable;

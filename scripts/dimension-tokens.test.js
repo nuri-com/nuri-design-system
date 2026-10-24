@@ -76,7 +76,7 @@ const litToNum = (lit) => Number(lit.replace('px', ''));
 // or the SoT module. These are the FINAL resolved numbers (space.none + radius.full
 // are the direct-authored sentinels · decision 32 / 36.1).
 const SPACE_FINAL = { none: 0, xs: 3, sm: 6, md: 12, lg: 18, xl: 24, '2xl': 36 };
-const SIZE_FINAL = { xs: 18, sm: 24, md: 36, lg: 48, xl: 60, '2xl': 72, '3xl': 90 };
+const SIZE_FINAL = { '2xs': 15, xs: 18, sm: 24, md: 36, lg: 48, xl: 60, '2xl': 72, '3xl': 90 };
 const RADIUS_FINAL = { sm: 6, md: 9, lg: 18, full: 9999 };
 // The ratio scale is UNITLESS — the RN values are BARE numbers (no `px` · the named
 // risk surfaces here: a px leak makes litToNum mis-read or the value carry a unit).
@@ -168,7 +168,7 @@ const UNION_ORACLE = [
   'accent.fg', 'accent.solid', 'accent.solidPressed', 'accent.onSolid', 'accent.bgSubtle',
   'accent.bgSubtlePressed',
   'space.none', 'space.xs', 'space.sm', 'space.md', 'space.lg', 'space.xl', 'space.2xl',
-  'size.xs', 'size.sm', 'size.md', 'size.lg', 'size.xl', 'size.2xl', 'size.3xl',
+  'size.2xs', 'size.xs', 'size.sm', 'size.md', 'size.lg', 'size.xl', 'size.2xl', 'size.3xl',
   'radius.sm', 'radius.md', 'radius.lg', 'radius.full',
   'ratio.square', 'ratio.card', 'ratio.portrait', 'ratio.banner',
   'border.1',

@@ -57,4 +57,39 @@
     flex-direction: column;
     flex-shrink: 0;
   }
+
+  /* THE CORNER-ACCESSORY OVERLAY (PartAnatomy.overlay · nuri-com/nuri-design-system#231 ·
+   * the web twin of renderer.tsx's realisation). The factory marks the overlay part
+   * `data-overlay="corner-accessory"` and its parent painting node `data-overlay-host`
+   * (the painting node — never the display:contents component host, which cannot be
+   * a containing block). The part leaves the flow, pinned to the parent's bottom-end
+   * corner and pushed out by space.xs on both axes; the 2px knockout ring in bg-canvas
+   * is an OUTER box-shadow and the canvas-disc hairline an INSET one, so neither takes
+   * layout (the disc measures its content: 15px glyph + 2 × 3px padding = 21px). The
+   * 2px ring mirrors the RN constant (the focus-ring width · a design constant, not a
+   * token). Non-interactive: no hit target. Allowlisted to icon-avatar.accessory. */
+  /* A truncating text leaf never measures wider than its view parent — the Yoga rule
+   * (RN measures a Text child at most its parent's content width, so numberOfLines +
+   * tail ellipsis truncate there). Web flexbox sizes a cross-axis-centred item to
+   * fit-content, which never drops below min-content, so one unbreakable word would
+   * overflow the parent instead of truncating (#231 · the IconAvatar initials in the
+   * 48px circle: three or more letters truncate on both targets). A no-op wherever
+   * the leaf already fits or the parent stretches it. */
+  nuri-view > nuri-typography[flow="truncate"] {
+    max-inline-size: 100%;
+  }
+
+  [data-overlay-host] {
+    position: relative;
+  }
+  [data-overlay="corner-accessory"] {
+    position: absolute;
+    inset-inline-end: calc(-1 * var(--nuri-space-xs));
+    inset-block-end: calc(-1 * var(--nuri-space-xs));
+    box-shadow: 0 0 0 2px var(--nuri-bg-canvas);
+    pointer-events: none;
+  }
+  [data-overlay="corner-accessory"][data-chrome="canvas"] {
+    box-shadow: 0 0 0 2px var(--nuri-bg-canvas), inset 0 0 0 var(--nuri-border-1) var(--nuri-border-subtle);
+  }
 }

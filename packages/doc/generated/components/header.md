@@ -15,7 +15,7 @@ nav_order: 16
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
-| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted'` | style axis |
+| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted' | 'inverse'` | style axis |
 | `direction` | no | `'row' | 'column'` | style axis |
 | `align` | no | `'start' | 'center' | 'end' | 'stretch' | 'baseline'` | style axis |
 | `justify` | no | `'start' | 'center' | 'end' | 'between' | 'around'` | style axis |
@@ -25,7 +25,7 @@ nav_order: 16
 | `paddingTop` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |
 | `paddingBottom` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |
 | `safeAreaTop` | no | `boolean` | safe-area reserve |
-| `safeAreaChrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted'` | safe-area chrome role |
+| `safeAreaChrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted' | 'inverse'` | safe-area chrome role |
 | `children` | no | `React.ReactNode` | default content slot |
 | `testID` | no | `string` | native test hook |
 | `onLayout` | no | `(event: LayoutChangeEvent) => void` | RN-only native layout event |

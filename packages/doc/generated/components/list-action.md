@@ -9,6 +9,8 @@ nav_order: 6
 
 # List Action
 
+`ListActionLeadingAvatar` forwards `IconAvatar` props: `name` (as `icon`), `variant` (default `outline`), `accent`, `source`, `initials`, `accessory` and `accessorySurface`. Person rows use `initials` with a rail `accessory`; the initials paint `soft` even though the row defaults the avatar to `outline`. The avatar is decorative, so the row names the rail in its text or in `accessibilityLabel` ("Emil Berg, Nuri user, @emil").
+
 ## API
 
 ### List Action Props
@@ -28,6 +30,9 @@ nav_order: 6
 | `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | delegated component prop |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | delegated component prop |
 | `source` | no | `ImageSourcePropType` | image source |
+| `initials` | no | `string` | scalar initials text |
+| `accessory` | no | `IconName` | scalar icon name; md only |
+| `accessorySurface` | no | `'canvas' | 'inverse'` | style axis; md only |
 
 > `children` is not accepted (`children?: never`).
 

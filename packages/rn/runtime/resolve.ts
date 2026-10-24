@@ -417,6 +417,9 @@ export type AnatomyNode<P extends PartId = PartId> = {
   component?: string;
   props?: Record<string, string | boolean | number | null>;
   open: boolean;
+  // PartAnatomy.overlay (#231) — the renderer realises it generically (placement ·
+  // ring · canvas hairline · content gating); absent on every non-overlay part.
+  overlay?: PartAnatomy['overlay'];
   children: AnatomyNode<P>[];
 };
 
@@ -429,7 +432,15 @@ export function resolveAnatomy<A extends Axes>(descriptor: Descriptor<A>): Anato
         if (childAnatomy) children.push(walk(childName, childAnatomy));
       });
     }
-    return { name, el: a.el, component: a.component, props: a.props, open: !!a.open, children };
+    return {
+      name,
+      el: a.el,
+      component: a.component,
+      props: a.props,
+      open: !!a.open,
+      ...(a.overlay !== undefined ? { overlay: a.overlay } : {}),
+      children,
+    };
   };
   return walk('root', descriptor.structure.anatomy);
 }
@@ -557,7 +568,9 @@ export type BakedComponentRecipe = Record<string, BakedPartRecipe>;
 // palette patch · later wins). Colour is the ONE namespace still resolved at runtime
 // (Arc 1 · theme context), so the baked render path re-merges JUST palette — a tiny
 // object merge, NO geometry re-resolution. Mirrors mergeNS's later-wins semantics.
-function mergedPaletteNSForPart<A extends Axes>(
+// Exported for the overlay realisation (#231): the corner-accessory hairline is drawn
+// when the part paints `chrome: canvas` — the same palette fact web keys on.
+export function mergedPaletteNSForPart<A extends Axes>(
   descriptor: Descriptor<A>,
   selection: Selection,
   part: PartId,

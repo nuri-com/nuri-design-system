@@ -512,6 +512,51 @@ exports[`render-smoke — the ergonomic components mount headless Button — typ
 </View>
 `;
 
+exports[`render-smoke — the ergonomic components mount headless IconAvatar — initials paint soft whatever variant/accent say · md 17px one line · fixed font scale (decorative) 1`] = `
+<View
+  accessibilityElementsHidden={true}
+  importantForAccessibility="no-hide-descendants"
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#f3f1e2",
+      "borderRadius": 9999,
+      "height": 48,
+      "justifyContent": "center",
+      "width": 48,
+    }
+  }
+>
+  <Text
+    allowFontScaling={false}
+    ellipsizeMode="tail"
+    numberOfLines={1}
+    style={
+      [
+        {
+          "fontSize": 17,
+          "fontWeight": "400",
+          "letterSpacing": -0.34,
+          "lineHeight": 21.93,
+        },
+        {
+          "color": "#222013",
+        },
+        {
+          "flexShrink": 1,
+          "textAlign": "center",
+        },
+        {
+          "textAlign": "center",
+        },
+      ]
+    }
+  >
+    EB
+  </Text>
+</View>
+`;
+
 exports[`render-smoke — the ergonomic components mount headless IconAvatar — outline variant paints a transparent border affordance with muted glyph 1`] = `
 <View
   accessibilityElementsHidden={true}
@@ -752,6 +797,398 @@ exports[`render-smoke — the ergonomic components mount headless IconAvatar —
       />
     </RNSVGGroup>
   </RNSVGSvgView>
+</View>
+`;
+
+exports[`render-smoke — the ergonomic components mount headless IconAvatar — the canvas accessory: a content-sized 21px disc at −3/−3, the 2px canvas ring, the hairline 1`] = `
+<View
+  accessibilityElementsHidden={true}
+  importantForAccessibility="no-hide-descendants"
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#f3f1e2",
+      "borderRadius": 9999,
+      "height": 48,
+      "justifyContent": "center",
+      "width": 48,
+    }
+  }
+>
+  <Text
+    allowFontScaling={false}
+    ellipsizeMode="tail"
+    numberOfLines={1}
+    style={
+      [
+        {
+          "fontSize": 17,
+          "fontWeight": "400",
+          "letterSpacing": -0.34,
+          "lineHeight": 21.93,
+        },
+        {
+          "color": "#222013",
+        },
+        {
+          "flexShrink": 1,
+          "textAlign": "center",
+        },
+        {
+          "textAlign": "center",
+        },
+      ]
+    }
+  >
+    CM
+  </Text>
+  <View
+    pointerEvents="none"
+    style={
+      [
+        {
+          "backgroundColor": "#fffdf2",
+          "borderRadius": 9999,
+          "padding": 3,
+        },
+        {
+          "bottom": -3,
+          "position": "absolute",
+          "right": -3,
+        },
+      ]
+    }
+  >
+    <View
+      pointerEvents="none"
+      style={
+        {
+          "borderColor": "#fffdf2",
+          "borderRadius": 10001,
+          "borderWidth": 2,
+          "bottom": -2,
+          "left": -2,
+          "position": "absolute",
+          "right": -2,
+          "top": -2,
+        }
+      }
+    />
+    <View
+      pointerEvents="none"
+      style={
+        {
+          "borderColor": "#dddac9",
+          "borderRadius": 9999,
+          "borderWidth": 1,
+          "bottom": 0,
+          "left": 0,
+          "position": "absolute",
+          "right": 0,
+          "top": 0,
+        }
+      }
+    />
+    <RNSVGSvgView
+      align="xMidYMid"
+      bbHeight={15}
+      bbWidth={15}
+      color="#222013"
+      fill="currentColor"
+      focusable={false}
+      height={15}
+      meetOrSlice={0}
+      minX={0}
+      minY={0}
+      style={
+        [
+          {
+            "backgroundColor": "transparent",
+            "borderWidth": 0,
+          },
+          {
+            "flex": 0,
+            "height": 15,
+            "width": 15,
+          },
+        ]
+      }
+      vbHeight={32}
+      vbWidth={32}
+      width={15}
+      xml="<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M4.0002 27C4.0002 26.4477 4.44791 26 5.0002 26H27.0002C27.5525 26 28.0002 26.4477 28.0002 27C28.0002 27.5523 27.5525 28 27.0002 28H5.0002C4.44791 28 4.0002 27.5523 4.0002 27Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M27.9614 10.3919C27.7746 11.3269 26.9537 12 26.0002 12H6.0002C5.04671 12 4.22581 11.3269 4.03897 10.3919C3.85213 9.4569 4.35132 8.52002 5.23158 8.15359L14.4383 4.32107C14.939 4.1014 15.4783 4 16.0002 4C16.5221 4 17.0614 4.1014 17.5621 4.32107L26.7688 8.15359C27.6491 8.52002 28.1483 9.4569 27.9614 10.3919ZM16.7726 6.15876C16.5422 6.05511 16.2741 6 16.0002 6C15.7263 6 15.4582 6.05511 15.2278 6.15876L6.0002 10H26.0002L16.7726 6.15876Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M6.0002 14C6.55248 14 7.0002 14.4477 7.0002 15V22H9.0002V15C9.0002 14.4477 9.44791 14 10.0002 14C10.5525 14 11.0002 14.4477 11.0002 15V23C11.0002 23.5523 10.5525 24 10.0002 24H6.0002C5.44791 24 5.0002 23.5523 5.0002 23V15C5.0002 14.4477 5.44791 14 6.0002 14Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M14.0002 14C14.5525 14 15.0002 14.4477 15.0002 15V22H17.0002V15C17.0002 14.4477 17.4479 14 18.0002 14C18.5525 14 19.0002 14.4477 19.0002 15V23C19.0002 23.5523 18.5525 24 18.0002 24H14.0002C13.4479 24 13.0002 23.5523 13.0002 23V15C13.0002 14.4477 13.4479 14 14.0002 14Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M22.0002 14C22.5525 14 23.0002 14.4477 23.0002 15V22H25.0002V15C25.0002 14.4477 25.4479 14 26.0002 14C26.5525 14 27.0002 14.4477 27.0002 15V23C27.0002 23.5523 26.5525 24 26.0002 24H22.0002C21.4479 24 21.0002 23.5523 21.0002 23V15C21.0002 14.4477 21.4479 14 22.0002 14Z" fill="currentColor"/></svg>"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <RNSVGGroup
+        fill={
+          {
+            "type": 2,
+          }
+        }
+        propList={
+          [
+            "fill",
+          ]
+        }
+      >
+        <RNSVGPath
+          clipRule={0}
+          d="M4.0002 27C4.0002 26.4477 4.44791 26 5.0002 26H27.0002C27.5525 26 28.0002 26.4477 28.0002 27C28.0002 27.5523 27.5525 28 27.0002 28H5.0002C4.44791 28 4.0002 27.5523 4.0002 27Z"
+          fill={
+            {
+              "type": 2,
+            }
+          }
+          fillRule={0}
+          propList={
+            [
+              "fill",
+              "fillRule",
+            ]
+          }
+        />
+        <RNSVGPath
+          clipRule={0}
+          d="M27.9614 10.3919C27.7746 11.3269 26.9537 12 26.0002 12H6.0002C5.04671 12 4.22581 11.3269 4.03897 10.3919C3.85213 9.4569 4.35132 8.52002 5.23158 8.15359L14.4383 4.32107C14.939 4.1014 15.4783 4 16.0002 4C16.5221 4 17.0614 4.1014 17.5621 4.32107L26.7688 8.15359C27.6491 8.52002 28.1483 9.4569 27.9614 10.3919ZM16.7726 6.15876C16.5422 6.05511 16.2741 6 16.0002 6C15.7263 6 15.4582 6.05511 15.2278 6.15876L6.0002 10H26.0002L16.7726 6.15876Z"
+          fill={
+            {
+              "type": 2,
+            }
+          }
+          fillRule={0}
+          propList={
+            [
+              "fill",
+              "fillRule",
+            ]
+          }
+        />
+        <RNSVGPath
+          clipRule={0}
+          d="M6.0002 14C6.55248 14 7.0002 14.4477 7.0002 15V22H9.0002V15C9.0002 14.4477 9.44791 14 10.0002 14C10.5525 14 11.0002 14.4477 11.0002 15V23C11.0002 23.5523 10.5525 24 10.0002 24H6.0002C5.44791 24 5.0002 23.5523 5.0002 23V15C5.0002 14.4477 5.44791 14 6.0002 14Z"
+          fill={
+            {
+              "type": 2,
+            }
+          }
+          fillRule={0}
+          propList={
+            [
+              "fill",
+              "fillRule",
+            ]
+          }
+        />
+        <RNSVGPath
+          clipRule={0}
+          d="M14.0002 14C14.5525 14 15.0002 14.4477 15.0002 15V22H17.0002V15C17.0002 14.4477 17.4479 14 18.0002 14C18.5525 14 19.0002 14.4477 19.0002 15V23C19.0002 23.5523 18.5525 24 18.0002 24H14.0002C13.4479 24 13.0002 23.5523 13.0002 23V15C13.0002 14.4477 13.4479 14 14.0002 14Z"
+          fill={
+            {
+              "type": 2,
+            }
+          }
+          fillRule={0}
+          propList={
+            [
+              "fill",
+              "fillRule",
+            ]
+          }
+        />
+        <RNSVGPath
+          clipRule={0}
+          d="M22.0002 14C22.5525 14 23.0002 14.4477 23.0002 15V22H25.0002V15C25.0002 14.4477 25.4479 14 26.0002 14C26.5525 14 27.0002 14.4477 27.0002 15V23C27.0002 23.5523 26.5525 24 26.0002 24H22.0002C21.4479 24 21.0002 23.5523 21.0002 23V15C21.0002 14.4477 21.4479 14 22.0002 14Z"
+          fill={
+            {
+              "type": 2,
+            }
+          }
+          fillRule={0}
+          propList={
+            [
+              "fill",
+              "fillRule",
+            ]
+          }
+        />
+      </RNSVGGroup>
+    </RNSVGSvgView>
+  </View>
+</View>
+`;
+
+exports[`render-smoke — the ergonomic components mount headless IconAvatar — the inverse accessory equals the neutral accent solid and stays neutral under every accent 1`] = `
+<View
+  accessibilityElementsHidden={true}
+  importantForAccessibility="no-hide-descendants"
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "transparent",
+      "borderRadius": 9999,
+      "height": 48,
+      "justifyContent": "center",
+      "width": 48,
+    }
+  }
+>
+  <Image
+    resizeMode="cover"
+    source={
+      {
+        "uri": "data:image/png;base64,photo",
+      }
+    }
+    style={
+      [
+        {
+          "alignSelf": "flex-start",
+          "borderRadius": 9999,
+          "flexGrow": 0,
+          "flexShrink": 0,
+          "height": 48,
+          "maxWidth": "100%",
+          "width": 48,
+        },
+        {
+          "borderColor": "rgba(0, 0, 0, 0.10)",
+          "borderWidth": 1,
+        },
+      ]
+    }
+  />
+  <View
+    pointerEvents="none"
+    style={
+      [
+        {
+          "backgroundColor": "#12110b",
+          "borderRadius": 9999,
+          "padding": 3,
+        },
+        {
+          "bottom": -3,
+          "position": "absolute",
+          "right": -3,
+        },
+      ]
+    }
+  >
+    <View
+      pointerEvents="none"
+      style={
+        {
+          "borderColor": "#fffdf2",
+          "borderRadius": 10001,
+          "borderWidth": 2,
+          "bottom": -2,
+          "left": -2,
+          "position": "absolute",
+          "right": -2,
+          "top": -2,
+        }
+      }
+    />
+    <RNSVGSvgView
+      align="xMidYMid"
+      bbHeight={15}
+      bbWidth={15}
+      color="#f0eee3"
+      fill="currentColor"
+      focusable={false}
+      height={15}
+      meetOrSlice={0}
+      minX={0}
+      minY={0}
+      style={
+        [
+          {
+            "backgroundColor": "transparent",
+            "borderWidth": 0,
+          },
+          {
+            "flex": 0,
+            "height": 15,
+            "width": 15,
+          },
+        ]
+      }
+      vbHeight={32}
+      vbWidth={32}
+      width={15}
+      xml="<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path d="M12 11.5H11.5L6.83226 4H4V14H6V6.5H6.5L11.1694 14H14V4H12V11.5Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M14 21.5437C14 19.5092 12.3742 18 10.5065 18H4V28H6V25H8.85714L11 28H14L11.7523 24.8532C13.0421 24.3563 14 23.1044 14 21.5437ZM10.2526 23H6V20L10.2526 20.009C11.1525 20.009 12 20.5874 12 21.5039C12 22.4204 11.1525 23 10.2526 23Z" fill="currentColor"/><path d="M18 18V20H22V26H18V28H28V26H24V20H28V18H18Z" fill="currentColor"/><path d="M23 12C25.1081 12 26 10.8419 26 9V4H28V9.5792C28 12.1046 25.8919 14 23 14C20.1081 14 18 12.1046 18 9.5792V4H20V9C20 10.8419 20.8919 12 23 12Z" fill="currentColor"/></svg>"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <RNSVGGroup
+        fill={
+          {
+            "type": 2,
+          }
+        }
+        propList={
+          [
+            "fill",
+          ]
+        }
+      >
+        <RNSVGPath
+          d="M12 11.5H11.5L6.83226 4H4V14H6V6.5H6.5L11.1694 14H14V4H12V11.5Z"
+          fill={
+            {
+              "type": 2,
+            }
+          }
+          propList={
+            [
+              "fill",
+            ]
+          }
+        />
+        <RNSVGPath
+          clipRule={0}
+          d="M14 21.5437C14 19.5092 12.3742 18 10.5065 18H4V28H6V25H8.85714L11 28H14L11.7523 24.8532C13.0421 24.3563 14 23.1044 14 21.5437ZM10.2526 23H6V20L10.2526 20.009C11.1525 20.009 12 20.5874 12 21.5039C12 22.4204 11.1525 23 10.2526 23Z"
+          fill={
+            {
+              "type": 2,
+            }
+          }
+          fillRule={0}
+          propList={
+            [
+              "fill",
+              "fillRule",
+            ]
+          }
+        />
+        <RNSVGPath
+          d="M18 18V20H22V26H18V28H28V26H24V20H28V18H18Z"
+          fill={
+            {
+              "type": 2,
+            }
+          }
+          propList={
+            [
+              "fill",
+            ]
+          }
+        />
+        <RNSVGPath
+          d="M23 12C25.1081 12 26 10.8419 26 9V4H28V9.5792C28 12.1046 25.8919 14 23 14C20.1081 14 18 12.1046 18 9.5792V4H20V9C20 10.8419 20.8919 12 23 12Z"
+          fill={
+            {
+              "type": 2,
+            }
+          }
+          propList={
+            [
+              "fill",
+            ]
+          }
+        />
+      </RNSVGGroup>
+    </RNSVGSvgView>
+  </View>
 </View>
 `;
 
@@ -1603,6 +2040,353 @@ exports[`render-smoke — the ergonomic components mount headless ListAction —
       }
     >
       3433 Sats
+    </Text>
+  </View>
+  <RNSVGSvgView
+    align="xMidYMid"
+    bbHeight={24}
+    bbWidth={24}
+    color="#bfbcac"
+    fill="currentColor"
+    focusable={false}
+    height={24}
+    meetOrSlice={0}
+    minX={0}
+    minY={0}
+    style={
+      [
+        {
+          "backgroundColor": "transparent",
+          "borderWidth": 0,
+        },
+        {
+          "flex": 0,
+          "height": 24,
+          "width": 24,
+        },
+      ]
+    }
+    vbHeight={32}
+    vbWidth={32}
+    width={24}
+    xml="<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.2826 4.30337C9.89783 4.6996 9.90715 5.3327 10.3034 5.71743L20.893 16L10.3034 26.2826C9.90714 26.6673 9.89783 27.3004 10.2826 27.6966C10.6673 28.0929 11.3004 28.1022 11.6966 27.7174L22.4914 17.2357C22.5003 17.227 22.509 17.2183 22.5176 17.2093C22.6733 17.0465 22.7945 16.8556 22.8764 16.6486C22.9584 16.4417 23 16.2215 23 16C23 15.7785 22.9584 15.5583 22.8764 15.3514C22.7945 15.1444 22.6733 14.9535 22.5176 14.7907C22.509 14.7817 22.5003 14.773 22.4914 14.7643L11.6966 4.28257C11.3004 3.89783 10.6673 3.90714 10.2826 4.30337Z" fill="currentColor"/></svg>"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <RNSVGGroup
+      fill={
+        {
+          "type": 2,
+        }
+      }
+      propList={
+        [
+          "fill",
+        ]
+      }
+    >
+      <RNSVGPath
+        clipRule={0}
+        d="M10.2826 4.30337C9.89783 4.6996 9.90715 5.3327 10.3034 5.71743L20.893 16L10.3034 26.2826C9.90714 26.6673 9.89783 27.3004 10.2826 27.6966C10.6673 28.0929 11.3004 28.1022 11.6966 27.7174L22.4914 17.2357C22.5003 17.227 22.509 17.2183 22.5176 17.2093C22.6733 17.0465 22.7945 16.8556 22.8764 16.6486C22.9584 16.4417 23 16.2215 23 16C23 15.7785 22.9584 15.5583 22.8764 15.3514C22.7945 15.1444 22.6733 14.9535 22.5176 14.7907C22.509 14.7817 22.5003 14.773 22.4914 14.7643L11.6966 4.28257C11.3004 3.89783 10.6673 3.90714 10.2826 4.30337Z"
+        fill={
+          {
+            "type": 2,
+          }
+        }
+        fillRule={0}
+        propList={
+          [
+            "fill",
+            "fillRule",
+          ]
+        }
+      />
+    </RNSVGGroup>
+  </RNSVGSvgView>
+</View>
+`;
+
+exports[`render-smoke — the ergonomic components mount headless ListAction — leadingAvatar forwards initials + accessory + accessorySurface; initials stay soft over the outline default 1`] = `
+<View
+  accessibilityLabel="Emil Berg, Nuri user, @emil"
+  accessibilityRole="button"
+  accessibilityState={
+    {
+      "busy": undefined,
+      "checked": undefined,
+      "disabled": false,
+      "expanded": undefined,
+      "selected": undefined,
+    }
+  }
+  accessibilityValue={
+    {
+      "max": undefined,
+      "min": undefined,
+      "now": undefined,
+      "text": undefined,
+    }
+  }
+  accessible={true}
+  collapsable={false}
+  focusable={true}
+  onBlur={[Function]}
+  onClick={[Function]}
+  onFocus={[Function]}
+  onResponderGrant={[Function]}
+  onResponderMove={[Function]}
+  onResponderRelease={[Function]}
+  onResponderTerminate={[Function]}
+  onResponderTerminationRequest={[Function]}
+  onStartShouldSetResponder={[Function]}
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "transparent",
+      "borderRadius": 18,
+      "flexDirection": "row",
+      "gap": 12,
+      "minHeight": 72,
+      "padding": 12,
+    }
+  }
+>
+  <View
+    accessibilityElementsHidden={true}
+    importantForAccessibility="no-hide-descendants"
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "#f3f1e2",
+        "borderRadius": 9999,
+        "height": 48,
+        "justifyContent": "center",
+        "width": 48,
+      }
+    }
+  >
+    <Text
+      allowFontScaling={false}
+      ellipsizeMode="tail"
+      numberOfLines={1}
+      style={
+        [
+          {
+            "fontSize": 17,
+            "fontWeight": "400",
+            "letterSpacing": -0.34,
+            "lineHeight": 21.93,
+          },
+          {
+            "color": "#222013",
+          },
+          {
+            "flexShrink": 1,
+            "textAlign": "center",
+          },
+          {
+            "textAlign": "center",
+          },
+        ]
+      }
+    >
+      EB
+    </Text>
+    <View
+      pointerEvents="none"
+      style={
+        [
+          {
+            "backgroundColor": "#12110b",
+            "borderRadius": 9999,
+            "padding": 3,
+          },
+          {
+            "bottom": -3,
+            "position": "absolute",
+            "right": -3,
+          },
+        ]
+      }
+    >
+      <View
+        pointerEvents="none"
+        style={
+          {
+            "borderColor": "#fffdf2",
+            "borderRadius": 10001,
+            "borderWidth": 2,
+            "bottom": -2,
+            "left": -2,
+            "position": "absolute",
+            "right": -2,
+            "top": -2,
+          }
+        }
+      />
+      <RNSVGSvgView
+        align="xMidYMid"
+        bbHeight={15}
+        bbWidth={15}
+        color="#f0eee3"
+        fill="currentColor"
+        focusable={false}
+        height={15}
+        meetOrSlice={0}
+        minX={0}
+        minY={0}
+        style={
+          [
+            {
+              "backgroundColor": "transparent",
+              "borderWidth": 0,
+            },
+            {
+              "flex": 0,
+              "height": 15,
+              "width": 15,
+            },
+          ]
+        }
+        vbHeight={32}
+        vbWidth={32}
+        width={15}
+        xml="<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path d="M12 11.5H11.5L6.83226 4H4V14H6V6.5H6.5L11.1694 14H14V4H12V11.5Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M14 21.5437C14 19.5092 12.3742 18 10.5065 18H4V28H6V25H8.85714L11 28H14L11.7523 24.8532C13.0421 24.3563 14 23.1044 14 21.5437ZM10.2526 23H6V20L10.2526 20.009C11.1525 20.009 12 20.5874 12 21.5039C12 22.4204 11.1525 23 10.2526 23Z" fill="currentColor"/><path d="M18 18V20H22V26H18V28H28V26H24V20H28V18H18Z" fill="currentColor"/><path d="M23 12C25.1081 12 26 10.8419 26 9V4H28V9.5792C28 12.1046 25.8919 14 23 14C20.1081 14 18 12.1046 18 9.5792V4H20V9C20 10.8419 20.8919 12 23 12Z" fill="currentColor"/></svg>"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <RNSVGGroup
+          fill={
+            {
+              "type": 2,
+            }
+          }
+          propList={
+            [
+              "fill",
+            ]
+          }
+        >
+          <RNSVGPath
+            d="M12 11.5H11.5L6.83226 4H4V14H6V6.5H6.5L11.1694 14H14V4H12V11.5Z"
+            fill={
+              {
+                "type": 2,
+              }
+            }
+            propList={
+              [
+                "fill",
+              ]
+            }
+          />
+          <RNSVGPath
+            clipRule={0}
+            d="M14 21.5437C14 19.5092 12.3742 18 10.5065 18H4V28H6V25H8.85714L11 28H14L11.7523 24.8532C13.0421 24.3563 14 23.1044 14 21.5437ZM10.2526 23H6V20L10.2526 20.009C11.1525 20.009 12 20.5874 12 21.5039C12 22.4204 11.1525 23 10.2526 23Z"
+            fill={
+              {
+                "type": 2,
+              }
+            }
+            fillRule={0}
+            propList={
+              [
+                "fill",
+                "fillRule",
+              ]
+            }
+          />
+          <RNSVGPath
+            d="M18 18V20H22V26H18V28H28V26H24V20H28V18H18Z"
+            fill={
+              {
+                "type": 2,
+              }
+            }
+            propList={
+              [
+                "fill",
+              ]
+            }
+          />
+          <RNSVGPath
+            d="M23 12C25.1081 12 26 10.8419 26 9V4H28V9.5792C28 12.1046 25.8919 14 23 14C20.1081 14 18 12.1046 18 9.5792V4H20V9C20 10.8419 20.8919 12 23 12Z"
+            fill={
+              {
+                "type": 2,
+              }
+            }
+            propList={
+              [
+                "fill",
+              ]
+            }
+          />
+        </RNSVGGroup>
+      </RNSVGSvgView>
+    </View>
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "stretch",
+        "flexDirection": "column",
+        "flexGrow": 1,
+        "flexShrink": 1,
+        "justifyContent": "center",
+        "minWidth": 0,
+      }
+    }
+  >
+    <Text
+      ellipsizeMode="tail"
+      numberOfLines={1}
+      style={
+        [
+          {
+            "fontSize": 17,
+            "fontWeight": "600",
+            "letterSpacing": -0.34,
+            "lineHeight": 21.93,
+          },
+          {
+            "color": "#222013",
+          },
+          {
+            "flexShrink": 1,
+            "textAlign": "center",
+          },
+          {
+            "textAlign": "left",
+          },
+        ]
+      }
+    >
+      Emil Berg
+    </Text>
+    <Text
+      ellipsizeMode="tail"
+      numberOfLines={1}
+      style={
+        [
+          {
+            "fontSize": 14.5,
+            "fontWeight": "400",
+            "letterSpacing": -0.145,
+            "lineHeight": 19.285,
+          },
+          {
+            "color": "#666455",
+          },
+          {
+            "flexShrink": 1,
+            "textAlign": "center",
+          },
+          {
+            "textAlign": "left",
+          },
+        ]
+      }
+    >
+      @emil
     </Text>
   </View>
   <RNSVGSvgView

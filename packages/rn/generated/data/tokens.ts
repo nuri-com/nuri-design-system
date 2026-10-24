@@ -15,7 +15,7 @@
  *  · chrome (theme): bgCanvas, bgSubtle, bgStrong, bgPressed, bgInverse, bgInverseMuted, textPrimary, textMuted, textOnInverse, borderSubtle, borderDefault, borderStrong, borderTranslucent, focusRing
  *  · accent (accent-major · two-layer (flat | {light,dark})): fg, solid, solidPressed, onSolid, bgSubtle, bgSubtlePressed
  *  · space (singleton): none, xs, sm, md, lg, xl, 2xl
- *  · size (singleton): xs, sm, md, lg, xl, 2xl, 3xl
+ *  · size (singleton): 2xs, xs, sm, md, lg, xl, 2xl, 3xl
  *  · radius (singleton): sm, md, lg, full
  *  · ratio (singleton): square, card, portrait, banner
  *  · border (singleton): 1
@@ -143,6 +143,7 @@ export const space: {
 
 // ── size · singleton ──
 export const size: {
+  '2xs': number;
   xs: number;
   sm: number;
   md: number;
@@ -151,6 +152,7 @@ export const size: {
   '2xl': number;
   '3xl': number;
 } = {
+  '2xs':  15,
   xs:     18,
   sm:     24,
   md:     36,

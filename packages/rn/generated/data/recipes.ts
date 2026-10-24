@@ -226,6 +226,48 @@ export const recipes: Record<string, BakedComponentRecipe> = {
           }
         }
       }
+    },
+    "initials": {
+      "el": "text",
+      "geometry": {
+        "base": {},
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "md",
+          "align": "center",
+          "flow": "truncate",
+          "lines": 1
+        },
+        "variants": {
+          "size": {
+            "sm": {
+              "size": "xs"
+            }
+          }
+        }
+      }
+    },
+    "accessory": {
+      "el": "view",
+      "geometry": {
+        "base": {
+          "padding": 3,
+          "borderRadius": 9999
+        },
+        "variants": {}
+      }
+    },
+    "accessoryIcon": {
+      "el": "icon",
+      "geometry": {
+        "base": {
+          "width": 15,
+          "height": 15
+        },
+        "variants": {}
+      }
     }
   },
   "topbar": {

@@ -14,6 +14,7 @@ import { Move } from './Move';
 import { Scan } from './Scan';
 import { Cards } from './Cards';
 import { Profile } from './Profile';
+import { Send } from './Send';
 
 type FormValues = {
   iban: string;
@@ -32,6 +33,7 @@ export function Menu({ onBack }: { onBack: () => void }) {
   const [showScan, setShowScan] = React.useState(false);
   const [showCards, setShowCards] = React.useState(false);
   const [showProfile, setShowProfile] = React.useState(false);
+  const [showSend, setShowSend] = React.useState(false);
   const activity = useSheet();
   const amount = useSheet();
   const actions = useSheet();
@@ -72,6 +74,10 @@ export function Menu({ onBack }: { onBack: () => void }) {
     return <Profile onClose={() => setShowProfile(false)} />;
   }
 
+  if (showSend) {
+    return <Send onClose={() => setShowSend(false)} />;
+  }
+
   return (
     <Screen safeArea>
       <Topbar>
@@ -94,6 +100,7 @@ export function Menu({ onBack }: { onBack: () => void }) {
         <Button size="lg" variant="soft" onPress={() => setShowScan(true)}>Scan · recipient (docked panel)</Button>
         <Button size="lg" variant="soft" onPress={() => setShowCards(true)}>Cards · carousel prototype</Button>
         <Button size="lg" variant="soft" onPress={() => setShowProfile(true)}>Profile · media card</Button>
+        <Button size="lg" variant="soft" onPress={() => setShowSend(true)}>Send · recipient (initials + accessory)</Button>
         </View>
       </Scroll>
 

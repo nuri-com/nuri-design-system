@@ -57,6 +57,50 @@
     </template>
   </nuri-demo>
 
+  <!-- initials (#231) · the third content mode: 1–2 caller-cased letters on the soft circle
+       (bg-strong + text-primary), md 17px regular with the step's own letter-spacing, one
+       line. The last two pass variant="solid" accent="orange" and variant="outline": both are
+       no-ops in initials mode (the mode lock), so every person reads the same neutral disc.
+       sm carries the xs 13px step. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="initials">
+    <template>
+      <nuri-view direction="column" align="center" justify="center" gap="md" fill>
+        <nuri-view direction="row" align="center" justify="center" gap="md">
+          <nuri-icon-avatar initials="EB"></nuri-icon-avatar>
+          <nuri-icon-avatar initials="CM"></nuri-icon-avatar>
+          <nuri-icon-avatar initials="SC" variant="solid" accent="orange"></nuri-icon-avatar>
+          <nuri-icon-avatar initials="AK" variant="outline"></nuri-icon-avatar>
+          <nuri-icon-avatar size="sm" initials="EB"></nuri-icon-avatar>
+        </nuri-view>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
+  <!-- accessory (#231 · md only) · a rail glyph on a disc laid over the bottom-end corner:
+       15px glyph + 3px padding = 21px (no width/height set), pushed out by 3px, a 2px ring
+       in bg-canvas. accessory-surface="canvas" (default · every other rail) adds the 1px
+       border-subtle hairline; "inverse" (Nuri users) is the neutral inverse disc and stays
+       neutral under every accent. The disc sits over initials, an image, or a glyph alike.
+       Decorative: the row that shows it names the rail in its text or label. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="accessory">
+    <template>
+      <nuri-view direction="column" align="center" justify="center" gap="lg" fill>
+        <nuri-view direction="row" align="center" justify="center" gap="lg">
+          <nuri-icon-avatar initials="EB" accessory="nuri" accessory-surface="inverse"></nuri-icon-avatar>
+          <nuri-icon-avatar initials="CM" accessory="bank"></nuri-icon-avatar>
+          <nuri-icon-avatar initials="AK" accessory="bitcoin"></nuri-icon-avatar>
+          <nuri-icon-avatar initials="DV" accessory="card"></nuri-icon-avatar>
+        </nuri-view>
+        <nuri-view direction="row" align="center" justify="center" gap="lg">
+          <nuri-icon-avatar source="../../assets/flags/deu.svg" accessory="nuri" accessory-surface="inverse"></nuri-icon-avatar>
+          <nuri-icon-avatar source="../../assets/flags/pol.svg" accessory="bank"></nuri-icon-avatar>
+          <nuri-icon-avatar variant="outline" icon="wallet" accessory="lightning"></nuri-icon-avatar>
+          <nuri-icon-avatar variant="soft" icon="card" accessory="nuri" accessory-surface="inverse"></nuri-icon-avatar>
+        </nuri-view>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
 </nuri-playground-shell>
 
 </body>

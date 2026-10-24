@@ -59,9 +59,9 @@
 // N+61 · re-homed off build/tokens so spec has no build/ dependency)
 // ══════════════════════════════════════════════════════════════════
 
-// box sizing (width · height · minHeight) takes the FULL 7-leaf `size`
-// scale — `keyof typeof size`, derived from the dimensions SoT (box.css
-// dispatches xs…3xl). Distinct from SpaceLeaf's between-elements rhythm.
+// box sizing (width · height · minHeight) takes the FULL `size` scale —
+// `keyof typeof size`, derived from the dimensions SoT (box.css dispatches
+// 2xs…3xl · `2xs` joined at #231). Distinct from SpaceLeaf's between-elements rhythm.
 export type SizeLeaf = keyof typeof import('../tokens/dimensions').size;
 
 // Accent — the accent set, derived from the colours SoT `accent` table
@@ -220,7 +220,12 @@ export type PaletteVariant = 'solid' | 'soft' | 'ghost' | 'subtle' | 'outline';
 // exactly this) under `text-on-inverse`. A CHROME slot, not a variant, because the
 // off state must stay accent-invariant (grey under lilac AND orange). No pressed
 // channel, like every chrome slot — the toggle carries no press-down effect by ruling.
-export type PaletteChrome = 'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted';
+// `inverse` (the IconAvatar accessory · nuri-com/nuri-design-system#231 · the 3rd
+// deliberate post-freeze PaletteChrome add): `bg-inverse` under `text-on-inverse` — the
+// Nuri-user accessory disc (dark in light theme, light in dark). A CHROME slot so it
+// stays neutral under every accent (no lilac badge); its availability as `chrome=` on
+// View/Pressable sets no precedent for further chrome rows.
+export type PaletteChrome = 'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted' | 'inverse';
 export type PaletteNS = {
   variant?: PaletteVariant;
   accent?: Accent;
@@ -344,11 +349,23 @@ export type ComponentRef = {
   props?: Record<string, string | boolean | number | null>;
 };
 
+// `overlay` (nuri-com/nuri-design-system#231 · a deliberate post-freeze PartAnatomy add ·
+// descriptor-only): the part leaves the flow and is laid OVER its parent host. ONE value,
+// named for the mechanism, bundling everything both engines realise generically from it:
+// pinned to the parent's bottom-end corner and pushed out by `space.xs` on both axes;
+// a 2px knockout ring in `bg-canvas` outside the part (no layout); a 1px `border-subtle`
+// separation hairline inside it (no layout) when the part paints `chrome: canvas` (the
+// ring's own colour); and content gating — the host renders only when a slot inside it
+// has content. This narrowly revisits the BleedNS position: the allowlist guard
+// (scripts/component-api.test.js) admits only `icon-avatar.accessory`, and an overlay part
+// is a non-interactive `view` host. View, Pressable, Image and every other descriptor
+// still cannot opt into overlap; a second use is a new Extension.
 export type PartAnatomy<P extends PartId = PartId> = {
   el?: El;
   component?: string;
   props?: ComponentRef['props'];
   open?: boolean;
+  overlay?: 'corner-accessory';
   parts?: Partial<Record<Exclude<P, 'root'>, PartAnatomy<P>>>;
 };
 
@@ -399,16 +416,22 @@ export type Variants<A extends Axes, P extends PartId = PartId> = {
 // (`icon="apple"` / `source={...}`). `part` is a descriptor-local `PartId`,
 // validated against that descriptor's anatomy by the codegen/drift guards (not TS
 // inference · the strip wall).
-// `prop` = a scalar shorthand (ONLY legal on a singular `icon-name` or
-// `image-source` slot); `default: true` = the untagged-children sink (bare
+// `prop` = a scalar shorthand (ONLY legal on a singular `icon-name`,
+// `image-source` or `initials` slot); `default: true` = the untagged-children sink (bare
 // positional children route here; mutually exclusive with `prop`; never on a
 // scalar slot);
 // `component: true` = emit a generated marker/component for ordered composition
 // (RN `ButtonText` / web `<nuri-button-text>`); `multiple: true` = repeated
 // children, either an open `children` host or a component-declared slot sequence.
+// `initials` (nuri-com/nuri-design-system#231 · a deliberate post-freeze SlotSpec.kind add):
+// the third SCALAR kind — a short caller-cased string (1–2 letters) delivered to a `text`
+// leaf through a `prop` (`initials="EB"`). It carries ROUTING only, never presentation;
+// presence is a NON-EMPTY string. A plain `text` slot stays composition-only: the
+// component-api guard requires every `text` slot to be `component` or `default`, so this
+// kind is the DS's only scalar text prop, by mechanism.
 export type SlotSpec<P extends PartId = PartId> = {
   part: P;
-  kind: 'text' | 'icon-name' | 'image-source' | 'node' | 'region' | 'children';
+  kind: 'text' | 'icon-name' | 'image-source' | 'initials' | 'node' | 'region' | 'children';
   prop?: string;
   default?: true;
   component?: true;
@@ -430,6 +453,12 @@ export type SlotSpec<P extends PartId = PartId> = {
 // as DATA (RN codegen from the slot's scalar prop · web buildComponent from the
 // routed content). First consumer: icon-avatar `mode` (source → image | glyph),
 // promoting "outline + source = no-op by convention" to mechanism.
+// RESHAPED (nuri-com/nuri-design-system#231 · a deliberate post-freeze contentMode move):
+// one slot → an ORDERED `present` list. The first listed slot with content wins (array
+// order IS the precedence) and its `value` drives the axis; with none, `absent`. The
+// scalar content slots outside overlay parts are mutually exclusive by the same order:
+// a lower-precedence slot is not routed while a higher one has content. icon-avatar:
+// source ⇒ image, else initials ⇒ initials, else glyph (precedence source > initials > icon).
 // `propMaps.checked` + `behaviour.pressable.role: 'switch'` (the Switch slice ·
 // prompts/admission-switch.md C2 + C3 · 2026-10-13): the `selected` bridge's sibling
 // for BINARY TOGGLES — same shape, same validation (an INTERNAL axis · real values ·
@@ -468,7 +497,7 @@ export type ComponentApi<P extends PartId = PartId> = {
   propMaps?: {
     selected?: { axis: string; true: string; false: string };
     checked?: { axis: string; true: string; false: string };
-    contentMode?: { slot: string; axis: string; present: string; absent: string };
+    contentMode?: { axis: string; present: { slot: string; value: string }[]; absent: string };
   };
   slots: Record<string, SlotSpec<P>>;
 };
