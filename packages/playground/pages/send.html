@@ -11,7 +11,7 @@
 
 <!--
   ═══════════════════════════════════════════════════════════════
-  SEND · Lightning / ark to a saved contact (brief 2026-10-22)
+  SEND · Lightning / ark to a saved contact (brief 2026-10-22 · S1 replaced by the 2026-10-24 explorations: recipient, scanner, search, new recipient · amount and review kept, to be finalised)
   ═══════════════════════════════════════════════════════════════
 
   Three boards, one per step of the nuri-expo send journey
@@ -30,87 +30,507 @@
 
 <nuri-playground-shell doc="Send">
 
-  <!-- S1 · RECIPIENT · one field for every rail, Scan QR, then the contact
-       sections. No footer: rows advance on tap. The sheet's two sections
-       (RECENT · CONTACTS) are drawn with the brief's names; dividers use the
-       move.html labelled-divider recipe inside the list. -->
+  <!-- A1 · PROFILE PATTERN (revised 2026-10-24) · profile.html chrome: transparent
+       docked topbar with Close only, the title "Send" as content. Under it a field
+       "Search" with ONE meaning: contacts and Nuri usernames (a trigger into the A2
+       search mode; a complete pasted identifier is still recognised, undocumented).
+       Then "Scan or paste" first (opens S0, the scanner: camera, Paste, Upload), four
+       recents, All contacts, New recipient (where typing by hand lives).
+       Action rows share one anatomy: outline glyph, title, chevron. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="send · recipient">
     <template>
       <nuri-screen>
-        <nuri-view chrome="canvas" fill></nuri-view>
+        <nuri-dock edge="top">
+          <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+            <nuri-topbar surface="transparent">
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+          </nuri-header>
+        </nuri-dock>
+        <nuri-scroll safe-area-bottom inset-top="dock">
+          <nuri-view direction="column" align="stretch" justify="start" gap="md" padding-bottom="xl" fill>
+            <nuri-view padding-x="lg" padding-top="md" padding-bottom="sm">
+              <nuri-typography size="lg" emphasis>Send</nuri-typography>
+            </nuri-view>
+            <nuri-view padding-x="lg">
+              <nuri-text-field placeholder="Search" aria-label="Search contacts and Nuri users"></nuri-text-field>
+            </nuri-view>
+            <nuri-list>
+              <nuri-list-action aria-label="Scan or paste">
+                <nuri-list-action-leading-avatar name="qr-scan" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Scan or paste</nuri-list-action-text>
+                <nuri-list-action-text-muted>From a QR code or copied text</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Emil Berg, at emil">
+                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Emil Berg</nuri-list-action-text>
+                <nuri-list-action-text-muted>@emil</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Claude M., N26 account ending 4521">
+                <nuri-list-action-leading-avatar name="bank" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Claude M.</nuri-list-action-text>
+                <nuri-list-action-text-muted>N26 ···4521</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Sara Conti, at sarac">
+                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Sara Conti</nuri-list-action-text>
+                <nuri-list-action-text-muted>@sarac</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Anna K., Bitcoin address">
+                <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Anna K.</nuri-list-action-text>
+                <nuri-list-action-text-muted>bc1q…9m7t</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="All contacts">
+                <nuri-list-action-leading-avatar name="list-bullets" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>All contacts</nuri-list-action-text>
+                <nuri-list-action-text-muted>15 saved</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="New recipient">
+                <nuri-list-action-leading-avatar name="plus" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>New recipient</nuri-list-action-text>
+                <nuri-list-action-text-muted>Bitcoin address, IBAN and more</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+          </nuri-view>
+        </nuri-scroll>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
 
-        <nuri-modal open mode="full">
+  <!-- S0 · SCANNER (2026-10-24, the one kept) · reuses the ruled scan.html board
+       (operator ruling 2026-08-17): title lg, panel top corners rounded like a sheet,
+       air between copy and buttons, Footer inside the panel for the safe-area bottom
+       padding. Changes for the send flow: no "Scan" button (a live camera reads a QR,
+       and a printed IBAN as Vivid does); copy names what it reads. Close over the
+       camera, top right. The camera column and the panel are stacked so the viewfinder
+       centres in the visible height; the panel's rounded corners reveal the dark
+       column behind it. Status bar: not driven by the DS (docs/status-bar-declaration-
+       note.md); in RN a <StatusBar style="light"/> inside this screen. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send · scanner">
+    <template>
+      <nuri-screen>
+        <nuri-scope mode="dark">
+          <nuri-view chrome="canvas" fill direction="column" align="stretch">
+            <nuri-view direction="column" align="stretch" justify="center" padding-x="xl" fill="grow">
+              <nuri-view padding-x="lg">
+                <nuri-view chrome="strong" radius="lg" aspect-ratio="square"></nuri-view>
+              </nuri-view>
+            </nuri-view>
+            <nuri-scope mode="light">
+              <nuri-view chrome="canvas" radius-top="lg" direction="column" align="stretch" gap="xl" padding-x="lg" padding-top="xl">
+                <nuri-view direction="column" align="stretch" gap="sm" padding-bottom="md">
+                  <nuri-typography size="lg" emphasis>Who is your recipient?</nuri-typography>
+                  <nuri-typography size="md" muted>Point the camera at a QR code or a printed IBAN, or paste or upload one.</nuri-typography>
+                </nuri-view>
+                <nuri-footer safe-area-bottom direction="column" align="stretch" gap="sm" padding-bottom="lg">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button size="lg" variant="soft">Paste</nuri-button>
+                    <nuri-button size="lg" variant="soft">Upload</nuri-button>
+                  </nuri-view>
+                </nuri-footer>
+              </nuri-view>
+            </nuri-scope>
+          </nuri-view>
+        </nuri-scope>
+        <nuri-dock edge="top">
+          <nuri-header safe-area-top chrome="transparent">
+            <nuri-topbar surface="transparent">
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+          </nuri-header>
+        </nuri-dock>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- A2 · SEARCH, EMPTY QUERY (revised 2026-10-24) · the country-picker.html pattern:
+       Back + the field pinned in the topbar (size md, the topbar height), focused,
+       keyboard up. One screen, two entries: from Search on A1 it opens with
+       autofocus (keyboard up); from "All contacts" without focus (it reads as the
+       address book). With an empty query the list IS the address book, A–Z, one row per identifier (Claude
+       M. appears twice: @claudem and his N26 account, P6). New recipient stays last.
+       No Paste: the field searches people (P6). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send · search · empty">
+    <template>
+      <nuri-screen>
+        <nuri-dock edge="top">
+          <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+            <nuri-topbar surface="transparent" layout="fluid">
+              <nuri-topbar-leading>
+                <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+              </nuri-topbar-leading>
+              <nuri-topbar-content>
+                <nuri-text-field size="md" placeholder="Search" aria-label="Search contacts and Nuri users"></nuri-text-field>
+              </nuri-topbar-content>
+            </nuri-topbar>
+          </nuri-header>
+        </nuri-dock>
+        <nuri-scroll safe-area-bottom inset-top="dock">
+          <nuri-view direction="column" align="stretch" justify="start" padding-top="sm" padding-bottom="xl" fill>
+            <nuri-list>
+              <nuri-list-action aria-label="Anna K., bc1q…9m7t">
+                <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Anna K.</nuri-list-action-text>
+                <nuri-list-action-text-muted>bc1q…9m7t</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Ben Ross, @benr">
+                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Ben Ross</nuri-list-action-text>
+                <nuri-list-action-text-muted>@benr</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Claude M., @claudem">
+                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Claude M.</nuri-list-action-text>
+                <nuri-list-action-text-muted>@claudem</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Claude M., N26 ···4521">
+                <nuri-list-action-leading-avatar name="bank" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Claude M.</nuri-list-action-text>
+                <nuri-list-action-text-muted>N26 ···4521</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Dana V., Visa ···7712">
+                <nuri-list-action-leading-avatar name="card" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Dana V.</nuri-list-action-text>
+                <nuri-list-action-text-muted>Visa ···7712</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Emil Berg, @emil">
+                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Emil Berg</nuri-list-action-text>
+                <nuri-list-action-text-muted>@emil</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Marta Lenz, @marta">
+                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Marta Lenz</nuri-list-action-text>
+                <nuri-list-action-text-muted>@marta</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Sara Conti, @sarac">
+                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Sara Conti</nuri-list-action-text>
+                <nuri-list-action-text-muted>@sarac</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="New recipient, Bitcoin address, IBAN and more">
+                <nuri-list-action-leading-avatar name="plus" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>New recipient</nuri-list-action-text>
+                <nuri-list-action-text-muted>Bitcoin address, IBAN and more</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+          </nuri-view>
+        </nuri-scroll>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- A3 · SEARCH, "cla" · filters names, @usernames and last digits; Clear replaces
+       nothing (no Paste to replace). A full @username not in contacts would add a
+       "Not in your contacts" row from the directory (exact match only). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send · search · cla">
+    <template>
+      <nuri-screen>
+        <nuri-dock edge="top">
+          <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+            <nuri-topbar surface="transparent" layout="fluid">
+              <nuri-topbar-leading>
+                <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+              </nuri-topbar-leading>
+              <nuri-topbar-content>
+                <nuri-text-field size="md" placeholder="Search" aria-label="Search contacts and Nuri users" value="cla">
+                  <nuri-text-field-icon-button name="cross-circle" aria-label="Clear search"></nuri-text-field-icon-button>
+                </nuri-text-field>
+              </nuri-topbar-content>
+            </nuri-topbar>
+          </nuri-header>
+        </nuri-dock>
+        <nuri-scroll safe-area-bottom inset-top="dock">
+          <nuri-view direction="column" align="stretch" justify="start" padding-top="sm" padding-bottom="xl" fill>
+            <nuri-list>
+              <nuri-list-action aria-label="Claude M., @claudem">
+                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Claude M.</nuri-list-action-text>
+                <nuri-list-action-text-muted>@claudem</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Claude M., N26 ···4521">
+                <nuri-list-action-leading-avatar name="bank" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Claude M.</nuri-list-action-text>
+                <nuri-list-action-text-muted>N26 ···4521</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Clara Neri, bc1q…4f2k">
+                <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Clara Neri</nuri-list-action-text>
+                <nuri-list-action-text-muted>bc1q…4f2k</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="New recipient, Bitcoin address, IBAN and more">
+                <nuri-list-action-leading-avatar name="plus" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>New recipient</nuri-list-action-text>
+                <nuri-list-action-text-muted>Bitcoin address, IBAN and more</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+          </nuri-view>
+        </nuri-scroll>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- N1b · NEW RECIPIENT AS A SHEET (draft 2026-10-24) · the same four rows in a
+       bottom sheet over A1 (the move.html currency-picker recipe: mode="sheet",
+       scrim dim, content height, title in the topbar, Close on the right). Lighter
+       than a pushed screen: the user stays on A1 and picks a kind; the chosen row
+       then pushes its form full screen. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send · new recipient · sheet">
+    <template>
+      <nuri-screen>
+        <nuri-dock edge="top">
+          <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+            <nuri-topbar surface="transparent">
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+          </nuri-header>
+        </nuri-dock>
+        <nuri-scroll safe-area-bottom inset-top="dock">
+          <nuri-view direction="column" align="stretch" justify="start" gap="md" padding-bottom="xl" fill>
+            <nuri-view padding-x="lg" padding-top="md" padding-bottom="sm">
+              <nuri-typography size="lg" emphasis>Send</nuri-typography>
+            </nuri-view>
+            <nuri-view padding-x="lg">
+              <nuri-text-field placeholder="Search" aria-label="Search contacts and Nuri users"></nuri-text-field>
+            </nuri-view>
+            <nuri-list>
+              <nuri-list-action aria-label="Scan or paste">
+                <nuri-list-action-leading-avatar name="qr-scan" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Scan or paste</nuri-list-action-text>
+                <nuri-list-action-text-muted>From a QR code or copied text</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Emil Berg, at emil">
+                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Emil Berg</nuri-list-action-text>
+                <nuri-list-action-text-muted>@emil</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Claude M., N26 account ending 4521">
+                <nuri-list-action-leading-avatar name="bank" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Claude M.</nuri-list-action-text>
+                <nuri-list-action-text-muted>N26 ···4521</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Sara Conti, at sarac">
+                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Sara Conti</nuri-list-action-text>
+                <nuri-list-action-text-muted>@sarac</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Anna K., Bitcoin address">
+                <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Anna K.</nuri-list-action-text>
+                <nuri-list-action-text-muted>bc1q…9m7t</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="All contacts">
+                <nuri-list-action-leading-avatar name="list-bullets" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>All contacts</nuri-list-action-text>
+                <nuri-list-action-text-muted>15 saved</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="New recipient">
+                <nuri-list-action-leading-avatar name="plus" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>New recipient</nuri-list-action-text>
+                <nuri-list-action-text-muted>Bitcoin address, IBAN and more</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+          </nuri-view>
+        </nuri-scroll>
+
+        <nuri-modal open mode="sheet" scrim="dim">
           <nuri-modal-panel>
-            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
-              <nuri-topbar surface="transparent">
-                <nuri-topbar-leading></nuri-topbar-leading>
-                <nuri-topbar-center>
-                  <nuri-typography size="lg" emphasis>Send</nuri-typography>
-                </nuri-topbar-center>
+            <nuri-header chrome="transparent">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-topbar-title>New recipient</nuri-topbar-title>
+                </nuri-topbar-content>
                 <nuri-topbar-trailing>
                   <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
                 </nuri-topbar-trailing>
               </nuri-topbar>
             </nuri-header>
-
             <nuri-scroll safe-area-bottom>
-              <!-- The column carries NO horizontal padding (the profile.html
-                   precedent): the field wraps its own lg gutter, the list sits
-                   bare so its 18px text gutter = list paddingX(sm) + row
-                   padding(md) lines up with the field edge — not lg + sm + md. -->
-              <nuri-view direction="column" align="stretch" gap="md" padding-bottom="lg">
-                <nuri-view padding-x="lg">
-                  <nuri-text-field placeholder="Name, @username, address or invoice" input-mode="text" aria-label="Recipient">
-                    <nuri-text-field-button>Paste</nuri-text-field-button>
-                  </nuri-text-field>
-                </nuri-view>
-
+              <nuri-view direction="column" align="stretch" padding-bottom="lg">
                 <nuri-list>
-                  <nuri-list-action aria-label="Scan QR">
-                    <nuri-list-action-leading-avatar name="qr-scan" variant="outline"></nuri-list-action-leading-avatar>
-                    <nuri-list-action-text>Scan QR</nuri-list-action-text>
-                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
-                  </nuri-list-action>
-
-                  <nuri-view direction="row" align="center" gap="sm" height="md" padding-x="md">
-                    <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
-                    <nuri-typography size="sm" emphasis muted>Recent</nuri-typography>
-                    <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
-                  </nuri-view>
-
-                  <nuri-list-action aria-label="Emil, at emil, 3 sends">
-                    <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
-                    <nuri-list-action-text>Emil</nuri-list-action-text>
-                    <nuri-list-action-text-muted>@emil · 3 sends</nuri-list-action-text-muted>
-                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
-                  </nuri-list-action>
-                  <nuri-list-action aria-label="Anna Schmidt, bank account">
+                  <nuri-list-action aria-label="Bank account, IBAN · arrives today">
                     <nuri-list-action-leading-avatar name="bank" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
-                    <nuri-list-action-text>Anna Schmidt</nuri-list-action-text>
-                    <nuri-list-action-text-muted>Bank account</nuri-list-action-text-muted>
+                    <nuri-list-action-text>Bank account</nuri-list-action-text>
+                    <nuri-list-action-text-muted>IBAN · arrives today</nuri-list-action-text-muted>
                     <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
                   </nuri-list-action>
+                  <nuri-list-action aria-label="Bitcoin wallet, Address or Lightning invoice">
+                    <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Bitcoin wallet</nuri-list-action-text>
+                    <nuri-list-action-text-muted>Address or Lightning invoice</nuri-list-action-text-muted>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                  <nuri-list-action aria-label="Nuri user, Their @username · no fee">
+                    <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Nuri user</nuri-list-action-text>
+                    <nuri-list-action-text-muted>Their @username · no fee</nuri-list-action-text-muted>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                  <nuri-list-action aria-label="More, Visa Direct and mobile money">
+                    <nuri-list-action-leading-avatar name="chevron-down" variant="outline"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>More</nuri-list-action-text>
+                    <nuri-list-action-text-muted>Visa Direct and mobile money</nuri-list-action-text-muted>
+                  </nuri-list-action>
+                </nuri-list>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
 
-                  <nuri-view direction="row" align="center" gap="sm" height="md" padding-x="md">
-                    <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
-                    <nuri-typography size="sm" emphasis muted>Contacts</nuri-typography>
-                    <nuri-view fill="grow"><nuri-separator y-space="none"></nuri-separator></nuri-view>
-                  </nuri-view>
+  <!-- N1c · MORE OPEN (draft 2026-10-24) · tapping More grows the same sheet in
+       place: the More row is replaced by the hidden kinds, no toggle back, no nested
+       navigation. Card = Visa Direct push-to-card (tolerated, P6). Mobile money =
+       one form: country (last used), phone number, network only for Tanzania and only
+       if the provider needs it, name if needed; a Person / Business switch covers
+       Lipa Namba. TanQR moves to the scanner (it is a QR). Bank abroad (Tanzania) is
+       not drawn: pending the decision to keep it. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send · new recipient · more open">
+    <template>
+      <nuri-screen>
+        <nuri-dock edge="top">
+          <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+            <nuri-topbar surface="transparent">
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+          </nuri-header>
+        </nuri-dock>
+        <nuri-scroll safe-area-bottom inset-top="dock">
+          <nuri-view direction="column" align="stretch" justify="start" gap="md" padding-bottom="xl" fill>
+            <nuri-view padding-x="lg" padding-top="md" padding-bottom="sm">
+              <nuri-typography size="lg" emphasis>Send</nuri-typography>
+            </nuri-view>
+            <nuri-view padding-x="lg">
+              <nuri-text-field placeholder="Search" aria-label="Search contacts and Nuri users"></nuri-text-field>
+            </nuri-view>
+            <nuri-list>
+              <nuri-list-action aria-label="Scan or paste">
+                <nuri-list-action-leading-avatar name="qr-scan" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Scan or paste</nuri-list-action-text>
+                <nuri-list-action-text-muted>From a QR code or copied text</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Emil Berg, at emil">
+                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Emil Berg</nuri-list-action-text>
+                <nuri-list-action-text-muted>@emil</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Claude M., N26 account ending 4521">
+                <nuri-list-action-leading-avatar name="bank" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Claude M.</nuri-list-action-text>
+                <nuri-list-action-text-muted>N26 ···4521</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Sara Conti, at sarac">
+                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Sara Conti</nuri-list-action-text>
+                <nuri-list-action-text-muted>@sarac</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Anna K., Bitcoin address">
+                <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Anna K.</nuri-list-action-text>
+                <nuri-list-action-text-muted>bc1q…9m7t</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="All contacts">
+                <nuri-list-action-leading-avatar name="list-bullets" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>All contacts</nuri-list-action-text>
+                <nuri-list-action-text-muted>15 saved</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="New recipient">
+                <nuri-list-action-leading-avatar name="plus" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>New recipient</nuri-list-action-text>
+                <nuri-list-action-text-muted>Bitcoin address, IBAN and more</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+          </nuri-view>
+        </nuri-scroll>
 
-                  <nuri-list-action aria-label="Ben">
-                    <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
-                    <nuri-list-action-text>Ben</nuri-list-action-text>
+        <nuri-modal open mode="sheet" scrim="dim">
+          <nuri-modal-panel>
+            <nuri-header chrome="transparent">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-topbar-title>New recipient</nuri-topbar-title>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+            <nuri-scroll safe-area-bottom>
+              <nuri-view direction="column" align="stretch" padding-bottom="lg">
+                <nuri-list>
+                  <nuri-list-action aria-label="Bank account, IBAN · arrives today">
+                    <nuri-list-action-leading-avatar name="bank" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Bank account</nuri-list-action-text>
+                    <nuri-list-action-text-muted>IBAN · arrives today</nuri-list-action-text-muted>
                     <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
                   </nuri-list-action>
-                  <nuri-list-action aria-label="Carla">
-                    <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
-                    <nuri-list-action-text>Carla</nuri-list-action-text>
+                  <nuri-list-action aria-label="Bitcoin wallet, Address or Lightning invoice">
+                    <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Bitcoin wallet</nuri-list-action-text>
+                    <nuri-list-action-text-muted>Address or Lightning invoice</nuri-list-action-text-muted>
                     <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
                   </nuri-list-action>
-                  <nuri-list-action aria-label="Dana, at dana">
+                  <nuri-list-action aria-label="Nuri user, Their @username · no fee">
                     <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
-                    <nuri-list-action-text>Dana</nuri-list-action-text>
-                    <nuri-list-action-text-muted>@dana</nuri-list-action-text-muted>
+                    <nuri-list-action-text>Nuri user</nuri-list-action-text>
+                    <nuri-list-action-text-muted>Their @username · no fee</nuri-list-action-text-muted>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                  <nuri-list-action aria-label="Card, Visa Direct">
+                    <nuri-list-action-leading-avatar name="card" variant="outline"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Card</nuri-list-action-text>
+                    <nuri-list-action-text-muted>Visa Direct</nuri-list-action-text-muted>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                  <nuri-list-action aria-label="Mobile money, Tanzania and Kenya">
+                    <nuri-list-action-leading-avatar name="wallet" variant="outline"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Mobile money</nuri-list-action-text>
+                    <nuri-list-action-text-muted>Tanzania and Kenya</nuri-list-action-text-muted>
                     <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
                   </nuri-list-action>
                 </nuri-list>
@@ -118,6 +538,60 @@
             </nuri-scroll>
           </nuri-modal-panel>
         </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- N1 · NEW RECIPIENT, FIRST STEP (draft 2026-10-24) · same chrome as A1: the one
+       button sits top right where Close is, here as Back (a pushed step). One row
+       per kind of recipient, same anatomy as every row (avatar, title, subtitle,
+       chevron). Ordered by how often people type one by hand: an IBAN from a bill
+       first. Each row opens a form with the right keyboard and validation that ends
+       with saving the contact. Nuri user hands over to A2 with autofocus. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send · new recipient · screen (alternative)">
+    <template>
+      <nuri-screen>
+        <nuri-dock edge="top">
+          <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+            <nuri-topbar surface="transparent">
+              <nuri-topbar-trailing>
+                <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+              </nuri-topbar-trailing>
+            </nuri-topbar>
+          </nuri-header>
+        </nuri-dock>
+        <nuri-scroll safe-area-bottom inset-top="dock">
+          <nuri-view direction="column" align="stretch" justify="start" gap="md" padding-bottom="xl" fill>
+            <nuri-view padding-x="lg" padding-top="md" padding-bottom="sm">
+              <nuri-typography size="lg" emphasis>New recipient</nuri-typography>
+            </nuri-view>
+            <nuri-list>
+              <nuri-list-action aria-label="Bank account, IBAN · arrives today">
+                <nuri-list-action-leading-avatar name="bank" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Bank account</nuri-list-action-text>
+                <nuri-list-action-text-muted>IBAN · arrives today</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Bitcoin wallet, Address or Lightning invoice">
+                <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Bitcoin wallet</nuri-list-action-text>
+                <nuri-list-action-text-muted>Address or Lightning invoice</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Nuri user, Their @username · no fee">
+                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Nuri user</nuri-list-action-text>
+                <nuri-list-action-text-muted>Their @username · no fee</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="More, Visa Direct and mobile money">
+                <nuri-list-action-leading-avatar name="chevron-down" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>More</nuri-list-action-text>
+                <nuri-list-action-text-muted>Visa Direct and mobile money</nuri-list-action-text-muted>
+              </nuri-list-action>
+            </nuri-list>
+          </nuri-view>
+        </nuri-scroll>
       </nuri-screen>
     </template>
   </nuri-demo>
@@ -271,9 +745,18 @@
 
 <!--
   MISFIT LOG · send.html · board · what the sheet asked · what was done · the DS element, axis or value that would remove the workaround
-  send · recipient · RECENT / CONTACTS section labels · composed: the move.html labelled-divider recipe (a row of two growing separators flanking a sm emphasis muted typography) placed as a bare child inside nuri-list · a list section-header element (list-header / list-label) so the label is list vocabulary, not a page recipe
-  send · recipient · contact rows with a portrait avatar (◉) · dropped the portrait: icon-avatar glyph "nuri" variant="soft" stands in (assets/photos has no portrait; the icon set has no person glyph) · a portrait asset in assets/photos (icon-avatar already takes `source`) and/or a `user` icon
-  send · recipient · field with no visible label ("Name, @username, address or invoice" is the placeholder) · composed: nuri-text-field with aria-label and no nuri-text-field-label — the descriptor's documented compact placement · none (sanctioned); logged so the operator sees the label-less field once
+  send · scanner · camera feed and viewfinder · composed: a dark scope canvas with a subtle square standing in for the frame · a camera / viewfinder element (app-level, not DS)
+  send · scanner · status bar stays dark over the camera · not fixable in the playground (no status-bar surface in the DS) · RN: <StatusBar style="light"/> inside the screen (docs/status-bar-declaration-note.md)
+  send · scanner · Paste is the native iOS paste control in product · drawn as a soft DS button · open question 12
+  send · recipient · field height · the default lg (60px) in content; md (48px) only in a topbar next to round icon-buttons (country picker, B1, B2, A2/A3) · none
+  send · new recipient · Back top right in the trailing slot, where Close sits on A1 (operator, 2026-10-24); the glyph stays chevron-left · none; part of the topbar convention still to settle
+  send · new recipient · "More" row (operator, 2026-10-24): chevron-down avatar, subtitle "Visa Direct and mobile money", no trailing chevron; it expands in place to reveal the rarer kinds (Abroad today) instead of navigating · composed: list-action without trail icon · an expandable-row / disclosure behaviour (not in the DS)
+  send · new recipient · more open · Mobile money glyph · wallet outline, the closest icon · a `phone` (or `mobile`) icon
+  send · recipient · search trigger (a field that opens a search mode) · composed: a nuri-text-field with no value and a qr-scan accessory; in product a pressable · a field-trigger element (read-only text field / search trigger)
+  send · recipient · title "Send" as content under a Close-only topbar · the profile.html recipe verbatim · none; whether this chrome scales to pushed steps is open (they need Back)
+  send · search · Back in search mode vs Close · Back returns to A1 (the country-picker precedent) · none
+  send · · every row has the same anatomy: leading avatar, title (+ muted subtitle), chevron-right; no dates, no counts (operator, 2026-10-24) · none
+  send · · portrait avatars dropped, glyph avatars by identifier type · as send.html · a portrait asset / `user` icon
   send · amount · unit switch glyph "⇄ €" beside the amount · composed: icon-button transfer-vertical soft (the set-amount precedent) · none beyond the precedent; a `transfer-horizontal` glyph would match the sheet's ⇄ but the receive flow already settled on vertical
   send · amount · quick amounts [ 5 000 ] [ 10 000 ] [ Max ] under the cost line · dropped: the brief's tree omits them and the keypad board has no vertical room for a third row group at the default device · a quick-amount chip row (soft sm buttons) would compose today — the drop is a brief decision, not a DS gap
   send · amount · "(◉) Emil" contact line at the top of the step · dropped: the brief's tree omits it (the title "Send to Emil" carries the recipient) · none — composable today as a list-action or an avatar + typography row
