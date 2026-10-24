@@ -95,5 +95,10 @@ export const palette = {
       fg:         { group: 'chrome', leaf: 'textOnInverse'  } as const satisfies ColorRef,
       fgMuted:    { group: 'chrome', leaf: 'textMuted'      } as const satisfies ColorRef,
     },
+    inverse: {
+      bg:         { group: 'chrome', leaf: 'bgInverse'      } as const satisfies ColorRef,
+      fg:         { group: 'chrome', leaf: 'textOnInverse'  } as const satisfies ColorRef,
+      fgMuted:    { group: 'chrome', leaf: 'textMuted'      } as const satisfies ColorRef,
+    },
   },
 } as const;

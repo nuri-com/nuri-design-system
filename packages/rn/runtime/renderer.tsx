@@ -23,9 +23,9 @@ import { classifyComposition } from '@nuri/spec/composition-classify';
 import { LEAF_ELS } from '@nuri/spec/descriptors/schema';
 import type { Descriptor, Axes, IconName, PartId } from '../contract';
 import { typeStyle, useNuriTheme } from '../theme';
-import { border as contractBorder } from '../contract';
+import { border as contractBorder, space as contractSpace } from '../contract';
 import type { NuriTheme } from './theme-payload';
-import { resolveAnatomy, flattenBakedPart, assertNever } from './resolve';
+import { resolveAnatomy, flattenBakedPart, mergedPaletteNSForPart, assertNever } from './resolve';
 import type { AnatomyNode, Selection, BakedComponentRecipe } from './resolve';
 import { NuriIcon } from '../primitives/NuriIcon';
 import { BleedHitTransparencyContext } from '../primitives/Bleed';
@@ -50,6 +50,25 @@ export const NuriSurfaceContext = React.createContext<{ foreground?: string }>({
 // mirror it literally for exact parity.
 const FOCUS_RING_WIDTH = 2;
 const FOCUS_RING_OFFSET = 2;
+
+// ── THE CORNER-ACCESSORY OVERLAY (PartAnatomy.overlay · nuri-com/nuri-design-system#231) ──
+// Realised GENERICALLY from the descriptor's `overlay` value — no component logic:
+//   · placement — the part leaves the flow (absolute), pinned to its parent host's
+//     bottom-end corner and pushed out by `space.xs` on both axes;
+//   · the knockout ring — 2px in bg-canvas OUTSIDE the part, taking no layout (the
+//     focus-ring technique: an absolutely-positioned bordered child at a negative inset);
+//   · the separation hairline — 1px border-subtle INSIDE the part (bordered child at
+//     inset 0 · no layout), drawn when the part paints `chrome: canvas`, the ring's own
+//     colour, so a canvas disc stays distinct from its canvas ring;
+//   · content gating — the host renders only when a slot inside it has content;
+//   · non-interactive — pointerEvents none, no hit target.
+// The 2px ring mirrors FOCUS_RING_WIDTH: a design constant (web `0 0 0 2px`), not a token.
+const OVERLAY_RING_WIDTH = 2;
+
+// Does any part in this subtree carry routed content? (the overlay host's gate)
+function subtreeHasContent(node: AnatomyNode, content: Partial<Record<string, NuriContent>>): boolean {
+  return content[node.name] != null || node.children.some((child) => subtreeHasContent(child, content));
+}
 
 // react-native-web renders the input to a DOM <input> that carries the browser's
 // default :focus outline — a SECOND ring on top of the DS focus ring (the expo-web
@@ -496,8 +515,10 @@ function renderPart<A extends Axes>(
 
   // A LEAF part (the schema's totality-pinned host/leaf partition · LEAF_ELS)
   // with no routed content renders nothing. A HOST always renders because it
-  // may be a container or region.
+  // may be a container or region — EXCEPT an overlay host (#231), which renders
+  // only when a slot inside it has content (else every avatar draws an empty disc).
   if (node.el && LEAF_ELS.includes(node.el) && ctx.content[node.name] == null) return null;
+  if (node.overlay && !subtreeHasContent(node, ctx.content)) return null;
 
   const recipePart = ctx.recipe[node.name];
   if (!recipePart) throw new Error(`nuri-factory: no baked recipe for part '${node.name}'`);
@@ -535,6 +556,47 @@ function renderPart<A extends Axes>(
     />
   ) : null;
   const fg = flat.node.fg ?? inheritedFg;
+
+  // The corner-accessory overlay realisation (see OVERLAY_RING_WIDTH above): the
+  // placement style + the ring and hairline children. null on every other part.
+  const overlayRadius = typeof flat.style.borderRadius === 'number' ? flat.style.borderRadius : 0;
+  const overlay = node.overlay === 'corner-accessory'
+    ? {
+      style: { position: 'absolute' as const, right: -contractSpace.xs, bottom: -contractSpace.xs },
+      ring: (
+        <View
+          key="__nuri-overlay-ring"
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            top: -OVERLAY_RING_WIDTH,
+            left: -OVERLAY_RING_WIDTH,
+            right: -OVERLAY_RING_WIDTH,
+            bottom: -OVERLAY_RING_WIDTH,
+            borderWidth: OVERLAY_RING_WIDTH,
+            borderColor: ctx.theme.chrome.canvas.bg,
+            borderRadius: overlayRadius + OVERLAY_RING_WIDTH,
+          }}
+        />
+      ),
+      hairline: mergedPaletteNSForPart(ctx.descriptor, ctx.selection, node.name)?.chrome === 'canvas' ? (
+        <View
+          key="__nuri-overlay-hairline"
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderWidth: contractBorder[1],
+            borderColor: ctx.theme.border.subtle,
+            borderRadius: overlayRadius,
+          }}
+        />
+      ) : null,
+    }
+    : null;
 
   // F-DECORATIVE-1 · a decorative descriptor hides the whole host subtree from
   // the a11y tree. Applied once on the root host.
@@ -677,12 +739,14 @@ function renderPart<A extends Axes>(
       return (
         <View
           key={node.name}
-          pointerEvents={ctx.inBleedBand ? 'box-none' : undefined}
-          style={flat.style}
+          pointerEvents={overlay ? 'none' : ctx.inBleedBand ? 'box-none' : undefined}
+          style={overlay ? [flat.style, overlay.style] : flat.style}
           accessibilityRole={isRoot ? ctx.descriptor.api.role : undefined}
           {...a11yHide}
         >
           {focusRing}
+          {overlay?.ring}
+          {overlay?.hairline}
           {renderHostBody()}
         </View>
       );
@@ -731,10 +795,16 @@ function renderPart<A extends Axes>(
         flat.node.textFlow?.flow === 'truncate'
           ? { numberOfLines: flat.node.textFlow.lines, ellipsizeMode: 'tail' as const }
           : {};
+      // Text inside a DECORATIVE descriptor (#231 · decision 50) does not follow the
+      // OS font scale: it sits in a fixed-size, AT-hidden circle (IconAvatar's
+      // initials), so a large accessibility size would only truncate it. Keyed on
+      // the existing `decorative` data, never on a slot kind.
+      const fontScaleProps = ctx.descriptor.decorative ? { allowFontScaling: false } : null;
       return (
         <Text
           key={node.name}
           {...flowProps}
+          {...fontScaleProps}
           style={[
             flat.node.type ? typeStyle(flat.node.type.size, flat.node.type.emphasis, flat.node.type.mono) : null,
             fg ? { color: fg } : null,

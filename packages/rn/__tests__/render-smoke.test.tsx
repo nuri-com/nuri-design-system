@@ -347,6 +347,166 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
+  // ── #231 · initials + the corner accessory (nuri-com/nuri-design-system#231) ──
+  // The avatar's View nodes in tree order (root first); the overlay host is the one
+  // absolutely positioned at the corner.
+  const avatarViews = (tr: TestRenderer.ReactTestRenderer): TestRenderer.ReactTestInstance[] =>
+    tr.root.findAll((node) => node.type === View);
+  const accessoryHost = (tr: TestRenderer.ReactTestRenderer): TestRenderer.ReactTestInstance | undefined =>
+    avatarViews(tr).find((node) => flatStyleForTest(node.props.style).position === 'absolute' && flatStyleForTest(node.props.style).right !== undefined);
+
+  test('IconAvatar — initials paint soft whatever variant/accent say · md 17px one line · fixed font scale (decorative)', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <IconAvatar initials="EB" variant="solid" accent="orange" />
+      </NuriThemeProvider>,
+    );
+    const root = tr.toJSON() as TestRenderer.ReactTestRendererJSON;
+    // the mode lock: soft = bg-strong + text-primary, NOT the orange solid.
+    expect(flatStyleForTest(root.props.style)).toMatchObject({ width: 48, height: 48, backgroundColor: '#f3f1e2' });
+    const text = tr.root.findByType(Text);
+    expect(text.props.children).toBe('EB');
+    expect(text.props.allowFontScaling).toBe(false);
+    expect(text.props.numberOfLines).toBe(1);
+    expect(text.props.ellipsizeMode).toBe('tail');
+    const textStyle = flatStyleForTest(text.props.style);
+    expect(textStyle).toMatchObject({ ...typeStyle('md'), color: '#222013', textAlign: 'center' });
+    expect(textStyle.fontSize).toBe(17);
+    expect(tr.root.findAllByType(NuriIcon)).toHaveLength(0);
+    expect(tr.root.findAllByType(Image)).toHaveLength(0);
+    expect(accessoryHost(tr)).toBeUndefined();
+    expect(tr.toJSON()).toMatchSnapshot();
+
+    // sm → the xs step (13px) on the 24px circle.
+    const sm = render(
+      <NuriThemeProvider>
+        <IconAvatar size="sm" initials="EB" />
+      </NuriThemeProvider>,
+    );
+    expect(flatStyleForTest(sm.root.findByType(Text).props.style)).toMatchObject({ ...typeStyle('xs') });
+  });
+
+  test('IconAvatar — precedence source > initials > icon · initials="" is absent', () => {
+    // (The one-time dev warning is module-level and already consumed by the
+    // source/icon test above; its generalised text is pinned in the codegen guard.)
+    const source = { uri: 'data:image/png;base64,flag' };
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    try {
+      const initialsOverIcon = render(
+        <NuriThemeProvider>
+          <IconAvatar initials="EB" icon="apple" />
+        </NuriThemeProvider>,
+      );
+      expect(initialsOverIcon.root.findByType(Text).props.children).toBe('EB');
+      expect(initialsOverIcon.root.findAllByType(NuriIcon)).toHaveLength(0);
+
+      const sourceOverInitials = render(
+        <NuriThemeProvider>
+          <IconAvatar source={source} initials="EB" />
+        </NuriThemeProvider>,
+      );
+      expect(sourceOverInitials.root.findAllByType(Image)).toHaveLength(1);
+      expect(sourceOverInitials.root.findAllByType(Text)).toHaveLength(0);
+
+      // initials="" behaves as absent: glyph mode (the variant paints), no text node.
+      const empty = render(
+        <NuriThemeProvider>
+          <IconAvatar initials="" icon="apple" variant="outline" />
+        </NuriThemeProvider>,
+      );
+      expect(empty.root.findAllByType(Text)).toHaveLength(0);
+      expect(empty.root.findByType(NuriIcon).props.name).toBe('apple');
+      expect(flatStyleForTest((empty.toJSON() as TestRenderer.ReactTestRendererJSON).props.style)).toMatchObject({
+        backgroundColor: 'transparent',
+        borderColor: '#dddac9',
+      });
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  test('IconAvatar — the canvas accessory: a content-sized 21px disc at −3/−3, the 2px canvas ring, the hairline', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <IconAvatar initials="CM" accessory="bank" />
+      </NuriThemeProvider>,
+    );
+    const host = accessoryHost(tr);
+    expect(host).toBeDefined();
+    const hostStyle = flatStyleForTest(host!.props.style);
+    // No width/height: 15px glyph + space.xs padding on each side = 21px.
+    expect(hostStyle).toMatchObject({
+      position: 'absolute',
+      right: -space.xs,
+      bottom: -space.xs,
+      padding: space.xs,
+      borderRadius: 9999,
+      backgroundColor: '#fffdf2',
+    });
+    expect(hostStyle.width).toBeUndefined();
+    expect(hostStyle.height).toBeUndefined();
+    expect(hostStyle.borderWidth).toBeUndefined(); // the hairline takes NO layout
+    expect(host!.props.pointerEvents).toBe('none');
+    const glyph = host!.findByType(NuriIcon);
+    expect(glyph.props.name).toBe('bank');
+    expect(glyph.props.dimension).toBe(size['2xs']);
+    expect(size['2xs'] + 2 * space.xs).toBe(21);
+    expect(glyph.props.color).toBe('#222013');
+    const [ring, hairline] = host!.findAll((node) => node.type === View && node !== host);
+    expect(flatStyleForTest(ring.props.style)).toMatchObject({
+      position: 'absolute', top: -2, left: -2, right: -2, bottom: -2, borderWidth: 2, borderColor: '#fffdf2',
+    });
+    expect(flatStyleForTest(hairline.props.style)).toMatchObject({
+      position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderWidth: 1, borderColor: '#dddac9',
+    });
+    // The circle content still renders under the disc.
+    expect(tr.root.findByType(Text).props.children).toBe('CM');
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('IconAvatar — the inverse accessory equals the neutral accent solid and stays neutral under every accent', () => {
+    for (const [mode, expected] of [
+      ['light', { bg: '#12110b', fg: '#f0eee3' }],
+      ['dark', { bg: '#fffdf2', fg: '#222013' }],
+    ] as const) {
+      const neutral = buildNuriTheme('neutral', mode);
+      expect(neutral.surface.solid.bg).toBe(expected.bg);
+      expect(neutral.surface.solid.fg).toBe(expected.fg);
+      for (const accent of ['neutral', 'lilac', 'orange'] as const) {
+        const tr = render(
+          <NuriThemeProvider mode={mode} accent={accent}>
+            <IconAvatar source={{ uri: 'data:image/png;base64,photo' }} accessory="nuri" accessorySurface="inverse" accent={accent} />
+          </NuriThemeProvider>,
+        );
+        const host = accessoryHost(tr);
+        expect(flatStyleForTest(host!.props.style).backgroundColor).toBe(expected.bg);
+        expect(host!.findByType(NuriIcon).props.color).toBe(expected.fg);
+        // inverse ≠ the ring colour → no hairline (only the ring is a bordered child).
+        expect(host!.findAll((node) => node.type === View && node !== host)).toHaveLength(1);
+        // the disc is drawn ABOVE the image (the overlay is the root's last child).
+        const rootKids = (tr.toJSON() as TestRenderer.ReactTestRendererJSON).children as TestRenderer.ReactTestRendererJSON[];
+        expect(rootKids.map((kid) => kid.type)).toEqual(['Image', 'View']);
+        if (mode === 'light' && accent === 'lilac') expect(tr.toJSON()).toMatchSnapshot();
+      }
+    }
+  });
+
+  test('IconAvatar — no accessory node without `accessory` · accessorySurface alone is a no-op', () => {
+    const plain = render(
+      <NuriThemeProvider>
+        <IconAvatar initials="EB" />
+      </NuriThemeProvider>,
+    );
+    const surfaceOnly = render(
+      <NuriThemeProvider>
+        <IconAvatar initials="EB" accessorySurface="inverse" />
+      </NuriThemeProvider>,
+    );
+    expect(accessoryHost(plain)).toBeUndefined();
+    expect(avatarViews(plain)).toHaveLength(1);
+    expect(surfaceOnly.toJSON()).toEqual(plain.toJSON());
+  });
+
   test('NuriIcon — standalone fallback reads theme text, not raw black (D9)', () => {
     const tr = render(
       <NuriThemeProvider mode="dark">
@@ -1205,6 +1365,30 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     );
     expect(JSON.stringify(solidOrange.toJSON())).toContain('#ff8c5a');
     expect(solidOrange.root.findByType(NuriIcon).props.color).toBe('#5e280f');
+  });
+
+  test('ListAction — leadingAvatar forwards initials + accessory + accessorySurface; initials stay soft over the outline default', () => {
+    const tr = render(
+      <NuriThemeProvider accent="lilac">
+        <ListAction accessibilityLabel="Emil Berg, Nuri user, @emil" onPress={() => undefined}>
+          <ListActionLeadingAvatar initials="EB" accessory="nuri" accessorySurface="inverse" />
+          <ListActionText>Emil Berg</ListActionText>
+          <ListActionTextMuted>@emil</ListActionTextMuted>
+          <ListActionTrailIcon name="chevron-right" />
+        </ListAction>
+      </NuriThemeProvider>,
+    );
+    const avatarRoot = tr.root.findAll((node) => node.type === View && flatStyleForTest(node.props.style).width === 48)[0];
+    expect(flatStyleForTest(avatarRoot.props.style)).toMatchObject({ backgroundColor: '#f3f1e2' });
+    expect(flatStyleForTest(avatarRoot.props.style).borderWidth).toBeUndefined(); // not the outline row default
+    expect(avatarRoot.props.accessibilityElementsHidden).toBe(true);
+    const host = accessoryHost(tr);
+    expect(flatStyleForTest(host!.props.style).backgroundColor).toBe('#12110b');
+    expect(tr.root.findAllByType(NuriIcon).map((g) => g.props.name)).toEqual(['nuri', 'chevron-right']);
+    expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toEqual(['EB', 'Emil Berg', '@emil']);
+    // the row label still names the rail — the accessory is never its only carrier.
+    expect(pressableActions(tr)[0]?.props.accessibilityLabel).toBe('Emil Berg, Nuri user, @emil');
+    expect(tr.toJSON()).toMatchSnapshot();
   });
 
   test('SelectField — disclosure value renders optional avatar/chevron and forwards native a11y value', () => {

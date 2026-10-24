@@ -25,7 +25,6 @@ const PRESSABLE_TS = {
   accessibilityLabel: 'string',
   accessibilityValue: 'string',
 };
-const SLOT_PROP_TS = { onPress: '() => void', disabled: 'boolean', accessibilityLabel: 'string', source: 'ImageSourcePropType' };
 const INPUT_TS = {
   value: 'string',
   onChangeText: '(text: string) => void',
@@ -110,7 +109,7 @@ function publicPropsForDescriptor(descriptor) {
   for (const [slotName, slot] of Object.entries(descriptor.api.slots || {})) {
     if (slot.default === true) props.add('children');
     if (slot.prop) props.add(slot.prop);
-    else if (!slot.component && (slot.kind === 'icon-name' || slot.kind === 'image-source' || slot.kind === 'text')) props.add(slotName);
+    else if (!slot.component && (slot.kind === 'icon-name' || slot.kind === 'image-source')) props.add(slotName);
   }
   return props;
 }
@@ -153,15 +152,114 @@ function validatePropMapBridges(name, descriptor) {
     throw new Error(`[components-api] ${name}: behaviour.pressable.role 'switch' requires a declared propMaps.checked bridge`);
   }
 
+  // contentMode (#231 · the ORDERED present list): every entry names a declared
+  // scalar prop slot (once) and a real arm of the internal axis; array order is the
+  // precedence both bindings derive.
   const contentMode = descriptor.api?.propMaps?.contentMode;
   if (contentMode) {
-    const slot = descriptor.api?.slots?.[contentMode.slot];
-    if (!slot) throw new Error(`[components-api] ${name}: propMaps.contentMode names slot '${contentMode.slot}', which is not declared in api.slots`);
-    if (!slot.prop) throw new Error(`[components-api] ${name}: propMaps.contentMode slot '${contentMode.slot}' must be a scalar prop slot — presence is derived from the routed prop`);
-    assertAxisArm('contentMode', contentMode.axis, 'present', contentMode.present);
+    if (!Array.isArray(contentMode.present) || contentMode.present.length === 0) {
+      throw new Error(`[components-api] ${name}: propMaps.contentMode.present must be a non-empty ordered list of { slot, value }`);
+    }
+    const seen = new Set();
+    contentMode.present.forEach((entry, index) => {
+      const slot = descriptor.api?.slots?.[entry.slot];
+      if (!slot) throw new Error(`[components-api] ${name}: propMaps.contentMode.present[${index}] names slot '${entry.slot}', which is not declared in api.slots`);
+      if (!slot.prop) throw new Error(`[components-api] ${name}: propMaps.contentMode slot '${entry.slot}' must be a scalar prop slot — presence is derived from the routed prop`);
+      if (seen.has(entry.slot)) throw new Error(`[components-api] ${name}: propMaps.contentMode lists slot '${entry.slot}' twice — each slot has one precedence`);
+      seen.add(entry.slot);
+      assertAxisArm('contentMode', contentMode.axis, `present[${index}]`, entry.value);
+    });
     assertAxisArm('contentMode', contentMode.axis, 'absent', contentMode.absent);
     if (publicAxes.has(contentMode.axis)) throw new Error(`[components-api] ${name}: propMaps.contentMode axis '${contentMode.axis}' must be INTERNAL (not in api.axes) — content presence is the only driver`);
   }
+}
+
+// ── The bare-`text` rule (#231 · ledger row 2) ─────────────────────────
+// Rich text is COMPOSITION-only (the 2026-07-01 rule): a `text` slot is either a
+// generated component slot or the default children sink. A scalar string prop is
+// the dedicated `initials` kind — so after #231 it is the DS's only scalar text
+// prop, by mechanism. The component-api guard runs this on the catalog AND on a
+// synthetic violation.
+export function validateTextSlots(name, descriptor) {
+  for (const [slotName, slot] of Object.entries(descriptor.api?.slots || {})) {
+    if (slot.kind === 'text' && slot.component !== true && slot.default !== true) {
+      throw new Error(`[components-api] ${name}: slot '${slotName}' is kind 'text' but neither component nor default — rich text is composition-only; a scalar string is the 'initials' kind`);
+    }
+  }
+}
+
+// ── The overlay rule (#231 · ledger row 1 · PartAnatomy.overlay) ──────
+// `overlay: 'corner-accessory'` lets ONE descriptor part overlap its parent — the
+// narrow revisit of the BleedNS position. It is bounded by an ALLOWLIST (a second
+// use is a new Extension, never a free consequence of the schema field) and by the
+// host shape: a non-interactive `view` host (no pressable target, no `interactive`
+// opt-in, not open, never the root). Run on the catalog AND on synthetic violations.
+export const OVERLAY_ALLOWLIST = { 'icon-avatar': ['accessory'] };
+const OVERLAY_VALUES = ['corner-accessory'];
+
+export function validateOverlayParts(name, descriptor) {
+  const anatomy = descriptor.structure?.anatomy || {};
+  if (anatomy.overlay !== undefined) throw new Error(`[components-api] ${name}: the root host cannot declare overlay — only a nested part may overlap its parent`);
+  const allowed = OVERLAY_ALLOWLIST[name] || [];
+  const interactiveParts = new Set();
+  for (const partMap of [
+    descriptor.structure?.base || {},
+    ...Object.values(descriptor.variants || {}).flatMap((values) => Object.values(values || {})),
+  ]) {
+    for (const [part, ns] of Object.entries(partMap || {})) if (ns?.interactive) interactiveParts.add(part);
+  }
+  const walk = (node) => {
+    for (const [part, child] of Object.entries(node?.parts || {})) {
+      if (child.overlay !== undefined) {
+        if (!OVERLAY_VALUES.includes(child.overlay)) throw new Error(`[components-api] ${name}: part '${part}' declares overlay '${child.overlay}' — the only value is 'corner-accessory'`);
+        if (!allowed.includes(part)) throw new Error(`[components-api] ${name}: part '${part}' declares overlay but is not on the overlay allowlist (icon-avatar.accessory only · nuri-com/nuri-design-system#231) — a second use is a new Extension`);
+        if (child.el !== 'view') throw new Error(`[components-api] ${name}: overlay part '${part}' is el '${child.el ?? `component:${child.component}`}' — an overlay part is a non-interactive view host`);
+        if (child.open) throw new Error(`[components-api] ${name}: overlay part '${part}' is open — an overlay host takes no positional children`);
+        if (descriptor.api?.behaviour?.pressable?.target === part) throw new Error(`[components-api] ${name}: overlay part '${part}' is the pressable target — an overlay part has no hit target`);
+        if (interactiveParts.has(part)) throw new Error(`[components-api] ${name}: overlay part '${part}' declares \`interactive\` — an overlay part is non-interactive`);
+      }
+      walk(child);
+    }
+  };
+  walk(anatomy);
+}
+
+// The parts inside an overlay subtree (the overlay host + its descendants).
+function overlaySubtreeParts(anatomy) {
+  const out = new Set();
+  const walk = (node, inOverlay) => {
+    for (const [part, child] of Object.entries(node?.parts || {})) {
+      const overlaid = inOverlay || child.overlay !== undefined;
+      if (overlaid) out.add(part);
+      walk(child, overlaid);
+    }
+  };
+  walk(anatomy, false);
+  return out;
+}
+
+// THE CONTENT-MODE PRECEDENCE (#231 · generic over descriptor data): the scalar prop
+// slots OUTSIDE overlay parts are the mutually-exclusive content (an overlay's content
+// is orthogonal — laid over, never instead). The contentMode list orders them first
+// (array order = precedence); the remaining exclusive slot(s) are the absent-mode
+// content, lowest. Returns slot names highest-first, or null without a contentMode.
+// icon-avatar → ['source', 'initials', 'icon'].
+export function contentModePrecedence(descriptor) {
+  const contentMode = descriptor.api?.propMaps?.contentMode;
+  if (!contentMode) return null;
+  const overlaid = overlaySubtreeParts(descriptor.structure?.anatomy);
+  const listed = contentMode.present.map((entry) => entry.slot);
+  const rest = Object.entries(descriptor.api.slots || {})
+    .filter(([slotName, slot]) => slot.prop && !overlaid.has(slot.part) && !listed.includes(slotName))
+    .map(([slotName]) => slotName);
+  return [...listed, ...rest];
+}
+
+// Presence of a scalar slot's prop (#231): a string-content slot (`initials`) is
+// present when NON-EMPTY (`initials=""` behaves as absent); every other scalar
+// when non-null.
+function presentTs(slot, expr) {
+  return slot.kind === 'initials' ? `${expr} != null && ${expr} !== ''` : `${expr} != null`;
 }
 
 export function validateComponentReferences(catalog) {
@@ -244,6 +342,8 @@ export function validateDescriptorLocalParts(name, descriptor) {
   const partSet = new Set(parts);
 
   validatePropMapBridges(name, descriptor);
+  validateTextSlots(name, descriptor);
+  validateOverlayParts(name, descriptor);
 
   const base = descriptor.structure?.base || {};
   for (const part of Object.keys(base)) assertLocalPart(name, partSet, part, 'structure.base');
@@ -315,13 +415,58 @@ function parseSlotBinding(value) {
   return { prop, fallback: fallbackParts.length ? fallbackParts.join('|') : undefined };
 }
 
-function slotPropTs(prop, ref, catalog) {
-  if (prop === 'accent') return 'Accent';
-  if (prop === 'variant') {
-    const values = Object.keys(catalog?.[ref?.component]?.variants?.variant || {});
+// The TS type of one forwarded marker prop, read GENERICALLY from the TARGET
+// component's api (#231 · ledger row 6): a public axis → its value union; the accent
+// scope → Accent; a scalar slot prop → its kind's type; a behaviour prop → its
+// behaviour type. A prop the target does not type is an emit-time error, never
+// `unknown` (validateComponentReferences already proves the prop is public).
+const SCALAR_KIND_TS = { 'icon-name': 'IconName', 'image-source': 'ImageSourcePropType', initials: 'string' };
+
+function forwardedPropTs(prop, ref, catalog) {
+  const target = catalog?.[ref?.component];
+  const api = target?.api;
+  if (api?.axes?.includes(prop)) {
+    const values = Object.keys(target.variants?.[prop] || {});
     if (values.length) return values.map((v) => `'${v}'`).join(' | ');
   }
-  return SLOT_PROP_TS[prop] || 'unknown';
+  if (prop === 'accent' && api?.themeScope?.accent) return 'Accent';
+  for (const [slotName, slot] of Object.entries(api?.slots || {})) {
+    if ((slot.prop || slotName) === prop && SCALAR_KIND_TS[slot.kind]) return SCALAR_KIND_TS[slot.kind];
+  }
+  if ((prop === 'selected' && api?.propMaps?.selected) || (prop === 'checked' && api?.propMaps?.checked)) return 'boolean';
+  if (api?.behaviour?.pressable?.props?.includes(prop)) return PRESSABLE_TS[prop];
+  if (api?.behaviour?.input?.props?.includes(prop)) return INPUT_TS[prop];
+  return undefined;
+}
+
+// A marker prop is a `$slot.<binding>` on the ref; the TARGET prop it lands on may be
+// spelled differently (`icon: '$slot.name'`), so resolve the target key first.
+function slotPropTs(bindingProp, ref, catalog) {
+  const targetProp = Object.entries(ref?.props || {}).find(([, value]) =>
+    typeof value === 'string' && value.startsWith('$slot.') && parseSlotBinding(value).prop === bindingProp
+  )?.[0];
+  const ts = targetProp ? forwardedPropTs(targetProp, ref, catalog) : undefined;
+  if (!ts) {
+    throw new Error(`[components-api] component-ref '${ref?.part}' forwards '${bindingProp}', which '${ref?.component}' does not type (an axis, the accent scope, a scalar slot, or a behaviour prop)`);
+  }
+  return ts;
+}
+
+// Every forwarded marker prop's TS type across a descriptor's component slots — the
+// emitter's import set (IconName / ImageSourcePropType / Accent) follows the types it
+// actually writes, never a prop-name guess.
+function forwardedMarkerTypes(descriptor, catalog) {
+  const refsByPart = componentRefsByPart(descriptor);
+  const types = new Set();
+  for (const slot of Object.values(descriptor.api.slots || {})) {
+    if (slot.component !== true) continue;
+    const ref = refsByPart.get(slot.part);
+    const contentProp = slot.kind === 'icon-name' ? 'name' : 'children';
+    for (const prop of slotPropNamesForComponentRef(ref).filter((p) => p !== contentProp)) {
+      types.add(slotPropTs(prop, ref, catalog));
+    }
+  }
+  return types;
 }
 
 function buildProps(api, variants, descriptor) {
@@ -366,6 +511,8 @@ function buildProps(api, variants, descriptor) {
       if (slot.kind === 'image-source') {
         usesImageSource = true;
         lines.push(`  ${slot.prop}${slot.required ? '' : '?'}: ImageSourcePropType;`);
+      } else if (slot.kind === 'initials') {
+        lines.push(`  ${slot.prop}${slot.required ? '' : '?'}: string;`);
       } else {
         usesIcon = true;
         lines.push(`  ${slot.prop}${slot.required ? '' : '?'}: IconName;`);
@@ -375,8 +522,6 @@ function buildProps(api, variants, descriptor) {
     if (slot.kind === 'icon-name') {
       usesIcon = true;
       lines.push(`  ${slotName}?: IconName;`);
-    } else if (slot.kind === 'text') {
-      lines.push(`  ${slotName}?: string;`);
     } else if (slot.kind === 'image-source') {
       usesImageSource = true;
       lines.push(`  ${slotName}?: ImageSourcePropType;`);
@@ -426,18 +571,19 @@ function emitSelection(descriptor) {
   // THE content-presence BRIDGE (propMaps.contentMode · the selected-bridge
   // sibling): the named slot's scalar prop drives an INTERNAL axis — data in the
   // descriptor, one derived line in the adapter (web mirror: buildComponent).
+  // #231: the ordered present list — the first present slot's value wins.
   const contentMode = descriptor.api.propMaps && descriptor.api.propMaps.contentMode;
   if (contentMode) {
-    const slot = descriptor.api.slots[contentMode.slot];
-    const prop = (slot && slot.prop) || contentMode.slot;
-    lines.push(
-      `  selection[${q(contentMode.axis)}] = props.${prop} != null ? ${q(contentMode.present)} : ${q(contentMode.absent)};`,
-    );
+    const arms = contentMode.present.map((entry) => {
+      const slot = descriptor.api.slots[entry.slot];
+      return `${presentTs(slot, `props.${slot.prop}`)} ? ${q(entry.value)} : `;
+    });
+    lines.push(`  selection[${q(contentMode.axis)}] = ${arms.join('')}${q(contentMode.absent)};`);
   }
   return lines;
 }
 
-function emitContent(api, partTypeName, displayNameConst, contentType = 'React.ReactNode', imageWins) {
+function emitContent(api, partTypeName, displayNameConst, contentType = 'React.ReactNode', precedence = null) {
   const lines = [`  const content: Partial<Record<${partTypeName}, ${contentType}>> = {};`];
   const regionSlots = Object.values(api.slots).filter((slot) => slot.kind === 'region');
   const fallbackRegion = Object.values(api.slots).find((slot) => slot.kind === 'region' && slot.default === true);
@@ -479,8 +625,18 @@ function emitContent(api, partTypeName, displayNameConst, contentType = 'React.R
     }
   }
 
+  // #231: the mutually-exclusive content slots route in precedence order — only the
+  // highest present one reaches its part (source > initials > icon on icon-avatar).
+  if (precedence) {
+    precedence.forEach((slotName, index) => {
+      const slot = api.slots[slotName];
+      lines.push(`  ${index ? 'else ' : ''}if (${presentTs(slot, `props.${slot.prop}`)}) content[${q(slot.part)}] = props.${slot.prop};`);
+    });
+  }
+
   for (const [slotName, slot] of Object.entries(api.slots)) {
     if (slot.kind === 'region' || slot.component === true) continue;
+    if (precedence?.includes(slotName)) continue;
     if (slot.default === true) {
       if (componentSlots.length) {
         lines.push(`  if (!harvestedComposition.hasSlots && props.children !== undefined) content[${q(slot.part)}] = props.children;`);
@@ -489,10 +645,9 @@ function emitContent(api, partTypeName, displayNameConst, contentType = 'React.R
       }
       continue;
     }
-    const prop = slot.prop || (slot.kind === 'icon-name' || slot.kind === 'image-source' || slot.kind === 'text' ? slotName : null);
+    const prop = slot.prop || (slot.kind === 'icon-name' || slot.kind === 'image-source' ? slotName : null);
     if (prop) {
-      const sourceGuard = imageWins?.iconProp === prop ? ` && props.${imageWins.sourceProp} === undefined` : '';
-      lines.push(`  if (props.${prop} !== undefined${sourceGuard}) content[${q(slot.part)}] = props.${prop};`);
+      lines.push(`  if (props.${prop} !== undefined) content[${q(slot.part)}] = props.${prop};`);
     }
   }
 
@@ -527,6 +682,15 @@ function emitBehaviour(api, partTypeName) {
   return lines;
 }
 
+// "icon", "source" or "initials" — the exclusive props in DECLARATION order (the
+// warning's choice list); the precedence clause follows in precedence order.
+function contentChoiceText(descriptor, precedence) {
+  const props = Object.keys(descriptor.api.slots)
+    .filter((slotName) => precedence.includes(slotName))
+    .map((slotName) => `"${descriptor.api.slots[slotName].prop}"`);
+  return props.length > 1 ? `${props.slice(0, -1).join(', ')} or ${props[props.length - 1]}` : props.join('');
+}
+
 function fileHeader(name) {
   return [
     '/* ──────────────────────────────────────────────────────────────',
@@ -556,17 +720,15 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
   const refs = componentRefs(descriptor);
   const refsByPart = componentRefsByPart(descriptor);
   const refComponents = [...new Set(refs.map((ref) => ref.component))];
-  const usesSlotAccent = refs.some((ref) =>
-    Object.values(ref.props || {}).some((value) => typeof value === 'string' && value.startsWith('$slot.') && parseSlotBinding(value).prop === 'accent'),
-  );
-  const usesSlotImageSource = refs.some((ref) =>
-    Object.values(ref.props || {}).some((value) => typeof value === 'string' && value.startsWith('$slot.') && parseSlotBinding(value).prop === 'source'),
-  );
-  const iconScalar = Object.entries(descriptor.api.slots).find(([, slot]) => slot.kind === 'icon-name' && slot.prop);
-  const imageScalar = Object.entries(descriptor.api.slots).find(([, slot]) => slot.kind === 'image-source' && slot.prop);
-  const imageWins = iconScalar && imageScalar
-    ? { iconProp: iconScalar[1].prop, sourceProp: imageScalar[1].prop }
-    : undefined;
+  const markerTypes = forwardedMarkerTypes(descriptor, catalog);
+  const usesSlotAccent = markerTypes.has('Accent');
+  const usesSlotImageSource = markerTypes.has('ImageSourcePropType');
+  const usesSlotIcon = markerTypes.has('IconName');
+  // The mutually-exclusive content slots, highest precedence first (#231 · generic:
+  // contentMode list + the remaining non-overlay scalar slots). Two or more → the
+  // adapter routes only the winner and warns once unless exactly one is present.
+  const precedenceSlots = contentModePrecedence(descriptor);
+  const precedence = precedenceSlots && precedenceSlots.length > 1 ? precedenceSlots : null;
   const hasRegions = regionParts.length > 0;
   const hasComponentSlots = componentSlots.length > 0;
   const hasInput = descriptor.api.behaviour?.input !== undefined;
@@ -585,7 +747,7 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
     partTypeName,
     `${local}DisplayName`,
     usesImageSource ? 'NuriContent' : 'React.ReactNode',
-    imageWins,
+    precedence,
   );
 
   const rendererImports = ['nuriNames', 'renderDescriptorInstance'];
@@ -609,7 +771,7 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
   } else if (usesSlotAccent) {
     imports.push("import type { Accent } from '../data/tokens';");
   }
-  if (usesIcon) imports.push("import type { IconName } from '../data/icons';");
+  if (usesIcon || usesSlotIcon) imports.push("import type { IconName } from '../data/icons';");
   for (const component of refComponents) {
     imports.push(`import { ${pascalCase(component)} } from './${component}';`);
   }
@@ -626,7 +788,7 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
     '',
     `const ${displayNameConst} = nuriNames('${name}').rn;`,
   ];
-  if (imageWins) body.push(`let warned${Pascal}Content = false;`);
+  if (precedence) body.push(`let warned${Pascal}Content = false;`);
   if (warnsMissingInputName) body.push(`let warned${Pascal}AccessibleName = false;`);
   if (refComponents.length) {
     body.push('const componentRegistry = {');
@@ -690,10 +852,10 @@ export function emitComponentFile(spec, descriptor, catalog = {}) {
     hasInput
       ? `const ${innerName} = React.forwardRef<${Pascal}Handle, ${Pascal}Props>((props, ref) => {`
       : `const ${innerName}: React.FC<${Pascal}Props> = (props) => {`,
-    ...(imageWins ? [
-      `  if (!warned${Pascal}Content && typeof __DEV__ !== 'undefined' && __DEV__ && ((props.${imageWins.iconProp} === undefined) === (props.${imageWins.sourceProp} === undefined))) {`,
+    ...(precedence ? [
+      `  if (!warned${Pascal}Content && typeof __DEV__ !== 'undefined' && __DEV__ && [${precedence.map((slotName) => presentTs(descriptor.api.slots[slotName], `props.${descriptor.api.slots[slotName].prop}`)).join(', ')}].filter(Boolean).length !== 1) {`,
       `    warned${Pascal}Content = true;`,
-      `    console.warn('[nuri] <' + ${displayNameConst} + '> expects exactly one of "${imageWins.iconProp}" or "${imageWins.sourceProp}"; image source wins when both are provided.');`,
+      `    console.warn('[nuri] <' + ${displayNameConst} + '> expects exactly one of ${contentChoiceText(descriptor, precedence)}; when several are provided, ${precedence.map((slotName) => descriptor.api.slots[slotName].prop).join(' > ')}.');`,
       '  }',
     ] : []),
     ...emitSelection(descriptor),

@@ -171,9 +171,39 @@ function resolveAnatomy(descriptor) {
     component: a.component,
     props: a.props,
     open: !!a.open,
+    ...(a.overlay !== undefined ? { overlay: a.overlay } : {}),
     children: a.parts ? Object.keys(a.parts).map((c) => walk(c, a.parts[c])) : [],
   });
   return walk('root', descriptor.structure.anatomy);
+}
+
+// ── THE CORNER-ACCESSORY OVERLAY (PartAnatomy.overlay · nuri-com/nuri-design-system#231) ──
+// The web twin of renderer.tsx's overlay realisation, keyed off the descriptor's
+// `overlay` value — no component logic. The overlay host carries
+// `data-overlay="corner-accessory"` and its parent painting node `data-overlay-host`;
+// primitives/view.css realises the bundle: absolute placement at the bottom-end corner
+// pushed out by space.xs, the 2px bg-canvas ring as an outer box-shadow, the 1px
+// border-subtle hairline as an INSET box-shadow when the host paints chrome canvas
+// (both take no layout), pointer-events none, and `position: relative` on the parent
+// painting node — never the display:contents component host. Content gating is here:
+// an overlay host renders only when a slot inside it has content.
+function subtreeHasContent(node, content) {
+  return content?.[node.name] != null || node.children.some((child) => subtreeHasContent(child, content));
+}
+
+// The parts inside an overlay subtree (the overlay host + descendants) — their content
+// is orthogonal to the content mode (laid over, never instead).
+function overlaySubtreeParts(anatomy) {
+  const out = new Set();
+  const walk = (node, inOverlay) => {
+    for (const child of node.children) {
+      const overlaid = inOverlay || child.overlay !== undefined;
+      if (overlaid) out.add(child.name);
+      walk(child, overlaid);
+    }
+  };
+  walk(anatomy, false);
+  return out;
 }
 
 // ── the agnostic namespaces (box · stack · palette) → merged-node classes+data-* ──
@@ -389,6 +419,7 @@ function applyToInteractiveHost(host, merge) {
 // ── render one anatomy node → its nuri-* element (the el → web-primitive map) ──
 function renderPart(node, ctx) {
   if (node.component) return renderComponentRef(node, ctx);
+  if (node.overlay && !subtreeHasContent(node, ctx.content)) return null;
   const ns = mergedNSForPart(ctx.descriptor, ctx.selection, node.name);
   switch (node.el) {
     case 'view':
@@ -628,8 +659,11 @@ function renderInteractiveView(node, ns, ctx) {
     }
   }
 
-  // box ⊕ stack ⊕ palette → merged onto the inner <button> (deferred).
-  applyToInteractiveHost(host, mergeAttrs(ns));
+  // box ⊕ stack ⊕ palette → merged onto the inner <button> (deferred). The button is
+  // the painting node, so it anchors an overlay child (data-overlay-host · #231).
+  const merge = mergeAttrs(ns);
+  if (node.children.some((child) => child.overlay)) merge.data['data-overlay-host'] = '';
+  applyToInteractiveHost(host, merge);
   return host;
 }
 
@@ -649,6 +683,10 @@ function renderStaticView(node, ns, ctx) {
   const { classes, data } = mergeAttrs(ns);
   if (classes.length) host.classList.add(...classes);
   for (const [k, v] of Object.entries(data)) host.setAttribute(k, v);
+  // The corner-accessory overlay (#231): this host overlaps its parent, or anchors an
+  // overlay child — this element IS the painting node (not the display:contents host).
+  if (node.overlay) host.setAttribute('data-overlay', node.overlay);
+  if (node.children.some((child) => child.overlay)) host.setAttribute('data-overlay-host', '');
   if (ctx.inputBehaviour?.focusTarget === node.name) {
     host.setAttribute('data-nuri-focus-target', '');
     host.addEventListener('nuri-input-focus', () => host.setAttribute('data-nuri-input-focused', ''));
@@ -846,13 +884,32 @@ export function buildComponent(descriptor, selection = {}, props = {}) {
   }
 
   // THE content-presence BRIDGE (propMaps.contentMode · the `selected` bridge
-  // sibling · the RN adapter mirror): routed content on the named slot drives
-  // an INTERNAL axis (icon-avatar `mode`: source ⇒ image | glyph).
+  // sibling · the RN adapter mirror): routed content drives an INTERNAL axis —
+  // the ORDERED present list (#231), first present slot wins (icon-avatar `mode`:
+  // source ⇒ image, else initials ⇒ initials, else glyph). Presence: a string-content
+  // (`initials`) slot is present when NON-EMPTY; every other scalar when non-null.
+  // The scalar slots outside overlay parts are mutually exclusive in that precedence
+  // (the listed slots, then the rest): only the winner keeps its routed content.
   const contentModeMap = descriptor.api?.propMaps?.contentMode;
   if (contentModeMap) {
-    const modeSlot = descriptor.api.slots[contentModeMap.slot];
-    sel[contentModeMap.axis] =
-      modeSlot && content[modeSlot.part] != null ? contentModeMap.present : contentModeMap.absent;
+    const slots = descriptor.api.slots;
+    const present = (slotName) => {
+      const slot = slots[slotName];
+      const value = content[slot.part];
+      return slot.kind === 'initials' ? value != null && value !== '' : value != null;
+    };
+    const hit = contentModeMap.present.find((entry) => present(entry.slot));
+    sel[contentModeMap.axis] = hit ? hit.value : contentModeMap.absent;
+    const overlaid = overlaySubtreeParts(anatomy);
+    const listed = contentModeMap.present.map((entry) => entry.slot);
+    const exclusive = [
+      ...listed,
+      ...Object.keys(slots).filter((slotName) => slots[slotName].prop && !overlaid.has(slots[slotName].part) && !listed.includes(slotName)),
+    ];
+    const winner = exclusive.find((slotName) => present(slotName));
+    for (const slotName of exclusive) {
+      if (slotName !== winner) delete content[slots[slotName].part];
+    }
   }
 
   return renderPart(anatomy, {
@@ -1005,7 +1062,9 @@ export function defineNuriComponent(descriptor, tagName, options = {}) {
     accessibilityLabel: 'aria-label',
   };
 
-  const observed = [...axisNames, 'accent'];
+  // Axis attributes are kebab-case (#231 · generic): `accessorySurface` → the
+  // `accessory-surface` attribute; single-word axes are unchanged.
+  const observed = [...axisNames.map(camelToKebab), 'accent'];
   if (supportsPressableDisabled) observed.push('disabled');
   observed.push(...perPartAttrs);
   if (inputBehaviour) {
@@ -1113,7 +1172,7 @@ export function defineNuriComponent(descriptor, tagName, options = {}) {
       // fills an unset axis from descriptor.defaults (R1.5 · no default here).
       const selection = {};
       for (const axis of axisNames) {
-        const v = this.getAttribute(axis);
+        const v = this.getAttribute(camelToKebab(axis));
         if (v != null) selection[axis] = v;
       }
       const props = {};

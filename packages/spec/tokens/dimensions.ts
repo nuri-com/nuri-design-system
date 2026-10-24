@@ -28,7 +28,11 @@ export const space = {
 
 // L2 · size · element dimensions (min-height / width of an element itself ·
 // decision 36). Anchors larger than space (touch targets, control heights).
+// `2xs` (15px · nuri-com/nuri-design-system#231) is the step below `xs`, on the 3px
+// grid the space scale uses: the IconAvatar accessory glyph (15 + 3px padding = the
+// 21px disc). A size leaf, NOT an icon size — no new icon step.
 export const size = {
+  '2xs': { value: 15, unit: 'px' },
   xs:    { value: 18, unit: 'px' },
   sm:    { value: 24, unit: 'px' },
   md:    { value: 36, unit: 'px' },

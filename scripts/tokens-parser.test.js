@@ -338,7 +338,10 @@ const SEMANTIC_EXPECTED = {
 
   // ── Semantic sizing · cascade-invariant · same value across (accent × theme) ──
   // Asymmetric vs spacing by design: anchors larger (touch targets,
-  // control heights). Decision 36 · N+6.1.
+  // control heights). Decision 36 · N+6.1. `2xs` (15px) is the IconAvatar accessory
+  // glyph leaf (nuri-com/nuri-design-system#231).
+  '--nuri-size-2xs':  { neutral: { light: '15px', dark: '15px' },
+                        lilac:   { light: '15px', dark: '15px' } },
   '--nuri-size-xs':   { neutral: { light: '18px', dark: '18px' },
                         lilac:   { light: '18px', dark: '18px' } },
   '--nuri-size-sm':   { neutral: { light: '24px', dark: '24px' },

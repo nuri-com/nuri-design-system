@@ -64,6 +64,9 @@ const expectedChromeSlots = (mode: Theme) => {
     // inverse-muted (the Switch OFF track · admission C1): the neutral-11 fill under
     // text-on-inverse; fgMuted is the shared muted role like every chrome row.
     'inverse-muted': { bg: c.bgInverseMuted, fg: c.textOnInverse, fgMuted: c.textMuted },
+    // inverse (the IconAvatar accessory · nuri-com/nuri-design-system#231): the Nuri-user
+    // disc — bg-inverse under text-on-inverse, the same under every accent.
+    inverse: { bg: c.bgInverse, fg: c.textOnInverse, fgMuted: c.textMuted },
   };
 };
 

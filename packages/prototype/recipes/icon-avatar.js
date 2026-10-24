@@ -16,12 +16,18 @@
  * the namespace CSS (box/stack/palette). factory.js + the descriptor twin arrive
  * via this module's imports.
  *
- * Public API — <nuri-icon-avatar icon|source variant accent></nuri-icon-avatar>:
+ * Public API — <nuri-icon-avatar icon|source|initials accessory accessory-surface variant accent>:
  *   icon    → the glyph NAME routed into the `icon` part (the component prop · the
  *             primitive <nuri-icon> leaf carries `name` · aligned across RN + web)
  *   source  → a consumer-owned image URI routed into the `image` part; fills the
- *             circle and carries its own hairline ring. Exactly one of icon/source
- *             is expected; source wins when both are present.
+ *             circle and carries its own hairline ring.
+ *   initials → 1–2 caller-cased letters routed into the `initials` text part (#231);
+ *             paints soft whatever variant/accent say. Exactly one of icon/source/
+ *             initials is expected; precedence source > initials > icon (the factory
+ *             routes only the winner · generic, from the contentMode list); an empty
+ *             `initials=""` counts as absent.
+ *   accessory → a rail glyph on the corner disc (#231 · md only); accessory-surface
+ *             "canvas" (default) | "inverse" paints the disc.
  *   variant → "soft" (default) | "solid" | "ghost" | "subtle" | "outline"   · size LOCKED (lg circle / md glyph)
  *   accent  → Tier-2 self-scope (threaded as a prop · data-accent on the merged node)
  *   the host is aria-hidden (decorative · decision 50), not focusable, carries no role.
@@ -42,12 +48,14 @@ const tagName = nuriNames('icon-avatar').web;
 let warnedContentMode = false;
 defineNuriComponent(iconAvatarDescriptor, tagName, {
   transformProps(props, host) {
-    const hasIcon = host.hasAttribute('icon');
-    const hasSource = host.hasAttribute('source');
-    if (!warnedContentMode && hasIcon === hasSource) {
+    const contents = [
+      host.hasAttribute('icon'),
+      host.hasAttribute('source'),
+      (host.getAttribute('initials') ?? '') !== '',
+    ].filter(Boolean).length;
+    if (!warnedContentMode && contents !== 1) {
       warnedContentMode = true;
-      console.warn(`[nuri] <${tagName}> expects exactly one of \`icon\` or \`source\`; image source wins when both are provided.`);
+      console.warn(`[nuri] <${tagName}> expects exactly one of \`icon\`, \`source\` or \`initials\`; when several are provided, source > initials > icon.`);
     }
-    if (hasSource) delete props.icon;
   },
 });

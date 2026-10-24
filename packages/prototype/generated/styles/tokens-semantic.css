@@ -307,6 +307,8 @@
   /* N+31 · GENERATED from the TS SoT (packages/spec/tokens/dimensions.ts · decision 70 ·
    * dec-2 reversed for the dimension layer). Edit the SoT, not these values —
    * `npm run build` regenerates them in place (Slice 0). */
+  /* size.2xs · the IconAvatar accessory glyph (15 + 3px padding = 21px disc · #231) · not an icon size */
+  --nuri-size-2xs: 15px;
   /* size.xs  · smallest element · inline tag / chip height */
   --nuri-size-xs:  18px;
   /* size.sm  · compact element · dense list-item height, indicator dot */

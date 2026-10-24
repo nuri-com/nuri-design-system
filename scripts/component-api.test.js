@@ -38,9 +38,9 @@
  *   5.  AT MOST ONE slot carries `default: true`;
  *   6.  `multiple: true` only on a `kind: 'children'` slot OR a generated
  *       component slot;
- *   7.  `prop` (the scalar shorthand) ONLY on a SINGULAR `kind: 'icon-name'` or
- *       `kind: 'image-source'` slot (never text/node/region/children · never a
- *       `multiple` slot);
+ *   7.  `prop` (the scalar shorthand) ONLY on a SINGULAR `kind: 'icon-name'`,
+ *       `kind: 'image-source'` or `kind: 'initials'` slot (never text/node/region/
+ *       children · never a `multiple` slot);
  *   8.  `themeScope.accent`, when declared, is exactly `true` (§2);
  *   9.  `default: true` is MUTUALLY EXCLUSIVE with `prop` (Option A · §1c — a default
  *       slot is children-delivered, a prop slot is prop-delivered · Phase-2 codegen);
@@ -48,6 +48,11 @@
  *       never `icon-name` (Option A · §1c · the untagged-children sink is a subtree).
  *   11. `component: true` is only used for composition slots (no `prop`/`default`)
  *       and all generated prop/slot identifiers are safe TS identifiers.
+ *   12. a `text` slot is `component` or `default` — rich text is composition-only,
+ *       the `initials` kind is the only scalar text prop (#231 · by mechanism);
+ *   13. `overlay` is ALLOWLISTED (icon-avatar.accessory only · #231) and an overlay
+ *       part is a non-interactive, non-open `view` host, never the root.
+ *   12 + 13 run on the catalog AND on synthetic violations (each must throw).
  *
  * Sibling to docs-drift.test.js / naming.test.js — picked up by the existing
  * `node --test scripts/*.test.js` gate · zero new deps.
@@ -58,7 +63,13 @@ import assert from 'node:assert/strict';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { emitComponentFile, HOST_ELS, validateComponentReferences } from './parsers/components-api.js';
+import {
+  emitComponentFile,
+  HOST_ELS,
+  validateComponentReferences,
+  validateOverlayParts,
+  validateTextSlots,
+} from './parsers/components-api.js';
 import { DESCRIPTOR_COMPONENTS, exportNameFor } from './parsers/descriptors.js';
 import { loadTsDataFromPath } from './ts-data-loader.js';
 
@@ -133,7 +144,8 @@ function authoredPartMaps(descriptor) {
 // pressable; both renderers serve a host's children through the same body path,
 // so a slot kind must not reject the pressable half). A `children` sink must
 // also be OPEN.
-const KIND_ELS = { text: ['text'], 'icon-name': ['icon'], 'image-source': ['image'], region: HOST_ELS, children: HOST_ELS, node: HOST_ELS };
+// `initials` (#231) is the scalar string kind — it targets a text leaf like `text`.
+const KIND_ELS = { text: ['text'], 'icon-name': ['icon'], 'image-source': ['image'], initials: ['text'], region: HOST_ELS, children: HOST_ELS, node: HOST_ELS };
 const KINDS = Object.keys(KIND_ELS);
 
 // The public behaviour props a `pressable` may expose (mirrors the schema union
@@ -512,12 +524,14 @@ test('component-api · multiple: true only on a kind:children slot or generated 
 });
 
 // ── Channel 7 · prop only on a singular scalar slot ──
-test('component-api · prop only on a singular icon-name/image-source slot', () => {
+// `initials` (#231) is the third scalar kind: the one prop-delivered string.
+const SCALAR_KINDS = ['icon-name', 'image-source', 'initials'];
+test('component-api · prop only on a singular icon-name/image-source/initials slot', () => {
   for (const name of NAMES) {
     const d = CATALOG[name];
     for (const [slot, spec] of slotEntries(d)) {
       if (spec.prop === undefined) continue;
-      assert.ok(['icon-name', 'image-source'].includes(spec.kind), `${name}: slot '${slot}' declares prop '${spec.prop}' but kind '${spec.kind}' — the scalar shorthand is only legal on kind:'icon-name' or kind:'image-source'`);
+      assert.ok(SCALAR_KINDS.includes(spec.kind), `${name}: slot '${slot}' declares prop '${spec.prop}' but kind '${spec.kind}' — the scalar shorthand is only legal on kind:${SCALAR_KINDS.map((k) => `'${k}'`).join(' / ')}`);
       assert.notEqual(spec.multiple, true, `${name}: slot '${slot}' declares prop '${spec.prop}' but is multiple — the scalar shorthand requires a SINGULAR slot`);
     }
   }
@@ -604,6 +618,107 @@ test('component-api · generated prop and component-slot identifiers are safe', 
         assert.notEqual(spec.kind, 'region', `${name}: component slot '${slot}' is a region — regions use their existing marker harvest path`);
       }
     }
+  }
+});
+
+// ── Channel 12 · a `text` slot is composition-only (#231 · the bare-text rule) ──
+// Today's catalog must pass; a synthetic descriptor with a bare scalar `text` slot
+// (no component, no default) must FAIL — otherwise the codegen would mint a
+// `slotName?: string` prop and undo the composition-only rule.
+test('component-api · a text slot is component or default (the bare-text guard)', () => {
+  for (const name of NAMES) assert.doesNotThrow(() => validateTextSlots(name, CATALOG[name]), name);
+  const bare = {
+    structure: { anatomy: { el: 'view', parts: { caption: { el: 'text' } } } },
+    api: { axes: [], slots: { caption: { part: 'caption', kind: 'text' } } },
+  };
+  assert.throws(
+    () => validateTextSlots('bare-text-probe', bare),
+    /bare-text-probe: slot 'caption' is kind 'text' but neither component nor default/,
+  );
+  assert.throws(
+    () => emitComponentFile({ name: 'bare-text-probe' }, bare),
+    /bare-text-probe: slot 'caption' is kind 'text' but neither component nor default/,
+    'the codegen refuses the bare scalar text slot too',
+  );
+});
+
+// ── Channel 13 · the overlay allowlist + host shape (#231 · PartAnatomy.overlay) ──
+// Only icon-avatar.accessory may overlap its parent. Each synthetic violation — a
+// non-allowlisted part, a non-view host, an interactive or pressable-target host, an
+// open host, an overlay on the root, an unknown value — must fail on a NAMED rule.
+test('component-api · overlay is allowlisted to icon-avatar.accessory on a non-interactive view host', () => {
+  for (const name of NAMES) assert.doesNotThrow(() => validateOverlayParts(name, CATALOG[name]), name);
+  const overlaid = Object.entries(CATALOG).flatMap(([name, d]) =>
+    [...anatomyIndex(d.structure.anatomy).entries()].filter(([, node]) => node.overlay !== undefined).map(([part]) => `${name}.${part}`),
+  );
+  assert.deepEqual(overlaid, ['icon-avatar.accessory'], 'exactly one catalog part declares overlay');
+
+  const avatar = CATALOG['icon-avatar'];
+  const mutate = (fn) => {
+    const d = structuredClone(avatar);
+    fn(d);
+    return d;
+  };
+  // A second part, on a different descriptor, declaring overlay → not allowlisted.
+  const elsewhere = {
+    structure: { anatomy: { el: 'view', parts: { badge: { el: 'view', overlay: 'corner-accessory', parts: { glyph: { el: 'icon' } } } } } },
+    api: { axes: [], slots: { glyph: { part: 'glyph', kind: 'icon-name', prop: 'glyph' } } },
+  };
+  assert.throws(() => validateOverlayParts('badge-probe', elsewhere), /badge-probe: part 'badge' declares overlay but is not on the overlay allowlist/);
+  assert.throws(
+    () => validateOverlayParts('icon-avatar', mutate((d) => { d.structure.anatomy.parts.image.overlay = 'corner-accessory'; })),
+    /icon-avatar: part 'image' declares overlay but is not on the overlay allowlist/,
+  );
+  assert.throws(
+    () => validateOverlayParts('icon-avatar', mutate((d) => { d.structure.anatomy.parts.accessory.overlay = 'bottom-end'; })),
+    /icon-avatar: part 'accessory' declares overlay 'bottom-end' — the only value is 'corner-accessory'/,
+  );
+  assert.throws(
+    () => validateOverlayParts('icon-avatar', mutate((d) => { d.structure.anatomy.parts.accessory.el = 'pressable'; })),
+    /icon-avatar: overlay part 'accessory' is el 'pressable' — an overlay part is a non-interactive view host/,
+  );
+  assert.throws(
+    () => validateOverlayParts('icon-avatar', mutate((d) => { d.structure.base.accessory.interactive = { pressScale: true }; })),
+    /icon-avatar: overlay part 'accessory' declares `interactive` — an overlay part is non-interactive/,
+  );
+  assert.throws(
+    () => validateOverlayParts('icon-avatar', mutate((d) => { d.variants.accessorySurface.inverse.accessory.interactive = { pressColor: true }; })),
+    /icon-avatar: overlay part 'accessory' declares `interactive`/,
+    'a variant-level interactive opt-in counts too',
+  );
+  assert.throws(
+    () => validateOverlayParts('icon-avatar', mutate((d) => { d.api.behaviour = { pressable: { target: 'accessory', props: ['onPress'] } }; })),
+    /icon-avatar: overlay part 'accessory' is the pressable target — an overlay part has no hit target/,
+  );
+  assert.throws(
+    () => validateOverlayParts('icon-avatar', mutate((d) => { d.structure.anatomy.parts.accessory.open = true; })),
+    /icon-avatar: overlay part 'accessory' is open/,
+  );
+  assert.throws(
+    () => validateOverlayParts('icon-avatar', mutate((d) => { d.structure.anatomy.overlay = 'corner-accessory'; })),
+    /icon-avatar: the root host cannot declare overlay/,
+  );
+});
+
+// ── #231 · the contentMode precedence + presence + forwarded typing emit GENERICALLY ──
+// The adapter routes only the highest present exclusive slot (source > initials > icon ·
+// overlay content is orthogonal), `initials=""` is absent, the one-time warning names
+// all three props, and ListAction's forwarded marker props type from IconAvatar's api.
+test('component-api · contentMode precedence, presence, warning, and forwarded types emit generically', () => {
+  const avatar = emitComponentFile({ name: 'icon-avatar' }, CATALOG['icon-avatar'], CATALOG);
+  assert.match(avatar, /selection\["mode"\] = props\.source != null \? "image" : props\.initials != null && props\.initials !== '' \? "initials" : "glyph";/);
+  assert.match(
+    avatar,
+    /  if \(props\.source != null\) content\["image"\] = props\.source;\n  else if \(props\.initials != null && props\.initials !== ''\) content\["initials"\] = props\.initials;\n  else if \(props\.icon != null\) content\["icon"\] = props\.icon;\n/,
+  );
+  assert.match(avatar, /  if \(props\.accessory !== undefined\) content\["accessoryIcon"\] = props\.accessory;/, 'overlay content is not mode-exclusive');
+  assert.match(avatar, /expects exactly one of "icon", "source" or "initials"; when several are provided, source > initials > icon\./);
+  assert.match(avatar, /  initials\?: string;\n  accessory\?: IconName;/);
+
+  const row = emitComponentFile({ name: 'list-action' }, CATALOG['list-action'], CATALOG);
+  assert.match(row, /  initials\?: string;\n  accessory\?: IconName;\n  accessorySurface\?: 'canvas' \| 'inverse';\n  children\?: never;/);
+  for (const name of NAMES) {
+    assert.doesNotMatch(emitComponentFile({ name }, CATALOG[name], CATALOG), /: unknown;/, `${name}: no generated prop is typed unknown`);
   }
 });
 

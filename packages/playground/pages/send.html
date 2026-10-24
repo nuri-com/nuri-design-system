@@ -36,7 +36,10 @@
        search mode; a complete pasted identifier is still recognised, undocumented).
        Then "Scan or paste" first (opens S0, the scanner: camera, Paste, Upload), four
        recents, All contacts, New recipient (where typing by hand lives).
-       Action rows share one anatomy: outline glyph, title, chevron. -->
+       Action rows share one anatomy: outline glyph, title, chevron. People rows carry
+       initials + the rail accessory (nuri-com/nuri-design-system#231): Nuri users on the
+       inverse disc, every other rail on the canvas disc; each label names the rail
+       ("Emil Berg, Nuri user, @emil") — the accessory is decorative, never its only carrier. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="send · recipient">
     <template>
       <nuri-screen>
@@ -64,26 +67,26 @@
                 <nuri-list-action-text-muted>From a QR code or copied text</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Emil Berg, at emil">
-                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Emil Berg, Nuri user, @emil">
+                <nuri-list-action-leading-avatar initials="EB" accessory="nuri" accessory-surface="inverse"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Emil Berg</nuri-list-action-text>
                 <nuri-list-action-text-muted>@emil</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
               <nuri-list-action aria-label="Claude M., N26 account ending 4521">
-                <nuri-list-action-leading-avatar name="bank" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
+                <nuri-list-action-leading-avatar initials="CM" accessory="bank"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Claude M.</nuri-list-action-text>
                 <nuri-list-action-text-muted>N26 ···4521</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Sara Conti, at sarac">
-                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Sara Conti, Nuri user, @sarac">
+                <nuri-list-action-leading-avatar initials="SC" accessory="nuri" accessory-surface="inverse"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Sara Conti</nuri-list-action-text>
                 <nuri-list-action-text-muted>@sarac</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Anna K., Bitcoin address">
-                <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Anna K., Bitcoin address bc1q…9m7t">
+                <nuri-list-action-leading-avatar initials="AK" accessory="bitcoin"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Anna K.</nuri-list-action-text>
                 <nuri-list-action-text-muted>bc1q…9m7t</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
@@ -180,50 +183,50 @@
         <nuri-scroll safe-area-bottom inset-top="dock">
           <nuri-view direction="column" align="stretch" justify="start" padding-top="sm" padding-bottom="xl" fill>
             <nuri-list>
-              <nuri-list-action aria-label="Anna K., bc1q…9m7t">
-                <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Anna K., Bitcoin address bc1q…9m7t">
+                <nuri-list-action-leading-avatar initials="AK" accessory="bitcoin"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Anna K.</nuri-list-action-text>
                 <nuri-list-action-text-muted>bc1q…9m7t</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Ben Ross, @benr">
-                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Ben Ross, Nuri user, @benr">
+                <nuri-list-action-leading-avatar initials="BR" accessory="nuri" accessory-surface="inverse"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Ben Ross</nuri-list-action-text>
                 <nuri-list-action-text-muted>@benr</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Claude M., @claudem">
-                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Claude M., Nuri user, @claudem">
+                <nuri-list-action-leading-avatar initials="CM" accessory="nuri" accessory-surface="inverse"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Claude M.</nuri-list-action-text>
                 <nuri-list-action-text-muted>@claudem</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Claude M., N26 ···4521">
-                <nuri-list-action-leading-avatar name="bank" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Claude M., N26 account ending 4521">
+                <nuri-list-action-leading-avatar initials="CM" accessory="bank"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Claude M.</nuri-list-action-text>
                 <nuri-list-action-text-muted>N26 ···4521</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Dana V., Visa ···7712">
-                <nuri-list-action-leading-avatar name="card" variant="outline"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Dana V., Visa card ending 7712">
+                <nuri-list-action-leading-avatar initials="DV" accessory="card"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Dana V.</nuri-list-action-text>
                 <nuri-list-action-text-muted>Visa ···7712</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Emil Berg, @emil">
-                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Emil Berg, Nuri user, @emil">
+                <nuri-list-action-leading-avatar initials="EB" accessory="nuri" accessory-surface="inverse"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Emil Berg</nuri-list-action-text>
                 <nuri-list-action-text-muted>@emil</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Marta Lenz, @marta">
-                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Marta Lenz, Nuri user, @marta">
+                <nuri-list-action-leading-avatar initials="ML" accessory="nuri" accessory-surface="inverse"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Marta Lenz</nuri-list-action-text>
                 <nuri-list-action-text-muted>@marta</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Sara Conti, @sarac">
-                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Sara Conti, Nuri user, @sarac">
+                <nuri-list-action-leading-avatar initials="SC" accessory="nuri" accessory-surface="inverse"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Sara Conti</nuri-list-action-text>
                 <nuri-list-action-text-muted>@sarac</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
@@ -264,20 +267,20 @@
         <nuri-scroll safe-area-bottom inset-top="dock">
           <nuri-view direction="column" align="stretch" justify="start" padding-top="sm" padding-bottom="xl" fill>
             <nuri-list>
-              <nuri-list-action aria-label="Claude M., @claudem">
-                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Claude M., Nuri user, @claudem">
+                <nuri-list-action-leading-avatar initials="CM" accessory="nuri" accessory-surface="inverse"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Claude M.</nuri-list-action-text>
                 <nuri-list-action-text-muted>@claudem</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Claude M., N26 ···4521">
-                <nuri-list-action-leading-avatar name="bank" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Claude M., N26 account ending 4521">
+                <nuri-list-action-leading-avatar initials="CM" accessory="bank"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Claude M.</nuri-list-action-text>
                 <nuri-list-action-text-muted>N26 ···4521</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Clara Neri, bc1q…4f2k">
-                <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Clara Neri, Bitcoin address bc1q…4f2k">
+                <nuri-list-action-leading-avatar initials="CN" accessory="bitcoin"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Clara Neri</nuri-list-action-text>
                 <nuri-list-action-text-muted>bc1q…4f2k</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
@@ -327,26 +330,26 @@
                 <nuri-list-action-text-muted>From a QR code or copied text</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Emil Berg, at emil">
-                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Emil Berg, Nuri user, @emil">
+                <nuri-list-action-leading-avatar initials="EB" accessory="nuri" accessory-surface="inverse"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Emil Berg</nuri-list-action-text>
                 <nuri-list-action-text-muted>@emil</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
               <nuri-list-action aria-label="Claude M., N26 account ending 4521">
-                <nuri-list-action-leading-avatar name="bank" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
+                <nuri-list-action-leading-avatar initials="CM" accessory="bank"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Claude M.</nuri-list-action-text>
                 <nuri-list-action-text-muted>N26 ···4521</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Sara Conti, at sarac">
-                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Sara Conti, Nuri user, @sarac">
+                <nuri-list-action-leading-avatar initials="SC" accessory="nuri" accessory-surface="inverse"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Sara Conti</nuri-list-action-text>
                 <nuri-list-action-text-muted>@sarac</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Anna K., Bitcoin address">
-                <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Anna K., Bitcoin address bc1q…9m7t">
+                <nuri-list-action-leading-avatar initials="AK" accessory="bitcoin"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Anna K.</nuri-list-action-text>
                 <nuri-list-action-text-muted>bc1q…9m7t</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
@@ -448,26 +451,26 @@
                 <nuri-list-action-text-muted>From a QR code or copied text</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Emil Berg, at emil">
-                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Emil Berg, Nuri user, @emil">
+                <nuri-list-action-leading-avatar initials="EB" accessory="nuri" accessory-surface="inverse"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Emil Berg</nuri-list-action-text>
                 <nuri-list-action-text-muted>@emil</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
               <nuri-list-action aria-label="Claude M., N26 account ending 4521">
-                <nuri-list-action-leading-avatar name="bank" variant="solid" accent="lilac"></nuri-list-action-leading-avatar>
+                <nuri-list-action-leading-avatar initials="CM" accessory="bank"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Claude M.</nuri-list-action-text>
                 <nuri-list-action-text-muted>N26 ···4521</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Sara Conti, at sarac">
-                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Sara Conti, Nuri user, @sarac">
+                <nuri-list-action-leading-avatar initials="SC" accessory="nuri" accessory-surface="inverse"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Sara Conti</nuri-list-action-text>
                 <nuri-list-action-text-muted>@sarac</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
               </nuri-list-action>
-              <nuri-list-action aria-label="Anna K., Bitcoin address">
-                <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
+              <nuri-list-action aria-label="Anna K., Bitcoin address bc1q…9m7t">
+                <nuri-list-action-leading-avatar initials="AK" accessory="bitcoin"></nuri-list-action-leading-avatar>
                 <nuri-list-action-text>Anna K.</nuri-list-action-text>
                 <nuri-list-action-text-muted>bc1q…9m7t</nuri-list-action-text-muted>
                 <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
@@ -756,7 +759,7 @@
   send · recipient · title "Send" as content under a Close-only topbar · the profile.html recipe verbatim · none; whether this chrome scales to pushed steps is open (they need Back)
   send · search · Back in search mode vs Close · Back returns to A1 (the country-picker precedent) · none
   send · · every row has the same anatomy: leading avatar, title (+ muted subtitle), chevron-right; no dates, no counts (operator, 2026-10-24) · none
-  send · · portrait avatars dropped, glyph avatars by identifier type · as send.html · a portrait asset / `user` icon
+  send · · people: initials + a rail accessory (Nuri = inverse disc · every other rail = canvas disc) · resolved: IconAvatar `initials` + `accessory` + `accessorySurface`, forwarded by ListActionLeadingAvatar (nuri-com/nuri-design-system#231 · the send-recipient.html exploration is retired) · none
   send · amount · unit switch glyph "⇄ €" beside the amount · composed: icon-button transfer-vertical soft (the set-amount precedent) · none beyond the precedent; a `transfer-horizontal` glyph would match the sheet's ⇄ but the receive flow already settled on vertical
   send · amount · quick amounts [ 5 000 ] [ 10 000 ] [ Max ] under the cost line · dropped: the brief's tree omits them and the keypad board has no vertical room for a third row group at the default device · a quick-amount chip row (soft sm buttons) would compose today — the drop is a brief decision, not a DS gap
   send · amount · "(◉) Emil" contact line at the top of the step · dropped: the brief's tree omits it (the title "Send to Emil" carries the recipient) · none — composable today as a list-action or an avatar + typography row

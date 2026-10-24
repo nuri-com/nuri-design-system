@@ -15,10 +15,10 @@ Column layout uses `<View>` with the schema default direction; rows use `directi
 
 | Prop | Required | Type | Notes |
 | --- | --- | --- | --- |
-| `width` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |
-| `height` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |
-| `minHeight` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |
-| `minWidth` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |
+| `width` | no | `'2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |
+| `height` | no | `'2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |
+| `minHeight` | no | `'2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |
+| `minWidth` | no | `'2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'` | style axis |
 | `padding` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |
 | `paddingX` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |
 | `paddingY` | no | `'xs' | 'sm' | 'md' | 'lg' | 'xl'` | style axis |
@@ -40,7 +40,7 @@ Column layout uses `<View>` with the schema default direction; rows use `directi
 | `variant` | no | `'solid' | 'soft' | 'ghost' | 'subtle' | 'outline'` | style axis |
 | `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |
 | `muted` | no | `boolean` | style axis |
-| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted'` | style axis |
+| `chrome` | no | `'canvas' | 'subtle' | 'strong' | 'transparent' | 'inverse-muted' | 'inverse'` | style axis |
 | `elevation` | no | `'none' | 'raised'` | style axis |
 | `children` | no | `React.ReactNode` | default content slot |
 | `testID` | no | `string` | native test hook |

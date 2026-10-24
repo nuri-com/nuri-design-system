@@ -39,6 +39,9 @@ export type ListActionLeadingAvatarProps = {
   variant?: 'solid' | 'soft' | 'ghost' | 'subtle' | 'outline';
   accent?: Accent;
   source?: ImageSourcePropType;
+  initials?: string;
+  accessory?: IconName;
+  accessorySurface?: 'canvas' | 'inverse';
   children?: never;
 };
 export const ListActionLeadingAvatar = createNuriSlot<ListActionLeadingAvatarProps>("leadingAvatar", `${listActionDisplayName}LeadingAvatar`, 'name', listActionDisplayName);

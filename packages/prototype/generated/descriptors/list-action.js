@@ -27,6 +27,11 @@ export const listActionDescriptor = {
             accent: '$slot.accent',
             icon: '$slot.name',
             source: '$slot.source',
+            // #231: person rows — initials + the rail accessory. The mode lock paints
+            // initials `soft` despite the row's `outline` default.
+            initials: '$slot.initials',
+            accessory: '$slot.accessory',
+            accessorySurface: '$slot.accessorySurface',
           },
         },
         content: { el: 'view', parts: { text: { el: 'text' }, textMuted: { el: 'text' } } },

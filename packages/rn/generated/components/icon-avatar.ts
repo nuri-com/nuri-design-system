@@ -24,31 +24,37 @@ import type { IconName } from '../data/icons';
 export type IconAvatarProps = {
   variant?: 'solid' | 'soft' | 'ghost' | 'subtle' | 'outline';
   size?: 'sm' | 'md';
+  accessorySurface?: 'canvas' | 'inverse';
   accent?: Accent;
   icon?: IconName;
   source?: ImageSourcePropType;
+  initials?: string;
+  accessory?: IconName;
   children?: never;
 };
 
-type IconAvatarPart = 'root' | 'icon' | 'image';
+type IconAvatarPart = 'root' | 'icon' | 'image' | 'initials' | 'accessory' | 'accessoryIcon';
 
 const iconAvatarDisplayName = nuriNames('icon-avatar').rn;
 let warnedIconAvatarContent = false;
 
 const IconAvatarInner: React.FC<IconAvatarProps> = (props) => {
-  if (!warnedIconAvatarContent && typeof __DEV__ !== 'undefined' && __DEV__ && ((props.icon === undefined) === (props.source === undefined))) {
+  if (!warnedIconAvatarContent && typeof __DEV__ !== 'undefined' && __DEV__ && [props.source != null, props.initials != null && props.initials !== '', props.icon != null].filter(Boolean).length !== 1) {
     warnedIconAvatarContent = true;
-    console.warn('[nuri] <' + iconAvatarDisplayName + '> expects exactly one of "icon" or "source"; image source wins when both are provided.');
+    console.warn('[nuri] <' + iconAvatarDisplayName + '> expects exactly one of "icon", "source" or "initials"; when several are provided, source > initials > icon.');
   }
   const selection: Record<string, string> = {
     "variant": props.variant ?? "soft",
     "size": props.size ?? "md",
+    "accessorySurface": props.accessorySurface ?? "canvas",
     "mode": "glyph",
   };
-  selection["mode"] = props.source != null ? "image" : "glyph";
+  selection["mode"] = props.source != null ? "image" : props.initials != null && props.initials !== '' ? "initials" : "glyph";
   const content: Partial<Record<IconAvatarPart, NuriContent>> = {};
-  if (props.icon !== undefined && props.source === undefined) content["icon"] = props.icon;
-  if (props.source !== undefined) content["image"] = props.source;
+  if (props.source != null) content["image"] = props.source;
+  else if (props.initials != null && props.initials !== '') content["initials"] = props.initials;
+  else if (props.icon != null) content["icon"] = props.icon;
+  if (props.accessory !== undefined) content["accessoryIcon"] = props.accessory;
   const behaviour: NuriBehaviour<IconAvatarPart> = {};
 
   return renderDescriptorInstance({

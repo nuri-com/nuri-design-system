@@ -38,7 +38,7 @@ export const COMPONENT_API_DOCS = [
     file: 'packages/rn/generated/components/icon-avatar.ts',
     type: 'IconAvatarProps',
     relatedPrefix: 'IconAvatar',
-    lead: '`IconAvatar` accepts exactly one of `icon` or `source`; both remain optional at the type level and a development warning catches both/neither. `source` wins when both are supplied. Size `md` is the 48px default with a 24px glyph; `sm` is the 24px compact circle with an 18px glyph. In image mode the bitmap fills the full circle and owns its translucent ring (`border-translucent` — black 10% in light, white 10% in dark); the root\'s variant paint is suppressed by the internal content-derived `mode` axis, so `variant` with `source` is a no-op by mechanism.',
+    lead: '`IconAvatar` accepts exactly one of `icon`, `source` or `initials`; all three remain optional at the type level and a development warning catches none or several. When several are supplied, `source` wins, then `initials`, then `icon`; `initials=""` counts as absent. Size `md` is the 48px default with a 24px glyph; `sm` is the 24px compact circle with an 18px glyph. In image mode the bitmap fills the full circle and owns its translucent ring (`border-translucent` — black 10% in light, white 10% in dark). `initials` are one or two letters the caller derives and capitalises: the circle paints `soft` (`bg-strong`, `text-primary`) whatever `variant` or `accent` say, and the letters use the type step\'s own letter-spacing (`md` 17px regular on `md`, `xs` 13px on `sm`), stay on one line and truncate at the circle\'s edge. On React Native the initials keep a fixed size at every OS text size, because the avatar is decorative; the row text beside it scales. In image and initials mode the internal content-derived `mode` axis overrides the root\'s variant paint, so `variant` with `source` or `initials` is a no-op by mechanism. `accessory` lays a rail glyph on a disc over the bottom-end corner and is specified for `md` only: a 15px glyph with 3px padding (a 21px disc), pushed out by 3px, with a 2px ring in `bg-canvas`. `accessorySurface="canvas"` (the default) paints a canvas disc with a 1px `border-subtle` hairline; `"inverse"` paints the neutral inverse disc, which stays neutral under every accent. Without `accessory`, `accessorySurface` does nothing. The ring is always `bg-canvas`, so on another surface it shows as a canvas ring. `IconAvatar` is decorative and hidden from assistive tech, accessory included: the accessory is never the only carrier of the rail, so name the rail in visible row text or in the row\'s `accessibilityLabel` ("Emil Berg, Nuri user, @emil"; a handle is not a name).',
   },
   {
     source: 'list',
@@ -57,6 +57,7 @@ export const COMPONENT_API_DOCS = [
     file: 'packages/rn/generated/components/list-action.ts',
     type: 'ListActionProps',
     relatedPrefix: 'ListAction',
+    lead: '`ListActionLeadingAvatar` forwards `IconAvatar` props: `name` (as `icon`), `variant` (default `outline`), `accent`, `source`, `initials`, `accessory` and `accessorySurface`. Person rows use `initials` with a rail `accessory`; the initials paint `soft` even though the row defaults the avatar to `outline`. The avatar is decorative, so the row names the rail in its text or in `accessibilityLabel` ("Emil Berg, Nuri user, @emil").',
   },
   {
     source: 'text-field',
@@ -336,6 +337,9 @@ const NOTE_BY_PROP = {
   checked: 'state axis',
   icon: 'scalar icon name',
   name: 'scalar icon name',
+  initials: 'scalar initials text',
+  accessory: 'scalar icon name; md only',
+  accessorySurface: 'style axis; md only',
   source: 'image source',
   label: 'scalar label',
   color: 'glyph rendering',

@@ -553,6 +553,31 @@ test('B5d · <nuri-list-action> leading avatar uses the real icon-avatar element
   assert.equal(avatar.querySelector('nuri-view')?.getAttribute('data-variant'), 'solid', 'the delegated component renders its own surface');
 });
 
+// ── #231 · initials + the corner accessory (nuri-com/nuri-design-system#231) ──
+test('B5e · <nuri-list-action-leading-avatar initials accessory accessory-surface> forwards to the real icon-avatar', async () => {
+  const row = dom.window.document.createElement('nuri-list-action');
+  row.setAttribute('aria-label', 'Emil Berg, Nuri user, @emil');
+  row.innerHTML = [
+    '<nuri-list-action-leading-avatar initials="EB" accessory="nuri" accessory-surface="inverse"></nuri-list-action-leading-avatar>',
+    '<nuri-list-action-text>Emil Berg</nuri-list-action-text>',
+    '<nuri-list-action-text-muted>@emil</nuri-list-action-text-muted>',
+  ].join('');
+  mount(row);
+  await tick();
+  const avatar = row.querySelector('button.nuri-interactive > nuri-icon-avatar');
+  assert.equal(avatar?.getAttribute('initials'), 'EB');
+  assert.equal(avatar?.getAttribute('accessory'), 'nuri');
+  assert.equal(avatar?.getAttribute('accessory-surface'), 'inverse', 'the camelCase prop lands as the kebab attribute');
+  assert.equal(avatar?.getAttribute('variant'), 'outline', 'the row still forwards its outline default…');
+  const circle = avatar.querySelector('nuri-view');
+  assert.equal(circle.getAttribute('data-variant'), 'soft', '…which the initials mode lock overrides');
+  assert.equal(circle.querySelector('nuri-typography')?.textContent, 'EB');
+  const disc = circle.querySelector('[data-overlay="corner-accessory"]');
+  assert.equal(disc?.getAttribute('data-chrome'), 'inverse');
+  assert.equal(disc.querySelector('nuri-icon')?.getAttribute('name'), 'nuri');
+  assert.equal(row.querySelector('button.nuri-interactive')?.getAttribute('aria-label'), 'Emil Berg, Nuri user, @emil', 'the row names the rail');
+});
+
 test('B5c · <nuri-list> preserves list-action children with shared nuri-list-* slot prefixes', async () => {
   const list = dom.window.document.createElement('nuri-list');
   list.innerHTML = [
@@ -656,8 +681,8 @@ test('C · observedAttributes are DERIVED from the descriptor (axes ∪ accent �
   // prop · NOT `name`, which is the primitive <nuri-icon>'s attr · NO disabled).
   assert.deepEqual(
     [...customElements.get('nuri-icon-avatar').observedAttributes].sort(),
-    ['accent', 'icon', 'size', 'source', 'variant'],
-    'icon-avatar observes its axes + accent + both scalar content modes, not disabled',
+    ['accent', 'accessory', 'accessory-surface', 'icon', 'initials', 'size', 'source', 'variant'],
+    'icon-avatar observes its axes (accessorySurface as the kebab `accessory-surface` · #231) + accent + its scalar slots, not disabled',
   );
 });
 
@@ -680,6 +705,78 @@ test('C1 · <nuri-icon-avatar> source wins over icon and invalid content modes w
   } finally {
     console.warn = warn;
   }
+});
+
+test('C1c · <nuri-icon-avatar initials> · soft lock, md type, precedence source > initials > icon, initials="" is absent', () => {
+  const warn = console.warn;
+  console.warn = () => undefined;
+  try {
+    const make = (attrs) => {
+      const el = dom.window.document.createElement('nuri-icon-avatar');
+      for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+      return mount(el);
+    };
+    const locked = make({ initials: 'EB', variant: 'solid', accent: 'orange' });
+    const circle = locked.querySelector('nuri-view');
+    assert.equal(circle.getAttribute('data-variant'), 'soft', 'initials paint soft whatever variant says');
+    const text = circle.querySelector('nuri-typography');
+    assert.equal(text?.textContent, 'EB');
+    assert.equal(text.getAttribute('size'), 'md');
+    assert.equal(text.hasAttribute('emphasis'), false, 'regular weight');
+    assert.equal(text.getAttribute('flow'), 'truncate');
+    assert.equal(text.getAttribute('lines'), '1');
+    assert.equal(locked.getAttribute('aria-hidden'), 'true', 'still decorative');
+    assert.equal(make({ initials: 'EB', size: 'sm' }).querySelector('nuri-typography')?.getAttribute('size'), 'xs');
+
+    const overIcon = make({ initials: 'EB', icon: 'apple' });
+    assert.ok(overIcon.querySelector('nuri-typography'));
+    assert.equal(overIcon.querySelector('nuri-icon'), null, 'initials beat icon');
+
+    const underSource = make({ initials: 'EB', source: 'data:image/svg+xml,%3Csvg/%3E' });
+    assert.ok(underSource.querySelector('img'));
+    assert.equal(underSource.querySelector('nuri-typography'), null, 'source beats initials');
+    assert.equal(underSource.querySelector('nuri-view').getAttribute('data-variant'), 'ghost', 'image mode');
+
+    const empty = make({ initials: '', icon: 'apple', variant: 'outline' });
+    assert.equal(empty.querySelector('nuri-typography'), null, 'initials="" renders no text node');
+    assert.equal(empty.querySelector('nuri-icon')?.getAttribute('name'), 'apple');
+    assert.equal(empty.querySelector('nuri-view').getAttribute('data-variant'), 'outline', 'glyph mode: the variant paints');
+  } finally {
+    console.warn = warn;
+  }
+});
+
+test('C1d · <nuri-icon-avatar accessory> · gated overlay on the painting node, kebab accessory-surface live-updates', () => {
+  const plain = dom.window.document.createElement('nuri-icon-avatar');
+  plain.setAttribute('initials', 'EB');
+  plain.setAttribute('accessory-surface', 'inverse');
+  mount(plain);
+  assert.equal(plain.querySelector('[data-overlay]'), null, 'no accessory node without `accessory` (accessory-surface alone is a no-op)');
+
+  const a = dom.window.document.createElement('nuri-icon-avatar');
+  a.setAttribute('initials', 'CM');
+  a.setAttribute('accessory', 'bank');
+  mount(a);
+  assert.equal(a.hasAttribute('data-host-tree'), true, 'the component host stays display:contents…');
+  assert.equal(a.hasAttribute('data-overlay-host'), false, '…and is never the containing block');
+  const circle = a.querySelector(':scope > nuri-view');
+  assert.equal(circle.hasAttribute('data-overlay-host'), true, 'the root PAINTING node anchors the overlay');
+  const disc = circle.querySelector(':scope > [data-overlay="corner-accessory"]');
+  assert.ok(disc, 'the disc is the circle\'s own child');
+  assert.equal(circle.lastElementChild, disc, 'last child → drawn above the content');
+  assert.equal(disc.getAttribute('data-chrome'), 'canvas', 'canvas is the default surface');
+  assert.equal(disc.getAttribute('data-padding'), 'xs');
+  assert.equal(disc.getAttribute('data-radius'), 'full');
+  assert.equal(disc.hasAttribute('data-width'), false, 'the disc sizes from its content');
+  const glyph = disc.querySelector('nuri-icon');
+  assert.equal(glyph.getAttribute('name'), 'bank');
+  assert.equal(glyph.getAttribute('data-width'), '2xs');
+  assert.equal(glyph.getAttribute('data-height'), '2xs');
+
+  a.setAttribute('accessory-surface', 'inverse');
+  assert.equal(a.querySelector('[data-overlay="corner-accessory"]').getAttribute('data-chrome'), 'inverse', 'accessory-surface is observed and live-updates');
+  a.removeAttribute('accessory');
+  assert.equal(a.querySelector('[data-overlay]'), null, 'removing accessory removes the disc');
 });
 
 test('C1b · <nuri-button>Go</nuri-button> · a BARE label survives the composition harvest (the pre-scan)', async () => {

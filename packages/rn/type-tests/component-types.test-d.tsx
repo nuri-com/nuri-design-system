@@ -71,6 +71,11 @@ import {
   TopbarTitle,
   TopbarTrailing,
 } from '../index';
+import type { IconAvatarProps, IconName, ListActionLeadingAvatarProps } from '../index';
+
+// Exact type equality without casts (#231 · the forwarded-prop typing proof): true only
+// when A and B are mutually identical — `unknown` or a widened union fails to compile.
+type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends (<T>() => T extends B ? 1 : 2) ? true : false;
 
 // ── NuriRoot — composed root, structural safe-area transport, closed theme axes ──
 const nativeInsetsShape = { top: 59, bottom: 34, left: 0, right: 0 };
@@ -122,6 +127,27 @@ export const iconAvatarNoPress = <IconAvatar icon="settings" onPress={() => unde
 // @ts-expect-error IconAvatar forbids children (`children?: never`).
 export const iconAvatarNoChildren = <IconAvatar icon="settings">x</IconAvatar>;
 
+// ── IconAvatar #231 — `initials` (string) · `accessory` (IconName) · `accessorySurface` (canvas | inverse) ──
+export const iconAvatarInitialsOk = <IconAvatar initials="EB" />;
+export const iconAvatarAccessoryOk = <IconAvatar initials="EB" accessory="nuri" accessorySurface="inverse" />;
+export const iconAvatarPhotoAccessoryOk = <IconAvatar source={{ uri: 'https://example.test/me.png' }} accessory="nuri" accessorySurface="inverse" />;
+export const iconAvatarKeysExact: Equal<
+  keyof IconAvatarProps,
+  'variant' | 'size' | 'accessorySurface' | 'accent' | 'icon' | 'source' | 'initials' | 'accessory' | 'children'
+> = true;
+export const iconAvatarInitialsIsString: Equal<Required<IconAvatarProps>['initials'], string> = true;
+export const iconAvatarAccessoryIsIconName: Equal<Required<IconAvatarProps>['accessory'], IconName> = true;
+export const iconAvatarSurfaceUnion: Equal<Required<IconAvatarProps>['accessorySurface'], 'canvas' | 'inverse'> = true;
+export const iconAvatarStillNoChildren: Equal<Required<IconAvatarProps>['children'], never> = true;
+// @ts-expect-error accessorySurface is the closed canvas | inverse union (the superseded solid/outline words are not values).
+export const iconAvatarBadSurface = <IconAvatar initials="EB" accessory="bank" accessorySurface="solid" />;
+// @ts-expect-error accessory is an IconName, not any string.
+export const iconAvatarBadAccessory = <IconAvatar initials="EB" accessory="not-a-glyph" />;
+// @ts-expect-error initials is a string, never a number or a node.
+export const iconAvatarInitialsNotNumber = <IconAvatar initials={42} />;
+// @ts-expect-error there is no accessoryVariant (superseded) and no accessory accent.
+export const iconAvatarNoAccessoryVariant = <IconAvatar initials="EB" accessory="bank" accessoryVariant="solid" />;
+
 // ── List family — open host + pressable row + preset separator ──
 export const listOk = (
   <List>
@@ -139,6 +165,23 @@ export const listActionAvatarSourceOk = (
 );
 // @ts-expect-error ListAction no longer exposes avatar styling props.
 export const listActionNoVariant = <ListAction variant="solid" />;
+// #231 · the forwarded avatar props are typed FROM IconAvatar's api (never `unknown`).
+export const listActionAvatarPersonOk = (
+  <ListAction accessibilityLabel="Emil Berg, Nuri user, @emil" onPress={() => undefined}>
+    <ListActionLeadingAvatar initials="EB" accessory="nuri" accessorySurface="inverse" />
+    <ListActionText>Emil Berg</ListActionText>
+  </ListAction>
+);
+export const listActionAvatarKeysExact: Equal<
+  keyof ListActionLeadingAvatarProps,
+  'name' | 'variant' | 'accent' | 'source' | 'initials' | 'accessory' | 'accessorySurface' | 'children'
+> = true;
+export const listActionAvatarInitialsIsString: Equal<Required<ListActionLeadingAvatarProps>['initials'], string> = true;
+export const listActionAvatarAccessoryIsIconName: Equal<Required<ListActionLeadingAvatarProps>['accessory'], IconName> = true;
+export const listActionAvatarSurfaceUnion: Equal<Required<ListActionLeadingAvatarProps>['accessorySurface'], 'canvas' | 'inverse'> = true;
+export const listActionAvatarStillNoChildren: Equal<Required<ListActionLeadingAvatarProps>['children'], never> = true;
+// @ts-expect-error the forwarded accessorySurface keeps IconAvatar's closed union.
+export const listActionAvatarBadSurface = <ListActionLeadingAvatar initials="EB" accessory="bank" accessorySurface="outline" />;
 // @ts-expect-error ListActionLeadingAvatar variant is the closed IconAvatar variant set.
 export const listActionAvatarBadVariant = <ListActionLeadingAvatar name="bank" variant="plaid" />;
 // @ts-expect-error ListSeparator v1 has no knobs; it is the preset.

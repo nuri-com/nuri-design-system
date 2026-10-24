@@ -4,7 +4,8 @@
  * The pressable row of the LIST FAMILY (`list` · `list-action` ·
  * `list-separator` — the home/settings screens' row vocabulary · decision 84;
  * `list-item` is RESERVED for the future non-pressable row). One pressable row
- * with typed composition slots for leading glyph avatar, content/trailing text
+ * with typed composition slots for the leading avatar (glyph, image, or initials
+ * with a rail accessory · forwarded IconAvatar props), content/trailing text
  * leaves, and a trailing glyph. The content and trailing containers are internal
  * anatomy: leaf slots auto-route into them, so authors never write region wrappers.
  * Grouping, first/last corners, and
@@ -28,6 +29,11 @@ export const listActionDescriptor: Descriptor<ListActionAxes> = {
             accent: '$slot.accent',
             icon: '$slot.name',
             source: '$slot.source',
+            // #231: person rows — initials + the rail accessory. The mode lock paints
+            // initials `soft` despite the row's `outline` default.
+            initials: '$slot.initials',
+            accessory: '$slot.accessory',
+            accessorySurface: '$slot.accessorySurface',
           },
         },
         content: { el: 'view', parts: { text: { el: 'text' }, textMuted: { el: 'text' } } },

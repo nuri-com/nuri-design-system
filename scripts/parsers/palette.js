@@ -60,13 +60,17 @@ export const PALETTE_CONTRACT = {
     // neutral-11 fill under text-on-inverse. fgMuted is the shared typography muted
     // role like every chrome row (nominal here: nothing draws muted text on a track).
     'inverse-muted': { bg: '--nuri-bg-inverse-muted', fg: '--nuri-text-on-inverse', fgMuted: '--nuri-text-muted' },
+    // inverse (the IconAvatar accessory · nuri-com/nuri-design-system#231): the Nuri-user
+    // disc — bg-inverse under text-on-inverse, accent-invariant (a chrome row). fgMuted
+    // is the shared muted role like every chrome row (nominal: no muted text on a disc).
+    inverse: { bg: '--nuri-bg-inverse', fg: '--nuri-text-on-inverse', fgMuted: '--nuri-text-muted' },
   },
 };
 
 // Canonical orderings — the emit is deterministic regardless of the SoT's
 // source declaration order (the descriptors.js convention).
 const AXIS_ORDER    = ['variant', 'chrome'];
-const ROW_ORDER     = { variant: ['solid', 'soft', 'ghost', 'subtle', 'outline'], chrome: ['canvas', 'subtle', 'strong', 'transparent', 'inverse-muted'] };
+const ROW_ORDER     = { variant: ['solid', 'soft', 'ghost', 'subtle', 'outline'], chrome: ['canvas', 'subtle', 'strong', 'transparent', 'inverse-muted', 'inverse'] };
 const CHANNEL_ORDER = ['bg', 'fg', 'fgMuted', 'pressedBg', 'border'];
 
 // ── SoT reading helpers ───────────────────────────────────────────────

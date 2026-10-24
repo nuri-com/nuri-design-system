@@ -38,6 +38,7 @@ export type TokenPath =
   | 'space.lg'
   | 'space.xl'
   | 'space.2xl'
+  | 'size.2xs'
   | 'size.xs'
   | 'size.sm'
   | 'size.md'
