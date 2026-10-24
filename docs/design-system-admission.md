@@ -24,11 +24,11 @@ Admission separates need, architecture, execution authorization, implementation,
 | --- | --- | --- |
 | **Requester / consumer or product owner** | Raises the request; names the consumer owner; supplies the concrete need, gap, use case, current workaround, and any available consumer-local prototype, wrapper, recipe, inventory, or other evidence. | Cannot admit the DS contract by completing a form, checking a box, opening a branch/PR, or assembling evidence. |
 | **Independent DS architect / admission authority** | Independently evaluates whether the design system should own the contract and records one outcome in their own authenticated canonical issue comment or architect-owned linked ADR. May implement later after independent admission. | Cannot be replaced by an implementing agent, CI, labels, issue-form completeness, Expo demos, or requester self-attestation. Cannot use implementation status to weaken admission independence from the requester/consumer. |
-| **Second human architectural reviewer** | Required when one person occupies both requester/consumer and DS architect roles. Confirms the decision is independently reviewed. | Does not remove the need for a named DS architect decision record. |
+| **Second human architectural reviewer** | Required when one person occupies both requester/consumer and DS architect roles. Confirms the decision is independently reviewed. Sole exception: [@darioaschero](#named-exception--sole-ds-architect-darioaschero). | Does not remove the need for a named DS architect decision record. |
 | **Project owner** | After admission, may move a bounded item to Project `Ready` when the accepted contract, execution scope, and downstream verification plan are complete. | Cannot use Ready to manufacture admission; Ready is execution authorization after the admission prerequisite is satisfied. |
 | **Implementing agent / engineer** | Implements only the admitted, bounded scope and supplies deterministic verification evidence. If the admitting architect implements later, independent verification is still required. | Implementation work, proof, or green gates cannot self-admit, self-authorize Ready, or replace independent verification. |
 
-Consumer demand cannot authorize itself. Completing an issue form, satisfying required YAML fields, checking an owner-acceptance box, opening a branch or PR, producing an Expo demo, passing gates, or having an implementing agent assemble evidence does not admit a contract. The requester or consumer/product owner cannot record their own admission. Admission independence is from the requester/consumer: a human DS architect who independently admits the contract may implement later, but independent verification remains required.
+Consumer demand cannot authorize itself. Completing an issue form, satisfying required YAML fields, checking an owner-acceptance box, opening a branch or PR, producing an Expo demo, passing gates, or having an implementing agent assemble evidence does not admit a contract. The requester or consumer/product owner cannot record their own admission, except under the [named exception for @darioaschero](#named-exception--sole-ds-architect-darioaschero). Admission independence is from the requester/consumer: a human DS architect who independently admits the contract may implement later, but independent verification remains required.
 
 ## Architect decision record
 
@@ -42,7 +42,7 @@ Use this template or equivalent fields:
 Outcome: Admit / Reject / Request more evidence / Keep consumer-owned
 Admission class: Contraction / Extension / Mixed
 Architect: @github-login
-Second human architectural reviewer, if requester/consumer and architect overlap: @github-login or none
+Second human architectural reviewer, if requester/consumer and architect overlap: @github-login, or "none · sole-architect exception (@darioaschero) · independent review: <link>"
 Requester / consumer owner: @github-login or owner/repo team
 Evidence considered: issue links, prototypes, usage inventory, non-use proof, trade study, comments, ADRs
 Rationale: why this outcome is correct
@@ -52,6 +52,20 @@ Contraction evidence considered, if applicable: affected consumers/non-use, migr
 Bounded execution scope reference: issue section/comment/ADR link
 Downstream verification plan reference: issue section/comment/ADR link
 ```
+
+## Named exception · sole DS architect (@darioaschero)
+
+As of 2026-10-24 one person in Nuri can judge component anatomy and DS architecture: **@darioaschero** (https://github.com/darioaschero), the DS architect, who is often also the requester/consumer. No second human can review those decisions. This exception applies **only to @darioaschero**, and only to admission decisions where @darioaschero holds both the requester/consumer role and the DS architect role.
+
+Under this exception:
+
+- @darioaschero may record the admission decision as DS architect even when @darioaschero is also the requester/consumer. This replaces, for these decisions only, the rule that the requester/consumer cannot record their own admission.
+- The second human architectural reviewer is replaced by an **independent review session**: a fresh agent session that had no part in drafting the request, the evidence, or the brief. It receives only the filed canonical issue, the repository at the cited commit, and this policy. It is read-only, and it posts its findings on the canonical issue before the decision is recorded: claims it could not confirm, risks to the contract, and a recommendation for each open question.
+- The decision record says so explicitly: `Second human architectural reviewer: none · sole-architect exception (@darioaschero) · independent review: <link to the review comment>`.
+- The review informs the decision; it does not make it. @darioaschero remains solely accountable for the outcome and must answer each concern the review raised, in the decision record.
+- Nothing else is relaxed: Project `Ready` stays a human act, and independent verification after implementation is still required.
+
+The exception is personal and cannot be delegated or extended. It does not apply to any other person, role, team, or agent; they still need a second named human architectural reviewer when roles overlap. It ends when a second human able to review DS architecture joins (from then on the policy applies as written) or when @darioaschero withdraws it.
 
 Allowed outcomes and transitions:
 
@@ -205,7 +219,7 @@ The Expo demo can verify DS compatibility and behavior, but it must not incubate
 1. Classify the work as Correction, internal maintenance, Contraction, Extension, Mixed, or Experiment.
 2. Choose the correct front door: maintenance for no-contract-delta maintenance and bounded experiments; contract admission request for public/observable contract changes.
 3. For Extension/Mixed, have the requester/consumer owner supply the concrete need, gap, use case, current workaround, and any available consumer-local prototype/evidence. For Contraction/Mixed, supply affected-consumer or non-use evidence, migration/deprecation/rollback implications, and the burden removed.
-4. Have the independent named human DS architect record the architectural decision: admit a specific contract, reject, request more evidence, or keep consumer-owned. If requester/consumer and architect are the same person, require a second named human architectural reviewer in the decision record.
+4. Have the independent named human DS architect record the architectural decision: admit a specific contract, reject, request more evidence, or keep consumer-owned. If requester/consumer and architect are the same person, require a second named human architectural reviewer in the decision record, except under the [named exception for @darioaschero](#named-exception--sole-ds-architect-darioaschero), which requires a linked independent review session instead.
 5. Keep pending, rejected, more-evidence, and consumer-owned outcomes out of Project `Ready`; track unresolved human judgment as `Decision Needed`, not as implementation work.
 6. Only after a specific contract is admitted, anti-scope is clear, execution scope is bounded, and downstream verification is planned may a human Project owner move the Project item to `Ready`.
 7. During Verification/Done, attach actual checks and real-consumer/runtime/compatibility evidence against the implemented contract.

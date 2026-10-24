@@ -29,7 +29,8 @@ available edge evidence, then a named human DS architect independent from the re
 records `Admit`, `Reject`, `Request more evidence`, or `Keep consumer-owned` in an authenticated
 canonical issue comment or architect-owned linked ADR. A contract is only admitted after that
 independent decision; the requester/consumer cannot self-admit, and overlapping requester/architect
-roles require a second named human architectural reviewer. The admitting architect may implement
+roles require a second named human architectural reviewer (sole, personal exception: @darioaschero,
+with a linked independent review session instead; see the policy). The admitting architect may implement
 later after independent admission, but independent verification remains required. Before Project
 `Ready`, the item needs the linked architect-owned decision record, architect-accepted contract,
 bounded execution scope, and downstream verification plan. Actual Expo/device/runtime/compatibility
