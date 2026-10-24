@@ -11,15 +11,20 @@
     /* OUTSIDE THE DS · page-local CSS on purpose: the target the avatar admission must make unnecessary. */
     .xav { position: relative; flex: none; width: 48px; height: 48px; border-radius: 999px;
            display: inline-flex; align-items: center; justify-content: center;
-           font: 600 15px/1 inherit; letter-spacing: .02em; color: var(--nuri-text-primary); }
+           font-size: var(--nuri-type-md-size); font-weight: var(--nuri-font-weight-regular); line-height: 1;
+           letter-spacing: .05em; /* caps tracking: the proposed tracking.caps token, in place of md's -0.02em */
+           color: var(--nuri-text-primary); }
     .xav img { width: 100%; height: 100%; border-radius: 999px; object-fit: cover; }
     /* initials content = the icon-avatar soft treatment (bg-strong, text-primary) */
     .xav--soft { background: var(--nuri-bg-strong); color: var(--nuri-text-primary); }
-    /* accessory: bottom-right, 22px, 2px ring in the surface colour, glyph from the icon set */
-    .xbadge { position: absolute; right: -3px; bottom: -3px; width: 22px; height: 22px; border-radius: 999px;
+    /* accessory: a 15px glyph (no size token: the 18px sm icon × 15/18) with space.xs (3px) padding, so the
+       disc sizes from its content (no width/height set); pushed out by space.xs (3px); 2px ring in the surface colour */
+    .xbadge { position: absolute; right: calc(-1 * var(--nuri-space-xs)); bottom: calc(-1 * var(--nuri-space-xs));
+              padding: var(--nuri-space-xs); border-radius: 999px;
               display: inline-flex; align-items: center; justify-content: center;
               box-shadow: 0 0 0 2px var(--nuri-bg-canvas); }
-    .xbadge nuri-icon { transform: scale(.72); }
+    .xbadge nuri-icon { width: 15px; height: 15px; }
+    .xbadge nuri-icon svg { width: 100%; height: 100%; }
     /* solid + accent neutral = Nuri (dark fill, light glyph) */
     .xbadge--solid { background: var(--nuri-accent-solid); color: var(--nuri-accent-on-solid); }
     /* outline = every other rail: canvas fill, hairline, text-primary glyph (16.03:1, not muted 5.85:1) */
@@ -45,6 +50,9 @@
   (vendored wordpet pixel pets), kept as the reference the target replaces in lists.
   Explored and dropped (2026-10-24): pastel / Radix / hue-wheel person tones, coloured
   rail badges (orange Bitcoin, lilac bank), Nuri lilac, all-black badges, KYC check.
+  Geometry updated (2026-10-24): 15px glyph + 3px padding (no width/height set), 3px outset,
+  2px ring, initials md 17px / regular with +0.05em letter-spacing. It was 22px / 13px glyph / initials 13px / 400
+  (the old `font` shorthand ended in `inherit`, so the browser dropped it).
 -->
 
 <nuri-playground-shell doc="Avatar exploration · outside the DS">
@@ -301,8 +309,8 @@
 
 <!--
   GAP LOG · what the icon-avatar admission has to cover
-  content · icon-avatar takes an icon OR an image today; add initials (1–2 letters, derived by the caller) · soft treatment: bg-strong + text-primary, size-scaled type
-  accessory · a slot bottom-right on every content type (initials | image | glyph), ~22px on the 48px avatar, 2px ring in the surface colour, glyph from the icon set
+  content · icon-avatar takes an icon OR an image today; add initials (1–2 letters, derived by the caller) · soft treatment: bg-strong + text-primary, md 17px regular, +0.05em caps letter-spacing
+  accessory · a slot bottom-right on every content type (initials | image | glyph), on the 48px avatar: a 15px glyph from the icon set (no size token yet) with 3px padding (space.xs), 3px outset (space.xs), 2px ring in the surface colour
   accessory variants · solid (accent neutral: dark fill, light glyph) for Nuri · outline (canvas fill, border-subtle hairline, text-primary glyph) for every other rail · no per-rail colour table
   sizes · decide which avatar sizes carry an accessory (the sm 24px probably none)
   list · a person row = list-action with the new avatar as leading part; today the rows here are hand-built nuri-view rows
