@@ -42,7 +42,8 @@ Every other package is a **projection** that owns its resolution:
   supplies need, gap, workaround, and available evidence; a named human DS architect independent from
   the requester/consumer records the outcome separately and admits only a specific accepted
   contract/anti-scope. The requester/consumer cannot self-admit; if requester and architect roles
-  overlap, require a second named human architectural reviewer. The admitting architect may implement
+  overlap, require a second named human architectural reviewer (sole exception: @darioaschero, who
+  may use a linked independent review session instead · docs/design-system-admission.md). The admitting architect may implement
   later after independent admission, but independent verification remains required. Project `Ready`, not
   a form field, label, branch, PR, green gate, or executed implementation proof, is the manual-pilot
   authorization boundary. Executed Expo/device/runtime/compatibility proof belongs after implementation

@@ -118,7 +118,7 @@ body:
     id: requested_ds_architect
     attributes:
       label: Requested DS architect / admission recorder
-      description: Name the human DS architect expected to record the admission outcome in their own authenticated canonical issue comment or architect-owned linked ADR. Admission independence is from the requester/consumer, not from later implementation; if one person wears both requester/consumer and architect roles, the admission record must name a second human architectural reviewer.
+      description: Name the human DS architect expected to record the admission outcome in their own authenticated canonical issue comment or architect-owned linked ADR. Admission independence is from the requester/consumer, not from later implementation; if one person wears both requester/consumer and architect roles, the admission record must name a second human architectural reviewer. The sole exception is @darioaschero, who links an independent review session instead (docs/design-system-admission.md, "Named exception · sole DS architect").
       placeholder: "@github-login"
     validations:
       required: true
