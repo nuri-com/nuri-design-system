@@ -32,14 +32,33 @@
     </template>
   </nuri-demo>
 
-  <!-- variant · solid · soft · a per-instance accent override · a disabled solid. -->
+  <!-- variant · solid · soft · ghost · a per-instance accent override · a disabled solid. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="variant">
     <template>
       <nuri-view direction="column" align="center" justify="center" gap="md" fill>
         <nuri-button variant="solid">Solid</nuri-button>
         <nuri-button variant="soft">Soft</nuri-button>
+        <nuri-button variant="ghost">Ghost</nuri-button>
         <nuri-button variant="solid" accent="orange">Solid accent</nuri-button>
         <nuri-button variant="solid" disabled>Disabled</nuri-button>
+      </nuri-view>
+    </template>
+  </nuri-demo>
+
+  <!-- ghost · the lowest emphasis (tertiary · #233): no fill, text-primary, bg-subtle when
+       pressed. For an action inside content, where a fill would compete with it; never a
+       screen's main or only action. sm 36 / lg 60 like soft and solid; accent paints
+       nothing (the orange row matches the plain one). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="ghost">
+    <template>
+      <nuri-view direction="column" align="center" justify="center" gap="md" fill>
+        <nuri-button variant="ghost" size="sm">
+          <nuri-button-icon name="transfer-vertical"></nuri-button-icon>
+          <nuri-button-text>₿ 27 435</nuri-button-text>
+        </nuri-button>
+        <nuri-button variant="ghost" size="lg">Ghost</nuri-button>
+        <nuri-button variant="ghost" size="lg" accent="orange">Ghost accent</nuri-button>
+        <nuri-button variant="ghost" size="lg" disabled>Disabled</nuri-button>
       </nuri-view>
     </template>
   </nuri-demo>

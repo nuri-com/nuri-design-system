@@ -30,7 +30,10 @@
 import type { Descriptor } from './schema';
 
 type ButtonAxes = {
-  variant: 'solid' | 'soft';
+  // `ghost` (#233 · admitted 2026-10-29 · reverses #154's non-use drop) = the lowest
+  // emphasis (tertiary): no fill, for an action inside content where a fill would
+  // compete with it; never a screen's main or only action. Accent does not paint it.
+  variant: 'solid' | 'soft' | 'ghost';
   size: 'sm' | 'lg';
   // How the button sits as a flex child of its parent row (the root's stack.fill).
   // `natural` (default) composes nothing → the bare flex 0 1 auto: hugs its label,
@@ -58,6 +61,7 @@ export const buttonDescriptor: Descriptor<ButtonAxes> = {
     variant: {
       solid: { root: { palette: { variant: 'solid' } } },
       soft: { root: { palette: { variant: 'soft' } } },
+      ghost: { root: { palette: { variant: 'ghost' } } },
     },
     size: {
       sm: {

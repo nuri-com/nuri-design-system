@@ -136,6 +136,44 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     expect(tr.toJSON()).toMatchSnapshot();
   });
 
+  test('Button — ghost (#233): no fill at rest, bg-subtle pressed, text-primary label, sm 36 / lg 60, accent paints nothing', () => {
+    const cell = (mode: 'light' | 'dark', props: { size: 'sm' | 'lg'; accent?: 'lilac' | 'orange' | 'neutral'; disabled?: boolean }) => {
+      const tr = render(
+        <NuriThemeProvider mode={mode}>
+          <Button variant="ghost" onPress={() => undefined} {...props}>
+            ₿ 27 435
+          </Button>
+        </NuriThemeProvider>,
+      );
+      const [button] = pressableActions(tr);
+      return {
+        role: button.props.accessibilityRole,
+        rest: flatStyleForTest(button.props.style({ pressed: false })),
+        pressed: flatStyleForTest(button.props.style({ pressed: true })),
+        label: flatStyleForTest(tr.root.findByType(Text).props.style).color,
+      };
+    };
+    for (const mode of ['light', 'dark'] as const) {
+      const ghost = buildNuriTheme('lilac', mode).surface.ghost;
+      const sm = cell(mode, { size: 'sm' });
+      expect(sm.role).toBe('button');
+      expect(sm.rest.backgroundColor).toBe('transparent');
+      expect(sm.pressed.backgroundColor).toBe(ghost.pressedBg);
+      expect(sm.pressed.transform).toEqual([{ scale: buildNuriTheme('lilac', mode).interaction.pressScale }]);
+      expect(sm.label).toBe(ghost.fg);
+      expect(sm.rest.minHeight).toBe(size.md); // 36
+      expect(cell(mode, { size: 'lg' }).rest.minHeight).toBe(size.xl); // 60
+      // accent does not paint ghost (decision 39): the orange/neutral cells equal the lilac one.
+      for (const accent of ['orange', 'neutral'] as const) {
+        expect(cell(mode, { size: 'sm', accent })).toEqual(sm);
+      }
+      const disabled = cell(mode, { size: 'sm', disabled: true });
+      expect(disabled.rest.opacity).toBe(buildNuriTheme('lilac', mode).interaction.disabledOpacity);
+      expect(disabled.pressed.backgroundColor).toBe('transparent');
+    }
+    expect([size.md, size.xl]).toEqual([36, 60]);
+  });
+
   test('Button — label text is a single-line shrinkable control label', () => {
     const tr = render(
       <NuriThemeProvider>

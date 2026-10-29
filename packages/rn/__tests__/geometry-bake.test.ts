@@ -136,6 +136,18 @@ describe('geometry bake · guard 1 — ORACLE EQUIVALENCE (baked ≡ runtime res
   }
 });
 
+describe('geometry bake · guard 1 COVERS — the oracle product reaches every Button variant', () => {
+  test('button · ghost × sm|lg × fill is in the cross-product (#233 · the cells #154 dropped)', () => {
+    const product = selections(buttonDescriptor as Descriptor<Axes>);
+    expect(product).toHaveLength(3 * 2 * 3); // variant (solid·soft·ghost) × size (sm·lg) × fill (natural·even·hug)
+    for (const size of ['sm', 'lg']) {
+      for (const fill of ['natural', 'even', 'hug']) {
+        expect(product).toContainEqual({ variant: 'ghost', size, fill });
+      }
+    }
+  });
+});
+
 describe('geometry bake · guard 1 BINDS — mutation proof (a stale bake WOULD fail)', () => {
   test('mutating one descriptor box cell breaks the baked ≡ runtime equality', () => {
     const theme = buildNuriTheme('lilac', 'light');

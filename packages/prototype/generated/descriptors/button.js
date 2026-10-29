@@ -29,6 +29,7 @@ export const buttonDescriptor = {
     variant: {
       solid: { root: { palette: { variant: 'solid' } } },
       soft: { root: { palette: { variant: 'soft' } } },
+      ghost: { root: { palette: { variant: 'ghost' } } },
     },
     size: {
       sm: {

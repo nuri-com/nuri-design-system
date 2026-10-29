@@ -71,7 +71,7 @@ import {
   TopbarTitle,
   TopbarTrailing,
 } from '../index';
-import type { IconAvatarProps, IconName, ListActionLeadingAvatarProps } from '../index';
+import type { ButtonProps, IconAvatarProps, IconName, ListActionLeadingAvatarProps } from '../index';
 
 // Exact type equality without casts (#231 · the forwarded-prop typing proof): true only
 // when A and B are mutually identical — `unknown` or a widened union fails to compile.
@@ -90,6 +90,11 @@ export const nuriRootBadAccent = <NuriRoot accent="teal"><Screen /></NuriRoot>;
 // ── Button — text sink · variant/size · NO icon (the soup is gone) ──
 // the real surface compiles: variant union + children text.
 export const buttonOk = <Button variant="solid" size="lg" onPress={() => undefined}>Send</Button>;
+// #233 · ghost is back on the variant union (reverses #154's drop); the default stays soft.
+export const buttonVariantUnion: Equal<Required<ButtonProps>['variant'], 'solid' | 'soft' | 'ghost'> = true;
+export const buttonGhostOk = <Button variant="ghost" size="sm" onPress={() => undefined}>Swap</Button>;
+// accent is accepted on ghost and paints nothing (decision 39 · documented, NOT type-excluded).
+export const buttonGhostAccentOk = <Button variant="ghost" size="lg" accent="orange">Swap</Button>;
 // bare children are the label sink.
 export const buttonChildrenOk = <Button>Buy</Button>;
 // composed ordered lockup: flat slot exports, icon slot uses `name`.

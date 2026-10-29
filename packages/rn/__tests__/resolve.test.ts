@@ -162,6 +162,7 @@ describe('Button — the richest descriptor (every namespace + interactive · vi
   test('variant → backgroundColor (palette · spot-assert)', () => {
     expect(rootCell('solid', 'lg').style.backgroundColor).toBe(acc('lilac', 'solid', 'light'));
     expect(rootCell('soft', 'lg').style.backgroundColor).toBe(chrome.light.bgStrong);
+    expect(rootCell('ghost', 'lg').style.backgroundColor).toBe('transparent');
   });
 
   test('size → box geometry patches (sm/lg · decision 41)', () => {
@@ -177,6 +178,7 @@ describe('Button — the richest descriptor (every namespace + interactive · vi
   test('interactive transients — pressed colour per variant + scale + disabled opacity', () => {
     expect(rootCell('solid', 'lg', { pressed: true }).style.backgroundColor).toBe(acc('lilac', 'solidPressed', 'light'));
     expect(rootCell('soft', 'lg', { pressed: true }).style.backgroundColor).toBe(chrome.light.bgPressed);
+    expect(rootCell('ghost', 'lg', { pressed: true }).style.backgroundColor).toBe(chrome.light.bgSubtle);
     expect(rootCell('solid', 'lg', { pressed: true }).style.transform).toEqual([{ scale: interactionTokens.pressScale }]);
     expect(rootCell('solid', 'lg', { disabled: true }).style.opacity).toBe(interactionTokens.disabledOpacity);
   });
@@ -197,10 +199,31 @@ describe('Button — the richest descriptor (every namespace + interactive · vi
     // the root PROVIDES the surface fg per variant (scope-published · not a style patch)
     expect(rootCell('solid', 'lg').node.fg).toBe(acc('lilac', 'onSolid', 'light'));
     expect(rootCell('soft', 'lg').node.fg).toBe(chrome.light.textPrimary);
+    expect(rootCell('ghost', 'lg').node.fg).toBe(chrome.light.textPrimary);
     // the label part carries ONLY typography — no colour patch, no own fg.
     const label = flattenPart(buttonDescriptor, theme, 'label', { size: 'lg' }, {});
     expect(label.style).toEqual({});
     expect(label.node.fg).toBeUndefined();
+  });
+
+  test('ghost (#233) — shares soft\'s geometry per size; accent does not paint it (decision 39)', () => {
+    const geometry = (style: object) => ({ ...style, backgroundColor: undefined });
+    for (const s of ['sm', 'lg']) {
+      expect(geometry(rootCell('ghost', s).style)).toEqual(geometry(rootCell('soft', s).style));
+      expect(rootCell('ghost', s, { disabled: true }).style.opacity).toBe(interactionTokens.disabledOpacity);
+    }
+    // the ghost cells read only chrome (transparent · bg-subtle · text-primary) — identical under every accent.
+    for (const mode of ['light', 'dark'] as const) {
+      const cell = (accent: 'lilac' | 'orange' | 'neutral', state = {}) =>
+        flattenPart(buttonDescriptor, buildNuriTheme(accent, mode), 'root', { variant: 'ghost', size: 'sm' }, state);
+      for (const accent of ['orange', 'neutral'] as const) {
+        expect(cell(accent).style).toEqual(cell('lilac').style);
+        expect(cell(accent, { pressed: true }).style).toEqual(cell('lilac', { pressed: true }).style);
+        expect(cell(accent).node.fg).toBe(cell('lilac').node.fg);
+      }
+      expect(cell('orange', { pressed: true }).style.backgroundColor).toBe(chrome[mode].bgSubtle);
+      expect(cell('orange').node.fg).toBe(chrome[mode].textPrimary);
+    }
   });
 
   test('label type tracks size — orthogonal {size, emphasis} (decision 55 · de-fused 77)', () => {
