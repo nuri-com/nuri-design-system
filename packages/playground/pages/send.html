@@ -11,7 +11,7 @@
 
 <!--
   ═══════════════════════════════════════════════════════════════
-  SEND · the finished boards (updated 2026-10-28): recipient, scanner, search, new recipient, amount. Everything still in progress (the amount variants, review, the scan result variants, the Bitcoin wallet form, the IBAN boards) is in send-wip.html.
+  SEND · the finished boards (updated 2026-10-29): recipient, scanner, search, new recipient, amount (euro, bitcoin). Everything still in progress (the other amount variants and states, review, the scan result variants, the Bitcoin wallet form, the IBAN boards) is in send-wip.html.
   ═══════════════════════════════════════════════════════════════
 
   The recipient step of the nuri-expo send journey (nuri-expo
@@ -554,8 +554,8 @@
        contacts (Nuri and an IBAN, P6). The amount centred; xl under it the source chip (the
        DS select-trigger, subtle) and, md below, the only line under the chip: the available
        balance of that source, in the currency of the amount. No fee or arrival here: the
-       review has them. The variants per recipient (Bitcoin, Lightning, Ark, IBAN, a
-       recipient not saved, the amount in bitcoin) are in send-wip.html. -->
+       review has them. The bitcoin case follows; the other variants (Lightning, Ark, IBAN,
+       a recipient not saved, the amount typed in bitcoin) are in send-wip.html. -->
   <nuri-demo layout="board" controls="device,theme,accent" label="send · amount">
     <template>
       <nuri-screen>
@@ -629,6 +629,87 @@
     </template>
   </nuri-demo>
 
+  <!-- S2 · AMOUNT · BITCOIN (operator, 2026-10-29) · the same send paid from Bitcoin, so
+       bitcoin is involved: the amount in bitcoin sits flush under the big one as a sm ghost
+       Button, ⇅ first (the DS variant since nuri-com/nuri-design-system#233); a tap swaps
+       the two units. The available line follows the currency of the amount (euro, so
+       "€ 82.00 available" for the ₿ 86 969 balance). Everything else as in "send · amount".
+       The state typed in bitcoin and the other recipients are in send-wip.html. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send · amount · bitcoin">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                </nuri-topbar-leading>
+                <nuri-topbar-center>
+                  <nuri-view direction="column" align="center">
+                    <nuri-typography size="md" emphasis align="center">Send to Emil Berg</nuri-typography>
+                    <nuri-typography size="sm" muted align="center">@emil</nuri-typography>
+                  </nuri-view>
+                </nuri-topbar-center>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="center" justify="center" gap="sm" fill>
+                  <nuri-view direction="column" align="center">
+                    <nuri-typography size="3xl" align="center">€ 25.87</nuri-typography>
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 27 435, enter the amount in bitcoin"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 27 435</nuri-button-text></nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="column" align="center" gap="md">
+                    <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Bitcoin, 82 euros available">
+                      <nuri-select-trigger-label>From</nuri-select-trigger-label>
+                      <nuri-select-trigger-avatar name="bitcoin" variant="solid" accent="orange"></nuri-select-trigger-avatar>
+                      <nuri-select-trigger-value>Bitcoin</nuri-select-trigger-value>
+                      <nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>
+                    </nuri-select-trigger>
+                    <nuri-typography size="sm" muted align="center">€ 82.00 available</nuri-typography>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
 </nuri-playground-shell>
 
 <!--
@@ -645,6 +726,7 @@
   send · · every row has the same anatomy: leading avatar, title (+ muted subtitle), chevron-right; no dates, no counts (operator, 2026-10-24) · none
   send · amount · the recipient as a two-line title (name, then identifier) in the topbar centre · composed: a nuri-view column (md emphasis + sm muted typography) in nuri-topbar-center · a topbar title + subtitle slot
   send · amount · the available balance under the source chip · composed: sm muted typography md below the select-trigger · none
+  send · amount · bitcoin · the amount in the other unit under the big one, a tap swaps the units · composed: a sm ghost Button (transfer-vertical + amount) flush under the 3xl amount · none (Button variant="ghost" since nuri-com/nuri-design-system#233)
   send · · people: initials + a rail accessory (Nuri = inverse disc · every other rail = canvas disc) · resolved: IconAvatar `initials` + `accessory` + `accessorySurface`, forwarded by ListActionLeadingAvatar (nuri-com/nuri-design-system#231 · the send-recipient.html exploration is retired) · none
 -->
 

@@ -34,10 +34,6 @@
     .xbadge nuri-icon { width: 11px; height: 11px; }
     .xbadge nuri-icon svg { width: 100%; height: 100%; }
     [data-xchev] { flex: none; color: var(--nuri-border-strong); }
-    /* EXPERIMENT · the small button as ghost: the DS button has solid and soft only, so
-       this copies the DS ghost palette (transparent, bg-subtle when pressed) */
-    nuri-button[data-x-ghost] .nuri-palette[data-variant] { background: transparent; color: var(--nuri-text-primary); }
-    nuri-button[data-x-ghost] .nuri-palette[data-variant][data-press-color]:active { background: var(--nuri-bg-subtle); }
   </style>
 </head>
 <body>
@@ -77,14 +73,13 @@
 <nuri-playground-shell doc="Send · work in progress">
 
   <!-- AMOUNT VARIANTS · generated (build_amount_variants.py) -->
-  <!-- AMOUNT VARIANTS (operator, 2026-10-28) · send.html "send · amount" per recipient, then two
+  <!-- AMOUNT VARIANTS (operator, 2026-10-28, ghost 2026-10-29) · send.html "send · amount" per recipient, then two
        states. Rules: the title names the recipient (the name, or the identifier when there
        is none), the subtitle names the identifier or the rail; the line under the chip is
        only the available balance of the chosen source, in the currency of the amount (euro
        for now); when bitcoin is involved the amount in bitcoin sits under the big one as a
-       small button, ⇅ first: a tap swaps the two. EXPERIMENT · OUTSIDE THE DS: that
-       button is ghost through the page CSS (data-x-ghost; the DS button has solid
-       and soft only). No fee or arrival on this step: the review has them. Balances: Euro
+       small button, ⇅ first: a tap swaps the two. That button is the DS Button
+       variant="ghost" (nuri-com/nuri-design-system#233, 2026-10-29). No fee or arrival on this step: the review has them. Balances: Euro
        € 100.00, Bitcoin ₿ 86 969 ≈ € 82.00, Card € 180.00; € 25.87 ≈ ₿ 27 435. Type: the
        title md emphasis, the chip the DS select-trigger (sm), the lines sm muted. Spacing:
        amount to chip xl; with bitcoin the button sits flush under the amount and sm above
@@ -120,7 +115,7 @@
                 <nuri-view direction="column" align="center" justify="center" gap="sm" fill>
                   <nuri-view direction="column" align="center">
                     <nuri-typography size="3xl" align="center">€ 25.87</nuri-typography>
-                    <nuri-button data-x-ghost size="sm" variant="soft" aria-label="₿ 27 435, enter the amount in bitcoin"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 27 435</nuri-button-text></nuri-button>
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 27 435, enter the amount in bitcoin"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 27 435</nuri-button-text></nuri-button>
                   </nuri-view>
                   <nuri-view direction="column" align="center" gap="md">
                     <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Bitcoin, 82 euros available">
@@ -273,7 +268,7 @@
                 <nuri-view direction="column" align="center" justify="center" gap="sm" fill>
                   <nuri-view direction="column" align="center">
                     <nuri-typography size="3xl" align="center">€ 25.87</nuri-typography>
-                    <nuri-button data-x-ghost size="sm" variant="soft" aria-label="₿ 27 435, enter the amount in bitcoin"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 27 435</nuri-button-text></nuri-button>
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 27 435, enter the amount in bitcoin"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 27 435</nuri-button-text></nuri-button>
                   </nuri-view>
                   <nuri-view direction="column" align="center" gap="md">
                     <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Bitcoin, 82 euros available">
@@ -350,7 +345,7 @@
                 <nuri-view direction="column" align="center" justify="center" gap="sm" fill>
                   <nuri-view direction="column" align="center">
                     <nuri-typography size="3xl" align="center">€ 25.87</nuri-typography>
-                    <nuri-button data-x-ghost size="sm" variant="soft" aria-label="₿ 27 435, enter the amount in bitcoin"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 27 435</nuri-button-text></nuri-button>
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 27 435, enter the amount in bitcoin"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 27 435</nuri-button-text></nuri-button>
                   </nuri-view>
                   <nuri-view direction="column" align="center" gap="md">
                     <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Bitcoin, 82 euros available">
@@ -427,7 +422,7 @@
                 <nuri-view direction="column" align="center" justify="center" gap="sm" fill>
                   <nuri-view direction="column" align="center">
                     <nuri-typography size="3xl" align="center">€ 25.87</nuri-typography>
-                    <nuri-button data-x-ghost size="sm" variant="soft" aria-label="₿ 27 435, enter the amount in bitcoin"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 27 435</nuri-button-text></nuri-button>
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 27 435, enter the amount in bitcoin"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 27 435</nuri-button-text></nuri-button>
                   </nuri-view>
                   <nuri-view direction="column" align="center" gap="md">
                     <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Bitcoin, 82 euros available">
@@ -504,7 +499,7 @@
                 <nuri-view direction="column" align="center" justify="center" gap="sm" fill>
                   <nuri-view direction="column" align="center">
                     <nuri-typography size="3xl" align="center">€ 25.87</nuri-typography>
-                    <nuri-button data-x-ghost size="sm" variant="soft" aria-label="₿ 27 435, enter the amount in bitcoin"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 27 435</nuri-button-text></nuri-button>
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 27 435, enter the amount in bitcoin"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 27 435</nuri-button-text></nuri-button>
                   </nuri-view>
                   <nuri-view direction="column" align="center" gap="md">
                     <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Bitcoin, 82 euros available">
@@ -581,7 +576,7 @@
                 <nuri-view direction="column" align="center" justify="center" gap="sm" fill>
                   <nuri-view direction="column" align="center">
                     <nuri-typography size="3xl" align="center">€ 25.87</nuri-typography>
-                    <nuri-button data-x-ghost size="sm" variant="soft" aria-label="₿ 27 435, enter the amount in bitcoin"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 27 435</nuri-button-text></nuri-button>
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 27 435, enter the amount in bitcoin"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 27 435</nuri-button-text></nuri-button>
                   </nuri-view>
                   <nuri-view direction="column" align="center" gap="md">
                     <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Bitcoin, 82 euros available">
@@ -886,7 +881,7 @@
                 <nuri-view direction="column" align="center" justify="center" gap="sm" fill>
                   <nuri-view direction="column" align="center">
                     <nuri-typography size="3xl" align="center">₿ 27 435</nuri-typography>
-                    <nuri-button data-x-ghost size="sm" variant="soft" aria-label="€ 25.87, enter the amount in euro"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>€ 25.87</nuri-button-text></nuri-button>
+                    <nuri-button size="sm" variant="ghost" aria-label="€ 25.87, enter the amount in euro"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>€ 25.87</nuri-button-text></nuri-button>
                   </nuri-view>
                   <nuri-view direction="column" align="center" gap="md">
                     <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Bitcoin, 86 969 sats available">
@@ -2867,7 +2862,7 @@
   send · review · the Name field that appears when the switch turns on (address without a label) · composed: a second board with the field shown under the list (no live toggle in the playground) · none; in product the field appears in place and takes focus
   · from send-bank.html
   bank · holder name · ( Personal │ Company ) segmented toggle · composed: nuri-tab-bar surface="transparent" with two label-only nuri-tab-bar-item (decision 56 makes TabBar the bottom destination switcher, distinct from the in-page Tabs) · an in-page Tabs / segmented control component
-  bank · holder name · "+ Add reference (optional)" as a text link · composed: nuri-list-action with a plus outline avatar + "Add reference" / "Optional" (Button has no ghost variant; only IconButton does) · Button variant="ghost" (a text-link button)
+  bank · holder name · "+ Add reference (optional)" as a text link · composed: nuri-list-action with a plus outline avatar + "Add reference" / "Optional" (Button had no ghost variant when drawn; it has since nuri-com/nuri-design-system#233, the row is not rebuilt) · Button variant="ghost" (a text-link button)
   bank · recipient · IBAN · field with no visible label (the IBAN sits in the one recipient field) · composed: nuri-text-field with aria-label and no label slot · none (sanctioned compact placement)
   bank · amount · card short · "⌂ DE89 3704 … 0130 00" (glyph + muted line) · composed: nuri-view row with nuri-icon name="bank" size="sm" + sm muted typography — the icon paints the primary fg while the text is muted (nuri-icon exposes no muted attr; icon.css already has the [data-muted] rule the Alert icon uses) · a public `muted` on the Icon primitive (or an inline-icon typography slot)
   bank · amount · card short · amount centred under the IBAN line · composed: typography 3xl align="end" (the set-amount precedent right-aligns; no unit switch on a Euro send, so no swap row) · none — a layout choice carried from receive-bitcoin.html
