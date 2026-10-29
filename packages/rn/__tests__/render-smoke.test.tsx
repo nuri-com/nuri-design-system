@@ -560,7 +560,10 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     // The suite renders named glyphs but never sweeps the register, so each new
     // SoT drawing gets a targeted mount: the register markup reaches SvgXml
     // inside the constant viewBox wrapper, colour normalized to currentColor.
-    for (const name of ['arrow-up', 'arrow-down', 'caret-down', 'list-bullets', 'lightning'] as const) {
+    for (const name of [
+      'arrow-up', 'arrow-down', 'caret-down', 'list-bullets', 'lightning',
+      'address-book', 'id-card', 'selfie', 'lock', 'lock-open', 'phone',
+    ] as const) {
       const tr = render(
         <NuriThemeProvider>
           <NuriIcon name={name} />
