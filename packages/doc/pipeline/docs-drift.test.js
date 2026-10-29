@@ -63,7 +63,7 @@ const PAGE_CONTRACT = {
     kind: 'api', source: 'button', title: 'Button', nav: 1,
     cells: [
       '### Button Props',
-      "| `variant` | no | `'solid' | 'soft'` | style axis |",
+      "| `variant` | no | `'solid' | 'soft' | 'ghost'` | style axis |",
       "| `size` | no | `'sm' | 'lg'` | style axis |",
       "| `fill` | no | `'natural' | 'even' | 'hug'` | style axis |",
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
@@ -76,6 +76,12 @@ const PAGE_CONTRACT = {
       '### Button Icon Props',
       '| `name` | yes | `IconName` | scalar icon name |',
       '> `children` is not accepted (`children?: never`).',
+      // the lead's four ghost points (#233 · the admitted docs contract): tertiary ·
+      // inside content · never the main/only action · accent does not paint it.
+      'is the lowest emphasis (tertiary)',
+      'Use it for an action inside content, where a fill would compete with that content.',
+      "It is never a screen's main action or its only one.",
+      '`accent` does not paint ghost',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map'],
   },

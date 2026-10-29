@@ -21,7 +21,7 @@ import type { Accent } from '../data/tokens';
 import type { IconName } from '../data/icons';
 
 export type ButtonProps = {
-  variant?: 'solid' | 'soft';
+  variant?: 'solid' | 'soft' | 'ghost';
   size?: 'sm' | 'lg';
   fill?: 'natural' | 'even' | 'hug';
   accent?: Accent;

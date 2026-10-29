@@ -11,6 +11,7 @@ export const COMPONENT_API_DOCS = [
     file: 'packages/rn/generated/components/button.ts',
     type: 'ButtonProps',
     relatedPrefix: 'Button',
+    lead: '`variant="ghost"` is the lowest emphasis (tertiary), below `solid` and the default `soft`: no fill at rest, `text-primary` text and a `bg-subtle` wash when pressed. It keeps each size\'s height and padding, so its hit area matches `solid` and `soft`. Use it for an action inside content, where a fill would compete with that content. It is never a screen\'s main action or its only one. `accent` does not paint ghost: the prop is accepted and has no effect, as on `IconButton`.',
   },
   {
     source: 'alert',
