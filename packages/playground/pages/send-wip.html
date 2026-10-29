@@ -2750,7 +2750,7 @@
                 </nuri-view>
                 <nuri-list>
                   <nuri-list-action aria-label="Bank account, not activated, about 2 minutes, activate">
-                    <nuri-list-action-leading-avatar name="bank" variant="outline"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-leading-avatar name="lock" variant="outline"></nuri-list-action-leading-avatar>
                     <nuri-list-action-text>Bank account</nuri-list-action-text>
                     <nuri-list-action-text-muted>Not activated · about 2 min</nuri-list-action-text-muted>
                     <nuri-list-action-trailing-text>Activate</nuri-list-action-trailing-text>
@@ -2816,11 +2816,11 @@
                 </nuri-view>
                 <nuri-list>
                   <nuri-list-action aria-label="An ID document">
-                    <nuri-list-action-leading-avatar name="copy" variant="outline"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-leading-avatar name="id-card" variant="outline"></nuri-list-action-leading-avatar>
                     <nuri-list-action-text>An ID document</nuri-list-action-text>
                   </nuri-list-action>
                   <nuri-list-action aria-label="A selfie">
-                    <nuri-list-action-leading-avatar name="eye" variant="outline"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-leading-avatar name="selfie" variant="outline"></nuri-list-action-leading-avatar>
                     <nuri-list-action-text>A selfie</nuri-list-action-text>
                   </nuri-list-action>
                 </nuri-list>
@@ -2871,12 +2871,12 @@
   bank · review · two legs · numbered steps "1 … / 2 …" · composed: row gap="sm" with an emphasis md "1"/"2" + a text column; the number is plain text, not a disc or a timeline dot · a numbered-step / timeline element (the sheet's OQ 24 three-dot vertical list)
   bank · review · two legs · key/value rows (To / They get) · composed: between-row + end-aligned value column (same as send.html) · a key/value (description) row element
   bank · review · two legs · "Known account · 2 sends" badge · composed: sm muted typography under the IBAN line · a badge/tag element (OQ 24)
-  bank · recipient · locked · the locked state as the recognised row ("Not activated · about 2 min", trailing "Activate") · composed: list-action with trailing text + chevron-right, the bank avatar in outline variant to read as inactive; no lock glyph in the set · a `lock` icon; the multi-line Alert this board needed before is no longer required here
+  bank · recipient · locked · the locked state as the recognised row ("Not activated · about 2 min", trailing "Activate") · composed: list-action with trailing text + chevron-right; resolved: a `lock` outline avatar replaces the outline `bank` stand-in, the row's text names the rail (nuri-com/nuri-design-system#230) · none; the multi-line Alert this board needed before is no longer required here
   bank · holder name · Verification of Payee result "Name matches the account" · composed: check-circle icon sm + sm typography in a row · none; conditional on Wirex exposing the result (send-principles.md open question 11)
   bank · recipient · IBAN · Scan in the topbar leading slot, Paste replaced by a clear button once the field has text · same composition as send.html S1 · see send.html
   bank · recipient · IBAN / locked · a full IBAN (27 characters, grouped) does not fit the field at the default device and truncates under the clear button · left as is: the recognised row below carries the abbreviated IBAN, which is what the user checks · none; for product: after a paste the RN field should show the end of the string
   bank · activate · "What you get" / "What you need" bullet lists · composed: nuri-list-action rows (pressable, with press colour) used as static bullets — `list-item`, the non-pressable row, is reserved but not in the catalog (decision 84) · the non-pressable list-item row
-  bank · activate · "An ID document" and "A selfie" glyphs · composed: closest existing icons — `copy` for the document, `eye` for the selfie · `id-card` (or `passport`) and `camera` (or `user`) icons
+  bank · activate · "An ID document" and "A selfie" glyphs · resolved: `id-card` and `selfie` (outline) replace the `copy` and `eye` stand-ins; `selfie` is the person-in-a-viewfinder glyph, there is no `camera` or `user` (nuri-com/nuri-design-system#230) · none
 -->
 
 </body>

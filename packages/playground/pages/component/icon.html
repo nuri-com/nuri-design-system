@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuri · Playground · Icons</title>
+  <link rel="stylesheet" href="../../generated/playground.css" />
+  <script src="../../generated/boot.js" type="module"></script>
+</head>
+<body>
+
+<nuri-playground-shell doc="Icons">
+
+  <!-- The name ↔ drawing sheet (nuri-com/nuri-design-system#230 · non-contract, DS-owned):
+       every registry name (packages/spec/icons/*.svg) at 24, 18 and 15px, one board per
+       size, in registry order, each glyph next to its name. Theme and accent come from
+       the board controls. The list is written out by hand: a new glyph adds one cell to
+       each board (the odd last row keeps an empty View so distribute="even" still
+       halves it). -->
+
+  <!-- 24px · <nuri-icon> at its default md size (the size.sm leaf). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="24px · md">
+    <template>
+      <nuri-screen>
+        <nuri-scroll safe-area-top safe-area-bottom>
+          <nuri-view direction="column" align="stretch" justify="start" gap="md" padding="lg">
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="address-book"></nuri-icon>
+                <nuri-typography size="sm">address-book</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="apple"></nuri-icon>
+                <nuri-typography size="sm">apple</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="arrow-down"></nuri-icon>
+                <nuri-typography size="sm">arrow-down</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="arrow-up"></nuri-icon>
+                <nuri-typography size="sm">arrow-up</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="bank"></nuri-icon>
+                <nuri-typography size="sm">bank</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="bitcoin-wallet"></nuri-icon>
+                <nuri-typography size="sm">bitcoin-wallet</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="bitcoin"></nuri-icon>
+                <nuri-typography size="sm">bitcoin</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="card"></nuri-icon>
+                <nuri-typography size="sm">card</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="caret-down"></nuri-icon>
+                <nuri-typography size="sm">caret-down</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="check-circle"></nuri-icon>
+                <nuri-typography size="sm">check-circle</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="chevron-down"></nuri-icon>
+                <nuri-typography size="sm">chevron-down</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="chevron-left"></nuri-icon>
+                <nuri-typography size="sm">chevron-left</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="chevron-right"></nuri-icon>
+                <nuri-typography size="sm">chevron-right</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="chevron-up"></nuri-icon>
+                <nuri-typography size="sm">chevron-up</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="chevron"></nuri-icon>
+                <nuri-typography size="sm">chevron</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="copy"></nuri-icon>
+                <nuri-typography size="sm">copy</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="cross-circle"></nuri-icon>
+                <nuri-typography size="sm">cross-circle</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="cross"></nuri-icon>
+                <nuri-typography size="sm">cross</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="download"></nuri-icon>
+                <nuri-typography size="sm">download</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="edit"></nuri-icon>
+                <nuri-typography size="sm">edit</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="euro-wallet"></nuri-icon>
+                <nuri-typography size="sm">euro-wallet</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="euro"></nuri-icon>
+                <nuri-typography size="sm">euro</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="expand"></nuri-icon>
+                <nuri-typography size="sm">expand</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="eye-hidden"></nuri-icon>
+                <nuri-typography size="sm">eye-hidden</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="eye"></nuri-icon>
+                <nuri-typography size="sm">eye</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="headphones"></nuri-icon>
+                <nuri-typography size="sm">headphones</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="id-card"></nuri-icon>
+                <nuri-typography size="sm">id-card</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="lightning"></nuri-icon>
+                <nuri-typography size="sm">lightning</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="list-bullets"></nuri-icon>
+                <nuri-typography size="sm">list-bullets</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="lock-open"></nuri-icon>
+                <nuri-typography size="sm">lock-open</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="lock"></nuri-icon>
+                <nuri-typography size="sm">lock</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="minus"></nuri-icon>
+                <nuri-typography size="sm">minus</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="nuri"></nuri-icon>
+                <nuri-typography size="sm">nuri</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="phone"></nuri-icon>
+                <nuri-typography size="sm">phone</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="plus"></nuri-icon>
+                <nuri-typography size="sm">plus</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="qr-scan"></nuri-icon>
+                <nuri-typography size="sm">qr-scan</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="qr"></nuri-icon>
+                <nuri-typography size="sm">qr</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="selfie"></nuri-icon>
+                <nuri-typography size="sm">selfie</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="settings"></nuri-icon>
+                <nuri-typography size="sm">settings</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="share"></nuri-icon>
+                <nuri-typography size="sm">share</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="spinner"></nuri-icon>
+                <nuri-typography size="sm">spinner</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="transfer-horizontal"></nuri-icon>
+                <nuri-typography size="sm">transfer-horizontal</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="transfer-vertical"></nuri-icon>
+                <nuri-typography size="sm">transfer-vertical</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="wallet"></nuri-icon>
+                <nuri-typography size="sm">wallet</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="warning-circle"></nuri-icon>
+                <nuri-typography size="sm">warning-circle</nuri-typography>
+              </nuri-view>
+              <nuri-view></nuri-view>
+            </nuri-view>
+          </nuri-view>
+        </nuri-scroll>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- 18px · <nuri-icon size="sm"> (the size.xs leaf). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="18px · sm">
+    <template>
+      <nuri-screen>
+        <nuri-scroll safe-area-top safe-area-bottom>
+          <nuri-view direction="column" align="stretch" justify="start" gap="md" padding="lg">
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="address-book" size="sm"></nuri-icon>
+                <nuri-typography size="sm">address-book</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="apple" size="sm"></nuri-icon>
+                <nuri-typography size="sm">apple</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="arrow-down" size="sm"></nuri-icon>
+                <nuri-typography size="sm">arrow-down</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="arrow-up" size="sm"></nuri-icon>
+                <nuri-typography size="sm">arrow-up</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="bank" size="sm"></nuri-icon>
+                <nuri-typography size="sm">bank</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="bitcoin-wallet" size="sm"></nuri-icon>
+                <nuri-typography size="sm">bitcoin-wallet</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="bitcoin" size="sm"></nuri-icon>
+                <nuri-typography size="sm">bitcoin</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="card" size="sm"></nuri-icon>
+                <nuri-typography size="sm">card</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="caret-down" size="sm"></nuri-icon>
+                <nuri-typography size="sm">caret-down</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="check-circle" size="sm"></nuri-icon>
+                <nuri-typography size="sm">check-circle</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="chevron-down" size="sm"></nuri-icon>
+                <nuri-typography size="sm">chevron-down</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="chevron-left" size="sm"></nuri-icon>
+                <nuri-typography size="sm">chevron-left</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="chevron-right" size="sm"></nuri-icon>
+                <nuri-typography size="sm">chevron-right</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="chevron-up" size="sm"></nuri-icon>
+                <nuri-typography size="sm">chevron-up</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="chevron" size="sm"></nuri-icon>
+                <nuri-typography size="sm">chevron</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="copy" size="sm"></nuri-icon>
+                <nuri-typography size="sm">copy</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="cross-circle" size="sm"></nuri-icon>
+                <nuri-typography size="sm">cross-circle</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="cross" size="sm"></nuri-icon>
+                <nuri-typography size="sm">cross</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="download" size="sm"></nuri-icon>
+                <nuri-typography size="sm">download</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="edit" size="sm"></nuri-icon>
+                <nuri-typography size="sm">edit</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="euro-wallet" size="sm"></nuri-icon>
+                <nuri-typography size="sm">euro-wallet</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="euro" size="sm"></nuri-icon>
+                <nuri-typography size="sm">euro</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="expand" size="sm"></nuri-icon>
+                <nuri-typography size="sm">expand</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="eye-hidden" size="sm"></nuri-icon>
+                <nuri-typography size="sm">eye-hidden</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="eye" size="sm"></nuri-icon>
+                <nuri-typography size="sm">eye</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="headphones" size="sm"></nuri-icon>
+                <nuri-typography size="sm">headphones</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="id-card" size="sm"></nuri-icon>
+                <nuri-typography size="sm">id-card</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="lightning" size="sm"></nuri-icon>
+                <nuri-typography size="sm">lightning</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="list-bullets" size="sm"></nuri-icon>
+                <nuri-typography size="sm">list-bullets</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="lock-open" size="sm"></nuri-icon>
+                <nuri-typography size="sm">lock-open</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="lock" size="sm"></nuri-icon>
+                <nuri-typography size="sm">lock</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="minus" size="sm"></nuri-icon>
+                <nuri-typography size="sm">minus</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="nuri" size="sm"></nuri-icon>
+                <nuri-typography size="sm">nuri</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="phone" size="sm"></nuri-icon>
+                <nuri-typography size="sm">phone</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="plus" size="sm"></nuri-icon>
+                <nuri-typography size="sm">plus</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="qr-scan" size="sm"></nuri-icon>
+                <nuri-typography size="sm">qr-scan</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="qr" size="sm"></nuri-icon>
+                <nuri-typography size="sm">qr</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="selfie" size="sm"></nuri-icon>
+                <nuri-typography size="sm">selfie</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="settings" size="sm"></nuri-icon>
+                <nuri-typography size="sm">settings</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="share" size="sm"></nuri-icon>
+                <nuri-typography size="sm">share</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="spinner" size="sm"></nuri-icon>
+                <nuri-typography size="sm">spinner</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="transfer-horizontal" size="sm"></nuri-icon>
+                <nuri-typography size="sm">transfer-horizontal</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="transfer-vertical" size="sm"></nuri-icon>
+                <nuri-typography size="sm">transfer-vertical</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="wallet" size="sm"></nuri-icon>
+                <nuri-typography size="sm">wallet</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon name="warning-circle" size="sm"></nuri-icon>
+                <nuri-typography size="sm">warning-circle</nuri-typography>
+              </nuri-view>
+              <nuri-view></nuri-view>
+            </nuri-view>
+          </nuri-view>
+        </nuri-scroll>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- 15px · there is no 15px icon size: size.2xs is the IconAvatar accessory leaf
+       (#231 · 15px glyph in the 21px disc), so each glyph is shown where the DS draws
+       it at 15px, as the accessory over the same initials avatar. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="15px · accessory">
+    <template>
+      <nuri-screen>
+        <nuri-scroll safe-area-top safe-area-bottom>
+          <nuri-view direction="column" align="stretch" justify="start" gap="sm" padding="lg">
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="address-book"></nuri-icon-avatar>
+                <nuri-typography size="sm">address-book</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="apple"></nuri-icon-avatar>
+                <nuri-typography size="sm">apple</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="arrow-down"></nuri-icon-avatar>
+                <nuri-typography size="sm">arrow-down</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="arrow-up"></nuri-icon-avatar>
+                <nuri-typography size="sm">arrow-up</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="bank"></nuri-icon-avatar>
+                <nuri-typography size="sm">bank</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="bitcoin-wallet"></nuri-icon-avatar>
+                <nuri-typography size="sm">bitcoin-wallet</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="bitcoin"></nuri-icon-avatar>
+                <nuri-typography size="sm">bitcoin</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="card"></nuri-icon-avatar>
+                <nuri-typography size="sm">card</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="caret-down"></nuri-icon-avatar>
+                <nuri-typography size="sm">caret-down</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="check-circle"></nuri-icon-avatar>
+                <nuri-typography size="sm">check-circle</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="chevron-down"></nuri-icon-avatar>
+                <nuri-typography size="sm">chevron-down</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="chevron-left"></nuri-icon-avatar>
+                <nuri-typography size="sm">chevron-left</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="chevron-right"></nuri-icon-avatar>
+                <nuri-typography size="sm">chevron-right</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="chevron-up"></nuri-icon-avatar>
+                <nuri-typography size="sm">chevron-up</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="chevron"></nuri-icon-avatar>
+                <nuri-typography size="sm">chevron</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="copy"></nuri-icon-avatar>
+                <nuri-typography size="sm">copy</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="cross-circle"></nuri-icon-avatar>
+                <nuri-typography size="sm">cross-circle</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="cross"></nuri-icon-avatar>
+                <nuri-typography size="sm">cross</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="download"></nuri-icon-avatar>
+                <nuri-typography size="sm">download</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="edit"></nuri-icon-avatar>
+                <nuri-typography size="sm">edit</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="euro-wallet"></nuri-icon-avatar>
+                <nuri-typography size="sm">euro-wallet</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="euro"></nuri-icon-avatar>
+                <nuri-typography size="sm">euro</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="expand"></nuri-icon-avatar>
+                <nuri-typography size="sm">expand</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="eye-hidden"></nuri-icon-avatar>
+                <nuri-typography size="sm">eye-hidden</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="eye"></nuri-icon-avatar>
+                <nuri-typography size="sm">eye</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="headphones"></nuri-icon-avatar>
+                <nuri-typography size="sm">headphones</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="id-card"></nuri-icon-avatar>
+                <nuri-typography size="sm">id-card</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="lightning"></nuri-icon-avatar>
+                <nuri-typography size="sm">lightning</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="list-bullets"></nuri-icon-avatar>
+                <nuri-typography size="sm">list-bullets</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="lock-open"></nuri-icon-avatar>
+                <nuri-typography size="sm">lock-open</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="lock"></nuri-icon-avatar>
+                <nuri-typography size="sm">lock</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="minus"></nuri-icon-avatar>
+                <nuri-typography size="sm">minus</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="nuri"></nuri-icon-avatar>
+                <nuri-typography size="sm">nuri</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="phone"></nuri-icon-avatar>
+                <nuri-typography size="sm">phone</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="plus"></nuri-icon-avatar>
+                <nuri-typography size="sm">plus</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="qr-scan"></nuri-icon-avatar>
+                <nuri-typography size="sm">qr-scan</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="qr"></nuri-icon-avatar>
+                <nuri-typography size="sm">qr</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="selfie"></nuri-icon-avatar>
+                <nuri-typography size="sm">selfie</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="settings"></nuri-icon-avatar>
+                <nuri-typography size="sm">settings</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="share"></nuri-icon-avatar>
+                <nuri-typography size="sm">share</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="spinner"></nuri-icon-avatar>
+                <nuri-typography size="sm">spinner</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="transfer-horizontal"></nuri-icon-avatar>
+                <nuri-typography size="sm">transfer-horizontal</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="transfer-vertical"></nuri-icon-avatar>
+                <nuri-typography size="sm">transfer-vertical</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="wallet"></nuri-icon-avatar>
+                <nuri-typography size="sm">wallet</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view direction="row" distribute="even" gap="md">
+              <nuri-view direction="row" align="center" gap="sm">
+                <nuri-icon-avatar initials="EB" accessory="warning-circle"></nuri-icon-avatar>
+                <nuri-typography size="sm">warning-circle</nuri-typography>
+              </nuri-view>
+              <nuri-view></nuri-view>
+            </nuri-view>
+          </nuri-view>
+        </nuri-scroll>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+</body>
+</html>
