@@ -60,6 +60,8 @@
   variants of send.html "send · amount": nine recipients and two states
   (empty, in bitcoin),
   the redesign from the review of the app's amount screen.
+  New 2026-10-30: search · a Nuri user not in your contacts, for "marco"
+  and "@marco".
 
   Same rule as send.html: pure DS composition (decision 57), no page CSS,
   no inline styles; every slightly-off composition is in the MISFIT LOG at
@@ -929,6 +931,115 @@
   </nuri-demo>
 
   <!-- /AMOUNT VARIANTS -->
+
+  <!-- SEARCH UNSAVED · generated (build_search_unsaved.py) -->
+  <!-- SEARCH · A NURI USER NOT IN YOUR CONTACTS (operator, 2026-10-30) · one list: the saved
+       contacts first, then the directory result, never mixed into the alphabetical order (an
+       unknown @marco must not pass for a saved Marco), then New recipient. The directory
+       answers only an exact username (one ENS lookup per name), so there is at most one such
+       row. It is set apart by its subtitle only, "Not in your contacts" (a section header and
+       a separator were tried and dropped); its avatar is the soft Nuri one, no accessory, so it
+       does not draw the eye over the saved rows (the solid Nuri avatar is the rail on New
+       recipient); its title is the handle (the directory has no names, open question 13).
+       "marco" matches saved names and usernames; "@marco" matches usernames only, so Marco
+       Rossi (an IBAN, no username) drops out. Saved: Marco Bianchi @marcob, Marco Rossi
+       N26 ···8810; in the directory: @marco. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="search · unsaved · marco">
+    <template>
+      <nuri-screen>
+        <nuri-dock edge="top">
+          <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+            <nuri-topbar surface="transparent" layout="fluid">
+              <nuri-topbar-leading>
+                <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+              </nuri-topbar-leading>
+              <nuri-topbar-content>
+                <nuri-text-field size="md" placeholder="Search" aria-label="Search contacts and Nuri users" value="marco">
+                  <nuri-text-field-icon-button name="cross-circle" aria-label="Clear search"></nuri-text-field-icon-button>
+                </nuri-text-field>
+              </nuri-topbar-content>
+            </nuri-topbar>
+          </nuri-header>
+        </nuri-dock>
+        <nuri-scroll safe-area-bottom inset-top="dock">
+          <nuri-view direction="column" align="stretch" justify="start" padding-top="sm" padding-bottom="xl" fill>
+            <nuri-list>
+              <nuri-list-action aria-label="Marco Bianchi, Nuri user, @marcob">
+                <nuri-list-action-leading-avatar initials="MB" accessory="nuri" accessory-surface="inverse"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Marco Bianchi</nuri-list-action-text>
+                <nuri-list-action-text-muted>@marcob</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="Marco Rossi, N26 account ending 8810">
+                <nuri-list-action-leading-avatar initials="MR" accessory="bank"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Marco Rossi</nuri-list-action-text>
+                <nuri-list-action-text-muted>N26 ···8810</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="@marco, Nuri user, not in your contacts">
+                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>@marco</nuri-list-action-text>
+                <nuri-list-action-text-muted>Not in your contacts</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="New recipient, Bitcoin address, IBAN and more">
+                <nuri-list-action-leading-avatar name="plus" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>New recipient</nuri-list-action-text>
+                <nuri-list-action-text-muted>Bitcoin address, IBAN and more</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+          </nuri-view>
+        </nuri-scroll>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+  <nuri-demo layout="board" controls="device,theme,accent" label="search · unsaved · @marco">
+    <template>
+      <nuri-screen>
+        <nuri-dock edge="top">
+          <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+            <nuri-topbar surface="transparent" layout="fluid">
+              <nuri-topbar-leading>
+                <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+              </nuri-topbar-leading>
+              <nuri-topbar-content>
+                <nuri-text-field size="md" placeholder="Search" aria-label="Search contacts and Nuri users" value="@marco">
+                  <nuri-text-field-icon-button name="cross-circle" aria-label="Clear search"></nuri-text-field-icon-button>
+                </nuri-text-field>
+              </nuri-topbar-content>
+            </nuri-topbar>
+          </nuri-header>
+        </nuri-dock>
+        <nuri-scroll safe-area-bottom inset-top="dock">
+          <nuri-view direction="column" align="stretch" justify="start" padding-top="sm" padding-bottom="xl" fill>
+            <nuri-list>
+              <nuri-list-action aria-label="Marco Bianchi, Nuri user, @marcob">
+                <nuri-list-action-leading-avatar initials="MB" accessory="nuri" accessory-surface="inverse"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>Marco Bianchi</nuri-list-action-text>
+                <nuri-list-action-text-muted>@marcob</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="@marco, Nuri user, not in your contacts">
+                <nuri-list-action-leading-avatar name="nuri" variant="soft"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>@marco</nuri-list-action-text>
+                <nuri-list-action-text-muted>Not in your contacts</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-action aria-label="New recipient, Bitcoin address, IBAN and more">
+                <nuri-list-action-leading-avatar name="plus" variant="outline"></nuri-list-action-leading-avatar>
+                <nuri-list-action-text>New recipient</nuri-list-action-text>
+                <nuri-list-action-text-muted>Bitcoin address, IBAN and more</nuri-list-action-text-muted>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+          </nuri-view>
+        </nuri-scroll>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- /SEARCH UNSAVED -->
 
 
 
