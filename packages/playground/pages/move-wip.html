@@ -18,6 +18,2443 @@
 <body>
 
 <nuri-playground-shell doc="Move · work in progress">
+  <!-- ═══ SEND LIKE BUY · ROUND 5 (2026-11-08) ═══ -->
+
+  <!-- Send drawn like Buy / Sell (8 Nov 2026). The operator: "lasciamo in sospeso il max e l'available";
+       "come diventerebbe il send per averlo simile?"; then "sì, disegna". Today's Send amount screen
+       (send.html "send · amount", under the Send review's sheet in send-wip.html) is centred: Back on
+       the left, "Send to Emil Berg" over "@emil" centred, € 20.00 centred, "From Euro ▾" under it.
+       Here it takes Buy / Sell's skeleton: everything on the left margin, the control at the top
+       right (O2 as round 4's F2), the title lg emphasis in the bar, the number 3xl, the toggle on the
+       margin, the keypad and Review unchanged. What stays Send's own: the recipient in the title with
+       "@emil" under it, and the source chip, because in a send the paying balance is a real choice
+       (Buy / Sell have none: the verb names it). Only the control varies: Close (1, 2), as the operator
+       chose for Buy / Sell, or Back on the right (3, 4), as D7 gives it. Board 0 is round 4's Buy, for
+       comparison. Then, after the operator's "nel caso del send ha più senso il back o il close? il back
+       in alto a destra è un po' strano" and "puoi disegnarlo ma come prova aggiuntiva", Back on the left
+       with the title after it (5, 6), and the From sheet the chip opens (7). Then: "per bitcoin invece
+       che l'icona puoi usare il logo vero" (the chip and the sheet now carry assets/logos/bitcoin.svg)
+       and "in pay from per bitcoin dovremmo mettere il doppio balance anche in euro?" (8). Then, from the
+       operator's screenshot of today's centred Send: "possiamo vedere anche una versione centrata partendo
+       da questa, aggiungi": Buy, Sell, Send from Euro and Send from Bitcoin centred (C1–C4), Close on the
+       right for Buy / Sell, Back on the left for Send, as the centred bars of VERIFY and send.html. Cases: € 20.00 to Emil Berg
+       (@emil) from Euro, and from Bitcoin (₿ 21 210 at € 1 = ₿ 1 060.5); Euro € 100.00, Bitcoin
+       ₿ 318 000. send.html and send-wip.html are not touched. Register: O13, O1, O2, D7.
+       OUTSIDE THE DS, page-only: the style below pulls the sm ghost ⇅ button by its inline padding so
+       its glyph starts on the margin (misfit log). Device "iPhone SE". -->
+  <style data-outside-ds>
+    /* the sm ghost button's inline padding is space lg (button.ts); pull its start out so the
+       glyph starts on the content margin */
+    nuri-button[data-x-s5-flush="start"] button { margin-inline-start: calc(-1 * var(--nuri-space-lg)); }
+  </style>
+
+  <!-- SEND LIKE BUY · 0 · THE ANCHOR · round 4's board 1, "Buy bitcoin" as it stands (lg title in
+       the bar, Close, € 50.00, "⇅ ₿ 52 760" on the margin, no chip), repeated here so the Send boards
+       sit next to it. Max and the available balance are on hold (the operator, 8 Nov). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send like buy · 0 · anchor · buy bitcoin">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Buy bitcoin</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 50.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 52 760, enter the amount in sats" data-x-s5-flush="start"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 52 760</nuri-button-text></nuri-button>
+                    
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- SEND LIKE BUY · 1 · FROM EURO · CLOSE · "Send to Emil Berg" (lg emphasis) over "@emil" (sm muted)
+       in the bar, on the left; Close at the top right. € 20.00 on the margin. No second amount (euro to
+       euro); "From Euro ▾" on the right of the row under the number, where F2 puts it, the left of the
+       row empty. With Close, changing the recipient means closing and starting again: the DS has no
+       tappable title. Euro to a Nuri user, no fee: € 20.00 is what Emil gets. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send like buy · 1 · from euro · close">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-view direction="column" align="start">
+                    <nuri-typography size="lg" emphasis align="start">Send to Emil Berg</nuri-typography>
+                    <nuri-typography size="sm" muted align="start">@emil</nuri-typography>
+                  </nuri-view>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 20.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-view></nuri-view>
+                    <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Euro">
+                      <nuri-select-trigger-label>From</nuri-select-trigger-label>
+                      <nuri-select-trigger-avatar source="../assets/flags/eur.svg"></nuri-select-trigger-avatar>
+                      <nuri-select-trigger-value>Euro</nuri-select-trigger-value>
+                      <nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>
+                    </nuri-select-trigger>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- SEND LIKE BUY · 2 · FROM BITCOIN · CLOSE · board 1 paid from Bitcoin: "⇅ ₿ 21 210" on the margin
+       (the toggle Send already has), "From Bitcoin ▾" on the right: ALIGNMENT · ROUND 4 F2 1 with the
+       title lg and Close. In a send the number is what Emil receives and any fee is added on top (the
+       Send review's Total); in Buy / Sell (b) it is what you give and the fee comes off what you get. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send like buy · 2 · from bitcoin · close">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-view direction="column" align="start">
+                    <nuri-typography size="lg" emphasis align="start">Send to Emil Berg</nuri-typography>
+                    <nuri-typography size="sm" muted align="start">@emil</nuri-typography>
+                  </nuri-view>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 20.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 21 210, enter the amount in sats" data-x-s5-flush="start"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 21 210</nuri-button-text></nuri-button>
+                    <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Bitcoin">
+                      <nuri-select-trigger-label>From</nuri-select-trigger-label>
+                      <nuri-select-trigger-avatar source="../assets/logos/bitcoin.svg"></nuri-select-trigger-avatar>
+                      <nuri-select-trigger-value>Bitcoin</nuri-select-trigger-value>
+                      <nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>
+                    </nuri-select-trigger>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- SEND LIKE BUY · 3 · FROM EURO · BACK · board 1 with Back at the top right, as D7 gives it (the
+       recipient is the step before, O1). Every Back in the references sits top left (1 Nov review):
+       Back on the right has no reference. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send like buy · 3 · from euro · back">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-view direction="column" align="start">
+                    <nuri-typography size="lg" emphasis align="start">Send to Emil Berg</nuri-typography>
+                    <nuri-typography size="sm" muted align="start">@emil</nuri-typography>
+                  </nuri-view>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 20.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-view></nuri-view>
+                    <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Euro">
+                      <nuri-select-trigger-label>From</nuri-select-trigger-label>
+                      <nuri-select-trigger-avatar source="../assets/flags/eur.svg"></nuri-select-trigger-avatar>
+                      <nuri-select-trigger-value>Euro</nuri-select-trigger-value>
+                      <nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>
+                    </nuri-select-trigger>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- SEND LIKE BUY · 4 · FROM BITCOIN · BACK · board 2 with Back at the top right. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send like buy · 4 · from bitcoin · back">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-view direction="column" align="start">
+                    <nuri-typography size="lg" emphasis align="start">Send to Emil Berg</nuri-typography>
+                    <nuri-typography size="sm" muted align="start">@emil</nuri-typography>
+                  </nuri-view>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 20.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 21 210, enter the amount in sats" data-x-s5-flush="start"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 21 210</nuri-button-text></nuri-button>
+                    <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Bitcoin">
+                      <nuri-select-trigger-label>From</nuri-select-trigger-label>
+                      <nuri-select-trigger-avatar source="../assets/logos/bitcoin.svg"></nuri-select-trigger-avatar>
+                      <nuri-select-trigger-value>Bitcoin</nuri-select-trigger-value>
+                      <nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>
+                    </nuri-select-trigger>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- SEND LIKE BUY · 5 · FROM EURO · BACK ON THE LEFT · Phantom 2026's send: Back at the top left,
+       "Send to Emil Berg" (lg) over "@emil" right after it (x 72), nothing at the top right; the
+       number, the row under it and the keypad stay on the left margin (x 18), as on boards 1–4. Two
+       left edges: the title's and the content's. The 31 Oct VERIFY round found left alignment breaks
+       where Back sits on the left; this board shows it with today's lg title. The operator: "puoi
+       disegnarlo ma come prova aggiuntiva, ho paura che con gli allineamenti correnti sia un
+       pasticcio". -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send like buy · 5 · from euro · back on the left">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-leading>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                </nuri-topbar-leading>
+                <nuri-topbar-content>
+                  <nuri-view direction="column" align="start">
+                    <nuri-typography size="lg" emphasis align="start">Send to Emil Berg</nuri-typography>
+                    <nuri-typography size="sm" muted align="start">@emil</nuri-typography>
+                  </nuri-view>
+                </nuri-topbar-content>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 20.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-view></nuri-view>
+                    <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Euro">
+                      <nuri-select-trigger-label>From</nuri-select-trigger-label>
+                      <nuri-select-trigger-avatar source="../assets/flags/eur.svg"></nuri-select-trigger-avatar>
+                      <nuri-select-trigger-value>Euro</nuri-select-trigger-value>
+                      <nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>
+                    </nuri-select-trigger>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- SEND LIKE BUY · 6 · FROM BITCOIN · BACK ON THE LEFT · board 5 paid from Bitcoin: "⇅ ₿ 21 210" on
+       the margin, "From Bitcoin ▾" on the right. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send like buy · 6 · from bitcoin · back on the left">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-leading>
+                  <nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button>
+                </nuri-topbar-leading>
+                <nuri-topbar-content>
+                  <nuri-view direction="column" align="start">
+                    <nuri-typography size="lg" emphasis align="start">Send to Emil Berg</nuri-typography>
+                    <nuri-typography size="sm" muted align="start">@emil</nuri-typography>
+                  </nuri-view>
+                </nuri-topbar-content>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 20.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 21 210, enter the amount in sats" data-x-s5-flush="start"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 21 210</nuri-button-text></nuri-button>
+                    <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Bitcoin">
+                      <nuri-select-trigger-label>From</nuri-select-trigger-label>
+                      <nuri-select-trigger-avatar source="../assets/logos/bitcoin.svg"></nuri-select-trigger-avatar>
+                      <nuri-select-trigger-value>Bitcoin</nuri-select-trigger-value>
+                      <nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>
+                    </nuri-select-trigger>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- SEND LIKE BUY · 7 · THE FROM SHEET · what "From Euro ▾" opens, drawn over board 1 (dimmed). The
+       operator: "nel send abbiamo la select del from aperta come sheet sopra da qualche parte?". Not in
+       send.html or send-wip.html; the nearest are this page's "exchange · trade size · from picker" (31
+       Oct, superseded, titled "Exchange from") and the D1 "move · currency picker" ("Move from", also in
+       move.html). Here in the Exchange sheet's form (round 3 T1: lg title in the bar, Close): "Pay
+       from", the app's own words for its source choice on scan (screen.HomeScreen.scanChoiceTitle).
+       Rows: Euro with its flag, "€ 100.00", checked; Bitcoin with its logo, "₿ 318 000". In a send the
+       balance belongs here: it is what you choose by (Phantom "Cash · $9.64", Revolut "Main · $13.25",
+       Coinbase "Send BTC · S$11.42 Available"). The currency avatars are the chip's own; R4 rejected
+       them on the Exchange panel, not on a source list. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send like buy · 7 · the from sheet">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-view direction="column" align="start">
+                    <nuri-typography size="lg" emphasis align="start">Send to Emil Berg</nuri-typography>
+                    <nuri-typography size="sm" muted align="start">@emil</nuri-typography>
+                  </nuri-view>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 20.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-view></nuri-view>
+                    <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Euro">
+                      <nuri-select-trigger-label>From</nuri-select-trigger-label>
+                      <nuri-select-trigger-avatar source="../assets/flags/eur.svg"></nuri-select-trigger-avatar>
+                      <nuri-select-trigger-value>Euro</nuri-select-trigger-value>
+                      <nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>
+                    </nuri-select-trigger>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+
+        <nuri-modal open mode="sheet" scrim="dim">
+          <nuri-modal-panel>
+            <nuri-header chrome="transparent">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Pay from</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll safe-area-bottom>
+              <nuri-view direction="column" align="stretch" padding-bottom="lg">
+                <nuri-list>
+                  <nuri-list-action aria-label="Euro, 100 euros, selected">
+                    <nuri-list-action-leading-avatar source="../assets/flags/eur.svg"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Euro</nuri-list-action-text>
+                    <nuri-list-action-text-muted>€ 100.00</nuri-list-action-text-muted>
+                    <nuri-list-action-trail-icon name="check-circle"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+
+                  <nuri-list-action aria-label="Bitcoin, 318 000 sats">
+                    <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Bitcoin</nuri-list-action-text>
+                    <nuri-list-action-text-muted>₿ 318 000</nuri-list-action-text-muted>
+                  </nuri-list-action>
+                </nuri-list>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- SEND LIKE BUY · 8 · THE FROM SHEET · DOUBLE BALANCE · board 7 with the Bitcoin row's balance in
+       both units, "₿ 318 000 · € 299.86": what the balance holds, then what it is worth in the unit the
+       amount is typed in. The operator: "in pay from per bitcoin dovremmo mettere il doppio balance anche
+       in euro?". Euro keeps one figure (nothing to convert). References: Kraken's Sell list ("$9.12"
+       with "0.004392 ETH" under it) and Phantom's token rows ("$11.05" over "11.05437 USDC") give both;
+       Coinbase gives the fiat value only ("Send BTC · S$11.42 Available"), Cash App the crypto only
+       ("0.00008963 BTC available"). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send like buy · 8 · the from sheet · double balance">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-view direction="column" align="start">
+                    <nuri-typography size="lg" emphasis align="start">Send to Emil Berg</nuri-typography>
+                    <nuri-typography size="sm" muted align="start">@emil</nuri-typography>
+                  </nuri-view>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 20.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-view></nuri-view>
+                    <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Euro">
+                      <nuri-select-trigger-label>From</nuri-select-trigger-label>
+                      <nuri-select-trigger-avatar source="../assets/flags/eur.svg"></nuri-select-trigger-avatar>
+                      <nuri-select-trigger-value>Euro</nuri-select-trigger-value>
+                      <nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>
+                    </nuri-select-trigger>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+
+        <nuri-modal open mode="sheet" scrim="dim">
+          <nuri-modal-panel>
+            <nuri-header chrome="transparent">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Pay from</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll safe-area-bottom>
+              <nuri-view direction="column" align="stretch" padding-bottom="lg">
+                <nuri-list>
+                  <nuri-list-action aria-label="Euro, 100 euros, selected">
+                    <nuri-list-action-leading-avatar source="../assets/flags/eur.svg"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Euro</nuri-list-action-text>
+                    <nuri-list-action-text-muted>€ 100.00</nuri-list-action-text-muted>
+                    <nuri-list-action-trail-icon name="check-circle"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+
+                  <nuri-list-action aria-label="Bitcoin, 318 000 sats">
+                    <nuri-list-action-leading-avatar source="../assets/logos/bitcoin.svg"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Bitcoin</nuri-list-action-text>
+                    <nuri-list-action-text-muted>₿ 318 000 · € 299.86</nuri-list-action-text-muted>
+                  </nuri-list-action>
+                </nuri-list>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- SEND LIKE BUY · C1 · BUY, CENTRED · round 4's Buy in the centred layout of today's Send (the
+       operator's screenshot of "send · amount · bitcoin"): "Buy bitcoin" lg centred in the bar, Close on
+       the right with an empty leading region balancing it; € 50.00 and "⇅ ₿ 52 760" centred under it; no
+       chip. The operator: "possiamo vedere anche una versione centrata partendo da questa, aggiungi".
+       References for the centred number: Revolut, Kraken, N26, Crypto.com, PayPal, Cash App (1 Nov review). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send like buy · C1 · buy · centred">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading></nuri-topbar-leading>
+                <nuri-topbar-center>
+                  <nuri-typography size="lg" emphasis align="center">Buy bitcoin</nuri-typography>
+                </nuri-topbar-center>
+                <nuri-topbar-trailing><nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button></nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="center" justify="center" gap="sm" fill>
+                  <nuri-view direction="column" align="center">
+                    <nuri-typography size="3xl" align="center">€ 50.00</nuri-typography>
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 52 760, enter the amount in sats"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 52 760</nuri-button-text></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- SEND LIKE BUY · C2 · SELL (b), CENTRED · as C1: "Sell bitcoin", € 50.00, "⇅ ₿ 53 025". -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send like buy · C2 · sell (b) · centred">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading></nuri-topbar-leading>
+                <nuri-topbar-center>
+                  <nuri-typography size="lg" emphasis align="center">Sell bitcoin</nuri-typography>
+                </nuri-topbar-center>
+                <nuri-topbar-trailing><nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button></nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="center" justify="center" gap="sm" fill>
+                  <nuri-view direction="column" align="center">
+                    <nuri-typography size="3xl" align="center">€ 50.00</nuri-typography>
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 53 025, enter the amount in sats"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 53 025</nuri-button-text></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- SEND LIKE BUY · C3 · SEND FROM EURO, CENTRED · today's Send from Euro: Back on the left (the iOS
+       place, every reference), "Send to Emil Berg" over "@emil" centred, € 20.00 centred, "From Euro ▾"
+       centred under it. The title is lg here, as on every board of this block; the screenshot has md. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send like buy · C3 · send from euro · centred">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading><nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button></nuri-topbar-leading>
+                <nuri-topbar-center>
+                  <nuri-view direction="column" align="center">
+                    <nuri-typography size="lg" emphasis align="center">Send to Emil Berg</nuri-typography>
+                    <nuri-typography size="sm" muted align="center">@emil</nuri-typography>
+                  </nuri-view>
+                </nuri-topbar-center>
+                <nuri-topbar-trailing></nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="center" justify="center" gap="sm" fill>
+                  <nuri-view direction="column" align="center">
+                    <nuri-typography size="3xl" align="center">€ 20.00</nuri-typography>
+                    
+                  </nuri-view>
+                  <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Euro">
+                      <nuri-select-trigger-label>From</nuri-select-trigger-label>
+                      <nuri-select-trigger-avatar source="../assets/flags/eur.svg"></nuri-select-trigger-avatar>
+                      <nuri-select-trigger-value>Euro</nuri-select-trigger-value>
+                      <nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>
+                    </nuri-select-trigger>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- SEND LIKE BUY · C4 · SEND FROM BITCOIN, CENTRED · the operator's screenshot with this block's
+       changes: the title lg, the real bitcoin logo in the chip. € 20.00, "⇅ ₿ 21 210", "From Bitcoin ▾"
+       centred, Back on the left, nothing on the right. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="send like buy · C4 · send from bitcoin · centred">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent">
+                <nuri-topbar-leading><nuri-icon-button icon="chevron-left" variant="soft" aria-label="Back"></nuri-icon-button></nuri-topbar-leading>
+                <nuri-topbar-center>
+                  <nuri-view direction="column" align="center">
+                    <nuri-typography size="lg" emphasis align="center">Send to Emil Berg</nuri-typography>
+                    <nuri-typography size="sm" muted align="center">@emil</nuri-typography>
+                  </nuri-view>
+                </nuri-topbar-center>
+                <nuri-topbar-trailing></nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="center" justify="center" gap="sm" fill>
+                  <nuri-view direction="column" align="center">
+                    <nuri-typography size="3xl" align="center">€ 20.00</nuri-typography>
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 21 210, enter the amount in sats"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 21 210</nuri-button-text></nuri-button>
+                  </nuri-view>
+                  <nuri-select-trigger variant="subtle" aria-label="From" accessibility-value="Bitcoin">
+                      <nuri-select-trigger-label>From</nuri-select-trigger-label>
+                      <nuri-select-trigger-avatar source="../assets/logos/bitcoin.svg"></nuri-select-trigger-avatar>
+                      <nuri-select-trigger-value>Bitcoin</nuri-select-trigger-value>
+                      <nuri-select-trigger-chevron name="caret-down"></nuri-select-trigger-chevron>
+                    </nuri-select-trigger>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- MISFIT LOG · this block · board · what the sheet asked · what was done · the DS element, axis or value that would remove the workaround
+       send like buy · 0, 2, 4, 6 · the ⇅ glyph starting on the number's margin · page-only style: the sm ghost button pulled by its inline padding (space lg, 18px) · a ghost button that sits flush with the text edge
+       send like buy · 1, 3, 5, 7, 8 · the chip alone on the right of the row under the number · an empty DS view on the left of a row justified between · none needed -->
+
+  <!-- ═══ /SEND LIKE BUY · ROUND 5 ═══ -->
+
+  <!-- ═══ BUY · SELL · ROUND 4 · THE AMOUNT SCREENS (2026-11-08) ═══ -->
+
+  <!-- Buy / sell, round 4 (8 Nov 2026): the two amount screens the Exchange sheet opens. Plan put to
+       the operator first; his answer: "a o b default non scriviamo in sats ma potrebbe essere
+       switchabile il che forse fa pendere per B (cosa dici)"; "detto ciò puoi procedere". (a) is D8:
+       the euro typed is exactly what leaves or enters Euro. (b) is the reference reading: you type
+       what you give, the fee comes off what you get; when buying the two agree, when selling (b)
+       gives € 49.75 for € 50 typed. One row, eight boards, the same case throughout: Euro € 100.00,
+       Bitcoin ₿ 318 000, € 1 = ₿ 1 060.5, fee 0.5 %.
+       - 1 Buy, € 50.00, "⇅ ₿ 52 760" now a toggle to sats;
+       - 2 Buy with "Max € 100.00" above the keypad;  3 Buy over the balance (€ 150.00);
+       - 4 Sell (b), € 50.00, "⇅ ₿ 53 025";  5 Sell (b) after ⇅, typed in sats;
+       - 6 Sell (b) with "Sell all € 299.86";  7 Sell (b) over the balance (€ 350.00);
+       - 8 Sell (a), the control: € 50.00 arrives, "≈ ₿ 53 290", no toggle.
+       Revised the same day, the operator: "buy e sell scrivili in lg"; "prova una versione in cui
+       available balance è in muted centrato sotto il review". So the titles are lg emphasis in the
+       bar, and two boards are added, 2b (Buy) and 6b (Sell): the balance as a muted centred line
+       under Review, as an alternative to Max / Sell all.
+       Revised again, the operator: "usiamo il close non il back"; "fai una prova con la riga sopra il
+       pulsante come prova aggiuntiva, lascia anche quella che hai già fatto". So every board has
+       Close at the top right, not Back (O1; D7 would give Back after the sheet: the sheet is taken
+       to close when a row is picked, and the amount screen opens on its own), and two boards are
+       added, 2c and 6c, with the balance line above Review.
+       Revised a third time, the operator: "fai una prova con il balance available in un button ghost
+       (sarebbe una hidden feature per all, cosa ne pensi?)". Added 2d, 2e (Buy) and 6d, 6e (Sell):
+       the same balance text as a DS ghost button that types the whole balance, under and above
+       Review. Sixteen boards. Then, on 2e and 6e: "tieni lo stesso spazio sopra e sotto il pulsante, ora
+       c'è troppo spazio tra il tastierino e il pulsante": 6px on both sides of the ghost button.
+       Fixed: the titles "Buy bitcoin" / "Sell bitcoin", lg emphasis (O13), no chip (R12's second half, as in
+       O13), euro the default unit (D5), O2 as round 4's F2 (left, the control at the top right),
+       Close (the operator, see above), the keypad and Review. Under test: (b) for the
+       selling half of D8 and the toggle D8 left out (boards 1–7); the balance as an action, Max /
+       Sell all (O5, O8); the over-balance state from AMOUNT ANATOMY 6 (O8). Not drawn: the review
+       (O7: it follows the Send review, still open), the outcome, the sheet (round 3).
+       OUTSIDE THE DS, page-only: the style below pulls the sm ghost ⇅ button by its inline padding
+       so its glyph starts on the margin, as round 4's F2 1 (misfit log). Device "iPhone SE". -->
+  <style data-outside-ds>
+    /* the sm ghost button's inline padding is space lg (button.ts); pull its start out so the
+       glyph starts on the content margin */
+    nuri-button[data-x-bs-flush="start"] button { margin-inline-start: calc(-1 * var(--nuri-space-lg)); }
+  </style>
+
+  <!-- BUY · SELL 4 · 1 · BUY · € 50.00 · the euro typed leaves Euro exactly (D8, every buy reference:
+       Cash App "Total cost $1.00", Kraken "Total $10.00", Coinbase "S$5.00 total", N26 "You are
+       currently spending €1.00"). Under it, "⇅ ₿ 52 760": what arrives in Bitcoin, net of the 0.5 %
+       fee, now a ghost button that switches the keypad to sats (Send's ⇅; Coinbase, Kraken, Cash App,
+       Crypto.com have the toggle on buy). Switched, the sats typed are what arrives, and the euro line
+       what leaves. Close at the top right (the operator: "usiamo il close non il back"). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 4 · 1 · buy · € 50.00 · toggle">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Buy bitcoin</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 50.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 52 760, enter the amount in sats" data-x-bs-flush="start"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 52 760</nuri-button-text></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 4 · 2 · BUY · MAX · board 1 with one soft sm button above the keypad, "Max € 100.00":
+       the euro balance, shown as the thing you can do with it rather than as a label by the number
+       (O5, O8 "Max / Use all"). Tapping it types € 100.00 (≈ ₿ 105 520 arrive). References for a
+       single max button: Kraken "MAX", Coinbase "Sell all", PayPal "Sell all $1.94"; for preset
+       amounts in the same place on buy: Kraken, PayPal, N26. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 4 · 2 · buy · max">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Buy bitcoin</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 50.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 52 760, enter the amount in sats" data-x-bs-flush="start"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 52 760</nuri-button-text></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" justify="start">
+                    <nuri-button size="sm" variant="soft"><nuri-button-text>Max € 100.00</nuri-button-text></nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 4 · 2b · BUY · BALANCE UNDER REVIEW · board 1 with the euro balance as a muted
+       centred line under Review, "€ 100.00 available in Euro" (sm, muted; the footer gains a 6px
+       gap). The operator: "prova una versione in cui available balance è in muted centrato sotto il
+       review". The balance reads as information about the button, away from the number (D6), and
+       with no button of its own, unlike board 2's Max. References for the word: Coinbase
+       "S$12.82 Available", Cash App "0.00008963 BTC available", Oportun "$7,741.33 available";
+       the place under the button: KOHO ("You have $16.07 available to send" above it), none
+       found under it. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 4 · 2b · buy · balance under review">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Buy bitcoin</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 50.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 52 760, enter the amount in sats" data-x-bs-flush="start"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 52 760</nuri-button-text></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" gap="sm" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+              <nuri-typography size="sm" muted align="center">€ 100.00 available in Euro</nuri-typography>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 4 · 2c · BUY · BALANCE ABOVE REVIEW · 2b with the line moved above the button,
+       "€ 100.00 available in Euro" (sm, muted, centred, 6px over Review). The operator: "fai una prova
+       con la riga sopra il pulsante come prova aggiuntiva, lascia anche quella che hai già fatto".
+       Reference for the place: KOHO, "You have $16.07 available to send" above its button. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 4 · 2c · buy · balance above review">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Buy bitcoin</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 50.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 52 760, enter the amount in sats" data-x-bs-flush="start"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 52 760</nuri-button-text></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" gap="sm" padding-bottom="lg" padding-x="lg">
+              <nuri-typography size="sm" muted align="center">€ 100.00 available in Euro</nuri-typography>
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 4 · 2d · BUY · BALANCE AS A GHOST BUTTON, UNDER REVIEW · 2b with the line as a DS ghost button (sm), hugging its text, centred under Review. Tapping it types the whole balance, € 100.00 (≈ ₿ 105 520 arrive): a quiet “use all”. Its accessible name says what it does, “Use all € 100.00”. The operator: “fai una prova con il balance available in un button ghost (sarebbe una hidden feature per all)”. The DS ghost label is sm emphasis in the foreground colour, so it reads stronger than the muted line of 2b/6b; a muted ghost label is not in the DS. References: Stake “US$30.40 available to convert ›” (a tappable balance), Uniswap and Glow (“0.003 WETH Max”), PayPal and Coinbase “Sell all” (explicit). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 4 · 2d · buy · balance ghost button under review">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Buy bitcoin</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 50.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 52 760, enter the amount in sats" data-x-bs-flush="start"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 52 760</nuri-button-text></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" gap="sm" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+              <nuri-view direction="row" justify="center">
+                <nuri-button size="sm" variant="ghost" aria-label="Use all € 100.00"><nuri-button-text>€ 100.00 available in Euro</nuri-button-text></nuri-button>
+              </nuri-view>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 4 · 2e · BUY · BALANCE AS A GHOST BUTTON, ABOVE REVIEW · 2d with the ghost button above Review (2c’s place), the same 6px above and below it: the scroll column’s bottom padding is space sm here, not lg (the operator: “nella versione con il balance pulsante sopra il bottone tieni lo stesso spazio sopra e sotto il pulsante, ora c’è troppo spazio tra il tastierino e il pulsante”). The operator: “fai una prova con il balance available in un button ghost (sarebbe una hidden feature per all)”. The DS ghost label is sm emphasis in the foreground colour, so it reads stronger than the muted line of 2b/6b; a muted ghost label is not in the DS. References: Stake “US$30.40 available to convert ›” (a tappable balance), Uniswap and Glow (“0.003 WETH Max”), PayPal and Coinbase “Sell all” (explicit). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 4 · 2e · buy · balance ghost button above review">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Buy bitcoin</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="sm" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 50.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 52 760, enter the amount in sats" data-x-bs-flush="start"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 52 760</nuri-button-text></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" gap="sm" padding-bottom="lg" padding-x="lg">
+              <nuri-view direction="row" justify="center">
+                <nuri-button size="sm" variant="ghost" aria-label="Use all € 100.00"><nuri-button-text>€ 100.00 available in Euro</nuri-button-text></nuri-button>
+              </nuri-view>
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 4 · 3 · BUY · OVER THE BALANCE · board 2 with € 150.00 typed against € 100.00: the line
+       under the number becomes the warning, "Only € 100.00 in Euro" (an Alert, ghost, warning-circle:
+       AMOUNT ANATOMY 6 of 31 Oct, one of O8's candidates), Review is disabled, the keypad stays live,
+       and "Max € 100.00" right above it is the fix. No warning colour: the DS has none. Reference:
+       Revolut "exceeds balance" in the field itself. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 4 · 3 · buy · over the balance">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Buy bitcoin</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 150.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-alert variant="ghost">
+                      <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
+                      Only € 100.00 in Euro
+                    </nuri-alert>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" justify="start">
+                    <nuri-button size="sm" variant="soft"><nuri-button-text>Max € 100.00</nuri-button-text></nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac" disabled>Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 4 · 4 · SELL (b) · € 50.00 · the reference reading of a sale, under test: the euro
+       typed is the value of the bitcoin sold; "⇅ ₿ 53 025" is exactly what leaves Bitcoin (€ 50 at
+       € 1 = ₿ 1 060.5); the 0.5 % fee comes off what arrives, so € 49.75 reach Euro, said by the review.
+       Cash App ("Sell $1.95 of bitcoin" → proceeds $1.91), PayPal ($1.94 → "You'll receive $1.87"),
+       Kraken ("$1", "That's ≈ …"). The rule in both directions: you type what you give, the fee comes
+       off what you get. With the toggle the number keeps one meaning, the bitcoin you sell, in euro
+       or in sats. Replaces D8's selling half for this test (the operator, 8 Nov); brings back R8's
+       effect (€ 50 typed, € 49.75 arrive) and the ⇅ that D8 left out. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 4 · 4 · sell (b) · € 50.00 · toggle">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Sell bitcoin</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 50.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 53 025, enter the amount in sats" data-x-bs-flush="start"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 53 025</nuri-button-text></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 4 · 5 · SELL (b) · TYPED IN SATS · board 4 after ⇅: "₿ 50 000" leaves Bitcoin exactly;
+       "⇅ € 47.15" is its value at € 1 = ₿ 1 060.5, before the fee; € 46.91 arrive after the € 0.24
+       fee (the old "SELL BITCOIN · TYPED IN BITCOIN" board's figures). Euro stays the default unit
+       (the operator: "default non scriviamo in sats ma potrebbe essere switchabile"). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 4 · 5 · sell (b) · typed in sats">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Sell bitcoin</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">₿ 50 000</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-button size="sm" variant="ghost" aria-label="€ 47.15, enter the amount in euro" data-x-bs-flush="start"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>€ 47.15</nuri-button-text></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 4 · 6 · SELL (b) · SELL ALL · board 4 with "Sell all € 299.86" above the keypad: the
+       value of the whole Bitcoin balance (₿ 318 000); € 298.36 would arrive after the fee. PayPal
+       "Sell all $1.94", Coinbase "Sell all", Kraken "MAX", Revolut "Sell all". -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 4 · 6 · sell (b) · sell all">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Sell bitcoin</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 50.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 53 025, enter the amount in sats" data-x-bs-flush="start"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 53 025</nuri-button-text></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" justify="start">
+                    <nuri-button size="sm" variant="soft"><nuri-button-text>Sell all € 299.86</nuri-button-text></nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 4 · 6b · SELL (b) · BALANCE UNDER REVIEW · board 4 with "€ 299.86 available in
+       Bitcoin" muted and centred under Review: the bitcoin balance in euro, the unit typed, as
+       Coinbase ("Sell Bitcoin S$12.82 Available") and PayPal ("You can sell up to $1.94") give
+       it; in sats it would read "₿ 318 000 available" (Cash App). Same form as 2b. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 4 · 6b · sell (b) · balance under review">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Sell bitcoin</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 50.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 53 025, enter the amount in sats" data-x-bs-flush="start"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 53 025</nuri-button-text></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" gap="sm" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+              <nuri-typography size="sm" muted align="center">€ 299.86 available in Bitcoin</nuri-typography>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 4 · 6c · SELL (b) · BALANCE ABOVE REVIEW · 6b with the line above the button,
+       "€ 299.86 available in Bitcoin". Same form as 2c. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 4 · 6c · sell (b) · balance above review">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Sell bitcoin</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 50.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 53 025, enter the amount in sats" data-x-bs-flush="start"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 53 025</nuri-button-text></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" gap="sm" padding-bottom="lg" padding-x="lg">
+              <nuri-typography size="sm" muted align="center">€ 299.86 available in Bitcoin</nuri-typography>
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 4 · 6d · SELL (b) · BALANCE AS A GHOST BUTTON, UNDER REVIEW · 6b with the line as a ghost button under Review. Tapping it types € 299.86, the value of the whole Bitcoin balance: ₿ 318 000 leave, € 298.36 arrive after the fee. Accessible name “Sell all € 299.86”. The operator: “fai una prova con il balance available in un button ghost (sarebbe una hidden feature per all)”. The DS ghost label is sm emphasis in the foreground colour, so it reads stronger than the muted line of 2b/6b; a muted ghost label is not in the DS. References: Stake “US$30.40 available to convert ›” (a tappable balance), Uniswap and Glow (“0.003 WETH Max”), PayPal and Coinbase “Sell all” (explicit). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 4 · 6d · sell (b) · balance ghost button under review">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Sell bitcoin</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 50.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 53 025, enter the amount in sats" data-x-bs-flush="start"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 53 025</nuri-button-text></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" gap="sm" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+              <nuri-view direction="row" justify="center">
+                <nuri-button size="sm" variant="ghost" aria-label="Sell all € 299.86"><nuri-button-text>€ 299.86 available in Bitcoin</nuri-button-text></nuri-button>
+              </nuri-view>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 4 · 6e · SELL (b) · BALANCE AS A GHOST BUTTON, ABOVE REVIEW · 6d with the ghost button above Review (6c’s place), 6px above and below it, as 2e. The operator: “fai una prova con il balance available in un button ghost (sarebbe una hidden feature per all)”. The DS ghost label is sm emphasis in the foreground colour, so it reads stronger than the muted line of 2b/6b; a muted ghost label is not in the DS. References: Stake “US$30.40 available to convert ›” (a tappable balance), Uniswap and Glow (“0.003 WETH Max”), PayPal and Coinbase “Sell all” (explicit). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 4 · 6e · sell (b) · balance ghost button above review">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Sell bitcoin</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="sm" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 50.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-button size="sm" variant="ghost" aria-label="₿ 53 025, enter the amount in sats" data-x-bs-flush="start"><nuri-button-icon name="transfer-vertical"></nuri-button-icon><nuri-button-text>₿ 53 025</nuri-button-text></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" gap="sm" padding-bottom="lg" padding-x="lg">
+              <nuri-view direction="row" justify="center">
+                <nuri-button size="sm" variant="ghost" aria-label="Sell all € 299.86"><nuri-button-text>€ 299.86 available in Bitcoin</nuri-button-text></nuri-button>
+              </nuri-view>
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 4 · 7 · SELL (b) · OVER THE BALANCE · € 350.00 against € 299.86 of bitcoin: "Only
+       € 299.86 in Bitcoin" in the line's place, Review disabled, "Sell all € 299.86" above the keypad
+       as the fix. Same form as board 3. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 4 · 7 · sell (b) · over the balance">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Sell bitcoin</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 350.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-alert variant="ghost">
+                      <nuri-alert-icon name="warning-circle"></nuri-alert-icon>
+                      Only € 299.86 in Bitcoin
+                    </nuri-alert>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" justify="start">
+                    <nuri-button size="sm" variant="soft"><nuri-button-text>Sell all € 299.86</nuri-button-text></nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac" disabled>Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 4 · 8 · SELL (a) · THE CONTROL · D8 as decided: € 50.00 arrives in Euro exactly;
+       "≈ ₿ 53 290" leaves, fee inside; no toggle (D8: no ⇅). The removed round 1's A1, with Close. No
+       reference does this when there is a fee; with a toggle the number would change side (euro
+       arriving, sats leaving) and the fee would move from the bitcoin side to the euro side. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 4 · 8 · sell (a) · control">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="full">
+          <nuri-modal-panel>
+            <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Sell bitcoin</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll>
+              <nuri-view direction="column" align="stretch" justify="between" gap="lg" padding-x="lg" padding-bottom="lg" fill>
+                <nuri-view direction="column" align="stretch" justify="center" gap="sm" fill>
+                  <nuri-typography size="3xl" align="start">€ 50.00</nuri-typography>
+                  <nuri-view direction="row" justify="between" align="center" gap="md" height="md">
+                    <nuri-typography size="sm" emphasis align="start">≈ ₿ 53 290</nuri-typography>
+                  </nuri-view>
+                </nuri-view>
+
+                <nuri-view direction="column" gap="sm">
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>1</nuri-button>
+                    <nuri-button>2</nuri-button>
+                    <nuri-button>3</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>4</nuri-button>
+                    <nuri-button>5</nuri-button>
+                    <nuri-button>6</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>7</nuri-button>
+                    <nuri-button>8</nuri-button>
+                    <nuri-button>9</nuri-button>
+                  </nuri-view>
+                  <nuri-view direction="row" distribute="even" gap="sm">
+                    <nuri-button>.</nuri-button>
+                    <nuri-button>0</nuri-button>
+                    <nuri-button aria-label="Delete"><nuri-button-icon name="chevron-left"></nuri-button-icon></nuri-button>
+                  </nuri-view>
+                </nuri-view>
+              </nuri-view>
+            </nuri-scroll>
+
+            <nuri-footer safe-area-bottom direction="column" align="stretch" padding-bottom="lg" padding-x="lg">
+              <nuri-button size="lg" variant="solid" accent="lilac">Review</nuri-button>
+            </nuri-footer>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- MISFIT LOG · this block · board · what the sheet asked · what was done · the DS element, axis or value that would remove the workaround
+       buy · sell 4 · 1, 2, 4, 5, 6 · the ⇅ glyph starting on the number's margin · page-only style: the sm ghost button pulled by its inline padding (space lg, 18px) · a ghost button that sits flush with the text edge (no inline padding, or an optical-alignment option)
+       buy · sell 4 · 3, 7 · the over-balance warning · a ghost Alert with warning-circle, Review disabled · a warning colour (DS gap, register) -->
+
+  <!-- ═══ /BUY · SELL · ROUND 4 ═══ -->
+
+  <!-- ═══ BUY · SELL · ROUND 3 · THE EXCHANGE SHEET (2026-11-08) ═══ -->
+
+  <!-- Buy / sell, round 3 (8 Nov 2026): the Exchange sheet. Revised in place three times the same
+       day, at the operator's direction.
+       First version, after round 2: "proverei con titolo exchange e diversi posizionamenti nella
+       top bar e sotto e anche senza titolo"; "per ora usa + e -"; "possiamo pensare a un altro
+       sottotitolo ma vediamola prima senza". Four title positions: in the bar on the left, in the
+       bar centred, as a heading under the bar, none.
+       Revision 1: "nel primo prova a mettere exchange più grande lg"; "secondo elimina"; "nel terzo
+       inventa un sottotitolo a exchange (muted md)…"; "dovremmo usare la trailing icon > nei due
+       action items?". The title in the bar became lg, the centred one went, the heading got three
+       subtitles (the rate in sats, the price of one bitcoin, Emin's line), every row got a chevron.
+       Revision 2: "tra titolo e sottotitolo dai 6 px i gap" (space sm).
+       Revision 3, this one: "fai 2 varianti della prima versione, una come ora ma senza >, e una
+       come ora ma senza il close"; "elimina quelle con il rate di conversione"; "fai una versione
+       di Save in bitcoin, spend it like cash. senza il close"; "quella senza titolo falla senza il
+       close". So, six boards:
+       - T1 · "Exchange" lg in the bar, Close, chevrons;
+       - T1b · T1 without the chevrons;
+       - T1c · T1 without Close: the bar keeps only the title;
+       - T3 · "Exchange" as the heading under the bar, over "Save in bitcoin, spend it like cash."
+         (md muted, 6px under the title, 12px over the rows), Close alone in the bar;
+       - T3b · T3 without Close: with nothing left in it, the bar goes; the heading takes the
+         margin's 18px from the sheet's top edge instead (space lg);
+       - T4 · no title and no Close: no bar either, the rows 18px from the top edge.
+       The rate and price subtitles are removed. Rows everywhere: "Buy bitcoin" with a soft plus,
+       "Sell bitcoin" with a soft minus, one line, no balance; chevrons on all but T1b.
+       Without Close: in the DS sheet (rn Modal, dismissible by default) a tap on the dimmed area
+       closes it, and Android's back; there is no swipe-down in the DS today, and the dimmed area is
+       a button with no label for VoiceOver. References: Coinbase's Buy / Sell / Convert sheet,
+       Family's Send / Swap / Receive sheet and Binance's order-type sheet have no ×; Crypto.com's
+       "Trade" sheet and Fuse's "Send" sheet have one.
+       Register: O13, O5, O6. Drawn over an empty canvas. Device "iPhone SE" (375 × 667). Nothing
+       outside the DS. Rounds 1 and 2 of 8 Nov were removed at the operator's request ("fai pulizia
+       di quelli aggiunti"); the register's O13 keeps what they showed. -->
+
+  <!-- BUY · SELL 3 · T1 · TITLE IN THE BAR, LG · "Exchange" in the sheet's bar at x 18, lg
+       emphasis, Close on the right; the rows with a trailing chevron. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 3 · T1 · exchange in the bar, lg">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="sheet" scrim="dim">
+          <nuri-modal-panel>
+            <nuri-header chrome="transparent">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Exchange</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll safe-area-bottom>
+              <nuri-view direction="column" align="stretch" padding-bottom="lg">
+                <nuri-list>
+                  <nuri-list-action aria-label="Buy bitcoin">
+                    <nuri-list-action-leading-avatar name="plus" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Buy bitcoin</nuri-list-action-text>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+
+                  <nuri-list-action aria-label="Sell bitcoin">
+                    <nuri-list-action-leading-avatar name="minus" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Sell bitcoin</nuri-list-action-text>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                </nuri-list>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 3 · T1b · T1 WITHOUT CHEVRONS · the same sheet, the rows end with nothing after
+       the text. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 3 · T1b · no chevrons">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="sheet" scrim="dim">
+          <nuri-modal-panel>
+            <nuri-header chrome="transparent">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Exchange</nuri-typography>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll safe-area-bottom>
+              <nuri-view direction="column" align="stretch" padding-bottom="lg">
+                <nuri-list>
+                  <nuri-list-action aria-label="Buy bitcoin">
+                    <nuri-list-action-leading-avatar name="plus" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Buy bitcoin</nuri-list-action-text>
+                  </nuri-list-action>
+
+                  <nuri-list-action aria-label="Sell bitcoin">
+                    <nuri-list-action-leading-avatar name="minus" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Sell bitcoin</nuri-list-action-text>
+                  </nuri-list-action>
+                </nuri-list>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 3 · T1c · T1 WITHOUT CLOSE · the bar holds only "Exchange" (lg, x 18); the sheet
+       closes with a tap on the dimmed area. Chevrons kept. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 3 · T1c · no close">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="sheet" scrim="dim">
+          <nuri-modal-panel>
+            <nuri-header chrome="transparent">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-typography size="lg" emphasis align="start">Exchange</nuri-typography>
+                </nuri-topbar-content>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll safe-area-bottom>
+              <nuri-view direction="column" align="stretch" padding-bottom="lg">
+                <nuri-list>
+                  <nuri-list-action aria-label="Buy bitcoin">
+                    <nuri-list-action-leading-avatar name="plus" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Buy bitcoin</nuri-list-action-text>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+
+                  <nuri-list-action aria-label="Sell bitcoin">
+                    <nuri-list-action-leading-avatar name="minus" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Sell bitcoin</nuri-list-action-text>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                </nuri-list>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 3 · T3 · HEADING + EMIN'S LINE · "Exchange" (lg emphasis) as the heading under
+       the bar, "Save in bitcoin, spend it like cash." under it (md muted, 6px gap), 12px before the
+       rows; Close alone in the bar. Emin's line from nuri.com (register, Constraints); no reference
+       for a slogan there, Fuse's Send sheet has a plain description line under its title. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 3 · T3 · heading + emin's line">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="sheet" scrim="dim">
+          <nuri-modal-panel>
+            <nuri-header chrome="transparent">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content></nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+
+            <nuri-scroll safe-area-bottom>
+              <nuri-view direction="column" align="stretch" padding-bottom="lg">
+                <nuri-view direction="column" align="stretch" gap="sm" padding-x="lg" padding-bottom="md">
+                  <nuri-typography size="lg" emphasis align="start">Exchange</nuri-typography>
+                  <nuri-typography size="md" muted align="start">Save in bitcoin, spend it like cash.</nuri-typography>
+                </nuri-view>
+                <nuri-list>
+                  <nuri-list-action aria-label="Buy bitcoin">
+                    <nuri-list-action-leading-avatar name="plus" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Buy bitcoin</nuri-list-action-text>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+
+                  <nuri-list-action aria-label="Sell bitcoin">
+                    <nuri-list-action-leading-avatar name="minus" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Sell bitcoin</nuri-list-action-text>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                </nuri-list>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 3 · T3b · T3 WITHOUT CLOSE · no bar: the heading starts 18px under the sheet's
+       top edge (padding-top lg), the rest as T3. Closes with a tap on the dimmed area. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 3 · T3b · heading + emin's line, no close">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="sheet" scrim="dim">
+          <nuri-modal-panel>
+            <nuri-scroll safe-area-bottom>
+              <nuri-view direction="column" align="stretch" padding-top="lg" padding-bottom="lg">
+                <nuri-view direction="column" align="stretch" gap="sm" padding-x="lg" padding-bottom="md">
+                  <nuri-typography size="lg" emphasis align="start">Exchange</nuri-typography>
+                  <nuri-typography size="md" muted align="start">Save in bitcoin, spend it like cash.</nuri-typography>
+                </nuri-view>
+                <nuri-list>
+                  <nuri-list-action aria-label="Buy bitcoin">
+                    <nuri-list-action-leading-avatar name="plus" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Buy bitcoin</nuri-list-action-text>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+
+                  <nuri-list-action aria-label="Sell bitcoin">
+                    <nuri-list-action-leading-avatar name="minus" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Sell bitcoin</nuri-list-action-text>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                </nuri-list>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BUY · SELL 3 · T4 · NO TITLE, NO CLOSE · no bar: the two rows start 18px under the sheet's
+       top edge. Coinbase's Buy / Sell / Convert sheet looks like this (no title, no ×). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="buy · sell 3 · T4 · no title, no close">
+    <template>
+      <nuri-screen>
+        <nuri-view chrome="canvas" fill></nuri-view>
+
+        <nuri-modal open mode="sheet" scrim="dim">
+          <nuri-modal-panel>
+            <nuri-scroll safe-area-bottom>
+              <nuri-view direction="column" align="stretch" padding-top="lg" padding-bottom="lg">
+                <nuri-list>
+                  <nuri-list-action aria-label="Buy bitcoin">
+                    <nuri-list-action-leading-avatar name="plus" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Buy bitcoin</nuri-list-action-text>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+
+                  <nuri-list-action aria-label="Sell bitcoin">
+                    <nuri-list-action-leading-avatar name="minus" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Sell bitcoin</nuri-list-action-text>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                </nuri-list>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- MISFIT LOG · this block · board · what the sheet asked · what was done · the DS element, axis or value that would remove the workaround
+       buy · sell 3 · all · the operator's piggy-bank and hand-with-₿ glyphs · not drawn; the DS plus and minus instead ("per ora usa + e -") · two new icons in the DS icon set, through admission
+       buy · sell 3 · T1c, T3b, T4 · a sheet with no Close · the DS sheet as is: a tap on the dimmed area closes it · a swipe-down to close, and a label on the dimmed area for VoiceOver (neither is in the DS sheet today) -->
+
+  <!-- ═══ /BUY · SELL · ROUND 3 ═══ -->
+
   <!-- ═══ CONVERT · QUESTION (2026-11-01) ═══ -->
 
   <!-- Convert as a question answered in euro (1 Nov 2026, brief-convert-question.md). The
