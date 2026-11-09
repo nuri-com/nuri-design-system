@@ -12,6 +12,10 @@ import {
   ListActionTextMuted,
   ListActionTrailingText,
   ListActionTrailingTextMuted,
+  ListItem,
+  ListItemText,
+  ListItemTextMuted,
+  ListItemTextSuffix,
   ListSeparator,
   Scroll,
   Text,
@@ -41,6 +45,37 @@ export function ActivitySheet({
 
         <Scroll safeAreaBottom>
           <View direction="column" align="stretch" justify="start" gap="xl" paddingBottom="xl">
+            {/* The pending transfer's facts, read-only (ListItem · #240): its own List, never
+                mixed with the ListAction rows below; separators between the rows, and the
+                screen's 6 (`sm`) above and below the list. */}
+            <View direction="column" align="stretch" justify="start" gap="md">
+              <View paddingX="lg">
+                <Text size="lg" emphasis>Processing</Text>
+              </View>
+
+              <View paddingY="sm">
+                <List>
+                  <ListItem>
+                    <ListItemTextMuted>To</ListItemTextMuted>
+                    <ListItemText>Wallet</ListItemText>
+                    <ListItemTextSuffix>bc1q…5mdq</ListItemTextSuffix>
+                  </ListItem>
+                  <ListSeparator />
+                  <ListItem>
+                    <ListItemTextMuted>You send</ListItemTextMuted>
+                    <ListItemText>€ 12.00</ListItemText>
+                    <ListItemTextSuffix>3433 Sats</ListItemTextSuffix>
+                  </ListItem>
+                  <ListSeparator />
+                  <ListItem>
+                    <ListItemTextMuted>Status</ListItemTextMuted>
+                    <ListItemText>Processing</ListItemText>
+                    <ListItemTextSuffix>since 9:41</ListItemTextSuffix>
+                  </ListItem>
+                </List>
+              </View>
+            </View>
+
             <View direction="column" align="stretch" justify="start" gap="md">
               <View paddingX="lg">
                 <Text size="lg" emphasis>This month</Text>

@@ -123,6 +123,7 @@ export type {
 //   <IconAvatar variant="soft" icon="apple" />
 //   <IconButton variant="soft" icon="apple" accessibilityLabel="Buy" onPress={…} />
 //   <List><ListAction><ListActionLeadingAvatar name="bank" />…</ListAction></List>
+//   <List><ListItem><ListItemTextMuted>You send</ListItemTextMuted><ListItemText>₿ 22 450</ListItemText><ListItemTextSuffix>€ 21.17</ListItemTextSuffix></ListItem></List>
 //   <Topbar layout="fluid"><TopbarTitle>Settings</TopbarTitle><TopbarTrailing>…</TopbarTrailing></Topbar>
 //   <TabBar><TabBarItem selected><TabBarItemIcon name="card" /><TabBarItemLabel>Wallet</TabBarItemLabel></TabBarItem>…</TabBar>
 export {
@@ -151,6 +152,10 @@ export {
   ListSwitch,
   ListSwitchText,
   ListSwitchTextMuted,
+  ListItem,
+  ListItemTextMuted,
+  ListItemText,
+  ListItemTextSuffix,
   SelectField,
   SelectFieldLabel,
   SelectFieldAvatar,
@@ -197,6 +202,10 @@ export type {
   ListSwitchProps,
   ListSwitchTextProps,
   ListSwitchTextMutedProps,
+  ListItemProps,
+  ListItemTextMutedProps,
+  ListItemTextProps,
+  ListItemTextSuffixProps,
   SelectFieldProps,
   SelectFieldLabelProps,
   SelectFieldAvatarProps,

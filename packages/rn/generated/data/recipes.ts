@@ -1026,5 +1026,102 @@ export const recipes: Record<string, BakedComponentRecipe> = {
         "variants": {}
       }
     }
+  },
+  "list-item": {
+    "root": {
+      "el": "view",
+      "geometry": {
+        "base": {
+          "flexDirection": "row",
+          "alignItems": "center",
+          "gap": 12,
+          "minHeight": 60,
+          "paddingHorizontal": 12,
+          "paddingVertical": 6
+        },
+        "variants": {}
+      }
+    },
+    "content": {
+      "el": "view",
+      "geometry": {
+        "base": {
+          "flexDirection": "column",
+          "alignItems": "stretch",
+          "justifyContent": "center",
+          "gap": 3,
+          "flexGrow": 1,
+          "flexShrink": 1,
+          "minWidth": 0
+        },
+        "variants": {}
+      }
+    },
+    "textMuted": {
+      "el": "text",
+      "geometry": {
+        "base": {},
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "sm",
+          "align": "start",
+          "flow": "truncate",
+          "lines": 1
+        }
+      }
+    },
+    "line": {
+      "el": "view",
+      "geometry": {
+        "base": {
+          "flexDirection": "row",
+          "alignItems": "center",
+          "gap": 3
+        },
+        "variants": {}
+      }
+    },
+    "text": {
+      "el": "text",
+      "geometry": {
+        "base": {
+          "flexGrow": 0,
+          "flexShrink": 1,
+          "minWidth": 0
+        },
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "md",
+          "emphasis": true,
+          "align": "start",
+          "flow": "truncate",
+          "lines": 1
+        }
+      }
+    },
+    "textSuffix": {
+      "el": "text",
+      "geometry": {
+        "base": {
+          "flexGrow": 0,
+          "flexShrink": 0,
+          "alignSelf": "flex-start",
+          "maxWidth": "100%"
+        },
+        "variants": {}
+      },
+      "typography": {
+        "base": {
+          "size": "md",
+          "align": "start",
+          "flow": "truncate",
+          "lines": 1
+        }
+      }
+    }
   }
 };

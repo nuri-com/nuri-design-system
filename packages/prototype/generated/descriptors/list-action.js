@@ -43,9 +43,11 @@ export const listActionDescriptor = {
       root: {
         stack: { direction: 'row', align: 'center', gap: 'md' },
         // The 72px row FLOOR (`2xl` · operator ruling 2026-10-14 on the Profile board ·
-        // prompts/admission-switch.md §D): a list row is 72 tall regardless of content.
-        // Avatar rows were already 72 (12 + the 48 avatar + 12); avatar-less rows
-        // (48) and two-line rows (65) grow to the same rhythm, content centred.
+        // prompts/admission-switch.md §D): a pressable list row is 72 tall regardless
+        // of content. Avatar rows were already 72 (12 + the 48 avatar + 12); avatar-less
+        // rows (48) and two-line rows (65) grow to the same rhythm, content centred.
+        // `list-item`, the read-only row, is the recorded 60 exception (#240): its
+        // separators complete its rhythm, and the two are never mixed in one list.
         box: { padding: 'md', minHeight: '2xl', radius: 'lg' },
         palette: { variant: 'ghost' },
         interactive: { pressColor: true, disabledOpacity: true },

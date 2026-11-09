@@ -60,6 +60,10 @@ import {
   ListSwitch,
   ListSwitchText,
   ListSwitchTextMuted,
+  ListItem,
+  ListItemText,
+  ListItemTextMuted,
+  ListItemTextSuffix,
   TabBar,
   TabBarItem,
   TabBarItemIcon,
@@ -871,6 +875,185 @@ describe('render-smoke — the ergonomic components mount headless', () => {
     );
     expect(thumbs).toHaveLength(2);
     expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  // ── ListItem (#240) — the read-only row of the List family. The structural parts
+  // (`content` column · `line` row) are asserted by GEOMETRY on host nodes, never by
+  // role or snapshot alone: a skipped structural part stays green on both (the
+  // ListSwitch track lesson). Order is the author's, between the lines AND inside
+  // the value's line, so both reversed groups are pinned here and on the web factory
+  // (packages/prototype/factory/factory.test.js · C13).
+  // The host element name ('View' · 'Text') of a test instance; undefined for composites.
+  const hostType = (node: TestRenderer.ReactTestInstance | null): string | undefined => {
+    if (!node || typeof node.type !== 'string') return undefined;
+    const name: string = node.type;
+    return name;
+  };
+  const isHost = (node: TestRenderer.ReactTestInstance | null) => {
+    const name = hostType(node);
+    return name === 'View' || name === 'Text';
+  };
+  const hostView = (node: TestRenderer.ReactTestInstance | null): TestRenderer.ReactTestInstance | null => {
+    let cur = node?.parent ?? null;
+    while (cur && hostType(cur) !== 'View') cur = cur.parent;
+    return cur;
+  };
+  const textNode = (tr: TestRenderer.ReactTestRenderer, children: string) =>
+    tr.root.findAllByType(Text).find((t) => t.props.children === children)!;
+  const listItemRows = (tr: TestRenderer.ReactTestRenderer) =>
+    tr.root.findAll((node) => hostType(node) === 'View' && flat(node.props?.style).minHeight === 60);
+  const hostChildren = (node: TestRenderer.ReactTestInstance) =>
+    node.findAll((n) => n !== node && isHost(n), { deep: true })
+      .filter((n) => {
+        let p = n.parent;
+        while (p && p !== node && !isHost(p)) p = p.parent;
+        return p === node;
+      });
+  // A host child as a label: its text for a host Text, 'View' for a host View.
+  const hostLabels = (node: TestRenderer.ReactTestInstance) =>
+    hostChildren(node).map((n) => (hostType(n) === 'Text' ? n.props.children : 'View'));
+
+  test('ListItem — read-only: no pressable host, no role · a 60 row (md sides, sm top/bottom) · the content column and line row render · label sm muted, value md emphasis, suffix md muted', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <List>
+          <ListItem>
+            <ListItemTextMuted>You send</ListItemTextMuted>
+            <ListItemText>₿ 22 450</ListItemText>
+            <ListItemTextSuffix>€ 21.17</ListItemTextSuffix>
+          </ListItem>
+          <ListSeparator />
+          <ListItem>
+            <ListItemTextMuted>To</ListItemTextMuted>
+            <ListItemText>bc1q…5mdq</ListItemText>
+          </ListItem>
+        </List>
+      </NuriThemeProvider>,
+    );
+    expect(tr.toJSON()).toBeTruthy();
+    expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toEqual(['You send', '₿ 22 450', '€ 21.17', 'To', 'bc1q…5mdq']);
+
+    // The row: 60 floor (xl), md (12) sides, sm (6) top and bottom, content centred.
+    const rows = listItemRows(tr);
+    expect(rows).toHaveLength(2);
+    for (const row of rows) {
+      // Not a control: no pressable host (style render-prop), no role, no accessible
+      // container, no handler — each text is read on its own (the single-element
+      // reading is out of v1). Scoped to the row: ListSeparator's hairline carries
+      // its own role="none".
+      expect(row.findAll((node) => typeof node.props?.style === 'function')).toHaveLength(0);
+      expect(row.findAll((node) => node.props?.accessibilityRole !== undefined)).toHaveLength(0);
+      expect(row.findAll((node) => node.props?.accessible === true)).toHaveLength(0);
+      expect(row.findAll((node) => typeof node.props?.onPress === 'function')).toHaveLength(0);
+      expect(flat(row.props.style)).toMatchObject({
+        flexDirection: 'row',
+        alignItems: 'center',
+        minHeight: 60,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+      });
+    }
+    // `content` — the row's ONE host child: a column, 3 (xs) between the lines, grow-shrink.
+    const [content] = hostChildren(rows[0]);
+    expect(hostChildren(rows[0])).toHaveLength(1);
+    expect(flat(content.props.style)).toMatchObject({
+      flexDirection: 'column',
+      alignItems: 'stretch',
+      justifyContent: 'center',
+      gap: 3,
+      flexGrow: 1,
+      flexShrink: 1,
+      minWidth: 0,
+    });
+    // `line` — a row inside content hosting the value and the suffix, 3 apart.
+    const label = textNode(tr, 'You send');
+    const value = textNode(tr, '₿ 22 450');
+    const suffix = textNode(tr, '€ 21.17');
+    const line = hostView(value)!;
+    expect(line).not.toBe(content);
+    expect(hostView(line)).toBe(content);
+    expect(hostView(suffix)).toBe(line);
+    expect(hostView(label)).toBe(content);
+    expect(flat(line.props.style)).toMatchObject({ flexDirection: 'row', alignItems: 'center', gap: 3 });
+    // The second row has no suffix: its line still hosts the value alone.
+    const toValue = textNode(tr, 'bc1q…5mdq');
+    expect(hostView(hostView(toValue)!)).toBe(hostChildren(rows[1])[0]);
+
+    // Type and truncation: every text one line with the tail ellipsis; the value
+    // truncates first (shrink · min 0), the suffix never shrinks (hug).
+    const st = (t: TestRenderer.ReactTestInstance) => flat(t.props.style);
+    expect(st(label)).toMatchObject({ ...typeStyle('sm') });
+    expect(st(value)).toMatchObject({ ...typeStyle('md', true), flexGrow: 0, flexShrink: 1, minWidth: 0 });
+    expect(st(suffix)).toMatchObject({ ...typeStyle('md'), flexGrow: 0, flexShrink: 0, maxWidth: '100%' });
+    expect(st(label).color).toBe(st(suffix).color);
+    expect(st(value).color).not.toBe(st(label).color);
+    for (const t of [label, value, suffix]) {
+      expect(t.props.numberOfLines).toBe(1);
+      expect(t.props.ellipsizeMode).toBe('tail');
+    }
+    expect(tr.toJSON()).toMatchSnapshot();
+  });
+
+  test('ListItem — value-first: the line group written before the label renders before it', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <ListItem>
+          <ListItemText>₿ 22 450</ListItemText>
+          <ListItemTextSuffix>€ 21.17</ListItemTextSuffix>
+          <ListItemTextMuted>You send</ListItemTextMuted>
+        </ListItem>
+      </NuriThemeProvider>,
+    );
+    expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toEqual(['₿ 22 450', '€ 21.17', 'You send']);
+    const [content] = hostChildren(listItemRows(tr)[0]);
+    const line = hostView(textNode(tr, '₿ 22 450'))!;
+    // content's host children, in order: the line row, then the label.
+    expect(hostLabels(content)).toEqual(['View', 'You send']);
+    expect(hostChildren(content)[0]).toBe(line);
+    expect(hostLabels(line)).toEqual(['₿ 22 450', '€ 21.17']);
+  });
+
+  test('ListItem — suffix-first: a suffix written before the value renders before it on the line', () => {
+    const tr = render(
+      <NuriThemeProvider>
+        <ListItem>
+          <ListItemTextMuted>You send</ListItemTextMuted>
+          <ListItemTextSuffix>€ 21.17</ListItemTextSuffix>
+          <ListItemText>₿ 22 450</ListItemText>
+        </ListItem>
+      </NuriThemeProvider>,
+    );
+    expect(tr.root.findAllByType(Text).map((t) => t.props.children)).toEqual(['You send', '€ 21.17', '₿ 22 450']);
+    const [content] = hostChildren(listItemRows(tr)[0]);
+    const line = hostView(textNode(tr, '₿ 22 450'))!;
+    // the label first, then the line; inside the line, the suffix before the value.
+    expect(hostLabels(content)).toEqual(['You send', 'View']);
+    expect(hostChildren(content)[1]).toBe(line);
+    expect(hostLabels(line)).toEqual(['€ 21.17', '₿ 22 450']);
+  });
+
+  test('ListItem — Text is required and every slot is singular', () => {
+    const quiet = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      expect(() => render(
+        <NuriThemeProvider>
+          <ListItem>
+            <ListItemTextMuted>You send</ListItemTextMuted>
+            <ListItemTextSuffix>€ 21.17</ListItemTextSuffix>
+          </ListItem>
+        </NuriThemeProvider>,
+      )).toThrow('requires Text');
+      expect(() => render(
+        <NuriThemeProvider>
+          <ListItem>
+            <ListItemText>₿ 22 450</ListItemText>
+            <ListItemText>₿ 4 802</ListItemText>
+          </ListItem>
+        </NuriThemeProvider>,
+      )).toThrow('singular');
+    } finally {
+      quiet.mockRestore();
+    }
   });
 
   test('Screen + Scroll dock insets + Dock mount with transparent Topbar/TabBar', () => {

@@ -23,6 +23,7 @@
     "./descriptors/modal-panel": "./components/modal-panel.ts",
     "./descriptors/switch": "./components/switch.ts",
     "./descriptors/list-switch": "./components/list-switch.ts",
+    "./descriptors/list-item": "./components/list-item.ts",
     "./bottom-sheet-chrome": "./components/bottom-sheet-chrome.ts",
     "./resolve-map": "./axes/resolve-map.ts",
     "./property-spelling": "./axes/property-spelling.ts",

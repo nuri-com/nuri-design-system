@@ -40,6 +40,7 @@ await import('../recipes/select-field.js');
 await import('../recipes/select-trigger.js');
 await import('../recipes/switch.js');
 await import('../recipes/list-switch.js');
+await import('../recipes/list-item.js');
 await import('../recipes/text-field.js');
 await import('../recipes/topbar.js');
 await import('../primitives/scroll.js');
@@ -175,6 +176,130 @@ test('C12 · <nuri-list-switch> — the WHOLE row is one switch · the pill is a
   assert.equal(offTrack.getAttribute('data-chrome'), 'inverse-muted');
   assert.equal(offTrack.getAttribute('data-justify'), 'start');
   assert.ok(offBtn.textContent.includes('Visa, Mastercard, SEPA'), 'the muted line renders');
+});
+
+// ── <nuri-list-item> (#240) — the read-only row. PAIRED with the RN render-smoke
+// ListItem block: the structural `content` column and `line` row are asserted on
+// their host nodes by the geometry attributes they carry, and the author's order is
+// pinned for BOTH reversed groups (value-first · suffix-first).
+const listItemRow = (item) => item.querySelector(':scope > nuri-view');
+const typeTexts = (el) => [...el.querySelectorAll('nuri-typography')].map((t) => t.textContent);
+const childLabels = (el) => [...el.children].map((c) => (c.tagName.toLowerCase() === 'nuri-typography' ? c.textContent : c.tagName.toLowerCase()));
+
+test('C13 · <nuri-list-item> — read-only: no button, role or wash · a 60 row (md sides, sm top/bottom) · content column + line row · label sm muted, value md emphasis, suffix md muted', async () => {
+  assert.ok(customElements.get('nuri-list-item'), 'ListItem web twin is registered');
+  document.body.innerHTML = `
+    <nuri-list>
+      <nuri-list-item>
+        <nuri-list-item-text-muted>You send</nuri-list-item-text-muted>
+        <nuri-list-item-text>₿ 22 450</nuri-list-item-text>
+        <nuri-list-item-text-suffix>€ 21.17</nuri-list-item-text-suffix>
+      </nuri-list-item>
+      <nuri-list-separator></nuri-list-separator>
+      <nuri-list-item>
+        <nuri-list-item-text-muted>To</nuri-list-item-text-muted>
+        <nuri-list-item-text>bc1q…5mdq</nuri-list-item-text>
+      </nuri-list-item>
+    </nuri-list>
+  `;
+  await tick();
+  const list = document.querySelector('nuri-list');
+  const items = [...list.children].filter((c) => c.tagName.toLowerCase() === 'nuri-list-item');
+  assert.equal(items.length, 2, 'rows stay positional siblings of the separator');
+  const [item, second] = items;
+  // Not a control: no native button, no pressable, no role, no focus, no wash.
+  for (const el of [item, ...item.querySelectorAll('*')]) {
+    assert.equal(el.hasAttribute('role'), false, `${el.tagName} carries no role`);
+    assert.equal(el.hasAttribute('tabindex'), false, `${el.tagName} is not focusable`);
+    assert.equal(el.hasAttribute('data-press-color'), false, `${el.tagName} never washes`);
+    assert.equal(el.hasAttribute('aria-label'), false, `${el.tagName} carries no row label`);
+  }
+  assert.equal(item.querySelector('button, nuri-pressable'), null, 'no pressable host');
+  assert.equal(item.hasAttribute('data-host-tree'), true, 'the host is layout-invisible; the row view paints');
+  // The row: 60 floor (xl), md sides, sm top and bottom, content centred.
+  const row = listItemRow(item);
+  assert.equal(row.getAttribute('data-min-height'), 'xl');
+  assert.equal(row.getAttribute('data-padding-x'), 'md');
+  assert.equal(row.getAttribute('data-padding-y'), 'sm');
+  assert.equal(row.getAttribute('data-direction'), 'row');
+  assert.equal(row.getAttribute('data-align'), 'center');
+  // `content` — the row's ONE child: a column, xs between the lines, grow-shrink.
+  assert.equal(row.children.length, 1, 'content renders exactly once');
+  const content = row.children[0];
+  assert.equal(content.tagName.toLowerCase(), 'nuri-view');
+  assert.equal(content.getAttribute('data-direction'), 'column');
+  assert.equal(content.getAttribute('data-align'), 'stretch');
+  assert.equal(content.getAttribute('data-justify'), 'center');
+  assert.equal(content.getAttribute('data-gap'), 'xs');
+  assert.equal(content.getAttribute('data-fill'), 'grow-shrink');
+  // `line` — a row inside content hosting the value then the suffix, xs apart.
+  assert.deepEqual(childLabels(content), ['You send', 'nuri-view']);
+  const line = content.children[1];
+  assert.equal(line.getAttribute('data-direction'), 'row');
+  assert.equal(line.getAttribute('data-align'), 'center');
+  assert.equal(line.getAttribute('data-gap'), 'xs');
+  assert.deepEqual(childLabels(line), ['₿ 22 450', '€ 21.17']);
+  // Type and truncation: one line each; the value shrinks first, the suffix hugs.
+  const [label, value, suffix] = item.querySelectorAll('nuri-typography');
+  for (const t of [label, value, suffix]) {
+    assert.equal(t.getAttribute('flow'), 'truncate');
+    assert.equal(t.getAttribute('lines'), '1');
+  }
+  assert.equal(label.getAttribute('data-type-style'), 'sm');
+  assert.equal(label.hasAttribute('data-muted'), true);
+  assert.equal(value.getAttribute('data-type-style'), 'md');
+  assert.equal(value.hasAttribute('data-type-emphasis'), true);
+  assert.equal(value.hasAttribute('data-muted'), false);
+  assert.equal(value.getAttribute('data-fill'), 'shrink');
+  assert.equal(suffix.getAttribute('data-type-style'), 'md');
+  assert.equal(suffix.hasAttribute('data-type-emphasis'), false);
+  assert.equal(suffix.hasAttribute('data-muted'), true);
+  assert.equal(suffix.getAttribute('data-fill'), 'hug');
+  // A row without a suffix: the line hosts the value alone.
+  const secondContent = listItemRow(second).children[0];
+  assert.deepEqual(childLabels(secondContent), ['To', 'nuri-view']);
+  assert.deepEqual(childLabels(secondContent.children[1]), ['bc1q…5mdq']);
+});
+
+test('C13b · <nuri-list-item> value-first — the line written before the label renders before it', async () => {
+  document.body.innerHTML = `
+    <nuri-list-item>
+      <nuri-list-item-text>₿ 22 450</nuri-list-item-text>
+      <nuri-list-item-text-suffix>€ 21.17</nuri-list-item-text-suffix>
+      <nuri-list-item-text-muted>You send</nuri-list-item-text-muted>
+    </nuri-list-item>
+  `;
+  await tick();
+  const item = document.querySelector('nuri-list-item');
+  assert.deepEqual(typeTexts(item), ['₿ 22 450', '€ 21.17', 'You send']);
+  const content = listItemRow(item).children[0];
+  assert.deepEqual(childLabels(content), ['nuri-view', 'You send']);
+  assert.deepEqual(childLabels(content.children[0]), ['₿ 22 450', '€ 21.17']);
+});
+
+test('C13c · <nuri-list-item> suffix-first — a suffix written before the value renders before it on the line', async () => {
+  document.body.innerHTML = `
+    <nuri-list-item>
+      <nuri-list-item-text-muted>You send</nuri-list-item-text-muted>
+      <nuri-list-item-text-suffix>€ 21.17</nuri-list-item-text-suffix>
+      <nuri-list-item-text>₿ 22 450</nuri-list-item-text>
+    </nuri-list-item>
+  `;
+  await tick();
+  const item = document.querySelector('nuri-list-item');
+  assert.deepEqual(typeTexts(item), ['You send', '€ 21.17', '₿ 22 450']);
+  const content = listItemRow(item).children[0];
+  assert.deepEqual(childLabels(content), ['You send', 'nuri-view']);
+  assert.deepEqual(childLabels(content.children[1]), ['€ 21.17', '₿ 22 450']);
+});
+
+test('C13d · <nuri-list-item> — text is required and every slot is singular', () => {
+  const missing = dom.window.document.createElement('nuri-list-item');
+  missing.innerHTML = '<nuri-list-item-text-muted>You send</nuri-list-item-text-muted><nuri-list-item-text-suffix>€ 21.17</nuri-list-item-text-suffix>';
+  mountExpectingNamedError(missing, /'nuri-list-item' requires text/);
+  const twice = dom.window.document.createElement('nuri-list-item');
+  twice.innerHTML = '<nuri-list-item-text>₿ 22 450</nuri-list-item-text><nuri-list-item-text>₿ 4 802</nuri-list-item-text>';
+  mountExpectingNamedError(twice, /slot targeting part 'text' is singular — it appears 2 times/);
 });
 
 test('primitive Image · <nuri-image> is ONE inner <img class="nuri-image nuri-box"> · box attrs via mergeAttrs · decorative unless labelled · fit → object-fit', () => {

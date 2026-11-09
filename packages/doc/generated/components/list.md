@@ -9,6 +9,8 @@ nav_order: 5
 
 # List
 
+`List` holds the List family's rows as positional children: `ListAction` (a pressable row), `ListSwitch` (a row that is one switch) and `ListItem` (a read-only row), with an author-placed `ListSeparator` between two rows. Keep `ListItem` rows apart from the pressable rows: between separators, `ListItem` rows come every 73px and the pressable rows every 85px, so a mixed list breaks the rhythm.
+
 ## API
 
 | Prop | Required | Type | Notes |
