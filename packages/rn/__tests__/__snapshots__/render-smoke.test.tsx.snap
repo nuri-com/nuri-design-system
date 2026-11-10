@@ -2452,6 +2452,248 @@ exports[`render-smoke — the ergonomic components mount headless ListAction —
 </View>
 `;
 
+exports[`render-smoke — the ergonomic components mount headless ListItem — read-only: no pressable host, no role · a 60 row (md sides, sm top/bottom) · the content column and line row render · label sm muted, value md emphasis, suffix md muted 1`] = `
+<View
+  style={
+    {
+      "alignItems": "stretch",
+      "flexDirection": "column",
+      "paddingHorizontal": 6,
+    }
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "gap": 12,
+        "minHeight": 60,
+        "paddingHorizontal": 12,
+        "paddingVertical": 6,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "alignItems": "stretch",
+          "flexDirection": "column",
+          "flexGrow": 1,
+          "flexShrink": 1,
+          "gap": 3,
+          "justifyContent": "center",
+          "minWidth": 0,
+        }
+      }
+    >
+      <Text
+        ellipsizeMode="tail"
+        numberOfLines={1}
+        style={
+          [
+            {
+              "fontSize": 14.5,
+              "fontWeight": "400",
+              "letterSpacing": -0.145,
+              "lineHeight": 19.285,
+            },
+            {
+              "color": "#666455",
+            },
+            {
+              "flexShrink": 1,
+              "textAlign": "center",
+            },
+            {
+              "textAlign": "left",
+            },
+          ]
+        }
+      >
+        You send
+      </Text>
+      <View
+        style={
+          {
+            "alignItems": "center",
+            "flexDirection": "row",
+            "gap": 3,
+          }
+        }
+      >
+        <Text
+          ellipsizeMode="tail"
+          numberOfLines={1}
+          style={
+            [
+              {
+                "fontSize": 17,
+                "fontWeight": "600",
+                "letterSpacing": -0.34,
+                "lineHeight": 21.93,
+              },
+              null,
+              {
+                "flexShrink": 1,
+                "textAlign": "center",
+              },
+              {
+                "flexGrow": 0,
+                "flexShrink": 1,
+                "minWidth": 0,
+                "textAlign": "left",
+              },
+            ]
+          }
+        >
+          ₿ 22 450
+        </Text>
+        <Text
+          ellipsizeMode="tail"
+          numberOfLines={1}
+          style={
+            [
+              {
+                "fontSize": 17,
+                "fontWeight": "400",
+                "letterSpacing": -0.34,
+                "lineHeight": 21.93,
+              },
+              {
+                "color": "#666455",
+              },
+              {
+                "flexShrink": 1,
+                "textAlign": "center",
+              },
+              {
+                "alignSelf": "flex-start",
+                "flexGrow": 0,
+                "flexShrink": 0,
+                "maxWidth": "100%",
+                "textAlign": "left",
+              },
+            ]
+          }
+        >
+          € 21.17
+        </Text>
+      </View>
+    </View>
+  </View>
+  <View
+    style={
+      {
+        "paddingHorizontal": 12,
+      }
+    }
+  >
+    <View
+      accessibilityRole="none"
+      style={
+        {
+          "backgroundColor": "#dddac9",
+          "height": 1,
+          "marginVertical": 6,
+          "width": "100%",
+        }
+      }
+    />
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "gap": 12,
+        "minHeight": 60,
+        "paddingHorizontal": 12,
+        "paddingVertical": 6,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "alignItems": "stretch",
+          "flexDirection": "column",
+          "flexGrow": 1,
+          "flexShrink": 1,
+          "gap": 3,
+          "justifyContent": "center",
+          "minWidth": 0,
+        }
+      }
+    >
+      <Text
+        ellipsizeMode="tail"
+        numberOfLines={1}
+        style={
+          [
+            {
+              "fontSize": 14.5,
+              "fontWeight": "400",
+              "letterSpacing": -0.145,
+              "lineHeight": 19.285,
+            },
+            {
+              "color": "#666455",
+            },
+            {
+              "flexShrink": 1,
+              "textAlign": "center",
+            },
+            {
+              "textAlign": "left",
+            },
+          ]
+        }
+      >
+        To
+      </Text>
+      <View
+        style={
+          {
+            "alignItems": "center",
+            "flexDirection": "row",
+            "gap": 3,
+          }
+        }
+      >
+        <Text
+          ellipsizeMode="tail"
+          numberOfLines={1}
+          style={
+            [
+              {
+                "fontSize": 17,
+                "fontWeight": "600",
+                "letterSpacing": -0.34,
+                "lineHeight": 21.93,
+              },
+              null,
+              {
+                "flexShrink": 1,
+                "textAlign": "center",
+              },
+              {
+                "flexGrow": 0,
+                "flexShrink": 1,
+                "minWidth": 0,
+                "textAlign": "left",
+              },
+            ]
+          }
+        >
+          bc1q…5mdq
+        </Text>
+      </View>
+    </View>
+  </View>
+</View>
+`;
+
 exports[`render-smoke — the ergonomic components mount headless ListSwitch — the WHOLE row is one role=switch control · text names it · the pill is a static copy, never a nested pressable 1`] = `
 <View
   style={

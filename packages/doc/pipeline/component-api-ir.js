@@ -49,6 +49,7 @@ export const COMPONENT_API_DOCS = [
     file: 'packages/rn/generated/components/list.ts',
     type: 'ListProps',
     relatedPrefix: 'List',
+    lead: '`List` holds the List family\'s rows as positional children: `ListAction` (a pressable row), `ListSwitch` (a row that is one switch) and `ListItem` (a read-only row), with an author-placed `ListSeparator` between two rows. Keep `ListItem` rows apart from the pressable rows: between separators, `ListItem` rows come every 73px and the pressable rows every 85px, so a mixed list breaks the rhythm.',
   },
   {
     source: 'list-action',
@@ -109,6 +110,16 @@ export const COMPONENT_API_DOCS = [
     type: 'ListSwitchProps',
     relatedPrefix: 'ListSwitch',
     lead: '`ListSwitch` is the list row whose whole row is one switch: the `ListAction` row geometry with `ListSwitchText` and `ListSwitchTextMuted` content and a trailing pill that copies the `Switch` look (pinned by a parity guard, never an embedded control). The row text names the control, the full row is the tap target — a superset of iOS Settings\' pill-only target — and the row wash is the press feedback. Controlled like `Switch`: `checked` plus `onPress`; `accessibilityLabel` is optional because the row text names it.',
+  },
+  {
+    source: 'list-item',
+    name: 'list-item',
+    title: 'List Item',
+    nav: 28,
+    file: 'packages/rn/generated/components/list-item.ts',
+    type: 'ListItemProps',
+    relatedPrefix: 'ListItem',
+    lead: '`ListItem` is the read-only row of the List family: a fact in a list, never an action. It takes no press, focus, wash, chevron, selection or copy action, and screen readers read its texts one by one, in screen order. Compose `ListItemTextMuted` (the label, `sm` muted), `ListItemText` (the value, `md` emphasis, required) and `ListItemTextSuffix` (`md` muted, 3px after the value on its line). Each appears at most once, unlike the repeatable `ListActionText` and `ListActionTextMuted`. They render in the order you write them, both between the lines and inside the value\'s line: write the value first, then the suffix. The value truncates first and the suffix never shrinks, so keep the suffix short: a handle, an amount, an expiry. Abbreviate identifiers yourself, with the ellipsis in the middle ("bc1q…5mdq"), because the value truncates at its end. The row is 60px tall, with 12px at the sides, 6px above and below, and 3px between the lines, where `ListAction` and `ListSwitch` are 72px tall with no gap. Place `ListItem` rows inside `List` with a `ListSeparator` between each pair: the rows then come every 73px. The first and last rows have no separator outside them, so the screen adds 6px above and below the list. Do not mix `ListItem` with `ListAction` in one list.',
   },
   {
     source: 'tab-bar',

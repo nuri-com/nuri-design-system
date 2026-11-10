@@ -1,8 +1,9 @@
 /* ──────────────────────────────────────────────────────────────
  * NURI · COMPONENT DESCRIPTOR · LIST · AUTHORED SOURCE
  *
- * The open host for the LIST FAMILY (`list` · `list-action` ·
- * `list-separator`). It names no row parts: rows and separators are positional
+ * The open host for the LIST FAMILY (`list` · `list-action` · `list-switch` ·
+ * `list-item` · `list-separator`): two pressable rows, one read-only row and the
+ * hairline. It names no row parts: rows and separators are positional
  * siblings authored by the consumer, matching the tab-bar/tab-bar-item family
  * shape. The screen content column owns page layout; the list owns the small
  * horizontal breathing room around its rows.

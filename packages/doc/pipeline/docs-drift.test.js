@@ -142,6 +142,8 @@ const PAGE_CONTRACT = {
     cells: [
       "| `accent` | no | `'neutral' | 'lilac' | 'orange'` | theme scope |",
       '| `children` | no | `React.ReactNode` | default content slot |',
+      // the family's three rows (#240)
+      '`ListAction` (a pressable row), `ListSwitch` (a row that is one switch) and `ListItem` (a read-only row)',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`variant` |', '`onPress`'],
   },
@@ -172,6 +174,35 @@ const PAGE_CONTRACT = {
       '| `children` | no | `React.ReactNode` | slot content |',
     ],
     excludes: ['## Example', '## Anatomy', '## Base', '## Token map', '`selected`', '### List Switch Content Props', '### List Switch Track Props', '### List Switch Thumb Props'],
+  },
+  // list-item (#240) — the read-only row: children only, three singular text slots
+  // (`text` required), no behaviour props, no accent. The lead carries the admitted
+  // doc rules (read-only · authored order · short suffix · identifiers · 60/3 against
+  // list-action · separators and the screen's 6 · no mixing).
+  'list-item': {
+    kind: 'api', source: 'list-item', title: 'List Item', nav: 28,
+    cells: [
+      '| `children` | no | `React.ReactNode` | composition children |',
+      '### List Item Text Muted Props',
+      '### List Item Text Props',
+      '| `children` | yes | `React.ReactNode` | slot content |',
+      '### List Item Text Suffix Props',
+      'a fact in a list, never an action',
+      'screen readers read its texts one by one, in screen order',
+      'Each appears at most once, unlike the repeatable `ListActionText` and `ListActionTextMuted`',
+      'write the value first, then the suffix',
+      'so keep the suffix short',
+      'with the ellipsis in the middle ("bc1q…5mdq")',
+      'The row is 60px tall, with 12px at the sides, 6px above and below, and 3px between the lines, where `ListAction` and `ListSwitch` are 72px tall with no gap',
+      'with a `ListSeparator` between each pair: the rows then come every 73px',
+      'the screen adds 6px above and below the list',
+      'Do not mix `ListItem` with `ListAction` in one list',
+    ],
+    excludes: [
+      '## Example', '## Anatomy', '## Base', '## Token map',
+      '| `onPress` |', '| `disabled` |', '| `accessibilityLabel` |', '| `accent` |',
+      '### List Item Content Props', '### List Item Line Props',
+    ],
   },
   'list-action': {
     kind: 'api', source: 'list-action', title: 'List Action', nav: 6,

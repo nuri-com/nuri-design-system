@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuri · Playground · List Item</title>
+  <link rel="stylesheet" href="../../generated/playground.css" />
+  <script src="../../generated/boot.js" type="module"></script>
+</head>
+<body>
+
+<nuri-playground-shell doc="List Item">
+
+  <!-- review · the read-only row of the List family (nuri-com/nuri-design-system#240):
+       a muted label over a value in md emphasis, with an optional muted suffix 3 after
+       the value on its line. Rows are 60 tall between list-separators, so they come
+       every 73 with the text 13.9 from each hairline. The row is never an action: no
+       press, focus, wash or role; each text is read on its own. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="review">
+    <template>
+      <nuri-list>
+        <nuri-list-item>
+          <nuri-list-item-text-muted>To</nuri-list-item-text-muted>
+          <nuri-list-item-text>Emil Berg</nuri-list-item-text>
+          <nuri-list-item-text-suffix>@emil</nuri-list-item-text-suffix>
+        </nuri-list-item>
+        <nuri-list-separator></nuri-list-separator>
+        <nuri-list-item>
+          <nuri-list-item-text-muted>You send</nuri-list-item-text-muted>
+          <nuri-list-item-text>₿ 22 450</nuri-list-item-text>
+          <nuri-list-item-text-suffix>€ 21.17</nuri-list-item-text-suffix>
+        </nuri-list-item>
+        <nuri-list-separator></nuri-list-separator>
+        <nuri-list-item>
+          <nuri-list-item-text-muted>Emil receives</nuri-list-item-text-muted>
+          <nuri-list-item-text>No fee</nuri-list-item-text>
+        </nuri-list-item>
+      </nuri-list>
+    </template>
+  </nuri-demo>
+
+  <!-- identifiers · the author abbreviates them with the ellipsis in the middle (the
+       value truncates at its end, and the last characters are the ones users check);
+       an invoice row whose suffix is its expiry. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="identifiers · expiry">
+    <template>
+      <nuri-list>
+        <nuri-list-item>
+          <nuri-list-item-text-muted>To</nuri-list-item-text-muted>
+          <nuri-list-item-text>bc1q…5mdq</nuri-list-item-text>
+        </nuri-list-item>
+        <nuri-list-separator></nuri-list-separator>
+        <nuri-list-item>
+          <nuri-list-item-text-muted>Invoice</nuri-list-item-text-muted>
+          <nuri-list-item-text>lnbc…7xq2</nuri-list-item-text>
+          <nuri-list-item-text-suffix>Expires in 9:41</nuri-list-item-text-suffix>
+        </nuri-list-item>
+      </nuri-list>
+    </template>
+  </nuri-demo>
+
+  <!-- long · the value truncates first and the suffix stays whole (fill hug); a long
+       label truncates on its own line. Order is the author's: the docs say value
+       first, then suffix. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="long value · long label">
+    <template>
+      <nuri-list>
+        <nuri-list-item>
+          <nuri-list-item-text-muted>You send</nuri-list-item-text-muted>
+          <nuri-list-item-text>₿ 2 284 450 000 000 000 000 000 000 000 000 000 000</nuri-list-item-text>
+          <nuri-list-item-text-suffix>€ 21.17</nuri-list-item-text-suffix>
+        </nuri-list-item>
+        <nuri-list-separator></nuri-list-separator>
+        <nuri-list-item>
+          <nuri-list-item-text-muted>A deliberately long label that must truncate on its own line</nuri-list-item-text-muted>
+          <nuri-list-item-text>Emil Berg</nuri-list-item-text>
+          <nuri-list-item-text-suffix>@emil</nuri-list-item-text-suffix>
+        </nuri-list-item>
+      </nuri-list>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+</body>
+</html>

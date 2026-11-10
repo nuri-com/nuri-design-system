@@ -47,6 +47,10 @@ import {
   ListSwitch,
   ListSwitchText,
   ListSwitchTextMuted,
+  ListItem,
+  ListItemText,
+  ListItemTextMuted,
+  ListItemTextSuffix,
   TabBarItem,
   TabBarItemIcon,
   TabBarItemLabel,
@@ -71,7 +75,16 @@ import {
   TopbarTitle,
   TopbarTrailing,
 } from '../index';
-import type { ButtonProps, IconAvatarProps, IconName, ListActionLeadingAvatarProps } from '../index';
+import type {
+  ButtonProps,
+  IconAvatarProps,
+  IconName,
+  ListActionLeadingAvatarProps,
+  ListItemProps,
+  ListItemTextProps,
+  ListItemTextMutedProps,
+  ListItemTextSuffixProps,
+} from '../index';
 
 // Exact type equality without casts (#231 · the forwarded-prop typing proof): true only
 // when A and B are mutually identical — `unknown` or a widened union fails to compile.
@@ -322,6 +335,33 @@ export const listSwitchOk = (
 export const listSwitchNoSelected = <ListSwitch selected />;
 // @ts-expect-error ListSwitch has no scalar `text` prop — compose ListSwitchText.
 export const listSwitchNoScalarText = <ListSwitch text="Cards and bank" />;
+
+// ── ListItem — the read-only row (#240): children only · three singular text slots ·
+// `text` required · no onPress / disabled / accessibilityLabel / accent ──
+export const listItemOk = (
+  <ListItem>
+    <ListItemTextMuted>You send</ListItemTextMuted>
+    <ListItemText>₿ 22 450</ListItemText>
+    <ListItemTextSuffix>€ 21.17</ListItemTextSuffix>
+  </ListItem>
+);
+export const listItemKeysExact: Equal<keyof ListItemProps, 'children'> = true;
+export const listItemChildrenIsNode: Equal<ListItemProps['children'], React.ReactNode> = true;
+export const listItemTextKeysExact: Equal<keyof ListItemTextProps, 'children'> = true;
+export const listItemTextMutedKeysExact: Equal<keyof ListItemTextMutedProps, 'children'> = true;
+export const listItemTextSuffixKeysExact: Equal<keyof ListItemTextSuffixProps, 'children'> = true;
+// @ts-expect-error ListItem is not a control — no onPress.
+export const listItemNoOnPress = <ListItem onPress={() => undefined}><ListItemText>₿ 22 450</ListItemText></ListItem>;
+// @ts-expect-error ListItem is not a control — no disabled.
+export const listItemNoDisabled = <ListItem disabled><ListItemText>₿ 22 450</ListItemText></ListItem>;
+// @ts-expect-error ListItem v1 has no single-element reading — no accessibilityLabel.
+export const listItemNoAccessibilityLabel = <ListItem accessibilityLabel="You send"><ListItemText>₿ 22 450</ListItemText></ListItem>;
+// @ts-expect-error ListItem has no accent scope.
+export const listItemNoAccent = <ListItem accent="lilac"><ListItemText>₿ 22 450</ListItemText></ListItem>;
+// @ts-expect-error ListItem has no scalar `text` prop — compose ListItemText.
+export const listItemNoScalarText = <ListItem text="₿ 22 450" />;
+// @ts-expect-error ListItemText is the required slot and requires its children.
+export const listItemTextNeedsChildren = <ListItemText />;
 
 // ── TabBarItem — selected bridge + onPress/a11yLabel · composed icon/label · no scalar props ──
 export const tabItemOk = (

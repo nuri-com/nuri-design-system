@@ -306,6 +306,14 @@ const EXPECTED_DESCRIPTORS = {
     parts: ['content', 'text', 'textMuted', 'track', 'thumb'],
     interactive: ['pressColor', 'disabledOpacity'],
   },
+  // list-item (the list family's READ-ONLY row · #240) — a static view row: the
+  // `content` column (the label over the value's `line`), the value and its suffix
+  // on that line; no axes and no interactive channel (never a control).
+  'list-item': {
+    axes: {},
+    parts: ['content', 'textMuted', 'line', 'text', 'textSuffix'],
+    interactive: [],
+  },
 };
 
 // The anatomy's non-root parts (the structural declaration).

@@ -57,6 +57,7 @@ export const DESCRIPTOR_COMPONENTS = [
   { name: 'modal-panel' },
   { name: 'switch' },
   { name: 'list-switch' },
+  { name: 'list-item' },
 ];
 
 // ── NAME → the export identifier / camelCase ─────────────────────────

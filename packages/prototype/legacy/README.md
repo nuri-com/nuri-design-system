@@ -23,11 +23,11 @@ the keep/archive taxonomy) and `docs/package-architecture.md` §3.2.
 
 ## What's here
 
-### `components/` — 7 hand-recipe component dirs (`.css` + `.js`)
+### `components/` — 6 hand-recipe component dirs (`.css` + `.js`)
 
 | dir | notes |
 |---|---|
-| `list` · `list-item` · `list-interactive-item` | the List family primitives |
+| `list` · `list-interactive-item` | the List family primitives |
 | `nav-item` | the first closed recipe (decision 52) |
 | `switch` | toggle input |
 | `tabs` | segmented control (defines `nuri-tab`) |
@@ -37,8 +37,13 @@ the keep/archive taxonomy) and `docs/package-architecture.md` §3.2.
 > `iconButtonDescriptor` · #92) and `tab-bar` (rebuilt as `tabBarDescriptor` /
 > `tabDescriptor` · #96) were removed once their active-playground pages
 > (`packages/playground/pages/{icon-button,tab-bar}.html`) confirmed superseded —
-> the §1.C prune of `docs/primitives-contract.md`. Their pre-axes recipes live in
-> git history if a future rebuild needs the exact old source.
+> the §1.C prune of `docs/primitives-contract.md`. `list-item` (rebuilt as
+> `listItemDescriptor`, the read-only row · nuri-com/nuri-design-system#240) was
+> removed with its admission, so `<nuri-list-item>` is defined once, by the
+> active recipe (`packages/prototype/recipes/list-item.js`); the frozen pages and
+> `my-vault.html` that still name the old tag stay as read-only specs. The
+> pre-axes recipes live in git history if a future rebuild needs the exact old
+> source.
 
 ### `pages/` — the 5 hand doc pages
 

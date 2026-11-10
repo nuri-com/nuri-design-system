@@ -35,3 +35,5 @@ export { Switch } from './switch';
 export type { SwitchProps } from './switch';
 export { ListSwitch, ListSwitchText, ListSwitchTextMuted } from './list-switch';
 export type { ListSwitchProps, ListSwitchTextProps, ListSwitchTextMutedProps } from './list-switch';
+export { ListItem, ListItemTextMuted, ListItemText, ListItemTextSuffix } from './list-item';
+export type { ListItemProps, ListItemTextMutedProps, ListItemTextProps, ListItemTextSuffixProps } from './list-item';

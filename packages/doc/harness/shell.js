@@ -46,6 +46,7 @@
         { id: 'components/list',               label: 'List',               href: 'generated/components/list.html' },
         { id: 'components/list-action',        label: 'List Action',        href: 'generated/components/list-action.html' },
         { id: 'components/list-switch',        label: 'List Switch',        href: 'generated/components/list-switch.html' },
+        { id: 'components/list-item',          label: 'List Item',          href: 'generated/components/list-item.html' },
         { id: 'components/select-field',       label: 'Select Field',       href: 'generated/components/select-field.html' },
         { id: 'components/select-trigger',     label: 'Select Trigger',     href: 'generated/components/select-trigger.html' },
         { id: 'components/switch',             label: 'Switch',             href: 'generated/components/switch.html' },
