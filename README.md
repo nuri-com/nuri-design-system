@@ -4,6 +4,15 @@
 > decisions lives in the historical archive ([`decisionlog.md`](./decisionlog.md) ·
 > [`roadmap/`](./roadmap/)) — you rarely need it; this doc + the code are the source of truth.
 
+## Logs
+
+- [CHANGELOG.md](./CHANGELOG.md) — changes and decisions with commit evidence.
+- [PROMPTLOG.md](./PROMPTLOG.md) — attributed requests and rules.
+
+Documentation update: version 0.0.1 (unchanged), 2026-09-20 — Emin / Hermes.
+The [keyboard feedback proposal](./docs/proposals/keyboard-press-feedback.md) is pending
+independent admission, not stable guidance or a runtime addition.
+
 ## What it is
 
 Nuri is a **mobile-first design system for Expo · React Native**. RN is the **production** target; the
