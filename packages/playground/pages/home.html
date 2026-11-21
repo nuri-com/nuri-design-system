@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuri · Playground · Home</title>
+  <link rel="stylesheet" href="../generated/playground.css" />
+  <script src="../generated/boot.js" type="module"></script>
+</head>
+<body>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  HOME (updated 2026-11-21)
+  ═══════════════════════════════════════════════════════════════
+
+  The home as it stands, promoted from home-wip.html ("wallet block · round
+  actions 2 · space below"): The operator, 21 Nov, "lasciamolo così; aggiorna cosa
+  abbiamo in home, promuovi questa versione; fai tutti gli stati
+  necessari". The explorations stay in home-wip.html (the earlier home 1 ·
+  flex boards are there, under "superseded"); the register is nuri-expo
+  docs/research/home-decisions.md.
+
+  The home, top to bottom: scan; the history icon, left of the profile (a
+  spinner while a payment is in progress); the total; Add money (the only
+  solid action), Send, Receive, Exchange; the wallet block (Euro, Bitcoin,
+  Lightning when there is one); the Bank & card card. Four equal spaces
+  share the spare height, so the home breathes on tall screens and stays
+  without scrolling on the iPhone SE, Lightning included.
+
+  States: the home; with Lightning; a payment in progress; Exchange open
+  (operation.html board 10's sheet); Bank & card not active; the identity
+  check not finished. Then the page the Bank & card
+  card opens. What the spinner opens stays in home-wip.html ("home ·
+  payment in progress, open"). Not drawn: "in review" (verification
+  sent, waiting), the empty home (onboarding's job).
+
+  Pure DS composition (decision 57), no page CSS. The static balance rows
+  are composed from views (the DS has no static list row): see the misfit
+  log in home-wip.html.
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<nuri-playground-shell doc="Home">
+
+  <!-- HOME · Euro and Bitcoin, Bank & card active. From the top: scan; the history icon left of the profile; the total; Add money (the only solid action), Send, Receive, Exchange; the wallet block, Euro first, small avatars; the Bank & card card with its balance and Manage (neutral). Four equal spaces share the spare height: top bar to total, total to actions, actions to the blocks, card to the bottom of the screen (measured box to box; optically the total has more air, left as it is). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="home">
+    <template>
+      <nuri-screen safe-area-top>
+        <nuri-scroll safe-area-bottom>
+          <nuri-view direction="column" align="stretch" fill>
+          <nuri-topbar surface="transparent">
+            <nuri-topbar-leading>
+              <nuri-icon-button icon="qr-scan" variant="soft" aria-label="Scan"></nuri-icon-button>
+            </nuri-topbar-leading>
+            <nuri-topbar-trailing>
+              <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Transaction history"></nuri-icon-button>
+              <nuri-icon-avatar initials="M"></nuri-icon-avatar>
+            </nuri-topbar-trailing>
+          </nuri-topbar>
+            <nuri-view fill="grow"></nuri-view>
+            <nuri-view direction="column" align="center" padding-x="lg">
+              <nuri-typography size="3xl" align="center">€ 1 180.00</nuri-typography>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+            <nuri-view direction="row" distribute="even" padding-x="md">
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="plus" variant="solid" accent="neutral" aria-label="Add money"></nuri-icon-button>
+                <nuri-typography size="sm">Add money</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="arrow-up" variant="soft" aria-label="Send"></nuri-icon-button>
+                <nuri-typography size="sm">Send</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="arrow-down" variant="soft" aria-label="Receive"></nuri-icon-button>
+                <nuri-typography size="sm">Receive</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="transfer-horizontal" variant="soft" aria-label="Exchange"></nuri-icon-button>
+                <nuri-typography size="sm">Exchange</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+            <nuri-view direction="column" align="stretch" gap="sm">
+            <nuri-view padding-x="lg">
+                <nuri-view chrome="strong" radius="lg" padding-x="lg" padding-y="lg">
+                  <nuri-view direction="column" gap="sm" fill="grow">
+                    <nuri-view direction="row" justify="between" align="center">
+                      <nuri-view direction="row" gap="sm" align="center">
+                        <nuri-icon-avatar size="sm" source="../assets/flags/eur.svg"></nuri-icon-avatar>
+                        <nuri-typography size="md" emphasis>Euro</nuri-typography>
+                      </nuri-view>
+                      <nuri-typography size="md" emphasis>€ 260.00</nuri-typography>
+                    </nuri-view>
+
+                    <nuri-view direction="column" justify="center" height="sm">
+                      <nuri-separator y-space="none"></nuri-separator>
+                    </nuri-view>
+
+                    <nuri-view direction="row" justify="between" align="center">
+                      <nuri-view direction="row" gap="sm" align="center">
+                        <nuri-icon-avatar size="sm" source="../assets/logos/bitcoin.svg"></nuri-icon-avatar>
+                        <nuri-typography size="md" emphasis>Bitcoin</nuri-typography>
+                        <nuri-typography size="sm" muted>₿ 402 990</nuri-typography>
+                      </nuri-view>
+                      <nuri-typography size="md" emphasis>€ 380.00</nuri-typography>
+                    </nuri-view>
+                  </nuri-view>
+                </nuri-view>
+            </nuri-view>
+            <nuri-view padding-x="lg">
+              <nuri-view direction="row" align="stretch" chrome="strong" radius="lg" clip aspect-ratio="banner">
+                <nuri-view direction="column" align="start" justify="between" padding="lg" fill="grow-shrink">
+                  <nuri-view direction="column" align="start" gap="xs">
+                    <nuri-typography size="md" emphasis>Bank &amp; card</nuri-typography>
+                    <nuri-typography size="sm" muted>IBAN and Visa card</nuri-typography>
+                    <nuri-view padding-top="sm"><nuri-typography size="md" emphasis>€ 540.00</nuri-typography></nuri-view>
+                  </nuri-view>
+                  <nuri-button variant="solid" size="sm">Manage</nuri-button>
+                </nuri-view>
+                <nuri-image source="../assets/photos/bank-and-cards.png" fit="cover" aspect-ratio="portrait"></nuri-image>
+              </nuri-view>
+            </nuri-view>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+          </nuri-view>
+        </nuri-scroll>
+
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- HOME · WITH A LIGHTNING BALANCE · a third row under Bitcoin, only when there is a Lightning balance; the total grows. Does not scroll on the iPhone 17e or SE. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="home · lightning">
+    <template>
+      <nuri-screen safe-area-top>
+        <nuri-scroll safe-area-bottom>
+          <nuri-view direction="column" align="stretch" fill>
+          <nuri-topbar surface="transparent">
+            <nuri-topbar-leading>
+              <nuri-icon-button icon="qr-scan" variant="soft" aria-label="Scan"></nuri-icon-button>
+            </nuri-topbar-leading>
+            <nuri-topbar-trailing>
+              <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Transaction history"></nuri-icon-button>
+              <nuri-icon-avatar initials="M"></nuri-icon-avatar>
+            </nuri-topbar-trailing>
+          </nuri-topbar>
+            <nuri-view fill="grow"></nuri-view>
+            <nuri-view direction="column" align="center" padding-x="lg">
+              <nuri-typography size="3xl" align="center">€ 1 225.00</nuri-typography>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+            <nuri-view direction="row" distribute="even" padding-x="md">
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="plus" variant="solid" accent="neutral" aria-label="Add money"></nuri-icon-button>
+                <nuri-typography size="sm">Add money</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="arrow-up" variant="soft" aria-label="Send"></nuri-icon-button>
+                <nuri-typography size="sm">Send</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="arrow-down" variant="soft" aria-label="Receive"></nuri-icon-button>
+                <nuri-typography size="sm">Receive</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="transfer-horizontal" variant="soft" aria-label="Exchange"></nuri-icon-button>
+                <nuri-typography size="sm">Exchange</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+            <nuri-view direction="column" align="stretch" gap="sm">
+            <nuri-view padding-x="lg">
+                <nuri-view chrome="strong" radius="lg" padding-x="lg" padding-y="lg">
+                  <nuri-view direction="column" gap="sm" fill="grow">
+                    <nuri-view direction="row" justify="between" align="center">
+                      <nuri-view direction="row" gap="sm" align="center">
+                        <nuri-icon-avatar size="sm" source="../assets/flags/eur.svg"></nuri-icon-avatar>
+                        <nuri-typography size="md" emphasis>Euro</nuri-typography>
+                      </nuri-view>
+                      <nuri-typography size="md" emphasis>€ 260.00</nuri-typography>
+                    </nuri-view>
+
+                    <nuri-view direction="column" justify="center" height="sm">
+                      <nuri-separator y-space="none"></nuri-separator>
+                    </nuri-view>
+
+                    <nuri-view direction="row" justify="between" align="center">
+                      <nuri-view direction="row" gap="sm" align="center">
+                        <nuri-icon-avatar size="sm" source="../assets/logos/bitcoin.svg"></nuri-icon-avatar>
+                        <nuri-typography size="md" emphasis>Bitcoin</nuri-typography>
+                        <nuri-typography size="sm" muted>₿ 402 990</nuri-typography>
+                      </nuri-view>
+                      <nuri-typography size="md" emphasis>€ 380.00</nuri-typography>
+                    </nuri-view>
+
+                    <nuri-view direction="column" justify="center" height="sm">
+                      <nuri-separator y-space="none"></nuri-separator>
+                    </nuri-view>
+
+                    <nuri-view direction="row" justify="between" align="center">
+                      <nuri-view direction="row" gap="sm" align="center">
+                        <nuri-icon-avatar size="sm" source="../assets/logos/lightning.svg"></nuri-icon-avatar>
+                        <nuri-typography size="md" emphasis>Lightning</nuri-typography>
+                        <nuri-typography size="sm" muted>₿ 47 720</nuri-typography>
+                      </nuri-view>
+                      <nuri-typography size="md" emphasis>€ 45.00</nuri-typography>
+                    </nuri-view>
+                  </nuri-view>
+                </nuri-view>
+            </nuri-view>
+            <nuri-view padding-x="lg">
+              <nuri-view direction="row" align="stretch" chrome="strong" radius="lg" clip aspect-ratio="banner">
+                <nuri-view direction="column" align="start" justify="between" padding="lg" fill="grow-shrink">
+                  <nuri-view direction="column" align="start" gap="xs">
+                    <nuri-typography size="md" emphasis>Bank &amp; card</nuri-typography>
+                    <nuri-typography size="sm" muted>IBAN and Visa card</nuri-typography>
+                    <nuri-view padding-top="sm"><nuri-typography size="md" emphasis>€ 540.00</nuri-typography></nuri-view>
+                  </nuri-view>
+                  <nuri-button variant="solid" size="sm">Manage</nuri-button>
+                </nuri-view>
+                <nuri-image source="../assets/photos/bank-and-cards.png" fit="cover" aspect-ratio="portrait"></nuri-image>
+              </nuri-view>
+            </nuri-view>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+          </nuri-view>
+        </nuri-scroll>
+
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- HOME · A PAYMENT IN PROGRESS · the history icon becomes a spinner while something is in progress (the operator, 20 Nov); nothing else on the home changes. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="home · payment in progress">
+    <template>
+      <nuri-screen safe-area-top>
+        <nuri-scroll safe-area-bottom>
+          <nuri-view direction="column" align="stretch" fill>
+          <nuri-topbar surface="transparent">
+            <nuri-topbar-leading>
+              <nuri-icon-button icon="qr-scan" variant="soft" aria-label="Scan"></nuri-icon-button>
+            </nuri-topbar-leading>
+            <nuri-topbar-trailing>
+              <nuri-icon-button icon="spinner" variant="soft" aria-label="Transaction history, 1 payment in progress"></nuri-icon-button>
+              <nuri-icon-avatar initials="M"></nuri-icon-avatar>
+            </nuri-topbar-trailing>
+          </nuri-topbar>
+            <nuri-view fill="grow"></nuri-view>
+            <nuri-view direction="column" align="center" padding-x="lg">
+              <nuri-typography size="3xl" align="center">€ 1 180.00</nuri-typography>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+            <nuri-view direction="row" distribute="even" padding-x="md">
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="plus" variant="solid" accent="neutral" aria-label="Add money"></nuri-icon-button>
+                <nuri-typography size="sm">Add money</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="arrow-up" variant="soft" aria-label="Send"></nuri-icon-button>
+                <nuri-typography size="sm">Send</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="arrow-down" variant="soft" aria-label="Receive"></nuri-icon-button>
+                <nuri-typography size="sm">Receive</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="transfer-horizontal" variant="soft" aria-label="Exchange"></nuri-icon-button>
+                <nuri-typography size="sm">Exchange</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+            <nuri-view direction="column" align="stretch" gap="sm">
+            <nuri-view padding-x="lg">
+                <nuri-view chrome="strong" radius="lg" padding-x="lg" padding-y="lg">
+                  <nuri-view direction="column" gap="sm" fill="grow">
+                    <nuri-view direction="row" justify="between" align="center">
+                      <nuri-view direction="row" gap="sm" align="center">
+                        <nuri-icon-avatar size="sm" source="../assets/flags/eur.svg"></nuri-icon-avatar>
+                        <nuri-typography size="md" emphasis>Euro</nuri-typography>
+                      </nuri-view>
+                      <nuri-typography size="md" emphasis>€ 260.00</nuri-typography>
+                    </nuri-view>
+
+                    <nuri-view direction="column" justify="center" height="sm">
+                      <nuri-separator y-space="none"></nuri-separator>
+                    </nuri-view>
+
+                    <nuri-view direction="row" justify="between" align="center">
+                      <nuri-view direction="row" gap="sm" align="center">
+                        <nuri-icon-avatar size="sm" source="../assets/logos/bitcoin.svg"></nuri-icon-avatar>
+                        <nuri-typography size="md" emphasis>Bitcoin</nuri-typography>
+                        <nuri-typography size="sm" muted>₿ 402 990</nuri-typography>
+                      </nuri-view>
+                      <nuri-typography size="md" emphasis>€ 380.00</nuri-typography>
+                    </nuri-view>
+                  </nuri-view>
+                </nuri-view>
+            </nuri-view>
+            <nuri-view padding-x="lg">
+              <nuri-view direction="row" align="stretch" chrome="strong" radius="lg" clip aspect-ratio="banner">
+                <nuri-view direction="column" align="start" justify="between" padding="lg" fill="grow-shrink">
+                  <nuri-view direction="column" align="start" gap="xs">
+                    <nuri-typography size="md" emphasis>Bank &amp; card</nuri-typography>
+                    <nuri-typography size="sm" muted>IBAN and Visa card</nuri-typography>
+                    <nuri-view padding-top="sm"><nuri-typography size="md" emphasis>€ 540.00</nuri-typography></nuri-view>
+                  </nuri-view>
+                  <nuri-button variant="solid" size="sm">Manage</nuri-button>
+                </nuri-view>
+                <nuri-image source="../assets/photos/bank-and-cards.png" fit="cover" aspect-ratio="portrait"></nuri-image>
+              </nuri-view>
+            </nuri-view>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+          </nuri-view>
+        </nuri-scroll>
+
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- HOME · EXCHANGE OPEN · what the Exchange action opens: operation.html board 10's sheet as it is ("Exchange" and Close in the sheet's bar; Buy bitcoin, Sell bitcoin, each opening its screen) over the home. The operator: "aggiungi l'exchange aperto, vedi operation · 10 · exchange menu". -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="home · exchange open">
+    <template>
+      <nuri-screen safe-area-top>
+        <nuri-scroll safe-area-bottom>
+          <nuri-view direction="column" align="stretch" fill>
+          <nuri-topbar surface="transparent">
+            <nuri-topbar-leading>
+              <nuri-icon-button icon="qr-scan" variant="soft" aria-label="Scan"></nuri-icon-button>
+            </nuri-topbar-leading>
+            <nuri-topbar-trailing>
+              <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Transaction history"></nuri-icon-button>
+              <nuri-icon-avatar initials="M"></nuri-icon-avatar>
+            </nuri-topbar-trailing>
+          </nuri-topbar>
+            <nuri-view fill="grow"></nuri-view>
+            <nuri-view direction="column" align="center" padding-x="lg">
+              <nuri-typography size="3xl" align="center">€ 1 180.00</nuri-typography>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+            <nuri-view direction="row" distribute="even" padding-x="md">
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="plus" variant="solid" accent="neutral" aria-label="Add money"></nuri-icon-button>
+                <nuri-typography size="sm">Add money</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="arrow-up" variant="soft" aria-label="Send"></nuri-icon-button>
+                <nuri-typography size="sm">Send</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="arrow-down" variant="soft" aria-label="Receive"></nuri-icon-button>
+                <nuri-typography size="sm">Receive</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="transfer-horizontal" variant="soft" aria-label="Exchange"></nuri-icon-button>
+                <nuri-typography size="sm">Exchange</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+            <nuri-view direction="column" align="stretch" gap="sm">
+            <nuri-view padding-x="lg">
+                <nuri-view chrome="strong" radius="lg" padding-x="lg" padding-y="lg">
+                  <nuri-view direction="column" gap="sm" fill="grow">
+                    <nuri-view direction="row" justify="between" align="center">
+                      <nuri-view direction="row" gap="sm" align="center">
+                        <nuri-icon-avatar size="sm" source="../assets/flags/eur.svg"></nuri-icon-avatar>
+                        <nuri-typography size="md" emphasis>Euro</nuri-typography>
+                      </nuri-view>
+                      <nuri-typography size="md" emphasis>€ 260.00</nuri-typography>
+                    </nuri-view>
+
+                    <nuri-view direction="column" justify="center" height="sm">
+                      <nuri-separator y-space="none"></nuri-separator>
+                    </nuri-view>
+
+                    <nuri-view direction="row" justify="between" align="center">
+                      <nuri-view direction="row" gap="sm" align="center">
+                        <nuri-icon-avatar size="sm" source="../assets/logos/bitcoin.svg"></nuri-icon-avatar>
+                        <nuri-typography size="md" emphasis>Bitcoin</nuri-typography>
+                        <nuri-typography size="sm" muted>₿ 402 990</nuri-typography>
+                      </nuri-view>
+                      <nuri-typography size="md" emphasis>€ 380.00</nuri-typography>
+                    </nuri-view>
+                  </nuri-view>
+                </nuri-view>
+            </nuri-view>
+            <nuri-view padding-x="lg">
+              <nuri-view direction="row" align="stretch" chrome="strong" radius="lg" clip aspect-ratio="banner">
+                <nuri-view direction="column" align="start" justify="between" padding="lg" fill="grow-shrink">
+                  <nuri-view direction="column" align="start" gap="xs">
+                    <nuri-typography size="md" emphasis>Bank &amp; card</nuri-typography>
+                    <nuri-typography size="sm" muted>IBAN and Visa card</nuri-typography>
+                    <nuri-view padding-top="sm"><nuri-typography size="md" emphasis>€ 540.00</nuri-typography></nuri-view>
+                  </nuri-view>
+                  <nuri-button variant="solid" size="sm">Manage</nuri-button>
+                </nuri-view>
+                <nuri-image source="../assets/photos/bank-and-cards.png" fit="cover" aspect-ratio="portrait"></nuri-image>
+              </nuri-view>
+            </nuri-view>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+          </nuri-view>
+        </nuri-scroll>
+        <nuri-modal open mode="sheet" scrim="dim">
+          <nuri-modal-panel>
+            <nuri-header chrome="transparent">
+              <nuri-topbar surface="transparent" layout="fluid">
+                <nuri-topbar-content>
+                  <nuri-topbar-title>Exchange</nuri-topbar-title>
+                </nuri-topbar-content>
+                <nuri-topbar-trailing>
+                  <nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button>
+                </nuri-topbar-trailing>
+              </nuri-topbar>
+            </nuri-header>
+            <nuri-scroll safe-area-bottom>
+              <nuri-view direction="column" align="stretch" padding-top="md" padding-bottom="lg">
+                <nuri-list>
+                  <nuri-list-action aria-label="Buy bitcoin">
+                    <nuri-list-action-leading-avatar name="plus" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Buy bitcoin</nuri-list-action-text>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+
+                  <nuri-list-action aria-label="Sell bitcoin">
+                    <nuri-list-action-leading-avatar name="minus" variant="soft"></nuri-list-action-leading-avatar>
+                    <nuri-list-action-text>Sell bitcoin</nuri-list-action-text>
+                    <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+                  </nuri-list-action>
+                </nuri-list>
+              </nuri-view>
+            </nuri-scroll>
+          </nuri-modal-panel>
+        </nuri-modal>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- HOME · BANK & CARD NOT ACTIVE · the activation card ("Bank and Cards", "Verify your account and get an IBAN and a Visa card.", Activate) in place of the Bank & card card; the total counts the wallet only. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="home · bank & card not active">
+    <template>
+      <nuri-screen safe-area-top>
+        <nuri-scroll safe-area-bottom>
+          <nuri-view direction="column" align="stretch" fill>
+          <nuri-topbar surface="transparent">
+            <nuri-topbar-leading>
+              <nuri-icon-button icon="qr-scan" variant="soft" aria-label="Scan"></nuri-icon-button>
+            </nuri-topbar-leading>
+            <nuri-topbar-trailing>
+              <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Transaction history"></nuri-icon-button>
+              <nuri-icon-avatar initials="M"></nuri-icon-avatar>
+            </nuri-topbar-trailing>
+          </nuri-topbar>
+            <nuri-view fill="grow"></nuri-view>
+            <nuri-view direction="column" align="center" padding-x="lg">
+              <nuri-typography size="3xl" align="center">€ 640.00</nuri-typography>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+            <nuri-view direction="row" distribute="even" padding-x="md">
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="plus" variant="solid" accent="neutral" aria-label="Add money"></nuri-icon-button>
+                <nuri-typography size="sm">Add money</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="arrow-up" variant="soft" aria-label="Send"></nuri-icon-button>
+                <nuri-typography size="sm">Send</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="arrow-down" variant="soft" aria-label="Receive"></nuri-icon-button>
+                <nuri-typography size="sm">Receive</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="transfer-horizontal" variant="soft" aria-label="Exchange"></nuri-icon-button>
+                <nuri-typography size="sm">Exchange</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+            <nuri-view direction="column" align="stretch" gap="sm">
+            <nuri-view padding-x="lg">
+                <nuri-view chrome="strong" radius="lg" padding-x="lg" padding-y="lg">
+                  <nuri-view direction="column" gap="sm" fill="grow">
+                    <nuri-view direction="row" justify="between" align="center">
+                      <nuri-view direction="row" gap="sm" align="center">
+                        <nuri-icon-avatar size="sm" source="../assets/flags/eur.svg"></nuri-icon-avatar>
+                        <nuri-typography size="md" emphasis>Euro</nuri-typography>
+                      </nuri-view>
+                      <nuri-typography size="md" emphasis>€ 260.00</nuri-typography>
+                    </nuri-view>
+
+                    <nuri-view direction="column" justify="center" height="sm">
+                      <nuri-separator y-space="none"></nuri-separator>
+                    </nuri-view>
+
+                    <nuri-view direction="row" justify="between" align="center">
+                      <nuri-view direction="row" gap="sm" align="center">
+                        <nuri-icon-avatar size="sm" source="../assets/logos/bitcoin.svg"></nuri-icon-avatar>
+                        <nuri-typography size="md" emphasis>Bitcoin</nuri-typography>
+                        <nuri-typography size="sm" muted>₿ 402 990</nuri-typography>
+                      </nuri-view>
+                      <nuri-typography size="md" emphasis>€ 380.00</nuri-typography>
+                    </nuri-view>
+                  </nuri-view>
+                </nuri-view>
+            </nuri-view>
+            <nuri-view padding-x="lg">
+              <nuri-view direction="row" align="stretch" chrome="strong" radius="lg" clip aspect-ratio="banner">
+                <nuri-view direction="column" align="start" justify="between" padding="lg" fill="grow-shrink">
+                  <nuri-view direction="column" align="start" gap="xs">
+                    <nuri-typography size="md" emphasis>Bank and Cards</nuri-typography>
+                    <nuri-typography size="sm" muted>Verify your account and get an IBAN and a Visa card.</nuri-typography>
+                  </nuri-view>
+                  <nuri-button variant="solid" size="sm">Activate</nuri-button>
+                </nuri-view>
+                <nuri-image source="../assets/photos/bank-and-cards.png" fit="cover" aspect-ratio="portrait"></nuri-image>
+              </nuri-view>
+            </nuri-view>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+          </nuri-view>
+        </nuri-scroll>
+
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- HOME · THE IDENTITY CHECK NOT FINISHED · the card says where the user stands and Continue picks it up (today's state "resume": "Verification in progress", "Continue Verification"). Open: a separate "in review" state, with nothing to do but wait; it is not drawn. -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="home · identity check not finished">
+    <template>
+      <nuri-screen safe-area-top>
+        <nuri-scroll safe-area-bottom>
+          <nuri-view direction="column" align="stretch" fill>
+          <nuri-topbar surface="transparent">
+            <nuri-topbar-leading>
+              <nuri-icon-button icon="qr-scan" variant="soft" aria-label="Scan"></nuri-icon-button>
+            </nuri-topbar-leading>
+            <nuri-topbar-trailing>
+              <nuri-icon-button icon="list-bullets" variant="soft" aria-label="Transaction history"></nuri-icon-button>
+              <nuri-icon-avatar initials="M"></nuri-icon-avatar>
+            </nuri-topbar-trailing>
+          </nuri-topbar>
+            <nuri-view fill="grow"></nuri-view>
+            <nuri-view direction="column" align="center" padding-x="lg">
+              <nuri-typography size="3xl" align="center">€ 640.00</nuri-typography>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+            <nuri-view direction="row" distribute="even" padding-x="md">
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="plus" variant="solid" accent="neutral" aria-label="Add money"></nuri-icon-button>
+                <nuri-typography size="sm">Add money</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="arrow-up" variant="soft" aria-label="Send"></nuri-icon-button>
+                <nuri-typography size="sm">Send</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="arrow-down" variant="soft" aria-label="Receive"></nuri-icon-button>
+                <nuri-typography size="sm">Receive</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="transfer-horizontal" variant="soft" aria-label="Exchange"></nuri-icon-button>
+                <nuri-typography size="sm">Exchange</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+            <nuri-view direction="column" align="stretch" gap="sm">
+            <nuri-view padding-x="lg">
+                <nuri-view chrome="strong" radius="lg" padding-x="lg" padding-y="lg">
+                  <nuri-view direction="column" gap="sm" fill="grow">
+                    <nuri-view direction="row" justify="between" align="center">
+                      <nuri-view direction="row" gap="sm" align="center">
+                        <nuri-icon-avatar size="sm" source="../assets/flags/eur.svg"></nuri-icon-avatar>
+                        <nuri-typography size="md" emphasis>Euro</nuri-typography>
+                      </nuri-view>
+                      <nuri-typography size="md" emphasis>€ 260.00</nuri-typography>
+                    </nuri-view>
+
+                    <nuri-view direction="column" justify="center" height="sm">
+                      <nuri-separator y-space="none"></nuri-separator>
+                    </nuri-view>
+
+                    <nuri-view direction="row" justify="between" align="center">
+                      <nuri-view direction="row" gap="sm" align="center">
+                        <nuri-icon-avatar size="sm" source="../assets/logos/bitcoin.svg"></nuri-icon-avatar>
+                        <nuri-typography size="md" emphasis>Bitcoin</nuri-typography>
+                        <nuri-typography size="sm" muted>₿ 402 990</nuri-typography>
+                      </nuri-view>
+                      <nuri-typography size="md" emphasis>€ 380.00</nuri-typography>
+                    </nuri-view>
+                  </nuri-view>
+                </nuri-view>
+            </nuri-view>
+            <nuri-view padding-x="lg">
+              <nuri-view direction="row" align="stretch" chrome="strong" radius="lg" clip aspect-ratio="banner">
+                <nuri-view direction="column" align="start" justify="between" padding="lg" fill="grow-shrink">
+                  <nuri-view direction="column" align="start" gap="xs">
+                    <nuri-typography size="md" emphasis>Bank and Cards</nuri-typography>
+                    <nuri-typography size="sm" muted>Your identity check isn't finished. Pick up where you left off.</nuri-typography>
+                  </nuri-view>
+                  <nuri-button variant="solid" size="sm">Continue</nuri-button>
+                </nuri-view>
+                <nuri-image source="../assets/photos/bank-and-cards.png" fit="cover" aspect-ratio="portrait"></nuri-image>
+              </nuri-view>
+            </nuri-view>
+            </nuri-view>
+            <nuri-view fill="grow" padding-top="sm"></nuri-view>
+          </nuri-view>
+        </nuri-scroll>
+
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+  <!-- BANK & CARD · THE PAGE · what the Bank & card card opens from the home. Close docked on the right (the page opens from the home); the title "Bank & card" rides a transparent bar as the first row of the scroll, where a fixed title would be, and goes away with the content. Then the balance, Top up and Withdraw (round actions, as the home's), the Nuri Visa Debit card, and the card's rows: Card details, Freeze card, IBAN and bank details. No history on this page. From home-wip.html (page 1b). -->
+  <nuri-demo layout="board" controls="device,theme,accent" label="bank & card · page">
+    <template>
+      <nuri-screen safe-area-top>
+        <nuri-dock edge="top">
+          <nuri-header safe-area-top chrome="transparent" safe-area-chrome="canvas">
+          <nuri-topbar surface="transparent">
+            <nuri-topbar-leading></nuri-topbar-leading>
+            <nuri-topbar-trailing><nuri-icon-button icon="cross" variant="soft" aria-label="Close"></nuri-icon-button></nuri-topbar-trailing>
+          </nuri-topbar>
+          </nuri-header>
+        </nuri-dock>
+
+        <nuri-scroll safe-area-bottom>
+          <nuri-view direction="column" align="stretch" fill>
+          <nuri-topbar surface="transparent">
+            <nuri-topbar-leading></nuri-topbar-leading>
+            <nuri-topbar-center>
+              <nuri-typography size="lg" emphasis align="center">Bank &amp; card</nuri-typography>
+            </nuri-topbar-center>
+            <nuri-topbar-trailing></nuri-topbar-trailing>
+          </nuri-topbar>
+          <nuri-view direction="column" align="stretch" justify="start" gap="lg" padding-y="md" fill>
+            <nuri-view direction="column" align="center" padding-x="lg" padding-y="lg">
+              <nuri-typography size="3xl" align="center">€ 540.00</nuri-typography>
+            </nuri-view>
+
+            <nuri-view direction="row" justify="center" gap="xl">
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="plus" variant="solid" accent="neutral" aria-label="Top up"></nuri-icon-button>
+                <nuri-typography size="sm">Top up</nuri-typography>
+              </nuri-view>
+              <nuri-view direction="column" align="center" gap="xs">
+                <nuri-icon-button icon="minus" variant="solid" accent="neutral" aria-label="Withdraw"></nuri-icon-button>
+                <nuri-typography size="sm">Withdraw</nuri-typography>
+              </nuri-view>
+            </nuri-view>
+
+            <nuri-view padding-x="lg">
+              <nuri-view radius="md" clip>
+                <nuri-image source="../assets/cards/nuri-visa-debit.png" fit="cover" aspect-ratio="card" accessibility-label="Your Nuri Visa Debit card"></nuri-image>
+              </nuri-view>
+            </nuri-view>
+
+            <nuri-list>
+              <nuri-list-action aria-label="Card details">
+                <nuri-list-action-text>Card details</nuri-list-action-text>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+              <nuri-list-switch accent="lilac">
+                <nuri-list-switch-text>Freeze card</nuri-list-switch-text>
+              </nuri-list-switch>
+              <nuri-list-action aria-label="IBAN and bank details">
+                <nuri-list-action-text>IBAN and bank details</nuri-list-action-text>
+                <nuri-list-action-trail-icon name="chevron-right"></nuri-list-action-trail-icon>
+              </nuri-list-action>
+            </nuri-list>
+          </nuri-view>
+          </nuri-view>
+        </nuri-scroll>
+      </nuri-screen>
+    </template>
+  </nuri-demo>
+
+</nuri-playground-shell>
+
+</body>
+</html>
